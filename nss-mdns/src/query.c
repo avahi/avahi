@@ -34,6 +34,8 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
 
 #include "dns.h"
 #include "util.h"
@@ -89,7 +91,12 @@ int mdns_open_socket(void) {
     }
 
     if (setsockopt(fd, IPPROTO_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
-        fprintf(stderr, "O_RECVTTL failed: %s\n", strerror(errno));
+        fprintf(stderr, "IP_RECVTTL failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    if (setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
+        fprintf(stderr, "IP_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
     
@@ -114,24 +121,99 @@ fail:
 
 static int send_dns_packet(int fd, struct dns_packet *p) {
     struct sockaddr_in sa;
-    assert(fd >= 0 && p);
+    struct msghdr msg;
+    struct iovec io;
+    struct cmsghdr *cmsg;
+    struct in_pktinfo *pkti;
+    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct in_pktinfo)];
+    int i, n;
+    struct ifreq ifreq[32];
+    struct ifconf ifconf;
+    int n_sent = 0;
 
+    assert(fd >= 0 && p);
     assert(dns_packet_check_valid(p) >= 0);
 
     mdns_mcast_group(&sa);
 
-    for (;;) {
-        if (sendto(fd, p->data, p->size, 0, (struct sockaddr*) &sa, sizeof(sa)) >= 0)
-            return 0;
+    memset(&io, 0, sizeof(io));
+    io.iov_base = p->data;
+    io.iov_len = p->size;
 
-        if (errno != EAGAIN) {
-            fprintf(stderr, "sendto() failed: %s\n", strerror(errno));
-            return -1;
-        }
-            
-        if (wait_for_write(fd, NULL) < 0)
-            return -1;
+    memset(cmsg_data, 0, sizeof(cmsg_data));
+    cmsg = (struct cmsghdr*) cmsg_data;
+    cmsg->cmsg_len = sizeof(cmsg_data);
+    cmsg->cmsg_level = IPPROTO_IP;
+    cmsg->cmsg_type = IP_PKTINFO;
+
+    pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
+    pkti->ipi_ifindex = 0;
+    
+    memset(&msg, 0, sizeof(msg));
+    msg.msg_name = &sa;
+    msg.msg_namelen = sizeof(sa);
+    msg.msg_iov = &io;
+    msg.msg_iovlen = 1;
+    msg.msg_control = cmsg_data;
+    msg.msg_controllen = sizeof(cmsg_data);
+    msg.msg_flags = 0;
+
+    ifconf.ifc_req = ifreq;
+    ifconf.ifc_len = sizeof(ifreq);
+    
+    if (ioctl(fd, SIOCGIFCONF, &ifconf) < 0) {
+        fprintf(stderr, "SIOCGIFCONF failed: %s\n", strerror(errno));
+        return -1;
     }
+
+    for (i = 0, n = ifconf.ifc_len/sizeof(struct ifreq); i < n; i++) {
+        struct sockaddr_in *sa;
+        u_int32_t s_addr;
+
+        /* Check if this is the loopback device or any other invalid interface */
+        sa = (struct sockaddr_in*) &ifreq[i].ifr_addr;
+        s_addr = htonl(sa->sin_addr.s_addr);
+        if (sa->sin_family != AF_INET ||
+            s_addr == INADDR_LOOPBACK ||
+            s_addr == INADDR_ANY ||
+            s_addr == INADDR_BROADCAST)
+            continue;
+
+        if (ioctl(fd, SIOCGIFFLAGS, &ifreq[i]) < 0) 
+            continue;  /* Since SIOCGIFCONF and this call is not
+                        * issued in a transaction, we ignore errors
+                        * here, since the interface may have vanished
+                        * since that call */
+
+        /* Check whether this network interface supports multicasts and is up and running */
+        if (!(ifreq[i].ifr_flags & IFF_MULTICAST) ||
+            !(ifreq[i].ifr_flags & IFF_UP) ||
+            !(ifreq[i].ifr_flags & IFF_RUNNING))
+            continue;
+
+        if (ioctl(fd, SIOCGIFINDEX, &ifreq[i]) < 0) 
+            continue; /* See above why we ignore this error */
+        
+        pkti->ipi_ifindex = ifreq[i].ifr_ifindex;
+        
+        for (;;) {
+            
+            if (sendmsg(fd, &msg, MSG_DONTROUTE) >= 0)
+                break;
+
+            if (errno != EAGAIN) {
+                fprintf(stderr, "sendmsg() failed: %s\n", strerror(errno));
+                return -1;
+            }
+            
+            if (wait_for_write(fd, NULL) < 0)
+                return -1;
+        }
+
+        n_sent++;
+    }
+
+    return n_sent;
 }
 
 static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t* ret_ttl, struct timeval *end) {
@@ -139,7 +221,7 @@ static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t* ret_
     struct msghdr msg;
     struct iovec io;
     int ret = -1;
-    uint8_t aux[16];
+    uint8_t aux[64];
     assert(fd >= 0);
 
     p = dns_packet_new();
@@ -245,10 +327,7 @@ static int send_name_query(int fd, const char *name, int query_ipv4, int query_i
     
     dns_packet_set_field(p, DNS_FIELD_QDCOUNT, qdcount);
     
-    if (send_dns_packet(fd, p) < 0)
-        goto finish;
-
-    ret = 0;
+    ret = send_dns_packet(fd, p);
     
 finish:
     if (p)
@@ -418,10 +497,7 @@ static int send_reverse_query(int fd, const char *name) {
 
     dns_packet_set_field(p, DNS_FIELD_QDCOUNT, 1);
     
-    if (send_dns_packet(fd, p) < 0)
-        goto finish;
-
-    ret = 0;
+    ret = send_dns_packet(fd, p);
     
 finish:
     if (p)
@@ -509,7 +585,7 @@ static int query_reverse(int fd, const char *name, void (*name_func)(const char 
     while (*timeout > 0) {
         int n;
         
-        if (send_reverse_query(fd, name) < 0)
+        if (send_reverse_query(fd, name) <= 0) /* error or no interface to send data on */
             return -1;
 
         if ((n = process_reverse_response(fd, name, *timeout, name_func, userdata)) < 0)

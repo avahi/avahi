@@ -42,6 +42,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Mon Dec 17 2004: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.2.tar.gz">Version 0.2</a>
+released. Changes include: send mDNS queries on every interface that
+supports multicasts, instead of only the one with the default route,
+making <tt>nss-mdns</tt> more robust on multi-homed hosts; gcc 2.95
+compatiblity.</p>
+
 <div class="news-date">Mon Dec 6 2004: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.1.tar.gz">Version 0.1</a> released</p>
 
@@ -59,8 +66,8 @@ means that you have to run a mDNS responder daemon seperately
 from <tt>nss-mdns</tt> if you want to register the local host name via
 mDNS (e.g. <a href="http://www.porchdogsoft.com/products/howl/">HOWL</a>).</p>
 
-<p><tt>nss-mdns</tt> is very lightweight (18 KByte stripped binary <tt>.so</tt> compiled with 
-<tt>-DNDEBUG=1</tt>), has no dependencies besides the <tt>glibc</tt> and requires only minimal
+<p><tt>nss-mdns</tt> is very lightweight (22 KByte stripped binary <tt>.so</tt> compiled with 
+<tt>-DNDEBUG=1</tt> on i386, <tt>gcc</tt> 3.3), has no dependencies besides the <tt>glibc</tt> and requires only minimal
 configuration.</p>
 
 <h2><a name="status">Status</a></h2>
@@ -119,6 +126,9 @@ use <tt>glibc</tt>'s <tt>getent</tt> tool:
 <p>Due to some traffic suppression algorithms in mDNS responders
 repeated mDNS resolutions are slowed down. Consider installing <tt>glibc</tt>'s name
 service cache daemon <tt>nscd</tt> to work around this limitation.</p>
+
+<p>When doing troubleshooting for <tt>nss-mdns</tt>, don't forget to
+disable <tt>nscd</tt> for getting sensible results.</p>
 
 <h2><a name="requirements">Requirements</a></h2>
 

@@ -21,7 +21,7 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([nss-mdns],[0.1],[mzaffzqaf (at) 0pointer (dot) de])
+AC_INIT([nss-mdns],[0.2],[mzaffzqaf (at) 0pointer (dot) de])
 AC_CONFIG_SRCDIR([src/query.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wall])

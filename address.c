@@ -23,14 +23,14 @@ gint flx_address_cmp(const flxAddress *a, const flxAddress *b) {
     if (a->family != b->family)
         return -1;
 
-    return memcmp(a->data, b->data, flx_address_get_size(a));
+    return memcmp(a->data.data, b->data.data, flx_address_get_size(a));
 }
 
 gchar *flx_address_snprint(char *s, guint length, const flxAddress *a) {
     g_assert(s);
     g_assert(length);
     g_assert(a);
-    return (gchar*) inet_ntop(a->family, a->data, s, length);
+    return (gchar*) inet_ntop(a->family, a->data.data, s, length);
 }
 
 gchar* flx_reverse_lookup_name_ipv4(const flxIPv4Address *a) {
@@ -90,7 +90,7 @@ flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr
     g_assert(ret_addr);
     g_assert(s);
 
-    if (inet_pton(family, s, ret_addr->data) < 0)
+    if (inet_pton(family, s, ret_addr->data.data) < 0)
         return NULL;
 
     ret_addr->family = family;
@@ -107,9 +107,9 @@ flxAddress *flx_address_from_sockaddr(const struct sockaddr* sa, flxAddress *ret
     ret_addr->family = sa->sa_family;
 
     if (sa->sa_family == AF_INET)
-        memcpy(&ret_addr->ipv4, &((struct sockaddr_in*) sa)->sin_addr, sizeof(ret_addr->ipv4));
+        memcpy(&ret_addr->data.ipv4, &((struct sockaddr_in*) sa)->sin_addr, sizeof(ret_addr->data.ipv4));
     else
-        memcpy(&ret_addr->ipv6, &((struct sockaddr_in6*) sa)->sin6_addr, sizeof(ret_addr->ipv6));
+        memcpy(&ret_addr->data.ipv6, &((struct sockaddr_in6*) sa)->sin6_addr, sizeof(ret_addr->data.ipv6));
 
     return ret_addr;
 }

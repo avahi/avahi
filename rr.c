@@ -17,6 +17,8 @@ flxKey *flx_key_new(const gchar *name, guint16 class, guint16 type) {
     k->class = class;
     k->type = type;
 
+/*     g_message("%p %% ref=1", k); */
+    
     return k;
 }
 
@@ -25,6 +27,9 @@ flxKey *flx_key_ref(flxKey *k) {
     g_assert(k->ref >= 1);
 
     k->ref++;
+
+/*     g_message("%p ++ ref=%i", k, k->ref); */
+
     return k;
 }
 
@@ -32,6 +37,8 @@ void flx_key_unref(flxKey *k) {
     g_assert(k);
     g_assert(k->ref >= 1);
 
+/*     g_message("%p -- ref=%i", k, k->ref-1); */
+    
     if ((--k->ref) <= 0) {
         g_free(k->name);
         g_free(k);
@@ -95,6 +102,8 @@ const gchar *flx_dns_class_to_string(guint16 class) {
 
 const gchar *flx_dns_type_to_string(guint16 type) {
     switch (type) {
+        case FLX_DNS_TYPE_CNAME:
+            return "CNAME";
         case FLX_DNS_TYPE_A:
             return "A";
         case FLX_DNS_TYPE_AAAA:
@@ -105,6 +114,8 @@ const gchar *flx_dns_type_to_string(guint16 type) {
             return "HINFO";
         case FLX_DNS_TYPE_TXT:
             return "TXT";
+        case FLX_DNS_TYPE_SRV:
+            return "SRV";
         default:
             return NULL;
     }
@@ -120,33 +131,63 @@ gchar *flx_key_to_string(flxKey *k) {
 
 gchar *flx_record_to_string(flxRecord *r) {
     gchar *p, *s;
-    char t[256] = "<unparsable>";
+    char t[257] = "<unparsable>";
 
-    if (r->key->type == FLX_DNS_TYPE_A)
-        inet_ntop(AF_INET, r->data, t, sizeof(t));
-    else if (r->key->type == FLX_DNS_TYPE_AAAA)
-        inet_ntop(AF_INET6, r->data, t, sizeof(t));
-    else if (r->key->type == FLX_DNS_TYPE_PTR || r->key->type == FLX_DNS_TYPE_TXT) {
-        size_t l;
+    switch (r->key->type) {
+        case FLX_DNS_TYPE_A:
+            inet_ntop(AF_INET, r->data, t, sizeof(t));
+            break;
+            
+        case FLX_DNS_TYPE_AAAA:
+            inet_ntop(AF_INET6, r->data, t, sizeof(t));
+            break;
+            
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_TXT: {
+            size_t l;
         
-        l = r->size;
-        if (l > sizeof(t)-1)
-            l = sizeof(t)-1;
-        
-        memcpy(t, r->data, l);
-        t[l] = 0;
-    } else if (r->key->type == FLX_DNS_TYPE_HINFO) {
-        char *s2;
-        
-        if ((s2 = memchr(r->data, 0, r->size))) {
-            s2++;
-            if (memchr(s2, 0, r->size - ((char*) s2 - (char*) r->data)))
-                snprintf(t, sizeof(t), "'%s' '%s'", (char*) r->data, s2);
+            l = r->size;
+            if (l > sizeof(t)-1)
+                l = sizeof(t)-1;
+            
+            memcpy(t, r->data, l);
+            t[l] = 0;
+            break;
+        }
+
+        case FLX_DNS_TYPE_HINFO: {
+            char *s2;
+            
+            if ((s2 = memchr(r->data, 0, r->size))) {
+                s2++;
+                if (memchr(s2, 0, r->size - ((char*) s2 - (char*) r->data)))
+                    snprintf(t, sizeof(t), "'%s' '%s'", (char*) r->data, s2);
+            }
+
+            break;
+        }
+
+        case FLX_DNS_TYPE_SRV: {
+            char k[257];
+            size_t l;
+
+            l = r->size-6;
+            if (l > sizeof(k)-1)
+                l = sizeof(k)-1;
+            
+            memcpy(k, r->data+6, l);
+            k[l] = 0;
+            
+            snprintf(t, sizeof(t), "%u %u %u %s",
+                     ntohs(((guint16*) r->data)[0]),
+                     ntohs(((guint16*) r->data)[1]),
+                     ntohs(((guint16*) r->data)[2]),
+                     k);
         }
     }
 
     p = flx_key_to_string(r->key);
-    s = g_strdup_printf("%s %s", p, t);
+    s = g_strdup_printf("%s %s ; ttl=%u", p, t, r->ttl);
     g_free(p);
     
     return s;
@@ -155,6 +196,8 @@ gchar *flx_record_to_string(flxRecord *r) {
 gboolean flx_key_equal(const flxKey *a, const flxKey *b) {
     g_assert(a);
     g_assert(b);
+
+/*     g_message("equal: %p %p", a, b); */
     
     return strcmp(a->name, b->name) == 0 && a->type == b->type && a->class == b->class;
 }

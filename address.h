@@ -20,7 +20,7 @@ typedef struct {
         flxIPv6Address ipv6;
         flxIPv4Address ipv4;
         guint8 data[0];
-    };
+    } data;
 } flxAddress;
 
 guint flx_address_get_size(const flxAddress *a);

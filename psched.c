@@ -93,7 +93,7 @@ static void query_elapse(flxTimeEvent *e, gpointer data) {
         return;
     }
 
-    p = flx_dns_packet_new_query(s->interface->mtu - 200);
+    p = flx_dns_packet_new_query(s->interface->mtu - 48);
     d = packet_add_query_job(s, p, qj);
     g_assert(d);
     n = 1;

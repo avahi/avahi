@@ -11,11 +11,15 @@
 
 static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flxAddress *a) {
     flxEntry *e;
+    gchar *txt;
     
     g_assert(s);
     g_assert(k);
     g_assert(i);
     g_assert(a);
+
+    g_message("Handling query: %s", txt = flx_key_to_string(k));
+    g_free(txt);
 
     for (e = g_hash_table_lookup(s->rrset_by_name, k); e; e = e->by_name_next) {
 
@@ -56,14 +60,19 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
     g_assert(i);
     g_assert(a);
     
-    for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT); n > 0; n--) {
+    for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT) +
+             flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT); n > 0; n--) {
         flxRecord *record;
         gboolean cache_flush = FALSE;
+        gchar *txt;
         
         if (!(record = flx_dns_packet_consume_record(p, &cache_flush))) {
             g_warning("Packet too short");
             return;
         }
+
+        g_message("Handling response: %s", txt = flx_record_to_string(record));
+        g_free(txt);
 
         flx_cache_update(a->family == AF_INET ? i->ipv4_cache : i->ipv6_cache, record, cache_flush, a);
         flx_packet_scheduler_drop_response(a->family == AF_INET ? i->ipv4_scheduler : i->ipv6_scheduler, record);
@@ -112,7 +121,6 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
 
     flx_address_from_sockaddr(sa, &a);
 
-    
     if (flx_dns_packet_is_query(p)) {
 
         if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) == 0 ||
@@ -127,8 +135,7 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
     } else {
         if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) != 0 ||
             flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT) == 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT) != 0) {
+            flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0) {
             g_warning("Invalid response packet.");
             return;
         }
@@ -465,9 +472,9 @@ void flx_server_add_address(
     if (a->family == AF_INET) {
         gchar *r;
         
-        flx_server_add_full(s, id, interface, protocol, unique, n, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A, &a->ipv4, sizeof(a->ipv4), FLX_DEFAULT_TTL);
+        flx_server_add_full(s, id, interface, protocol, unique, n, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A, &a->data.ipv4, sizeof(a->data.ipv4), FLX_DEFAULT_TTL);
 
-        r = flx_reverse_lookup_name_ipv4(&a->ipv4);
+        r = flx_reverse_lookup_name_ipv4(&a->data.ipv4);
         g_assert(r);
         flx_server_add_full(s, id, interface, protocol, unique, r, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR, n, strlen(n)+1, FLX_DEFAULT_TTL);
         g_free(r);
@@ -475,14 +482,14 @@ void flx_server_add_address(
     } else {
         gchar *r;
             
-        flx_server_add_full(s, id, interface, protocol, unique, n, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_AAAA, &a->ipv6, sizeof(a->ipv6), FLX_DEFAULT_TTL);
+        flx_server_add_full(s, id, interface, protocol, unique, n, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_AAAA, &a->data.ipv6, sizeof(a->data.ipv6), FLX_DEFAULT_TTL);
 
-        r = flx_reverse_lookup_name_ipv6_arpa(&a->ipv6);
+        r = flx_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
         g_assert(r);
         flx_server_add_full(s, id, interface, protocol, unique, r, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR, n, strlen(n)+1, FLX_DEFAULT_TTL);
         g_free(r);
     
-        r = flx_reverse_lookup_name_ipv6_int(&a->ipv6);
+        r = flx_reverse_lookup_name_ipv6_int(&a->data.ipv6);
         g_assert(r);
         flx_server_add_full(s, id, interface, protocol, unique, r, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR, n, strlen(n)+1, FLX_DEFAULT_TTL);
         g_free(r);
@@ -506,7 +513,7 @@ void flx_server_add_text(
     flx_server_add_full(s, id, interface, protocol, unique, name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT, text, strlen(text), FLX_DEFAULT_TTL);
 }
 
-void flx_server_send_query(flxServer *s, gint interface, guchar protocol, flxKey *k) {
+void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *k) {
     g_assert(s);
     g_assert(k);
 

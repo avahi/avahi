@@ -410,8 +410,6 @@ flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gin
     
     *ret_ttl = 0;
 
-    g_message("pre");
-    
     for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
         if (cmsg->cmsg_level == SOL_IPV6 && cmsg->cmsg_type == IPV6_HOPLIMIT) {
             *ret_ttl = *(uint8_t *) CMSG_DATA(cmsg);
@@ -422,12 +420,7 @@ flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gin
             *ret_iface = ((struct in6_pktinfo*) CMSG_DATA(cmsg))->ipi6_ifindex;
             found_iface = TRUE;
         }
-
-        g_message("-- %u -- %u\n", cmsg->cmsg_level, cmsg->cmsg_type);
     }
-
-    g_message("post");
- 
 
     g_assert(found_iface);
     g_assert(found_ttl);

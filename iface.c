@@ -146,8 +146,8 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             FLX_LLIST_PREPEND(flxInterface, interface, m->interfaces, i);
             g_hash_table_insert(m->hash_table, &i->index, i);
             i->mtu = 1500;
-            i->ipv4_cache = flx_cache_new(m->server, i);
-            i->ipv6_cache = flx_cache_new(m->server, i);
+            i->ipv4_cache = flx_cache_new(m->server, i, AF_INET);
+            i->ipv6_cache = flx_cache_new(m->server, i, AF_INET6);
             i->ipv4_scheduler = flx_packet_scheduler_new(m->server, i, AF_INET);
             i->ipv6_scheduler = flx_packet_scheduler_new(m->server, i, AF_INET6);
             
@@ -220,7 +220,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                         (raddr.family == AF_INET && RTA_PAYLOAD(a) != 4))
                         return;
 
-                    memcpy(raddr.data, RTA_DATA(a), RTA_PAYLOAD(a));
+                    memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
                     raddr_valid = 1;
 
                     break;

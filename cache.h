@@ -9,18 +9,20 @@ typedef struct _flxCache flxCache;
 #include "prioq.h"
 #include "server.h"
 #include "llist.h"
+#include "timeeventq.h"
 
 typedef enum {
     FLX_CACHE_VALID,
     FLX_CACHE_EXPIRY1,
     FLX_CACHE_EXPIRY2,
-    FLX_CACHE_EXPIRY3
-        
+    FLX_CACHE_EXPIRY3,
+    FLX_CACHE_FINAL
 } flxCacheEntryState;
 
 typedef struct flxCacheEntry flxCacheEntry;
 
 struct flxCacheEntry {
+    flxCache *cache;
     flxRecord *record;
     GTimeVal timestamp;
     GTimeVal expiry;
@@ -28,10 +30,9 @@ struct flxCacheEntry {
     flxAddress origin;
 
     flxCacheEntryState state;
+    flxTimeEvent *time_event;
 
     FLX_LLIST_FIELDS(flxCacheEntry, by_name);
-
-    flxPrioQueueNode *node;
     
 };
 
@@ -39,11 +40,12 @@ struct _flxCache {
     flxServer *server;
     
     flxInterface *interface;
+    guchar protocol;
     
     GHashTable *hash_table;
 };
 
-flxCache *flx_cache_new(flxServer *server, flxInterface *interface);
+flxCache *flx_cache_new(flxServer *server, flxInterface *interface, guchar protocol);
 void flx_cache_free(flxCache *c);
 
 flxCacheEntry *flx_cache_lookup_key(flxCache *c, flxKey *k);

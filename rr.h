@@ -13,13 +13,14 @@ enum {
     FLX_DNS_TYPE_MX = 0x0F,
     FLX_DNS_TYPE_TXT = 0x10,
     FLX_DNS_TYPE_AAAA = 0x1C,
+    FLX_DNS_TYPE_SRV = 0x21
 };
 
 enum {
     FLX_DNS_CLASS_IN = 0x01
 };
 
-#define FLX_DEFAULT_TTL (120*60)
+#define FLX_DEFAULT_TTL 10 /*(120*60)*/
 
 typedef struct {
     guint ref;

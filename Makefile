@@ -1,4 +1,5 @@
-CFLAGS=-g -O0 -Wall -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
+#CC=gcc
+CFLAGS=-g -O0 -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
 LIBS=$(shell pkg-config --libs glib-2.0)
 
 all: flexmdns prioq-test

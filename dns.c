@@ -330,7 +330,7 @@ gint flx_dns_packet_skip(flxDnsPacket *p, guint length) {
 }
 
 flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_flush) {
-    gchar name[256];
+    gchar name[257], buf[257+6];
     guint16 type, class;
     guint32 ttl;
     guint16 rdlength;
@@ -343,10 +343,42 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
         flx_dns_packet_consume_uint16(p, &type) < 0 ||
         flx_dns_packet_consume_uint16(p, &class) < 0 ||
         flx_dns_packet_consume_uint32(p, &ttl) < 0 ||
-        flx_dns_packet_consume_uint16(p, &rdlength) < 0 ||
-        !(data = flx_dns_packet_get_rptr(p)) ||
-        flx_dns_packet_skip(p, rdlength) < 0)
+        flx_dns_packet_consume_uint16(p, &rdlength) < 0)
         return NULL;
+
+    switch (type) {
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME:
+            if (flx_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
+                return NULL;
+            
+            data = buf;
+            rdlength = strlen(buf);
+            break;
+
+        case FLX_DNS_TYPE_SRV: {
+            const guint8 *t = flx_dns_packet_get_rptr(p);
+
+            if (flx_dns_packet_skip(p, 6) < 0)
+                return NULL;
+            
+            memcpy(buf, t, 6);
+
+            if (flx_dns_packet_consume_name(p, buf+6, sizeof(buf)-6) < 0)
+                return NULL;
+
+            data = buf;
+            rdlength = 6 + strlen(buf+6);
+            break;
+        }
+            
+        default:
+            if (!(data = flx_dns_packet_get_rptr(p)) ||
+                flx_dns_packet_skip(p, rdlength) < 0)
+                return NULL;
+
+            break;
+    }
 
     *ret_cache_flush = !!(class & MDNS_CACHE_FLUSH);
     class &= ~ MDNS_CACHE_FLUSH;
@@ -393,10 +425,46 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
     if (!(t = flx_dns_packet_append_name(p, r->key->name)) ||
         !flx_dns_packet_append_uint16(p, r->key->type) ||
         !flx_dns_packet_append_uint16(p, cache_flush ? (r->key->class | MDNS_CACHE_FLUSH) : (r->key->class &~ MDNS_CACHE_FLUSH)) ||
-        !flx_dns_packet_append_uint32(p, r->ttl) ||
-        !flx_dns_packet_append_uint16(p, r->size) ||
-        !flx_dns_packet_append_bytes(p, r->data, r->size))
+        !flx_dns_packet_append_uint32(p, r->ttl))
         return NULL;
+
+    switch (r->key->type) {
+        
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME: {
+            char ptr_name[257];
+
+            g_assert((size_t) r->size+1 <= sizeof(ptr_name));
+            memcpy(ptr_name, r->data, r->size);
+            ptr_name[r->size] = 0;
+            
+            if (!flx_dns_packet_append_uint16(p, strlen(ptr_name)) ||
+                !flx_dns_packet_append_name(p, ptr_name))
+                return NULL;
+
+            break;
+        }
+
+        case FLX_DNS_TYPE_SRV: {
+            char name[257];
+
+            g_assert(r->size >= 6 && (size_t) r->size-6+1 <= sizeof(name));
+            memcpy(name, r->data+6, r->size-6);
+            name[r->size-6] = 0;
+
+            if (!flx_dns_packet_append_uint16(p, strlen(name+6)) ||
+                !flx_dns_packet_append_bytes(p, r->data, 6) ||
+                !flx_dns_packet_append_name(p, name))
+                return NULL;
+
+            break;
+        }
+
+        default:
+            if (!flx_dns_packet_append_uint16(p, r->size) ||
+                !flx_dns_packet_append_bytes(p, r->data, r->size))
+                return NULL;
+    }
 
     return t;
 }

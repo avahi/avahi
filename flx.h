@@ -56,7 +56,7 @@ void flx_server_add_text(
 
 void flx_server_remove(flxServer *s, gint id);
 
-void flx_server_send_query(flxServer *s, gint interface, guchar protocol, flxKey *k);
+void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *k);
 
 const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state);
 

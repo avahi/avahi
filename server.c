@@ -4,6 +4,42 @@
 
 #include "server.h"
 #include "util.h"
+#include "iface.h"
+
+static gint timeval_cmp(const GTimeVal *a, const GTimeVal *b) {
+    g_assert(a);
+    g_assert(b);
+
+    if (a->tv_sec < b->tv_sec)
+        return -1;
+
+    if (a->tv_sec > b->tv_sec)
+        return 1;
+
+    if (a->tv_usec < b->tv_usec)
+        return -1;
+
+    if (a->tv_usec > b->tv_usec)
+        return 1;
+
+    return 0;
+}
+
+static gint query_job_instance_compare(gpointer a, gpointer b) {
+    flxQueryJobInstance *j = a, *k = b;
+    g_assert(j);
+    g_assert(k);
+
+    return timeval_cmp(&j->job->time, &k->job->time);
+}
+
+static gint response_job_instance_compare(gpointer a, gpointer b) {
+    flxResponseJobInstance *j = a, *k = b;
+    g_assert(j);
+    g_assert(k);
+
+    return timeval_cmp(&j->job->time, &k->job->time);
+}
 
 flxServer *flx_server_new(GMainContext *c) {
     flxServer *s = g_new(flxServer, 1);
@@ -19,8 +55,8 @@ flxServer *flx_server_new(GMainContext *c) {
     s->rrset_by_name = g_hash_table_new(g_str_hash, g_str_equal);
     s->entries = NULL;
 
-    s->first_response_job = s->last_response_job = NULL;
-    s->first_query_jobs = s->last_query_job = NULL;
+    s->query_job_queue = flx_prio_queue_new(query_job_instance_compare);
+    s->response_job_queue = flx_prio_queue_new(response_job_instance_compare);
     
     s->monitor = flx_interface_monitor_new(s->context);
     
@@ -30,6 +66,12 @@ flxServer *flx_server_new(GMainContext *c) {
 void flx_server_free(flxServer* s) {
     g_assert(s);
 
+    while (s->query_job_queue->last)
+        flx_server_remove_query_job_instance(s, s->query_job_queue->last->data);
+    
+    flx_prio_queue_free(s->query_job_queue);
+    flx_prio_queue_free(s->response_job_queue);
+    
     flx_interface_monitor_free(s->monitor);
 
     flx_server_remove(s, 0);
@@ -271,11 +313,13 @@ void flx_server_add_address(flxServer *s, gint id, gint interface, guchar protoc
 }
 
 flxQueryJob* flx_query_job_new(void) {
-    flxQueryJob *job = g_new(flxQueryJob);
+    flxQueryJob *job = g_new(flxQueryJob, 1);
     job->query.name = NULL;
     job->query.class = 0;
     job->query.type = 0;
     job->ref = 1;
+    job->time.tv_sec = 0;
+    job->time.tv_usec = 0;
     return job;
 }
 
@@ -293,20 +337,32 @@ void flx_query_job_unref(flxQueryJob *job) {
         g_free(job);
 }
 
+static gboolean query_job_exists(flxServer *s, gint interface, guchar protocol, flxQuery *q) {
+    flxPrioQueueNode *n;
+    g_assert(s);
+    g_assert(q);
+
+    for (n = s->query_job_queue->root; n; n = n->next)
+        if (flx_query_equal(&((flxQueryJobInstance*) n->data)->job->query, q))
+            return TRUE;
+
+    return FALSE;
+}
+
 static void post_query_job(flxServer *s, gint interface, guchar protocol, flxQueryJob *job) {
-    flxQueryJobInstance *i;
     g_assert(s);
     g_assert(job);
 
     if (interface <= 0) {
-        flxInterface *i;
+        const flxInterface *i;
         
-        for (i = s->monitor->interfaces; i; i = i->next)
+        for (i = flx_interface_monitor_get_first(s->monitor); i; i = i->next)
             post_query_job(s, i->index, protocol, job);
     } else if (protocol == AF_UNSPEC) {
-        post_query_job(s, index, AF_INET, job);
-        post_query_job(s, index, AF_INET6, job);
+        post_query_job(s, interface, AF_INET, job);
+        post_query_job(s, interface, AF_INET6, job);
     } else {
+        flxQueryJobInstance *i;
 
         if (query_job_exists(s, interface, protocol, &job->query))
             return;
@@ -315,16 +371,11 @@ static void post_query_job(flxServer *s, gint interface, guchar protocol, flxQue
         i->job = flx_query_job_ref(job);
         i->interface = interface;
         i->protocol = protocol;
-        if (i->prev = s->last_query_job)
-            i->prev->next = i;
-        else
-            s->first_query_job = i;
-        i->next = NULL;
-        s->last_query_job = i;
+        i->node = flx_prio_queue_put(s->query_job_queue, i);
     }
 }
 
-void flx_server_post_query_job(flxServer *s, gint interface, guchar protocol, const flxQuery *q) {
+void flx_server_post_query_job(flxServer *s, gint interface, guchar protocol, const GTimeVal *tv, const flxQuery *q) {
     flxQueryJob *job;
     g_assert(s);
     g_assert(q);
@@ -333,42 +384,37 @@ void flx_server_post_query_job(flxServer *s, gint interface, guchar protocol, co
     job->query.name = g_strdup(q->name);
     job->query.class = q->class;
     job->query.type = q->type;
+    if (tv)
+        job->time = *tv;
     post_query_job(s, interface, protocol, job);
 }
 
 void flx_server_drop_query_job(flxServer *s, gint interface, guchar protocol, const flxQuery *q) {
-    flxQueryJobInstance *i, *next;
+    flxPrioQueueNode *n, *next;
     g_assert(s);
     g_assert(interface > 0);
     g_assert(protocol != AF_UNSPEC);
     g_assert(q);
 
-    for (i = s->first_query_job; i; i = next) {
-        next = i->next;
+    for (n = s->query_job_queue->root; n; n = next) {
+        next = n->next;
     
-        if (flx_query_equal(i->query, q))
-            flx_server_remove_query_job_instance(s, i);
+        if (flx_query_equal(&((flxQueryJobInstance*) n->data)->job->query, q))
+            flx_server_remove_query_job_instance(s, n->data);
     }
+}
+
+void flx_server_remove_query_job_instance(flxServer *s, flxQueryJobInstance *i) {
+    g_assert(s);
+    g_assert(i);
+    g_assert(i->node);
+
+    flx_prio_queue_remove(s->query_job_queue, i->node);
+    flx_query_job_unref(i->job);
+    g_free(i);
 }
 
 gboolean flx_query_equal(const flxQuery *a, const flxQuery *b) {
     return strcmp(a->name, b->name) == 0 && a->type == b->type && a->class == b->class;
 }
 
-void flx_server_remove_query_job_instance(flxServer *s, flxQueryJobInstance *i) {
-    g_assert(s);
-    g_assert(i);
-
-    if (i->prev)
-        i->prev = i->next;
-    else
-        s->first_query_job = i->next;
-
-    if (i->next)
-        i->next = i->prev;
-    else
-        s->last_query_job = i->prev;
-
-    flx_query_job_unref(i->job);
-    g_free(i);
-}

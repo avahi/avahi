@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 
 #include "flx.h"
+#include "server.h"
 
 static GMainLoop *loop = NULL;
 
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
     flxLocalAddrSource *l;
     flxAddress a;
     gchar *r;
+    flxQuery q;
 
     flx = flx_server_new(NULL);
 
@@ -27,7 +29,12 @@ int main(int argc, char *argv[]) {
     flx_address_parse("::1", AF_INET6, &a);
     flx_server_add_address(flx, 0, 0, AF_UNSPEC, "ip6-localhost", &a);
 
-    g_timeout_add(1000, timeout, NULL);
+    q.name = "campari.local.";
+    q.class = FLX_DNS_CLASS_IN;
+    q.type = FLX_DNS_TYPE_A;
+    flx_server_post_query_job(flx, 0, AF_UNSPEC, NULL, &q);
+    
+    g_timeout_add(5000, timeout, NULL);
     
     loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(loop);

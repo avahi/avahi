@@ -59,11 +59,16 @@ static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
     g_free(a);
 }
 
-static void free_interface(flxInterfaceMonitor *m, flxInterface *i) {
+static void free_interface(flxInterfaceMonitor *m, flxInterface *i, gboolean send_goodbye) {
     g_assert(m);
     g_assert(i);
 
-    flx_goodbye_interface(m->server, i, FALSE);
+    g_message("removing interface %s.%i", i->hardware->name, i->protocol);
+    flx_goodbye_interface(m->server, i, send_goodbye);
+    g_message("flushing...");
+    flx_packet_scheduler_flush_responses(i->scheduler);
+    g_message("done");
+    
     g_assert(!i->announcements);
 
     while (i->addresses)
@@ -78,12 +83,12 @@ static void free_interface(flxInterfaceMonitor *m, flxInterface *i) {
     g_free(i);
 }
 
-static void free_hw_interface(flxInterfaceMonitor *m, flxHwInterface *hw) {
+static void free_hw_interface(flxInterfaceMonitor *m, flxHwInterface *hw, gboolean send_goodbye) {
     g_assert(m);
     g_assert(hw);
 
     while (hw->interfaces)
-        free_interface(m, hw->interfaces);
+        free_interface(m, hw->interfaces, send_goodbye);
 
     FLX_LLIST_REMOVE(flxHwInterface, hardware, m->hw_interfaces, hw);
     g_hash_table_remove(m->hash_table, &hw->index);
@@ -136,7 +141,7 @@ static void new_interface(flxInterfaceMonitor *m, flxHwInterface *hw, guchar pro
     i->monitor = m;
     i->hardware = hw;
     i->protocol = protocol;
-    i->relevant = FALSE;
+    i->announcing = FALSE;
 
     FLX_LLIST_HEAD_INIT(flxInterfaceAddress, i->addresses);
     FLX_LLIST_HEAD_INIT(flxAnnouncement, i->announcements);
@@ -155,17 +160,17 @@ static void check_interface_relevant(flxInterfaceMonitor *m, flxInterface *i) {
 
     b = flx_interface_relevant(i);
 
-    if (b && !i->relevant) {
+    if (b && !i->announcing) {
         g_message("New relevant interface %s.%i", i->hardware->name, i->protocol);
 
+        i->announcing = TRUE;
         flx_announce_interface(m->server, i);
-    } else if (!b && i->relevant) {
+    } else if (!b && i->announcing) {
         g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
+        i->announcing = FALSE;
         flx_goodbye_interface(m->server, i, FALSE);
     }
-
-    i->relevant = b;
 }
 
 static void check_hw_interface_relevant(flxInterfaceMonitor *m, flxHwInterface *hw) {
@@ -252,7 +257,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             return;
 
         update_hw_interface_rr(m, hw, TRUE);
-        free_hw_interface(m, hw);
+        free_hw_interface(m, hw, FALSE);
         
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
@@ -336,8 +341,10 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                 g_warning("NETLINK: Failed to list addrs: %s", strerror(errno));
             else
                 m->list = LIST_ADDR;
-        } else
+        } else {
             m->list = LIST_DONE;
+            g_message("Enumeration complete");
+        }
         
     } else if (n->nlmsg_type == NLMSG_ERROR && (n->nlmsg_seq == m->query_link_seq || n->nlmsg_seq == m->query_addr_seq)) {
         struct nlmsgerr *e = NLMSG_DATA (n);
@@ -375,13 +382,14 @@ fail:
 void flx_interface_monitor_free(flxInterfaceMonitor *m) {
     g_assert(m);
 
-    if (m->netlink)
-        flx_netlink_free(m->netlink);
-
     while (m->hw_interfaces)
-        free_hw_interface(m, m->hw_interfaces);
+        free_hw_interface(m, m->hw_interfaces, TRUE);
 
     g_assert(!m->interfaces);
+
+    
+    if (m->netlink)
+        flx_netlink_free(m->netlink);
     
     if (m->hash_table)
         g_hash_table_destroy(m->hash_table);
@@ -420,7 +428,7 @@ void flx_interface_send_packet(flxInterface *i, flxDnsPacket *p) {
     g_assert(i);
     g_assert(p);
 
-    if (i->relevant) {
+    if (flx_interface_relevant(i)) {
         g_message("sending on '%s.%i'", i->hardware->name, i->protocol);
 
         if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
@@ -430,21 +438,21 @@ void flx_interface_send_packet(flxInterface *i, flxDnsPacket *p) {
     }
 }
 
-void flx_interface_post_query(flxInterface *i, flxKey *key) {
+void flx_interface_post_query(flxInterface *i, flxKey *key, gboolean immediately) {
     g_assert(i);
     g_assert(key);
 
-    if (i->relevant)
-        flx_packet_scheduler_post_query(i->scheduler, key);
+    if (flx_interface_relevant(i))
+        flx_packet_scheduler_post_query(i->scheduler, key, immediately);
 }
 
 
-void flx_interface_post_response(flxInterface *i, flxRecord *record) {
+void flx_interface_post_response(flxInterface *i, flxRecord *record, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
-    if (i->relevant)
-        flx_packet_scheduler_post_response(i->scheduler, record);
+    if (flx_interface_relevant(i))
+        flx_packet_scheduler_post_response(i->scheduler, record, immediately);
 }
 
 void flx_dump_caches(flxInterfaceMonitor *m, FILE *f) {
@@ -452,11 +460,12 @@ void flx_dump_caches(flxInterfaceMonitor *m, FILE *f) {
     g_assert(m);
 
     for (i = m->interfaces; i; i = i->interface_next) {
-        if (i->relevant) {
-            fprintf(f, ";;; INTERFACE %s.%i ;;;\n", i->hardware->name, i->protocol);
+        if (flx_interface_relevant(i)) {
+            fprintf(f, "\n;;; INTERFACE %s.%i ;;;\n", i->hardware->name, i->protocol);
             flx_cache_dump(i->cache, f);
         }
     }
+    fprintf(f, "\n");
 }
 
 gboolean flx_interface_relevant(flxInterface *i) {

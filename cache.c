@@ -122,7 +122,7 @@ static void elapse_func(flxTimeEvent *t, void *userdata) {
         g_message("Requesting cache entry update at %i%%.", percent);
 
         /* Request a cache update */
-        flx_interface_post_query(e->cache->interface, e->record->key);
+        flx_interface_post_query(e->cache->interface, e->record->key, TRUE);
 
         /* Check again later */
         next_expiry(e->cache, e, percent);

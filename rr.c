@@ -49,8 +49,8 @@ flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 t
     flxRecord *r;
     
     g_assert(k);
-    g_assert(data);
-
+    g_assert(size == 0 || data);
+    
     r = g_new(flxRecord, 1);
     r->ref = 1;
     r->key = flx_key_ref(k);
@@ -64,6 +64,9 @@ flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 t
 flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type, gconstpointer data, guint16 size, guint32 ttl) {
     flxRecord *r;
     flxKey *k;
+
+    g_assert(name);
+    g_assert(size == 0 || data);
     
     k = flx_key_new(name, class, type);
     r = flx_record_new(k, data, size, ttl);

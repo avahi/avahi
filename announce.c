@@ -1,6 +1,8 @@
 #include "announce.h"
 #include "util.h"
 
+#define FLX_ANNOUNCEMENT_JITTER_MSEC 0
+
 static void remove_announcement(flxServer *s, flxAnnouncement *a) {
     g_assert(s);
     g_assert(a);
@@ -21,21 +23,22 @@ static void elapse_announce(flxTimeEvent *e, void *userdata) {
     g_assert(e);
     g_assert(a);
 
-    if (a->n_announced >= 3) {
-        g_message("Enough announcements for record [%s]", t = flx_record_to_string(a->entry->record));
-        g_free(t);
-        remove_announcement(a->server, a);
-        return;
-    }
+    flx_interface_post_response(a->interface, a->entry->record, FALSE);
 
-    flx_interface_post_response(a->interface, a->entry->record);
-    a->n_announced++;
+    if (a->n_announced++ <= 8)
+        a->sec_delay *= 2;
 
     g_message("Announcement #%i on interface %s.%i for entry [%s]", a->n_announced, a->interface->hardware->name, a->interface->protocol, t = flx_record_to_string(a->entry->record));
     g_free(t);
-    
-    flx_elapse_time(&tv, 1000, 100);
-    flx_time_event_queue_update(a->server->time_event_queue, a->time_event, &tv);
+
+    if (a->n_announced >= 4) {
+        g_message("Enough announcements for record [%s]", t = flx_record_to_string(a->entry->record));
+        g_free(t);
+        remove_announcement(a->server, a);
+    } else { 
+        flx_elapse_time(&tv, a->sec_delay*1000, FLX_ANNOUNCEMENT_JITTER_MSEC);
+        flx_time_event_queue_update(a->server->time_event_queue, a->time_event, &tv);
+    }
 }
 
 static void new_announcement(flxServer *s, flxInterface *i, flxServerEntry *e) {
@@ -47,7 +50,10 @@ static void new_announcement(flxServer *s, flxInterface *i, flxServerEntry *e) {
     g_assert(i);
     g_assert(e);
 
-    if (!flx_interface_match(i, e->interface, e->protocol) || !flx_interface_relevant(i))
+    g_message("NEW ANNOUNCEMENT: %s.%i [%s]", i->hardware->name, i->protocol, t = flx_record_to_string(e->record));
+    g_free(t);
+    
+    if (!flx_interface_match(i, e->interface, e->protocol) || !i->announcing)
         return;
 
     /* We don't want duplicates */
@@ -58,18 +64,19 @@ static void new_announcement(flxServer *s, flxInterface *i, flxServerEntry *e) {
     g_message("New announcement on interface %s.%i for entry [%s]", i->hardware->name, i->protocol, t = flx_record_to_string(e->record));
     g_free(t);
     
-    flx_interface_post_response(i, e->record);
+    flx_interface_post_response(i, e->record, FALSE);
     
     a = g_new(flxAnnouncement, 1);
     a->server = s;
     a->interface = i;
     a->entry = e;
     a->n_announced = 1;
+    a->sec_delay = 1;
     
     FLX_LLIST_PREPEND(flxAnnouncement, by_interface, i->announcements, a);
     FLX_LLIST_PREPEND(flxAnnouncement, by_entry, e->announcements, a);
     
-    flx_elapse_time(&tv, 1000, 100);
+    flx_elapse_time(&tv, a->sec_delay*1000, FLX_ANNOUNCEMENT_JITTER_MSEC);
     a->time_event = flx_time_event_queue_add(s->time_event_queue, &tv, elapse_announce, a);
 }
 
@@ -79,40 +86,32 @@ void flx_announce_interface(flxServer *s, flxInterface *i) {
     g_assert(s);
     g_assert(i);
 
-    if (!flx_interface_relevant(i))
+    if (!i->announcing)
         return;
+
+    g_message("ANNOUNCE INTERFACE");
     
     for (e = s->entries; e; e = e->entry_next)
         new_announcement(s, i, e);
+}
+
+static void announce_walk_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {
+    flxServerEntry *e = userdata;
+    
+    g_assert(m);
+    g_assert(i);
+    g_assert(e);
+
+    new_announcement(m->server, i, e);
 }
 
 void flx_announce_entry(flxServer *s, flxServerEntry *e) {
     g_assert(s);
     g_assert(e);
 
-    if (e->interface > 0) {
+    g_message("ANNOUNCE ENTRY");
 
-        if (e->protocol != AF_UNSPEC) {
-            flxInterface *i;
-    
-            if ((i = flx_interface_monitor_get_interface(s->monitor, e->interface, e->protocol)))
-                new_announcement(s, i, e);
-        } else {
-            flxHwInterface *hw;
-
-            if ((hw = flx_interface_monitor_get_hw_interface(s->monitor, e->interface))) {
-                flxInterface *i;
-
-                for (i = hw->interfaces; i; i = i->by_hardware_next)
-                    new_announcement(s, i, e);
-            }
-        }
-    } else {
-        flxInterface *i;
-
-        for (i = s->monitor->interfaces; i; i = i->interface_next)
-            new_announcement(s, i, e);
-    }
+    flx_interface_monitor_walk(s->monitor, e->interface, e->protocol, announce_walk_callback, e);
 }
 
 static flxRecord *make_goodbye_record(flxRecord *r) {
@@ -139,7 +138,7 @@ void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean goodbye) {
         for (e = s->entries; e; e = e->entry_next)
             if (flx_interface_match(i, e->interface, e->protocol)) {
                 flxRecord *g = make_goodbye_record(e->record);
-                flx_interface_post_response(i, g);
+                flx_interface_post_response(i, g, TRUE);
                 flx_record_unref(g);
             }
     }

@@ -22,9 +22,11 @@ static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flx
     g_message("Handling query: %s", txt = flx_key_to_string(k));
     g_free(txt);
 
+    flx_packet_scheduler_incoming_query(i->scheduler, k);
+
     for (e = g_hash_table_lookup(s->rrset_by_key, k); e; e = e->by_key_next)
         if (flx_interface_match(i, e->interface, e->protocol))
-            flx_interface_post_response(i, e->record);
+            flx_interface_post_response(i, e->record, FALSE);
 }
 
 static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a) {
@@ -72,8 +74,7 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
 
         flx_cache_update(i->cache, record, cache_flush, a);
 
-        if (record->ttl != 0)
-            flx_packet_scheduler_drop_response(i->scheduler, record);
+        flx_packet_scheduler_incoming_response(i->scheduler, record);
         flx_record_unref(record);
     }
 }
@@ -548,7 +549,7 @@ static void post_query_callback(flxInterfaceMonitor *m, flxInterface *i, gpointe
     g_assert(i);
     g_assert(k);
 
-    flx_interface_post_query(i, k);
+    flx_interface_post_query(i, k, FALSE);
 }
 
 void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key) {
@@ -565,7 +566,7 @@ static void post_response_callback(flxInterfaceMonitor *m, flxInterface *i, gpoi
     g_assert(i);
     g_assert(r);
 
-    flx_interface_post_response(i, r);
+    flx_interface_post_response(i, r, FALSE);
 }
 
 void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record) {

@@ -15,7 +15,6 @@ static void elapse(flxTimeEvent *e, void *userdata) {
 
     g_message("%i. Continuous querying for %s", s->n_query, t = flx_key_to_string(s->key));
     g_free(t);
-
     
     flx_elapse_time(&tv, s->sec_delay*1000, 0);
     flx_time_event_queue_update(s->server->time_event_queue, s->time_event, &tv);

@@ -131,7 +131,7 @@ guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer b, guint l) 
     g_assert(p);
     g_assert(b);
     g_assert(l);
-    
+
     if (!(d = flx_dns_packet_extend(p, l)))
         return NULL;
 
@@ -373,9 +373,14 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
         }
             
         default:
-            if (!(data = flx_dns_packet_get_rptr(p)) ||
-                flx_dns_packet_skip(p, rdlength) < 0)
-                return NULL;
+
+            if (rdlength > 0) {
+
+                if (!(data = flx_dns_packet_get_rptr(p)) ||
+                    flx_dns_packet_skip(p, rdlength) < 0)
+                    return NULL;
+            } else
+                data = NULL;
 
             break;
     }
@@ -462,7 +467,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
 
         default:
             if (!flx_dns_packet_append_uint16(p, r->size) ||
-                !flx_dns_packet_append_bytes(p, r->data, r->size))
+                (r->size != 0 && !flx_dns_packet_append_bytes(p, r->data, r->size)))
                 return NULL;
     }
 

@@ -15,6 +15,7 @@ struct _flxQueryJob {
     flxTimeEvent *time_event;
     flxKey *key;
     gboolean done;
+    GTimeVal delivery;
     FLX_LLIST_FIELDS(flxQueryJob, jobs);
 };
 
@@ -23,6 +24,7 @@ struct _flxResponseJob {
     flxTimeEvent *time_event;
     flxRecord *record;
     gboolean done;
+    GTimeVal delivery;
     FLX_LLIST_FIELDS(flxResponseJob, jobs);
 };
 
@@ -38,10 +40,12 @@ struct _flxPacketScheduler {
 flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i);
 void flx_packet_scheduler_free(flxPacketScheduler *s);
 
-void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key);
-void flx_packet_scheduler_post_response(flxPacketScheduler *s, flxRecord *record);
+void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key, gboolean immediately);
+void flx_packet_scheduler_post_response(flxPacketScheduler *s, flxRecord *record, gboolean immediately);
 
-void flx_packet_scheduler_drop_query(flxPacketScheduler *s, flxKey *key);
-void flx_packet_scheduler_drop_response(flxPacketScheduler *s, flxRecord *record);
+void flx_packet_scheduler_incoming_query(flxPacketScheduler *s, flxKey *key);
+void flx_packet_scheduler_incoming_response(flxPacketScheduler *s, flxRecord *record);
+
+void flx_packet_scheduler_flush_responses(flxPacketScheduler *s);
 
 #endif

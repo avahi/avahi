@@ -1,0 +1,8 @@
+* Unicast responses/queries
+* Known-Answer suppression
+* Truncation
+* Probing/Conflict resolution
+* Legacy unicast
+* really send goodbye packets
+* uniqueness
+* defend our entries on incoming goodbye

@@ -17,6 +17,7 @@ struct _flxAnnouncement {
     
     flxTimeEvent *time_event;
     guint n_announced;
+    guint sec_delay;
 
     FLX_LLIST_FIELDS(flxAnnouncement, by_interface);
     FLX_LLIST_FIELDS(flxAnnouncement, by_entry);

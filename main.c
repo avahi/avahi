@@ -58,21 +58,21 @@ int main(int argc, char *argv[]) {
 
     flx_server_add_text(flx, 0, 0, AF_UNSPEC, FALSE, NULL, "hallo");
 
-    k = flx_key_new("_http._tcp.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR);
-    s = flx_subscription_new(flx, k, 0, AF_UNSPEC, subscription, NULL);
-    flx_key_unref(k);
+/*     k = flx_key_new("_http._tcp.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR); */
+/*     s = flx_subscription_new(flx, k, 0, AF_UNSPEC, subscription, NULL); */
+/*     flx_key_unref(k); */
 
     loop = g_main_loop_new(NULL, FALSE);
     
-    g_timeout_add(1000*60, quit_timeout, loop);
+    g_timeout_add(1000*30, quit_timeout, loop);
     g_timeout_add(1000, send_timeout, flx);
-    g_timeout_add(1000*10, dump_timeout, flx);
+    g_timeout_add(1000*20, dump_timeout, flx);
     
     g_main_loop_run(loop);
 
     g_main_loop_unref(loop);
 
-    flx_subscription_free(s);
+/*     flx_subscription_free(s); */
     flx_server_free(flx);
     
     return 0;

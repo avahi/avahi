@@ -53,7 +53,7 @@ struct _flxInterface {
     
     flxHwInterface *hardware;
     guchar protocol;
-    gboolean relevant;
+    gboolean announcing;
 
     flxCache *cache;
     flxPacketScheduler *scheduler;
@@ -82,8 +82,8 @@ flxHwInterface* flx_interface_monitor_get_hw_interface(flxInterfaceMonitor *m, g
 
 void flx_interface_send_packet(flxInterface *i, flxDnsPacket *p);
 
-void flx_interface_post_query(flxInterface *i, flxKey *k);
-void flx_interface_post_response(flxInterface *i, flxRecord *rr);
+void flx_interface_post_query(flxInterface *i, flxKey *k, gboolean immediately);
+void flx_interface_post_response(flxInterface *i, flxRecord *rr, gboolean immediately);
 
 void flx_dump_caches(flxInterfaceMonitor *m, FILE *f);
 

@@ -42,7 +42,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
-<div class="news-date">Mon Dec 17 2004: </div> <p class="news-text"><a
+<div class="news-date">Fri Dec 17 2004: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.2.tar.gz">Version 0.2</a>
 released. Changes include: send mDNS queries on every interface that
 supports multicasts, instead of only the one with the default route,

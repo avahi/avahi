@@ -32,7 +32,7 @@ homepage: all dist doxygen
 	test -d $$HOME/homepage/private
 	mkdir -p $$HOME/homepage/private/projects/nss-mdns $$HOME/homepage/private/projects/nss-mdns/doxygen
 	cp nss-mdns-@PACKAGE_VERSION@.tar.gz $$HOME/homepage/private/projects/nss-mdns
-	cp doc/README.html doc/FAQ.html doc/cli.html doc/daemon.html doc/modules.html doc/style.css $$HOME/homepage/private/projects/nss-mdns
+	cp doc/README.html doc/style.css $$HOME/homepage/private/projects/nss-mdns
 	cp -a doxygen/html/* $$HOME/homepage/private/projects/nss-mdns/doxygen
 	cp $$HOME/homepage/private/projects/nss-mdns/README.html $$HOME/homepage/private/projects/nss-mdns/index.html
 

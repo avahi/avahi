@@ -29,11 +29,14 @@ noinst_PROGRAMS = nss-test mdns-test
 
 rootlibexec_LTLIBRARIES = libnss_mdns.la libnss_mdns4.la libnss_mdns6.la
 
-mdns_test_SOURCES = query.c dns.c util.c mdns-test.c
+mdns_test_SOURCES = query.c dns.c util.c mdns-test.c \
+		    query.h dns.h util.h
 
 nss_test_SOURCES = nss-test.c
 
-libnss_mdns_la_SOURCES = query.c dns.c util.c nss.c
+libnss_mdns_la_SOURCES = query.c dns.c util.c nss.c \
+			 query.h dns.h util.h
+
 libnss_mdns_la_CFLAGS=$(AM_CFLAGS) 
 libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2
 

@@ -130,6 +130,9 @@ service cache daemon <tt>nscd</tt> to work around this limitation.</p>
 <p>When doing troubleshooting for <tt>nss-mdns</tt>, don't forget to
 disable <tt>nscd</tt> for getting sensible results.</p>
 
+<p>If you run a firewall, don't forget to allow traffic from and to port 5353
+from and to the the mDNS multicast address <tt>224.0.0.251</tt>.</p>
+
 <h2><a name="requirements">Requirements</a></h2>
 
 <p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly modern <tt>glibc</tt> installation with development headers (2.0 or newer) is required. Not

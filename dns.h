@@ -5,14 +5,20 @@
 
 #include "rr.h"
 
-#define FLX_DNS_MAX_PACKET_SIZE 9000
+#define FLX_DNS_PACKET_MAX_SIZE 9000
+#define FLX_DNS_PACKET_HEADER_SIZE 12
 
 typedef struct _flxDnsPacket {
-    guint size, rindex;
-    guint8 data[FLX_DNS_MAX_PACKET_SIZE];
+    guint size, rindex, max_size;
 } flxDnsPacket;
 
-flxDnsPacket* flx_dns_packet_new(void);
+
+#define FLX_DNS_PACKET_DATA(p) (((guint8*) p) + sizeof(flxDnsPacket))
+
+flxDnsPacket* flx_dns_packet_new(guint size);
+flxDnsPacket* flx_dns_packet_new_query(guint size);
+flxDnsPacket* flx_dns_packet_new_response(guint size);
+
 void flx_dns_packet_free(flxDnsPacket *p);
 void flx_dns_packet_set_field(flxDnsPacket *p, guint index, guint16 v);
 guint16 flx_dns_packet_get_field(flxDnsPacket *p, guint index);

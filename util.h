@@ -13,4 +13,6 @@ gint flx_set_cloexec(gint fd);
 gint flx_set_nonblock(gint fd);
 gint flx_wait_for_write(gint fd);
 
+GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter);
+
 #endif

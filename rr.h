@@ -55,4 +55,6 @@ const gchar *flx_dns_type_to_string(guint16 type);
 gchar *flx_key_to_string(flxKey *k); /* g_free() the result! */
 gchar *flx_record_to_string(flxRecord *r);  /* g_free() the result! */
 
+gboolean flx_record_equal(const flxRecord *a, const flxRecord *b);
+
 #endif

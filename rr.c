@@ -164,3 +164,13 @@ guint flx_key_hash(const flxKey *k) {
 
     return g_str_hash(k->name) + k->type + k->class;
 }
+
+gboolean flx_record_equal(const flxRecord *a, const flxRecord *b) {
+    g_assert(a);
+    g_assert(b);
+
+    return flx_key_equal(a->key, b->key) &&
+        a->ttl == b->ttl &&
+        a->size == b->size &&
+        memcmp(a->data, b->data, a->size) == 0;
+}

@@ -25,6 +25,9 @@ void flx_time_event_queue_free(flxTimeEventQueue *q);
 flxTimeEvent* flx_time_event_queue_add(flxTimeEventQueue *q, const GTimeVal *timeval, void (*callback)(flxTimeEvent *e, void *userdata), void *userdata);
 void flx_time_event_queue_remove(flxTimeEventQueue *q, flxTimeEvent *e);
 
-void flx_time_event_update(flxTimeEventQueue *q, flxTimeEvent *e, const GTimeVal *timeval);
+void flx_time_event_queue_update(flxTimeEventQueue *q, flxTimeEvent *e, const GTimeVal *timeval);
+
+flxTimeEvent* flx_time_event_queue_root(flxTimeEventQueue *q);
+flxTimeEvent* flx_time_event_next(flxTimeEvent *e);
 
 #endif

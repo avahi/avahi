@@ -99,3 +99,17 @@ gint flx_wait_for_write(gint fd) {
 
     return 0;
 }
+
+GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
+    g_assert(tv);
+
+    g_get_current_time(tv);
+
+    if (msec)
+        g_time_val_add(tv, msec*1000);
+
+    if (jitter)
+        g_time_val_add(tv, g_random_int_range(0, jitter) * 1000);
+        
+    return tv;
+}

@@ -252,7 +252,7 @@ gint flx_send_dns_packet_ipv4(gint fd, gint interface, flxDnsPacket *p) {
     mdns_mcast_group_ipv4(&sa);
 
     memset(&io, 0, sizeof(io));
-    io.iov_base = p->data;
+    io.iov_base = FLX_DNS_PACKET_DATA(p);
     io.iov_len = p->size;
 
     memset(cmsg_data, 0, sizeof(cmsg_data));
@@ -292,7 +292,7 @@ gint flx_send_dns_packet_ipv6(gint fd, gint interface, flxDnsPacket *p) {
     mdns_mcast_group_ipv6(&sa);
 
     memset(&io, 0, sizeof(io));
-    io.iov_base = p->data;
+    io.iov_base = FLX_DNS_PACKET_DATA(p);
     io.iov_len = p->size;
 
     memset(cmsg_data, 0, sizeof(cmsg_data));
@@ -330,10 +330,10 @@ flxDnsPacket* flx_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
-    p = flx_dns_packet_new();
+    p = flx_dns_packet_new(0);
 
-    io.iov_base = p->data;
-    io.iov_len = sizeof(p->data);
+    io.iov_base = FLX_DNS_PACKET_DATA(p);
+    io.iov_len = p->max_size;
     
     memset(&msg, 0, sizeof(msg));
     msg.msg_name = ret_sa;
@@ -376,7 +376,7 @@ fail:
 }
 
 flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gint *ret_iface, guint8* ret_ttl) {
-    flxDnsPacket *p= NULL;
+    flxDnsPacket *p = NULL;
     struct msghdr msg;
     struct iovec io;
     uint8_t aux[64];
@@ -389,10 +389,10 @@ flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gin
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
-    p = flx_dns_packet_new();
+    p = flx_dns_packet_new(0);
 
-    io.iov_base = p->data;
-    io.iov_len = sizeof(p->data);
+    io.iov_base = FLX_DNS_PACKET_DATA(p);
+    io.iov_len = p->max_size;
     
     memset(&msg, 0, sizeof(msg));
     msg.msg_name = ret_sa;

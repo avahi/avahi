@@ -17,6 +17,8 @@ typedef struct _flxInterface flxInterface;
 #include "netlink.h"
 #include "cache.h"
 #include "llist.h"
+#include "psched.h"
+#include "dns.h"
 
 struct _flxInterfaceMonitor {
     flxServer *server;
@@ -41,6 +43,10 @@ struct _flxInterface {
 
     guint n_ipv6_addrs, n_ipv4_addrs;
     flxCache *ipv4_cache, *ipv6_cache;
+
+    guint mtu;
+
+    flxPacketScheduler *ipv4_scheduler, *ipv6_scheduler;
 };
 
 struct _flxInterfaceAddress {
@@ -64,8 +70,10 @@ flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m);
 int flx_interface_is_relevant(flxInterface *i);
 int flx_address_is_relevant(flxInterfaceAddress *a);
 
-void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k);
-void flx_interface_send_response(flxInterface *i, guchar protocol, flxRecord *rr);
+void flx_interface_send_packet(flxInterface *i, guchar protocol, flxDnsPacket *p);
+
+void flx_interface_post_query(flxInterface *i, guchar protocol, flxKey *k);
+void flx_interface_post_response(flxInterface *i, guchar protocol, flxRecord *rr);
 
 void flx_dump_caches(flxServer *s, FILE *f);
 

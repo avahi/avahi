@@ -2,7 +2,6 @@
 #define fooflxserverhfoo
 
 typedef struct _flxEntry flxEntry;
-typedef struct _flxResponseJob flxResponseJob;
 
 #include "flx.h"
 #include "iface.h"
@@ -21,12 +20,6 @@ struct _flxEntry {
     FLX_LLIST_FIELDS(flxEntry, entry);
     FLX_LLIST_FIELDS(flxEntry, by_name);
     FLX_LLIST_FIELDS(flxEntry, by_id);
-};
-
-struct _flxResponseJob {
-    flxTimeEvent *time_event;
-    flxRecord *record;
-    FLX_LLIST_FIELDS(flxResponseJob, response);
 };
 
 struct _flxServer {

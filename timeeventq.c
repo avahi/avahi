@@ -133,7 +133,7 @@ void flx_time_event_queue_remove(flxTimeEventQueue *q, flxTimeEvent *e) {
     g_free(e);
 }
 
-void flx_time_event_update(flxTimeEventQueue *q, flxTimeEvent *e, const GTimeVal *timeval) {
+void flx_time_event_queue_update(flxTimeEventQueue *q, flxTimeEvent *e, const GTimeVal *timeval) {
     g_assert(q);
     g_assert(e);
     g_assert(e->queue == q);
@@ -141,4 +141,16 @@ void flx_time_event_update(flxTimeEventQueue *q, flxTimeEvent *e, const GTimeVal
     e->expiry = *timeval;
 
     flx_prio_queue_shuffle(q->prioq, e->node);
+}
+
+flxTimeEvent* flx_time_event_queue_root(flxTimeEventQueue *q) {
+    g_assert(q);
+
+    return q->prioq->root ? q->prioq->root->data : NULL;
+}
+
+flxTimeEvent* flx_time_event_next(flxTimeEvent *e) {
+    g_assert(e);
+
+    return e->node->next->data;
 }

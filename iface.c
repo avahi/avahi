@@ -58,6 +58,11 @@ static void free_interface(flxInterfaceMonitor *m, flxInterface *i) {
     g_assert(m);
     g_assert(i);
 
+    if (i->ipv4_scheduler)
+        flx_packet_scheduler_free(i->ipv4_scheduler);
+    if (i->ipv6_scheduler)
+        flx_packet_scheduler_free(i->ipv6_scheduler);
+    
     while (i->addresses)
         free_address(m, i->addresses);
 
@@ -140,8 +145,11 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             i->n_ipv4_addrs = i->n_ipv6_addrs = 0;
             FLX_LLIST_PREPEND(flxInterface, interface, m->interfaces, i);
             g_hash_table_insert(m->hash_table, &i->index, i);
+            i->mtu = 1500;
             i->ipv4_cache = flx_cache_new(m->server, i);
             i->ipv6_cache = flx_cache_new(m->server, i);
+            i->ipv4_scheduler = flx_packet_scheduler_new(m->server, i, AF_INET);
+            i->ipv6_scheduler = flx_packet_scheduler_new(m->server, i, AF_INET6);
             
             changed = 0;
         }
@@ -156,6 +164,11 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                 case IFLA_IFNAME:
                     g_free(i->name);
                     i->name = g_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
+                    break;
+
+                case IFLA_MTU:
+                    g_assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
+                    i->mtu = *((unsigned int*) RTA_DATA(a));
                     break;
                     
                 default:
@@ -347,44 +360,47 @@ int flx_address_is_relevant(flxInterfaceAddress *a) {
 void flx_interface_send_packet(flxInterface *i, guchar protocol, flxDnsPacket *p) {
     g_assert(i);
     g_assert(p);
+
+    if (!flx_interface_is_relevant(i))
+        return;
     
-    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0 && flx_interface_is_relevant(i)) {
+    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0) {
         g_message("sending on '%s':IPv4", i->name);
         flx_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->index, p);
     }
 
-    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0 && flx_interface_is_relevant(i)) {
+    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0) {
         g_message("sending on '%s':IPv6", i->name);
         flx_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->index, p);
     }
 }
 
-void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k) {
-    flxDnsPacket *p;
-    
+void flx_interface_post_query(flxInterface *i, guchar protocol, flxKey *k) {
     g_assert(i);
     g_assert(k);
 
-    p = flx_dns_packet_new();
-    flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-    flx_dns_packet_append_key(p, k);
-    flx_dns_packet_set_field(p, DNS_FIELD_QDCOUNT, 1);
-    flx_interface_send_packet(i, protocol, p);
-    flx_dns_packet_free(p);
+    if (!flx_interface_is_relevant(i))
+        return;
+
+    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0)
+        flx_packet_scheduler_post_query(i->ipv4_scheduler, k);
+
+    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0)
+        flx_packet_scheduler_post_query(i->ipv6_scheduler, k);
 }
 
-void flx_interface_send_response(flxInterface *i, guchar protocol, flxRecord *rr) {
-    flxDnsPacket *p;
-    
+void flx_interface_post_response(flxInterface *i, guchar protocol, flxRecord *rr) {
     g_assert(i);
     g_assert(rr);
 
-    p = flx_dns_packet_new();
-    flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-    flx_dns_packet_append_record(p, rr, FALSE);
-    flx_dns_packet_set_field(p, DNS_FIELD_ANCOUNT, 1);
-    flx_interface_send_packet(i, protocol, p);
-    flx_dns_packet_free(p);
+    if (!flx_interface_is_relevant(i))
+        return;
+
+    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0)
+        flx_packet_scheduler_post_response(i->ipv4_scheduler, rr);
+
+    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0)
+        flx_packet_scheduler_post_response(i->ipv6_scheduler, rr);
 }
 
 void flx_dump_caches(flxServer *s, FILE *f) {

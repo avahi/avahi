@@ -9,45 +9,33 @@
 #include "iface.h"
 #include "socket.h"
 
-static void post_response(flxServer *s, flxRecord *r, gint iface, const flxAddress *a) {
-    flxInterface *i;
-
-    g_assert(s);
-    g_assert(r);
-    g_assert(iface > 0);
-    g_assert(a);
-        
-    if ((i = flx_interface_monitor_get_interface(s->monitor, iface)))
-        flx_interface_send_response(i, a->family, r);
-            
-}
-
-static void handle_query_key(flxServer *s, flxKey *k, gint iface, const flxAddress *a) {
+static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flxAddress *a) {
     flxEntry *e;
     
     g_assert(s);
     g_assert(k);
+    g_assert(i);
     g_assert(a);
 
     for (e = g_hash_table_lookup(s->rrset_by_name, k); e; e = e->by_name_next) {
 
-        if ((e->interface <= 0 || e->interface == iface) &&
+        if ((e->interface <= 0 || e->interface == i->index) &&
             (e->protocol == AF_UNSPEC || e->protocol == a->family)) {
-            post_response(s, e->record, iface, a);
 
+            flx_interface_post_response(i, a->family, e->record);
         }
     }
 }
 
-static void handle_query(flxServer *s, flxDnsPacket *p, gint iface, const flxAddress *a) {
+static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a) {
     guint n;
     
     g_assert(s);
     g_assert(p);
+    g_assert(i);
     g_assert(a);
 
     for (n = flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT); n > 0; n --) {
-
         flxKey *key;
 
         if (!(key = flx_dns_packet_consume_key(p))) {
@@ -55,29 +43,31 @@ static void handle_query(flxServer *s, flxDnsPacket *p, gint iface, const flxAdd
             return;
         }
 
-        handle_query_key(s, key, iface, a);
+        handle_query_key(s, key, i, a);
         flx_key_unref(key);
     }
 }
 
-static void add_response_to_cache(flxCache *c, flxDnsPacket *p, const flxAddress *a) {
+static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a) {
     guint n;
     
-    g_assert(c);
+    g_assert(s);
     g_assert(p);
+    g_assert(i);
     g_assert(a);
+    
     for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT); n > 0; n--) {
-
-        flxRecord *rr;
+        flxRecord *record;
         gboolean cache_flush = FALSE;
         
-        if (!(rr = flx_dns_packet_consume_record(p, &cache_flush))) {
+        if (!(record = flx_dns_packet_consume_record(p, &cache_flush))) {
             g_warning("Packet too short");
             return;
         }
 
-        flx_cache_update(c, rr, cache_flush, a);
-        flx_record_unref(rr);
+        flx_cache_update(a->family == AF_INET ? i->ipv4_cache : i->ipv6_cache, record, cache_flush, a);
+        flx_packet_scheduler_drop_response(a->family == AF_INET ? i->ipv4_scheduler : i->ipv6_scheduler, record);
+        flx_record_unref(record);
     }
 }
 
@@ -120,8 +110,8 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
         return;
     }
 
-
     flx_address_from_sockaddr(sa, &a);
+
     
     if (flx_dns_packet_is_query(p)) {
 
@@ -132,11 +122,9 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
             return;
         }
                 
-        handle_query(s, p, iface, &a);    
+        handle_query(s, p, i, &a);    
         g_message("Handled query");
     } else {
-        flxCache *c;
-
         if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) != 0 ||
             flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT) == 0 ||
             flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0 ||
@@ -145,10 +133,8 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
             return;
         }
 
-        c = a.family == AF_INET ? i->ipv4_cache : i->ipv6_cache;
-        add_response_to_cache(c, p, &a);
-
-        g_message("Handled responnse");
+        handle_response(s, p, i, &a);
+        g_message("Handled response");
     }
 }
 
@@ -528,7 +514,7 @@ void flx_server_send_query(flxServer *s, gint interface, guchar protocol, flxKey
         flxInterface *i;
 
         for (i = flx_interface_monitor_get_first(s->monitor); i; i = i->interface_next)
-            flx_interface_send_query(i, protocol, k);
+            flx_interface_post_query(i, protocol, k);
         
     } else {
         flxInterface *i;
@@ -536,6 +522,6 @@ void flx_server_send_query(flxServer *s, gint interface, guchar protocol, flxKey
         if (!(i = flx_interface_monitor_get_interface(s->monitor, interface)))
             return;
 
-        flx_interface_send_query(i, protocol, k);
+        flx_interface_post_query(i, protocol, k);
     }
 }

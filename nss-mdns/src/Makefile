@@ -1,11 +1,11 @@
 CFLAGS=-Wall -fPIC -g -O0 -W -pipe '-DDEBUG_TRAP=__asm__("int $$3")'
 
-all: query nsstest libnss_mdns.so.2 libnss_mdns6.so.2 libnss_mdns4.so.2 
+all: mdns-test nss-test libnss_mdns.so.2 libnss_mdns6.so.2 libnss_mdns4.so.2 
 
-query: query.o dns.o util.o main.o
+mdns-test: query.o dns.o util.o mdns-test.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-nsstest: nsstest.o
+nss-test: nss-test.o
 
 libnss_mdns.so.2: query.o dns.o util.o nss.o
 	$(CC) -shared -o $@ -Wl,-soname,$@ $^
@@ -25,4 +25,4 @@ nss4.o: nss.c
 *.o: *.h
 
 clean:
-	rm -f *.o query *.so.2 nsstest
+	rm -f *.o mdns-test *.so.2 nss-test

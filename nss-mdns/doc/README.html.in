@@ -42,7 +42,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
-<div class="news-date">Jan Sun 16 2004: </div> <p class="news-text"><a
+<div class="news-date">Jan Sun 16 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.3.tar.gz">Version 0.3</a>
 released. Changes include: add Debianization, use <tt>ip6.arpa</tt> instead of <tt>ip6.int</tt> for reverse IPv6 lookups.</p>
 

@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-rootlibdir=/
+rootlibexecdir=/lib
 
 AM_CFLAGS=-D_GNU_SOURCE
 
@@ -26,7 +26,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 noinst_PROGRAMS = nss-test mdns-test
 
-rootlib_LTLIBRARIES = libnss_mdns.la libnss_mdns4.la libnss_mdns6.la
+rootlibexec_LTLIBRARIES = libnss_mdns.la libnss_mdns4.la libnss_mdns6.la
 
 mdns_test_SOURCES = query.c dns.c util.c mdns-test.c
 
@@ -43,3 +43,9 @@ libnss_mdns4_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
 libnss_mdns6_la_SOURCES=$(libnss_mdns_la_SOURCES)
 libnss_mdns6_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DNSS_IPV6_ONLY=1
 libnss_mdns6_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
+
+install-exec-hook:
+	rm -f $(DESTDIR)$(rootlibexecdir)/libnss_mdns.la 
+	rm -f $(DESTDIR)$(rootlibexecdir)/libnss_mdns4.la 
+	rm -f $(DESTDIR)$(rootlibexecdir)/libnss_mdns6.la 
+

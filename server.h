@@ -45,6 +45,9 @@ struct _flxServer {
     gchar *hostname;
 
     gint fd_ipv4, fd_ipv6;
+
+    GPollFD pollfd_ipv4, pollfd_ipv6;
+    GSource *source;
 };
 
 

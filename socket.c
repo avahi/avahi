@@ -29,7 +29,7 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
 gint flx_open_socket_ipv4(void) {
     struct ip_mreqn mreq;
     struct sockaddr_in sa, local;
-    int fd = -1, ttl, yes;
+    int fd = -1, ttl, yes, no;
 
     mdns_mcast_group_ipv4(&sa);
         
@@ -39,13 +39,13 @@ gint flx_open_socket_ipv4(void) {
     }
     
     ttl = 255;
-    if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)) < 0) {
+    if (setsockopt(fd, SOL_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)) < 0) {
         g_warning("IP_MULTICAST_TTL failed: %s\n", strerror(errno));
         goto fail;
     }
 
     ttl = 255;
-    if (setsockopt(fd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
+    if (setsockopt(fd, SOL_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
         g_warning("IP_TTL failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -56,6 +56,13 @@ gint flx_open_socket_ipv4(void) {
         goto fail;
     }
 
+    no = 0;
+    if (setsockopt(fd, SOL_IP, IP_MULTICAST_LOOP, &no, sizeof(no)) < 0) {
+        g_warning("IP_MULTICAST_LOOP failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
     local.sin_port = htons(MDNS_PORT);
@@ -70,19 +77,19 @@ gint flx_open_socket_ipv4(void) {
     mreq.imr_address.s_addr = htonl(INADDR_ANY);
     mreq.imr_ifindex = 0;
     
-    if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
+    if (setsockopt(fd, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         g_warning("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, SOL_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
         g_warning("IP_RECVTTL failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, SOL_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
         g_warning("IP_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -120,7 +127,7 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
 gint flx_open_socket_ipv6(void) {
     struct ipv6_mreq mreq;
     struct sockaddr_in6 sa, local;
-    int fd = -1, ttl, yes;
+    int fd = -1, ttl, yes, no;
 
     mdns_mcast_group_ipv6(&sa);
         
@@ -130,13 +137,13 @@ gint flx_open_socket_ipv6(void) {
     }
     
     ttl = 255;
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
+    if (setsockopt(fd, SOL_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
         g_warning("IPV6_MULTICAST_HOPS failed: %s\n", strerror(errno));
         goto fail;
     }
 
     ttl = 255;
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
+    if (setsockopt(fd, SOL_IPV6, IPV6_UNICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
         g_warning("IPV6_UNICAST_HOPS failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -144,6 +151,18 @@ gint flx_open_socket_ipv6(void) {
     yes = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
         g_warning("SO_REUSEADDR failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    yes = 1;
+    if (setsockopt(fd, SOL_IPV6, IPV6_V6ONLY, &yes, sizeof(yes)) < 0) {
+        g_warning("IPV6_V6ONLY failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    no = 0;
+    if (setsockopt(fd, SOL_IPV6, IPV6_MULTICAST_LOOP, &no, sizeof(no)) < 0) {
+        g_warning("IPV6_MULTICAST_LOOP failed: %s\n", strerror(errno));
         goto fail;
     }
 
@@ -160,19 +179,19 @@ gint flx_open_socket_ipv6(void) {
     mreq.ipv6mr_multiaddr = sa.sin6_addr;
     mreq.ipv6mr_interface = 0;
     
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
+    if (setsockopt(fd, SOL_IPV6, IPV6_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         g_warning("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, SOL_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
         g_warning("IPV6_HOPLIMIT failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, SOL_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
         g_warning("IPV6_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -344,7 +363,8 @@ flxDnsPacket* flx_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint
         }
     }
 
-    g_assert(found_iface && found_ttl);
+    g_assert(found_iface);
+    g_assert(found_ttl);
 
     return p;
 
@@ -389,20 +409,28 @@ flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gin
     p->size = (size_t) l;
     
     *ret_ttl = 0;
-        
-    for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg,cmsg)) {
-        if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IPV6_HOPLIMIT) {
+
+    g_message("pre");
+    
+    for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+        if (cmsg->cmsg_level == SOL_IPV6 && cmsg->cmsg_type == IPV6_HOPLIMIT) {
             *ret_ttl = *(uint8_t *) CMSG_DATA(cmsg);
             found_ttl = TRUE;
         }
             
-        if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IPV6_PKTINFO) {
-            *ret_iface = ((struct in_pktinfo*) CMSG_DATA(cmsg))->ipi_ifindex;
+        if (cmsg->cmsg_level == SOL_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO) {
+            *ret_iface = ((struct in6_pktinfo*) CMSG_DATA(cmsg))->ipi6_ifindex;
             found_iface = TRUE;
         }
+
+        g_message("-- %u -- %u\n", cmsg->cmsg_level, cmsg->cmsg_type);
     }
 
-    g_assert(found_iface && found_ttl);
+    g_message("post");
+ 
+
+    g_assert(found_iface);
+    g_assert(found_ttl);
 
     return p;
 

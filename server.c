@@ -9,6 +9,85 @@
 #include "iface.h"
 #include "socket.h"
 
+static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, gint iface, gint ttl) {
+    g_assert(s);
+    g_assert(p);
+    g_assert(sa);
+    g_assert(iface > 0);
+    
+    if (ttl != 255) {
+        flxInterface *i = flx_interface_monitor_get_interface(s->monitor, iface);
+        g_warning("Recieved packet with invalid TTL on interface '%s'.", i ? i->name : "unknown");
+        return;
+    }
+
+    if (sa->sa_family == AF_INET6) {
+        static const unsigned char ipv4_in_ipv6[] = {
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0xFF, 0xFF, 0xFF, 0xFF };
+
+        if (memcmp(((struct sockaddr_in6*) sa)->sin6_addr.s6_addr, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0) {
+
+            /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
+            return;
+        }
+    }
+
+    g_message("Recieved packet");
+
+}
+
+static gboolean work(flxServer *s) {
+    struct sockaddr_in6 sa6;
+    struct sockaddr_in sa;
+    flxDnsPacket *p;
+    gint iface = -1;
+    guint8 ttl;
+        
+    g_assert(s);
+
+    if (s->pollfd_ipv4.revents & G_IO_IN) {
+        if ((p = flx_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &iface, &ttl)))
+            dispatch_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
+    }
+
+    if (s->pollfd_ipv6.revents & G_IO_IN) {
+        if ((p = flx_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &iface, &ttl)))
+            dispatch_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
+    }
+
+    return TRUE;
+}
+
+static gboolean prepare_func(GSource *source, gint *timeout) {
+    g_assert(source);
+    g_assert(timeout);
+    
+    *timeout = -1;
+    return FALSE;
+}
+
+static gboolean check_func(GSource *source) {
+    flxServer* s;
+    g_assert(source);
+
+    s = *((flxServer**) (((guint8*) source) + sizeof(GSource)));
+    g_assert(s);
+    
+    return (s->pollfd_ipv4.revents | s->pollfd_ipv6.revents) & (G_IO_IN | G_IO_HUP | G_IO_ERR);
+}
+
+static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
+    flxServer* s;
+    g_assert(source);
+
+    s = *((flxServer**) (((guint8*) source) + sizeof(GSource)));
+    g_assert(s);
+    
+    return work(s);
+}
+
 static void add_default_entries(flxServer *s) {
     gint length = 0;
     struct utsname utsname;
@@ -37,6 +116,15 @@ static void add_default_entries(flxServer *s) {
 flxServer *flx_server_new(GMainContext *c) {
     gchar *hn, *e;
     flxServer *s;
+    
+    static GSourceFuncs source_funcs = {
+        prepare_func,
+        check_func,
+        dispatch_func,
+        NULL,
+        NULL,
+        NULL
+    };
 
     s = g_new(flxServer, 1);
 
@@ -78,6 +166,21 @@ flxServer *flx_server_new(GMainContext *c) {
 
     add_default_entries(s);
 
+    s->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(flxServer*));
+    *((flxServer**) (((guint8*) s->source) + sizeof(GSource))) = s;
+
+    memset(&s->pollfd_ipv4, 0, sizeof(s->pollfd_ipv4));
+    s->pollfd_ipv4.fd = s->fd_ipv4;
+    s->pollfd_ipv4.events = G_IO_IN|G_IO_ERR|G_IO_HUP;
+    g_source_add_poll(s->source, &s->pollfd_ipv4);
+    
+    memset(&s->pollfd_ipv6, 0, sizeof(s->pollfd_ipv6));
+    s->pollfd_ipv6.fd = s->fd_ipv6;
+    s->pollfd_ipv6.events = G_IO_IN|G_IO_ERR|G_IO_HUP;
+    g_source_add_poll(s->source, &s->pollfd_ipv6);
+
+    g_source_attach(s->source, s->context);
+    
     return s;
 }
 
@@ -92,7 +195,6 @@ void flx_server_free(flxServer* s) {
     g_hash_table_destroy(s->rrset_by_name);
 
     flx_time_event_queue_free(s->time_event_queue);
-    g_main_context_unref(s->context);
 
     if (s->fd_ipv4 >= 0)
         close(s->fd_ipv4);
@@ -100,6 +202,11 @@ void flx_server_free(flxServer* s) {
         close(s->fd_ipv6);
     
     g_free(s->hostname);
+
+    g_source_destroy(s->source);
+    g_source_unref(s->source);
+    g_main_context_unref(s->context);
+
     g_free(s);
 }
 

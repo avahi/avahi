@@ -60,7 +60,7 @@ static gboolean check_func(GSource *source) {
     nl = *((flxNetlink**) (((guint8*) source) + sizeof(GSource)));
     g_assert(nl);
     
-    return nl->poll_fd.revents & G_IO_IN;
+    return nl->poll_fd.revents & (G_IO_IN|G_IO_HUP|G_IO_ERR);
 }
 
 static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {

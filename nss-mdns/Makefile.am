@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-EXTRA_DIST=bootstrap.sh README LICENSE
+EXTRA_DIST=bootstrap.sh README LICENSE debian/changelog debian/compat debian/control debian/copyright debian/docs debian/rules
 SUBDIRS=src doc
 
 MAINTAINERCLEANFILES=README

@@ -192,6 +192,7 @@ static int send_name_query(int fd, const char *name, int query_ipv4, int query_i
 
     dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 
+#ifndef NSS_IP6_ONLY
     if (query_ipv4) {
         if (!(prev_name = dns_packet_append_name(p, name))) {
             fprintf(stderr, "Bad host name\n");
@@ -202,7 +203,9 @@ static int send_name_query(int fd, const char *name, int query_ipv4, int query_i
         dns_packet_append_uint16(p, DNS_CLASS_IN);
         qdcount++;
     }
-
+#endif
+    
+#ifndef NSS_IP4_ONLY
     if (query_ipv6) {
         if (!dns_packet_append_name_compressed(p, name, prev_name)) {
             fprintf(stderr, "Bad host name\n");
@@ -213,7 +216,8 @@ static int send_name_query(int fd, const char *name, int query_ipv4, int query_i
         dns_packet_append_uint16(p, DNS_CLASS_IN);
         qdcount++;
     }
-        
+#endif
+    
     dns_packet_set_field(p, DNS_FIELD_QDCOUNT, qdcount);
     
     if (send_dns_packet(fd, p) < 0)
@@ -287,6 +291,7 @@ static int process_name_response(int fd, const char *name, usec_t timeout, void 
                     /* Remove mDNS cache flush bit */
                     class &= ~0x8000;
                     
+#ifndef NSS_IPV6_ONLY
                     if (ipv4_func &&
                         type == DNS_TYPE_A &&
                         class == DNS_CLASS_IN &&
@@ -301,7 +306,13 @@ static int process_name_response(int fd, const char *name, usec_t timeout, void 
                         ipv4_func(&ipv4, userdata);
                         done = 1;
                         
-                    } else if (ipv6_func &&
+                    }
+#endif
+#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
+                    else
+#endif                        
+#ifndef NSS_IPV4_ONLY
+                        if (ipv6_func &&
                                type == DNS_TYPE_AAAA &&
                                class == DNS_CLASS_IN &&
                                !domain_cmp(name, pname) &&
@@ -314,7 +325,9 @@ static int process_name_response(int fd, const char *name, usec_t timeout, void 
                         
                         ipv6_func(&ipv6, userdata);
                         done = 1;
-                    } else {
+                    }
+#endif
+                        else {
 
                         /* Step over */
                         
@@ -486,7 +499,7 @@ static int query_reverse(int fd, const char *name, void (*name_func)(const char 
     return -1;
 }
 
-
+#ifndef NSS_IPV6_ONLY
 int mdns_query_ipv4(int fd, const ipv4_address_t *ipv4, void (*name_func)(const char *name, void *userdata), void *userdata) {
     char name[256];
     uint32_t a;
@@ -497,7 +510,9 @@ int mdns_query_ipv4(int fd, const ipv4_address_t *ipv4, void (*name_func)(const 
 
     return query_reverse(fd, name, name_func, userdata);
 }
+#endif
 
+#ifndef NSS_IPV4_ONLY
 int mdns_query_ipv6(int fd, const ipv6_address_t *ipv6, void (*name_func)(const char *name, void *userdata), void *userdata) {
     char name[256];
     assert(fd >= 0 && ipv6 && name_func);
@@ -538,4 +553,4 @@ int mdns_query_ipv6(int fd, const ipv6_address_t *ipv6, void (*name_func)(const 
     
     return query_reverse(fd, name, name_func, userdata);
 }
-
+#endif

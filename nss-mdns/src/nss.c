@@ -30,6 +30,7 @@ struct userdata {
     } data;
 };
 
+#ifndef NSS_IPV6_ONLY
 static void ipv4_callback(const ipv4_address_t *ipv4, void *userdata) {
     struct userdata *u = userdata;
     assert(ipv4 && userdata);
@@ -40,7 +41,9 @@ static void ipv4_callback(const ipv4_address_t *ipv4, void *userdata) {
     u->data.ipv4[u->count++] = *ipv4;
     u->data_len += sizeof(ipv4_address_t);
 }
+#endif
 
+#ifndef NSS_IPV4_ONLY
 static void ipv6_callback(const ipv6_address_t *ipv6, void *userdata) {
     struct userdata *u = userdata;
     assert(ipv6 && userdata);
@@ -51,6 +54,7 @@ static void ipv6_callback(const ipv6_address_t *ipv6, void *userdata) {
     u->data.ipv6[u->count++] = *ipv6;
     u->data_len += sizeof(ipv6_address_t);
 }
+#endif
 
 static void name_callback(const char*name, void *userdata) {
     struct userdata *u = userdata;
@@ -76,6 +80,8 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     enum nss_status status = NSS_STATUS_UNAVAIL;
     int fd = -1, r, i;
     size_t address_length, l, index, astart;
+    void (*ipv4_func)(const ipv4_address_t *ipv4, void *userdata);
+    void (*ipv6_func)(const ipv6_address_t *ipv6, void *userdata);
 
 /*     DEBUG_TRAP; */
 
@@ -113,8 +119,20 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 
     u.count = 0;
     u.data_len = 0;
+
+#ifndef NSS_IPV6_ONLY
+    ipv4_func = af == AF_INET ? ipv4_callback : NULL;
+#else
+    ipv4_func = NULL;
+#endif    
+
+#ifndef NSS_IPV4_ONLY
+    ipv6_func = af == AF_INET6 ? ipv6_callback : NULL;
+#else
+    ipv6_func = NULL;
+#endif
     
-    if ((r = mdns_query_name(fd, name, af == AF_INET ? ipv4_callback : NULL, af == AF_INET6 ? ipv6_callback : NULL, &u)) < 0) {
+    if ((r = mdns_query_name(fd, name, ipv4_func, ipv6_func, &u)) < 0) {
         *errnop = ETIMEDOUT;
         *h_errnop = HOST_NOT_FOUND;
         goto finish;
@@ -240,10 +258,18 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
         goto finish;
     }
 
+#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
     if (af == AF_INET)
+#endif
+#ifndef NSS_IPV6_ONLY        
         r = mdns_query_ipv4(fd, (ipv4_address_t*) addr, name_callback, &u);
+#endif
+#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
     else
+#endif
+#ifndef NSS_IPV4_ONLY        
         r = mdns_query_ipv6(fd, (ipv6_address_t*) addr, name_callback, &u);
+#endif
     
     if (r < 0) {
         *errnop = ETIMEDOUT;

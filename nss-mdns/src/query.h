@@ -19,14 +19,17 @@ int mdns_query_name(int fd,
                void (*ipv6_func)(const ipv6_address_t *ipv6, void *userdata),
                void *userdata);
 
+#ifndef NSS_IPV6_ONLY
 int mdns_query_ipv4(int fd,
                const ipv4_address_t *ipv4,
                void (*name_func)(const char *name, void *userdata),
                void *userdata);
-
+#endif
+#ifndef NSS_IPV4_ONLY
 int mdns_query_ipv6(int fd,
                const ipv6_address_t *ipv6,
                void (*name_func)(const char *name, void *userdata),
                void *userdata);
+#endif
 
 #endif

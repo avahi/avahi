@@ -20,7 +20,7 @@ enum {
     FLX_DNS_CLASS_IN = 0x01
 };
 
-#define FLX_DEFAULT_TTL 10 /*(120*60)*/
+#define FLX_DEFAULT_TTL (120*60)
 
 typedef struct {
     guint ref;

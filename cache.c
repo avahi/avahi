@@ -6,6 +6,8 @@ static void remove_entry(flxCache *c, flxCacheEntry *e, gboolean remove_from_has
     g_assert(c);
     g_assert(e);
 
+    g_message("remvoin from cache: %p %p", c, e);
+    
     if (remove_from_hash_table) {
         flxCacheEntry *t;
         t = g_hash_table_lookup(c->hash_table, e->record->key);
@@ -24,14 +26,13 @@ static void remove_entry(flxCache *c, flxCacheEntry *e, gboolean remove_from_has
     g_free(e);
 }
 
-flxCache *flx_cache_new(flxServer *server, flxInterface *iface, guchar protocol) {
+flxCache *flx_cache_new(flxServer *server, flxInterface *iface) {
     flxCache *c;
     g_assert(server);
 
     c = g_new(flxCache, 1);
     c->server = server;
     c->interface = iface;
-    c->protocol = protocol;
     c->hash_table = g_hash_table_new((GHashFunc) flx_key_hash, (GEqualFunc) flx_key_equal);
 
     return c;
@@ -119,7 +120,7 @@ static void elapse_func(flxTimeEvent *t, void *userdata) {
         g_message("Requesting cache entry update at %i%%.", percent);
 
         /* Request a cache update */
-        flx_interface_post_query(e->cache->interface, e->cache->protocol, e->record->key);
+        flx_interface_post_query(e->cache->interface, e->record->key);
 
         /* Check again later */
         next_expiry(e->cache, e, percent);
@@ -232,15 +233,10 @@ void flx_cache_drop_record(flxCache *c, flxRecord *r) {
 static void func(gpointer key, gpointer data, gpointer userdata) {
     flxCacheEntry *e = data;
     flxKey *k = key;
+    gchar *t;
 
-    gchar *s, *t;
-
-    s = flx_key_to_string(k);
     t = flx_record_to_string(e->record);
-
-    fprintf((FILE*) userdata, "%s %s\n", s, t);
-    
-    g_free(s);
+    fprintf((FILE*) userdata, "%s\n", t);
     g_free(t);
 }
 

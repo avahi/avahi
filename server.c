@@ -9,8 +9,9 @@
 #include "iface.h"
 #include "socket.h"
 
+
 static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flxAddress *a) {
-    flxEntry *e;
+    flxServerEntry *e;
     gchar *txt;
     
     g_assert(s);
@@ -21,14 +22,9 @@ static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flx
     g_message("Handling query: %s", txt = flx_key_to_string(k));
     g_free(txt);
 
-    for (e = g_hash_table_lookup(s->rrset_by_name, k); e; e = e->by_name_next) {
-
-        if ((e->interface <= 0 || e->interface == i->index) &&
-            (e->protocol == AF_UNSPEC || e->protocol == a->family)) {
-
-            flx_interface_post_response(i, a->family, e->record);
-        }
-    }
+    for (e = g_hash_table_lookup(s->rrset_by_key, k); e; e = e->by_key_next)
+        if (flx_interface_match(i, e->interface, e->protocol))
+            flx_interface_post_response(i, e->record);
 }
 
 static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a) {
@@ -74,8 +70,8 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
         g_message("Handling response: %s", txt = flx_record_to_string(record));
         g_free(txt);
 
-        flx_cache_update(a->family == AF_INET ? i->ipv4_cache : i->ipv6_cache, record, cache_flush, a);
-        flx_packet_scheduler_drop_response(a->family == AF_INET ? i->ipv4_scheduler : i->ipv6_scheduler, record);
+        flx_cache_update(i->cache, record, cache_flush, a);
+        flx_packet_scheduler_drop_response(i->scheduler, record);
         flx_record_unref(record);
     }
 }
@@ -91,13 +87,13 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
 
     g_message("new packet recieved.");
 
-    if (!(i = flx_interface_monitor_get_interface(s->monitor, iface))) {
+    if (!(i = flx_interface_monitor_get_interface(s->monitor, iface, sa->sa_family))) {
         g_warning("Recieved packet from invalid interface.");
         return;
     }
 
     if (ttl != 255) {
-        g_warning("Recieved packet with invalid TTL on interface '%s'.", i->name);
+        g_warning("Recieved packet with invalid TTL on interface '%s.%i'.", i->hardware->name, i->protocol);
         return;
     }
 
@@ -155,13 +151,17 @@ static gboolean work(flxServer *s) {
     g_assert(s);
 
     if (s->pollfd_ipv4.revents & G_IO_IN) {
-        if ((p = flx_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &iface, &ttl)))
+        if ((p = flx_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &iface, &ttl))) {
             dispatch_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
+            flx_dns_packet_free(p);
+        }
     }
 
     if (s->pollfd_ipv6.revents & G_IO_IN) {
-        if ((p = flx_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &iface, &ttl)))
+        if ((p = flx_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &iface, &ttl))) {
             dispatch_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
+            flx_dns_packet_free(p);
+        }
     }
 
     return TRUE;
@@ -205,10 +205,13 @@ static void add_default_entries(flxServer *s) {
     
     /* Fill in HINFO rr */
     uname(&utsname);
-    hinfo = g_strdup_printf("%s%c%s%n", g_strup(utsname.machine), 0, g_strup(utsname.sysname), &length);
+    hinfo = g_strdup_printf("%c%s%c%s%n",
+                            strlen(utsname.machine), g_strup(utsname.machine),
+                            strlen(utsname.sysname), g_strup(utsname.sysname),
+                            &length);
     
     flx_server_add_full(s, 0, 0, AF_UNSPEC, TRUE,
-                        s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_HINFO, hinfo, length+1, FLX_DEFAULT_TTL);
+                        s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_HINFO, hinfo, length, FLX_DEFAULT_TTL);
 
     g_free(hinfo);
 
@@ -256,9 +259,9 @@ flxServer *flx_server_new(GMainContext *c) {
     
     s->current_id = 1;
     s->rrset_by_id = g_hash_table_new(g_int_hash, g_int_equal);
-    s->rrset_by_name = g_hash_table_new((GHashFunc) flx_key_hash, (GEqualFunc) flx_key_equal);
+    s->rrset_by_key = g_hash_table_new((GHashFunc) flx_key_hash, (GEqualFunc) flx_key_equal);
 
-    FLX_LLIST_HEAD_INIT(flxEntry, s->entries);
+    FLX_LLIST_HEAD_INIT(flxServerEntry, s->entries);
 
     s->monitor = flx_interface_monitor_new(s);
     s->time_event_queue = flx_time_event_queue_new(s->context);
@@ -299,7 +302,7 @@ void flx_server_free(flxServer* s) {
     flx_server_remove(s, 0);
     
     g_hash_table_destroy(s->rrset_by_id);
-    g_hash_table_destroy(s->rrset_by_name);
+    g_hash_table_destroy(s->rrset_by_key);
 
     flx_time_event_queue_free(s->time_event_queue);
 
@@ -331,28 +334,32 @@ void flx_server_add(
     gboolean unique,
     flxRecord *r) {
     
-    flxEntry *e, *t;
+    flxServerEntry *e, *t;
     g_assert(s);
     g_assert(r);
 
-    e = g_new(flxEntry, 1);
+    e = g_new(flxServerEntry, 1);
     e->record = flx_record_ref(r);
     e->id = id;
     e->interface = interface;
     e->protocol = protocol;
     e->unique = unique;
 
-    FLX_LLIST_PREPEND(flxEntry, entry, s->entries, e);
+    FLX_LLIST_HEAD_INIT(flxAnnouncement, e->announcements);
+
+    FLX_LLIST_PREPEND(flxServerEntry, entry, s->entries, e);
 
     /* Insert into hash table indexed by id */
     t = g_hash_table_lookup(s->rrset_by_id, &e->id);
-    FLX_LLIST_PREPEND(flxEntry, by_id, t, e);
+    FLX_LLIST_PREPEND(flxServerEntry, by_id, t, e);
     g_hash_table_replace(s->rrset_by_id, &e->id, t);
     
     /* Insert into hash table indexed by name */
-    t = g_hash_table_lookup(s->rrset_by_name, e->record->key);
-    FLX_LLIST_PREPEND(flxEntry, by_name, t, e);
-    g_hash_table_replace(s->rrset_by_name, e->record->key, t);
+    t = g_hash_table_lookup(s->rrset_by_key, e->record->key);
+    FLX_LLIST_PREPEND(flxServerEntry, by_key, t, e);
+    g_hash_table_replace(s->rrset_by_key, e->record->key, t);
+
+    flx_announce_entry(s, e);
 }
 
 void flx_server_add_full(
@@ -379,7 +386,7 @@ void flx_server_add_full(
 }
 
 const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state) {
-    flxEntry **e = (flxEntry**) state;
+    flxServerEntry **e = (flxServerEntry**) state;
     g_assert(s);
     g_assert(e);
 
@@ -394,29 +401,31 @@ const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state) {
     return flx_record_ref((*e)->record);
 }
 
-static void free_entry(flxServer*s, flxEntry *e) {
-    flxEntry *t;
+static void free_entry(flxServer*s, flxServerEntry *e) {
+    flxServerEntry *t;
     
     g_assert(e);
 
+    flx_goodbye_entry(s, e, TRUE);
+
     /* Remove from linked list */
-    FLX_LLIST_REMOVE(flxEntry, entry, s->entries, e);
+    FLX_LLIST_REMOVE(flxServerEntry, entry, s->entries, e);
 
     /* Remove from hash table indexed by id */
     t = g_hash_table_lookup(s->rrset_by_id, &e->id);
-    FLX_LLIST_REMOVE(flxEntry, by_id, t, e);
+    FLX_LLIST_REMOVE(flxServerEntry, by_id, t, e);
     if (t)
         g_hash_table_replace(s->rrset_by_id, &t->id, t);
     else
         g_hash_table_remove(s->rrset_by_id, &e->id);
     
     /* Remove from hash table indexed by name */
-    t = g_hash_table_lookup(s->rrset_by_name, e->record->key);
-    FLX_LLIST_REMOVE(flxEntry, by_name, t, e);
+    t = g_hash_table_lookup(s->rrset_by_key, e->record->key);
+    FLX_LLIST_REMOVE(flxServerEntry, by_key, t, e);
     if (t)
-        g_hash_table_replace(s->rrset_by_name, t->record->key, t);
+        g_hash_table_replace(s->rrset_by_key, t->record->key, t);
     else
-        g_hash_table_remove(s->rrset_by_name, e->record->key);
+        g_hash_table_remove(s->rrset_by_key, e->record->key);
 
     flx_record_unref(e->record);
     g_free(e);
@@ -429,7 +438,7 @@ void flx_server_remove(flxServer *s, gint id) {
         while (s->entries)
             free_entry(s, s->entries);
     } else {
-        flxEntry *e;
+        flxServerEntry *e;
 
         while ((e = g_hash_table_lookup(s->rrset_by_id, &id)))
             free_entry(s, e);
@@ -437,11 +446,11 @@ void flx_server_remove(flxServer *s, gint id) {
 }
 
 void flx_server_dump(flxServer *s, FILE *f) {
-    flxEntry *e;
+    flxServerEntry *e;
     g_assert(s);
     g_assert(f);
 
-    fprintf(f, ";;; ZONE DUMP FOLLOWS ;;;\n");
+    fprintf(f, "\n;;; ZONE DUMP FOLLOWS ;;;\n");
 
     for (e = s->entries; e; e = e->entry_next) {
         gchar *t;
@@ -451,7 +460,7 @@ void flx_server_dump(flxServer *s, FILE *f) {
         g_free(t);
     }
 
-    flx_dump_caches(s, f);
+    flx_dump_caches(s->monitor, f);
 }
 
 void flx_server_add_address(
@@ -507,28 +516,76 @@ void flx_server_add_text(
     const gchar *name,
     const gchar *text) {
     
+    gchar buf[256];
+    guint l;
+    
     g_assert(s);
     g_assert(text);
 
-    flx_server_add_full(s, id, interface, protocol, unique, name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT, text, strlen(text), FLX_DEFAULT_TTL);
+    if ((l = strlen(text)) > 255)
+        buf[0] = 255;
+    else
+        buf[0] = (gchar) l;
+
+    memcpy(buf+1, text, l);
+
+    flx_server_add_full(s, id, interface, protocol, unique, name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT, buf, l+1, FLX_DEFAULT_TTL);
 }
 
-void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *k) {
+void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key) {
     g_assert(s);
-    g_assert(k);
+    g_assert(key);
+    
+    if (interface > 0) {
+        if (protocol != AF_UNSPEC) {
+            flxInterface *i;
+            
+            if ((i = flx_interface_monitor_get_interface(s->monitor, interface, protocol)))
+                flx_interface_post_query(i, key);
+        } else {
+            flxHwInterface *hw;
+            flxInterface *i;
 
-    if (interface <= 0) {
-        flxInterface *i;
-
-        for (i = flx_interface_monitor_get_first(s->monitor); i; i = i->interface_next)
-            flx_interface_post_query(i, protocol, k);
+            if ((hw = flx_interface_monitor_get_hw_interface(s->monitor, interface)))
+                for (i = hw->interfaces; i; i = i->by_hardware_next)
+                    if (flx_interface_match(i, interface, protocol))
+                        flx_interface_post_query(i, key);
+        }
         
     } else {
         flxInterface *i;
+        
+        for (i = s->monitor->interfaces; i; i = i->interface_next)
+            if (flx_interface_match(i, interface, protocol))
+                flx_interface_post_query(i, key);
+    }
+}
 
-        if (!(i = flx_interface_monitor_get_interface(s->monitor, interface)))
-            return;
+void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record) {
+    g_assert(s);
+    g_assert(record);
+    
+    if (interface > 0) {
+        if (protocol != AF_UNSPEC) {
+            flxInterface *i;
+            
+            if ((i = flx_interface_monitor_get_interface(s->monitor, interface, protocol)))
+                flx_interface_post_response(i, record);
+        } else {
+            flxHwInterface *hw;
+            flxInterface *i;
 
-        flx_interface_post_query(i, protocol, k);
+            if ((hw = flx_interface_monitor_get_hw_interface(s->monitor, interface)))
+                for (i = hw->interfaces; i; i = i->by_hardware_next)
+                    if (flx_interface_match(i, interface, protocol))
+                        flx_interface_post_response(i, record);
+        }
+        
+    } else {
+        flxInterface *i;
+        
+        for (i = s->monitor->interfaces; i; i = i->interface_next)
+            if (flx_interface_match(i, interface, protocol))
+                flx_interface_post_response(i, record);
     }
 }

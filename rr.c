@@ -51,7 +51,6 @@ flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 t
     g_assert(k);
     g_assert(data);
     g_assert(size > 0);
-    g_assert(ttl > 0);
 
     r = g_new(flxRecord, 1);
     r->ref = 1;
@@ -142,8 +141,7 @@ gchar *flx_record_to_string(flxRecord *r) {
             inet_ntop(AF_INET6, r->data, t, sizeof(t));
             break;
             
-        case FLX_DNS_TYPE_PTR:
-        case FLX_DNS_TYPE_TXT: {
+        case FLX_DNS_TYPE_PTR: {
             size_t l;
         
             l = r->size;
@@ -155,13 +153,30 @@ gchar *flx_record_to_string(flxRecord *r) {
             break;
         }
 
+        case FLX_DNS_TYPE_TXT: {
+            g_assert(((guchar*) r->data)[0] == r->size-1);
+
+            memcpy(t, r->data+1, ((guchar*) r->data)[0]);
+            t[((guchar*) r->data)[0]] = 0;
+            break;
+        }
+
         case FLX_DNS_TYPE_HINFO: {
-            char *s2;
-            
-            if ((s2 = memchr(r->data, 0, r->size))) {
-                s2++;
-                if (memchr(s2, 0, r->size - ((char*) s2 - (char*) r->data)))
-                    snprintf(t, sizeof(t), "'%s' '%s'", (char*) r->data, s2);
+            gchar *s2;
+            gchar hi1[256], hi2[256];
+            guchar len;
+
+            if ((size_t) (len = ((guchar*) r->data)[0]) + 2 <= r->size) {
+                guchar len2;
+                memcpy(hi1, (gchar*) r->data +1, len);
+                hi1[len] = 0;
+
+                if ((size_t) (len2 = ((guchar*) r->data)[len+1]) + len + 2 <= r->size) {
+                    memcpy(hi2, (gchar*) r->data+len+2, len2);
+                    hi2[len2] = 0;
+                    snprintf(t, sizeof(t), "'%s' '%s'", hi1, hi2);
+                }
+                
             }
 
             break;
@@ -183,11 +198,12 @@ gchar *flx_record_to_string(flxRecord *r) {
                      ntohs(((guint16*) r->data)[1]),
                      ntohs(((guint16*) r->data)[2]),
                      k);
+            break;
         }
     }
 
     p = flx_key_to_string(r->key);
-    s = g_strdup_printf("%s %s ; ttl=%u", p, t, r->ttl);
+    s = g_strdup_printf("[%s %s ; ttl=%u]", p, t, r->ttl);
     g_free(p);
     
     return s;

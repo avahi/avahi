@@ -18,9 +18,9 @@ static gboolean send_timeout(gpointer data) {
 /*     flx_server_post_query(flx, 0, AF_UNSPEC, k); */
 /*     flx_key_unref(k); */
 
-    k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A);
-    flx_server_post_query(flx, 0, AF_INET, k);
-    flx_key_unref(k);
+/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A); */
+/*     flx_server_post_query(flx, 0, AF_INET, k); */
+/*     flx_key_unref(k); */
 
     return FALSE;
 }

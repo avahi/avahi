@@ -438,7 +438,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
             memcpy(ptr_name, r->data, r->size);
             ptr_name[r->size] = 0;
             
-            if (!flx_dns_packet_append_uint16(p, strlen(ptr_name)) ||
+            if (!flx_dns_packet_append_uint16(p, strlen(ptr_name)+1) ||
                 !flx_dns_packet_append_name(p, ptr_name))
                 return NULL;
 
@@ -452,7 +452,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
             memcpy(name, r->data+6, r->size-6);
             name[r->size-6] = 0;
 
-            if (!flx_dns_packet_append_uint16(p, strlen(name+6)) ||
+            if (!flx_dns_packet_append_uint16(p, strlen(name+6)+1+6) ||
                 !flx_dns_packet_append_bytes(p, r->data, 6) ||
                 !flx_dns_packet_append_name(p, name))
                 return NULL;

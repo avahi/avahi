@@ -1,7 +1,7 @@
 #include "util.h"
 #include "psched.h"
 
-flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i, guchar protocol) {
+flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i) {
     flxPacketScheduler *s;
 
     g_assert(server);
@@ -10,7 +10,6 @@ flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i,
     s = g_new(flxPacketScheduler, 1);
     s->server = server;
     s->interface = i;
-    s->protocol = protocol;
 
     FLX_LLIST_HEAD_INIT(flxQueryJob, s->query_jobs);
     FLX_LLIST_HEAD_INIT(flxResponseJob, s->response_jobs);
@@ -93,7 +92,7 @@ static void query_elapse(flxTimeEvent *e, gpointer data) {
         return;
     }
 
-    p = flx_dns_packet_new_query(s->interface->mtu - 48);
+    p = flx_dns_packet_new_query(s->interface->hardware->mtu - 48);
     d = packet_add_query_job(s, p, qj);
     g_assert(d);
     n = 1;
@@ -111,7 +110,7 @@ static void query_elapse(flxTimeEvent *e, gpointer data) {
     }
 
     flx_dns_packet_set_field(p, DNS_FIELD_QDCOUNT, n);
-    flx_interface_send_packet(s->interface, s->protocol, p);
+    flx_interface_send_packet(s->interface, p);
     flx_dns_packet_free(p);
 }
 
@@ -186,7 +185,7 @@ static void response_elapse(flxTimeEvent *e, gpointer data) {
         return;
     }
 
-    p = flx_dns_packet_new_response(s->interface->mtu - 200);
+    p = flx_dns_packet_new_response(s->interface->hardware->mtu - 200);
     d = packet_add_response_job(s, p, rj);
     g_assert(d);
     n = 1;
@@ -204,7 +203,7 @@ static void response_elapse(flxTimeEvent *e, gpointer data) {
     }
 
     flx_dns_packet_set_field(p, DNS_FIELD_ANCOUNT, n);
-    flx_interface_send_packet(s->interface, s->protocol, p);
+    flx_interface_send_packet(s->interface, p);
     flx_dns_packet_free(p);
 }
 

@@ -10,12 +10,13 @@
 #include "netlink.h"
 #include "dns.h"
 #include "socket.h"
+#include "announce.h"
 
 static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, int remove) {
     g_assert(m);
     g_assert(a);
 
-    if (!flx_address_is_relevant(a) || remove) {
+    if (!flx_interface_address_relevant(a) || remove) {
         if (a->rr_id >= 0) {
             flx_server_remove(m->server, a->rr_id);
             a->rr_id = -1;
@@ -23,7 +24,7 @@ static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, in
     } else {
         if (a->rr_id < 0) {
             a->rr_id = flx_server_get_next_id(m->server);
-            flx_server_add_address(m->server, a->rr_id, a->interface->index, AF_UNSPEC, FALSE, m->server->hostname, &a->address);
+            flx_server_add_address(m->server, a->rr_id, a->interface->hardware->index, AF_UNSPEC, FALSE, m->server->hostname, &a->address);
         }
     }
 }
@@ -37,18 +38,22 @@ static void update_interface_rr(flxInterfaceMonitor *m, flxInterface *i, int rem
         update_address_rr(m, a, remove);
 }
 
+static void update_hw_interface_rr(flxInterfaceMonitor *m, flxHwInterface *hw, int remove) {
+    flxInterface *i;
+
+    g_assert(m);
+    g_assert(hw);
+
+    for (i = hw->interfaces; i; i = i->by_hardware_next)
+        update_interface_rr(m, i, remove);
+}
+
 static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
     g_assert(m);
     g_assert(a);
     g_assert(a->interface);
 
-    if (a->address.family == AF_INET)
-        a->interface->n_ipv4_addrs --;
-    else if (a->address.family == AF_INET6)
-        a->interface->n_ipv6_addrs --;
-
     FLX_LLIST_REMOVE(flxInterfaceAddress, address, a->interface->addresses, a);
-
     flx_server_remove(m->server, a->rr_id);
     
     g_free(a);
@@ -58,30 +63,33 @@ static void free_interface(flxInterfaceMonitor *m, flxInterface *i) {
     g_assert(m);
     g_assert(i);
 
-    if (i->ipv4_scheduler)
-        flx_packet_scheduler_free(i->ipv4_scheduler);
-    if (i->ipv6_scheduler)
-        flx_packet_scheduler_free(i->ipv6_scheduler);
-    
+    flx_goodbye_interface(m->server, i, FALSE);
+    g_assert(!i->announcements);
+
     while (i->addresses)
         free_address(m, i->addresses);
 
-    if (i->ipv4_cache)
-        flx_cache_free(i->ipv4_cache);
-    if (i->ipv6_cache)
-        flx_cache_free(i->ipv6_cache);
+    flx_packet_scheduler_free(i->scheduler);
+    flx_cache_free(i->cache);
     
-    g_assert(i->n_ipv6_addrs == 0);
-    g_assert(i->n_ipv4_addrs == 0);
-
     FLX_LLIST_REMOVE(flxInterface, interface, m->interfaces, i);
-    g_hash_table_remove(m->hash_table, &i->index);
-
-    flx_cache_free(i->ipv4_cache);
-    flx_cache_free(i->ipv6_cache);
+    FLX_LLIST_REMOVE(flxInterface, by_hardware, i->hardware->interfaces, i);
     
-    g_free(i->name);
     g_free(i);
+}
+
+static void free_hw_interface(flxInterfaceMonitor *m, flxHwInterface *hw) {
+    g_assert(m);
+    g_assert(hw);
+
+    while (hw->interfaces)
+        free_interface(m, hw->interfaces);
+
+    FLX_LLIST_REMOVE(flxHwInterface, hardware, m->hw_interfaces, hw);
+    g_hash_table_remove(m->hash_table, &hw->index);
+
+    g_free(hw->name);
+    g_free(hw);
 }
 
 static flxInterfaceAddress* get_address(flxInterfaceMonitor *m, flxInterface *i, const flxAddress *raddr) {
@@ -117,6 +125,59 @@ static int netlink_list_items(flxNetlink *nl, guint16 type, guint *ret_seq) {
     return flx_netlink_send(nl, n, ret_seq);
 }
 
+static void new_interface(flxInterfaceMonitor *m, flxHwInterface *hw, guchar protocol) {
+    flxInterface *i;
+    
+    g_assert(m);
+    g_assert(hw);
+    g_assert(protocol != AF_UNSPEC);
+
+    i = g_new(flxInterface, 1);
+    i->monitor = m;
+    i->hardware = hw;
+    i->protocol = protocol;
+    i->relevant = FALSE;
+
+    FLX_LLIST_HEAD_INIT(flxInterfaceAddress, i->addresses);
+    FLX_LLIST_HEAD_INIT(flxAnnouncement, i->announcements);
+
+    i->cache = flx_cache_new(m->server, i);
+    i->scheduler = flx_packet_scheduler_new(m->server, i);
+
+    FLX_LLIST_PREPEND(flxInterface, by_hardware, hw->interfaces, i);
+    FLX_LLIST_PREPEND(flxInterface, interface, m->interfaces, i);
+}
+
+static void check_interface_relevant(flxInterfaceMonitor *m, flxInterface *i) {
+    gboolean b;
+    g_assert(m);
+    g_assert(i);
+
+    b = flx_interface_relevant(i);
+
+    if (b && !i->relevant) {
+        g_message("New relevant interface %s.%i", i->hardware->name, i->protocol);
+
+        flx_announce_interface(m->server, i);
+    } else if (!b && i->relevant) {
+        g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
+
+        flx_goodbye_interface(m->server, i, FALSE);
+    }
+
+    i->relevant = b;
+}
+
+static void check_hw_interface_relevant(flxInterfaceMonitor *m, flxHwInterface *hw) {
+    flxInterface *i;
+    
+    g_assert(m);
+    g_assert(hw);
+
+    for (i = hw->interfaces; i; i = i->by_hardware_next)
+        check_interface_relevant(m, i);
+}
+
 static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
     flxInterfaceMonitor *m = userdata;
     
@@ -126,35 +187,33 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
 
     if (n->nlmsg_type == RTM_NEWLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
-        flxInterface *i;
+        flxHwInterface *hw;
         struct rtattr *a = NULL;
         size_t l;
-        int changed;
 
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
 
-        if ((i = (flxInterface*) flx_interface_monitor_get_interface(m, ifinfomsg->ifi_index)))
-            changed = 1;
-        else {
-            i = g_new(flxInterface, 1);
-            i->monitor = m;
-            i->name = NULL;
-            i->index = ifinfomsg->ifi_index;
-            i->addresses = NULL;
-            i->n_ipv4_addrs = i->n_ipv6_addrs = 0;
-            FLX_LLIST_PREPEND(flxInterface, interface, m->interfaces, i);
-            g_hash_table_insert(m->hash_table, &i->index, i);
-            i->mtu = 1500;
-            i->ipv4_cache = flx_cache_new(m->server, i, AF_INET);
-            i->ipv6_cache = flx_cache_new(m->server, i, AF_INET6);
-            i->ipv4_scheduler = flx_packet_scheduler_new(m->server, i, AF_INET);
-            i->ipv6_scheduler = flx_packet_scheduler_new(m->server, i, AF_INET6);
+        if (!(hw = g_hash_table_lookup(m->hash_table, &ifinfomsg->ifi_index))) {
+            hw = g_new(flxHwInterface, 1);
+            hw->monitor = m;
+            hw->name = NULL;
+            hw->flags = 0;
+            hw->mtu = 1500;
+            hw->index = ifinfomsg->ifi_index;
+
+            FLX_LLIST_HEAD_INIT(flxInterface, hw->interfaces);
+            FLX_LLIST_PREPEND(flxHwInterface, hardware, m->hw_interfaces, hw);
             
-            changed = 0;
+            g_hash_table_insert(m->hash_table, &hw->index, hw);
+
+            if (m->server->fd_ipv4 >= 0)
+                new_interface(m, hw, AF_INET);
+            if (m->server->fd_ipv6 >= 0)
+                new_interface(m, hw, AF_INET6);
         }
         
-        i->flags = ifinfomsg->ifi_flags;
+        hw->flags = ifinfomsg->ifi_flags;
 
         l = NLMSG_PAYLOAD(n, sizeof(struct ifinfomsg));
         a = IFLA_RTA(ifinfomsg);
@@ -162,13 +221,13 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
         while (RTA_OK(a, l)) {
             switch(a->rta_type) {
                 case IFLA_IFNAME:
-                    g_free(i->name);
-                    i->name = g_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
+                    g_free(hw->name);
+                    hw->name = g_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
                     break;
 
                 case IFLA_MTU:
                     g_assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
-                    i->mtu = *((unsigned int*) RTA_DATA(a));
+                    hw->mtu = *((unsigned int*) RTA_DATA(a));
                     break;
                     
                 default:
@@ -178,19 +237,22 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             a = RTA_NEXT(a, l);
         }
 
-        update_interface_rr(m, i, 0);
+        update_hw_interface_rr(m, hw, FALSE);
+        check_hw_interface_relevant(m, hw);
+        
     } else if (n->nlmsg_type == RTM_DELLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
+        flxHwInterface *hw;
         flxInterface *i;
 
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
         
-        if (!(i = (flxInterface*) flx_interface_monitor_get_interface(m, ifinfomsg->ifi_index)))
+        if (!(hw = flx_interface_monitor_get_hw_interface(m, ifinfomsg->ifi_index)))
             return;
 
-        update_interface_rr(m, i, 1);
-        free_interface(m, i);
+        update_hw_interface_rr(m, hw, TRUE);
+        free_hw_interface(m, hw);
         
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
@@ -198,14 +260,13 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
         flxInterface *i;
         struct rtattr *a = NULL;
         size_t l;
-        int changed;
         flxAddress raddr;
         int raddr_valid = 0;
 
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
             return;
 
-        if (!(i = (flxInterface*) flx_interface_monitor_get_interface(m, ifaddrmsg->ifa_index)))
+        if (!(i = (flxInterface*) flx_interface_monitor_get_interface(m, ifaddrmsg->ifa_index, ifaddrmsg->ifa_family)))
             return;
 
         raddr.family = ifaddrmsg->ifa_family;
@@ -228,58 +289,52 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                 default:
                     ;
             }
-
+            
             a = RTA_NEXT(a, l);
         }
 
-
+        
         if (!raddr_valid)
             return;
 
         if (n->nlmsg_type == RTM_NEWADDR) {
             flxInterfaceAddress *addr;
             
-            if ((addr = get_address(m, i, &raddr)))
-                changed = 1;
-            else {
+            if (!(addr = get_address(m, i, &raddr))) {
                 addr = g_new(flxInterfaceAddress, 1);
+                addr->monitor = m;
                 addr->address = raddr;
                 addr->interface = i;
-
-                if (raddr.family == AF_INET)
-                    i->n_ipv4_addrs++;
-                else if (raddr.family == AF_INET6)
-                    i->n_ipv6_addrs++;
-
                 addr->rr_id = -1;
 
                 FLX_LLIST_PREPEND(flxInterfaceAddress, address, i->addresses, addr);
-                
-                changed = 0;
             }
             
             addr->flags = ifaddrmsg->ifa_flags;
             addr->scope = ifaddrmsg->ifa_scope;
 
-            update_address_rr(m, addr, 0);
+            update_address_rr(m, addr, FALSE);
+            check_interface_relevant(m, i);
         } else {
             flxInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr)))
                 return;
 
-            update_address_rr(m, addr, 1);
+            update_address_rr(m, addr, TRUE);
             free_address(m, addr);
+
+            check_interface_relevant(m, i);
         }
                 
     } else if (n->nlmsg_type == NLMSG_DONE) {
-
+        
         if (m->list == LIST_IFACE) {
             m->list = LIST_DONE;
             
-            if (netlink_list_items(m->netlink, RTM_GETADDR, &m->query_addr_seq) < 0) {
+            if (netlink_list_items(m->netlink, RTM_GETADDR, &m->query_addr_seq) < 0)
                 g_warning("NETLINK: Failed to list addrs: %s", strerror(errno));
-            } else
+            else
                 m->list = LIST_ADDR;
         } else
             m->list = LIST_DONE;
@@ -301,7 +356,9 @@ flxInterfaceMonitor *flx_interface_monitor_new(flxServer *s) {
         goto fail;
 
     m->hash_table = g_hash_table_new(g_int_hash, g_int_equal);
-    m->interfaces = NULL;
+
+    FLX_LLIST_HEAD_INIT(flxInterface, m->interfaces);
+    FLX_LLIST_HEAD_INIT(flxHwInterface, m->hw_interfaces);
 
     if (netlink_list_items(m->netlink, RTM_GETLINK, &m->query_link_seq) < 0)
         goto fail;
@@ -321,6 +378,11 @@ void flx_interface_monitor_free(flxInterfaceMonitor *m) {
     if (m->netlink)
         flx_netlink_free(m->netlink);
 
+    while (m->hw_interfaces)
+        free_hw_interface(m, m->hw_interfaces);
+
+    g_assert(!m->interfaces);
+    
     if (m->hash_table)
         g_hash_table_destroy(m->hash_table);
 
@@ -328,97 +390,102 @@ void flx_interface_monitor_free(flxInterfaceMonitor *m) {
 }
 
 
-flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index) {
+flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index, guchar protocol) {
+    flxHwInterface *hw;
+    flxInterface *i;
+    
+    g_assert(m);
+    g_assert(index > 0);
+    g_assert(protocol != AF_UNSPEC);
+
+    if (!(hw = flx_interface_monitor_get_hw_interface(m, index)))
+        return NULL;
+
+    for (i = hw->interfaces; i; i = i->by_hardware_next)
+        if (i->protocol == protocol)
+            return i;
+
+    return NULL;
+}
+
+flxHwInterface* flx_interface_monitor_get_hw_interface(flxInterfaceMonitor *m, gint index) {
     g_assert(m);
     g_assert(index > 0);
 
     return g_hash_table_lookup(m->hash_table, &index);
 }
 
-flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m) {
-    g_assert(m);
-    return m->interfaces;
-}
 
-int flx_interface_is_relevant(flxInterface *i) {
-    g_assert(i);
-
-    return
-        (i->flags & IFF_UP) &&
-        (i->flags & IFF_RUNNING) &&
-        !(i->flags & IFF_LOOPBACK);
-}
-
-int flx_address_is_relevant(flxInterfaceAddress *a) {
-    g_assert(a);
-
-    return
-        a->scope == RT_SCOPE_UNIVERSE &&
-        flx_interface_is_relevant(a->interface);
-}
-
-void flx_interface_send_packet(flxInterface *i, guchar protocol, flxDnsPacket *p) {
+void flx_interface_send_packet(flxInterface *i, flxDnsPacket *p) {
     g_assert(i);
     g_assert(p);
 
-    if (!flx_interface_is_relevant(i))
-        return;
-    
-    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0) {
-        g_message("sending on '%s':IPv4", i->name);
-        flx_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->index, p);
-    }
+    if (i->relevant) {
+        g_message("sending on '%s.%i'", i->hardware->name, i->protocol);
 
-    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0) {
-        g_message("sending on '%s':IPv6", i->name);
-        flx_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->index, p);
+        if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
+            flx_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p);
+        else if (i->protocol == AF_INET6 && i->monitor->server->fd_ipv6 >= 0)
+            flx_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p);
     }
 }
 
-void flx_interface_post_query(flxInterface *i, guchar protocol, flxKey *k) {
+void flx_interface_post_query(flxInterface *i, flxKey *key) {
     g_assert(i);
-    g_assert(k);
+    g_assert(key);
 
-    if (!flx_interface_is_relevant(i))
-        return;
-
-    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0)
-        flx_packet_scheduler_post_query(i->ipv4_scheduler, k);
-
-    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0)
-        flx_packet_scheduler_post_query(i->ipv6_scheduler, k);
+    if (i->relevant)
+        flx_packet_scheduler_post_query(i->scheduler, key);
 }
 
-void flx_interface_post_response(flxInterface *i, guchar protocol, flxRecord *rr) {
+
+void flx_interface_post_response(flxInterface *i, flxRecord *record) {
     g_assert(i);
-    g_assert(rr);
+    g_assert(record);
 
-    if (!flx_interface_is_relevant(i))
-        return;
-
-    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0)
-        flx_packet_scheduler_post_response(i->ipv4_scheduler, rr);
-
-    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0)
-        flx_packet_scheduler_post_response(i->ipv6_scheduler, rr);
+    if (i->relevant)
+        flx_packet_scheduler_post_response(i->scheduler, record);
 }
 
-void flx_dump_caches(flxServer *s, FILE *f) {
+void flx_dump_caches(flxInterfaceMonitor *m, FILE *f) {
     flxInterface *i;
-    g_assert(s);
+    g_assert(m);
 
-    for (i = flx_interface_monitor_get_first(s->monitor); i; i = i->interface_next) {
-        if (!flx_interface_is_relevant(i))
-            continue;
-        
-        if (i->n_ipv4_addrs > 0) {
-            fprintf(f, ";;; INTERFACE %s; IPv4 ;;;\n", i->name);
-            flx_cache_dump(i->ipv4_cache, f);
-        }
-
-        if (i->n_ipv6_addrs > 0) {
-            fprintf(f, ";;; INTERFACE %s; IPv6 ;;;\n", i->name);
-            flx_cache_dump(i->ipv6_cache, f);
+    for (i = m->interfaces; i; i = i->interface_next) {
+        if (i->relevant) {
+            fprintf(f, ";;; INTERFACE %s.%i ;;;\n", i->hardware->name, i->protocol);
+            flx_cache_dump(i->cache, f);
         }
     }
 }
+
+gboolean flx_interface_relevant(flxInterface *i) {
+    g_assert(i);
+
+    return
+        (i->hardware->flags & IFF_UP) &&
+        (i->hardware->flags & IFF_RUNNING) &&
+        !(i->hardware->flags & IFF_LOOPBACK) &&
+        (i->hardware->flags & IFF_MULTICAST) &&
+        i->addresses;
+}
+
+gboolean flx_interface_address_relevant(flxInterfaceAddress *a) { 
+    g_assert(a);
+
+    return a->scope == RT_SCOPE_UNIVERSE;
+}
+
+
+gboolean flx_interface_match(flxInterface *i, gint index, guchar protocol) {
+    g_assert(i);
+    
+    if (index > 0 && index != i->hardware->index)
+        return FALSE;
+
+    if (protocol != AF_UNSPEC && protocol != i->protocol)
+        return FALSE;
+
+    return TRUE;
+}
+

@@ -30,13 +30,12 @@ struct _flxPacketScheduler {
     flxServer *server;
     
     flxInterface *interface;
-    guchar protocol;
 
     FLX_LLIST_HEAD(flxQueryJob, query_jobs);
     FLX_LLIST_HEAD(flxResponseJob, response_jobs);
 };
 
-flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i, guchar protocol);
+flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i);
 void flx_packet_scheduler_free(flxPacketScheduler *s);
 
 void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key);

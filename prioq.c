@@ -45,7 +45,7 @@ static flxPrioQueueNode* get_node_at_xy(flxPrioQueue *q, guint x, guint y) {
 }
 
 static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNode *b) {
-    flxPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn;
+    flxPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn, *apl, *bpl;
     gint t;
     g_assert(q);
     g_assert(a);
@@ -129,21 +129,27 @@ static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNod
         }
     } else {
         /* Swap parents */
-        p = a->parent;
+        ap = a->parent;
+        bp = b->parent;
+
+        if (ap)
+            apl = ap->left;
+        if (bp)
+            bpl = bp->left;
         
-        if ((a->parent = b->parent)) {
-            if (a->parent->left == b)
-                a->parent->left = a;
-            else
-                a->parent->right = a;
+        if ((a->parent = bp)) {
+            if (bpl == b)
+                bp->left = a;
+            else 
+                bp->right = a;
         } else
             q->root = a;
                 
-        if ((b->parent = p)) {
-            if (b->parent->left == a)
-                b->parent->left = b;
+        if ((b->parent = ap)) {
+            if (apl == a)
+                ap->left = b;
             else
-                b->parent->right = b;
+                ap->right = b;
         } else
             q->root = b;
 
@@ -258,7 +264,7 @@ flxPrioQueueNode* flx_prio_queue_put(flxPrioQueue *q, gpointer data) {
     if (q->last) {
         g_assert(q->root);
         g_assert(q->n_nodes);
-        
+         
         n->y = q->last->y;
         n->x = q->last->x+1;
 
@@ -302,7 +308,7 @@ void flx_prio_queue_remove(flxPrioQueue *q, flxPrioQueueNode *n) {
     if (n != q->last) {
         flxPrioQueueNode *replacement = q->last;
         exchange_nodes(q, replacement, n);
-        flx_prio_queue_remove(q, q->last);
+        flx_prio_queue_remove(q, n);
         flx_prio_queue_shuffle(q, replacement);
         return;
     }
@@ -314,14 +320,21 @@ void flx_prio_queue_remove(flxPrioQueue *q, flxPrioQueueNode *n) {
 
     q->last = n->prev;
     
-    if (n->prev)
+    if (n->prev) {
         n->prev->next = NULL;
-    else
+        g_assert(n->parent);
+    } else
         g_assert(!n->parent);
 
     if (n->parent) {
         g_assert(n->prev);
         if (n->parent->left == n) {
+            if (n->parent->right != NULL) {
+                g_message("fuck");
+                for (;;);
+                
+            }
+            
             g_assert(n->parent->right == NULL);
             n->parent->left = NULL;
         } else {
@@ -332,10 +345,13 @@ void flx_prio_queue_remove(flxPrioQueue *q, flxPrioQueueNode *n) {
     } else {
         g_assert(q->root == n);
         g_assert(!n->prev);
+        g_assert(q->n_nodes == 1);
         q->root = NULL;
     }
 
-    q->n_nodes--;
-    
     g_free(n);
+
+    g_assert(q->n_nodes > 0);
+    q->n_nodes--;
 }
+

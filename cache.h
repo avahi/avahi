@@ -40,12 +40,11 @@ struct _flxCache {
     flxServer *server;
     
     flxInterface *interface;
-    guchar protocol;
     
     GHashTable *hash_table;
 };
 
-flxCache *flx_cache_new(flxServer *server, flxInterface *interface, guchar protocol);
+flxCache *flx_cache_new(flxServer *server, flxInterface *interface);
 void flx_cache_free(flxCache *c);
 
 flxCacheEntry *flx_cache_lookup_key(flxCache *c, flxKey *k);

@@ -1,15 +1,16 @@
 #ifndef fooflxserverhfoo
 #define fooflxserverhfoo
 
-typedef struct _flxEntry flxEntry;
+typedef struct _flxServerEntry flxServerEntry;
 
 #include "flx.h"
 #include "iface.h"
 #include "prioq.h"
 #include "llist.h"
 #include "timeeventq.h"
+#include "announce.h"
 
-struct _flxEntry {
+struct _flxServerEntry {
     flxRecord *record;
     gint id;
     gint interface;
@@ -17,9 +18,11 @@ struct _flxEntry {
 
     gboolean unique;
 
-    FLX_LLIST_FIELDS(flxEntry, entry);
-    FLX_LLIST_FIELDS(flxEntry, by_name);
-    FLX_LLIST_FIELDS(flxEntry, by_id);
+    FLX_LLIST_FIELDS(flxServerEntry, entry);
+    FLX_LLIST_FIELDS(flxServerEntry, by_key);
+    FLX_LLIST_FIELDS(flxServerEntry, by_id);
+    
+    FLX_LLIST_HEAD(flxAnnouncement, announcements);
 };
 
 struct _flxServer {
@@ -29,9 +32,9 @@ struct _flxServer {
     gint current_id;
     
     GHashTable *rrset_by_id;
-    GHashTable *rrset_by_name;
+    GHashTable *rrset_by_key;
 
-    FLX_LLIST_HEAD(flxEntry, entries);
+    FLX_LLIST_HEAD(flxServerEntry, entries);
 
     flxTimeEventQueue *time_event_queue;
     
@@ -44,5 +47,6 @@ struct _flxServer {
     
 };
 
+gboolean flx_server_entry_match_interface(flxServerEntry *e, flxInterface *i);
 
 #endif

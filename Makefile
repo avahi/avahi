@@ -1,10 +1,10 @@
-#CC=gcc
-CFLAGS=-g -O0 -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
+CC=gcc
+CFLAGS=-g -O0 -Wall -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
 LIBS=$(shell pkg-config --libs glib-2.0)
 
 all: flexmdns prioq-test
 
-flexmdns: timeeventq.o main.o iface.o netlink.o server.o address.o util.o prioq.o cache.o rr.o dns.o socket.o psched.o
+flexmdns: timeeventq.o main.o iface.o netlink.o server.o address.o util.o prioq.o cache.o rr.o dns.o socket.o psched.o announce.o
 	$(CC) -o $@ $^ $(LIBS)
 
 #test-llist: test-llist.o

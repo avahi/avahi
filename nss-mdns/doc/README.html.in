@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="iso-8859-1"?> <!-- -*-html-helper-*- -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>nss-mdns @PACKAGE_VERSION@</title>
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+<h1><a name="top">nss-mdns @PACKAGE_VERSION@</a></h1>
+
+<p><i>Copyright 2004 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
+
+<ul class="toc">
+    <li><a href="#license">License</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#status">Status</a></li>
+    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#acks">Acknowledgements</a></li>
+    <li><a href="#download">Download</a></li>
+</ul>
+
+<h2><a name="license">License</a></h2>
+
+<p>This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
+
+<h2><a name="news">News</a></h2>
+
+<div class="news-date">Mon Dec 6 2004: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.1.tar.gz">Version 0.1</a> released</p>
+
+<h2><a name="overview">Overview</a></h2>
+
+<p><tt>nss-mdns</tt> is a plugin for the GNU Name Service
+Switch (NSS) functionality of the GNU C Library (<tt>glibc</tt>)
+providing host name resolution via <a
+href="http://www.multicastdns.org/">Multicast DNS</a> (aka
+<i>Zeroconf</i>, aka <i>Apple Rendezvous</i>), effectively allowing
+name resolution by common Unix/Linux programs in the ad-hoc mDNS domain <tt>.local</tt>.</p>
+
+<p><tt>nss-mdns</tt> provides client functionality only, which
+means that you have to run a mDNS responder daemon seperately
+from <tt>nss-mdns</tt> if you want to register the local host name via
+mDNS (e.g. <a href="http://www.porchdogsoft.com/products/howl/">HOWL</a>).</p>
+
+<p><tt>nss-mdns</tt> is very lightweight (18 KByte stripped binary <tt>.so</tt> compiled with 
+<tt>-DNDEBUG=1</tt>), has no dependencies besides the <tt>glibc</tt> and requires only minimal
+configuration.</p>
+
+<h2><a name="status">Status</a></h2>
+
+<p>It works!</p>
+
+<p>While <tt>nss-mdns</tt> supports resolving IPv6 addresses it does
+so via IPv4 multicasts only.</p>
+
+<h2><a name="documentation">Documentation</a></h2>
+
+<p>After compiling and installing <tt>nss-mdns</tt> you'll find three
+new NSS modules in <tt>/lib</tt>:</p>
+<ul><li><tt>libnss_mdns.so.2</tt></li>
+<li><tt>libnss_mdns4.so.2</tt></li>
+<li><tt>libnss_mdns6.so.2</tt></li></ul> <p><tt>libnss_mdns.so.2</tt>
+resolves both IPv6 and IPv4 addresses, <tt>libnss_mdns4.so.2</tt> only
+IPv4 addresses and <tt>libnss_mdns6.so.2</tt> only IPv6 addresses. Due
+to the fact that most mDNS responders only register local IPv4
+addresses via mDNS, most people will want to use
+<tt>libnss_mdns4.so.2</tt> exclusively. Using
+<tt>libnss_mdns.so.2</tt> or <tt>libnss_mdns6.so.2</tt> in such a
+situation causes long timeouts when resolving hosts since most modern
+Unix/Linux applications check for IPv6 addresses first, followed by a
+lookup for IPv4.</p>
+
+<p>To activate one of the NSS modules you have to edit
+<tt>/etc/nsswitch.conf</tt> and add <tt>mdns4</tt>
+(resp. <tt>mdns</tt>, <tt>mdns6</tt>) to the line starting with "<tt>hosts:</tt>". On Debian this looks like this:</p>
+
+<pre># /etc/nsswitch.conf
+
+passwd:         compat
+group:          compat
+shadow:         compat
+
+hosts:          files dns <b>mdns4</b>
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis</pre>
+
+<p>That's it. You should now be able to resolve hosts from the
+<tt>.local</tt> domain with all your applications. For a quick check
+use <tt>glibc</tt>'s <tt>getent</tt> tool:
+
+<pre>$ getent hosts <i>foo</i>.local
+192.168.50.4    foo.local</pre>
+
+<p>Replace <i>foo</i> whith a host name that has been registered with an mDNS responder.</p>
+
+<p>Due to some traffic suppression algorithms in mDNS responders
+repeated mDNS resolutions are slowed down. Consider installing <tt>glibc</tt>'s name
+service cache daemon <tt>nscd</tt> to work around this limitation.</p>
+
+<h2><a name="requirements">Requirements</a></h2>
+
+<p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly modern <tt>glibc</tt> installation with development headers (2.0 or newer) is required. Not
+suprisingly <tt>nss-mdns</tt> requires a kernel compiled with IPv4
+multicasting support enabled.</p>
+
+<p><tt>nss-mdns</tt> was developed and tested on Debian GNU/Linux
+"testing" from December 2004, it should work on most other Linux
+distributions (and maybe Unix versions) since it uses GNU autoconf and
+GNU libtool for source code configuration and shared library
+management. <tt>nss-mdns</tt> has been tested exclusively against the
+HOWL mDNS responder daemon.</p>
+
+<h2><a name="installation">Installation</a></h2>
+
+<p>As this package is made with the GNU autotools you should run
+<tt>./configure</tt> inside the distribution directory for configuring
+the source tree. After that you should run <tt>make</tt> for
+compilation and <tt>make install</tt> (as root) for installation of
+<tt>nss-mdns</tt>.</p>
+
+<h2><a name="acks">Acknowledgements</a></h2>
+
+<p>Nothing here yet.</p>
+
+<h2><a name="download">Download</a></h2>
+
+<p>The newest release is always available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a></p>
+
+<p>The current release is <a href="@PACKAGE_URL@nss-mdns-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
+
+<p>Get <tt>nss-mdns</tt>'s development sources from the <a href="http://subversion.tigris.org/">Subversion</a> <a href="svn://seth.intheinter.net/nss-mdns">repository</a> (<a href="http://0pointer.de/cgi-bin/viewcvs.cgi/?root=nss-mdns">viewcvs</a>): </p>
+
+<pre>svn checkout svn://seth.intheinter.net/nss-mdns/trunk nss-mdns</pre>
+
+<p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
+
+<hr/>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, December 2004</address>
+<div class="grey"><i>$Id$</i></div>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+/* $Id$ */
+
+/***
+ * This file is part of nss-mdns.
+ *
+ * nss-mdns is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * nss-mdns is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with nss-mdns; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ ***/
+
+body { color: black; background-color: white; margin: 0.5cm; } 
+a:link, a:visited { color: #900000; }       
+p { margin-left: 0.5cm; margin-right: 0.5cm; }
+div.news-date { margin-left: 0.5cm; font-size: 80%; color: #4f0000; } 
+p.news-text { margin-left: 1cm; }
+h1 { color: #00009F; }
+h2 { color: #00009F; }
+h3 { color: #00004F; margin-left: 0.5cm; }
+ul { margin-left: .5cm; }
+ol { margin-left: .5cm; }
+pre { margin-left: .5cm; background-color: #f0f0f0; padding: 0.4cm;}
+.grey { color: #afafaf; }
+table {  margin-left: 1cm; border:1px solid lightgrey; padding: 0.2cm; }
+td { padding-left:10px; padding-right:10px;  }

@@ -337,7 +337,7 @@ static flxResponseJob* response_job_new(flxPacketScheduler *s, flxRecord *record
     return rj;
 }
 
-void flx_packet_scheduler_post_response(flxPacketScheduler *s, flxRecord *record, gboolean immediately) {
+void flx_packet_scheduler_post_response(flxPacketScheduler *s, const flxAddress *a, flxRecord *record, gboolean immediately) {
     flxResponseJob *rj;
     GTimeVal tv;
     gchar *t;
@@ -361,6 +361,12 @@ void flx_packet_scheduler_post_response(flxPacketScheduler *s, flxRecord *record
         if (!!record->ttl == !!rj->record->ttl &&
             d >= 0 && d <= FLX_RESPONSE_HISTORY_MSEC*1000) {
             g_message("WARNING! DUPLICATE RESPONSE SUPPRESSION ACTIVE!");
+
+            /* This job is no longer specific to a single querier, so
+             * make sure it isn't suppressed by known answer
+             * suppresion */
+            rj->address_valid = FALSE;
+            
             return;
         }
 
@@ -376,6 +382,13 @@ void flx_packet_scheduler_post_response(flxPacketScheduler *s, flxRecord *record
     rj = response_job_new(s, record);
     rj->delivery = tv;
     rj->time_event = flx_time_event_queue_add(s->server->time_event_queue, &rj->delivery, response_elapse, rj);
+
+    /* Store the address of the host this messages is intended to, so
+       that we can drop this job in case a truncated message with
+       known answer suppresion entries is recieved */
+
+    if ((rj->address_valid = !!a))
+        rj->address = *a;
 }
 
 void flx_packet_scheduler_incoming_query(flxPacketScheduler *s, flxKey *key) {
@@ -486,6 +499,27 @@ mark_done:
     response_job_set_elapse_time(s, rj, FLX_RESPONSE_HISTORY_MSEC, 0);
 
     g_get_current_time(&rj->delivery);
+}
+
+void flx_packet_scheduler_incoming_known_answer(flxPacketScheduler *s, flxRecord *record, const flxAddress *a) {
+    flxResponseJob *rj;
+    
+    g_assert(s);
+    g_assert(record);
+    g_assert(a);
+
+    for (rj = s->response_jobs; rj; rj = rj->jobs_next)
+        if (flx_record_equal_no_ttl(rj->record, record) &&
+            rj->address_valid &&
+            flx_address_cmp(&rj->address, a) &&
+            record->ttl >= rj->record->ttl/2) {
+
+            /* Let's suppress it */
+
+            response_job_free(s, rj);
+            break;
+        }
+    
 }
 
 void flx_packet_scheduler_flush_responses(flxPacketScheduler *s) {

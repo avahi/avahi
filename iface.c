@@ -447,12 +447,12 @@ void flx_interface_post_query(flxInterface *i, flxKey *key, gboolean immediately
 }
 
 
-void flx_interface_post_response(flxInterface *i, flxRecord *record, gboolean immediately) {
+void flx_interface_post_response(flxInterface *i, const flxAddress *a, flxRecord *record, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
     if (flx_interface_relevant(i))
-        flx_packet_scheduler_post_response(i->scheduler, record, immediately);
+        flx_packet_scheduler_post_response(i->scheduler, a, record, immediately);
 }
 
 void flx_dump_caches(flxInterfaceMonitor *m, FILE *f) {

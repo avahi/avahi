@@ -1,17 +1,15 @@
 todo:
 * Probing/Conflict resolution
 * uniqueness
+
 * defend our entries on incoming goodbye
 
 * Unicast responses/queries
 * Legacy unicast
-
-* Known-Answer suppression server part
-* Truncation
 
 done:
 * really send goodbye packets
 * refresh subscribed records only
 * FLX_DNS_TYPE_ANY support
 * Known-Answer suppression client part
-
+* Known-Answer suppression server part

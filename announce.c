@@ -23,7 +23,7 @@ static void elapse_announce(flxTimeEvent *e, void *userdata) {
     g_assert(e);
     g_assert(a);
 
-    flx_interface_post_response(a->interface, a->entry->record, FALSE);
+    flx_interface_post_response(a->interface, NULL, a->entry->record, FALSE);
 
     if (a->n_announced++ <= 8)
         a->sec_delay *= 2;
@@ -64,7 +64,7 @@ static void new_announcement(flxServer *s, flxInterface *i, flxServerEntry *e) {
     g_message("New announcement on interface %s.%i for entry [%s]", i->hardware->name, i->protocol, t = flx_record_to_string(e->record));
     g_free(t);
     
-    flx_interface_post_response(i, e->record, FALSE);
+    flx_interface_post_response(i, NULL, e->record, FALSE);
     
     a = g_new(flxAnnouncement, 1);
     a->server = s;
@@ -138,7 +138,7 @@ void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean goodbye) {
         for (e = s->entries; e; e = e->entry_next)
             if (flx_interface_match(i, e->interface, e->protocol)) {
                 flxRecord *g = make_goodbye_record(e->record);
-                flx_interface_post_response(i, g, TRUE);
+                flx_interface_post_response(i, NULL, g, TRUE);
                 flx_record_unref(g);
             }
     }

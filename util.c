@@ -113,3 +113,13 @@ GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
         
     return tv;
 }
+
+gint flx_age(const GTimeVal *a) {
+    GTimeVal now;
+    
+    g_assert(a);
+
+    g_get_current_time(&now);
+
+    return flx_timeval_diff(&now, a);
+}

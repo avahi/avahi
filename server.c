@@ -31,14 +31,14 @@ static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flx
         for (e = s->entries; e; e = e->entry_next)
             if (flx_key_pattern_match(k, e->record->key))
                 if (flx_interface_match(i, e->interface, e->protocol))
-                    flx_interface_post_response(i, e->record, FALSE);
+                    flx_interface_post_response(i, a, e->record, FALSE);
     } else {
 
         /* Handle all other queries */
         
         for (e = g_hash_table_lookup(s->rrset_by_key, k); e; e = e->by_key_next)
             if (flx_interface_match(i, e->interface, e->protocol))
-                flx_interface_post_response(i, e->record, FALSE);
+                flx_interface_post_response(i, a, e->record, FALSE);
     }
 }
 
@@ -60,6 +60,20 @@ static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const f
 
         handle_query_key(s, key, i, a);
         flx_key_unref(key);
+    }
+
+    /* Known Answer Suppresion */
+    for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT); n > 0; n --) {
+        flxRecord *record;
+        gboolean unique = FALSE;
+
+        if (!(record = flx_dns_packet_consume_record(p, &unique))) {
+            g_warning("Packet too short (2)");
+            return;
+        }
+
+        flx_packet_scheduler_incoming_known_answer(i->scheduler, record, a);
+        flx_record_unref(record);
     }
 }
 
@@ -583,7 +597,7 @@ static void post_response_callback(flxInterfaceMonitor *m, flxInterface *i, gpoi
     g_assert(i);
     g_assert(r);
 
-    flx_interface_post_response(i, r, FALSE);
+    flx_interface_post_response(i, NULL, r, FALSE);
 }
 
 void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record) {

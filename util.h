@@ -15,4 +15,6 @@ gint flx_wait_for_write(gint fd);
 
 GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter);
 
+gint flx_age(const GTimeVal *a);
+
 #endif

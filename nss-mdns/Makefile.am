@@ -28,7 +28,7 @@ README:
 	$(MAKE) -C doc README
 	cd $(srcdir) && ln -s doc/README README
 
-homepage: all dist doxygen
+homepage: all dist
 	test -d $$HOME/homepage/private
 	mkdir -p $$HOME/homepage/private/projects/nss-mdns $$HOME/homepage/private/projects/nss-mdns/doxygen
 	cp nss-mdns-@PACKAGE_VERSION@.tar.gz $$HOME/homepage/private/projects/nss-mdns

@@ -21,7 +21,7 @@ static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, in
     } else {
         if (a->rr_id < 0) {
             a->rr_id = flx_server_get_next_id(m->server);
-            flx_server_add_address(m->server, a->rr_id, a->interface->index, AF_UNSPEC, m->server->hostname, &a->address);
+            flx_server_add_address(m->server, a->rr_id, a->interface->index, AF_UNSPEC, FALSE, m->server->hostname, &a->address);
         }
     }
 }
@@ -31,7 +31,7 @@ static void update_interface_rr(flxInterfaceMonitor *m, flxInterface *i, int rem
     g_assert(m);
     g_assert(i);
 
-    for (a = i->addresses; a; a = a->next)
+    for (a = i->addresses; a; a = a->address_next)
         update_address_rr(m, a, remove);
 }
 
@@ -44,15 +44,11 @@ static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
         a->interface->n_ipv4_addrs --;
     else if (a->address.family == AF_INET6)
         a->interface->n_ipv6_addrs --;
- 
-    if (a->prev)
-        a->prev->next = a->next;
-    else
-        a->interface->addresses = a->next;
 
-    if (a->next)
-        a->next->prev = a->prev;
+    FLX_LLIST_REMOVE(flxInterfaceAddress, address, a->interface->addresses, a);
 
+    flx_server_remove(m->server, a->rr_id);
+    
     g_free(a);
 }
 
@@ -63,18 +59,19 @@ static void free_interface(flxInterfaceMonitor *m, flxInterface *i) {
     while (i->addresses)
         free_address(m, i->addresses);
 
+    if (i->ipv4_cache)
+        flx_cache_free(i->ipv4_cache);
+    if (i->ipv6_cache)
+        flx_cache_free(i->ipv6_cache);
+    
     g_assert(i->n_ipv6_addrs == 0);
     g_assert(i->n_ipv4_addrs == 0);
 
-    if (i->prev)
-        i->prev->next = i->next;
-    else
-        m->interfaces = i->next;
-
-    if (i->next)
-        i->next->prev = i->prev;
-
+    FLX_LLIST_REMOVE(flxInterface, interface, m->interfaces, i);
     g_hash_table_remove(m->hash_table, &i->index);
+
+    flx_cache_free(i->ipv4_cache);
+    flx_cache_free(i->ipv6_cache);
     
     g_free(i->name);
     g_free(i);
@@ -87,7 +84,7 @@ static flxInterfaceAddress* get_address(flxInterfaceMonitor *m, flxInterface *i,
     g_assert(i);
     g_assert(raddr);
 
-    for (ia = i->addresses; ia; ia = ia->next)
+    for (ia = i->addresses; ia; ia = ia->address_next)
         if (flx_address_cmp(&ia->address, raddr) == 0)
             return ia;
 
@@ -134,15 +131,16 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             changed = 1;
         else {
             i = g_new(flxInterface, 1);
+            i->monitor = m;
             i->name = NULL;
             i->index = ifinfomsg->ifi_index;
             i->addresses = NULL;
             i->n_ipv4_addrs = i->n_ipv6_addrs = 0;
-            if ((i->next = m->interfaces))
-                i->next->prev = i;
-            m->interfaces = i;
-            i->prev = NULL;
+            FLX_LLIST_PREPEND(flxInterface, interface, m->interfaces, i);
             g_hash_table_insert(m->hash_table, &i->index, i);
+            i->ipv4_cache = flx_cache_new(m->server, i);
+            i->ipv6_cache = flx_cache_new(m->server, i);
+            
             changed = 0;
         }
         
@@ -231,18 +229,16 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             else {
                 addr = g_new(flxInterfaceAddress, 1);
                 addr->address = raddr;
+                addr->interface = i;
 
                 if (raddr.family == AF_INET)
                     i->n_ipv4_addrs++;
                 else if (raddr.family == AF_INET6)
                     i->n_ipv6_addrs++;
-                
-                addr->interface = i;
-                if ((addr->next = i->addresses))
-                    addr->next->prev = addr;
-                i->addresses = addr;
-                addr->prev = NULL;
+
                 addr->rr_id = -1;
+
+                FLX_LLIST_PREPEND(flxInterfaceAddress, address, i->addresses, addr);
                 
                 changed = 0;
             }
@@ -317,14 +313,14 @@ void flx_interface_monitor_free(flxInterfaceMonitor *m) {
 }
 
 
-const flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index) {
+flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index) {
     g_assert(m);
     g_assert(index > 0);
 
     return g_hash_table_lookup(m->hash_table, &index);
 }
 
-const flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m) {
+flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m) {
     g_assert(m);
     return m->interfaces;
 }
@@ -344,4 +340,9 @@ int flx_address_is_relevant(flxInterfaceAddress *a) {
     return
         a->scope == RT_SCOPE_UNIVERSE &&
         flx_interface_is_relevant(a->interface);
+}
+
+void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k) {
+    g_assert(i);
+    g_assert(k);
 }

@@ -15,13 +15,15 @@ typedef struct _flxInterface flxInterface;
 #include "address.h"
 #include "server.h"
 #include "netlink.h"
+#include "cache.h"
+#include "llist.h"
 
 struct _flxInterfaceMonitor {
     flxServer *server;
     flxNetlink *netlink;
     GHashTable *hash_table;
 
-    flxInterface *interfaces;
+    FLX_LLIST_HEAD(flxInterface, interfaces);
     
     guint query_addr_seq, query_link_seq;
     
@@ -29,14 +31,16 @@ struct _flxInterfaceMonitor {
 };
 
 struct _flxInterface {
+    flxInterfaceMonitor *monitor;
     gchar *name;
     gint index;
     guint flags;
 
+    FLX_LLIST_HEAD(flxInterfaceAddress, addresses);
+    FLX_LLIST_FIELDS(flxInterface, interface);
+
     guint n_ipv6_addrs, n_ipv4_addrs;
-    
-    flxInterfaceAddress *addresses;
-    flxInterface *next, *prev;
+    flxCache *ipv4_cache, *ipv6_cache;
 };
 
 struct _flxInterfaceAddress {
@@ -45,7 +49,8 @@ struct _flxInterfaceAddress {
     flxAddress address;
     
     flxInterface *interface;
-    flxInterfaceAddress *next, *prev;
+
+    FLX_LLIST_FIELDS(flxInterfaceAddress, address);
 
     gint rr_id;
 };
@@ -53,10 +58,12 @@ struct _flxInterfaceAddress {
 flxInterfaceMonitor *flx_interface_monitor_new(flxServer *server);
 void flx_interface_monitor_free(flxInterfaceMonitor *m);
 
-const flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index);
-const flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m);
+flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index);
+flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m);
 
 int flx_interface_is_relevant(flxInterface *i);
 int flx_address_is_relevant(flxInterfaceAddress *a);
+
+void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k);
     
 #endif

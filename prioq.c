@@ -1,6 +1,6 @@
 #include "prioq.h"
 
-flxPrioQueue* flx_prio_queue_new(gint (*compare) (gpointer a, gpointer b)) {
+flxPrioQueue* flx_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b)) {
     flxPrioQueue *q;
     g_assert(compare);
 
@@ -216,7 +216,7 @@ static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNod
 }
 
 /* Move a node to the correct position */
-static void shuffle_node(flxPrioQueue *q, flxPrioQueueNode *n) {
+void flx_prio_queue_shuffle(flxPrioQueue *q, flxPrioQueueNode *n) {
     g_assert(q);
     g_assert(n);
 
@@ -290,7 +290,7 @@ flxPrioQueueNode* flx_prio_queue_put(flxPrioQueue *q, gpointer data) {
     q->last = n;
     q->n_nodes++;
 
-    shuffle_node(q, n);
+    flx_prio_queue_shuffle(q, n);
 
     return n;
 }
@@ -303,7 +303,7 @@ void flx_prio_queue_remove(flxPrioQueue *q, flxPrioQueueNode *n) {
         flxPrioQueueNode *replacement = q->last;
         exchange_nodes(q, replacement, n);
         flx_prio_queue_remove(q, q->last);
-        shuffle_node(q, replacement);
+        flx_prio_queue_shuffle(q, replacement);
         return;
     }
 

@@ -4,7 +4,7 @@
 
 #include "prioq.h"
 
-static gint compare(gpointer a, gpointer b) {
+static gint compare(gconstpointer a, gconstpointer b) {
     gint i = GPOINTER_TO_INT(a), j = GPOINTER_TO_INT(b);
 
     return i < j ? -1 : (i > j ? 1 : 0);

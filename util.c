@@ -24,3 +24,29 @@ gchar *flx_normalize_name(const gchar *s) {
     return g_strdup_printf("%s.", s);
 }
 
+gint flx_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
+    g_assert(a);
+    g_assert(b);
+
+    if (a->tv_sec < b->tv_sec)
+        return -1;
+
+    if (a->tv_sec > b->tv_sec)
+        return 1;
+
+    if (a->tv_usec < b->tv_usec)
+        return -1;
+
+    if (a->tv_usec > b->tv_usec)
+        return 1;
+
+    return 0;
+}
+
+glong flx_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
+    g_assert(a);
+    g_assert(b);
+    g_assert(flx_timeval_compare(a, b) >= 0);
+
+    return (a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
+}

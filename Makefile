@@ -3,7 +3,7 @@ LIBS=$(shell pkg-config --libs glib-2.0)
 
 all: flexmdns prioq-test
 
-flexmdns: main.o iface.o netlink.o server.o address.o util.o prioq.o
+flexmdns: timeeventq.o main.o iface.o netlink.o server.o address.o util.o prioq.o cache.o rr.o
 	$(CC) -o $@ $^ $(LIBS)
 
 #test-llist: test-llist.o

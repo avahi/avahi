@@ -12,9 +12,7 @@ struct _flxNetlink {
     GSource *source;
     void (*callback) (flxNetlink *nl, struct nlmsghdr *n, gpointer userdata);
     gpointer userdata;
-    GSourceFuncs source_funcs;
 };
-
 static gboolean work(flxNetlink *nl) {
     g_assert(nl);
 
@@ -80,6 +78,15 @@ flxNetlink *flx_netlink_new(GMainContext *context, guint32 groups, void (*cb) (f
     struct sockaddr_nl addr;
     flxNetlink *nl;
 
+    static GSourceFuncs source_funcs = {
+        prepare_func,
+        check_func,
+        dispatch_func,
+        NULL,
+        NULL,
+        NULL
+    };
+    
     g_assert(context);
     g_assert(cb);
 
@@ -107,12 +114,7 @@ flxNetlink *flx_netlink_new(GMainContext *context, guint32 groups, void (*cb) (f
     nl->callback = cb;
     nl->userdata = userdata;
 
-    memset(&nl->source_funcs, 0, sizeof(nl->source_funcs));
-    nl->source_funcs.prepare = prepare_func;
-    nl->source_funcs.check = check_func;
-    nl->source_funcs.dispatch = dispatch_func,
-
-    nl->source = g_source_new(&nl->source_funcs, sizeof(GSource) + sizeof(flxNetlink*));
+    nl->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(flxNetlink*));
     *((flxNetlink**) (((guint8*) nl->source) + sizeof(GSource))) = nl;
 
     memset(&nl->poll_fd, 0, sizeof(GPollFD));

@@ -19,6 +19,8 @@ struct _flxInterface {
     gint index;
     guint flags;
 
+    guint n_ipv6_addrs, n_ipv4_addrs;
+    
     flxInterfaceAddress *addresses;
     flxInterface *next, *prev;
 };

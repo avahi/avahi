@@ -22,10 +22,10 @@ int main(int argc, char *argv[]) {
     l = flx_local_addr_source_new(flx);
 
     flx_address_parse("127.0.0.1", AF_INET, &a);
-    flx_server_add_address(flx, 0, 0, "localhost", &a);
+    flx_server_add_address(flx, 0, 0, AF_UNSPEC, "localhost", &a);
 
     flx_address_parse("::1", AF_INET6, &a);
-    flx_server_add_address(flx, 0, 0, "ip6-localhost", &a);
+    flx_server_add_address(flx, 0, 0, AF_UNSPEC, "ip6-localhost", &a);
 
     g_timeout_add(1000, timeout, NULL);
     

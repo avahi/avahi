@@ -19,6 +19,9 @@ flxServer *flx_server_new(GMainContext *c) {
     s->rrset_by_name = g_hash_table_new(g_str_hash, g_str_equal);
     s->entries = NULL;
 
+    s->first_response_job = s->last_response_job = NULL;
+    s->first_query_jobs = s->last_query_job = NULL;
+    
     s->monitor = flx_interface_monitor_new(s->context);
     
     return s;
@@ -43,7 +46,7 @@ gint flx_server_get_next_id(flxServer *s) {
     return s->current_id++;
 }
 
-void flx_server_add_rr(flxServer *s, gint id, gint interface, const flxRecord *rr) {
+void flx_server_add_rr(flxServer *s, gint id, gint interface, guchar protocol, const flxRecord *rr) {
     flxEntry *e;
     g_assert(s);
     g_assert(rr);
@@ -55,6 +58,7 @@ void flx_server_add_rr(flxServer *s, gint id, gint interface, const flxRecord *r
     flx_record_copy_normalize(&e->rr, rr);
     e->id = id;
     e->interface = interface;
+    e->protocol = protocol;
 
     /* Insert into linked list */
     e->prev = NULL;
@@ -75,7 +79,7 @@ void flx_server_add_rr(flxServer *s, gint id, gint interface, const flxRecord *r
     g_hash_table_replace(s->rrset_by_name, e->rr.name, e);
 }
 
-void flx_server_add(flxServer *s, gint id, gint interface, const gchar *name, guint16 type, gconstpointer data, guint size) {
+void flx_server_add(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, guint16 type, gconstpointer data, guint size) {
     flxRecord rr;
     g_assert(s);
     g_assert(name);
@@ -88,7 +92,7 @@ void flx_server_add(flxServer *s, gint id, gint interface, const gchar *name, gu
     rr.data = (gpointer) data;
     rr.size = size;
     rr.ttl = FLX_DEFAULT_TTL;
-    flx_server_add_rr(s, id, interface, &rr);
+    flx_server_add_rr(s, id, interface, protocol, &rr);
 }
 
 const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state) {
@@ -202,7 +206,7 @@ void flx_server_dump(flxServer *s, FILE *f) {
 
     for (e = s->entries; e; e = e->next) {
         char t[256];
-        fprintf(f, "%i: %-40s %-8s %-8s ", e->interface, e->rr.name, dns_class_to_string(e->rr.class), dns_type_to_string(e->rr.type));
+        fprintf(f, "%i.%u: %-40s %-8s %-8s ", e->interface, e->protocol, e->rr.name, dns_class_to_string(e->rr.class), dns_type_to_string(e->rr.type));
 
         t[0] = 0;
         
@@ -229,7 +233,7 @@ void flx_server_dump(flxServer *s, FILE *f) {
     }
 }
 
-void flx_server_add_address(flxServer *s, gint id, gint interface, const gchar *name, flxAddress *a) {
+void flx_server_add_address(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, flxAddress *a) {
     gchar *n;
     g_assert(s);
     g_assert(name);
@@ -240,28 +244,131 @@ void flx_server_add_address(flxServer *s, gint id, gint interface, const gchar *
     if (a->family == AF_INET) {
         gchar *r;
         
-        flx_server_add(s, id, interface, n, FLX_DNS_TYPE_A, &a->ipv4, sizeof(a->ipv4));
+        flx_server_add(s, id, interface, protocol, n, FLX_DNS_TYPE_A, &a->ipv4, sizeof(a->ipv4));
 
         r = flx_reverse_lookup_name_ipv4(&a->ipv4);
         g_assert(r);
-        flx_server_add(s, id, interface, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
+        flx_server_add(s, id, interface, protocol, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
         g_free(r);
         
     } else {
         gchar *r;
             
-        flx_server_add(s, id, interface, n, FLX_DNS_TYPE_AAAA, &a->ipv6, sizeof(a->ipv6));
+        flx_server_add(s, id, interface, protocol, n, FLX_DNS_TYPE_AAAA, &a->ipv6, sizeof(a->ipv6));
 
         r = flx_reverse_lookup_name_ipv6_arpa(&a->ipv6);
         g_assert(r);
-        flx_server_add(s, id, interface, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
+        flx_server_add(s, id, interface, protocol, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
         g_free(r);
     
         r = flx_reverse_lookup_name_ipv6_int(&a->ipv6);
         g_assert(r);
-        flx_server_add(s, id, interface, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
+        flx_server_add(s, id, interface, protocol, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
         g_free(r);
     }
     
     g_free(n);
+}
+
+flxQueryJob* flx_query_job_new(void) {
+    flxQueryJob *job = g_new(flxQueryJob);
+    job->query.name = NULL;
+    job->query.class = 0;
+    job->query.type = 0;
+    job->ref = 1;
+    return job;
+}
+
+flxQueryJob* flx_query_job_ref(flxQueryJob *job) {
+    g_assert(job);
+    g_assert(job->ref >= 1);
+    job->ref++;
+    return job;
+}
+
+void flx_query_job_unref(flxQueryJob *job) {
+    g_assert(job);
+    g_assert(job->ref >= 1);
+    if (!(--job->ref))
+        g_free(job);
+}
+
+static void post_query_job(flxServer *s, gint interface, guchar protocol, flxQueryJob *job) {
+    flxQueryJobInstance *i;
+    g_assert(s);
+    g_assert(job);
+
+    if (interface <= 0) {
+        flxInterface *i;
+        
+        for (i = s->monitor->interfaces; i; i = i->next)
+            post_query_job(s, i->index, protocol, job);
+    } else if (protocol == AF_UNSPEC) {
+        post_query_job(s, index, AF_INET, job);
+        post_query_job(s, index, AF_INET6, job);
+    } else {
+
+        if (query_job_exists(s, interface, protocol, &job->query))
+            return;
+        
+        i = g_new(flxQueryJobInstance, 1);
+        i->job = flx_query_job_ref(job);
+        i->interface = interface;
+        i->protocol = protocol;
+        if (i->prev = s->last_query_job)
+            i->prev->next = i;
+        else
+            s->first_query_job = i;
+        i->next = NULL;
+        s->last_query_job = i;
+    }
+}
+
+void flx_server_post_query_job(flxServer *s, gint interface, guchar protocol, const flxQuery *q) {
+    flxQueryJob *job;
+    g_assert(s);
+    g_assert(q);
+
+    job = flx_query_job_new();
+    job->query.name = g_strdup(q->name);
+    job->query.class = q->class;
+    job->query.type = q->type;
+    post_query_job(s, interface, protocol, job);
+}
+
+void flx_server_drop_query_job(flxServer *s, gint interface, guchar protocol, const flxQuery *q) {
+    flxQueryJobInstance *i, *next;
+    g_assert(s);
+    g_assert(interface > 0);
+    g_assert(protocol != AF_UNSPEC);
+    g_assert(q);
+
+    for (i = s->first_query_job; i; i = next) {
+        next = i->next;
+    
+        if (flx_query_equal(i->query, q))
+            flx_server_remove_query_job_instance(s, i);
+    }
+}
+
+gboolean flx_query_equal(const flxQuery *a, const flxQuery *b) {
+    return strcmp(a->name, b->name) == 0 && a->type == b->type && a->class == b->class;
+}
+
+void flx_server_remove_query_job_instance(flxServer *s, flxQueryJobInstance *i) {
+    g_assert(s);
+    g_assert(i);
+
+    if (i->prev)
+        i->prev = i->next;
+    else
+        s->first_query_job = i->next;
+
+    if (i->next)
+        i->next = i->prev;
+    else
+        s->last_query_job = i->prev;
+
+    flx_query_job_unref(i->job);
+    g_free(i);
 }

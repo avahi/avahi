@@ -29,9 +29,9 @@ void flx_server_free(flxServer* s);
 
 gint flx_server_get_next_id(flxServer *s);
 
-void flx_server_add_rr(flxServer *s, gint id, gint interface, const flxRecord *rr);
-void flx_server_add(flxServer *s, gint id, gint interface, const gchar *name, guint16 type, gconstpointer data, guint size);
-void flx_server_add_address(flxServer *s, gint id, gint interface, const gchar *name, flxAddress *a);
+void flx_server_add_rr(flxServer *s, gint id, gint interface, guchar protocol, const flxRecord *rr);
+void flx_server_add(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, guint16 type, gconstpointer data, guint size);
+void flx_server_add_address(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, flxAddress *a);
 
 void flx_server_remove(flxServer *s, gint id);
 
@@ -47,17 +47,21 @@ typedef struct _flxLocalAddrSource flxLocalAddrSource;
 flxLocalAddrSource *flx_local_addr_source_new(flxServer *s);
 void flx_local_addr_source_free(flxLocalAddrSource *l);
 
-#define FLX_DNS_TYPE_A 0x01
-#define FLX_DNS_TYPE_AAAA 0x1C
-#define FLX_DNS_TYPE_PTR 0x0C
-#define FLX_DNS_TYPE_HINFO 0x0D
-#define FLX_DNS_TYPE_CNAME 0x05
-#define FLX_DNS_TYPE_NS 0x02
-#define FLX_DNS_TYPE_SOA 0x06
-#define FLX_DNS_TYPE_MX 0x0F
-#define FLX_DNS_TYPE_TXT 0x10
+enum {
+    FLX_DNS_TYPE_A = 0x01,
+    FLX_DNS_TYPE_NS = 0x02,
+    FLX_DNS_TYPE_CNAME = 0x05,
+    FLX_DNS_TYPE_SOA = 0x06,
+    FLX_DNS_TYPE_PTR = 0x0C,
+    FLX_DNS_TYPE_HINFO = 0x0D,
+    FLX_DNS_TYPE_MX = 0x0F,
+    FLX_DNS_TYPE_TXT = 0x10,
+    FLX_DNS_TYPE_AAAA = 0x1C,
+};
 
-#define FLX_DNS_CLASS_IN 0x01
+enum {
+    FLX_DNS_CLASS_IN = 0x01
+};
 
 #define FLX_DEFAULT_TTL (120*60)
 

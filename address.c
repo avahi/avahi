@@ -23,7 +23,7 @@ gint flx_address_cmp(const flxAddress *a, const flxAddress *b) {
     if (a->family != b->family)
         return -1;
 
-    return memcmp(a, b, flx_address_get_size(a));
+    return memcmp(a->data, b->data, flx_address_get_size(a));
 }
 
 gchar *flx_address_snprint(char *s, guint length, const flxAddress *a) {
@@ -86,7 +86,7 @@ gchar *flx_reverse_lookup_name_ipv6_int(const flxIPv6Address *a) {
     return reverse_lookup_name_ipv6(a, "ip6.int");
 }
 
-flxAddress *flx_address_parse(const char *s, int family, flxAddress *ret_addr) {
+flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr) {
     g_assert(ret_addr);
     g_assert(s);
 

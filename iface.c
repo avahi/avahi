@@ -57,6 +57,11 @@ static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
     g_assert(a);
     g_assert(a->interface);
 
+    if (a->address.family == AF_INET)
+        a->interface->n_ipv4_addrs --;
+    else if (a->address.family == AF_INET6)
+        a->interface->n_ipv6_addrs --;
+ 
     if (a->prev)
         a->prev->next = a->next;
     else
@@ -74,6 +79,9 @@ static void free_interface(flxInterfaceMonitor *m, flxInterface *i) {
 
     while (i->addresses)
         free_address(m, i->addresses);
+
+    g_assert(i->n_ipv6_addrs == 0);
+    g_assert(i->n_ipv4_addrs == 0);
 
     if (i->prev)
         i->prev->next = i->next;
@@ -143,9 +151,11 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
         if ((i = (flxInterface*) flx_interface_monitor_get_interface(m, ifinfomsg->ifi_index)))
             changed = 1;
         else {
-            i = g_new0(flxInterface, 1);
+            i = g_new(flxInterface, 1);
+            i->name = NULL;
             i->index = ifinfomsg->ifi_index;
             i->addresses = NULL;
+            i->n_ipv4_addrs = i->n_ipv6_addrs = 0;
             if ((i->next = m->interfaces))
                 i->next->prev = i;
             m->interfaces = i;
@@ -223,6 +233,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
 
                     memcpy(raddr.data, RTA_DATA(a), RTA_PAYLOAD(a));
                     raddr_valid = 1;
+
                     break;
                     
                 default:
@@ -231,6 +242,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
 
             a = RTA_NEXT(a, l);
         }
+
 
         if (!raddr_valid)
             return;
@@ -241,8 +253,14 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             if ((addr = get_address(m, i, &raddr)))
                 changed = 1;
             else {
-                addr = g_new0(flxInterfaceAddress, 1);
+                addr = g_new(flxInterfaceAddress, 1);
                 addr->address = raddr;
+
+                if (raddr.family == AF_INET)
+                    i->n_ipv4_addrs++;
+                else if (raddr.family == AF_INET6)
+                    i->n_ipv6_addrs++;
+                
                 addr->interface = i;
                 if ((addr->next = i->addresses))
                     addr->next->prev = addr;

@@ -12,7 +12,7 @@ typedef struct {
 } flxIPv6Address;
 
 typedef struct {
-    guint family;
+    guchar family;
 
     union {
         flxIPv6Address ipv6;
@@ -26,7 +26,7 @@ gint flx_address_cmp(const flxAddress *a, const flxAddress *b);
 
 gchar *flx_address_snprint(char *ret_s, guint length, const flxAddress *a);
 
-flxAddress *flx_address_parse(const char *s, int family, flxAddress *ret_addr);
+flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr);
 
 gchar* flx_reverse_lookup_name_ipv4(const flxIPv4Address *a);
 gchar* flx_reverse_lookup_name_ipv6_arpa(const flxIPv6Address *a);

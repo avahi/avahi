@@ -238,13 +238,13 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     int *errnop,
     int *h_errnop) {
     
-    *errnop = EINVAL;
-    *h_errnop = NO_RECOVERY;
-
     struct userdata u;
     enum nss_status status = NSS_STATUS_UNAVAIL;
     int fd = -1, r;
     size_t address_length, index, astart;
+
+    *errnop = EINVAL;
+    *h_errnop = NO_RECOVERY;
 
     u.count = 0;
     u.data_len = 0;

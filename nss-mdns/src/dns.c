@@ -131,8 +131,8 @@ uint8_t *dns_packet_append_name_compressed(struct dns_packet *p, const char *nam
 }
 
 int dns_packet_check_valid(struct dns_packet *p) {
-    assert(p);
     uint16_t flags;
+    assert(p);
 
     if (p->size < 12)
         return -1;
@@ -278,7 +278,10 @@ int dns_packet_consume_bytes(struct dns_packet *p, void *ret_data, size_t l) {
 }
 
 int dns_packet_consume_seek(struct dns_packet *p, size_t length) {
-    assert(p && length > 0);
+    assert(p && length >= 0);
+
+    if (!length)
+        return 0;
     
     if (p->rindex + length > p->size)
         return -1;

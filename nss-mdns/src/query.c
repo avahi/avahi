@@ -276,10 +276,11 @@ static int domain_cmp(const char *a, const char *b) {
 }
 
 static int process_name_response(int fd, const char *name, usec_t timeout, void (*ipv4_func)(const ipv4_address_t *ipv4, void *userdata), void (*ipv6_func)(const ipv6_address_t *ipv6, void *userdata), void *userdata) {
-    assert(fd >= 0 && name && (ipv4_func || ipv6_func));
     struct dns_packet *p = NULL;
     int done = 0;
     struct timeval end;
+    
+    assert(fd >= 0 && name && (ipv4_func || ipv6_func));
 
     gettimeofday(&end, NULL);
     timeval_add(&end, timeout);
@@ -430,11 +431,12 @@ finish:
 }
 
 static int process_reverse_response(int fd, const char *name, usec_t timeout, void (*name_func)(const char *name, void *userdata), void *userdata) {
-    assert(fd >= 0 && name && name_func);
     struct dns_packet *p = NULL;
     int done = 0;
     struct timeval end;
 
+    assert(fd >= 0 && name && name_func);
+    
     gettimeofday(&end, NULL);
     timeval_add(&end, timeout);
 

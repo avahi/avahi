@@ -616,44 +616,30 @@ int mdns_query_ipv4(int fd, const ipv4_address_t *ipv4, void (*name_func)(const 
 #endif
 
 #ifndef NSS_IPV4_ONLY
-int mdns_query_ipv6(int fd, const ipv6_address_t *ipv6, void (*name_func)(const char *name, void *userdata), void *userdata) {
+static int mdns_query_ipv6(int fd, const ipv6_address_t *ipv6, void (*name_func)(const char *name, void *userdata), void *userdata) {
     char name[256];
     assert(fd >= 0 && ipv6 && name_func);
 
-    snprintf(name, sizeof(name), "%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.int",
-             ipv6->address[15] & 0xF,
-             ipv6->address[15] >> 4,
-             ipv6->address[14] & 0xF,
-             ipv6->address[14] >> 4,
-             ipv6->address[13] & 0xF,
-             ipv6->address[13] >> 4,
-             ipv6->address[12] & 0xF,
-             ipv6->address[12] >> 4,
-             ipv6->address[11] & 0xF,
-             ipv6->address[11] >> 4,
-             ipv6->address[10] & 0xF,
-             ipv6->address[10] >> 4,
-             ipv6->address[9] & 0xF,
-             ipv6->address[9] >> 4,
-             ipv6->address[8] & 0xF,
-             ipv6->address[8] >> 4,
-             ipv6->address[7] & 0xF,
-             ipv6->address[7] >> 4,
-             ipv6->address[6] & 0xF,
-             ipv6->address[6] >> 4,
-             ipv6->address[5] & 0xF,
-             ipv6->address[5] >> 4,
-             ipv6->address[4] & 0xF,
-             ipv6->address[4] >> 4,
-             ipv6->address[3] & 0xF,
-             ipv6->address[3] >> 4,
-             ipv6->address[2] & 0xF,
-             ipv6->address[2] >> 4,
-             ipv6->address[1] & 0xF,
-             ipv6->address[1] >> 4,
-             ipv6->address[0] & 0xF,
-             ipv6->address[0] >> 4);
+    snprintf(name, sizeof(name), "%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.arpa",
+             ipv6->address[15] & 0xF, ipv6->address[15] >> 4,
+             ipv6->address[14] & 0xF, ipv6->address[14] >> 4,
+             ipv6->address[13] & 0xF, ipv6->address[13] >> 4,
+             ipv6->address[12] & 0xF, ipv6->address[12] >> 4,
+             ipv6->address[11] & 0xF, ipv6->address[11] >> 4,
+             ipv6->address[10] & 0xF, ipv6->address[10] >> 4,
+             ipv6->address[9] & 0xF, ipv6->address[9] >> 4,
+             ipv6->address[8] & 0xF, ipv6->address[8] >> 4,
+             ipv6->address[7] & 0xF, ipv6->address[7] >> 4,
+             ipv6->address[6] & 0xF, ipv6->address[6] >> 4,
+             ipv6->address[5] & 0xF, ipv6->address[5] >> 4,
+             ipv6->address[4] & 0xF, ipv6->address[4] >> 4,
+             ipv6->address[3] & 0xF, ipv6->address[3] >> 4,
+             ipv6->address[2] & 0xF, ipv6->address[2] >> 4,
+             ipv6->address[1] & 0xF, ipv6->address[1] >> 4,
+             ipv6->address[0] & 0xF, ipv6->address[0] >> 4);
     
     return query_reverse(fd, name, name_func, userdata);
 }
+
+
 #endif

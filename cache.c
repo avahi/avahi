@@ -147,3 +147,26 @@ void flx_cache_drop_record(flxCache *c, flxRecord *r) {
     if ((e = flx_cache_lookup_record(c, r))) 
         remove_entry(c, e, TRUE);
 }
+
+static void func(gpointer key, gpointer data, gpointer userdata) {
+    flxCacheEntry *e = data;
+    flxKey *k = key;
+
+    gchar *s, *t;
+
+    s = flx_key_to_string(k);
+    t = flx_record_to_string(e->record);
+
+    fprintf((FILE*) userdata, "%s %s\n", s, t);
+    
+    g_free(s);
+    g_free(t);
+}
+
+void flx_cache_dump(flxCache *c, FILE *f) {
+    g_assert(c);
+    g_assert(f);
+
+    fprintf(f, ";;; CACHE DUMP FOLLOWS ;;;\n");
+    g_hash_table_foreach(c->hash_table, func, f);
+}

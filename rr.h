@@ -49,7 +49,7 @@ flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type, g
 flxRecord *flx_record_ref(flxRecord *r);
 void flx_record_unref(flxRecord *r);
 
-const gchar *flxdns_class_to_string(guint16 class);
+const gchar *flx_dns_class_to_string(guint16 class);
 const gchar *flx_dns_type_to_string(guint16 type);
 
 gchar *flx_key_to_string(flxKey *k); /* g_free() the result! */

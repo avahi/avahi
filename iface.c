@@ -370,3 +370,40 @@ void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k) {
     
     flx_dns_packet_free(p);
 }
+
+void flx_interface_send_response(flxinterface *i, guchar protocol, flxRecord *rr) {
+    flxDnsPacket+p;
+    
+    g_assert(i);
+    g_assert(rr);
+
+    p = flx_dns_packet_new();
+    flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+
+    flx_dns_packet_append_name(p, rr->key->name);
+    flx_dns_packet_append_uint16(p, rr->key->type);
+    flx_dns_packet_append_uint16(p, rr->key->class);
+    flx_dns_packet_append_uint16
+}
+
+
+
+void flx_dump_caches(flxServer *s, FILE *f) {
+    flxInterface *i;
+    g_assert(s);
+
+    for (i = flx_interface_monitor_get_first(s->monitor); i; i = i->interface_next) {
+        if (!flx_interface_is_relevant(i))
+            continue;
+        
+        if (i->n_ipv4_addrs > 0) {
+            fprintf(f, ";;; INTERFACE %s; IPv4 ;;;\n", i->name);
+            flx_cache_dump(i->ipv4_cache, f);
+        }
+
+        if (i->n_ipv6_addrs > 0) {
+            fprintf(f, ";;; INTERFACE %s; IPv6 ;;;\n", i->name);
+            flx_cache_dump(i->ipv6_cache, f);
+        }
+    }
+}

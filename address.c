@@ -97,3 +97,19 @@ flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr
     
     return ret_addr;
 }
+
+flxAddress *flx_address_from_sockaddr(const struct sockaddr* sa, flxAddress *ret_addr) {
+    g_assert(sa);
+    g_assert(ret_addr);
+
+    g_assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
+
+    ret_addr->family = sa->sa_family;
+
+    if (sa->sa_family == AF_INET)
+        memcpy(&ret_addr->ipv4, &((struct sockaddr_in*) sa)->sin_addr, sizeof(ret_addr->ipv4));
+    else
+        memcpy(&ret_addr->ipv6, &((struct sockaddr_in6*) sa)->sin6_addr, sizeof(ret_addr->ipv6));
+
+    return ret_addr;
+}

@@ -37,6 +37,7 @@ struct flxCacheEntry {
 
 struct _flxCache {
     flxServer *server;
+    
     flxInterface *interface;
     
     GHashTable *hash_table;
@@ -52,5 +53,7 @@ flxCacheEntry *flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, cons
 
 void flx_cache_drop_key(flxCache *c, flxKey *k);
 void flx_cache_drop_record(flxCache *c,  flxRecord *r);
+
+void flx_cache_dump(flxCache *c, FILE *f);
 
 #endif

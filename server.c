@@ -9,15 +9,82 @@
 #include "iface.h"
 #include "socket.h"
 
+static void post_response(flxServer *s, flxRecord *r, gint iface, const flxAddress *a) {
+}
+
+static void handle_query_key(flxServer *s, flxKey *k, gint iface, const flxAddress *a) {
+    flxEntry *e;
+    
+    g_assert(s);
+    g_assert(k);
+    g_assert(a);
+
+    for (e = g_hash_table_lookup(s->rrset_by_name, k); e; e = e->next_by_name) {
+
+        if ((e->interface <= 0 || e->interface == iface) &&
+            (e->protocol == AF_UNSPEC || e->protocol == a->family))
+            post_response(s, e->record, iface, a);
+    }
+}
+
+static void handle_query(flxServer *s, flxDnsPacket *p, gint iface, const flxAddress *a) {
+    guint n;
+    
+    g_assert(s);
+    g_assert(p);
+    g_assert(a);
+
+    for (n = flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT); n > 0; n --) {
+
+        flxKey *key;
+
+        if (!(key = flx_dns_packet_consume_query(p))) {
+            g_warning("Packet too short");
+            return;
+        }
+
+        handle_query_key(s, key, iface, a);
+        flx_key_unref(key);
+    }
+}
+
+static void add_response_to_cache(flxCache *c, flxDnsPacket *p, const flxAddress *a) {
+    guint n;
+    
+    g_assert(c);
+    g_assert(p);
+    g_assert(a);
+    for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT); n > 0; n--) {
+
+        flxRecord *rr;
+        gboolean cache_flush = FALSE;
+        
+        if (!(rr = flx_dns_packet_consume_rr(p, &cache_flush))) {
+            g_warning("Packet too short");
+            return;
+        }
+
+        flx_cache_update(c, rr, cache_flush, a);
+        flx_record_unref(rr);
+    }
+}
+
 static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, gint iface, gint ttl) {
+    flxInterface *i;
+    flxAddress a;
+    
     g_assert(s);
     g_assert(p);
     g_assert(sa);
     g_assert(iface > 0);
-    
+
+    if (!(i = flx_interface_monitor_get_interface(s->monitor, iface))) {
+        g_warning("Recieved packet from invalid interface.");
+        return;
+    }
+
     if (ttl != 255) {
-        flxInterface *i = flx_interface_monitor_get_interface(s->monitor, iface);
-        g_warning("Recieved packet with invalid TTL on interface '%s'.", i ? i->name : "unknown");
+        g_warning("Recieved packet with invalid TTL on interface '%s'.", i->name);
         return;
     }
 
@@ -34,8 +101,41 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
         }
     }
 
-    g_message("Recieved packet");
+    if (flx_dns_packet_check_valid(p) < 0) {
+        g_warning("Recieved invalid packet.");
+        return;
+    }
 
+
+    flx_address_from_sockaddr(sa, &a);
+    
+    if (flx_dns_packet_is_query(p)) {
+
+        if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) == 0 ||
+            flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT) != 0
+            flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0) {
+            g_warning("Invalid query packet.");
+            return;
+        }
+                
+        handle_query(s, p, iface, &a);    
+        g_message("Handled query");
+    } else {
+        flxCache *c;
+
+        if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) != 0 ||
+            flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT) == 0 ||
+            flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0 ||
+            flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT) != 0) {
+            g_warning("Invalid response packet.");
+            return;
+        }
+
+        c = a.family == AF_INET ? i->ipv4_cache : i->ipv6_cache;
+        add_response_to_cache(c, p, &a);
+
+        g_message("Handled responnse");
+    }
 }
 
 static gboolean work(flxServer *s) {
@@ -334,6 +434,8 @@ void flx_server_dump(flxServer *s, FILE *f) {
     g_assert(s);
     g_assert(f);
 
+    fprintf(f, ";;; ZONE DUMP FOLLOWS ;;;\n");
+
     for (e = s->entries; e; e = e->entry_next) {
         gchar *t;
 
@@ -341,6 +443,8 @@ void flx_server_dump(flxServer *s, FILE *f) {
         fprintf(f, "%s\n", t);
         g_free(t);
     }
+
+    flx_dump_caches(s, f);
 }
 
 void flx_server_add_address(

@@ -48,6 +48,7 @@ struct _flxServer {
 
     GPollFD pollfd_ipv4, pollfd_ipv6;
     GSource *source;
+    
 };
 
 

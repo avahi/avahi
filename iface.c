@@ -489,3 +489,33 @@ gboolean flx_interface_match(flxInterface *i, gint index, guchar protocol) {
     return TRUE;
 }
 
+
+void flx_interface_monitor_walk(flxInterfaceMonitor *m, gint interface, guchar protocol, flxInterfaceMonitorWalkCallback callback, gpointer userdata) {
+    g_assert(m);
+    g_assert(callback);
+    
+    if (interface > 0) {
+        if (protocol != AF_UNSPEC) {
+            flxInterface *i;
+            
+            if ((i = flx_interface_monitor_get_interface(m, interface, protocol)))
+                callback(m, i, userdata);
+            
+        } else {
+            flxHwInterface *hw;
+            flxInterface *i;
+
+            if ((hw = flx_interface_monitor_get_hw_interface(m, interface)))
+                for (i = hw->interfaces; i; i = i->by_hardware_next)
+                    if (flx_interface_match(i, interface, protocol))
+                        callback(m, i, userdata);
+        }
+        
+    } else {
+        flxInterface *i;
+        
+        for (i = m->interfaces; i; i = i->interface_next)
+            if (flx_interface_match(i, interface, protocol))
+                callback(m, i, userdata);
+    }
+}

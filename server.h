@@ -9,6 +9,7 @@ typedef struct _flxServerEntry flxServerEntry;
 #include "llist.h"
 #include "timeeventq.h"
 #include "announce.h"
+#include "subscribe.h"
 
 struct _flxServerEntry {
     flxRecord *record;
@@ -31,10 +32,12 @@ struct _flxServer {
 
     gint current_id;
     
+    FLX_LLIST_HEAD(flxServerEntry, entries);
     GHashTable *rrset_by_id;
     GHashTable *rrset_by_key;
 
-    FLX_LLIST_HEAD(flxServerEntry, entries);
+    FLX_LLIST_HEAD(flxSubscription, subscriptions);
+    GHashTable *subscription_hashtable;
 
     flxTimeEventQueue *time_event_queue;
     

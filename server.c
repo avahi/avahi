@@ -8,7 +8,7 @@
 #include "util.h"
 #include "iface.h"
 #include "socket.h"
-
+#include "subscribe.h"
 
 static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flxAddress *a) {
     flxServerEntry *e;
@@ -71,7 +71,9 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
         g_free(txt);
 
         flx_cache_update(i->cache, record, cache_flush, a);
-        flx_packet_scheduler_drop_response(i->scheduler, record);
+
+        if (record->ttl != 0)
+            flx_packet_scheduler_drop_response(i->scheduler, record);
         flx_record_unref(record);
     }
 }
@@ -258,10 +260,13 @@ flxServer *flx_server_new(GMainContext *c) {
         s->context = g_main_context_default();
     
     s->current_id = 1;
+
+    FLX_LLIST_HEAD_INIT(flxServerEntry, s->entries);
     s->rrset_by_id = g_hash_table_new(g_int_hash, g_int_equal);
     s->rrset_by_key = g_hash_table_new((GHashFunc) flx_key_hash, (GEqualFunc) flx_key_equal);
 
-    FLX_LLIST_HEAD_INIT(flxServerEntry, s->entries);
+    FLX_LLIST_HEAD_INIT(flxSubscription, s->subscriptions);
+    s->subscription_hashtable = g_hash_table_new((GHashFunc) flx_key_hash, (GEqualFunc) flx_key_equal);
 
     s->monitor = flx_interface_monitor_new(s);
     s->time_event_queue = flx_time_event_queue_new(s->context);
@@ -300,6 +305,10 @@ void flx_server_free(flxServer* s) {
     flx_interface_monitor_free(s->monitor);
     
     flx_server_remove(s, 0);
+
+    while (s->subscriptions)
+        flx_subscription_free(s->subscriptions);
+    g_hash_table_destroy(s->subscription_hashtable);
     
     g_hash_table_destroy(s->rrset_by_id);
     g_hash_table_destroy(s->rrset_by_key);
@@ -532,60 +541,36 @@ void flx_server_add_text(
     flx_server_add_full(s, id, interface, protocol, unique, name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT, buf, l+1, FLX_DEFAULT_TTL);
 }
 
+static void post_query_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {
+    flxKey *k = userdata;
+
+    g_assert(m);
+    g_assert(i);
+    g_assert(k);
+
+    flx_interface_post_query(i, k);
+}
+
 void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key) {
     g_assert(s);
     g_assert(key);
-    
-    if (interface > 0) {
-        if (protocol != AF_UNSPEC) {
-            flxInterface *i;
-            
-            if ((i = flx_interface_monitor_get_interface(s->monitor, interface, protocol)))
-                flx_interface_post_query(i, key);
-        } else {
-            flxHwInterface *hw;
-            flxInterface *i;
 
-            if ((hw = flx_interface_monitor_get_hw_interface(s->monitor, interface)))
-                for (i = hw->interfaces; i; i = i->by_hardware_next)
-                    if (flx_interface_match(i, interface, protocol))
-                        flx_interface_post_query(i, key);
-        }
-        
-    } else {
-        flxInterface *i;
-        
-        for (i = s->monitor->interfaces; i; i = i->interface_next)
-            if (flx_interface_match(i, interface, protocol))
-                flx_interface_post_query(i, key);
-    }
+    flx_interface_monitor_walk(s->monitor, interface, protocol, post_query_callback, key);
+}
+
+static void post_response_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {
+    flxRecord *r = userdata;
+
+    g_assert(m);
+    g_assert(i);
+    g_assert(r);
+
+    flx_interface_post_response(i, r);
 }
 
 void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record) {
     g_assert(s);
     g_assert(record);
-    
-    if (interface > 0) {
-        if (protocol != AF_UNSPEC) {
-            flxInterface *i;
-            
-            if ((i = flx_interface_monitor_get_interface(s->monitor, interface, protocol)))
-                flx_interface_post_response(i, record);
-        } else {
-            flxHwInterface *hw;
-            flxInterface *i;
 
-            if ((hw = flx_interface_monitor_get_hw_interface(s->monitor, interface)))
-                for (i = hw->interfaces; i; i = i->by_hardware_next)
-                    if (flx_interface_match(i, interface, protocol))
-                        flx_interface_post_response(i, record);
-        }
-        
-    } else {
-        flxInterface *i;
-        
-        for (i = s->monitor->interfaces; i; i = i->interface_next)
-            if (flx_interface_match(i, interface, protocol))
-                flx_interface_post_response(i, record);
-    }
+    flx_interface_monitor_walk(s->monitor, interface, protocol, post_response_callback, record);
 }

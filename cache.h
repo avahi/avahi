@@ -33,7 +33,6 @@ struct flxCacheEntry {
     flxTimeEvent *time_event;
 
     FLX_LLIST_FIELDS(flxCacheEntry, by_name);
-    
 };
 
 struct _flxCache {
@@ -50,7 +49,7 @@ void flx_cache_free(flxCache *c);
 flxCacheEntry *flx_cache_lookup_key(flxCache *c, flxKey *k);
 flxCacheEntry *flx_cache_lookup_record(flxCache *c, flxRecord *r);
 
-flxCacheEntry *flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddress *a);
+void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddress *a);
 
 void flx_cache_drop_key(flxCache *c, flxKey *k);
 void flx_cache_drop_record(flxCache *c,  flxRecord *r);

@@ -92,4 +92,8 @@ gboolean flx_interface_address_relevant(flxInterfaceAddress *a);
 
 gboolean flx_interface_match(flxInterface *i, gint index, guchar protocol);
 
+typedef void (*flxInterfaceMonitorWalkCallback)(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata);
+    
+void flx_interface_monitor_walk(flxInterfaceMonitor *m, gint index, guchar protocol, flxInterfaceMonitorWalkCallback callback, gpointer userdata);
+
 #endif

@@ -50,12 +50,11 @@ flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 t
     
     g_assert(k);
     g_assert(data);
-    g_assert(size > 0);
 
     r = g_new(flxRecord, 1);
     r->ref = 1;
     r->key = flx_key_ref(k);
-    r->data = g_memdup(data, size);
+    r->data = size > 0 ? g_memdup(data, size) : NULL;
     r->size = size;
     r->ttl = ttl;
 
@@ -154,10 +153,17 @@ gchar *flx_record_to_string(flxRecord *r) {
         }
 
         case FLX_DNS_TYPE_TXT: {
-            g_assert(((guchar*) r->data)[0] == r->size-1);
 
-            memcpy(t, r->data+1, ((guchar*) r->data)[0]);
-            t[((guchar*) r->data)[0]] = 0;
+            if (r->size == 0)
+                t[0] = 0;
+            else {
+                guchar l = ((guchar*) r->data)[0];
+
+                if ((size_t) l+1 <= r->size) {
+                    memcpy(t, r->data+1, ((guchar*) r->data)[0]);
+                    t[((guchar*) r->data)[0]] = 0;
+                }
+            }
             break;
         }
 
@@ -203,7 +209,7 @@ gchar *flx_record_to_string(flxRecord *r) {
     }
 
     p = flx_key_to_string(r->key);
-    s = g_strdup_printf("[%s %s ; ttl=%u]", p, t, r->ttl);
+    s = g_strdup_printf("%s %s ; ttl=%u", p, t, r->ttl);
     g_free(p);
     
     return s;
@@ -224,12 +230,12 @@ guint flx_key_hash(const flxKey *k) {
     return g_str_hash(k->name) + k->type + k->class;
 }
 
-gboolean flx_record_equal(const flxRecord *a, const flxRecord *b) {
+gboolean flx_record_equal_no_ttl(const flxRecord *a, const flxRecord *b) {
     g_assert(a);
     g_assert(b);
 
     return flx_key_equal(a->key, b->key) &&
-        a->ttl == b->ttl &&
+/*        a->ttl == b->ttl && */
         a->size == b->size &&
-        memcmp(a->data, b->data, a->size) == 0;
+        (a->size == 0 || memcmp(a->data, b->data, a->size) == 0);
 }

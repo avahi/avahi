@@ -6,7 +6,7 @@ static void remove_entry(flxCache *c, flxCacheEntry *e, gboolean remove_from_has
     g_assert(c);
     g_assert(e);
 
-    g_message("remvoin from cache: %p %p", c, e);
+    g_message("removing from cache: %p %p", c, e);
     
     if (remove_from_hash_table) {
         flxCacheEntry *t;
@@ -18,10 +18,12 @@ static void remove_entry(flxCache *c, flxCacheEntry *e, gboolean remove_from_has
             g_hash_table_remove(c->hash_table, e->record->key);
     }
         
-    flx_record_unref(e->record);
-
     if (e->time_event)
         flx_time_event_queue_remove(c->server->time_event_queue, e->time_event);
+
+    flx_subscription_notify(c->server, c->interface, e->record, FLX_SUBSCRIPTION_REMOVE);
+
+    flx_record_unref(e->record);
     
     g_free(e);
 }
@@ -71,7 +73,7 @@ flxCacheEntry *flx_cache_lookup_record(flxCache *c, flxRecord *r) {
     g_assert(r);
 
     for (e = flx_cache_lookup_key(c, r->key); e; e = e->by_name_next)
-        if (e->record->size == r->size && !memcmp(e->record->data, r->data, r->size))
+        if (flx_record_equal_no_ttl(e->record, r))
             return e;
 
     return NULL;
@@ -127,6 +129,16 @@ static void elapse_func(flxTimeEvent *t, void *userdata) {
     }
 }
 
+static void update_time_event(flxCache *c, flxCacheEntry *e) {
+    g_assert(c);
+    g_assert(e);
+    
+    if (e->time_event)
+        flx_time_event_queue_update(c->server->time_event_queue, e->time_event, &e->expiry);
+    else
+        e->time_event = flx_time_event_queue_add(c->server->time_event_queue, &e->expiry, elapse_func, e);
+}
+
 static void next_expiry(flxCache *c, flxCacheEntry *e, guint percent) {
     gulong usec;
 
@@ -142,14 +154,10 @@ static void next_expiry(flxCache *c, flxCacheEntry *e, guint percent) {
     usec = g_random_int_range(usec*percent, usec*(percent+2));
     
     g_time_val_add(&e->expiry, usec);
-
-    if (e->time_event)
-        flx_time_event_queue_update(c->server->time_event_queue, e->time_event, &e->expiry);
-    else
-        e->time_event = flx_time_event_queue_add(c->server->time_event_queue, &e->expiry, elapse_func, e);
+    update_time_event(c, e);
 }
 
-flxCacheEntry *flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddress *a) {
+void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddress *a) {
     flxCacheEntry *e, *t;
     gchar *txt;
     
@@ -159,55 +167,77 @@ flxCacheEntry *flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, cons
     g_message("cache update: %s", (txt = flx_record_to_string(r)));
     g_free(txt);
 
-    if ((t = e = flx_cache_lookup_key(c, r->key))) {
+    if (r->ttl == 0) {
 
-/*         g_message("found prev cache entry"); */
+        /* This is a goodbye request */
 
-        if (unique) {
-            /* Drop all entries but the first which we replace */
-            while (e->by_name_next)
-                remove_entry(c, e->by_name_next, TRUE);
+        if ((e = flx_cache_lookup_record(c, r))) {
 
-        } else {
-            /* Look for exactly the same entry */
-            for (; e; e = e->by_name_next)
-                if (flx_record_equal(e->record, r))
-                    break;
+            e->state = FLX_CACHE_FINAL;
+            g_get_current_time(&e->timestamp);
+            e->expiry = e->timestamp;
+            g_time_val_add(&e->expiry, 1000000); /* 1s */
+            update_time_event(c, e);
         }
-    }
-    
-    if (e) {
 
-/*         g_message("found matching cache entry"); */
-
-        /* We are the first in the linked list so let's replace the hash table key with the new one */
-        if (e->by_name_prev == NULL)
-            g_hash_table_replace(c->hash_table, r->key, e);
-        
-        /* Update the record */
-        flx_record_unref(e->record);
-        e->record = flx_record_ref(r);
-
-        
     } else {
-        /* No entry found, therefore we create a new one */
 
-/*         g_message("couldn't find matching cache entry"); */
+        /* This is an update request */
+
+        if ((t = e = flx_cache_lookup_key(c, r->key))) {
         
-        e = g_new(flxCacheEntry, 1);
-        e->cache = c;
-        e->time_event = NULL;
-        e->record = flx_record_ref(r);
-        FLX_LLIST_PREPEND(flxCacheEntry, by_name, t, e);
-        g_hash_table_replace(c->hash_table, e->record->key, t);
-    } 
-
-    e->origin = *a;
-    g_get_current_time(&e->timestamp);
-    next_expiry(c, e, 80);
-    e->state = FLX_CACHE_VALID;
-
-    return e;
+            if (unique) {
+                
+                /* For unique records, remove all entries but one */
+                while (e->by_name_next)
+                    remove_entry(c, e->by_name_next, TRUE);
+                
+            } else {
+                
+                /* For non-unique record, look for exactly the same entry */
+                for (; e; e = e->by_name_next)
+                    if (flx_record_equal_no_ttl(e->record, r))
+                        break;
+            }
+        }
+    
+        if (e) {
+            
+/*         g_message("found matching cache entry"); */
+            
+            /* We are the first in the linked list so let's replace the hash table key with the new one */
+            if (e->by_name_prev == NULL)
+                g_hash_table_replace(c->hash_table, r->key, e);
+            
+            /* Notify subscribers */
+            if (!flx_record_equal_no_ttl(e->record, r))
+                flx_subscription_notify(c->server, c->interface, r, FLX_SUBSCRIPTION_CHANGE);    
+            
+            /* Update the record */
+            flx_record_unref(e->record);
+            e->record = flx_record_ref(r);
+            
+        } else {
+            /* No entry found, therefore we create a new one */
+            
+/*         g_message("couldn't find matching cache entry"); */
+            
+            e = g_new(flxCacheEntry, 1);
+            e->cache = c;
+            e->time_event = NULL;
+            e->record = flx_record_ref(r);
+            FLX_LLIST_PREPEND(flxCacheEntry, by_name, t, e);
+            g_hash_table_replace(c->hash_table, e->record->key, t);
+            
+            /* Notify subscribers */
+            flx_subscription_notify(c->server, c->interface, e->record, FLX_SUBSCRIPTION_NEW);
+        } 
+        
+        e->origin = *a;
+        g_get_current_time(&e->timestamp);
+        next_expiry(c, e, 80);
+        e->state = FLX_CACHE_VALID;
+    }
 }
 
 void flx_cache_drop_key(flxCache *c, flxKey *k) {

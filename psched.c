@@ -214,7 +214,7 @@ static flxResponseJob* look_for_response(flxPacketScheduler *s, flxRecord *recor
     g_assert(record);
 
     for (rj = s->response_jobs; rj; rj = rj->jobs_next)
-        if (flx_record_equal(rj->record, record))
+        if (flx_record_equal_no_ttl(rj->record, record))
             return rj;
 
     return NULL;
@@ -270,7 +270,7 @@ void flx_packet_scheduler_drop_response(flxPacketScheduler *s, flxRecord *record
     g_assert(record);
 
     for  (rj = s->response_jobs; rj; rj = rj->jobs_next)
-        if (flx_record_equal(rj->record, record)) {
+        if (flx_record_equal_no_ttl(rj->record, record)) {
 
             if (!rj->done) {
                 GTimeVal tv;

@@ -1,12 +1,13 @@
 #ifndef fooflxserverhfoo
 #define fooflxserverhfoo
 
+struct _flxEntry;
+typedef struct _flxEntry flxEntry;
+
 #include "flx.h"
 #include "iface.h"
 #include "prioq.h"
 
-struct _flxEntry;
-typedef struct _flxEntry flxEntry;
 struct _flxEntry {
     flxRecord rr;
     gint id;
@@ -59,6 +60,10 @@ struct _flxServer {
 
     flxPrioQueue *query_job_queue;
     flxPrioQueue *response_job_queue;
+
+    gint hinfo_rr_id;
+
+    gchar *hostname;
 };
 
 flxQueryJob* flx_query_job_new(void);

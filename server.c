@@ -1,6 +1,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <sys/utsname.h>
 
 #include "server.h"
 #include "util.h"
@@ -42,6 +43,10 @@ static gint response_job_instance_compare(gpointer a, gpointer b) {
 }
 
 flxServer *flx_server_new(GMainContext *c) {
+    gchar *hn, *e, *hinfo;
+    struct utsname utsname;
+    gint length;
+    flxAddress a;
     flxServer *s = g_new(flxServer, 1);
 
     if (c) {
@@ -58,8 +63,33 @@ flxServer *flx_server_new(GMainContext *c) {
     s->query_job_queue = flx_prio_queue_new(query_job_instance_compare);
     s->response_job_queue = flx_prio_queue_new(response_job_instance_compare);
     
-    s->monitor = flx_interface_monitor_new(s->context);
+    s->monitor = flx_interface_monitor_new(s);
+
+    /* Get host name */
+    hn = flx_get_host_name();
+    if ((e = strchr(hn, '.')))
+        *e = 0;
+
+    s->hostname = g_strdup_printf("%s.local.", hn);
+    g_free(hn);
+
+    /* Fill in HINFO rr */
+    s->hinfo_rr_id = flx_server_get_next_id(s);
+
+    uname(&utsname);
+    hinfo = g_strdup_printf("%s%c%s%n", g_strup(utsname.machine), 0, g_strup(utsname.sysname), &length);
     
+    flx_server_add(s, s->hinfo_rr_id, 0, AF_UNSPEC,
+                   s->hostname, FLX_DNS_TYPE_HINFO, hinfo, length+1);
+
+
+    /* Add localhost entries */
+    flx_address_parse("127.0.0.1", AF_INET, &a);
+    flx_server_add_address(s, 0, 0, AF_UNSPEC, "localhost", &a);
+
+    flx_address_parse("::1", AF_INET6, &a);
+    flx_server_add_address(s, 0, 0, AF_UNSPEC, "ip6-localhost", &a);
+
     return s;
 }
 
@@ -71,14 +101,16 @@ void flx_server_free(flxServer* s) {
     
     flx_prio_queue_free(s->query_job_queue);
     flx_prio_queue_free(s->response_job_queue);
-    
-    flx_interface_monitor_free(s->monitor);
 
+    flx_interface_monitor_free(s->monitor);
+    
     flx_server_remove(s, 0);
     
     g_hash_table_destroy(s->rrset_by_id);
     g_hash_table_destroy(s->rrset_by_name);
     g_main_context_unref(s->context);
+
+    g_free(s->hostname);
     g_free(s);
 }
 
@@ -268,6 +300,15 @@ void flx_server_dump(flxServer *s, FILE *f) {
                         snprintf(t, sizeof(t), "'%s' '%s'", (char*) e->rr.data, s2);
                 }
                 
+            } else if (e->rr.type == FLX_DNS_TYPE_TXT) {
+                size_t l;
+
+                l = e->rr.size;
+                if (l > sizeof(t)-1)
+                    l = sizeof(t)-1;
+
+                memcpy(t, e->rr.data, l);
+                t[l] = 0;
             }
         }
             
@@ -278,10 +319,9 @@ void flx_server_dump(flxServer *s, FILE *f) {
 void flx_server_add_address(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, flxAddress *a) {
     gchar *n;
     g_assert(s);
-    g_assert(name);
     g_assert(a);
 
-    n = flx_normalize_name(name);
+    n = flx_normalize_name(name ? name : s->hostname);
     
     if (a->family == AF_INET) {
         gchar *r;
@@ -311,6 +351,17 @@ void flx_server_add_address(flxServer *s, gint id, gint interface, guchar protoc
     
     g_free(n);
 }
+
+void flx_server_add_text(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, const gchar *text) {
+    gchar *n;
+    g_assert(s);
+    g_assert(text);
+
+    n = flx_normalize_name(name ? name : s->hostname);
+    flx_server_add(s, id, interface, protocol, n, FLX_DNS_TYPE_TXT, text, strlen(text));
+    g_free(n);
+}
+
 
 flxQueryJob* flx_query_job_new(void) {
     flxQueryJob *job = g_new(flxQueryJob, 1);

@@ -4,52 +4,35 @@
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <errno.h>
+#include <net/if.h>
 
 #include "iface.h"
 #include "netlink.h"
 
-typedef struct _interface_callback_info {
-    void (*callback)(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterface *i, gpointer userdata);
-    gpointer userdata;
-    struct _interface_callback_info *next;
-} interface_callback_info;
-
-typedef struct _address_callback_info {
-    void (*callback)(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterfaceAddress *i, gpointer userdata);
-    gpointer userdata;
-    struct _address_callback_info *next;
-} address_callback_info;
-
-struct _flxInterfaceMonitor {
-    flxNetlink *netlink;
-    GHashTable *hash_table;
-    interface_callback_info *interface_callbacks;
-    address_callback_info *address_callbacks;
-    flxInterface *interfaces;
-    guint query_addr_seq, query_link_seq;
-    enum { LIST_IFACE, LIST_ADDR, LIST_DONE } list;
-};
-
-static void run_interface_callbacks(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterface *i) {
-    interface_callback_info *c;
-    g_assert(m);
-    g_assert(i);
-
-    for (c = m->interface_callbacks; c; c = c->next) {
-        g_assert(c->callback);
-        c->callback(m, change, i, c->userdata);
-    }
-}
-
-static void run_address_callbacks(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterfaceAddress *a) {
-    address_callback_info *c;
+static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, int remove) {
     g_assert(m);
     g_assert(a);
 
-    for (c = m->address_callbacks; c; c = c->next) {
-        g_assert(c->callback);
-        c->callback(m, change, a, c->userdata);
+    if (!flx_address_is_relevant(a) || remove) {
+        if (a->rr_id >= 0) {
+            flx_server_remove(m->server, a->rr_id);
+            a->rr_id = -1;
+        }
+    } else {
+        if (a->rr_id < 0) {
+            a->rr_id = flx_server_get_next_id(m->server);
+            flx_server_add_address(m->server, a->rr_id, a->interface->index, AF_UNSPEC, m->server->hostname, &a->address);
+        }
     }
+}
+
+static void update_interface_rr(flxInterfaceMonitor *m, flxInterface *i, int remove) {
+    flxInterfaceAddress *a;
+    g_assert(m);
+    g_assert(i);
+
+    for (a = i->addresses; a; a = a->next)
+        update_address_rr(m, a, remove);
 }
 
 static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
@@ -104,10 +87,9 @@ static flxInterfaceAddress* get_address(flxInterfaceMonitor *m, flxInterface *i,
     g_assert(i);
     g_assert(raddr);
 
-    for (ia = i->addresses; ia; ia = ia->next) {
+    for (ia = i->addresses; ia; ia = ia->next)
         if (flx_address_cmp(&ia->address, raddr) == 0)
             return ia;
-    }
 
     return NULL;
 }
@@ -183,12 +165,10 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             a = RTA_NEXT(a, l);
         }
 
-        run_interface_callbacks(m, changed ? FLX_INTERFACE_CHANGE : FLX_INTERFACE_NEW, i);
-        
+        update_interface_rr(m, i, 0);
     } else if (n->nlmsg_type == RTM_DELLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
         flxInterface *i;
-        flxInterfaceAddress *a;
 
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
@@ -196,11 +176,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
         if (!(i = (flxInterface*) flx_interface_monitor_get_interface(m, ifinfomsg->ifi_index)))
             return;
 
-        for (a = i->addresses; a; a = a->next)
-            run_address_callbacks(m, FLX_INTERFACE_REMOVE, a);
-
-        run_interface_callbacks(m, FLX_INTERFACE_REMOVE, i);
-
+        update_interface_rr(m, i, 1);
         free_interface(m, i);
         
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
@@ -266,21 +242,22 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                     addr->next->prev = addr;
                 i->addresses = addr;
                 addr->prev = NULL;
+                addr->rr_id = -1;
                 
                 changed = 0;
             }
             
             addr->flags = ifaddrmsg->ifa_flags;
             addr->scope = ifaddrmsg->ifa_scope;
-            
-            run_address_callbacks(m, changed ? FLX_INTERFACE_CHANGE : FLX_INTERFACE_NEW, addr);
+
+            update_address_rr(m, addr, 0);
         } else {
             flxInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr)))
                 return;
 
-            run_address_callbacks(m, FLX_INTERFACE_REMOVE, addr);
+            update_address_rr(m, addr, 1);
             free_address(m, addr);
         }
                 
@@ -304,16 +281,15 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
     }
 }
 
-flxInterfaceMonitor *flx_interface_monitor_new(GMainContext *c) {
+flxInterfaceMonitor *flx_interface_monitor_new(flxServer *s) {
     flxInterfaceMonitor *m = NULL;
 
     m = g_new0(flxInterfaceMonitor, 1);
-    if (!(m->netlink = flx_netlink_new(c, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
+    m->server = s;
+    if (!(m->netlink = flx_netlink_new(s->context, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
         goto fail;
 
     m->hash_table = g_hash_table_new(g_int_hash, g_int_equal);
-    m->interface_callbacks = NULL;
-    m->address_callbacks = NULL;
     m->interfaces = NULL;
 
     if (netlink_list_items(m->netlink, RTM_GETLINK, &m->query_link_seq) < 0)
@@ -337,18 +313,6 @@ void flx_interface_monitor_free(flxInterfaceMonitor *m) {
     if (m->hash_table)
         g_hash_table_destroy(m->hash_table);
 
-    while (m->interface_callbacks) {
-        interface_callback_info *c = m->interface_callbacks;
-        m->interface_callbacks = c->next;
-        g_free(c);
-    }
-
-    while (m->address_callbacks) {
-        address_callback_info *c = m->address_callbacks;
-        m->address_callbacks = c->next;
-        g_free(c);
-    }
-    
     g_free(m);
 }
 
@@ -360,105 +324,24 @@ const flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, 
     return g_hash_table_lookup(m->hash_table, &index);
 }
 
-void flx_interface_monitor_add_interface_callback(
-    flxInterfaceMonitor *m,
-    void (*callback)(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterface *i, gpointer userdata),
-    gpointer userdata) {
-    
-    interface_callback_info *info;
-    
-    g_assert(m);
-    g_assert(callback);
-
-    info = g_new(interface_callback_info, 1);
-    info->callback = callback;
-    info->userdata = userdata;
-    info->next = m->interface_callbacks;
-    m->interface_callbacks = info;
-}
-
-void flx_interface_monitor_remove_interface_callback(
-    flxInterfaceMonitor *m,
-    void (*callback)(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterface *i, gpointer userdata),
-    gpointer userdata) {
-
-    interface_callback_info *info, *prev;
-
-    g_assert(m);
-    g_assert(callback);
-
-    info = m->interface_callbacks;
-    prev = NULL;
-    
-    while (info) {
-        if (info->callback == callback && info->userdata == userdata) {
-            interface_callback_info *c = info;
-            
-            if (prev)
-                prev->next = c->next;
-            else
-                m->interface_callbacks = c->next;
-            
-            info = c->next;
-            g_free(c);
-        } else {
-            prev = info;
-            info = info->next;
-        }
-    }
-}
-
-void flx_interface_monitor_add_address_callback(
-    flxInterfaceMonitor *m,
-    void (*callback)(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterfaceAddress *a, gpointer userdata),
-    gpointer userdata) {
-
-    address_callback_info *info;
-    
-    g_assert(m);
-    g_assert(callback);
-
-    info = g_new(address_callback_info, 1);
-    info->callback = callback;
-    info->userdata = userdata;
-    info->next = m->address_callbacks;
-    m->address_callbacks = info;
-}
-
-
-void flx_interface_monitor_remove_address_callback(
-    flxInterfaceMonitor *m,
-    void (*callback)(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterfaceAddress *a, gpointer userdata),
-    gpointer userdata) {
-
-    address_callback_info *info, *prev;
-
-    g_assert(m);
-    g_assert(callback);
-
-    info = m->address_callbacks;
-    prev = NULL;
-    
-    while (info) {
-        if (info->callback == callback && info->userdata == userdata) {
-            address_callback_info *c = info;
-            
-            if (prev)
-                prev->next = c->next;
-            else
-                m->address_callbacks = c->next;
-            
-            info = c->next;
-            g_free(c);
-        } else {
-            prev = info;
-            info = info->next;
-        }
-    }
-
-}
-
 const flxInterface* flx_interface_monitor_get_first(flxInterfaceMonitor *m) {
     g_assert(m);
     return m->interfaces;
+}
+
+int flx_interface_is_relevant(flxInterface *i) {
+    g_assert(i);
+
+    return
+        (i->flags & IFF_UP) &&
+        (i->flags & IFF_RUNNING) &&
+        !(i->flags & IFF_LOOPBACK);
+}
+
+int flx_address_is_relevant(flxInterfaceAddress *a) {
+    g_assert(a);
+
+    return
+        a->scope == RT_SCOPE_UNIVERSE &&
+        flx_interface_is_relevant(a->interface);
 }

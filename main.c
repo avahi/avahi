@@ -14,21 +14,13 @@ static gboolean timeout(gpointer data) {
 
 int main(int argc, char *argv[]) {
     flxServer *flx;
-    flxLocalAddrSource *l;
-    flxAddress a;
     gchar *r;
     flxQuery q;
 
     flx = flx_server_new(NULL);
 
-    l = flx_local_addr_source_new(flx);
-
-    flx_address_parse("127.0.0.1", AF_INET, &a);
-    flx_server_add_address(flx, 0, 0, AF_UNSPEC, "localhost", &a);
-
-    flx_address_parse("::1", AF_INET6, &a);
-    flx_server_add_address(flx, 0, 0, AF_UNSPEC, "ip6-localhost", &a);
-
+    flx_server_add_text(flx, 0, 0, AF_UNSPEC, NULL, "hallo");
+    
     q.name = "campari.local.";
     q.class = FLX_DNS_CLASS_IN;
     q.type = FLX_DNS_TYPE_A;
@@ -42,7 +34,6 @@ int main(int argc, char *argv[]) {
 
     flx_server_dump(flx, stdout);
 
-    flx_local_addr_source_free(l);
     flx_server_free(flx);
     return 0;
 }

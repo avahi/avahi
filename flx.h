@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <glib.h>
 
-#include "address.h"
-
 struct _flxServer;
 typedef struct _flxServer flxServer;
+
+#include "address.h"
 
 typedef struct  {
     gchar *name;
@@ -32,6 +32,7 @@ gint flx_server_get_next_id(flxServer *s);
 void flx_server_add_rr(flxServer *s, gint id, gint interface, guchar protocol, const flxRecord *rr);
 void flx_server_add(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, guint16 type, gconstpointer data, guint size);
 void flx_server_add_address(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, flxAddress *a);
+void flx_server_add_text(flxServer *s, gint id, gint interface, guchar protocol, const gchar *name, const gchar *text);
 
 void flx_server_remove(flxServer *s, gint id);
 
@@ -43,9 +44,6 @@ void flx_server_dump(flxServer *s, FILE *f);
 
 struct _flxLocalAddrSource;
 typedef struct _flxLocalAddrSource flxLocalAddrSource;
-
-flxLocalAddrSource *flx_local_addr_source_new(flxServer *s);
-void flx_local_addr_source_free(flxLocalAddrSource *l);
 
 enum {
     FLX_DNS_TYPE_A = 0x01,

@@ -16,4 +16,4 @@ prioq-test: prioq-test.o prioq.o
 *.o: *.h
 
 clean:
-	rm -f *.o flexmdns
+	rm -f *.o flexmdns prioq-test

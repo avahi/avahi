@@ -13,8 +13,8 @@
 #include "iface.h"
 
 typedef struct {
-    flxServer *server;
     flxAddress address;
+    flxServer *server;
     gint id;
 } addr_info;
 
@@ -45,37 +45,44 @@ static guint addr_hash(gconstpointer v) {
     return hash(a, sizeof(a->family) + flx_address_get_size(a));
 }
 
+static void remove_addr(flxLocalAddrSource *l, const flxInterfaceAddress *a) {
+    g_assert(l);
+    g_assert(a);
+    
+    g_hash_table_remove(l->hash_table, &a->address);
+}
+
 static void add_addr(flxLocalAddrSource *l, const flxInterfaceAddress *a) {
     addr_info *ai;
-    gchar *r;
     g_assert(l);
     g_assert(a);
 
-    if (!(a->interface->flags & IFF_UP) ||
-        !(a->interface->flags & IFF_RUNNING) ||
-        (a->interface->flags & IFF_LOOPBACK))
-        return;
-
-    if (a->scope != RT_SCOPE_UNIVERSE)
-        return;
+    if (g_hash_table_lookup(l->hash_table, &a->address))
+        return; /* Entry already existant */
     
     ai = g_new(addr_info, 1);
     ai->server = l->server;
     ai->address = a->address;
     
     ai->id = flx_server_get_next_id(l->server);
-    flx_server_add(l->server, ai->id, l->hostname,
-                   ai->address.family == AF_INET ? FLX_DNS_TYPE_A : FLX_DNS_TYPE_AAAA,
-                   ai->address.data, flx_address_get_size(&ai->address));
 
-    r = flx_reverse_lookup_name(&ai->address);
-    flx_server_add(l->server, ai->id, r,
-                   FLX_DNS_TYPE_PTR,
-                   l->hostname, strlen(l->hostname)+1);
-    g_free(r);
+    flx_server_add_address(l->server, ai->id, a->interface->index, l->hostname, &ai->address);
 
     g_hash_table_replace(l->hash_table, &ai->address, ai);
+}
 
+static void handle_addr(flxLocalAddrSource *l, const flxInterfaceAddress *a) {
+    g_assert(l);
+    g_assert(a);
+
+    if (!(a->interface->flags & IFF_UP) ||
+        !(a->interface->flags & IFF_RUNNING) ||
+        (a->interface->flags & IFF_LOOPBACK) ||
+        a->scope != RT_SCOPE_UNIVERSE)
+
+        remove_addr(l, a);
+    else
+        add_addr(l, a);
 }
 
 /* Called whenever a new address becomes available, is changed or removed on the local machine */
@@ -86,9 +93,24 @@ static void addr_callback(flxInterfaceMonitor *m, flxInterfaceChange change, con
     g_assert(l);
 
     if (change == FLX_INTERFACE_REMOVE)
-        g_hash_table_remove(l->hash_table, &a->address);
-    else if (change == FLX_INTERFACE_NEW)
-        add_addr(l, a);
+        remove_addr(l, a);
+    else 
+        handle_addr(l, a);
+}
+
+/* Called whenever a new interface becomes available, is changed or removed on the local machine */
+static void interface_callback(flxInterfaceMonitor *m, flxInterfaceChange change, const flxInterface *i, gpointer userdata) {
+    flxLocalAddrSource *l = userdata;
+    g_assert(m);
+    g_assert(i);
+    g_assert(l);
+
+    if (change == FLX_INTERFACE_CHANGE) {
+        flxInterfaceAddress *a;
+
+        for (a = i->addresses; a; a = a->next)
+            handle_addr(l, a);
+    }
 }
 
 static void destroy(gpointer data) {
@@ -116,6 +138,7 @@ flxLocalAddrSource *flx_local_addr_source_new(flxServer *s) {
     g_free(hn);
 
     flx_interface_monitor_add_address_callback(s->monitor, addr_callback, l);
+    flx_interface_monitor_add_interface_callback(s->monitor, interface_callback, l);
 
     for (i = flx_interface_monitor_get_first(s->monitor); i; i = i->next) {
         flxInterfaceAddress *a;
@@ -129,7 +152,7 @@ flxLocalAddrSource *flx_local_addr_source_new(flxServer *s) {
     uname(&utsname);
     c = g_strdup_printf("%s%c%s%n", g_strup(utsname.machine), 0, g_strup(utsname.sysname), &length);
     
-    flx_server_add(l->server, l->hinfo_id, l->hostname,
+    flx_server_add(l->server, l->hinfo_id, 0, l->hostname,
                    FLX_DNS_TYPE_HINFO,
                    c, length+1);
     g_free(c);

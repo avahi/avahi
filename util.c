@@ -9,7 +9,7 @@ gchar *flx_get_host_name(void) {
     return g_strndup(t, sizeof(t));
 }
 
-gchar *flx_normalize_name(gchar *s) {
+gchar *flx_normalize_name(const gchar *s) {
     size_t l;
     g_assert(s);
 

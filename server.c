@@ -75,7 +75,7 @@ void flx_server_add_rr(flxServer *s, gint id, gint interface, const flxRecord *r
     g_hash_table_replace(s->rrset_by_name, e->rr.name, e);
 }
 
-void flx_server_add(flxServer *s, gint id, const gchar *name, gint interface, guint16 type, gconstpointer data, guint size) {
+void flx_server_add(flxServer *s, gint id, gint interface, const gchar *name, guint16 type, gconstpointer data, guint size) {
     flxRecord rr;
     g_assert(s);
     g_assert(name);
@@ -87,9 +87,8 @@ void flx_server_add(flxServer *s, gint id, const gchar *name, gint interface, gu
     rr.class = FLX_DNS_CLASS_IN;
     rr.data = (gpointer) data;
     rr.size = size;
-    rr.interface = interface;
     rr.ttl = FLX_DEFAULT_TTL;
-    flx_server_add_rr(s, id, 0, &rr);
+    flx_server_add_rr(s, id, interface, &rr);
 }
 
 const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state) {
@@ -203,7 +202,7 @@ void flx_server_dump(flxServer *s, FILE *f) {
 
     for (e = s->entries; e; e = e->next) {
         char t[256];
-        fprintf(f, "%-40s %-8s %-8s ", e->rr.name, dns_class_to_string(e->rr.class), dns_type_to_string(e->rr.type));
+        fprintf(f, "%i: %-40s %-8s %-8s ", e->interface, e->rr.name, dns_class_to_string(e->rr.class), dns_type_to_string(e->rr.type));
 
         t[0] = 0;
         
@@ -230,3 +229,39 @@ void flx_server_dump(flxServer *s, FILE *f) {
     }
 }
 
+void flx_server_add_address(flxServer *s, gint id, gint interface, const gchar *name, flxAddress *a) {
+    gchar *n;
+    g_assert(s);
+    g_assert(name);
+    g_assert(a);
+
+    n = flx_normalize_name(name);
+    
+    if (a->family == AF_INET) {
+        gchar *r;
+        
+        flx_server_add(s, id, interface, n, FLX_DNS_TYPE_A, &a->ipv4, sizeof(a->ipv4));
+
+        r = flx_reverse_lookup_name_ipv4(&a->ipv4);
+        g_assert(r);
+        flx_server_add(s, id, interface, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
+        g_free(r);
+        
+    } else {
+        gchar *r;
+            
+        flx_server_add(s, id, interface, n, FLX_DNS_TYPE_AAAA, &a->ipv6, sizeof(a->ipv6));
+
+        r = flx_reverse_lookup_name_ipv6_arpa(&a->ipv6);
+        g_assert(r);
+        flx_server_add(s, id, interface, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
+        g_free(r);
+    
+        r = flx_reverse_lookup_name_ipv6_int(&a->ipv6);
+        g_assert(r);
+        flx_server_add(s, id, interface, r, FLX_DNS_TYPE_PTR, n, strlen(n)+1);
+        g_free(r);
+    }
+    
+    g_free(n);
+}

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include "address.h"
+
 struct _flxServer;
 typedef struct _flxServer flxServer;
 
@@ -28,7 +30,8 @@ void flx_server_free(flxServer* s);
 gint flx_server_get_next_id(flxServer *s);
 
 void flx_server_add_rr(flxServer *s, gint id, gint interface, const flxRecord *rr);
-void flx_server_add(flxServer *s, gint id, const gchar *name, gint interface, guint16 type, gconstpointer data, guint size);
+void flx_server_add(flxServer *s, gint id, gint interface, const gchar *name, guint16 type, gconstpointer data, guint size);
+void flx_server_add_address(flxServer *s, gint id, gint interface, const gchar *name, flxAddress *a);
 
 void flx_server_remove(flxServer *s, gint id);
 

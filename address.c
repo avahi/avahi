@@ -33,48 +33,67 @@ gchar *flx_address_snprint(char *s, guint length, const flxAddress *a) {
     return (gchar*) inet_ntop(a->family, a->data, s, length);
 }
 
-gchar* flx_reverse_lookup_name(const flxAddress *a) {
+gchar* flx_reverse_lookup_name_ipv4(const flxIPv4Address *a) {
+    guint32 n = ntohl(a->address);
     g_assert(a);
 
-    if (a->family == AF_INET) {
-        guint32 n = ntohl(a->ipv4.address);
-        return g_strdup_printf("%u.%u.%u.%u.in-addr.arpa", n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
-    } else if (a->family == AF_INET6) {
-        
-        return g_strdup_printf("%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.int",
-                               a->ipv6.address[15] & 0xF,
-                               a->ipv6.address[15] >> 4,
-                               a->ipv6.address[14] & 0xF,
-                               a->ipv6.address[14] >> 4,
-                               a->ipv6.address[13] & 0xF,
-                               a->ipv6.address[13] >> 4,
-                               a->ipv6.address[12] & 0xF,
-                               a->ipv6.address[12] >> 4,
-                               a->ipv6.address[11] & 0xF,
-                               a->ipv6.address[11] >> 4,
-                               a->ipv6.address[10] & 0xF,
-                               a->ipv6.address[10] >> 4,
-                               a->ipv6.address[9] & 0xF,
-                               a->ipv6.address[9] >> 4,
-                               a->ipv6.address[8] & 0xF,
-                               a->ipv6.address[8] >> 4,
-                               a->ipv6.address[7] & 0xF,
-                               a->ipv6.address[7] >> 4,
-                               a->ipv6.address[6] & 0xF,
-                               a->ipv6.address[6] >> 4,
-                               a->ipv6.address[5] & 0xF,
-                               a->ipv6.address[5] >> 4,
-                               a->ipv6.address[4] & 0xF,
-                               a->ipv6.address[4] >> 4,
-                               a->ipv6.address[3] & 0xF,
-                               a->ipv6.address[3] >> 4,
-                               a->ipv6.address[2] & 0xF,
-                               a->ipv6.address[2] >> 4,
-                               a->ipv6.address[1] & 0xF,
-                               a->ipv6.address[1] >> 4,
-                               a->ipv6.address[0] & 0xF,
-                               a->ipv6.address[0] >> 4);
-    }
+    return g_strdup_printf("%u.%u.%u.%u.in-addr.arpa", n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
+}
 
-    return NULL;
+static gchar *reverse_lookup_name_ipv6(const flxIPv6Address *a, const gchar *suffix) {
+    
+    return g_strdup_printf("%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%s",
+                           a->address[15] & 0xF,
+                           a->address[15] >> 4,
+                           a->address[14] & 0xF,
+                           a->address[14] >> 4,
+                           a->address[13] & 0xF,
+                           a->address[13] >> 4,
+                           a->address[12] & 0xF,
+                           a->address[12] >> 4,
+                           a->address[11] & 0xF,
+                           a->address[11] >> 4,
+                           a->address[10] & 0xF,
+                           a->address[10] >> 4,
+                           a->address[9] & 0xF,
+                           a->address[9] >> 4,
+                           a->address[8] & 0xF,
+                           a->address[8] >> 4,
+                           a->address[7] & 0xF,
+                           a->address[7] >> 4,
+                           a->address[6] & 0xF,
+                           a->address[6] >> 4,
+                           a->address[5] & 0xF,
+                           a->address[5] >> 4,
+                           a->address[4] & 0xF,
+                           a->address[4] >> 4,
+                           a->address[3] & 0xF,
+                           a->address[3] >> 4,
+                           a->address[2] & 0xF,
+                           a->address[2] >> 4,
+                           a->address[1] & 0xF,
+                           a->address[1] >> 4,
+                           a->address[0] & 0xF,
+                           a->address[0] >> 4,
+                           suffix);
+}
+
+gchar *flx_reverse_lookup_name_ipv6_arpa(const flxIPv6Address *a) {
+    return reverse_lookup_name_ipv6(a, "ip6.arpa");
+}
+
+gchar *flx_reverse_lookup_name_ipv6_int(const flxIPv6Address *a) {
+    return reverse_lookup_name_ipv6(a, "ip6.int");
+}
+
+flxAddress *flx_address_parse(const char *s, int family, flxAddress *ret_addr) {
+    g_assert(ret_addr);
+    g_assert(s);
+
+    if (inet_pton(family, s, ret_addr->data) < 0)
+        return NULL;
+
+    ret_addr->family = family;
+    
+    return ret_addr;
 }

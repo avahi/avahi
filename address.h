@@ -24,8 +24,12 @@ typedef struct {
 guint flx_address_get_size(const flxAddress *a);
 gint flx_address_cmp(const flxAddress *a, const flxAddress *b);
 
-gchar *flx_address_snprint(char *s, guint length, const flxAddress *a);
+gchar *flx_address_snprint(char *ret_s, guint length, const flxAddress *a);
 
-gchar* flx_reverse_lookup_name(const flxAddress *a);
+flxAddress *flx_address_parse(const char *s, int family, flxAddress *ret_addr);
+
+gchar* flx_reverse_lookup_name_ipv4(const flxIPv4Address *a);
+gchar* flx_reverse_lookup_name_ipv6_arpa(const flxIPv6Address *a);
+gchar* flx_reverse_lookup_name_ipv6_int(const flxIPv6Address *a);
 
 #endif

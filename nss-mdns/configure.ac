@@ -21,7 +21,7 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([nss-mdns],[0.2],[mzaffzqaf (at) 0pointer (dot) de])
+AC_INIT([nss-mdns],[0.3],[mzaffzqaf (at) 0pointer (dot) de])
 AC_CONFIG_SRCDIR([src/query.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wall])
@@ -41,7 +41,7 @@ AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h unistd.h nss.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h unistd.h nss.h sys/ioctl.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

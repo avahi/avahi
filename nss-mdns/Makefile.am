@@ -17,7 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-EXTRA_DIST=bootstrap.sh README LICENSE debian/changelog debian/compat debian/control debian/copyright debian/docs debian/rules
+EXTRA_DIST=bootstrap.sh README LICENSE \
+	debian/changelog debian/compat debian/control debian/copyright debian/docs debian/rules
 SUBDIRS=src doc
 
 MAINTAINERCLEANFILES=README
@@ -31,11 +32,7 @@ README:
 homepage: all dist
 	test -d $$HOME/homepage/private
 	mkdir -p $$HOME/homepage/private/projects/nss-mdns
-	cp nss-mdns-@PACKAGE_VERSION@.tar.gz $$HOME/homepage/private/projects/nss-mdns
-	cp doc/README.html doc/style.css $$HOME/homepage/private/projects/nss-mdns
-	cp $$HOME/homepage/private/projects/nss-mdns/README.html $$HOME/homepage/private/projects/nss-mdns/index.html
+	cp nss-mdns-@PACKAGE_VERSION@.tar.gz doc/README.html doc/style.css $$HOME/homepage/private/projects/nss-mdns
+	ln -sf README.html $$HOME/homepage/private/projects/nss-mdns/index.html
 
-distcleancheck:
-	@:
-
-.PHONY: homepage distcleancheck
+.PHONY: homepage

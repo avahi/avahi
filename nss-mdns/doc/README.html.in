@@ -10,7 +10,7 @@
 <body>
 <h1><a name="top">nss-mdns @PACKAGE_VERSION@</a></h1>
 
-<p><i>Copyright 2004 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
+<p><i>Copyright 2004,2005 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
 
 <ul class="toc">
     <li><a href="#license">License</a></li>
@@ -41,6 +41,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
+
+<div class="news-date">Jan Sun 16 2004: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.3.tar.gz">Version 0.3</a>
+released. Changes include: add Debianization, use <tt>ip6.arpa</tt> instead of <tt>ip6.int</tt> for reverse IPv6 lookups.</p>
 
 <div class="news-date">Fri Dec 17 2004: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.2.tar.gz">Version 0.2</a>
@@ -171,7 +175,7 @@ compilation and <tt>make install</tt> (as root) for installation of
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 
 <hr/>
-<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, December 2004</address>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, January 2005</address>
 <div class="grey"><i>$Id$</i></div>
 
 </body>

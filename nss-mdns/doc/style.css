@@ -18,17 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  ***/
 
-body { color: black; background-color: white; margin: 0.5cm; } 
+body { color: black; background-color: white; } 
 a:link, a:visited { color: #900000; }       
-p { margin-left: 0.5cm; margin-right: 0.5cm; }
-div.news-date { margin-left: 0.5cm; font-size: 80%; color: #4f0000; } 
-p.news-text { margin-left: 1cm; }
-h1 { color: #00009F; }
-h2 { color: #00009F; }
-h3 { color: #00004F; margin-left: 0.5cm; }
-ul { margin-left: .5cm; }
-ol { margin-left: .5cm; }
-pre { margin-left: .5cm; background-color: #f0f0f0; padding: 0.4cm;}
-.grey { color: #afafaf; }
-table {  margin-left: 1cm; border:1px solid lightgrey; padding: 0.2cm; }
-td { padding-left:10px; padding-right:10px;  }
+div.news-date { font-size: 80%; font-style: italic; } 
+pre { background-color: #f0f0f0; padding: 0.4cm; }
+.grey { color: #8f8f8f; font-size: 80%; }

@@ -29,7 +29,7 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
 gint flx_open_socket_ipv4(void) {
     struct ip_mreqn mreq;
     struct sockaddr_in sa, local;
-    int fd = -1, ttl, yes, no;
+    int fd = -1, ttl, yes;
 
     mdns_mcast_group_ipv4(&sa);
         
@@ -56,8 +56,8 @@ gint flx_open_socket_ipv4(void) {
         goto fail;
     }
 
-    no = 0;
-    if (setsockopt(fd, SOL_IP, IP_MULTICAST_LOOP, &no, sizeof(no)) < 0) {
+    yes = 1;
+    if (setsockopt(fd, SOL_IP, IP_MULTICAST_LOOP, &yes, sizeof(yes)) < 0) {
         g_warning("IP_MULTICAST_LOOP failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -127,7 +127,7 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
 gint flx_open_socket_ipv6(void) {
     struct ipv6_mreq mreq;
     struct sockaddr_in6 sa, local;
-    int fd = -1, ttl, yes, no;
+    int fd = -1, ttl, yes;
 
     mdns_mcast_group_ipv6(&sa);
         
@@ -160,8 +160,8 @@ gint flx_open_socket_ipv6(void) {
         goto fail;
     }
 
-    no = 0;
-    if (setsockopt(fd, SOL_IPV6, IPV6_MULTICAST_LOOP, &no, sizeof(no)) < 0) {
+    yes = 1;
+    if (setsockopt(fd, SOL_IPV6, IPV6_MULTICAST_LOOP, &yes, sizeof(yes)) < 0) {
         g_warning("IPV6_MULTICAST_LOOP failed: %s\n", strerror(errno));
         goto fail;
     }

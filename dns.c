@@ -78,6 +78,31 @@ guint8* flx_dns_packet_append_uint16(flxDnsPacket *p, guint16 v) {
     return d;
 }
 
+guint8 *flx_dns_packet_append_uint32(flxDnsPacket *p, guint32 v) {
+    guint8 *d;
+
+    g_assert(p);
+    d = flx_dns_packet_extend(p, sizeof(guint32));
+    *((guint32*) d) = g_htonl(v);
+
+    return d;
+}
+
+guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer b, guint l) {
+    guint8* d;
+
+    g_assert(p);
+    g_assert(b);
+    g_assert(l);
+    
+    d = flx_dns_packet_extend(p, l);
+    g_assert(d);
+    memcpy(d, b, l);
+
+    return d;
+}
+
+
 guint8 *flx_dns_packet_extend(flxDnsPacket *p, guint l) {
     guint8 *d;
     
@@ -321,6 +346,18 @@ guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k) {
 }
 
 guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush) {
+    guint8 *t;
 
-    
+    g_assert(p);
+    g_assert(r);
+
+    if (!(t = flx_dns_packet_append_name(p, r->key->name)) ||
+        !flx_dns_packet_append_uint16(p, r->key->type) ||
+        !flx_dns_packet_append_uint16(p, cache_flush ? (r->key->class | MDNS_CACHE_FLUSH) : (r->key->class &~ MDNS_CACHE_FLUSH)) ||
+        !flx_dns_packet_append_uint32(p, r->ttl) ||
+        !flx_dns_packet_append_uint16(p, r->size) ||
+        !flx_dns_packet_append_bytes(p, r->data, r->size))
+        return NULL;
+
+    return t;
 }

@@ -14,6 +14,9 @@ static gboolean send_timeout(gpointer data) {
     flxServer *flx = data;
     flxKey *k;
 
+    flx_server_dump(flx, stdout);
+
+
     k = flx_key_new("cocaine.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A);
     flx_server_send_query(flx, 0, AF_UNSPEC, k);
     flx_key_unref(k);
@@ -32,14 +35,13 @@ int main(int argc, char *argv[]) {
 
     loop = g_main_loop_new(NULL, FALSE);
     
-    g_timeout_add(1000*5, quit_timeout, loop);
+    /*g_timeout_add(1000*5, quit_timeout, loop);*/
     g_timeout_add(1000, send_timeout, flx);
     
     g_main_loop_run(loop);
 
     g_main_loop_unref(loop);
 
-    flx_server_dump(flx, stdout);
 
     flx_server_free(flx);
     

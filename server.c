@@ -10,6 +10,16 @@
 #include "socket.h"
 
 static void post_response(flxServer *s, flxRecord *r, gint iface, const flxAddress *a) {
+    flxInterface *i;
+
+    g_assert(s);
+    g_assert(r);
+    g_assert(iface > 0);
+    g_assert(a);
+        
+    if ((i = flx_interface_monitor_get_interface(s->monitor, iface)))
+        flx_interface_send_response(i, a->family, r);
+            
 }
 
 static void handle_query_key(flxServer *s, flxKey *k, gint iface, const flxAddress *a) {
@@ -19,11 +29,13 @@ static void handle_query_key(flxServer *s, flxKey *k, gint iface, const flxAddre
     g_assert(k);
     g_assert(a);
 
-    for (e = g_hash_table_lookup(s->rrset_by_name, k); e; e = e->next_by_name) {
+    for (e = g_hash_table_lookup(s->rrset_by_name, k); e; e = e->by_name_next) {
 
         if ((e->interface <= 0 || e->interface == iface) &&
-            (e->protocol == AF_UNSPEC || e->protocol == a->family))
+            (e->protocol == AF_UNSPEC || e->protocol == a->family)) {
             post_response(s, e->record, iface, a);
+
+        }
     }
 }
 
@@ -38,7 +50,7 @@ static void handle_query(flxServer *s, flxDnsPacket *p, gint iface, const flxAdd
 
         flxKey *key;
 
-        if (!(key = flx_dns_packet_consume_query(p))) {
+        if (!(key = flx_dns_packet_consume_key(p))) {
             g_warning("Packet too short");
             return;
         }
@@ -59,7 +71,7 @@ static void add_response_to_cache(flxCache *c, flxDnsPacket *p, const flxAddress
         flxRecord *rr;
         gboolean cache_flush = FALSE;
         
-        if (!(rr = flx_dns_packet_consume_rr(p, &cache_flush))) {
+        if (!(rr = flx_dns_packet_consume_record(p, &cache_flush))) {
             g_warning("Packet too short");
             return;
         }
@@ -77,6 +89,8 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
     g_assert(p);
     g_assert(sa);
     g_assert(iface > 0);
+
+    g_message("new packet recieved.");
 
     if (!(i = flx_interface_monitor_get_interface(s->monitor, iface))) {
         g_warning("Recieved packet from invalid interface.");
@@ -112,7 +126,7 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
     if (flx_dns_packet_is_query(p)) {
 
         if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) == 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT) != 0
+            flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT) != 0 ||
             flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0) {
             g_warning("Invalid query packet.");
             return;

@@ -65,6 +65,7 @@ int flx_interface_is_relevant(flxInterface *i);
 int flx_address_is_relevant(flxInterfaceAddress *a);
 
 void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k);
+void flx_interface_send_response(flxInterface *i, guchar protocol, flxRecord *rr);
 
 void flx_dump_caches(flxServer *s, FILE *f);
 

@@ -43,6 +43,8 @@ struct _flxServer {
     flxTimeEventQueue *time_event_queue;
     
     gchar *hostname;
+
+    gint fd_ipv4, fd_ipv6;
 };
 
 

@@ -1,11 +1,17 @@
 #ifndef foosockethfoo
 #define foosockethfoo
 
-int flx_open_socket(int iface);
+#include <netinet/in.h>
 
+#include "dns.h"
 
-int flx_send_packet(int fd, int iface, struct flx_dns_packet *p);
+gint flx_open_socket_ipv4(void);
+gint flx_open_socket_ipv6(void);
 
+gint flx_send_dns_packet_ipv4(gint fd, gint iface, flxDnsPacket *p);
+gint flx_send_dns_packet_ipv6(gint fd, gint iface, flxDnsPacket *p);
 
+flxDnsPacket *flx_recv_dns_packet_ipv4(gint fd, struct sockaddr_in*ret_sa, gint *ret_iface, gint *ret_ttl);
+flxDnsPacket *flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6*ret_sa, gint *ret_iface, gint *ret_ttl);
 
 #endif

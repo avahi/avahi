@@ -1,5 +1,7 @@
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include "util.h"
 
@@ -49,4 +51,51 @@ glong flx_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
     g_assert(flx_timeval_compare(a, b) >= 0);
 
     return (a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
+}
+
+
+gint flx_set_cloexec(gint fd) {
+    gint n;
+
+    g_assert(fd >= 0);
+    
+    if ((n = fcntl(fd, F_GETFD)) < 0)
+        return -1;
+
+    if (n & FD_CLOEXEC)
+        return 0;
+
+    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
+}
+
+gint flx_set_nonblock(gint fd) {
+    gint n;
+
+    g_assert(fd >= 0);
+
+    if ((n = fcntl(fd, F_GETFL)) < 0)
+        return -1;
+
+    if (n & O_NONBLOCK)
+        return 0;
+
+    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
+}
+
+gint flx_wait_for_write(gint fd) {
+    fd_set fds;
+    gint r;
+    
+    FD_ZERO(&fds);
+    FD_SET(fd, &fds);
+    
+    if ((r = select(fd+1, NULL, &fds, NULL, NULL)) < 0) {
+        g_message("select() failed: %s", strerror(errno));
+
+        return -1;
+    }
+    
+    g_assert(r > 0);
+
+    return 0;
 }

@@ -8,6 +8,8 @@
 
 #include "iface.h"
 #include "netlink.h"
+#include "dns.h"
+#include "socket.h"
 
 static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, int remove) {
     g_assert(m);
@@ -343,6 +345,28 @@ int flx_address_is_relevant(flxInterfaceAddress *a) {
 }
 
 void flx_interface_send_query(flxInterface *i, guchar protocol, flxKey *k) {
+    flxDnsPacket *p;
     g_assert(i);
     g_assert(k);
+
+    p = flx_dns_packet_new();
+    flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+
+    flx_dns_packet_append_name(p, k->name);
+    flx_dns_packet_append_uint16(p, k->type);
+    flx_dns_packet_append_uint16(p, k->class);
+
+    flx_dns_packet_set_field(p, DNS_FIELD_QDCOUNT, 1);
+
+    if ((protocol == AF_INET || protocol == AF_UNSPEC) && i->n_ipv4_addrs > 0 && flx_interface_is_relevant(i)) {
+        g_message("sending on '%s':IPv4", i->name);
+        flx_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->index, p);
+    }
+
+    if ((protocol == AF_INET6 || protocol == AF_UNSPEC) && i->n_ipv6_addrs > 0 && flx_interface_is_relevant(i)) {
+        g_message("sending on '%s':IPv6", i->name);
+        flx_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->index, p);
+    }
+    
+    flx_dns_packet_free(p);
 }

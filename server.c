@@ -2,10 +2,12 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <sys/utsname.h>
+#include <unistd.h>
 
 #include "server.h"
 #include "util.h"
 #include "iface.h"
+#include "socket.h"
 
 static void add_default_entries(flxServer *s) {
     gint length = 0;
@@ -38,6 +40,20 @@ flxServer *flx_server_new(GMainContext *c) {
 
     s = g_new(flxServer, 1);
 
+    s->fd_ipv4 = flx_open_socket_ipv4();
+    s->fd_ipv6 = flx_open_socket_ipv6();
+    
+    if (s->fd_ipv6 < 0 && s->fd_ipv4 < 0) {
+        g_critical("Failed to create sockets.\n");
+        g_free(s);
+        return NULL;
+    }
+
+    if (s->fd_ipv4 < 0)
+        g_message("Failed to create IPv4 socket, proceeding in IPv6 only mode");
+    else if (s->fd_ipv6 < 0)
+        g_message("Failed to create IPv6 socket, proceeding in IPv4 only mode");
+    
     if (c)
         g_main_context_ref(s->context = c);
     else
@@ -77,6 +93,11 @@ void flx_server_free(flxServer* s) {
 
     flx_time_event_queue_free(s->time_event_queue);
     g_main_context_unref(s->context);
+
+    if (s->fd_ipv4 >= 0)
+        close(s->fd_ipv4);
+    if (s->fd_ipv6 >= 0)
+        close(s->fd_ipv6);
     
     g_free(s->hostname);
     g_free(s);

@@ -13,7 +13,8 @@ enum {
     FLX_DNS_TYPE_MX = 0x0F,
     FLX_DNS_TYPE_TXT = 0x10,
     FLX_DNS_TYPE_AAAA = 0x1C,
-    FLX_DNS_TYPE_SRV = 0x21
+    FLX_DNS_TYPE_SRV = 0x21,
+    FLX_DNS_TYPE_ANY = 0xFF
 };
 
 enum {
@@ -42,7 +43,11 @@ flxKey *flx_key_new(const gchar *name, guint16 class, guint16 type);
 flxKey *flx_key_ref(flxKey *k);
 void flx_key_unref(flxKey *k);
 
-gboolean flx_key_equal(const flxKey *a, const flxKey *b);
+gboolean flx_key_equal(const flxKey *a, const flxKey *b);  /* Treat FLX_DNS_CLASS_ANY like any other type */
+gboolean flx_key_pattern_match(const flxKey *pattern, const flxKey *k); /* If pattern.type is FLX_DNS_CLASS_ANY, k.type is ignored */
+
+gboolean flx_key_is_pattern(const flxKey *k);
+
 guint flx_key_hash(const flxKey *k);
 
 flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 ttl);

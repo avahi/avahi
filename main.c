@@ -15,13 +15,13 @@ static gboolean send_timeout(gpointer data) {
     flxServer *flx = data;
     flxKey *k;
 
-    /*     k = flx_key_new("cocaine.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A); */
-/*     flx_server_post_query(flx, 0, AF_UNSPEC, k); */
-/*     flx_key_unref(k); */
+    k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT);
+    flx_server_post_query(flx, 0, AF_UNSPEC, k);
+    flx_key_unref(k);
 
-/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A); */
-/*     flx_server_post_query(flx, 0, AF_INET, k); */
-/*     flx_key_unref(k); */
+    k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A);
+    flx_server_post_query(flx, 0, AF_INET, k);
+    flx_key_unref(k);
 
     return FALSE;
 }
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
     flx_server_add_text(flx, 0, 0, AF_UNSPEC, FALSE, NULL, "hallo");
 
-/*     k = flx_key_new("_http._tcp.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR); */
+/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_ANY); */
 /*     s = flx_subscription_new(flx, k, 0, AF_UNSPEC, subscription, NULL); */
 /*     flx_key_unref(k); */
 

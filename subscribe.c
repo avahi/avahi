@@ -20,16 +20,39 @@ static void elapse(flxTimeEvent *e, void *userdata) {
     flx_time_event_queue_update(s->server->time_event_queue, s->time_event, &tv);
 }
 
-static void scan_cache_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {
+struct cbdata {
+    flxSubscription *subscription;
+    flxInterface *interface;
+};
+
+static gpointer scan_cache_callback(flxCache *c, flxKey *pattern, flxCacheEntry *e, gpointer userdata) {
+    struct cbdata *cbdata = userdata;
+
+    g_assert(c);
+    g_assert(pattern);
+    g_assert(e);
+    g_assert(cbdata);
+
+    cbdata->subscription->callback(
+        cbdata->subscription,
+        e->record,
+        cbdata->interface->hardware->index,
+        cbdata->interface->protocol,
+        FLX_SUBSCRIPTION_NEW,
+        cbdata->subscription->userdata);
+
+    return NULL;
+}
+
+static void scan_interface_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {
     flxSubscription *s = userdata;
-    flxCacheEntry *e;
+    struct cbdata cbdata = { s, i };
 
     g_assert(m);
     g_assert(i);
     g_assert(s);
 
-    for (e = flx_cache_lookup_key(i->cache, s->key); e; e = e->by_name_next)
-        s->callback(s, e->record, i->hardware->index, i->protocol, FLX_SUBSCRIPTION_NEW, s->userdata);
+    flx_cache_walk(i->cache, s->key, scan_cache_callback, &cbdata);
 }
 
 flxSubscription *flx_subscription_new(flxServer *server, flxKey *key, gint interface, guchar protocol, flxSubscriptionCallback callback, gpointer userdata) {
@@ -40,6 +63,8 @@ flxSubscription *flx_subscription_new(flxServer *server, flxKey *key, gint inter
     g_assert(key);
     g_assert(callback);
 
+    g_assert(!flx_key_is_pattern(key));
+    
     s = g_new(flxSubscription, 1);
     s->server = server;
     s->key = flx_key_ref(key);
@@ -63,7 +88,7 @@ flxSubscription *flx_subscription_new(flxServer *server, flxKey *key, gint inter
     g_hash_table_replace(server->subscription_hashtable, key, t);
 
     /* Scan the caches */
-    flx_interface_monitor_walk(s->server->monitor, s->interface, s->protocol, scan_cache_callback, s);
+    flx_interface_monitor_walk(s->server->monitor, s->interface, s->protocol, scan_interface_callback, s);
     
     return s;
 }
@@ -91,6 +116,7 @@ void flx_subscription_free(flxSubscription *s) {
 
 void flx_subscription_notify(flxServer *server, flxInterface *i, flxRecord *record, flxSubscriptionEvent event) {
     flxSubscription *s;
+    flxKey *pattern;
     
     g_assert(server);
     g_assert(record);
@@ -98,5 +124,11 @@ void flx_subscription_notify(flxServer *server, flxInterface *i, flxRecord *reco
     for (s = g_hash_table_lookup(server->subscription_hashtable, record->key); s; s = s->by_key_next)
         if (flx_interface_match(i, s->interface, s->protocol))
             s->callback(s, record, i->hardware->index, i->protocol, event, s->userdata);
-    
+}
+
+gboolean flx_is_subscribed(flxServer *server, flxKey *k) {
+    g_assert(server);
+    g_assert(k);
+
+    return !!g_hash_table_lookup(server->subscription_hashtable, k);
 }

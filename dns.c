@@ -409,29 +409,37 @@ flxKey* flx_dns_packet_consume_key(flxDnsPacket *p) {
 
 guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k) {
     guint8 *t;
+    guint size;
     
     g_assert(p);
     g_assert(k);
 
+    size = p->size;
+    
     if (!(t = flx_dns_packet_append_name(p, k->name)) ||
         !flx_dns_packet_append_uint16(p, k->type) ||
-        !flx_dns_packet_append_uint16(p, k->class))
+        !flx_dns_packet_append_uint16(p, k->class)) {
+        p->size = size;
         return NULL;
+    }
 
     return t;
 }
 
 guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush) {
     guint8 *t;
+    guint size;
 
     g_assert(p);
     g_assert(r);
+
+    size = p->size;
 
     if (!(t = flx_dns_packet_append_name(p, r->key->name)) ||
         !flx_dns_packet_append_uint16(p, r->key->type) ||
         !flx_dns_packet_append_uint16(p, cache_flush ? (r->key->class | MDNS_CACHE_FLUSH) : (r->key->class &~ MDNS_CACHE_FLUSH)) ||
         !flx_dns_packet_append_uint32(p, r->ttl))
-        return NULL;
+        goto fail;
 
     switch (r->key->type) {
         
@@ -445,7 +453,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
             
             if (!flx_dns_packet_append_uint16(p, strlen(ptr_name)+1) ||
                 !flx_dns_packet_append_name(p, ptr_name))
-                return NULL;
+                goto fail;
 
             break;
         }
@@ -460,7 +468,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
             if (!flx_dns_packet_append_uint16(p, strlen(name+6)+1+6) ||
                 !flx_dns_packet_append_bytes(p, r->data, 6) ||
                 !flx_dns_packet_append_name(p, name))
-                return NULL;
+                goto fail;
 
             break;
         }
@@ -468,8 +476,19 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
         default:
             if (!flx_dns_packet_append_uint16(p, r->size) ||
                 (r->size != 0 && !flx_dns_packet_append_bytes(p, r->data, r->size)))
-                return NULL;
+                goto fail;
     }
 
     return t;
+
+
+fail:
+    p->size = size;
+    return NULL;
+}
+
+gboolean flx_dns_packet_is_empty(flxDnsPacket *p) {
+    g_assert(p);
+
+    return p->size <= FLX_DNS_PACKET_HEADER_SIZE;
 }

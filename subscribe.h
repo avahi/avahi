@@ -36,4 +36,6 @@ void flx_subscription_free(flxSubscription *s);
 
 void flx_subscription_notify(flxServer *s, flxInterface *i, flxRecord *record, flxSubscriptionEvent event);
 
+gboolean flx_is_subscribed(flxServer *s, flxKey *k);
+
 #endif

@@ -21,6 +21,7 @@ flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i)
 
     FLX_LLIST_HEAD_INIT(flxQueryJob, s->query_jobs);
     FLX_LLIST_HEAD_INIT(flxResponseJob, s->response_jobs);
+    FLX_LLIST_HEAD_INIT(flxKnownAnswer, s->known_answers);
     
     return s;
 }
@@ -53,15 +54,37 @@ void flx_packet_scheduler_free(flxPacketScheduler *s) {
     flxQueryJob *qj;
     flxResponseJob *rj;
     flxTimeEvent *e;
-    
+
     g_assert(s);
 
+    g_assert(!s->known_answers);
+    
     while ((qj = s->query_jobs))
         query_job_free(s, qj);
     while ((rj = s->response_jobs))
         response_job_free(s, rj);
 
     g_free(s);
+}
+
+static gpointer known_answer_walk_callback(flxCache *c, flxKey *pattern, flxCacheEntry *e, gpointer userdata) {
+    flxPacketScheduler *s = userdata;
+    flxKnownAnswer *ka;
+    
+    g_assert(c);
+    g_assert(pattern);
+    g_assert(e);
+    g_assert(s);
+
+    if (flx_cache_entry_half_ttl(c, e))
+        return NULL;
+    
+    ka = g_new0(flxKnownAnswer, 1);
+    ka->scheduler = s;
+    ka->record = flx_record_ref(e->record);
+
+    FLX_LLIST_PREPEND(flxKnownAnswer, known_answer, s->known_answers, ka);
+    return NULL;
 }
 
 static guint8* packet_add_query_job(flxPacketScheduler *s, flxDnsPacket *p, flxQueryJob *qj) {
@@ -81,11 +104,49 @@ static guint8* packet_add_query_job(flxPacketScheduler *s, flxDnsPacket *p, flxQ
         flx_time_event_queue_update(s->server->time_event_queue, qj->time_event, &tv);
 
         g_get_current_time(&qj->delivery);
+
+        /* Add all matching known answers to the list */
+        flx_cache_walk(s->interface->cache, qj->key, known_answer_walk_callback, s);
     }
 
     return d;
 }
-                                 
+
+static void append_known_answers_and_send(flxPacketScheduler *s, flxDnsPacket *p) {
+    flxKnownAnswer *ka;
+    guint n;
+    g_assert(s);
+    g_assert(p);
+
+    n = 0;
+    
+    while ((ka = s->known_answers)) {
+
+        while (!flx_dns_packet_append_record(p, ka->record, FALSE)) {
+
+            g_assert(!flx_dns_packet_is_empty(p));
+
+            flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, flx_dns_packet_get_field(p, DNS_FIELD_FLAGS) | DNS_FLAG_TC);
+            flx_dns_packet_set_field(p, DNS_FIELD_ANCOUNT, n);
+            flx_interface_send_packet(s->interface, p);
+            flx_dns_packet_free(p);
+
+            p = flx_dns_packet_new_query(s->interface->hardware->mtu - 48);
+            n = 0;
+        }
+
+        FLX_LLIST_REMOVE(flxKnownAnswer, known_answer, s->known_answers, ka);
+        flx_record_unref(ka->record);
+        g_free(ka);
+        
+        n++;
+    }
+    
+    flx_dns_packet_set_field(p, DNS_FIELD_ANCOUNT, n);
+    flx_interface_send_packet(s->interface, p);
+    flx_dns_packet_free(p);
+}
+
 static void query_elapse(flxTimeEvent *e, gpointer data) {
     flxQueryJob *qj = data;
     flxPacketScheduler *s;
@@ -102,6 +163,8 @@ static void query_elapse(flxTimeEvent *e, gpointer data) {
         return;
     }
 
+    g_assert(!s->known_answers);
+    
     p = flx_dns_packet_new_query(s->interface->hardware->mtu - 48);
     d = packet_add_query_job(s, p, qj);
     g_assert(d);
@@ -120,21 +183,9 @@ static void query_elapse(flxTimeEvent *e, gpointer data) {
     }
 
     flx_dns_packet_set_field(p, DNS_FIELD_QDCOUNT, n);
-    flx_interface_send_packet(s->interface, p);
-    flx_dns_packet_free(p);
-}
 
-static flxQueryJob* look_for_query(flxPacketScheduler *s, flxKey *key) {
-    flxQueryJob *qj;
-    
-    g_assert(s);
-    g_assert(key);
-
-    for (qj = s->query_jobs; qj; qj = qj->jobs_next)
-        if (flx_key_equal(qj->key, key))
-            return qj;
-
-    return NULL;
+    /* Now add known answers */
+    append_known_answers_and_send(s, p);
 }
 
 flxQueryJob* query_job_new(flxPacketScheduler *s, flxKey *key) {
@@ -162,18 +213,22 @@ void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key, gboolea
     g_assert(key);
 
     flx_elapse_time(&tv, immediately ? 0 : FLX_QUERY_DEFER_MSEC, 0);
-    
-    if ((qj = look_for_query(s, key))) {
-        glong d = flx_timeval_diff(&tv, &qj->delivery);
 
-        /* Duplicate questions suppression */
-        if (d >= 0 && d <= FLX_QUERY_HISTORY_MSEC*1000) {
-            g_message("WARNING! DUPLICATE QUERY SUPPRESSION ACTIVE!");
-            return;
+    for (qj = s->query_jobs; qj; qj = qj->jobs_next)
+
+        if (flx_key_equal(qj->key, key)) {
+
+            glong d = flx_timeval_diff(&tv, &qj->delivery);
+
+            /* Duplicate questions suppression */
+            if (d >= 0 && d <= FLX_QUERY_HISTORY_MSEC*1000) {
+                g_message("WARNING! DUPLICATE QUERY SUPPRESSION ACTIVE!");
+                return;
+            }
+            
+            query_job_free(s, qj);
+            break;
         }
-
-        query_job_free(s, qj);
-    }
 
     qj = query_job_new(s, key);
     qj->delivery = tv;
@@ -290,6 +345,8 @@ void flx_packet_scheduler_post_response(flxPacketScheduler *s, flxRecord *record
     g_assert(s);
     g_assert(record);
 
+    g_assert(!flx_key_is_pattern(record->key));
+    
     flx_elapse_time(&tv, immediately ? 0 : FLX_RESPONSE_DEFER_MSEC, immediately ? 0 : FLX_RESPONSE_JITTER_MSEC);
     
     /* Don't send out duplicates */

@@ -4,6 +4,7 @@
 typedef struct _flxQueryJob flxQueryJob;
 typedef struct _flxResponseJob flxResponseJob;
 typedef struct _flxPacketScheduler flxPacketScheduler;
+typedef struct _flxKnownAnswer flxKnownAnswer;
 
 #include "timeeventq.h"
 #include "rr.h"
@@ -28,6 +29,13 @@ struct _flxResponseJob {
     FLX_LLIST_FIELDS(flxResponseJob, jobs);
 };
 
+struct _flxKnownAnswer {
+    flxPacketScheduler *scheduler;
+    flxRecord *record;
+
+    FLX_LLIST_FIELDS(flxKnownAnswer, known_answer);
+};
+
 struct _flxPacketScheduler {
     flxServer *server;
     
@@ -35,6 +43,7 @@ struct _flxPacketScheduler {
 
     FLX_LLIST_HEAD(flxQueryJob, query_jobs);
     FLX_LLIST_HEAD(flxResponseJob, response_jobs);
+    FLX_LLIST_HEAD(flxKnownAnswer, known_answers);
 };
 
 flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i);

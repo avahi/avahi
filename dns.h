@@ -45,9 +45,9 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
 
 gconstpointer flx_dns_packet_get_rptr(flxDnsPacket *p);
 
-
-
 gint flx_dns_packet_skip(flxDnsPacket *p, guint length);
+
+gboolean flx_dns_packet_is_empty(flxDnsPacket *p);
 
 #define DNS_FIELD_ID 0
 #define DNS_FIELD_FLAGS 1
@@ -59,6 +59,7 @@ gint flx_dns_packet_skip(flxDnsPacket *p, guint length);
 #define DNS_FLAG_QR (1 << 15)
 #define DNS_FLAG_OPCODE (15 << 11)
 #define DNS_FLAG_RCODE (15)
+#define DNS_FLAG_TC (1 << 9)
 
 #define DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
         (((guint16) !!qr << 15) |  \

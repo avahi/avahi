@@ -24,9 +24,22 @@ static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flx
 
     flx_packet_scheduler_incoming_query(i->scheduler, k);
 
-    for (e = g_hash_table_lookup(s->rrset_by_key, k); e; e = e->by_key_next)
-        if (flx_interface_match(i, e->interface, e->protocol))
-            flx_interface_post_response(i, e->record, FALSE);
+    if (k->type == FLX_DNS_TYPE_ANY) {
+
+        /* Handle ANY query */
+        
+        for (e = s->entries; e; e = e->entry_next)
+            if (flx_key_pattern_match(k, e->record->key))
+                if (flx_interface_match(i, e->interface, e->protocol))
+                    flx_interface_post_response(i, e->record, FALSE);
+    } else {
+
+        /* Handle all other queries */
+        
+        for (e = g_hash_table_lookup(s->rrset_by_key, k); e; e = e->by_key_next)
+            if (flx_interface_match(i, e->interface, e->protocol))
+                flx_interface_post_response(i, e->record, FALSE);
+    }
 }
 
 static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a) {
@@ -69,13 +82,15 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
             return;
         }
 
-        g_message("Handling response: %s", txt = flx_record_to_string(record));
-        g_free(txt);
-
-        flx_cache_update(i->cache, record, cache_flush, a);
-
-        flx_packet_scheduler_incoming_response(i->scheduler, record);
-        flx_record_unref(record);
+        if (record->key->type != FLX_DNS_TYPE_ANY) {
+            g_message("Handling response: %s", txt = flx_record_to_string(record));
+            g_free(txt);
+            
+            flx_cache_update(i->cache, record, cache_flush, a);
+            
+            flx_packet_scheduler_incoming_response(i->scheduler, record);
+            flx_record_unref(record);
+        }
     }
 }
 
@@ -347,6 +362,8 @@ void flx_server_add(
     flxServerEntry *e, *t;
     g_assert(s);
     g_assert(r);
+
+    g_assert(r->key->type != FLX_DNS_TYPE_ANY);
 
     e = g_new(flxServerEntry, 1);
     e->record = flx_record_ref(r);

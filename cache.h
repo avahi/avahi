@@ -32,7 +32,8 @@ struct flxCacheEntry {
     flxCacheEntryState state;
     flxTimeEvent *time_event;
 
-    FLX_LLIST_FIELDS(flxCacheEntry, by_name);
+    FLX_LLIST_FIELDS(flxCacheEntry, by_key);
+    FLX_LLIST_FIELDS(flxCacheEntry, entry);
 };
 
 struct _flxCache {
@@ -41,6 +42,8 @@ struct _flxCache {
     flxInterface *interface;
     
     GHashTable *hash_table;
+
+    FLX_LLIST_HEAD(flxCacheEntry, entries);
 };
 
 flxCache *flx_cache_new(flxServer *server, flxInterface *interface);
@@ -51,9 +54,13 @@ flxCacheEntry *flx_cache_lookup_record(flxCache *c, flxRecord *r);
 
 void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddress *a);
 
-void flx_cache_drop_key(flxCache *c, flxKey *k);
 void flx_cache_drop_record(flxCache *c,  flxRecord *r);
 
 void flx_cache_dump(flxCache *c, FILE *f);
+
+typedef gpointer flxCacheWalkCallback(flxCache *c, flxKey *pattern, flxCacheEntry *e, gpointer userdata);
+gpointer flx_cache_walk(flxCache *c, flxKey *pattern, flxCacheWalkCallback cb, gpointer userdata);
+
+gboolean flx_cache_entry_half_ttl(flxCache *c, flxCacheEntry *e);
 
 #endif

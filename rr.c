@@ -224,8 +224,30 @@ gboolean flx_key_equal(const flxKey *a, const flxKey *b) {
 
 /*     g_message("equal: %p %p", a, b); */
     
-    return strcmp(a->name, b->name) == 0 && a->type == b->type && a->class == b->class;
+    return strcmp(a->name, b->name) == 0 &&
+        a->type == b->type &&
+        a->class == b->class;
 }
+
+gboolean flx_key_pattern_match(const flxKey *pattern, const flxKey *k) {
+    g_assert(pattern);
+    g_assert(k);
+
+/*     g_message("equal: %p %p", a, b); */
+
+    g_assert(!flx_key_is_pattern(k));
+    
+    return strcmp(pattern->name, k->name) == 0 &&
+        (pattern->type == k->type || pattern->type == FLX_DNS_TYPE_ANY) &&
+        pattern->class == k->class;
+}
+
+gboolean flx_key_is_pattern(const flxKey *k) {
+    g_assert(k);
+
+    return k->type == FLX_DNS_TYPE_ANY;
+}
+
 
 guint flx_key_hash(const flxKey *k) {
     g_assert(k);

@@ -1,22 +1,26 @@
 #include <string.h>
 
+#include "util.h"
 #include "cache.h"
 
-static void remove_entry(flxCache *c, flxCacheEntry *e, gboolean remove_from_hash_table) {
+static void remove_entry(flxCache *c, flxCacheEntry *e) {
+    flxCacheEntry *t;
+
     g_assert(c);
     g_assert(e);
 
-    g_message("removing from cache: %p %p", c, e);
-    
-    if (remove_from_hash_table) {
-        flxCacheEntry *t;
-        t = g_hash_table_lookup(c->hash_table, e->record->key);
-        FLX_LLIST_REMOVE(flxCacheEntry, by_name, t, e);
-        if (t)
-            g_hash_table_replace(c->hash_table, t->record->key, t);
-        else
-            g_hash_table_remove(c->hash_table, e->record->key);
-    }
+/*     g_message("removing from cache: %p %p", c, e); */
+
+    /* Remove from hash table */
+    t = g_hash_table_lookup(c->hash_table, e->record->key);
+    FLX_LLIST_REMOVE(flxCacheEntry, by_key, t, e);
+    if (t)
+        g_hash_table_replace(c->hash_table, t->record->key, t);
+    else
+        g_hash_table_remove(c->hash_table, e->record->key);
+
+    /* Remove from linked list */
+    FLX_LLIST_REMOVE(flxCacheEntry, entry, c->entries, e);
         
     if (e->time_event)
         flx_time_event_queue_remove(c->server->time_event_queue, e->time_event);
@@ -37,24 +41,17 @@ flxCache *flx_cache_new(flxServer *server, flxInterface *iface) {
     c->interface = iface;
     c->hash_table = g_hash_table_new((GHashFunc) flx_key_hash, (GEqualFunc) flx_key_equal);
 
-    return c;
-}
-
-gboolean remove_func(gpointer key, gpointer value, gpointer user_data) {
-    flxCacheEntry *e, *next;
-
-    for (e = value; e; e = next) {
-        next = e->by_name_next;
-        remove_entry(user_data, e, FALSE);
-    }
+    FLX_LLIST_HEAD_INIT(flxCacheEntry, c->entries);
     
-    return TRUE;
+    return c;
 }
 
 void flx_cache_free(flxCache *c) {
     g_assert(c);
 
-    g_hash_table_foreach_remove(c->hash_table, remove_func, c);
+    while (c->entries)
+        remove_entry(c, c->entries);
+    
     g_hash_table_destroy(c->hash_table);
     
     g_free(c);
@@ -64,19 +61,61 @@ flxCacheEntry *flx_cache_lookup_key(flxCache *c, flxKey *k) {
     g_assert(c);
     g_assert(k);
 
+    g_assert(!flx_key_is_pattern(k));
+    
     return g_hash_table_lookup(c->hash_table, k);
+}
+
+gpointer flx_cache_walk(flxCache *c, flxKey *pattern, flxCacheWalkCallback cb, gpointer userdata) {
+    gpointer ret;
+    
+    g_assert(c);
+    g_assert(pattern);
+    g_assert(cb);
+    
+    if (flx_key_is_pattern(pattern)) {
+        flxCacheEntry *e, *n;
+        
+        for (e = c->entries; e; e = n) {
+            n = e->entry_next;
+            
+            if (flx_key_pattern_match(pattern, e->record->key))
+                if ((ret = cb(c, pattern, e, userdata)))
+                    return ret;
+        }
+        
+    } else {
+        flxCacheEntry *e, *n;
+
+        for (e = flx_cache_lookup_key(c, pattern); e; e = n) {
+            n = e->by_key_next;
+                
+            if ((ret = cb(c, pattern, e, userdata)))
+                return ret;
+        }
+    }
+
+    return NULL;
+}
+
+static gpointer lookup_record_callback(flxCache *c, flxKey *pattern, flxCacheEntry *e, void *userdata) {
+    g_assert(c);
+    g_assert(pattern);
+    g_assert(e);
+
+    if (flx_record_equal_no_ttl(e->record, userdata))
+        return e;
+
+    return NULL;
 }
 
 flxCacheEntry *flx_cache_lookup_record(flxCache *c, flxRecord *r) {
     flxCacheEntry *e;
+    
     g_assert(c);
     g_assert(r);
 
-    for (e = flx_cache_lookup_key(c, r->key); e; e = e->by_name_next)
-        if (flx_record_equal_no_ttl(e->record, r))
-            return e;
-
-    return NULL;
+    return flx_cache_walk(c, r->key, lookup_record_callback, r);
 }
 
 static void next_expiry(flxCache *c, flxCacheEntry *e, guint percent);
@@ -88,7 +127,7 @@ static void elapse_func(flxTimeEvent *t, void *userdata) {
     g_assert(e);
 
     if (e->state == FLX_CACHE_FINAL) {
-        remove_entry(e->cache, e, TRUE);
+        remove_entry(e->cache, e);
         g_message("Removing entry from cache due to expiration");
     } else {
         guint percent = 0;
@@ -121,8 +160,9 @@ static void elapse_func(flxTimeEvent *t, void *userdata) {
 
         g_message("Requesting cache entry update at %i%%.", percent);
 
-        /* Request a cache update */
-        flx_interface_post_query(e->cache->interface, e->record->key, TRUE);
+        /* Request a cache update, if we are subscribed to this entry */
+        if (flx_is_subscribed(e->cache->server, e->record->key))
+            flx_interface_post_query(e->cache->interface, e->record->key, TRUE);
 
         /* Check again later */
         next_expiry(e->cache, e, percent);
@@ -189,13 +229,13 @@ void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddre
             if (unique) {
                 
                 /* For unique records, remove all entries but one */
-                while (e->by_name_next)
-                    remove_entry(c, e->by_name_next, TRUE);
+                while (e->by_key_next)
+                    remove_entry(c, e->by_key_next);
                 
             } else {
                 
                 /* For non-unique record, look for exactly the same entry */
-                for (; e; e = e->by_name_next)
+                for (; e; e = e->by_key_next)
                     if (flx_record_equal_no_ttl(e->record, r))
                         break;
             }
@@ -206,7 +246,7 @@ void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddre
 /*         g_message("found matching cache entry"); */
             
             /* We are the first in the linked list so let's replace the hash table key with the new one */
-            if (e->by_name_prev == NULL)
+            if (e->by_key_prev == NULL)
                 g_hash_table_replace(c->hash_table, r->key, e);
             
             /* Notify subscribers */
@@ -226,9 +266,14 @@ void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddre
             e->cache = c;
             e->time_event = NULL;
             e->record = flx_record_ref(r);
-            FLX_LLIST_PREPEND(flxCacheEntry, by_name, t, e);
+
+            /* Append to hash table */
+            FLX_LLIST_PREPEND(flxCacheEntry, by_key, t, e);
             g_hash_table_replace(c->hash_table, e->record->key, t);
-            
+
+            /* Append to linked list */
+            FLX_LLIST_PREPEND(flxCacheEntry, entry, c->entries, e);
+
             /* Notify subscribers */
             flx_subscription_notify(c->server, c->interface, e->record, FLX_SUBSCRIPTION_NEW);
         } 
@@ -240,14 +285,20 @@ void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddre
     }
 }
 
+static gpointer drop_key_callback(flxCache *c, flxKey *pattern, flxCacheEntry *e, gpointer userdata) {
+    g_assert(c);
+    g_assert(pattern);
+    g_assert(e);
+
+    remove_entry(c, e);
+    return NULL;
+}
+
 void flx_cache_drop_key(flxCache *c, flxKey *k) {
-    flxCacheEntry *e;
-    
     g_assert(c);
     g_assert(k);
 
-    while ((e = flx_cache_lookup_key(c, k)))
-        remove_entry(c, e, TRUE);
+    flx_cache_walk(c, k, drop_key_callback, NULL);
 }
 
 void flx_cache_drop_record(flxCache *c, flxRecord *r) {
@@ -257,7 +308,7 @@ void flx_cache_drop_record(flxCache *c, flxRecord *r) {
     g_assert(r);
 
     if ((e = flx_cache_lookup_record(c, r))) 
-        remove_entry(c, e, TRUE);
+        remove_entry(c, e);
 }
 
 static void func(gpointer key, gpointer data, gpointer userdata) {
@@ -276,4 +327,20 @@ void flx_cache_dump(flxCache *c, FILE *f) {
 
     fprintf(f, ";;; CACHE DUMP FOLLOWS ;;;\n");
     g_hash_table_foreach(c->hash_table, func, f);
+}
+
+gboolean flx_cache_entry_half_ttl(flxCache *c, flxCacheEntry *e) {
+    GTimeVal now;
+    guint age;
+    
+    g_assert(c);
+    g_assert(e);
+
+    g_get_current_time(&now);
+
+    age = flx_timeval_diff(&now, &e->timestamp)/1000000;
+
+    g_message("age: %u, ttl/2: %u", age, e->record->ttl);
+    
+    return age >= e->record->ttl/2;
 }

@@ -30,7 +30,7 @@ README:
 
 homepage: all dist
 	test -d $$HOME/homepage/private
-	mkdir -p $$HOME/homepage/private/projects/nss-mdns $$HOME/homepage/private/projects/nss-mdns/doxygen
+	mkdir -p $$HOME/homepage/private/projects/nss-mdns
 	cp nss-mdns-@PACKAGE_VERSION@.tar.gz $$HOME/homepage/private/projects/nss-mdns
 	cp doc/README.html doc/style.css $$HOME/homepage/private/projects/nss-mdns
 	cp $$HOME/homepage/private/projects/nss-mdns/README.html $$HOME/homepage/private/projects/nss-mdns/index.html

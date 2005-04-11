@@ -7,6 +7,17 @@ todo:
 * Unicast responses/queries
 * Legacy unicast
 
+* remove expression "rrset" from source files
+
+* add SRV and TXT records referenced from PTR records automatically to packet
+* add A and AAAA records referenced from SRV records automatically to packet
+
+* make flx_server_add_text() and flx_server_add_service() variadic functions
+
+* name compression
+
+* respect escaping in name serialization
+
 done:
 * really send goodbye packets
 * refresh subscribed records only

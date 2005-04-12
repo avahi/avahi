@@ -3,6 +3,9 @@
 
 #include <glib.h>
 
+#include "strlst.h"
+#include "address.h"
+
 enum {
     FLX_DNS_TYPE_A = 0x01,
     FLX_DNS_TYPE_NS = 0x02,
@@ -34,9 +37,44 @@ typedef struct  {
     guint ref;
     flxKey *key;
     
-    gpointer data;
-    guint16 size;
     guint32 ttl;
+
+    union {
+        struct {
+            gpointer data;
+            guint16 size;
+        } generic;
+
+        struct {
+            guint16 priority;
+            guint16 weight;
+            guint16 port;
+            gchar *name;
+        } srv;
+
+        struct {
+            gchar *name;
+        } ptr; /* and cname */
+
+        struct {
+            gchar *cpu;
+            gchar *os;
+        } hinfo;
+
+        struct {
+            flxStringList *string_list;
+        } txt;
+
+        struct {
+            flxIPv4Address address;
+        } a;
+
+        struct {
+            flxIPv6Address address;
+        } aaaa;
+
+    } data;
+    
 } flxRecord;
 
 flxKey *flx_key_new(const gchar *name, guint16 class, guint16 type);
@@ -50,17 +88,19 @@ gboolean flx_key_is_pattern(const flxKey *k);
 
 guint flx_key_hash(const flxKey *k);
 
-flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 ttl);
-flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type, gconstpointer data, guint16 size, guint32 ttl);
+flxRecord *flx_record_new(flxKey *k);
+flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type);
 flxRecord *flx_record_ref(flxRecord *r);
 void flx_record_unref(flxRecord *r);
 
 const gchar *flx_dns_class_to_string(guint16 class);
 const gchar *flx_dns_type_to_string(guint16 type);
 
-gchar *flx_key_to_string(flxKey *k); /* g_free() the result! */
-gchar *flx_record_to_string(flxRecord *r);  /* g_free() the result! */
+gchar *flx_key_to_string(const flxKey *k); /* g_free() the result! */
+gchar *flx_record_to_string(const flxRecord *r);  /* g_free() the result! */
 
 gboolean flx_record_equal_no_ttl(const flxRecord *a, const flxRecord *b);
+
+flxRecord *flx_record_copy(flxRecord *r);
 
 #endif

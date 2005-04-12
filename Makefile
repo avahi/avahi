@@ -2,9 +2,9 @@
 CFLAGS=-g -O0 -Wall -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
 LIBS=$(shell pkg-config --libs glib-2.0)
 
-all: flexmdns prioq-test
+all: strlst-test prioq-test flexmdns 
 
-flexmdns: timeeventq.o main.o iface.o netlink.o server.o address.o util.o prioq.o cache.o rr.o dns.o socket.o psched.o announce.o subscribe.o
+flexmdns: timeeventq.o main.o iface.o netlink.o server.o address.o util.o prioq.o cache.o rr.o dns.o socket.o psched.o announce.o subscribe.o strlst.o
 	$(CC) -o $@ $^ $(LIBS)
 
 #test-llist: test-llist.o
@@ -14,7 +14,11 @@ prioq-test: prioq-test.o prioq.o
 	$(CC) -o $@ $^ $(LIBS)
 
 
+strlst-test: strlst-test.o strlst.o
+	$(CC) -o $@ $^ $(LIBS)
+
+
 *.o: *.h
 
 clean:
-	rm -f *.o flexmdns prioq-test
+	rm -f *.o flexmdns prioq-test strlst-test

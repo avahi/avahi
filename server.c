@@ -92,19 +92,20 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
         gchar *txt;
         
         if (!(record = flx_dns_packet_consume_record(p, &cache_flush))) {
-            g_warning("Packet too short");
+            g_warning("Packet too short (3)");
             return;
         }
 
-        if (record->key->type != FLX_DNS_TYPE_ANY) {
-            g_message("Handling response: %s", txt = flx_record_to_string(record));
-            g_free(txt);
-            
-            flx_cache_update(i->cache, record, cache_flush, a);
-            
-            flx_packet_scheduler_incoming_response(i->scheduler, record);
-            flx_record_unref(record);
-        }
+        if (record->key->type == FLX_DNS_TYPE_ANY)
+            continue;
+        
+        g_message("Handling response: %s", txt = flx_record_to_string(record));
+        g_free(txt);
+        
+        flx_cache_update(i->cache, record, cache_flush, a);
+        
+        flx_packet_scheduler_incoming_response(i->scheduler, record);
+        flx_record_unref(record);
     }
 }
 
@@ -232,20 +233,17 @@ static void add_default_entries(flxServer *s) {
     struct utsname utsname;
     gchar *hinfo;
     flxAddress a;
+    flxRecord *r;
     
     g_assert(s);
     
     /* Fill in HINFO rr */
+    r = flx_record_new_full(s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_HINFO);
     uname(&utsname);
-    hinfo = g_strdup_printf("%c%s%c%s%n",
-                            strlen(utsname.machine), g_strup(utsname.machine),
-                            strlen(utsname.sysname), g_strup(utsname.sysname),
-                            &length);
-    
-    flx_server_add_full(s, 0, 0, AF_UNSPEC, TRUE,
-                        s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_HINFO, hinfo, length, FLX_DEFAULT_TTL);
-
-    g_free(hinfo);
+    r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
+    r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
+    flx_server_add(s, 0, 0, AF_UNSPEC, TRUE, r);
+    flx_record_unref(r);
 
     /* Add localhost entries */
     flx_address_parse("127.0.0.1", AF_INET, &a);
@@ -402,30 +400,6 @@ void flx_server_add(
 
     flx_announce_entry(s, e);
 }
-
-void flx_server_add_full(
-    flxServer *s,
-    gint id,
-    gint interface,
-    guchar protocol,
-    gboolean unique,
-    const gchar *name,
-    guint16 class,
-    guint16 type,
-    gconstpointer data,
-    guint size,
-    guint32 ttl) {
-    
-    flxRecord *r;
-    g_assert(s);
-    g_assert(data);
-    g_assert(size);
-
-    r = flx_record_new_full(name ? name : s->hostname, class, type, data, size, ttl);
-    flx_server_add(s, id, interface, protocol, unique, r);
-    flx_record_unref(r);
-}
-
 const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state) {
     flxServerEntry **e = (flxServerEntry**) state;
     g_assert(s);
@@ -504,6 +478,26 @@ void flx_server_dump(flxServer *s, FILE *f) {
     flx_dump_caches(s->monitor, f);
 }
 
+void flx_server_add_ptr(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    gboolean unique,
+    const gchar *name,
+    const gchar *dest) {
+
+    flxRecord *r;
+
+    g_assert(dest);
+
+    r = flx_record_new_full(name ? name : s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR);
+    r->data.ptr.name = flx_normalize_name(dest);
+    flx_server_add(s, id, interface, protocol, unique, r);
+    flx_record_unref(r);
+
+}
+
 void flx_server_add_address(
     flxServer *s,
     gint id,
@@ -513,39 +507,66 @@ void flx_server_add_address(
     const gchar *name,
     flxAddress *a) {
 
-    gchar *n;
+    gchar *n = NULL;
     g_assert(s);
     g_assert(a);
 
-    n = name ? flx_normalize_name(name) : s->hostname;
+    name = name ? (n = flx_normalize_name(name)) : s->hostname;
     
     if (a->family == AF_INET) {
-        gchar *r;
-        
-        flx_server_add_full(s, id, interface, protocol, unique, n, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A, &a->data.ipv4, sizeof(a->data.ipv4), FLX_DEFAULT_TTL);
+        gchar *reverse;
+        flxRecord  *r;
 
-        r = flx_reverse_lookup_name_ipv4(&a->data.ipv4);
-        g_assert(r);
-        flx_server_add_full(s, id, interface, protocol, unique, r, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR, n, strlen(n)+1, FLX_DEFAULT_TTL);
-        g_free(r);
+        r = flx_record_new_full(name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A);
+        r->data.a.address = a->data.ipv4;
+        flx_server_add(s, id, interface, protocol, unique, r);
+        flx_record_unref(r);
+        
+        reverse = flx_reverse_lookup_name_ipv4(&a->data.ipv4);
+        g_assert(reverse);
+        flx_server_add_ptr(s, id, interface, protocol, unique, reverse, name);
+        g_free(reverse);
         
     } else {
-        gchar *r;
+        gchar *reverse;
+        flxRecord *r;
             
-        flx_server_add_full(s, id, interface, protocol, unique, n, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_AAAA, &a->data.ipv6, sizeof(a->data.ipv6), FLX_DEFAULT_TTL);
+        r = flx_record_new_full(name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_AAAA);
+        r->data.aaaa.address = a->data.ipv6;
+        flx_server_add(s, id, interface, protocol, unique, r);
+        flx_record_unref(r);
 
-        r = flx_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
-        g_assert(r);
-        flx_server_add_full(s, id, interface, protocol, unique, r, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR, n, strlen(n)+1, FLX_DEFAULT_TTL);
-        g_free(r);
+        reverse = flx_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
+        g_assert(reverse);
+        flx_server_add_ptr(s, id, interface, protocol, unique, reverse, name);
+        g_free(reverse);
     
-        r = flx_reverse_lookup_name_ipv6_int(&a->data.ipv6);
-        g_assert(r);
-        flx_server_add_full(s, id, interface, protocol, unique, r, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR, n, strlen(n)+1, FLX_DEFAULT_TTL);
-        g_free(r);
+        reverse = flx_reverse_lookup_name_ipv6_int(&a->data.ipv6);
+        g_assert(reverse);
+        flx_server_add_ptr(s, id, interface, protocol, unique, reverse, name);
+        g_free(reverse);
     }
     
     g_free(n);
+}
+
+void flx_server_add_text_va(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    gboolean unique,
+    const gchar *name,
+    va_list va) {
+
+    flxRecord *r;
+    
+    g_assert(s);
+    
+    r = flx_record_new_full(name ? name : s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT);
+    r->data.txt.string_list = flx_string_list_new_va(va);
+    flx_server_add(s, id, interface, protocol, unique, r);
+    flx_record_unref(r);
 }
 
 void flx_server_add_text(
@@ -555,22 +576,110 @@ void flx_server_add_text(
     guchar protocol,
     gboolean unique,
     const gchar *name,
-    const gchar *text) {
-    
-    gchar buf[256];
-    guint l;
+    ...) {
+
+    va_list va;
     
     g_assert(s);
-    g_assert(text);
 
-    if ((l = strlen(text)) > 255)
-        buf[0] = 255;
-    else
-        buf[0] = (gchar) l;
+    va_start(va, name);
+    flx_server_add_text_va(s, id, interface, protocol, unique, name, va);
+    va_end(va);
+}
 
-    memcpy(buf+1, text, l);
+static void escape_service_name(gchar *d, guint size, const gchar *s) {
+    g_assert(d);
+    g_assert(size);
+    g_assert(s);
 
-    flx_server_add_full(s, id, interface, protocol, unique, name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT, buf, l+1, FLX_DEFAULT_TTL);
+    while (*s && size >= 2) {
+        if (*s == '.' || *s == '\\') {
+            if (size < 3)
+                break;
+
+            *(d++) = '\\';
+            size--;
+        }
+            
+        *(d++) = *(s++);
+        size--;
+    }
+
+    g_assert(size > 0);
+    *(d++) = 0;
+}
+
+
+void flx_server_add_service_va(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    const gchar *type,
+    const gchar *name,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    va_list va) {
+
+    gchar ptr_name[256], svc_name[256], ename[64], enum_ptr[256];
+    flxRecord *r;
+    
+    g_assert(s);
+    g_assert(type);
+    g_assert(name);
+
+    escape_service_name(ename, sizeof(ename), name);
+
+    if (domain) {
+        while (domain[0] == '.')
+            domain++;
+    } else
+        domain = "local";
+
+    if (!host)
+        host = s->hostname;
+
+    snprintf(ptr_name, sizeof(ptr_name), "%s.%s", type, domain);
+    snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, type, domain);
+    
+    flx_server_add_ptr(s, id, interface, protocol, FALSE, ptr_name, svc_name);
+
+    r = flx_record_new_full(svc_name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_SRV);
+    r->data.srv.priority = 0;
+    r->data.srv.weight = 0;
+    r->data.srv.port = port;
+    r->data.srv.name = flx_normalize_name(host);
+    flx_server_add(s, id, interface, protocol, TRUE, r);
+    flx_record_unref(r);
+
+    flx_server_add_text_va(s, id, interface, protocol, FALSE, svc_name, va);
+
+    snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
+    flx_server_add_ptr(s, id, interface, protocol, FALSE, enum_ptr, ptr_name);
+}
+
+void flx_server_add_service(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    const gchar *type,
+    const gchar *name,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    ... ){
+
+    va_list va;
+    
+    g_assert(s);
+    g_assert(type);
+    g_assert(name);
+
+    va_start(va, port);
+    flx_server_add_service_va(s, id, interface, protocol, type, name, domain, host, port, va);
+    va_end(va);
 }
 
 static void post_query_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {

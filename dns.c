@@ -1,3 +1,5 @@
+#include <netinet/in.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -136,6 +138,25 @@ guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer b, guint l) 
         return NULL;
 
     memcpy(d, b, l);
+    return d;
+}
+
+guint8* flx_dns_packet_append_string(flxDnsPacket *p, const gchar *s) {
+    guint8* d;
+    guint k;
+    
+    g_assert(p);
+    g_assert(s);
+
+    if ((k = strlen(s)) >= 255)
+        k = 255;
+    
+    if (!(d = flx_dns_packet_extend(p, k+1)))
+        return NULL;
+
+    *d = (guint8) k;
+    memcpy(d+1, s, k);
+
     return d;
 }
 
@@ -310,10 +331,38 @@ gint flx_dns_packet_consume_bytes(flxDnsPacket *p, gpointer ret_data, guint l) {
     return 0;
 }
 
+gint flx_dns_packet_consume_string(flxDnsPacket *p, gchar *ret_string, guint l) {
+    guint k;
+    
+    g_assert(p);
+    g_assert(ret_string);
+    g_assert(l > 0);
+
+    if (p->rindex >= p->size)
+        return -1;
+
+    k = FLX_DNS_PACKET_DATA(p)[p->rindex];
+
+    if (p->rindex+1+k > p->size)
+        return -1;
+
+    if (l > k+1)
+        l = k+1;
+
+    memcpy(ret_string, FLX_DNS_PACKET_DATA(p)+p->rindex+1, l-1);
+    ret_string[l-1] = 0;
+
+    
+    p->rindex += 1+k;
+
+    return 0;
+    
+}
+
 gconstpointer flx_dns_packet_get_rptr(flxDnsPacket *p) {
     g_assert(p);
     
-    if (p->rindex >= p->size)
+    if (p->rindex > p->size)
         return NULL;
 
     return FLX_DNS_PACKET_DATA(p) + p->rindex;
@@ -330,65 +379,144 @@ gint flx_dns_packet_skip(flxDnsPacket *p, guint length) {
 }
 
 flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_flush) {
-    gchar name[257], buf[257+6];
+    gchar name[257], buf[257];
     guint16 type, class;
     guint32 ttl;
     guint16 rdlength;
     gconstpointer data;
+    flxRecord *r = NULL;
+    gconstpointer start;
 
     g_assert(p);
     g_assert(ret_cache_flush);
+
+    g_message("consume_record()");
 
     if (flx_dns_packet_consume_name(p, name, sizeof(name)) < 0 ||
         flx_dns_packet_consume_uint16(p, &type) < 0 ||
         flx_dns_packet_consume_uint16(p, &class) < 0 ||
         flx_dns_packet_consume_uint32(p, &ttl) < 0 ||
-        flx_dns_packet_consume_uint16(p, &rdlength) < 0)
-        return NULL;
+        flx_dns_packet_consume_uint16(p, &rdlength) < 0 ||
+        p->rindex + rdlength > p->size)
+        
+        goto fail;
 
+    g_message("name = %s, rdlength = %u", name, rdlength);
+    
+    start = flx_dns_packet_get_rptr(p);
+
+    r = flx_record_new_full(name, class, type);
+    
     switch (type) {
         case FLX_DNS_TYPE_PTR:
         case FLX_DNS_TYPE_CNAME:
+
+            g_message("ptr");
+            
             if (flx_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
-                return NULL;
-            
-            data = buf;
-            rdlength = strlen(buf);
+                goto fail;
+
+            r->data.ptr.name = g_strdup(buf);
             break;
 
-        case FLX_DNS_TYPE_SRV: {
-            const guint8 *t = flx_dns_packet_get_rptr(p);
-
-            if (flx_dns_packet_skip(p, 6) < 0)
-                return NULL;
             
-            memcpy(buf, t, 6);
+        case FLX_DNS_TYPE_SRV:
 
-            if (flx_dns_packet_consume_name(p, buf+6, sizeof(buf)-6) < 0)
-                return NULL;
-
-            data = buf;
-            rdlength = 6 + strlen(buf+6);
+            g_message("srv");
+            
+            if (flx_dns_packet_consume_uint16(p, &r->data.srv.priority) < 0 ||
+                flx_dns_packet_consume_uint16(p, &r->data.srv.weight) < 0 ||
+                flx_dns_packet_consume_uint16(p, &r->data.srv.port) < 0 ||
+                flx_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
+                goto fail;
+            
+            r->data.srv.name = g_strdup(buf);
             break;
-        }
+
+        case FLX_DNS_TYPE_HINFO:
+            
+            g_message("hinfo");
+
+            if (flx_dns_packet_consume_string(p, buf, sizeof(buf)) < 0)
+                goto fail;
+
+            r->data.hinfo.cpu = g_strdup(buf);
+
+            if (flx_dns_packet_consume_string(p, buf, sizeof(buf)) < 0)
+                goto fail;
+
+            r->data.hinfo.os = g_strdup(buf);
+            break;
+
+        case FLX_DNS_TYPE_TXT:
+
+            g_message("txt");
+
+            if (rdlength > 0) {
+                r->data.txt.string_list = flx_string_list_parse(flx_dns_packet_get_rptr(p), rdlength);
+                
+                if (flx_dns_packet_skip(p, rdlength) < 0)
+                    goto fail;
+            }
+            
+            break;
+
+        case FLX_DNS_TYPE_A:
+
+            g_message("A");
+
+
+            g_message("%p", flx_dns_packet_get_rptr(p));
+                
+            if (flx_dns_packet_consume_bytes(p, &r->data.a.address, sizeof(flxIPv4Address)) < 0)
+                goto fail;
+
+            g_message("%p", flx_dns_packet_get_rptr(p));
+            
+            break;
+
+        case FLX_DNS_TYPE_AAAA:
+
+            g_message("aaaa");
+            
+            if (flx_dns_packet_consume_bytes(p, &r->data.aaaa.address, sizeof(flxIPv6Address)) < 0)
+                goto fail;
+            
+            break;
             
         default:
 
+            g_message("generic");
+            
             if (rdlength > 0) {
 
-                if (!(data = flx_dns_packet_get_rptr(p)) ||
-                    flx_dns_packet_skip(p, rdlength) < 0)
-                    return NULL;
-            } else
-                data = NULL;
+                r->data.generic.data = g_memdup(flx_dns_packet_get_rptr(p), rdlength);
+                
+                if (flx_dns_packet_skip(p, rdlength) < 0)
+                    goto fail;
+            }
 
             break;
     }
 
+    g_message("%i == %u ?", (guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start, rdlength);
+    
+    /* Check if we read enough data */
+    if ((guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
+        goto fail;
+    
     *ret_cache_flush = !!(class & MDNS_CACHE_FLUSH);
     class &= ~ MDNS_CACHE_FLUSH;
 
-    return flx_record_new_full(name, class, type, data, rdlength, ttl);
+    r->ttl = ttl;
+
+    return r;
+
+fail:
+    if (r)
+        flx_record_unref(r);
+
+    return NULL;
 }
 
 flxKey* flx_dns_packet_consume_key(flxDnsPacket *p) {
@@ -427,7 +555,7 @@ guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k) {
 }
 
 guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush) {
-    guint8 *t;
+    guint8 *t, *l, *start;
     guint size;
 
     g_assert(p);
@@ -438,47 +566,89 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
     if (!(t = flx_dns_packet_append_name(p, r->key->name)) ||
         !flx_dns_packet_append_uint16(p, r->key->type) ||
         !flx_dns_packet_append_uint16(p, cache_flush ? (r->key->class | MDNS_CACHE_FLUSH) : (r->key->class &~ MDNS_CACHE_FLUSH)) ||
-        !flx_dns_packet_append_uint32(p, r->ttl))
+        !flx_dns_packet_append_uint32(p, r->ttl) ||
+        !(l = flx_dns_packet_append_uint16(p, 0)))
         goto fail;
+
+    start = flx_dns_packet_extend(p, 0);
 
     switch (r->key->type) {
         
         case FLX_DNS_TYPE_PTR:
-        case FLX_DNS_TYPE_CNAME: {
-            char ptr_name[257];
+        case FLX_DNS_TYPE_CNAME :
 
-            g_assert((size_t) r->size+1 <= sizeof(ptr_name));
-            memcpy(ptr_name, r->data, r->size);
-            ptr_name[r->size] = 0;
+            if (!(flx_dns_packet_append_name(p, r->data.ptr.name)))
+                goto fail;
             
-            if (!flx_dns_packet_append_uint16(p, strlen(ptr_name)+1) ||
-                !flx_dns_packet_append_name(p, ptr_name))
+            break;
+
+        case FLX_DNS_TYPE_SRV:
+
+            if (!flx_dns_packet_append_uint16(p, r->data.srv.priority) ||
+                !flx_dns_packet_append_uint16(p, r->data.srv.weight) ||
+                !flx_dns_packet_append_uint16(p, r->data.srv.port) ||
+                !flx_dns_packet_append_name(p, r->data.srv.name))
                 goto fail;
 
             break;
-        }
 
-        case FLX_DNS_TYPE_SRV: {
-            char name[257];
-
-            g_assert(r->size >= 6 && (size_t) r->size-6+1 <= sizeof(name));
-            memcpy(name, r->data+6, r->size-6);
-            name[r->size-6] = 0;
-
-            if (!flx_dns_packet_append_uint16(p, strlen(name+6)+1+6) ||
-                !flx_dns_packet_append_bytes(p, r->data, 6) ||
-                !flx_dns_packet_append_name(p, name))
+        case FLX_DNS_TYPE_HINFO:
+            if (!flx_dns_packet_append_string(p, r->data.hinfo.cpu) ||
+                !flx_dns_packet_append_string(p, r->data.hinfo.os))
                 goto fail;
 
             break;
+
+        case FLX_DNS_TYPE_TXT: {
+
+            guint8 *data;
+            guint size;
+
+            size = flx_string_list_serialize(r->data.txt.string_list, NULL, 0);
+
+            g_message("appending string: %u %p", size, r->data.txt.string_list);
+
+            if (!(data = flx_dns_packet_extend(p, size)))
+                goto fail;
+
+            flx_string_list_serialize(r->data.txt.string_list, data, size);
+            break;
         }
 
+
+        case FLX_DNS_TYPE_A:
+
+            if (!flx_dns_packet_append_bytes(p, &r->data.a.address, sizeof(r->data.a.address)))
+                goto fail;
+            
+            break;
+
+        case FLX_DNS_TYPE_AAAA:
+            
+            if (!flx_dns_packet_append_bytes(p, &r->data.aaaa.address, sizeof(r->data.aaaa.address)))
+                goto fail;
+            
+            break;
+            
         default:
-            if (!flx_dns_packet_append_uint16(p, r->size) ||
-                (r->size != 0 && !flx_dns_packet_append_bytes(p, r->data, r->size)))
+
+            if (r->data.generic.size &&
+                flx_dns_packet_append_bytes(p, r->data.generic.data, r->data.generic.size))
                 goto fail;
+
+            break;
     }
 
+
+
+    
+    size = flx_dns_packet_extend(p, 0) - start;
+    g_assert(size <= 0xFFFF);
+
+    g_message("appended %u", size);
+
+    * (guint16*) l = g_htons((guint16) size);
+    
     return t;
 
 

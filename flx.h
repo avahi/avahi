@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <glib.h>
 
-struct _flxServer;
 typedef struct _flxServer flxServer;
 
 #include "address.h"
@@ -23,18 +22,14 @@ void flx_server_add(
     gboolean unique,
     flxRecord *r);
 
-void flx_server_add_full(
+void flx_server_add_ptr(
     flxServer *s,
     gint id,
     gint interface,
     guchar protocol,
     gboolean unique,
     const gchar *name,
-    guint16 class,
-    guint16 type,
-    gconstpointer data,
-    guint size,
-    guint32 ttl);
+    const gchar *dest);
 
 void flx_server_add_address(
     flxServer *s,
@@ -52,7 +47,41 @@ void flx_server_add_text(
     guchar protocol,
     gboolean unique,
     const gchar *name,
-    const gchar *text);
+    ... /* text records, terminated by NULL */);
+
+void flx_server_add_text_va(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    gboolean unique,
+    const gchar *name,
+    va_list va);
+
+void flx_server_add_service(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    const gchar *type,
+    const gchar *name,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    ...  /* text records, terminated by NULL */);
+
+void flx_server_add_service_va(
+    flxServer *s,
+    gint id,
+    gint interface,
+    guchar protocol,
+    const gchar *type,
+    const gchar *name,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    va_list va);
+
 
 void flx_server_remove(flxServer *s, gint id);
 

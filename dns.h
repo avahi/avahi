@@ -32,6 +32,7 @@ guint8 *flx_dns_packet_append_name_compressed(flxDnsPacket *p, const gchar *name
 guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer, guint l);
 guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k);
 guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush);
+guint8* flx_dns_packet_append_string(flxDnsPacket *p, const gchar *s);
 
 gint flx_dns_packet_is_query(flxDnsPacket *p);
 gint flx_dns_packet_check_valid(flxDnsPacket *p);
@@ -42,6 +43,7 @@ gint flx_dns_packet_consume_name(flxDnsPacket *p, gchar *ret_name, guint l);
 gint flx_dns_packet_consume_bytes(flxDnsPacket *p, gpointer ret_data, guint l);
 flxKey* flx_dns_packet_consume_key(flxDnsPacket *p);
 flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_flush);
+gint flx_dns_packet_consume_string(flxDnsPacket *p, gchar *ret_string, guint l);
 
 gconstpointer flx_dns_packet_get_rptr(flxDnsPacket *p);
 

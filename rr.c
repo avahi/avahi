@@ -45,31 +45,30 @@ void flx_key_unref(flxKey *k) {
     }
 }
 
-flxRecord *flx_record_new(flxKey *k, gconstpointer data, guint16 size, guint32 ttl) {
+flxRecord *flx_record_new(flxKey *k) {
     flxRecord *r;
     
     g_assert(k);
-    g_assert(size == 0 || data);
     
     r = g_new(flxRecord, 1);
     r->ref = 1;
     r->key = flx_key_ref(k);
-    r->data = size > 0 ? g_memdup(data, size) : NULL;
-    r->size = size;
-    r->ttl = ttl;
+
+    memset(&r->data, 0, sizeof(r->data));
+
+    r->ttl = FLX_DEFAULT_TTL;
 
     return r;
 }
 
-flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type, gconstpointer data, guint16 size, guint32 ttl) {
+flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type) {
     flxRecord *r;
     flxKey *k;
 
     g_assert(name);
-    g_assert(size == 0 || data);
     
     k = flx_key_new(name, class, type);
-    r = flx_record_new(k, data, size, ttl);
+    r = flx_record_new(k);
     flx_key_unref(k);
 
     return r;
@@ -88,8 +87,35 @@ void flx_record_unref(flxRecord *r) {
     g_assert(r->ref >= 1);
 
     if ((--r->ref) <= 0) {
+        switch (r->key->type) {
+
+            case FLX_DNS_TYPE_SRV:
+                g_free(r->data.srv.name);
+                break;
+
+            case FLX_DNS_TYPE_PTR:
+            case FLX_DNS_TYPE_CNAME:
+                g_free(r->data.ptr.name);
+                break;
+
+            case FLX_DNS_TYPE_HINFO:
+                g_free(r->data.hinfo.cpu);
+                g_free(r->data.hinfo.os);
+                break;
+
+            case FLX_DNS_TYPE_TXT:
+                flx_string_list_free(r->data.txt.string_list);
+                break;
+
+            case FLX_DNS_TYPE_A:
+            case FLX_DNS_TYPE_AAAA:
+                break;
+            
+            default:
+                g_free(r->data.generic.data);
+        }
+        
         flx_key_unref(r->key);
-        g_free(r->data);
         g_free(r);
     }
 }
@@ -123,97 +149,56 @@ const gchar *flx_dns_type_to_string(guint16 type) {
 }
 
 
-gchar *flx_key_to_string(flxKey *k) {
+gchar *flx_key_to_string(const flxKey *k) {
     return g_strdup_printf("%s\t%s\t%s",
                            k->name,
                            flx_dns_class_to_string(k->class),
                            flx_dns_type_to_string(k->type));
 }
 
-gchar *flx_record_to_string(flxRecord *r) {
+gchar *flx_record_to_string(const flxRecord *r) {
     gchar *p, *s;
-    char t[257] = "<unparsable>";
+    char buf[257], *t, *d = NULL;
 
     switch (r->key->type) {
         case FLX_DNS_TYPE_A:
-            inet_ntop(AF_INET, r->data, t, sizeof(t));
+            inet_ntop(AF_INET, &r->data.a.address.address, t = buf, sizeof(buf));
             break;
             
         case FLX_DNS_TYPE_AAAA:
-            inet_ntop(AF_INET6, r->data, t, sizeof(t));
+            inet_ntop(AF_INET6, &r->data.aaaa.address.address, t = buf, sizeof(buf));
             break;
             
-        case FLX_DNS_TYPE_PTR: {
-            size_t l;
-        
-            l = r->size;
-            if (l > sizeof(t)-1)
-                l = sizeof(t)-1;
-            
-            memcpy(t, r->data, l);
-            t[l] = 0;
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME :
+
+            t = r->data.ptr.name;
             break;
-        }
 
-        case FLX_DNS_TYPE_TXT: {
-
-            if (r->size == 0)
-                t[0] = 0;
-            else {
-                guchar l = ((guchar*) r->data)[0];
-
-                if ((size_t) l+1 <= r->size) {
-                    memcpy(t, r->data+1, ((guchar*) r->data)[0]);
-                    t[((guchar*) r->data)[0]] = 0;
-                }
-            }
+        case FLX_DNS_TYPE_TXT:
+            t = d = flx_string_list_to_string(r->data.txt.string_list);
             break;
-        }
 
-        case FLX_DNS_TYPE_HINFO: {
-            gchar *s2;
-            gchar hi1[256], hi2[256];
-            guchar len;
+        case FLX_DNS_TYPE_HINFO:
 
-            if ((size_t) (len = ((guchar*) r->data)[0]) + 2 <= r->size) {
-                guchar len2;
-                memcpy(hi1, (gchar*) r->data +1, len);
-                hi1[len] = 0;
+            snprintf(t = buf, sizeof(buf), "\"%s\" \"%s\"", r->data.hinfo.cpu, r->data.hinfo.os);
+            break;
 
-                if ((size_t) (len2 = ((guchar*) r->data)[len+1]) + len + 2 <= r->size) {
-                    memcpy(hi2, (gchar*) r->data+len+2, len2);
-                    hi2[len2] = 0;
-                    snprintf(t, sizeof(t), "'%s' '%s'", hi1, hi2);
-                }
-                
-            }
+        case FLX_DNS_TYPE_SRV:
+
+            snprintf(t = buf, sizeof(buf), "%u %u %u %s",
+                     r->data.srv.priority,
+                     r->data.srv.weight,
+                     r->data.srv.port,
+                     r->data.srv.name);
 
             break;
-        }
-
-        case FLX_DNS_TYPE_SRV: {
-            char k[257];
-            size_t l;
-
-            l = r->size-6;
-            if (l > sizeof(k)-1)
-                l = sizeof(k)-1;
-            
-            memcpy(k, r->data+6, l);
-            k[l] = 0;
-            
-            snprintf(t, sizeof(t), "%u %u %u %s",
-                     ntohs(((guint16*) r->data)[0]),
-                     ntohs(((guint16*) r->data)[1]),
-                     ntohs(((guint16*) r->data)[2]),
-                     k);
-            break;
-        }
     }
 
     p = flx_key_to_string(r->key);
-    s = g_strdup_printf("%s %s ; ttl=%u", p, t, r->ttl);
+    s = g_strdup_printf("%s %s ; ttl=%u", p, t ? t : "<unparsable>", r->ttl);
     g_free(p);
+    g_free(d);
     
     return s;
 }
@@ -255,12 +240,108 @@ guint flx_key_hash(const flxKey *k) {
     return g_str_hash(k->name) + k->type + k->class;
 }
 
+static gboolean rdata_equal(const flxRecord *a, const flxRecord *b) {
+    gchar *t;
+    g_assert(a);
+    g_assert(b);
+    g_assert(a->key->type == b->key->type);
+
+    t = flx_record_to_string(a);
+    g_message("comparing %s", t);
+    g_free(t);
+
+    t = flx_record_to_string(b);
+    g_message("and %s", t);
+    g_free(t);
+
+    
+    switch (a->key->type) {
+        case FLX_DNS_TYPE_SRV:
+            return
+                a->data.srv.priority == b->data.srv.priority &&
+                a->data.srv.weight == b->data.srv.weight &&
+                a->data.srv.port == b->data.srv.port &&
+                !strcmp(a->data.srv.name, b->data.srv.name);
+
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME:
+            return !strcmp(a->data.ptr.name, b->data.ptr.name);
+
+        case FLX_DNS_TYPE_HINFO:
+            return
+                !strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu) &&
+                !strcmp(a->data.hinfo.os, b->data.hinfo.os);
+
+        case FLX_DNS_TYPE_TXT:
+            return flx_string_list_equal(a->data.txt.string_list, b->data.txt.string_list);
+
+        case FLX_DNS_TYPE_A:
+            return memcmp(&a->data.a.address, &b->data.a.address, sizeof(flxIPv4Address)) == 0;
+
+        case FLX_DNS_TYPE_AAAA:
+            return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(flxIPv6Address)) == 0;
+
+        default:
+            return a->data.generic.size == b->data.generic.size &&
+                (a->data.generic.size == 0 || memcmp(a->data.generic.data, b->data.generic.data, a->data.generic.size) == 0);
+    }
+    
+}
+
 gboolean flx_record_equal_no_ttl(const flxRecord *a, const flxRecord *b) {
     g_assert(a);
     g_assert(b);
 
-    return flx_key_equal(a->key, b->key) &&
-/*        a->ttl == b->ttl && */
-        a->size == b->size &&
-        (a->size == 0 || memcmp(a->data, b->data, a->size) == 0);
+    return
+        flx_key_equal(a->key, b->key) &&
+        rdata_equal(a, b);
+}
+
+
+flxRecord *flx_record_copy(flxRecord *r) {
+    flxRecord *copy;
+
+    copy = g_new(flxRecord, 1);
+    copy->ref = 1;
+    copy->key = flx_key_ref(r->key);
+    copy->ttl = r->ttl;
+
+    switch (r->key->type) {
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME:
+            copy->data.ptr.name = g_strdup(r->data.ptr.name);
+            break;
+
+        case FLX_DNS_TYPE_SRV:
+            copy->data.srv.priority = r->data.srv.priority;
+            copy->data.srv.weight = r->data.srv.weight;
+            copy->data.srv.port = r->data.srv.port;
+            copy->data.srv.name = g_strdup(r->data.srv.name);
+            break;
+
+        case FLX_DNS_TYPE_HINFO:
+            copy->data.hinfo.os = g_strdup(r->data.hinfo.os);
+            copy->data.hinfo.cpu = g_strdup(r->data.hinfo.cpu);
+            break;
+
+        case FLX_DNS_TYPE_TXT:
+            copy->data.txt.string_list = flx_string_list_copy(r->data.txt.string_list);
+            break;
+
+        case FLX_DNS_TYPE_A:
+            copy->data.a.address = r->data.a.address;
+            break;
+
+        case FLX_DNS_TYPE_AAAA:
+            copy->data.aaaa.address = r->data.aaaa.address;
+            break;
+
+        default:
+            copy->data.generic.data = g_memdup(r->data.generic.data, r->data.generic.size);
+            copy->data.generic.size = r->data.generic.size;
+            break;
+                
+    }
+
+    return copy;
 }

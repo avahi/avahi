@@ -116,13 +116,18 @@ void flx_announce_entry(flxServer *s, flxServerEntry *e) {
 
 static flxRecord *make_goodbye_record(flxRecord *r) {
     gchar *t;
+    flxRecord *g;
     
     g_assert(r);
 
     g_message("Preparing goodbye for record [%s]", t = flx_record_to_string(r));
     g_free(t);
 
-    return flx_record_new(r->key, r->data, r->size, 0);
+    g = flx_record_copy(r);
+    g_assert(g->ref == 1);
+    g->ttl = 0;
+
+    return g;
 }
     
 void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean goodbye) {

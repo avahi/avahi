@@ -12,8 +12,6 @@ todo:
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 
-* make flx_server_add_text() and flx_server_add_service() variadic functions
-
 * name compression
 
 * respect escaping in name serialization
@@ -24,3 +22,5 @@ done:
 * FLX_DNS_TYPE_ANY support
 * Known-Answer suppression client part
 * Known-Answer suppression server part
+* make flx_server_add_text() and flx_server_add_service() variadic functions
+

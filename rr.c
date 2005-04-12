@@ -241,18 +241,17 @@ guint flx_key_hash(const flxKey *k) {
 }
 
 static gboolean rdata_equal(const flxRecord *a, const flxRecord *b) {
-    gchar *t;
     g_assert(a);
     g_assert(b);
     g_assert(a->key->type == b->key->type);
 
-    t = flx_record_to_string(a);
-    g_message("comparing %s", t);
-    g_free(t);
+/*     t = flx_record_to_string(a); */
+/*     g_message("comparing %s", t); */
+/*     g_free(t); */
 
-    t = flx_record_to_string(b);
-    g_message("and %s", t);
-    g_free(t);
+/*     t = flx_record_to_string(b); */
+/*     g_message("and %s", t); */
+/*     g_free(t); */
 
     
     switch (a->key->type) {

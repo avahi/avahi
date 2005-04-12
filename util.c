@@ -48,9 +48,11 @@ gint flx_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
 glong flx_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
     g_assert(a);
     g_assert(b);
-    g_assert(flx_timeval_compare(a, b) >= 0);
 
-    return (a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
+    if (flx_timeval_compare(a, b) < 0)
+        return flx_timeval_diff(b, a);
+
+    return ((glong) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
 }
 
 

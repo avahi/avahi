@@ -390,7 +390,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
     g_assert(p);
     g_assert(ret_cache_flush);
 
-    g_message("consume_record()");
+/*     g_message("consume_record()"); */
 
     if (flx_dns_packet_consume_name(p, name, sizeof(name)) < 0 ||
         flx_dns_packet_consume_uint16(p, &type) < 0 ||
@@ -401,7 +401,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
         
         goto fail;
 
-    g_message("name = %s, rdlength = %u", name, rdlength);
+/*     g_message("name = %s, rdlength = %u", name, rdlength); */
     
     start = flx_dns_packet_get_rptr(p);
 
@@ -411,7 +411,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
         case FLX_DNS_TYPE_PTR:
         case FLX_DNS_TYPE_CNAME:
 
-            g_message("ptr");
+/*             g_message("ptr"); */
             
             if (flx_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
                 goto fail;
@@ -422,7 +422,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
             
         case FLX_DNS_TYPE_SRV:
 
-            g_message("srv");
+/*             g_message("srv"); */
             
             if (flx_dns_packet_consume_uint16(p, &r->data.srv.priority) < 0 ||
                 flx_dns_packet_consume_uint16(p, &r->data.srv.weight) < 0 ||
@@ -435,7 +435,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
 
         case FLX_DNS_TYPE_HINFO:
             
-            g_message("hinfo");
+/*             g_message("hinfo"); */
 
             if (flx_dns_packet_consume_string(p, buf, sizeof(buf)) < 0)
                 goto fail;
@@ -450,34 +450,30 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
 
         case FLX_DNS_TYPE_TXT:
 
-            g_message("txt");
+/*             g_message("txt"); */
 
             if (rdlength > 0) {
                 r->data.txt.string_list = flx_string_list_parse(flx_dns_packet_get_rptr(p), rdlength);
                 
                 if (flx_dns_packet_skip(p, rdlength) < 0)
                     goto fail;
-            }
+            } else
+                r->data.txt.string_list = NULL;
             
             break;
 
         case FLX_DNS_TYPE_A:
 
-            g_message("A");
+/*             g_message("A"); */
 
-
-            g_message("%p", flx_dns_packet_get_rptr(p));
-                
             if (flx_dns_packet_consume_bytes(p, &r->data.a.address, sizeof(flxIPv4Address)) < 0)
                 goto fail;
-
-            g_message("%p", flx_dns_packet_get_rptr(p));
             
             break;
 
         case FLX_DNS_TYPE_AAAA:
 
-            g_message("aaaa");
+/*             g_message("aaaa"); */
             
             if (flx_dns_packet_consume_bytes(p, &r->data.aaaa.address, sizeof(flxIPv6Address)) < 0)
                 goto fail;
@@ -486,7 +482,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
             
         default:
 
-            g_message("generic");
+/*             g_message("generic"); */
             
             if (rdlength > 0) {
 
@@ -499,7 +495,7 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
             break;
     }
 
-    g_message("%i == %u ?", (guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start, rdlength);
+/*     g_message("%i == %u ?", (guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start, rdlength); */
     
     /* Check if we read enough data */
     if ((guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
@@ -606,7 +602,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
 
             size = flx_string_list_serialize(r->data.txt.string_list, NULL, 0);
 
-            g_message("appending string: %u %p", size, r->data.txt.string_list);
+/*             g_message("appending string: %u %p", size, r->data.txt.string_list); */
 
             if (!(data = flx_dns_packet_extend(p, size)))
                 goto fail;
@@ -645,7 +641,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
     size = flx_dns_packet_extend(p, 0) - start;
     g_assert(size <= 0xFFFF);
 
-    g_message("appended %u", size);
+/*     g_message("appended %u", size); */
 
     * (guint16*) l = g_htons((guint16) size);
     

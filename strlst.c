@@ -206,10 +206,10 @@ flxStringList *flx_string_list_new_va(va_list va) {
 }
 
 flxStringList *flx_string_list_copy(flxStringList *l) {
-    flxStringList *r;
+    flxStringList *r = NULL;
 
     for (; l; l = l->next)
-        r = flx_string_list_add(l, l->text);
+        r = flx_string_list_add(r, l->text);
 
     return string_list_reverse(r);
 }

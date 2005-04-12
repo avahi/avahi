@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
     flx = flx_server_new(NULL);
 
     flx_server_add_text(flx, 0, 0, AF_UNSPEC, FALSE, NULL, "hallo", NULL);
+    flx_server_add_service(flx, 0, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);
 
 /*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_ANY); */
 /*     s = flx_subscription_new(flx, k, 0, AF_UNSPEC, subscription, NULL); */

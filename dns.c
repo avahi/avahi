@@ -26,7 +26,7 @@ flxDnsPacket* flx_dns_packet_new_query(guint max_size) {
     flxDnsPacket *p;
 
     p = flx_dns_packet_new(max_size);
-    flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+    flx_dns_packet_set_field(p, FLX_DNS_FIELD_FLAGS, FLX_DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
     return p;
 }
 
@@ -34,7 +34,7 @@ flxDnsPacket* flx_dns_packet_new_response(guint max_size) {
     flxDnsPacket *p;
 
     p = flx_dns_packet_new(max_size);
-    flx_dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+    flx_dns_packet_set_field(p, FLX_DNS_FIELD_FLAGS, FLX_DNS_FLAGS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
     return p;
 }
 
@@ -200,9 +200,9 @@ gint flx_dns_packet_check_valid(flxDnsPacket *p) {
     if (p->size < 12)
         return -1;
 
-    flags = flx_dns_packet_get_field(p, DNS_FIELD_FLAGS);
+    flags = flx_dns_packet_get_field(p, FLX_DNS_FIELD_FLAGS);
 
-    if (flags & DNS_FLAG_OPCODE || flags & DNS_FLAG_RCODE)
+    if (flags & FLX_DNS_FLAG_OPCODE || flags & FLX_DNS_FLAG_RCODE)
         return -1;
 
     return 0;
@@ -211,7 +211,7 @@ gint flx_dns_packet_check_valid(flxDnsPacket *p) {
 gint flx_dns_packet_is_query(flxDnsPacket *p) {
     g_assert(p);
     
-    return !(flx_dns_packet_get_field(p, DNS_FIELD_FLAGS) & DNS_FLAG_QR);
+    return !(flx_dns_packet_get_field(p, FLX_DNS_FIELD_FLAGS) & FLX_DNS_FLAG_QR);
 }
 
 static gint consume_labels(flxDnsPacket *p, guint index, gchar *ret_name, guint l) {
@@ -501,8 +501,8 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
     if ((guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
         goto fail;
     
-    *ret_cache_flush = !!(class & MDNS_CACHE_FLUSH);
-    class &= ~ MDNS_CACHE_FLUSH;
+    *ret_cache_flush = !!(class & FLX_DNS_CACHE_FLUSH);
+    class &= ~ FLX_DNS_CACHE_FLUSH;
 
     r->ttl = ttl;
 
@@ -526,7 +526,7 @@ flxKey* flx_dns_packet_consume_key(flxDnsPacket *p) {
         flx_dns_packet_consume_uint16(p, &class) < 0)
         return NULL;
 
-    class &= ~ MDNS_CACHE_FLUSH;
+    class &= ~ FLX_DNS_CACHE_FLUSH;
 
     return flx_key_new(name, class, type);
 }
@@ -561,7 +561,7 @@ guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cac
 
     if (!(t = flx_dns_packet_append_name(p, r->key->name)) ||
         !flx_dns_packet_append_uint16(p, r->key->type) ||
-        !flx_dns_packet_append_uint16(p, cache_flush ? (r->key->class | MDNS_CACHE_FLUSH) : (r->key->class &~ MDNS_CACHE_FLUSH)) ||
+        !flx_dns_packet_append_uint16(p, cache_flush ? (r->key->class | FLX_DNS_CACHE_FLUSH) : (r->key->class &~ FLX_DNS_CACHE_FLUSH)) ||
         !flx_dns_packet_append_uint32(p, r->ttl) ||
         !(l = flx_dns_packet_append_uint16(p, 0)))
         goto fail;
@@ -657,4 +657,12 @@ gboolean flx_dns_packet_is_empty(flxDnsPacket *p) {
     g_assert(p);
 
     return p->size <= FLX_DNS_PACKET_HEADER_SIZE;
+}
+
+guint flx_dns_packet_space(flxDnsPacket *p) {
+    g_assert(p);
+
+    g_assert(p->size <= p->max_size);
+    
+    return p->max_size - p->size;
 }

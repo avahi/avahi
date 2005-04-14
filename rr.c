@@ -121,6 +121,9 @@ void flx_record_unref(flxRecord *r) {
 }
 
 const gchar *flx_dns_class_to_string(guint16 class) {
+    if (class & FLX_DNS_CACHE_FLUSH) 
+        return "FLUSH";
+    
     if (class == FLX_DNS_CLASS_IN)
         return "IN";
 
@@ -143,6 +146,8 @@ const gchar *flx_dns_type_to_string(guint16 type) {
             return "TXT";
         case FLX_DNS_TYPE_SRV:
             return "SRV";
+        case FLX_DNS_TYPE_ANY:
+            return "ANY";
         default:
             return NULL;
     }
@@ -343,4 +348,50 @@ flxRecord *flx_record_copy(flxRecord *r) {
     }
 
     return copy;
+}
+
+
+guint flx_key_get_estimate_size(flxKey *k) {
+    g_assert(k);
+
+    return strlen(k->name)+1+4;
+}
+
+guint flx_record_get_estimate_size(flxRecord *r) {
+    guint n;
+    g_assert(r);
+
+    n = flx_key_get_estimate_size(r->key) + 4 + 2;
+
+    switch (r->key->type) {
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME:
+            n += strlen(r->data.ptr.name) + 1;
+            break;
+
+        case FLX_DNS_TYPE_SRV:
+            n += 6 + strlen(r->data.srv.name) + 1;
+            break;
+
+        case FLX_DNS_TYPE_HINFO:
+            n += strlen(r->data.hinfo.os) + 1 + strlen(r->data.hinfo.cpu) + 1;
+            break;
+
+        case FLX_DNS_TYPE_TXT:
+            n += flx_string_list_serialize(r->data.txt.string_list, NULL, 0);
+            break;
+
+        case FLX_DNS_TYPE_A:
+            n += sizeof(flxIPv4Address);
+            break;
+
+        case FLX_DNS_TYPE_AAAA:
+            n += sizeof(flxIPv6Address);
+            break;
+
+        default:
+            n += r->data.generic.size;
+    }
+
+    return n;
 }

@@ -50,20 +50,21 @@ gconstpointer flx_dns_packet_get_rptr(flxDnsPacket *p);
 gint flx_dns_packet_skip(flxDnsPacket *p, guint length);
 
 gboolean flx_dns_packet_is_empty(flxDnsPacket *p);
+guint flx_dns_packet_space(flxDnsPacket *p);
 
-#define DNS_FIELD_ID 0
-#define DNS_FIELD_FLAGS 1
-#define DNS_FIELD_QDCOUNT 2
-#define DNS_FIELD_ANCOUNT 3
-#define DNS_FIELD_NSCOUNT 4
-#define DNS_FIELD_ARCOUNT 5
+#define FLX_DNS_FIELD_ID 0
+#define FLX_DNS_FIELD_FLAGS 1
+#define FLX_DNS_FIELD_QDCOUNT 2
+#define FLX_DNS_FIELD_ANCOUNT 3
+#define FLX_DNS_FIELD_NSCOUNT 4
+#define FLX_DNS_FIELD_ARCOUNT 5
 
-#define DNS_FLAG_QR (1 << 15)
-#define DNS_FLAG_OPCODE (15 << 11)
-#define DNS_FLAG_RCODE (15)
-#define DNS_FLAG_TC (1 << 9)
+#define FLX_DNS_FLAG_QR (1 << 15)
+#define FLX_DNS_FLAG_OPCODE (15 << 11)
+#define FLX_DNS_FLAG_RCODE (15)
+#define FLX_DNS_FLAG_TC (1 << 9)
 
-#define DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
+#define FLX_DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
         (((guint16) !!qr << 15) |  \
          ((guint16) (opcode & 15) << 11) | \
          ((guint16) !!aa << 10) | \
@@ -74,8 +75,6 @@ gboolean flx_dns_packet_is_empty(flxDnsPacket *p);
          ((guint16) !!cd << 4) | \
          ((guint16) (rd & 15)))
          
-
-#define MDNS_CACHE_FLUSH 0x8000
 
 #endif
 

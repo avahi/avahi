@@ -15,13 +15,13 @@ static gboolean send_timeout(gpointer data) {
     flxServer *flx = data;
     flxKey *k;
 
-    k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT);
-    flx_server_post_query(flx, 0, AF_UNSPEC, k);
-    flx_key_unref(k);
+/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT); */
+/*     flx_server_post_query(flx, 0, AF_UNSPEC, k); */
+/*     flx_key_unref(k); */
 
-    k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A);
-    flx_server_post_query(flx, 0, AF_INET, k);
-    flx_key_unref(k);
+/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A); */
+/*     flx_server_post_query(flx, 0, AF_INET, k); */
+/*     flx_key_unref(k); */
 
     return FALSE;
 }
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
     flx = flx_server_new(NULL);
 
-    flx_server_add_text(flx, 0, 0, AF_UNSPEC, FALSE, NULL, "hallo", NULL);
+    flx_server_add_text(flx, 0, 0, AF_UNSPEC, FLX_SERVER_ENTRY_UNIQUE, NULL, "hallo", NULL);
     flx_server_add_service(flx, 0, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);
 
 /*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_ANY); */

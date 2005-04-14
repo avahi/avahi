@@ -30,15 +30,15 @@ static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flx
         
         for (e = s->entries; e; e = e->entry_next)
             if (flx_key_pattern_match(k, e->record->key))
-                if (flx_interface_match(i, e->interface, e->protocol))
-                    flx_interface_post_response(i, a, e->record, FALSE);
+                if (flx_interface_match(i, e->interface, e->protocol) && flx_entry_established(s, e, i))
+                    flx_interface_post_response(i, a, e->record, e->flags & FLX_SERVER_ENTRY_UNIQUE, FALSE);
     } else {
 
         /* Handle all other queries */
         
         for (e = g_hash_table_lookup(s->rrset_by_key, k); e; e = e->by_key_next)
-            if (flx_interface_match(i, e->interface, e->protocol))
-                flx_interface_post_response(i, a, e->record, FALSE);
+            if (flx_interface_match(i, e->interface, e->protocol) && flx_entry_established(s, e, i))
+                flx_interface_post_response(i, a, e->record, e->flags & FLX_SERVER_ENTRY_UNIQUE, FALSE);
     }
 }
 
@@ -50,7 +50,7 @@ static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const f
     g_assert(i);
     g_assert(a);
 
-    for (n = flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT); n > 0; n --) {
+    for (n = flx_dns_packet_get_field(p, FLX_DNS_FIELD_QDCOUNT); n > 0; n --) {
         flxKey *key;
 
         if (!(key = flx_dns_packet_consume_key(p))) {
@@ -63,7 +63,7 @@ static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const f
     }
 
     /* Known Answer Suppresion */
-    for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT); n > 0; n --) {
+    for (n = flx_dns_packet_get_field(p, FLX_DNS_FIELD_ANCOUNT); n > 0; n --) {
         flxRecord *record;
         gboolean unique = FALSE;
 
@@ -85,8 +85,8 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
     g_assert(i);
     g_assert(a);
     
-    for (n = flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT) +
-             flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT); n > 0; n--) {
+    for (n = flx_dns_packet_get_field(p, FLX_DNS_FIELD_ANCOUNT) +
+             flx_dns_packet_get_field(p, FLX_DNS_FIELD_ARCOUNT); n > 0; n--) {
         flxRecord *record;
         gboolean cache_flush = FALSE;
         gchar *txt;
@@ -152,9 +152,8 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
 
     if (flx_dns_packet_is_query(p)) {
 
-        if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) == 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_ARCOUNT) != 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0) {
+        if (flx_dns_packet_get_field(p, FLX_DNS_FIELD_QDCOUNT) == 0 ||
+            flx_dns_packet_get_field(p, FLX_DNS_FIELD_ARCOUNT) != 0) {
             g_warning("Invalid query packet.");
             return;
         }
@@ -162,9 +161,9 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
         handle_query(s, p, i, &a);    
         g_message("Handled query");
     } else {
-        if (flx_dns_packet_get_field(p, DNS_FIELD_QDCOUNT) != 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_ANCOUNT) == 0 ||
-            flx_dns_packet_get_field(p, DNS_FIELD_NSCOUNT) != 0) {
+        if (flx_dns_packet_get_field(p, FLX_DNS_FIELD_QDCOUNT) != 0 ||
+            flx_dns_packet_get_field(p, FLX_DNS_FIELD_ANCOUNT) == 0 ||
+            flx_dns_packet_get_field(p, FLX_DNS_FIELD_NSCOUNT) != 0) {
             g_warning("Invalid response packet.");
             return;
         }
@@ -242,15 +241,15 @@ static void add_default_entries(flxServer *s) {
     uname(&utsname);
     r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
     r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
-    flx_server_add(s, 0, 0, AF_UNSPEC, TRUE, r);
+    flx_server_add(s, 0, 0, AF_UNSPEC, FLX_SERVER_ENTRY_UNIQUE, r);
     flx_record_unref(r);
 
     /* Add localhost entries */
     flx_address_parse("127.0.0.1", AF_INET, &a);
-    flx_server_add_address(s, 0, 0, AF_UNSPEC, TRUE, "localhost", &a);
+    flx_server_add_address(s, 0, 0, AF_UNSPEC, FLX_SERVER_ENTRY_UNIQUE|FLX_SERVER_ENTRY_NOPROBE|FLX_SERVER_ENTRY_NOANNOUNCE, "localhost", &a);
 
     flx_address_parse("::1", AF_INET6, &a);
-    flx_server_add_address(s, 0, 0, AF_UNSPEC, TRUE, "ip6-localhost", &a);
+    flx_server_add_address(s, 0, 0, AF_UNSPEC, FLX_SERVER_ENTRY_UNIQUE|FLX_SERVER_ENTRY_NOPROBE|FLX_SERVER_ENTRY_NOANNOUNCE, "ip6-localhost", &a);
 }
 
 flxServer *flx_server_new(GMainContext *c) {
@@ -368,7 +367,7 @@ void flx_server_add(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     flxRecord *r) {
     
     flxServerEntry *e, *t;
@@ -382,7 +381,7 @@ void flx_server_add(
     e->id = id;
     e->interface = interface;
     e->protocol = protocol;
-    e->unique = unique;
+    e->flags = flags;
 
     FLX_LLIST_HEAD_INIT(flxAnnouncement, e->announcements);
 
@@ -483,7 +482,7 @@ void flx_server_add_ptr(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     const gchar *dest) {
 
@@ -493,7 +492,7 @@ void flx_server_add_ptr(
 
     r = flx_record_new_full(name ? name : s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_PTR);
     r->data.ptr.name = flx_normalize_name(dest);
-    flx_server_add(s, id, interface, protocol, unique, r);
+    flx_server_add(s, id, interface, protocol, flags, r);
     flx_record_unref(r);
 
 }
@@ -503,7 +502,7 @@ void flx_server_add_address(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     flxAddress *a) {
 
@@ -519,12 +518,12 @@ void flx_server_add_address(
 
         r = flx_record_new_full(name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A);
         r->data.a.address = a->data.ipv4;
-        flx_server_add(s, id, interface, protocol, unique, r);
+        flx_server_add(s, id, interface, protocol, flags, r);
         flx_record_unref(r);
         
         reverse = flx_reverse_lookup_name_ipv4(&a->data.ipv4);
         g_assert(reverse);
-        flx_server_add_ptr(s, id, interface, protocol, unique, reverse, name);
+        flx_server_add_ptr(s, id, interface, protocol, flags, reverse, name);
         g_free(reverse);
         
     } else {
@@ -533,17 +532,17 @@ void flx_server_add_address(
             
         r = flx_record_new_full(name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_AAAA);
         r->data.aaaa.address = a->data.ipv6;
-        flx_server_add(s, id, interface, protocol, unique, r);
+        flx_server_add(s, id, interface, protocol, flags, r);
         flx_record_unref(r);
 
         reverse = flx_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
         g_assert(reverse);
-        flx_server_add_ptr(s, id, interface, protocol, unique, reverse, name);
+        flx_server_add_ptr(s, id, interface, protocol, flags, reverse, name);
         g_free(reverse);
     
         reverse = flx_reverse_lookup_name_ipv6_int(&a->data.ipv6);
         g_assert(reverse);
-        flx_server_add_ptr(s, id, interface, protocol, unique, reverse, name);
+        flx_server_add_ptr(s, id, interface, protocol, flags, reverse, name);
         g_free(reverse);
     }
     
@@ -555,7 +554,7 @@ void flx_server_add_text_va(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     va_list va) {
 
@@ -565,7 +564,7 @@ void flx_server_add_text_va(
     
     r = flx_record_new_full(name ? name : s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT);
     r->data.txt.string_list = flx_string_list_new_va(va);
-    flx_server_add(s, id, interface, protocol, unique, r);
+    flx_server_add(s, id, interface, protocol, flags, r);
     flx_record_unref(r);
 }
 
@@ -574,7 +573,7 @@ void flx_server_add_text(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     ...) {
 
@@ -583,7 +582,7 @@ void flx_server_add_text(
     g_assert(s);
 
     va_start(va, name);
-    flx_server_add_text_va(s, id, interface, protocol, unique, name, va);
+    flx_server_add_text_va(s, id, interface, protocol, flags, name, va);
     va_end(va);
 }
 
@@ -699,19 +698,29 @@ void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey
     flx_interface_monitor_walk(s->monitor, interface, protocol, post_query_callback, key);
 }
 
+struct tmpdata {
+    flxRecord *record;
+    gboolean flush_cache;
+};
+
 static void post_response_callback(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata) {
-    flxRecord *r = userdata;
+    struct tmpdata *tmpdata = userdata;
 
     g_assert(m);
     g_assert(i);
-    g_assert(r);
+    g_assert(tmpdata);
 
-    flx_interface_post_response(i, NULL, r, FALSE);
+    flx_interface_post_response(i, NULL, tmpdata->record, tmpdata->flush_cache, FALSE);
 }
 
-void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record) {
+void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record, gboolean flush_cache) {
+    struct tmpdata tmpdata;
+    
     g_assert(s);
     g_assert(record);
 
-    flx_interface_monitor_walk(s->monitor, interface, protocol, post_response_callback, record);
+    tmpdata.record = record;
+    tmpdata.flush_cache = flush_cache;
+
+    flx_interface_monitor_walk(s->monitor, interface, protocol, post_response_callback, &tmpdata);
 }

@@ -9,6 +9,13 @@ typedef struct _flxServer flxServer;
 #include "address.h"
 #include "rr.h"
 
+typedef enum {
+    FLX_SERVER_ENTRY_NULL = 0,
+    FLX_SERVER_ENTRY_UNIQUE = 1,
+    FLX_SERVER_ENTRY_NOPROBE = 2,
+    FLX_SERVER_ENTRY_NOANNOUNCE = 4
+} flxServerEntryFlags;
+
 flxServer *flx_server_new(GMainContext *c);
 void flx_server_free(flxServer* s);
 
@@ -19,7 +26,7 @@ void flx_server_add(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     flxRecord *r);
 
 void flx_server_add_ptr(
@@ -27,7 +34,7 @@ void flx_server_add_ptr(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     const gchar *dest);
 
@@ -36,7 +43,7 @@ void flx_server_add_address(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     flxAddress *a);
 
@@ -45,7 +52,7 @@ void flx_server_add_text(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     ... /* text records, terminated by NULL */);
 
@@ -54,7 +61,7 @@ void flx_server_add_text_va(
     gint id,
     gint interface,
     guchar protocol,
-    gboolean unique,
+    flxServerEntryFlags flags,
     const gchar *name,
     va_list va);
 
@@ -86,7 +93,7 @@ void flx_server_add_service_va(
 void flx_server_remove(flxServer *s, gint id);
 
 void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key);
-void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record);
+void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record, gboolean flush_cache);
 
 const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state);
 

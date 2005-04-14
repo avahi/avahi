@@ -24,7 +24,7 @@ static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, in
     } else {
         if (a->rr_id < 0) {
             a->rr_id = flx_server_get_next_id(m->server);
-            flx_server_add_address(m->server, a->rr_id, a->interface->hardware->index, AF_UNSPEC, FALSE, m->server->hostname, &a->address);
+            flx_server_add_address(m->server, a->rr_id, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address);
         }
     }
 }
@@ -447,12 +447,20 @@ void flx_interface_post_query(flxInterface *i, flxKey *key, gboolean immediately
 }
 
 
-void flx_interface_post_response(flxInterface *i, const flxAddress *a, flxRecord *record, gboolean immediately) {
+void flx_interface_post_response(flxInterface *i, const flxAddress *a, flxRecord *record, gboolean flush_cache, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
     if (flx_interface_relevant(i))
-        flx_packet_scheduler_post_response(i->scheduler, a, record, immediately);
+        flx_packet_scheduler_post_response(i->scheduler, a, record, flush_cache, immediately);
+}
+
+void flx_interface_post_probe(flxInterface *i, flxRecord *record, gboolean immediately) {
+    g_assert(i);
+    g_assert(record);
+    
+    if (flx_interface_relevant(i))
+        flx_packet_scheduler_post_probe(i->scheduler, record, immediately);
 }
 
 void flx_dump_caches(flxInterfaceMonitor *m, FILE *f) {

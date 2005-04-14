@@ -17,7 +17,7 @@ struct _flxServerEntry {
     gint interface;
     guchar protocol;
 
-    gboolean unique;
+    flxServerEntryFlags flags;
 
     FLX_LLIST_FIELDS(flxServerEntry, entry);
     FLX_LLIST_FIELDS(flxServerEntry, by_key);

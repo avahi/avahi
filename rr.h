@@ -21,7 +21,8 @@ enum {
 };
 
 enum {
-    FLX_DNS_CLASS_IN = 0x01
+    FLX_DNS_CLASS_IN = 0x01,
+    FLX_DNS_CACHE_FLUSH = 0x8000
 };
 
 #define FLX_DEFAULT_TTL (120*60)
@@ -102,5 +103,13 @@ gchar *flx_record_to_string(const flxRecord *r);  /* g_free() the result! */
 gboolean flx_record_equal_no_ttl(const flxRecord *a, const flxRecord *b);
 
 flxRecord *flx_record_copy(flxRecord *r);
+
+/* returns a maximum estimate for the space that is needed to store
+ * this key in a DNS packet */
+guint flx_key_get_estimate_size(flxKey *k);
+
+/* ditto */
+guint flx_record_get_estimate_size(flxRecord *r);
+
 
 #endif

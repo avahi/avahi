@@ -16,6 +16,8 @@ todo:
 
 * respect escaping in name serialization
 
+* allow NULL bytes in TXT records
+
 done:
 * really send goodbye packets
 * refresh subscribed records only

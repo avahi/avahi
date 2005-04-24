@@ -125,3 +125,34 @@ gint flx_age(const GTimeVal *a) {
 
     return flx_timeval_diff(&now, a);
 }
+
+gboolean flx_domain_equal(const gchar *a, const gchar *b) {
+    g_assert(a);
+    g_assert(b);
+
+    for (;;) {
+        if (*a == 0 && *b == 0)
+            return TRUE;
+        
+        if (*a == 0 && *b == '.' && *(b+1) == 0)
+            return TRUE;
+
+        if (*a == '.' && *(a+1) == 0 && *b == 0)
+            return TRUE;
+
+        if (*a != *b)
+            return FALSE;
+
+        a++;
+        b++;
+    }
+}
+
+guint flx_domain_hash(const gchar *p) {
+    char t[256];
+    strncpy(t, p, sizeof(t)-1);
+    t[sizeof(t)-1] = 0;
+
+    return g_int_hash(t);
+}
+

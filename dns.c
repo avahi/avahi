@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "dns.h"
+#include "util.h"
 
 flxDnsPacket* flx_dns_packet_new(guint max_size) {
     flxDnsPacket *p;
@@ -17,6 +18,7 @@ flxDnsPacket* flx_dns_packet_new(guint max_size) {
     p = g_malloc(sizeof(flxDnsPacket) + max_size);
     p->size = p->rindex = FLX_DNS_PACKET_HEADER_SIZE;
     p->max_size = max_size;
+    p->name_table = NULL;
 
     memset(FLX_DNS_PACKET_DATA(p), 0, p->size);
     return p;
@@ -40,6 +42,10 @@ flxDnsPacket* flx_dns_packet_new_response(guint max_size) {
 
 void flx_dns_packet_free(flxDnsPacket *p) {
     g_assert(p);
+
+    if (p->name_table)
+        g_hash_table_destroy(p->name_table);
+    
     g_free(p);
 }
 
@@ -67,7 +73,33 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
     saved_size = p->size;
 
     for (;;) {
-        guint n = strcspn(name, ".");
+        guint n;
+        guint8* prev;
+
+        /* Check whether we can compress this name. */
+
+        if (p->name_table && (prev = g_hash_table_lookup(p->name_table, name))) {
+            guint index;
+            
+            g_assert(prev >= FLX_DNS_PACKET_DATA(p));
+            index = (guint) (prev - FLX_DNS_PACKET_DATA(p));
+
+            g_assert(index < p->size);
+
+            if (index < 0x4000) {
+                guint16 *t;
+                if (!(t = (guint16*) flx_dns_packet_extend(p, sizeof(guint16))))
+                    return NULL;
+
+                if (!f)
+                    f = (guint8*) t;
+    
+                *t = g_htons((0xC000 | index));
+                return f;
+            }
+        }
+        
+        n = strcspn(name, ".");
         if (!n || n > 63)
             goto fail;
         
@@ -78,6 +110,11 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
             f = d;
         d[0] = n;
         memcpy(d+1, name, n);
+
+        if (!p->name_table)
+            p->name_table = g_hash_table_new_full((GHashFunc) flx_domain_hash, (GEqualFunc) flx_domain_equal, g_free, NULL);
+
+        g_hash_table_insert(p->name_table, g_strdup(name), d);
 
         name += n;
 
@@ -102,6 +139,25 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
 fail:
     p->size = saved_size;
     return NULL;
+}
+
+guint8 *flx_dns_packet_append_name_compressed(flxDnsPacket *p, const gchar *name, guint8 *prev) {
+    guint16 *d;
+    signed long k;
+    g_assert(p);
+
+    if (!prev)
+        return flx_dns_packet_append_name(p, name);
+    
+    k = prev - FLX_DNS_PACKET_DATA(p);
+    if (k < 0 || k >= 0x4000 || (guint) k >= p->size)
+        return flx_dns_packet_append_name(p, name);
+
+    if (!(d = (guint16*) flx_dns_packet_extend(p, sizeof(guint16))))
+        return NULL;
+    
+    *d = g_htons((0xC000 | k));
+    return prev;
 }
 
 guint8* flx_dns_packet_append_uint16(flxDnsPacket *p, guint16 v) {
@@ -172,25 +228,6 @@ guint8 *flx_dns_packet_extend(flxDnsPacket *p, guint l) {
     p->size += l;
     
     return d;
-}
-
-guint8 *flx_dns_packet_append_name_compressed(flxDnsPacket *p, const gchar *name, guint8 *prev) {
-    guint16 *d;
-    signed long k;
-    g_assert(p);
-
-    if (!prev)
-        return flx_dns_packet_append_name(p, name);
-    
-    k = prev - FLX_DNS_PACKET_DATA(p);
-    if (k < 0 || k >= 0x4000 || (guint) k >= p->size)
-        return flx_dns_packet_append_name(p, name);
-
-    if (!(d = (guint16*) flx_dns_packet_extend(p, sizeof(guint16))))
-        return NULL;
-    
-    *d = g_htons((0xC000 | k));
-    return prev;
 }
 
 gint flx_dns_packet_check_valid(flxDnsPacket *p) {

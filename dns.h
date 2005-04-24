@@ -10,6 +10,7 @@
 
 typedef struct _flxDnsPacket {
     guint size, rindex, max_size;
+    GHashTable *name_table; /* for name compression */
 } flxDnsPacket;
 
 

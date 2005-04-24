@@ -163,7 +163,7 @@ gchar *flx_key_to_string(const flxKey *k) {
 
 gchar *flx_record_to_string(const flxRecord *r) {
     gchar *p, *s;
-    char buf[257], *t, *d = NULL;
+    char buf[257], *t = NULL, *d = NULL;
 
     switch (r->key->type) {
         case FLX_DNS_TYPE_A:
@@ -214,7 +214,7 @@ gboolean flx_key_equal(const flxKey *a, const flxKey *b) {
 
 /*     g_message("equal: %p %p", a, b); */
     
-    return flx_domain_equal(a->name, b->name) == 0 &&
+    return flx_domain_equal(a->name, b->name) &&
         a->type == b->type &&
         a->class == b->class;
 }
@@ -227,7 +227,7 @@ gboolean flx_key_pattern_match(const flxKey *pattern, const flxKey *k) {
 
     g_assert(!flx_key_is_pattern(k));
     
-    return flx_domain_equal(pattern->name, k->name) == 0 &&
+    return flx_domain_equal(pattern->name, k->name) &&
         (pattern->type == k->type || pattern->type == FLX_DNS_TYPE_ANY) &&
         pattern->class == k->class;
 }

@@ -581,7 +581,7 @@ static flxProbeJob* probe_job_new(flxPacketScheduler *s, flxRecord *record) {
 
 static guint8* packet_add_probe_query(flxPacketScheduler *s, flxDnsPacket *p, flxProbeJob *pj) {
     guint size;
-    guint8 *r;
+    guint8 *ret;
     flxKey *k;
 
     g_assert(s);
@@ -601,7 +601,8 @@ static guint8* packet_add_probe_query(flxPacketScheduler *s, flxDnsPacket *p, fl
 
     /* Create the probe query */
     k = flx_key_new(pj->record->key->name, pj->record->key->class, FLX_DNS_TYPE_ANY);
-    r = flx_dns_packet_append_key(p, k);
+    ret = flx_dns_packet_append_key(p, k);
+    g_assert(ret);
 
     /* Mark this job for addition to the packet */
     pj->chosen = TRUE;
@@ -625,7 +626,7 @@ static guint8* packet_add_probe_query(flxPacketScheduler *s, flxDnsPacket *p, fl
 
     flx_key_unref(k);
             
-    return r;
+    return ret;
 }
 
 static void probe_elapse(flxTimeEvent *e, gpointer data) {
@@ -642,7 +643,7 @@ static void probe_elapse(flxTimeEvent *e, gpointer data) {
 
     /* Add the import probe */
     if (!packet_add_probe_query(s, p, pj)) {
-        g_warning("Record too large!");
+        g_warning("Record too large! ---");
         flx_dns_packet_free(p);
         return;
     }

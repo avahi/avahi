@@ -1,5 +1,5 @@
-#CC=gcc
-CFLAGS=-g -O0 -Wall -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
+#CC=gcc-2.95
+CFLAGS=-g -O1 -Wall -W -pipe $(shell pkg-config --cflags glib-2.0) -Wno-unused
 LIBS=$(shell pkg-config --libs glib-2.0)
 
 all: strlst-test prioq-test domain-test dns-test flexmdns
@@ -22,8 +22,7 @@ domain-test: domain-test.o util.o
 dns-test: dns-test.o util.o dns.o rr.o strlst.o
 	$(CC) -o $@ $^ $(LIBS)
 
-
 *.o: *.h
 
 clean:
-	rm -f *.o flexmdns prioq-test strlst-test
+	rm -f *.o flexmdns tprioq-test strlst-test domain-test dns-test

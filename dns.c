@@ -106,14 +106,15 @@ static gchar *unescape_label(gchar *dest, guint size, const gchar **name) {
 }
 
 guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
-    guint8 *d, *f = NULL;
+    guint8 *d, *saved_ptr = NULL;
     guint saved_size;
     
     g_assert(p);
     g_assert(name);
 
     saved_size = p->size;
-
+    saved_ptr = flx_dns_packet_extend(p, 0);
+    
     while (*name) {
         guint n;
         guint8* prev;
@@ -135,11 +136,8 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
                 if (!(t = (guint16*) flx_dns_packet_extend(p, sizeof(guint16))))
                     return NULL;
 
-                if (!f)
-                    f = (guint8*) t;
-    
                 *t = g_htons((0xC000 | index));
-                return f;
+                return saved_ptr;
             }
         }
 
@@ -150,7 +148,7 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
 
         if (!(d = flx_dns_packet_append_string(p, label)))
             goto fail;
-        
+
         if (!p->name_table)
             p->name_table = g_hash_table_new_full((GHashFunc) flx_domain_hash, (GEqualFunc) flx_domain_equal, g_free, NULL);
 
@@ -162,7 +160,7 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
     
     *d = 0;
 
-    return f;
+    return saved_ptr;
 
 fail:
     p->size = saved_size;

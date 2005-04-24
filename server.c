@@ -302,7 +302,7 @@ flxServer *flx_server_new(GMainContext *c) {
     hn = flx_get_host_name();
     hn[strcspn(hn, ".")] = 0;
 
-    s->hostname = g_strdup_printf("%slocal.", hn);
+    s->hostname = g_strdup_printf("%s.local.", hn);
     g_free(hn);
 
     add_default_entries(s);

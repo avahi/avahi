@@ -45,7 +45,7 @@ static flxPrioQueueNode* get_node_at_xy(flxPrioQueue *q, guint x, guint y) {
 }
 
 static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNode *b) {
-    flxPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn, *apl, *bpl;
+    flxPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn;
     gint t;
     g_assert(q);
     g_assert(a);
@@ -128,6 +128,8 @@ static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNod
                 b->left->parent = b;
         }
     } else {
+        flxPrioQueueNode *apl = NULL, *bpl = NULL;
+        
         /* Swap parents */
         ap = a->parent;
         bp = b->parent;

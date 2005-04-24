@@ -259,12 +259,12 @@ void flx_goodbye_all(flxServer *s, gboolean goodbye) {
     
     g_assert(s);
 
-    g_message("goodbye all: %p", e);
+    g_message("goodbye all");
 
     for (e = s->entries; e; e = e->entry_next)
         flx_goodbye_entry(s, e, goodbye);
 
-    g_message("goodbye all done: %p", e);
+    g_message("goodbye all done");
 
 }
 

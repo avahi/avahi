@@ -12,11 +12,10 @@ todo:
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 
-* respect escaping in name serialization
-
 * allow NULL bytes in TXT records
 
 done:
+* respect escaping in name serialization
 * really send goodbye packets
 * refresh subscribed records only
 * FLX_DNS_TYPE_ANY support

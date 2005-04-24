@@ -2,13 +2,20 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <limits.h>
+#include <stdio.h>
 
 #include "util.h"
 
 gchar *flx_get_host_name(void) {
+#ifdef HOST_NAME_MAX
+    char t[HOST_NAME_MAX];
+#else
     char t[256];
+#endif
     gethostname(t, sizeof(t));
-    return g_strndup(t, sizeof(t));
+    t[sizeof(t)-1] = 0;
+    return flx_normalize_name(t);
 }
 
 gchar *flx_normalize_name(const gchar *s) {
@@ -127,24 +134,37 @@ gint flx_age(const GTimeVal *a) {
 }
 
 gboolean flx_domain_equal(const gchar *a, const gchar *b) {
+    int escaped_a = 0, escaped_b = 0;
     g_assert(a);
     g_assert(b);
 
     for (;;) {
+        /* Check for escape characters "\" */
+        if ((escaped_a = *a == '\\'))
+            a ++;
+
+        if ((escaped_b = *b == '\\'))
+            b++;
+
+        /* Check for string end */
         if (*a == 0 && *b == 0)
             return TRUE;
         
-        if (*a == 0 && *b == '.' && *(b+1) == 0)
+        if (*a == 0 && !escaped_b && *b == '.' && *(b+1) == 0)
             return TRUE;
 
-        if (*a == '.' && *(a+1) == 0 && *b == 0)
+        if (!escaped_a && *a == '.' && *(a+1) == 0 && *b == 0)
             return TRUE;
 
-        if (*a != *b)
+        /* Compare characters */
+        if (escaped_a == escaped_b && *a != *b)
             return FALSE;
 
+
+        /* Next characters */
         a++;
         b++;
+        
     }
 }
 
@@ -156,3 +176,36 @@ guint flx_domain_hash(const gchar *p) {
     return g_int_hash(t);
 }
 
+void flx_hexdump(gconstpointer p, guint size) {
+    const guint8 *c = p;
+    g_assert(p);
+
+    printf("Dumping %u bytes from %p:\n", size, p);
+    
+    while (size > 0) {
+        guint i;
+
+        for (i = 0; i < 16; i++) { 
+            if (i < size)
+                printf("%02x ", c[i]);
+            else
+                printf("   ");
+        }
+
+        for (i = 0; i < 16; i++) {
+            if (i < size)
+                printf("%c", c[i] >= 32 && c[i] < 127 ? c[i] : '.');
+            else
+                printf(" ");
+        }
+        
+        printf("\n");
+
+        c += 16;
+
+        if (size <= 16)
+            break;
+        
+        size -= 16;
+    }
+}

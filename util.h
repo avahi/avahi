@@ -20,4 +20,6 @@ gint flx_age(const GTimeVal *a);
 guint flx_domain_hash(const gchar *p);
 gboolean flx_domain_equal(const gchar *a, const gchar *b);
 
+void flx_hexdump(gconstpointer p, guint size);
+
 #endif

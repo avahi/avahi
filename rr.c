@@ -214,7 +214,7 @@ gboolean flx_key_equal(const flxKey *a, const flxKey *b) {
 
 /*     g_message("equal: %p %p", a, b); */
     
-    return strcmp(a->name, b->name) == 0 &&
+    return flx_domain_equal(a->name, b->name) == 0 &&
         a->type == b->type &&
         a->class == b->class;
 }
@@ -227,7 +227,7 @@ gboolean flx_key_pattern_match(const flxKey *pattern, const flxKey *k) {
 
     g_assert(!flx_key_is_pattern(k));
     
-    return strcmp(pattern->name, k->name) == 0 &&
+    return flx_domain_equal(pattern->name, k->name) == 0 &&
         (pattern->type == k->type || pattern->type == FLX_DNS_TYPE_ANY) &&
         pattern->class == k->class;
 }
@@ -242,7 +242,7 @@ gboolean flx_key_is_pattern(const flxKey *k) {
 guint flx_key_hash(const flxKey *k) {
     g_assert(k);
 
-    return g_str_hash(k->name) + k->type + k->class;
+    return flx_domain_hash(k->name) + k->type + k->class;
 }
 
 static gboolean rdata_equal(const flxRecord *a, const flxRecord *b) {
@@ -265,11 +265,11 @@ static gboolean rdata_equal(const flxRecord *a, const flxRecord *b) {
                 a->data.srv.priority == b->data.srv.priority &&
                 a->data.srv.weight == b->data.srv.weight &&
                 a->data.srv.port == b->data.srv.port &&
-                !strcmp(a->data.srv.name, b->data.srv.name);
+                flx_domain_equal(a->data.srv.name, b->data.srv.name);
 
         case FLX_DNS_TYPE_PTR:
         case FLX_DNS_TYPE_CNAME:
-            return !strcmp(a->data.ptr.name, b->data.ptr.name);
+            return flx_domain_equal(a->data.ptr.name, b->data.ptr.name);
 
         case FLX_DNS_TYPE_HINFO:
             return

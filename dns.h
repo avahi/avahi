@@ -29,7 +29,6 @@ guint8 *flx_dns_packet_extend(flxDnsPacket *p, guint l);
 guint8 *flx_dns_packet_append_uint16(flxDnsPacket *p, guint16 v);
 guint8 *flx_dns_packet_append_uint32(flxDnsPacket *p, guint32 v);
 guint8 *flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name);
-guint8 *flx_dns_packet_append_name_compressed(flxDnsPacket *p, const gchar *name, guint8 *prev);
 guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer, guint l);
 guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k);
 guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush);

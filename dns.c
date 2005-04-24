@@ -63,6 +63,48 @@ guint16 flx_dns_packet_get_field(flxDnsPacket *p, guint index) {
     return g_ntohs(((guint16*) FLX_DNS_PACKET_DATA(p))[index]);
 }
 
+/* Read the first label from string dest, unescape "\" and append it to *name */
+static gchar *unescape_label(gchar *dest, guint size, const gchar **name) {
+    guint i = 0;
+    gchar *d;
+    
+    g_assert(dest);
+    g_assert(size > 0);
+    g_assert(name);
+    g_assert(*name);
+
+    d = dest;
+    
+    for (;;) {
+        if (i >= size)
+            return NULL;
+
+        if (**name == '.') {
+            (*name)++;
+            break;
+        }
+        
+        if (**name == 0)
+            break;
+        
+        if (**name == '\\') {
+            (*name) ++;
+            
+            if (**name == 0)
+                break;
+        }
+        
+        *(d++) = *((*name) ++);
+        i++;
+    }
+
+    g_assert(i < size);
+
+    *d = 0;
+
+    return dest;
+}
+
 guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
     guint8 *d, *f = NULL;
     guint saved_size;
@@ -72,9 +114,11 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
 
     saved_size = p->size;
 
-    for (;;) {
+    while (*name) {
         guint n;
         guint8* prev;
+        const gchar *pname;
+        char label[64];
 
         /* Check whether we can compress this name. */
 
@@ -98,66 +142,31 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
                 return f;
             }
         }
-        
-        n = strcspn(name, ".");
-        if (!n || n > 63)
-            goto fail;
-        
-        if (!(d = flx_dns_packet_extend(p, n+1)))
-            goto fail;
-            
-        if (!f)
-            f = d;
-        d[0] = n;
-        memcpy(d+1, name, n);
 
+        pname = name;
+        
+        if (!(unescape_label(label, sizeof(label), &name)))
+            goto fail;
+
+        if (!(d = flx_dns_packet_append_string(p, label)))
+            goto fail;
+        
         if (!p->name_table)
             p->name_table = g_hash_table_new_full((GHashFunc) flx_domain_hash, (GEqualFunc) flx_domain_equal, g_free, NULL);
 
-        g_hash_table_insert(p->name_table, g_strdup(name), d);
-
-        name += n;
-
-        /* no trailing dot */
-        if (!*name)
-            break;
-
-        name ++;
-
-        /* trailing dot */
-        if (!*name)
-            break;
+        g_hash_table_insert(p->name_table, g_strdup(pname), d);
     }
 
     if (!(d = flx_dns_packet_extend(p, 1)))
         goto fail;
     
-    d[0] = 0;
+    *d = 0;
 
     return f;
 
 fail:
     p->size = saved_size;
     return NULL;
-}
-
-guint8 *flx_dns_packet_append_name_compressed(flxDnsPacket *p, const gchar *name, guint8 *prev) {
-    guint16 *d;
-    signed long k;
-    g_assert(p);
-
-    if (!prev)
-        return flx_dns_packet_append_name(p, name);
-    
-    k = prev - FLX_DNS_PACKET_DATA(p);
-    if (k < 0 || k >= 0x4000 || (guint) k >= p->size)
-        return flx_dns_packet_append_name(p, name);
-
-    if (!(d = (guint16*) flx_dns_packet_extend(p, sizeof(guint16))))
-        return NULL;
-    
-    *d = g_htons((0xC000 | k));
-    return prev;
 }
 
 guint8* flx_dns_packet_append_uint16(flxDnsPacket *p, guint16 v) {
@@ -251,6 +260,42 @@ gint flx_dns_packet_is_query(flxDnsPacket *p) {
     return !(flx_dns_packet_get_field(p, FLX_DNS_FIELD_FLAGS) & FLX_DNS_FLAG_QR);
 }
 
+/* Read a label from a DNS packet, escape "\" and ".", append \0 */
+static gchar *escape_label(guint8* src, guint src_length, gchar **ret_name, guint *ret_name_length) {
+    gchar *r;
+
+    g_assert(src);
+    g_assert(ret_name);
+    g_assert(*ret_name);
+    g_assert(ret_name_length);
+    g_assert(*ret_name_length > 0);
+
+    r = *ret_name;
+
+    while (src_length > 0) {
+        if (*src == '.' || *src == '\\') {
+            if (*ret_name_length < 3)
+                return NULL;
+            
+            *((*ret_name) ++) = '\\';
+            (*ret_name_length) --;
+        }
+
+        if (*ret_name_length < 2)
+            return NULL;
+        
+        *((*ret_name)++) = *src;
+        (*ret_name_length) --;
+
+        src_length --;
+        src++;
+    }
+
+    **ret_name = 0;
+
+    return r;
+}
+
 static gint consume_labels(flxDnsPacket *p, guint index, gchar *ret_name, guint l) {
     gint ret = 0;
     int compressed = 0;
@@ -294,10 +339,10 @@ static gint consume_labels(flxDnsPacket *p, guint index, gchar *ret_name, guint 
             } else
                 first_label = 0;
 
-            memcpy(ret_name, FLX_DNS_PACKET_DATA(p) + index, n);
+            if (!(escape_label(FLX_DNS_PACKET_DATA(p) + index, n, &ret_name, &l)))
+                return -1;
+
             index += n;
-            ret_name += n;
-            l -= n;
             
             if (!compressed)
                 ret += n;

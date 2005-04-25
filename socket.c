@@ -26,12 +26,97 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     inet_pton(AF_INET, "224.0.0.251", &ret_sa->sin_addr);
 }
 
+static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
+
+    g_assert(ret_sa);
+
+    memset(ret_sa, 0, sizeof(struct sockaddr_in6));
+    
+    ret_sa->sin6_family = AF_INET6;
+    ret_sa->sin6_port = htons(MDNS_PORT);
+    inet_pton(AF_INET6, "ff02::fb", &ret_sa->sin6_addr);
+}
+
+int flx_mdns_mcast_join_ipv4 (int index, int fd)
+{
+    struct ip_mreqn mreq; 
+    struct sockaddr_in sa;
+
+    mdns_mcast_group_ipv4 (&sa);
+ 
+    memset(&mreq, 0, sizeof(mreq));
+    mreq.imr_multiaddr = sa.sin_addr;
+    mreq.imr_ifindex = index;
+ 
+    if (setsockopt(fd, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
+        g_warning("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+int flx_mdns_mcast_join_ipv6 (int index, int fd)
+{
+    struct ipv6_mreq mreq6; 
+    struct sockaddr_in6 sa6;
+
+
+    mdns_mcast_group_ipv6 (&sa6);
+
+    memset(&mreq6, 0, sizeof(mreq6));
+    mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
+    mreq6.ipv6mr_interface = index;
+
+    if (setsockopt(fd, SOL_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
+        g_warning("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+int flx_mdns_mcast_leave_ipv4 (int index, int fd)
+{
+    struct ip_mreqn mreq; 
+    struct sockaddr_in sa;
+    
+    mdns_mcast_group_ipv4 (&sa);
+ 
+    memset(&mreq, 0, sizeof(mreq));
+    mreq.imr_multiaddr = sa.sin_addr;
+    mreq.imr_ifindex = index;
+ 
+    if (setsockopt(fd, SOL_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
+        g_warning("IP_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+int flx_mdns_mcast_leave_ipv6 (int index, int fd)
+{
+    struct ipv6_mreq mreq6; 
+    struct sockaddr_in6 sa6;
+
+    mdns_mcast_group_ipv6 (&sa6);
+
+    memset(&mreq6, 0, sizeof(mreq6));
+    mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
+    mreq6.ipv6mr_interface = index;
+
+    if (setsockopt(fd, SOL_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
+        g_warning("IPV6_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 gint flx_open_socket_ipv4(void) {
-    struct ip_mreqn mreq;
     struct sockaddr_in sa, local;
     int fd = -1, ttl, yes;
-
-    mdns_mcast_group_ipv4(&sa);
         
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         g_warning("socket() failed: %s\n", strerror(errno));
@@ -72,16 +157,6 @@ gint flx_open_socket_ipv4(void) {
         goto fail;
     }
 
-    memset(&mreq, 0, sizeof(mreq));
-    mreq.imr_multiaddr = sa.sin_addr;
-    mreq.imr_address.s_addr = htonl(INADDR_ANY);
-    mreq.imr_ifindex = 0;
-    
-    if (setsockopt(fd, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        g_warning("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
-        goto fail;
-    }
-
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
         g_warning("IP_RECVTTL failed: %s\n", strerror(errno));
@@ -113,19 +188,7 @@ fail:
     return -1;
 }
 
-static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
-    g_assert(ret_sa);
-
-    memset(ret_sa, 0, sizeof(struct sockaddr_in6));
-    
-    ret_sa->sin6_family = AF_INET6;
-    ret_sa->sin6_port = htons(MDNS_PORT);
-    inet_pton(AF_INET6, "ff02::fb", &ret_sa->sin6_addr);
-}
-
-
 gint flx_open_socket_ipv6(void) {
-    struct ipv6_mreq mreq;
     struct sockaddr_in6 sa, local;
     int fd = -1, ttl, yes;
 
@@ -172,15 +235,6 @@ gint flx_open_socket_ipv6(void) {
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         g_warning("bind() failed: %s\n", strerror(errno));
-        goto fail;
-    }
-
-    memset(&mreq, 0, sizeof(mreq));
-    mreq.ipv6mr_multiaddr = sa.sin6_addr;
-    mreq.ipv6mr_interface = 0;
-    
-    if (setsockopt(fd, SOL_IPV6, IPV6_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        g_warning("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
         goto fail;
     }
 

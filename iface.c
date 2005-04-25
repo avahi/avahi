@@ -155,6 +155,7 @@ static void new_interface(flxInterfaceMonitor *m, flxHwInterface *hw, guchar pro
 
 static void check_interface_relevant(flxInterfaceMonitor *m, flxInterface *i) {
     gboolean b;
+
     g_assert(m);
     g_assert(i);
 
@@ -163,13 +164,24 @@ static void check_interface_relevant(flxInterfaceMonitor *m, flxInterface *i) {
     if (b && !i->announcing) {
         g_message("New relevant interface %s.%i", i->hardware->name, i->protocol);
 
+        if (i->protocol == AF_INET)
+            flx_mdns_mcast_join_ipv4 (i->hardware->index, m->server->fd_ipv4);
+        if (i->protocol == AF_INET6)
+            flx_mdns_mcast_join_ipv6 (i->hardware->index, m->server->fd_ipv6);
+
         i->announcing = TRUE;
         flx_announce_interface(m->server, i);
     } else if (!b && i->announcing) {
         g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
-        i->announcing = FALSE;
         flx_goodbye_interface(m->server, i, FALSE);
+
+        if (i->protocol == AF_INET)
+            flx_mdns_mcast_leave_ipv4 (i->hardware->index, m->server->fd_ipv4);
+        if (i->protocol == AF_INET6)
+            flx_mdns_mcast_leave_ipv6 (i->hardware->index, m->server->fd_ipv6);
+
+        i->announcing = FALSE;
     }
 }
 

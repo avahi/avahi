@@ -50,17 +50,16 @@ int flx_mdns_mcast_join_ipv4 (int index, int fd)
  
     if (setsockopt(fd, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         g_warning("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
-        return 0;
-    } else {
         return -1;
-    }
+    } 
+
+    return 0;
 }
 
 int flx_mdns_mcast_join_ipv6 (int index, int fd)
 {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
-
 
     mdns_mcast_group_ipv6 (&sa6);
 
@@ -70,10 +69,10 @@ int flx_mdns_mcast_join_ipv6 (int index, int fd)
 
     if (setsockopt(fd, SOL_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
         g_warning("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
-        return 0;
-    } else {
         return -1;
     }
+
+    return 0;
 }
 
 int flx_mdns_mcast_leave_ipv4 (int index, int fd)
@@ -89,10 +88,10 @@ int flx_mdns_mcast_leave_ipv4 (int index, int fd)
  
     if (setsockopt(fd, SOL_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         g_warning("IP_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
-        return 0;
-    } else {
         return -1;
     }
+
+    return 0;
 }
 
 int flx_mdns_mcast_leave_ipv6 (int index, int fd)
@@ -108,10 +107,10 @@ int flx_mdns_mcast_leave_ipv6 (int index, int fd)
 
     if (setsockopt(fd, SOL_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
         g_warning("IPV6_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
-        return 0;
-    } else {
         return -1;
     }
+
+    return 0;
 }
 
 gint flx_open_socket_ipv4(void) {

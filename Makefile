@@ -25,4 +25,4 @@ dns-test: dns-test.o util.o dns.o rr.o strlst.o
 *.o: *.h
 
 clean:
-	rm -f *.o flexmdns tprioq-test strlst-test domain-test dns-test
+	rm -f *.o flexmdns prioq-test strlst-test domain-test dns-test

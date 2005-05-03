@@ -82,7 +82,7 @@ void flx_entry_group_check_probed(flxEntryGroup *g, gboolean immediately) {
 static void next_state(flxAnnouncement *a) {
     g_assert(a);
 
-    g_message("%i -- %u", a->state, a->n_iteration);  
+/*     g_message("%i -- %u", a->state, a->n_iteration);   */
     
     if (a->state == FLX_WAITING) {
 
@@ -305,13 +305,13 @@ gboolean flx_entry_registering(flxServer *s, flxEntry *e, flxInterface *i) {
 }
 
 static flxRecord *make_goodbye_record(flxRecord *r) {
-    gchar *t;
+/*     gchar *t; */
     flxRecord *g;
     
     g_assert(r);
 
-    g_message("Preparing goodbye for record [%s]", t = flx_record_to_string(r));
-    g_free(t);
+/*     g_message("Preparing goodbye for record [%s]", t = flx_record_to_string(r)); */
+/*     g_free(t); */
 
     g = flx_record_copy(r);
     g_assert(g->ref == 1);
@@ -347,7 +347,7 @@ void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean goodbye) {
     g_assert(s);
     g_assert(i);
 
-    g_message("goodbye interface: %s.%u", i->hardware->name, i->protocol);
+/*     g_message("goodbye interface: %s.%u", i->hardware->name, i->protocol); */
 
     if (goodbye && flx_interface_relevant(i)) {
         flxEntry *e;
@@ -360,7 +360,7 @@ void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean goodbye) {
     while (i->announcements)
         remove_announcement(s, i->announcements);
 
-    g_message("goodbye interface done: %s.%u", i->hardware->name, i->protocol);
+/*     g_message("goodbye interface done: %s.%u", i->hardware->name, i->protocol); */
 
 }
 
@@ -368,7 +368,7 @@ void flx_goodbye_entry(flxServer *s, flxEntry *e, gboolean goodbye) {
     g_assert(s);
     g_assert(e);
     
-    g_message("goodbye entry: %p", e);
+/*     g_message("goodbye entry: %p", e); */
     
     if (goodbye && !e->dead)
         flx_interface_monitor_walk(s->monitor, 0, AF_UNSPEC, send_goodbye_callback, e);
@@ -376,7 +376,7 @@ void flx_goodbye_entry(flxServer *s, flxEntry *e, gboolean goodbye) {
     while (e->announcements)
         remove_announcement(s, e->announcements);
 
-    g_message("goodbye entry done: %p", e);
+/*     g_message("goodbye entry done: %p", e); */
 
 }
 
@@ -385,13 +385,13 @@ void flx_goodbye_all(flxServer *s, gboolean goodbye) {
     
     g_assert(s);
 
-    g_message("goodbye all");
+/*     g_message("goodbye all"); */
 
     for (e = s->entries; e; e = e->entries_next)
         if (!e->dead)
             flx_goodbye_entry(s, e, goodbye);
 
-    g_message("goodbye all done");
+/*     g_message("goodbye all done"); */
 
 }
 

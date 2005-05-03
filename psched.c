@@ -8,7 +8,7 @@
 #define FLX_RESPONSE_HISTORY_MSEC 700
 #define FLX_RESPONSE_DEFER_MSEC 20
 #define FLX_RESPONSE_JITTER_MSEC 100
-#define FLX_PROBE_DEFER_MSEC 20
+#define FLX_PROBE_DEFER_MSEC 70
 
 flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i) {
     flxPacketScheduler *s;
@@ -400,8 +400,8 @@ void flx_packet_scheduler_post_response(flxPacketScheduler *s, const flxAddress 
         response_job_free(s, rj);
     }
 
-    g_message("ACCEPTED NEW RESPONSE [%s]", t = flx_record_to_string(record));
-    g_free(t);
+/*     g_message("ACCEPTED NEW RESPONSE [%s]", t = flx_record_to_string(record)); */
+/*     g_free(t); */
 
     /* Create a new job and schedule it */
     rj = response_job_new(s, record);

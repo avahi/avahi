@@ -128,7 +128,6 @@ static void withdraw_entry(flxServer *s, flxEntry *e) {
     }
 
     s->need_entry_cleanup = TRUE;
-
 }
 
 static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
@@ -141,23 +140,24 @@ static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
 
     t = flx_record_to_string(record);
 
-    g_message("PROBE! PROBE! PROBE! [%s]", t);
-    
+/*     g_message("PROBE: [%s]", t); */
 
+    
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
-        
-        if (e->dead || !flx_record_equal_no_ttl(record, e->record))
+
+        if (e->dead || flx_record_equal_no_ttl(record, e->record))
             continue;
 
         if (flx_entry_registering(s, e, i)) {
             gint cmp;
-            
+
             if ((cmp = flx_record_lexicographical_compare(record, e->record)) > 0) {
                 withdraw_entry(s, e);
                 g_message("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
             } else if (cmp < 0)
                 g_message("Recieved conflicting probe [%s]. Local host won.", t);
+
         }
     }
 
@@ -227,7 +227,7 @@ static gboolean handle_conflict(flxServer *s, flxInterface *i, flxRecord *record
 
     t = flx_record_to_string(record);
 
-    g_message("CHECKING FOR CONFLICT: [%s]", t);
+/*     g_message("CHECKING FOR CONFLICT: [%s]", t); */
 
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
@@ -451,7 +451,7 @@ static void add_default_entries(flxServer *s) {
     uname(&utsname);
     r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
     r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
-    flx_server_add(s, NULL, 0, AF_UNSPEC, FLX_ENTRY_UNIQUE | FLX_ENTRY_NOANNOUNCE | FLX_ENTRY_NOPROBE, r);
+    flx_server_add(s, NULL, 0, AF_UNSPEC, FLX_ENTRY_UNIQUE, r);
     flx_record_unref(r);
 
     /* Add localhost entries */

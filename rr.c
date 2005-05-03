@@ -456,6 +456,14 @@ gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b) {
     g_assert(a);
     g_assert(b);
 
+/*     gchar *t; */
+
+/*     g_message("comparing [%s]", t = flx_record_to_string(a)); */
+/*     g_free(t); */
+
+/*     g_message("and [%s]", t = flx_record_to_string(b)); */
+/*     g_free(t); */
+
     if (a->key->class < b->key->class)
         return -1;
     else if (a->key->class > b->key->class)
@@ -474,9 +482,9 @@ gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b) {
 
         case FLX_DNS_TYPE_SRV: {
             gint r;
-            if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) != 0 ||
-                (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) != 0 ||
-                (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) != 0)
+            if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) == 0 &&
+                (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) == 0 &&
+                (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) == 0)
                 r = lexicographical_domain_cmp(a->data.srv.name, b->data.srv.name);
             
             return r;

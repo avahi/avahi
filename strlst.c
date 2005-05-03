@@ -3,15 +3,14 @@
 
 #include "strlst.h"
 
-static flxStringList *string_list_add_internal(flxStringList *l, const gchar *text, guint size) {
+flxStringList *flx_string_list_add_arbitrary(flxStringList *l, const guint8*text, guint size) {
     flxStringList *n;
 
     g_assert(text);
 
     n = g_malloc(sizeof(flxStringList) + size);
     n->next = l;
-    strncpy(n->text, text, size);
-    n->text[size] = 0;
+    memcpy(n->text, text, n->size = size);
     
     return n;
 }
@@ -19,7 +18,7 @@ static flxStringList *string_list_add_internal(flxStringList *l, const gchar *te
 flxStringList *flx_string_list_add(flxStringList *l, const gchar *text) {
     g_assert(text);
 
-    return string_list_add_internal(l, text, strlen(text));
+    return flx_string_list_add_arbitrary(l, (const guint8*) text, strlen(text));
 }
 
 flxStringList *flx_string_list_parse(gconstpointer data, guint size) {
@@ -35,7 +34,7 @@ flxStringList *flx_string_list_parse(gconstpointer data, guint size) {
             break;
 
         k = *(c++);
-        r = string_list_add_internal(r, (const gchar*) c, k);
+        r = flx_string_list_add_arbitrary(r, c, k);
         c += k;
 
         size -= 1 + k;
@@ -53,7 +52,6 @@ void flx_string_list_free(flxStringList *l) {
         l = n;
     }
 }
-
 
 static flxStringList* string_list_reverse(flxStringList *l) {
     flxStringList *r = NULL, *n;
@@ -79,18 +77,19 @@ gchar* flx_string_list_to_string(flxStringList *l) {
         if (n != l)
             s ++;
 
-        s += strlen(n->text)+2;
+        s += n->size+3;
     }
 
-    t = e = g_new(gchar, s+1);
+    t = e = g_new(gchar, s);
 
     for (n = l; n; n = n->next) {
         if (n != l)
             *(e++) = ' ';
 
         *(e++) = '"';
-        strcpy(e, n->text);
-        e += strlen(n->text);
+        strncpy(e, n->text, n->size);
+        e[n->size] = 0;
+        e = strchr(e, 0);
         *(e++) = '"';
     }
 
@@ -118,7 +117,7 @@ guint flx_string_list_serialize(flxStringList *l, gpointer data, guint size) {
             if (size < 1)
                 break;
             
-            k = strlen(n->text);
+            k = n->size;
             if (k > 255)
                 k = 255;
             
@@ -139,7 +138,7 @@ guint flx_string_list_serialize(flxStringList *l, gpointer data, guint size) {
         for (n = l; n; n = n->next) {
             guint k;
         
-            k = strlen(n->text);
+            k = n->size;
             if (k > 255)
                 k = 255;
             
@@ -159,7 +158,10 @@ gboolean flx_string_list_equal(flxStringList *a, flxStringList *b) {
         if (!a || !b)
             return FALSE;
 
-        if (strcmp(a->text, b->text) != 0)
+        if (a->size != b->size)
+            return FALSE;
+
+        if (a->size != 0 && memcmp(a->text, b->text, a->size) != 0)
             return FALSE;
 
         a = a->next;
@@ -186,6 +188,7 @@ flxStringList *flx_string_list_add_many_va(flxStringList *r, va_list va) {
     return r;
 }
 
+
 flxStringList *flx_string_list_new(const gchar *txt, ...) {
     va_list va;
     flxStringList *r = NULL;
@@ -209,7 +212,7 @@ flxStringList *flx_string_list_copy(flxStringList *l) {
     flxStringList *r = NULL;
 
     for (; l; l = l->next)
-        r = flx_string_list_add(r, l->text);
+        r = flx_string_list_add_arbitrary(r, l->text, l->size);
 
     return string_list_reverse(r);
 }

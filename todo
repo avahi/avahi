@@ -5,8 +5,6 @@ todo:
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 
-* allow NULL bytes in TXT records
-
 done:
 * Probing/Conflict resolution
 * uniqueness
@@ -20,5 +18,4 @@ done:
 * name compression
 * remove expression "rrset" from source files
 * defend our entries on incoming goodbye
-
-
+* allow NULL bytes in TXT records

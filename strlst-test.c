@@ -9,9 +9,12 @@ int main(int argc, char *argv[]) {
     flxStringList *a = NULL, *b;
     guint size, n;
 
+    a = flx_string_list_add(a, "start");
     a = flx_string_list_add(a, "foo");
     a = flx_string_list_add(a, "bar");
-    a = flx_string_list_add(a, "baz");
+    a = flx_string_list_add(a, "quux");
+    a = flx_string_list_add_arbitrary(a, "null\0null", 9);
+    a = flx_string_list_add(a, "end");
 
     t = flx_string_list_to_string(a);
     printf("--%s--\n", t);
@@ -38,7 +41,16 @@ int main(int argc, char *argv[]) {
     printf("--%s--\n", t);
     g_free(t);
 
+    flx_string_list_free(b);
 
+    b = flx_string_list_copy(a);
+
+    g_assert(flx_string_list_equal(a, b));
+
+    t = flx_string_list_to_string(b);
+    printf("--%s--\n", t);
+    g_free(t);
+    
     flx_string_list_free(a);
     flx_string_list_free(b);
     

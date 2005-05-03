@@ -477,7 +477,9 @@ gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b) {
             if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) != 0 ||
                 (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) != 0 ||
                 (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) != 0)
-                return lexicographical_domain_cmp(a->data.srv.name, b->data.srv.name);
+                r = lexicographical_domain_cmp(a->data.srv.name, b->data.srv.name);
+            
+            return r;
         }
 
         case FLX_DNS_TYPE_HINFO: {

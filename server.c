@@ -112,13 +112,23 @@ static void withdraw_entry(flxServer *s, flxEntry *e) {
     g_assert(s);
     g_assert(e);
 
-    e->dead = TRUE;
+    
+    if (e->group) {
+        flxEntry *k;
+        
+        for (k = e->group->entries; k; k = k->by_group_next) {
+            flx_goodbye_entry(s, k, FALSE);
+            k->dead = TRUE;
+        }
+        
+        flx_entry_group_change_state(e->group, FLX_ENTRY_GROUP_COLLISION);
+    } else {
+        flx_goodbye_entry(s, e, FALSE);
+        e->dead = TRUE;
+    }
+
     s->need_entry_cleanup = TRUE;
 
-    flx_goodbye_entry(s, e, FALSE);
-    
-    if (e->group)
-        flx_entry_group_run_callback(e->group, FLX_ENTRY_GROUP_COLLISION);
 }
 
 static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
@@ -131,6 +141,9 @@ static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
 
     t = flx_record_to_string(record);
 
+    g_message("PROBE! PROBE! PROBE! [%s]", t);
+    
+
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
         
@@ -138,11 +151,12 @@ static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
             continue;
 
         if (flx_entry_registering(s, e, i)) {
+            gint cmp;
             
-            if (flx_record_lexicographical_compare(record, e->record) > 0) {
+            if ((cmp = flx_record_lexicographical_compare(record, e->record)) > 0) {
                 withdraw_entry(s, e);
                 g_message("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
-            } else
+            } else if (cmp < 0)
                 g_message("Recieved conflicting probe [%s]. Local host won.", t);
         }
     }
@@ -202,7 +216,7 @@ static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const f
     }
 }
 
-static gboolean handle_conflict(flxServer *s, flxInterface *i, flxRecord *record, const flxAddress *a) {
+static gboolean handle_conflict(flxServer *s, flxInterface *i, flxRecord *record, gboolean unique, const flxAddress *a) {
     gboolean valid = TRUE;
     flxEntry *e, *n;
     gchar *t;
@@ -212,6 +226,8 @@ static gboolean handle_conflict(flxServer *s, flxInterface *i, flxRecord *record
     g_assert(record);
 
     t = flx_record_to_string(record);
+
+    g_message("CHECKING FOR CONFLICT: [%s]", t);
 
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
@@ -224,17 +240,20 @@ static gboolean handle_conflict(flxServer *s, flxInterface *i, flxRecord *record
             gboolean equal = flx_record_equal_no_ttl(record, e->record);
                 
             /* Check whether there is a unique record conflict */
-            if (!equal && (e->flags & FLX_ENTRY_UNIQUE)) {
+            if (!equal && ((e->flags & FLX_ENTRY_UNIQUE) || unique)) {
+                gint cmp;
                 
                 /* The lexicographically later data wins. */
-                if (flx_record_lexicographical_compare(record, e->record) > 0) {
-                    withdraw_entry(s, e);
+                if ((cmp = flx_record_lexicographical_compare(record, e->record)) > 0) {
                     g_message("Recieved conflicting record [%s]. Local host lost. Withdrawing.", t);
-                } else {
+                    withdraw_entry(s, e);
+                } else if (cmp < 0) {
                     /* Tell the other host that our entry is lexicographically later */
+
+                    g_message("Recieved conflicting record [%s]. Local host won. Refreshing.", t);
+
                     valid = FALSE;
                     flx_interface_post_response(i, a, e->record, e->flags & FLX_ENTRY_UNIQUE, TRUE);
-                    g_message("Recieved conflicting record [%s]. Local host won. Refreshing.", t);
                 }
                 
                 /* Check wheter there is a TTL conflict */
@@ -243,6 +262,18 @@ static gboolean handle_conflict(flxServer *s, flxInterface *i, flxRecord *record
                 valid = FALSE;
                 flx_interface_post_response(i, a, e->record, e->flags & FLX_ENTRY_UNIQUE, TRUE);
                 g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
+            }
+            
+        } else if (flx_entry_registering(s, e, i)) {
+
+            if (!flx_record_equal_no_ttl(record, e->record) && ((e->flags & FLX_ENTRY_UNIQUE) || unique)) {
+
+                /* We are currently registering a matching record, but
+                 * someone else already claimed it, so let's
+                 * withdraw */
+                
+                g_message("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
+                withdraw_entry(s, e);
             }
         }
     }
@@ -276,7 +307,7 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
             g_message("Handling response: %s", txt = flx_record_to_string(record));
             g_free(txt);
             
-            if (handle_conflict(s, i, record, a)) {
+            if (handle_conflict(s, i, record, cache_flush, a)) {
                 flx_cache_update(i->cache, record, cache_flush, a);
                 flx_packet_scheduler_incoming_response(i->scheduler, record);
             }
@@ -779,20 +810,20 @@ void flx_server_add_service_va(
     snprintf(ptr_name, sizeof(ptr_name), "%s.%s", type, domain);
     snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, type, domain);
     
-    flx_server_add_ptr(s, g, interface, protocol, FALSE, ptr_name, svc_name);
+    flx_server_add_ptr(s, g, interface, protocol, FLX_ENTRY_NULL, ptr_name, svc_name);
 
     r = flx_record_new_full(svc_name, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_SRV);
     r->data.srv.priority = 0;
     r->data.srv.weight = 0;
     r->data.srv.port = port;
     r->data.srv.name = flx_normalize_name(host);
-    flx_server_add(s, g, interface, protocol, TRUE, r);
+    flx_server_add(s, g, interface, protocol, FLX_ENTRY_UNIQUE, r);
     flx_record_unref(r);
 
-    flx_server_add_text_va(s, g, interface, protocol, FALSE, svc_name, va);
+    flx_server_add_text_va(s, g, interface, protocol, FLX_ENTRY_UNIQUE, svc_name, va);
 
     snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
-    flx_server_add_ptr(s, g, interface, protocol, FALSE, enum_ptr, ptr_name);
+    flx_server_add_ptr(s, g, interface, protocol, FLX_ENTRY_NULL, enum_ptr, ptr_name);
 }
 
 void flx_server_add_service(
@@ -862,18 +893,15 @@ void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flx
     flx_interface_monitor_walk(s->monitor, interface, protocol, post_response_callback, &tmpdata);
 }
 
-void flx_entry_group_run_callback(flxEntryGroup *g, flxEntryGroupState state) {
+void flx_entry_group_change_state(flxEntryGroup *g, flxEntryGroupState state) {
     g_assert(g);
 
+    g->state = state;
+    
     if (g->callback) {
         g->callback(g->server, g, state, g->userdata);
         return;
     }
-
-    if (state == FLX_ENTRY_GROUP_COLLISION)
-        flx_entry_group_free(g);
-
-    /* Ignore the rest */
 }
 
 flxEntryGroup *flx_entry_group_new(flxServer *s, flxEntryGroupCallback callback, gpointer userdata) {
@@ -911,7 +939,7 @@ void flx_entry_group_commit(flxEntryGroup *g) {
     if (g->state != FLX_ENTRY_GROUP_UNCOMMITED)
         return;
 
-    flx_entry_group_run_callback(g, g->state = FLX_ENTRY_GROUP_REGISTERING);
+    flx_entry_group_change_state(g, FLX_ENTRY_GROUP_REGISTERING);
     flx_announce_group(g->server, g);
     flx_entry_group_check_probed(g, FALSE);
 }

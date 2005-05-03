@@ -72,7 +72,7 @@ gboolean flx_server_entry_match_interface(flxEntry *e, flxInterface *i);
 void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key);
 void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record, gboolean flush_cache);
 
-void flx_entry_group_run_callback(flxEntryGroup *g, flxEntryGroupState state);
+void flx_entry_group_change_state(flxEntryGroup *g, flxEntryGroupState state);
 
 gboolean flx_entry_commited(flxEntry *e);
 

@@ -60,8 +60,8 @@ int main(int argc, char *argv[]) {
 
     loop = g_main_loop_new(NULL, FALSE);
     
-    g_timeout_add(1000*20, dump_timeout, flx);
-    g_timeout_add(1000*30, quit_timeout, loop);
+  /*   g_timeout_add(1000*20, dump_timeout, flx); */
+/*     g_timeout_add(1000*30, quit_timeout, loop); */
     
     g_main_loop_run(loop);
     g_main_loop_unref(loop);

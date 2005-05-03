@@ -615,7 +615,7 @@ static guint8* packet_add_probe_query(flxPacketScheduler *s, flxDnsPacket *p, fl
             continue;
 
         /* Does the record match the probe? */
-        if (k->class != pj->record->key->class || flx_domain_equal(k->name, pj->record->key->name))
+        if (k->class != pj->record->key->class || !flx_domain_equal(k->name, pj->record->key->name))
             continue;
         
         /* This job wouldn't fit in */

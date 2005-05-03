@@ -49,7 +49,7 @@ void flx_entry_group_check_probed(flxEntryGroup *g, gboolean immediately) {
     if (g->state != FLX_ENTRY_GROUP_REGISTERING || g->n_probing > 0) 
         return;
 
-    flx_entry_group_run_callback(g, g->state = FLX_ENTRY_GROUP_ESTABLISHED);
+    flx_entry_group_change_state(g, FLX_ENTRY_GROUP_ESTABLISHED);
 
     if (g->dead)
         return;
@@ -367,11 +367,10 @@ void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean goodbye) {
 void flx_goodbye_entry(flxServer *s, flxEntry *e, gboolean goodbye) {
     g_assert(s);
     g_assert(e);
-    g_assert(!e->dead);
     
     g_message("goodbye entry: %p", e);
     
-    if (goodbye)
+    if (goodbye && !e->dead)
         flx_interface_monitor_walk(s->monitor, 0, AF_UNSPEC, send_goodbye_callback, e);
 
     while (e->announcements)

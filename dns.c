@@ -482,9 +482,12 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
         goto fail;
 
 /*     g_message("name = %s, rdlength = %u", name, rdlength); */
+
+    *ret_cache_flush = !!(class & FLX_DNS_CACHE_FLUSH);
+    class &= ~ FLX_DNS_CACHE_FLUSH;
     
     start = flx_dns_packet_get_rptr(p);
-
+    
     r = flx_record_new_full(name, class, type);
     
     switch (type) {
@@ -581,9 +584,6 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
     if ((guint8*) flx_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
         goto fail;
     
-    *ret_cache_flush = !!(class & FLX_DNS_CACHE_FLUSH);
-    class &= ~ FLX_DNS_CACHE_FLUSH;
-
     r->ttl = ttl;
 
     return r;

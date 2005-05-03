@@ -70,12 +70,14 @@ struct _flxInterfaceAddress {
     guchar scope;
     flxAddress address;
     
-    gint rr_id;
+    flxEntryGroup *entry_group;
     flxInterface *interface;
 };
 
 flxInterfaceMonitor *flx_interface_monitor_new(flxServer *server);
 void flx_interface_monitor_free(flxInterfaceMonitor *m);
+
+void flx_interface_monitor_sync(flxInterfaceMonitor *m);
 
 flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index, guchar protocol);
 flxHwInterface* flx_interface_monitor_get_hw_interface(flxInterfaceMonitor *m, gint index);

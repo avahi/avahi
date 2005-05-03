@@ -111,5 +111,6 @@ guint flx_key_get_estimate_size(flxKey *k);
 /* ditto */
 guint flx_record_get_estimate_size(flxRecord *r);
 
+gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b);
 
 #endif

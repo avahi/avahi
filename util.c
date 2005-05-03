@@ -133,7 +133,7 @@ gint flx_age(const GTimeVal *a) {
     return flx_timeval_diff(&now, a);
 }
 
-gboolean flx_domain_equal(const gchar *a, const gchar *b) {
+gboolean flx_domain_cmp(const gchar *a, const gchar *b) {
     int escaped_a = 0, escaped_b = 0;
     g_assert(a);
     g_assert(b);
@@ -148,24 +148,27 @@ gboolean flx_domain_equal(const gchar *a, const gchar *b) {
 
         /* Check for string end */
         if (*a == 0 && *b == 0)
-            return TRUE;
+            return 0;
         
         if (*a == 0 && !escaped_b && *b == '.' && *(b+1) == 0)
-            return TRUE;
+            return 0;
 
         if (!escaped_a && *a == '.' && *(a+1) == 0 && *b == 0)
-            return TRUE;
+            return 0;
 
         /* Compare characters */
         if (escaped_a == escaped_b && *a != *b)
-            return FALSE;
-
+            return *a < *b ? -1 : 1;
 
         /* Next characters */
         a++;
         b++;
         
     }
+}
+
+gboolean flx_domain_equal(const gchar *a, const gchar *b) {
+    return flx_domain_cmp(a, b) == 0;
 }
 
 guint flx_domain_hash(const gchar *p) {

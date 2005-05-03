@@ -5,69 +5,86 @@
 #include <glib.h>
 
 typedef struct _flxServer flxServer;
+typedef struct _flxEntry flxEntry;
+typedef struct _flxEntryGroup flxEntryGroup;
 
 #include "address.h"
 #include "rr.h"
 
 typedef enum {
-    FLX_SERVER_ENTRY_NULL = 0,
-    FLX_SERVER_ENTRY_UNIQUE = 1,
-    FLX_SERVER_ENTRY_NOPROBE = 2,
-    FLX_SERVER_ENTRY_NOANNOUNCE = 4
-} flxServerEntryFlags;
+    FLX_ENTRY_NULL = 0,
+    FLX_ENTRY_UNIQUE = 1,
+    FLX_ENTRY_NOPROBE = 2,
+    FLX_ENTRY_NOANNOUNCE = 4
+} flxEntryFlags;
+
+typedef enum {
+    FLX_ENTRY_GROUP_UNCOMMITED,
+    FLX_ENTRY_GROUP_REGISTERING,
+    FLX_ENTRY_GROUP_ESTABLISHED,
+    FLX_ENTRY_GROUP_COLLISION
+} flxEntryGroupStatus;
+
+typedef void (*flxEntryGroupCallback) (flxServer *s, flxEntryGroup *g, flxEntryGroupStatus status, gpointer userdata);
 
 flxServer *flx_server_new(GMainContext *c);
 void flx_server_free(flxServer* s);
 
-gint flx_server_get_next_id(flxServer *s);
+const flxRecord *flx_server_iterate(flxServer *s, flxEntryGroup *g, void **state);
+void flx_server_dump(flxServer *s, FILE *f);
+
+flxEntryGroup *flx_entry_group_new(flxServer *s, flxEntryGroupCallback callback, gpointer userdata);
+void flx_entry_group_free(flxEntryGroup *g);
+void flx_entry_group_commit(flxEntryGroup *g);
+flxEntryGroupStatus flx_entry_group_get_status(flxEntryGroup *g);
 
 void flx_server_add(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxServerEntryFlags flags,
+    flxEntryFlags flags,
     flxRecord *r);
 
 void flx_server_add_ptr(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxServerEntryFlags flags,
+    flxEntryFlags flags,
     const gchar *name,
     const gchar *dest);
 
 void flx_server_add_address(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxServerEntryFlags flags,
+    flxEntryFlags flags,
     const gchar *name,
     flxAddress *a);
 
 void flx_server_add_text(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxServerEntryFlags flags,
+    flxEntryFlags flags,
     const gchar *name,
     ... /* text records, terminated by NULL */);
 
 void flx_server_add_text_va(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxServerEntryFlags flags,
+    flxEntryFlags flags,
     const gchar *name,
     va_list va);
 
 void flx_server_add_service(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
     const gchar *type,
@@ -79,7 +96,7 @@ void flx_server_add_service(
 
 void flx_server_add_service_va(
     flxServer *s,
-    gint id,
+    flxEntryGroup *g,
     gint interface,
     guchar protocol,
     const gchar *type,
@@ -89,14 +106,17 @@ void flx_server_add_service_va(
     guint16 port,
     va_list va);
 
+typedef enum {
+    FLX_SUBSCRIPTION_NEW,
+    FLX_SUBSCRIPTION_REMOVE,
+    FLX_SUBSCRIPTION_CHANGE
+} flxSubscriptionEvent;
 
-void flx_server_remove(flxServer *s, gint id);
+typedef struct _flxSubscription flxSubscription;
 
-void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key);
-void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record, gboolean flush_cache);
+typedef void (*flxSubscriptionCallback)(flxSubscription *s, flxRecord *record, gint interface, guchar protocol, flxSubscriptionEvent event, gpointer userdata);
 
-const flxRecord *flx_server_iterate(flxServer *s, gint id, void **state);
-
-void flx_server_dump(flxServer *s, FILE *f);
+flxSubscription *flx_subscription_new(flxServer *s, flxKey *key, gint interface, guchar protocol, flxSubscriptionCallback callback, gpointer userdata);
+void flx_subscription_free(flxSubscription *s);
 
 #endif

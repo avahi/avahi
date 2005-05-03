@@ -63,8 +63,8 @@ guint16 flx_dns_packet_get_field(flxDnsPacket *p, guint index) {
     return g_ntohs(((guint16*) FLX_DNS_PACKET_DATA(p))[index]);
 }
 
-/* Read the first label from string dest, unescape "\" and append it to *name */
-static gchar *unescape_label(gchar *dest, guint size, const gchar **name) {
+/* Read the first label from string *name, unescape "\" and write it to dest */
+gchar *flx_unescape_label(gchar *dest, guint size, const gchar **name) {
     guint i = 0;
     gchar *d;
     
@@ -119,7 +119,7 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
         guint n;
         guint8* prev;
         const gchar *pname;
-        char label[64];
+        gchar label[64];
 
         /* Check whether we can compress this name. */
 
@@ -143,7 +143,7 @@ guint8* flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name) {
 
         pname = name;
         
-        if (!(unescape_label(label, sizeof(label), &name)))
+        if (!(flx_unescape_label(label, sizeof(label), &name)))
             goto fail;
 
         if (!(d = flx_dns_packet_append_string(p, label)))

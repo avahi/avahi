@@ -17,14 +17,15 @@ static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, in
     g_assert(a);
 
     if (!flx_interface_address_relevant(a) || remove) {
-        if (a->rr_id >= 0) {
-            flx_server_remove(m->server, a->rr_id);
-            a->rr_id = -1;
+        if (a->entry_group) {
+            flx_entry_group_free(a->entry_group);
+            a->entry_group = NULL;
         }
     } else {
-        if (a->rr_id < 0) {
-            a->rr_id = flx_server_get_next_id(m->server);
-            flx_server_add_address(m->server, a->rr_id, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address);
+        if (!a->entry_group) {
+/*             a->entry_group = flx_entry_group_new(m->server, NULL, NULL); */
+/*             flx_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); */
+/*             flx_entry_group_commit(a->entry_group); */
         }
     }
 }
@@ -54,7 +55,9 @@ static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
     g_assert(a->interface);
 
     FLX_LLIST_REMOVE(flxInterfaceAddress, address, a->interface->addresses, a);
-    flx_server_remove(m->server, a->rr_id);
+
+    if (a->entry_group)
+        flx_entry_group_free(a->entry_group);
     
     g_free(a);
 }
@@ -322,7 +325,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                 addr->monitor = m;
                 addr->address = raddr;
                 addr->interface = i;
-                addr->rr_id = -1;
+                addr->entry_group = NULL;
 
                 FLX_LLIST_PREPEND(flxInterfaceAddress, address, i->addresses, addr);
             }
@@ -371,7 +374,7 @@ flxInterfaceMonitor *flx_interface_monitor_new(flxServer *s) {
 
     m = g_new0(flxInterfaceMonitor, 1);
     m->server = s;
-    if (!(m->netlink = flx_netlink_new(s->context, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
+    if (!(m->netlink = flx_netlink_new(s->context, G_PRIORITY_DEFAULT-10, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
         goto fail;
 
     m->hash_table = g_hash_table_new(g_int_hash, g_int_equal);
@@ -383,12 +386,21 @@ flxInterfaceMonitor *flx_interface_monitor_new(flxServer *s) {
         goto fail;
 
     m->list = LIST_IFACE;
-    
+
     return m;
 
 fail:
     flx_interface_monitor_free(m);
     return NULL;
+}
+
+void flx_interface_monitor_sync(flxInterfaceMonitor *m) {
+    g_assert(m);
+    
+    while (m->list != LIST_DONE) {
+        if (!flx_netlink_work(m->netlink, TRUE))
+            break;
+    } 
 }
 
 void flx_interface_monitor_free(flxInterfaceMonitor *m) {

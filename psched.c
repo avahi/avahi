@@ -8,7 +8,7 @@
 #define FLX_RESPONSE_HISTORY_MSEC 700
 #define FLX_RESPONSE_DEFER_MSEC 20
 #define FLX_RESPONSE_JITTER_MSEC 100
-#define FLX_PROBE_DEFER_MSEC 100
+#define FLX_PROBE_DEFER_MSEC 20
 
 flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i) {
     flxPacketScheduler *s;
@@ -116,7 +116,7 @@ static guint8* packet_add_query_job(flxPacketScheduler *s, flxDnsPacket *p, flxQ
 
         qj->done = 1;
 
-        /* Drop query after some time from history from history */
+        /* Drop query after some time from history */
         flx_elapse_time(&tv, FLX_QUERY_HISTORY_MSEC, 0);
         flx_time_event_queue_update(s->server->time_event_queue, qj->time_event, &tv);
 
@@ -231,7 +231,7 @@ void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key, gboolea
 
     flx_elapse_time(&tv, immediately ? 0 : FLX_QUERY_DEFER_MSEC, 0);
 
-    for (qj = s->query_jobs; qj; qj = qj->jobs_next)
+    for (qj = s->query_jobs; qj; qj = qj->jobs_next) {
 
         if (flx_key_equal(qj->key, key)) {
 
@@ -247,6 +247,8 @@ void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key, gboolea
             break;
         }
 
+    }
+    
     qj = query_job_new(s, key);
     qj->delivery = tv;
     qj->time_event = flx_time_event_queue_add(s->server->time_event_queue, &qj->delivery, query_elapse, qj);
@@ -685,6 +687,7 @@ static void probe_elapse(flxTimeEvent *e, gpointer data) {
         }
 
         probe_job_free(s, pj);
+        
         n ++;
     }
     
@@ -705,7 +708,6 @@ void flx_packet_scheduler_post_probe(flxPacketScheduler *s, flxRecord *record, g
     
     flx_elapse_time(&tv, immediately ? 0 : FLX_PROBE_DEFER_MSEC, 0);
 
-    /* No duplication check here... */
     /* Create a new job and schedule it */
     pj = probe_job_new(s, record);
     pj->delivery = tv;

@@ -13,7 +13,8 @@ struct _flxNetlink {
     void (*callback) (flxNetlink *nl, struct nlmsghdr *n, gpointer userdata);
     gpointer userdata;
 };
-static gboolean work(flxNetlink *nl) {
+
+gboolean flx_netlink_work(flxNetlink *nl, gboolean block) {
     g_assert(nl);
 
     for (;;) {
@@ -21,7 +22,7 @@ static gboolean work(flxNetlink *nl) {
         ssize_t bytes;
         struct nlmsghdr *p = (struct nlmsghdr *) replybuf;
 
-        if ((bytes = recv(nl->fd, replybuf, sizeof(replybuf), MSG_DONTWAIT)) < 0) {
+        if ((bytes = recv(nl->fd, replybuf, sizeof(replybuf), block ? 0 : MSG_DONTWAIT)) < 0) {
 
             if (errno == EAGAIN || errno == EINTR)
                 break;
@@ -32,7 +33,7 @@ static gboolean work(flxNetlink *nl) {
 
         if (nl->callback) {
             for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
-                if (!NLMSG_OK(p, bytes)) {
+                if (!NLMSG_OK(p, (size_t) bytes)) {
                     g_warning("NETLINK: packet truncated");
                     return FALSE;
                 }
@@ -40,6 +41,9 @@ static gboolean work(flxNetlink *nl) {
                 nl->callback(nl, p, nl->userdata);
             }
         }
+
+        if (block)
+            break;
     }
 
     return TRUE;
@@ -70,10 +74,10 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
     nl = *((flxNetlink**) (((guint8*) source) + sizeof(GSource)));
     g_assert(nl);
     
-    return work(nl);
+    return flx_netlink_work(nl, FALSE);
 }
 
-flxNetlink *flx_netlink_new(GMainContext *context, guint32 groups, void (*cb) (flxNetlink *nl, struct nlmsghdr *n, gpointer userdata), gpointer userdata) {
+flxNetlink *flx_netlink_new(GMainContext *context, gint priority, guint32 groups, void (*cb) (flxNetlink *nl, struct nlmsghdr *n, gpointer userdata), gpointer userdata) {
     int fd;
     struct sockaddr_nl addr;
     flxNetlink *nl;
@@ -117,6 +121,8 @@ flxNetlink *flx_netlink_new(GMainContext *context, guint32 groups, void (*cb) (f
     nl->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(flxNetlink*));
     *((flxNetlink**) (((guint8*) nl->source) + sizeof(GSource))) = nl;
 
+    g_source_set_priority(nl->source, priority);
+    
     memset(&nl->poll_fd, 0, sizeof(GPollFD));
     nl->poll_fd.fd = fd;
     nl->poll_fd.events = G_IO_IN|G_IO_ERR|G_IO_HUP;

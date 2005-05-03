@@ -6,6 +6,7 @@
 
 #include "util.h"
 #include "rr.h"
+#include "dns.h"
 
 flxKey *flx_key_new(const gchar *name, guint16 class, guint16 type) {
     flxKey *k;
@@ -394,4 +395,140 @@ guint flx_record_get_estimate_size(flxRecord *r) {
     }
 
     return n;
+}
+
+static gint lexicographical_memcmp(gconstpointer a, size_t al, gconstpointer b, size_t bl) {
+    size_t c;
+    gint ret;
+    
+    g_assert(a);
+    g_assert(b);
+
+    c = al < bl ? al : bl;
+    if ((ret = memcmp(a, b, c)) != 0)
+        return ret;
+
+    if (al == bl)
+        return 0;
+    else
+        return al == c ? 1 : -1;
+}
+
+static gint uint16_cmp(guint16 a, guint16 b) {
+    return a == b ? 0 : (a < b ? a : b);
+}
+
+static gint lexicographical_domain_cmp(const gchar *a, const gchar *b) {
+    g_assert(a);
+    g_assert(b);
+    
+
+    for (;;) {
+        gchar t1[64];
+        gchar t2[64];
+        size_t al, bl;
+        gint r;
+
+        if (!a && !b)
+            return 0;
+
+        if (a && !b)
+            return 1;
+
+        if (b && !a)
+            return -1;
+        
+        flx_unescape_label(t1, sizeof(t1), &a);
+        flx_unescape_label(t2, sizeof(t2), &b);
+
+        al = strlen(t1);
+        bl = strlen(t2);
+        
+        if (al != bl) 
+            return al < bl ? -1 : 1;
+
+        if ((r =  strcmp(t1, t2)) != 0)
+            return r;
+    }
+}
+
+gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b) {
+    g_assert(a);
+    g_assert(b);
+
+    if (a->key->class < b->key->class)
+        return -1;
+    else if (a->key->class > b->key->class)
+        return 1;
+
+    if (a->key->type < b->key->type)
+        return -1;
+    else if (a->key->type > b->key->type)
+        return 1;
+
+    switch (a->key->type) {
+
+        case FLX_DNS_TYPE_PTR:
+        case FLX_DNS_TYPE_CNAME:
+            return lexicographical_domain_cmp(a->data.ptr.name, b->data.ptr.name);
+
+        case FLX_DNS_TYPE_SRV: {
+            gint r;
+            if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) != 0 ||
+                (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) != 0 ||
+                (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) != 0)
+                return lexicographical_domain_cmp(a->data.srv.name, b->data.srv.name);
+        }
+
+        case FLX_DNS_TYPE_HINFO: {
+            size_t al = strlen(a->data.hinfo.cpu), bl = strlen(b->data.hinfo.cpu);
+            gint r;
+
+            if (al != bl)
+                return al < bl ? -1 : 1;
+
+            if ((r = strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu)) != 0)
+                return r;
+
+            al = strlen(a->data.hinfo.os), bl = strlen(b->data.hinfo.os);
+
+            if (al != bl)
+                return al < bl ? -1 : 1;
+
+            if ((r = strcmp(a->data.hinfo.os, b->data.hinfo.os)) != 0)
+                return r;
+
+            return 0;
+
+        }
+
+        case FLX_DNS_TYPE_TXT: {
+
+            guint8 *ma, *mb;
+            guint asize, bsize;
+            gint r;
+
+            ma = g_new(guint8, asize = flx_string_list_serialize(a->data.txt.string_list, NULL, 0));
+            mb = g_new(guint8, bsize = flx_string_list_serialize(b->data.txt.string_list, NULL, 0));
+            flx_string_list_serialize(a->data.txt.string_list, ma, asize);
+            flx_string_list_serialize(a->data.txt.string_list, mb, bsize);
+
+            r = lexicographical_memcmp(ma, asize, mb, bsize);
+            g_free(ma);
+            g_free(mb);
+
+            return r;
+        }
+        
+        case FLX_DNS_TYPE_A:
+            return memcmp(&a->data.a.address, &b->data.a.address, sizeof(flxIPv4Address));
+
+        case FLX_DNS_TYPE_AAAA:
+            return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(flxIPv6Address));
+
+        default:
+            return lexicographical_memcmp(a->data.generic.data, a->data.generic.size,
+                                          b->data.generic.data, b->data.generic.size);
+    }
+    
 }

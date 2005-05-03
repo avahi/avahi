@@ -76,5 +76,7 @@ guint flx_dns_packet_space(flxDnsPacket *p);
          ((guint16) (rd & 15)))
          
 
+gchar *flx_unescape_label(gchar *dest, guint size, const gchar **name);
+
 #endif
 

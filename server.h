@@ -1,8 +1,6 @@
 #ifndef fooflxserverhfoo
 #define fooflxserverhfoo
 
-typedef struct _flxServerEntry flxServerEntry;
-
 #include "flx.h"
 #include "iface.h"
 #include "prioq.h"
@@ -11,34 +9,52 @@ typedef struct _flxServerEntry flxServerEntry;
 #include "announce.h"
 #include "subscribe.h"
 
-struct _flxServerEntry {
+struct _flxEntry {
+    flxServer *server;
+    flxEntryGroup *group;
+
+    gboolean dead;
+    
+    flxEntryFlags flags;
     flxRecord *record;
-    gint id;
     gint interface;
     guchar protocol;
 
-    flxServerEntryFlags flags;
-
-    FLX_LLIST_FIELDS(flxServerEntry, entry);
-    FLX_LLIST_FIELDS(flxServerEntry, by_key);
-    FLX_LLIST_FIELDS(flxServerEntry, by_id);
+    FLX_LLIST_FIELDS(flxEntry, entries);
+    FLX_LLIST_FIELDS(flxEntry, by_key);
+    FLX_LLIST_FIELDS(flxEntry, by_group);
     
     FLX_LLIST_HEAD(flxAnnouncement, announcements);
+};
+
+struct _flxEntryGroup {
+    flxServer *server;
+    gboolean dead;
+
+    flxEntryGroupStatus status;
+    gpointer userdata;
+    flxEntryGroupCallback callback;
+
+    guint n_probing;
+    
+    FLX_LLIST_FIELDS(flxEntryGroup, groups);
+    FLX_LLIST_HEAD(flxEntry, entries);
 };
 
 struct _flxServer {
     GMainContext *context;
     flxInterfaceMonitor *monitor;
 
-    gint current_id;
-    
-    FLX_LLIST_HEAD(flxServerEntry, entries);
-    GHashTable *rrset_by_id;
-    GHashTable *rrset_by_key;
+    FLX_LLIST_HEAD(flxEntry, entries);
+    GHashTable *entries_by_key;
 
+    FLX_LLIST_HEAD(flxEntryGroup, groups);
+    
     FLX_LLIST_HEAD(flxSubscription, subscriptions);
     GHashTable *subscription_hashtable;
 
+    gboolean need_entry_cleanup, need_group_cleanup;
+    
     flxTimeEventQueue *time_event_queue;
     
     gchar *hostname;
@@ -47,9 +63,17 @@ struct _flxServer {
 
     GPollFD pollfd_ipv4, pollfd_ipv6;
     GSource *source;
-    
+
+    gboolean ignore_bad_ttl;
 };
 
-gboolean flx_server_entry_match_interface(flxServerEntry *e, flxInterface *i);
+gboolean flx_server_entry_match_interface(flxEntry *e, flxInterface *i);
+
+void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key);
+void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record, gboolean flush_cache);
+
+void flx_entry_group_run_callback(flxEntryGroup *g, flxEntryGroupStatus state);
+
+gboolean flx_entry_commited(flxEntry *e);
 
 #endif

@@ -18,6 +18,7 @@ GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter);
 gint flx_age(const GTimeVal *a);
 
 guint flx_domain_hash(const gchar *p);
+gboolean flx_domain_cmp(const gchar *a, const gchar *b);
 gboolean flx_domain_equal(const gchar *a, const gchar *b);
 
 void flx_hexdump(gconstpointer p, guint size);

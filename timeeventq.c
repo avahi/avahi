@@ -74,7 +74,7 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
     return TRUE;
 }
 
-flxTimeEventQueue* flx_time_event_queue_new(GMainContext *context) {
+flxTimeEventQueue* flx_time_event_queue_new(GMainContext *context, gint priority) {
     flxTimeEventQueue *q;
 
     static GSourceFuncs source_funcs = {
@@ -89,6 +89,8 @@ flxTimeEventQueue* flx_time_event_queue_new(GMainContext *context) {
     q = (flxTimeEventQueue*) g_source_new(&source_funcs, sizeof(flxTimeEventQueue));
     q->prioq = flx_prio_queue_new(compare);
 
+    g_source_set_priority((GSource*) q, priority);
+    
     g_source_attach(&q->source, context);
     
     return q;

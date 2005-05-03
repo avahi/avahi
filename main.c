@@ -1,28 +1,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdlib.h>
 
 #include "flx.h"
-#include "server.h"
-#include "subscribe.h"
 
 static gboolean quit_timeout(gpointer data) {
     g_main_loop_quit(data);
-    return FALSE;
-}
-
-static gboolean send_timeout(gpointer data) {
-    flxServer *flx = data;
-    flxKey *k;
-
-/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT); */
-/*     flx_server_post_query(flx, 0, AF_UNSPEC, k); */
-/*     flx_key_unref(k); */
-
-/*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_A); */
-/*     flx_server_post_query(flx, 0, AF_INET, k); */
-/*     flx_key_unref(k); */
-
     return FALSE;
 }
 
@@ -46,6 +30,9 @@ static void subscription(flxSubscription *s, flxRecord *r, gint interface, gucha
     g_free(t);
 }
 
+static void entry_group_callback(flxServer *s, flxEntryGroup *g, flxEntryGroupStatus status, gpointer userdata) {
+    g_message("entry group state: %i", status);
+}
 
 int main(int argc, char *argv[]) {
     flxServer *flx;
@@ -53,27 +40,34 @@ int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     flxSubscription *s;
     flxKey *k;
+    flxEntryGroup *g;
 
     flx = flx_server_new(NULL);
 
-    flx_server_add_text(flx, 0, 0, AF_UNSPEC, FLX_SERVER_ENTRY_UNIQUE, NULL, "hallo", NULL);
-    flx_server_add_service(flx, 0, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);
+    g = flx_entry_group_new(flx, entry_group_callback, NULL); 
+    
+/*    flx_server_add_text(flx, g, 0, AF_UNSPEC, FLX_ENTRY_UNIQUE, NULL, "hallo", NULL); */
+     flx_server_add_service(flx, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL); 
+    
+    flx_entry_group_commit(g); 
 
+    flx_server_dump(flx, stdout);
+    
+    
 /*     k = flx_key_new("ecstasy.local.", FLX_DNS_CLASS_IN, FLX_DNS_TYPE_ANY); */
 /*     s = flx_subscription_new(flx, k, 0, AF_UNSPEC, subscription, NULL); */
 /*     flx_key_unref(k); */
 
     loop = g_main_loop_new(NULL, FALSE);
     
-    g_timeout_add(1000*30, quit_timeout, loop);
-    g_timeout_add(1000, send_timeout, flx);
     g_timeout_add(1000*20, dump_timeout, flx);
+    g_timeout_add(1000*30, quit_timeout, loop);
     
     g_main_loop_run(loop);
-
     g_main_loop_unref(loop);
 
 /*     flx_subscription_free(s); */
+/*     flx_entry_group_free(g); */
     flx_server_free(flx);
     
     return 0;

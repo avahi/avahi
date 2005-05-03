@@ -19,7 +19,7 @@ struct _flxTimeEventQueue {
     flxPrioQueue *prioq;
 };
 
-flxTimeEventQueue* flx_time_event_queue_new(GMainContext *context);
+flxTimeEventQueue* flx_time_event_queue_new(GMainContext *context, gint priority);
 void flx_time_event_queue_free(flxTimeEventQueue *q);
 
 flxTimeEvent* flx_time_event_queue_add(flxTimeEventQueue *q, const GTimeVal *timeval, void (*callback)(flxTimeEvent *e, void *userdata), void *userdata);

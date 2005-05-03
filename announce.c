@@ -46,10 +46,10 @@ void flx_entry_group_check_probed(flxEntryGroup *g, gboolean immediately) {
 
     /* Check whether all group members have been probed */
     
-    if (g->status != FLX_ENTRY_GROUP_REGISTERING || g->n_probing > 0) 
+    if (g->state != FLX_ENTRY_GROUP_REGISTERING || g->n_probing > 0) 
         return;
 
-    flx_entry_group_run_callback(g, g->status = FLX_ENTRY_GROUP_ESTABLISHED);
+    flx_entry_group_run_callback(g, g->state = FLX_ENTRY_GROUP_ESTABLISHED);
 
     if (g->dead)
         return;
@@ -105,7 +105,7 @@ static void next_state(flxAnnouncement *a) {
                 a->entry->group->n_probing--;
             }
             
-            if (a->entry->group && a->entry->group->status == FLX_ENTRY_GROUP_REGISTERING)
+            if (a->entry->group && a->entry->group->state == FLX_ENTRY_GROUP_REGISTERING)
                 a->state = FLX_WAITING;
             else {
                 a->state = FLX_ANNOUNCING;
@@ -200,7 +200,7 @@ static void new_announcement(flxServer *s, flxInterface *i, flxEntry *e) {
         a->state = FLX_PROBING;
     else if (!(e->flags & FLX_ENTRY_NOANNOUNCE)) {
 
-        if (!e->group || e->group->status == FLX_ENTRY_GROUP_ESTABLISHED)
+        if (!e->group || e->group->state == FLX_ENTRY_GROUP_ESTABLISHED)
             a->state = FLX_ANNOUNCING;
         else
             a->state = FLX_WAITING;

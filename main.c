@@ -30,8 +30,8 @@ static void subscription(flxSubscription *s, flxRecord *r, gint interface, gucha
     g_free(t);
 }
 
-static void entry_group_callback(flxServer *s, flxEntryGroup *g, flxEntryGroupStatus status, gpointer userdata) {
-    g_message("entry group state: %i", status);
+static void entry_group_callback(flxServer *s, flxEntryGroup *g, flxEntryGroupState state, gpointer userdata) {
+    g_message("entry group state: %i", state);
 }
 
 int main(int argc, char *argv[]) {

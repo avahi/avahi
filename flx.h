@@ -23,9 +23,9 @@ typedef enum {
     FLX_ENTRY_GROUP_REGISTERING,
     FLX_ENTRY_GROUP_ESTABLISHED,
     FLX_ENTRY_GROUP_COLLISION
-} flxEntryGroupStatus;
+} flxEntryGroupState;
 
-typedef void (*flxEntryGroupCallback) (flxServer *s, flxEntryGroup *g, flxEntryGroupStatus status, gpointer userdata);
+typedef void (*flxEntryGroupCallback) (flxServer *s, flxEntryGroup *g, flxEntryGroupState state, gpointer userdata);
 
 flxServer *flx_server_new(GMainContext *c);
 void flx_server_free(flxServer* s);
@@ -36,7 +36,7 @@ void flx_server_dump(flxServer *s, FILE *f);
 flxEntryGroup *flx_entry_group_new(flxServer *s, flxEntryGroupCallback callback, gpointer userdata);
 void flx_entry_group_free(flxEntryGroup *g);
 void flx_entry_group_commit(flxEntryGroup *g);
-flxEntryGroupStatus flx_entry_group_get_status(flxEntryGroup *g);
+flxEntryGroupState flx_entry_group_get_state(flxEntryGroup *g);
 
 void flx_server_add(
     flxServer *s,

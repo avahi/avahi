@@ -862,15 +862,15 @@ void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flx
     flx_interface_monitor_walk(s->monitor, interface, protocol, post_response_callback, &tmpdata);
 }
 
-void flx_entry_group_run_callback(flxEntryGroup *g, flxEntryGroupStatus status) {
+void flx_entry_group_run_callback(flxEntryGroup *g, flxEntryGroupState state) {
     g_assert(g);
 
     if (g->callback) {
-        g->callback(g->server, g, status, g->userdata);
+        g->callback(g->server, g, state, g->userdata);
         return;
     }
 
-    if (status == FLX_ENTRY_GROUP_COLLISION)
+    if (state == FLX_ENTRY_GROUP_COLLISION)
         flx_entry_group_free(g);
 
     /* Ignore the rest */
@@ -886,7 +886,7 @@ flxEntryGroup *flx_entry_group_new(flxServer *s, flxEntryGroupCallback callback,
     g->callback = callback;
     g->userdata = userdata;
     g->dead = FALSE;
-    g->status = FLX_ENTRY_GROUP_UNCOMMITED;
+    g->state = FLX_ENTRY_GROUP_UNCOMMITED;
     g->n_probing = 0;
     FLX_LLIST_HEAD_INIT(flxEntry, g->entries);
 
@@ -908,10 +908,10 @@ void flx_entry_group_commit(flxEntryGroup *g) {
     g_assert(g);
     g_assert(!g->dead);
 
-    if (g->status != FLX_ENTRY_GROUP_UNCOMMITED)
+    if (g->state != FLX_ENTRY_GROUP_UNCOMMITED)
         return;
 
-    flx_entry_group_run_callback(g, g->status = FLX_ENTRY_GROUP_REGISTERING);
+    flx_entry_group_run_callback(g, g->state = FLX_ENTRY_GROUP_REGISTERING);
     flx_announce_group(g->server, g);
     flx_entry_group_check_probed(g, FALSE);
 }
@@ -921,13 +921,13 @@ gboolean flx_entry_commited(flxEntry *e) {
     g_assert(!e->dead);
 
     return !e->group ||
-        e->group->status == FLX_ENTRY_GROUP_REGISTERING ||
-        e->group->status == FLX_ENTRY_GROUP_ESTABLISHED;
+        e->group->state == FLX_ENTRY_GROUP_REGISTERING ||
+        e->group->state == FLX_ENTRY_GROUP_ESTABLISHED;
 }
 
-flxEntryGroupStatus flx_entry_group_get_status(flxEntryGroup *g) {
+flxEntryGroupState flx_entry_group_get_state(flxEntryGroup *g) {
     g_assert(g);
     g_assert(!g->dead);
 
-    return g->status;
+    return g->state;
 }

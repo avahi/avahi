@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     g_main_loop_unref(loop);
 
 /*     flx_subscription_free(s); */
-/*     flx_entry_group_free(g); */
+    flx_entry_group_free(g); 
     flx_server_free(flx);
     
     return 0;

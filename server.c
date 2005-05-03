@@ -272,8 +272,7 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
         }
 
         if (record->key->type != FLX_DNS_TYPE_ANY) {
-            continue;
-        
+
             g_message("Handling response: %s", txt = flx_record_to_string(record));
             g_free(txt);
             

@@ -213,6 +213,9 @@ gboolean flx_key_equal(const flxKey *a, const flxKey *b) {
     g_assert(a);
     g_assert(b);
 
+    if (a == b)
+        return TRUE;
+    
 /*     g_message("equal: %p %p", a, b); */
     
     return flx_domain_equal(a->name, b->name) &&
@@ -227,6 +230,9 @@ gboolean flx_key_pattern_match(const flxKey *pattern, const flxKey *k) {
 /*     g_message("equal: %p %p", a, b); */
 
     g_assert(!flx_key_is_pattern(k));
+
+    if (pattern == k)
+        return TRUE;
     
     return flx_domain_equal(pattern->name, k->name) &&
         (pattern->type == k->type || pattern->type == FLX_DNS_TYPE_ANY) &&
@@ -296,6 +302,9 @@ static gboolean rdata_equal(const flxRecord *a, const flxRecord *b) {
 gboolean flx_record_equal_no_ttl(const flxRecord *a, const flxRecord *b) {
     g_assert(a);
     g_assert(b);
+
+    if (a == b)
+        return TRUE;
 
     return
         flx_key_equal(a->key, b->key) &&
@@ -456,6 +465,9 @@ gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b) {
     g_assert(a);
     g_assert(b);
 
+    if (a == b)
+        return 0;
+    
 /*     gchar *t; */
 
 /*     g_message("comparing [%s]", t = flx_record_to_string(a)); */

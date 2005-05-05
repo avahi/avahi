@@ -44,12 +44,12 @@ int main(int argc, char *argv[]) {
 
     flx = flx_server_new(NULL);
 
-    g = flx_entry_group_new(flx, entry_group_callback, NULL); 
+/*     g = flx_entry_group_new(flx, entry_group_callback, NULL);  */
     
 /*    flx_server_add_text(flx, g, 0, AF_UNSPEC, FLX_ENTRY_UNIQUE, NULL, "hallo", NULL); */
-     flx_server_add_service(flx, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL); 
+/*      flx_server_add_service(flx, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);  */
     
-    flx_entry_group_commit(g); 
+/*     flx_entry_group_commit(g);  */
 
     flx_server_dump(flx, stdout);
     

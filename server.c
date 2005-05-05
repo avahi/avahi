@@ -481,7 +481,7 @@ flxServer *flx_server_new(GMainContext *c) {
     s->need_entry_cleanup = s->need_group_cleanup = FALSE;
     
     s->fd_ipv4 = flx_open_socket_ipv4();
-    s->fd_ipv6 = -1 /*flx_open_socket_ipv6() */; 
+    s->fd_ipv6 = flx_open_socket_ipv6();
     
     if (s->fd_ipv6 < 0 && s->fd_ipv4 < 0) {
         g_critical("Failed to create IP sockets.\n");

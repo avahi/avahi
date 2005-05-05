@@ -23,9 +23,9 @@ static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, in
         }
     } else {
         if (!a->entry_group) {
-/*             a->entry_group = flx_entry_group_new(m->server, NULL, NULL); */
-/*             flx_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); */
-/*             flx_entry_group_commit(a->entry_group); */
+            a->entry_group = flx_entry_group_new(m->server, NULL, NULL);
+            flx_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address);
+            flx_entry_group_commit(a->entry_group);
         }
     }
 }

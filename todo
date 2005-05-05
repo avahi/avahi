@@ -5,6 +5,8 @@ todo:
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 
+* Add some APIs to get the clean service name from RR for browsing
+
 * change flx_* to avahi_*
 * autoconf
 * release!

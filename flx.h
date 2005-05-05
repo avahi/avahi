@@ -82,6 +82,15 @@ void flx_server_add_text_va(
     const gchar *name,
     va_list va);
 
+void flx_server_add_text_strlst(
+    flxServer *s,
+    flxEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    flxEntryFlags flags,
+    const gchar *name,
+    flxStringList *strlst);
+
 void flx_server_add_service(
     flxServer *s,
     flxEntryGroup *g,
@@ -105,6 +114,18 @@ void flx_server_add_service_va(
     const gchar *host,
     guint16 port,
     va_list va);
+
+void flx_server_add_service_strlst(
+    flxServer *s,
+    flxEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    const gchar *type,
+    const gchar *name,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    flxStringList *strlst);
 
 typedef enum {
     FLX_SUBSCRIPTION_NEW,

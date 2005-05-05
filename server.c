@@ -717,6 +717,25 @@ void flx_server_add_address(
     g_free(n);
 }
 
+void flx_server_add_text_strlst(
+    flxServer *s,
+    flxEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    flxEntryFlags flags,
+    const gchar *name,
+    flxStringList *strlst) {
+
+    flxRecord *r;
+    
+    g_assert(s);
+    
+    r = flx_record_new_full(name ? name : s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT);
+    r->data.txt.string_list = strlst;
+    flx_server_add(s, g, interface, protocol, flags, r);
+    flx_record_unref(r);
+}
+
 void flx_server_add_text_va(
     flxServer *s,
     flxEntryGroup *g,
@@ -725,15 +744,10 @@ void flx_server_add_text_va(
     flxEntryFlags flags,
     const gchar *name,
     va_list va) {
-
-    flxRecord *r;
     
     g_assert(s);
-    
-    r = flx_record_new_full(name ? name : s->hostname, FLX_DNS_CLASS_IN, FLX_DNS_TYPE_TXT);
-    r->data.txt.string_list = flx_string_list_new_va(va);
-    flx_server_add(s, g, interface, protocol, flags, r);
-    flx_record_unref(r);
+
+    flx_server_add_text_strlst(s, g, interface, protocol, flags, name, flx_string_list_new_va(va));
 }
 
 void flx_server_add_text(
@@ -776,8 +790,7 @@ static void escape_service_name(gchar *d, guint size, const gchar *s) {
     *(d++) = 0;
 }
 
-
-void flx_server_add_service_va(
+void flx_server_add_service_strlst(
     flxServer *s,
     flxEntryGroup *g,
     gint interface,
@@ -787,7 +800,7 @@ void flx_server_add_service_va(
     const gchar *domain,
     const gchar *host,
     guint16 port,
-    va_list va) {
+    flxStringList *strlst) {
 
     gchar ptr_name[256], svc_name[256], ename[64], enum_ptr[256];
     flxRecord *r;
@@ -820,10 +833,29 @@ void flx_server_add_service_va(
     flx_server_add(s, g, interface, protocol, FLX_ENTRY_UNIQUE, r);
     flx_record_unref(r);
 
-    flx_server_add_text_va(s, g, interface, protocol, FLX_ENTRY_UNIQUE, svc_name, va);
+    flx_server_add_text_strlst(s, g, interface, protocol, FLX_ENTRY_UNIQUE, svc_name, strlst);
 
     snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
     flx_server_add_ptr(s, g, interface, protocol, FLX_ENTRY_NULL, enum_ptr, ptr_name);
+}
+
+void flx_server_add_service_va(
+    flxServer *s,
+    flxEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    const gchar *type,
+    const gchar *name,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    va_list va){
+
+    g_assert(s);
+    g_assert(type);
+    g_assert(name);
+
+    flx_server_add_service(s, g, interface, protocol, type, name, domain, host, port, flx_string_list_new_va(va));
 }
 
 void flx_server_add_service(

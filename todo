@@ -5,12 +5,8 @@ todo:
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 
-* add flx_server_add_service_strlst() and friends
-
 * change flx_* to avahi_*
-
 * autoconf
-
 * release!
 
 done:
@@ -27,3 +23,5 @@ done:
 * remove expression "rrset" from source files
 * defend our entries on incoming goodbye
 * allow NULL bytes in TXT records
+* add flx_server_add_service_strlst() and friends
+

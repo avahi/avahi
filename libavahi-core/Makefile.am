@@ -81,7 +81,7 @@ dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD)
 
 avahi_test_SOURCES = \
-	main.c
+	avahi-test.c
 avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD) libavahi-core.la
 

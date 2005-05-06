@@ -19,6 +19,10 @@
   USA.
 ***/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "prioq.h"
 
 AvahiPrioQueue* avahi_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b)) {

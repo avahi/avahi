@@ -1,0 +1,56 @@
+# -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+# $Id$
+
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+AC_PREREQ(2.57)
+AC_INIT([avahi],[0.1],[mzninuv (at) 0pointer (dot) de])
+AC_CONFIG_SRCDIR([libavahi-core])
+AC_CONFIG_HEADERS([config.h])
+AM_INIT_AUTOMAKE([foreign -Wall])
+
+AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Avahi])
+
+if type -p stow > /dev/null && test -d /usr/local/stow ; then
+   AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
+   ac_default_prefix="/usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION}"
+fi
+
+# Checks for programs.
+AC_PROG_CC
+
+# libtool stuff
+AC_PROG_LIBTOOL
+
+PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
+AC_SUBST(GLIB20_CFLAGS)
+AC_SUBST(GLIB20_LIBS)
+
+# If using GCC specify some additional parameters
+if test "x$GCC" = "xyes" ; then
+   CFLAGS="$CFLAGS -pipe -W -Wall -pedantic"
+
+   AC_LANG_CONFTEST([int main() {}])
+   $CC -c conftest.c -std=c99 -Wno-unused-parameter $CFLAGS > /dev/null 2> /dev/null && CFLAGS="$CFLAGS -std=c99 -Wno-unused-parameter"
+   rm -f conftest.o
+fi
+
+AC_CONFIG_FILES([Makefile libavahi-core.pc doxygen/Makefile doxygen/doxygen.conf libavahi-core/Makefile])
+AC_OUTPUT

@@ -1,3 +1,24 @@
+/* $Id$ */
+
+/***
+  This file is part of avahi.
+ 
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+ 
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+***/
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>
@@ -459,9 +480,7 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
 }
 
 static void add_default_entries(AvahiServer *s) {
-    gint length = 0;
     struct utsname utsname;
-    gchar *hinfo;
     AvahiAddress a;
     AvahiRecord *r;
     
@@ -484,7 +503,7 @@ static void add_default_entries(AvahiServer *s) {
 }
 
 AvahiServer *avahi_server_new(GMainContext *c) {
-    gchar *hn, *e;
+    gchar *hn;
     AvahiServer *s;
     
     static GSourceFuncs source_funcs = {
@@ -984,8 +1003,6 @@ void avahi_entry_group_free(AvahiEntryGroup *g) {
 }
 
 void avahi_entry_group_commit(AvahiEntryGroup *g) {
-    AvahiEntry *e;
-    
     g_assert(g);
     g_assert(!g->dead);
 

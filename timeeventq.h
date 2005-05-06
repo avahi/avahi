@@ -1,34 +1,34 @@
 #ifndef footimeeventqhfoo
 #define footimeeventqhfoo
 
-typedef struct _flxTimeEventQueue flxTimeEventQueue;
-typedef struct _flxTimeEvent flxTimeEvent;
+typedef struct _AvahiTimeEventQueue AvahiTimeEventQueue;
+typedef struct _AvahiTimeEvent AvahiTimeEvent;
 
 #include "prioq.h"
 
-struct _flxTimeEvent {
-    flxTimeEventQueue *queue;
-    flxPrioQueueNode *node;
+struct _AvahiTimeEvent {
+    AvahiTimeEventQueue *queue;
+    AvahiPrioQueueNode *node;
     GTimeVal expiry;
-    void (*callback)(flxTimeEvent *e, void *userdata);
+    void (*callback)(AvahiTimeEvent *e, void *userdata);
     void *userdata;
 };
 
-struct _flxTimeEventQueue {
+struct _AvahiTimeEventQueue {
     GSource source;
-    flxPrioQueue *prioq;
+    AvahiPrioQueue *prioq;
 };
 
-flxTimeEventQueue* flx_time_event_queue_new(GMainContext *context, gint priority);
-void flx_time_event_queue_free(flxTimeEventQueue *q);
+AvahiTimeEventQueue* avahi_time_event_queue_new(GMainContext *context, gint priority);
+void avahi_time_event_queue_free(AvahiTimeEventQueue *q);
 
-flxTimeEvent* flx_time_event_queue_add(flxTimeEventQueue *q, const GTimeVal *timeval, void (*callback)(flxTimeEvent *e, void *userdata), void *userdata);
-void flx_time_event_queue_remove(flxTimeEventQueue *q, flxTimeEvent *e);
+AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVal *timeval, void (*callback)(AvahiTimeEvent *e, void *userdata), void *userdata);
+void avahi_time_event_queue_remove(AvahiTimeEventQueue *q, AvahiTimeEvent *e);
 
-void flx_time_event_queue_update(flxTimeEventQueue *q, flxTimeEvent *e, const GTimeVal *timeval);
+void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, const GTimeVal *timeval);
 
-flxTimeEvent* flx_time_event_queue_root(flxTimeEventQueue *q);
-flxTimeEvent* flx_time_event_next(flxTimeEvent *e);
+AvahiTimeEvent* avahi_time_event_queue_root(AvahiTimeEventQueue *q);
+AvahiTimeEvent* avahi_time_event_next(AvahiTimeEvent *e);
 
 
 

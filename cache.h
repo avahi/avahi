@@ -3,8 +3,8 @@
 
 #include <glib.h>
 
-struct _flxCache;
-typedef struct _flxCache flxCache;
+struct _AvahiCache;
+typedef struct _AvahiCache AvahiCache;
 
 #include "prioq.h"
 #include "server.h"
@@ -12,55 +12,55 @@ typedef struct _flxCache flxCache;
 #include "timeeventq.h"
 
 typedef enum {
-    FLX_CACHE_VALID,
-    FLX_CACHE_EXPIRY1,
-    FLX_CACHE_EXPIRY2,
-    FLX_CACHE_EXPIRY3,
-    FLX_CACHE_FINAL
-} flxCacheEntryState;
+    AVAHI_CACHE_VALID,
+    AVAHI_CACHE_EXPIRY1,
+    AVAHI_CACHE_EXPIRY2,
+    AVAHI_CACHE_EXPIRY3,
+    AVAHI_CACHE_FINAL
+} AvahiCacheEntryState;
 
-typedef struct flxCacheEntry flxCacheEntry;
+typedef struct AvahiCacheEntry AvahiCacheEntry;
 
-struct flxCacheEntry {
-    flxCache *cache;
-    flxRecord *record;
+struct AvahiCacheEntry {
+    AvahiCache *cache;
+    AvahiRecord *record;
     GTimeVal timestamp;
     GTimeVal expiry;
     
-    flxAddress origin;
+    AvahiAddress origin;
 
-    flxCacheEntryState state;
-    flxTimeEvent *time_event;
+    AvahiCacheEntryState state;
+    AvahiTimeEvent *time_event;
 
-    FLX_LLIST_FIELDS(flxCacheEntry, by_key);
-    FLX_LLIST_FIELDS(flxCacheEntry, entry);
+    AVAHI_LLIST_FIELDS(AvahiCacheEntry, by_key);
+    AVAHI_LLIST_FIELDS(AvahiCacheEntry, entry);
 };
 
-struct _flxCache {
-    flxServer *server;
+struct _AvahiCache {
+    AvahiServer *server;
     
-    flxInterface *interface;
+    AvahiInterface *interface;
     
     GHashTable *hash_table;
 
-    FLX_LLIST_HEAD(flxCacheEntry, entries);
+    AVAHI_LLIST_HEAD(AvahiCacheEntry, entries);
 };
 
-flxCache *flx_cache_new(flxServer *server, flxInterface *interface);
-void flx_cache_free(flxCache *c);
+AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *interface);
+void avahi_cache_free(AvahiCache *c);
 
-flxCacheEntry *flx_cache_lookup_key(flxCache *c, flxKey *k);
-flxCacheEntry *flx_cache_lookup_record(flxCache *c, flxRecord *r);
+AvahiCacheEntry *avahi_cache_lookup_key(AvahiCache *c, AvahiKey *k);
+AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r);
 
-void flx_cache_update(flxCache *c, flxRecord *r, gboolean unique, const flxAddress *a);
+void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const AvahiAddress *a);
 
-void flx_cache_drop_record(flxCache *c,  flxRecord *r);
+void avahi_cache_drop_record(AvahiCache *c,  AvahiRecord *r);
 
-void flx_cache_dump(flxCache *c, FILE *f);
+void avahi_cache_dump(AvahiCache *c, FILE *f);
 
-typedef gpointer flxCacheWalkCallback(flxCache *c, flxKey *pattern, flxCacheEntry *e, gpointer userdata);
-gpointer flx_cache_walk(flxCache *c, flxKey *pattern, flxCacheWalkCallback cb, gpointer userdata);
+typedef gpointer AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, gpointer userdata);
+gpointer avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, gpointer userdata);
 
-gboolean flx_cache_entry_half_ttl(flxCache *c, flxCacheEntry *e);
+gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
 
 #endif

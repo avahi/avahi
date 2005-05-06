@@ -5,7 +5,7 @@
 
 #include "address.h"
 
-guint flx_address_get_size(const flxAddress *a) {
+guint avahi_address_get_size(const AvahiAddress *a) {
     g_assert(a);
 
     if (a->family == AF_INET)
@@ -16,31 +16,31 @@ guint flx_address_get_size(const flxAddress *a) {
     return 0;
 }
 
-gint flx_address_cmp(const flxAddress *a, const flxAddress *b) {
+gint avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b) {
     g_assert(a);
     g_assert(b);
     
     if (a->family != b->family)
         return -1;
 
-    return memcmp(a->data.data, b->data.data, flx_address_get_size(a));
+    return memcmp(a->data.data, b->data.data, avahi_address_get_size(a));
 }
 
-gchar *flx_address_snprint(char *s, guint length, const flxAddress *a) {
+gchar *avahi_address_snprint(char *s, guint length, const AvahiAddress *a) {
     g_assert(s);
     g_assert(length);
     g_assert(a);
     return (gchar*) inet_ntop(a->family, a->data.data, s, length);
 }
 
-gchar* flx_reverse_lookup_name_ipv4(const flxIPv4Address *a) {
+gchar* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a) {
     guint32 n = ntohl(a->address);
     g_assert(a);
 
     return g_strdup_printf("%u.%u.%u.%u.in-addr.arpa", n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
 }
 
-static gchar *reverse_lookup_name_ipv6(const flxIPv6Address *a, const gchar *suffix) {
+static gchar *reverse_lookup_name_ipv6(const AvahiIPv6Address *a, const gchar *suffix) {
     
     return g_strdup_printf("%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%s",
                            a->address[15] & 0xF,
@@ -78,15 +78,15 @@ static gchar *reverse_lookup_name_ipv6(const flxIPv6Address *a, const gchar *suf
                            suffix);
 }
 
-gchar *flx_reverse_lookup_name_ipv6_arpa(const flxIPv6Address *a) {
+gchar *avahi_reverse_lookup_name_ipv6_arpa(const AvahiIPv6Address *a) {
     return reverse_lookup_name_ipv6(a, "ip6.arpa");
 }
 
-gchar *flx_reverse_lookup_name_ipv6_int(const flxIPv6Address *a) {
+gchar *avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a) {
     return reverse_lookup_name_ipv6(a, "ip6.int");
 }
 
-flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr) {
+AvahiAddress *avahi_address_parse(const char *s, guchar family, AvahiAddress *ret_addr) {
     g_assert(ret_addr);
     g_assert(s);
 
@@ -98,7 +98,7 @@ flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr
     return ret_addr;
 }
 
-flxAddress *flx_address_from_sockaddr(const struct sockaddr* sa, flxAddress *ret_addr) {
+AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddress *ret_addr) {
     g_assert(sa);
     g_assert(ret_addr);
 
@@ -114,7 +114,7 @@ flxAddress *flx_address_from_sockaddr(const struct sockaddr* sa, flxAddress *ret
     return ret_addr;
 }
 
-guint16 flx_port_from_sockaddr(const struct sockaddr* sa) {
+guint16 avahi_port_from_sockaddr(const struct sockaddr* sa) {
     g_assert(sa);
 
     g_assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);

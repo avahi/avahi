@@ -7,37 +7,37 @@
 #include "address.h"
 
 enum {
-    FLX_DNS_TYPE_A = 0x01,
-    FLX_DNS_TYPE_NS = 0x02,
-    FLX_DNS_TYPE_CNAME = 0x05,
-    FLX_DNS_TYPE_SOA = 0x06,
-    FLX_DNS_TYPE_PTR = 0x0C,
-    FLX_DNS_TYPE_HINFO = 0x0D,
-    FLX_DNS_TYPE_MX = 0x0F,
-    FLX_DNS_TYPE_TXT = 0x10,
-    FLX_DNS_TYPE_AAAA = 0x1C,
-    FLX_DNS_TYPE_SRV = 0x21,
-    FLX_DNS_TYPE_ANY = 0xFF
+    AVAHI_DNS_TYPE_A = 0x01,
+    AVAHI_DNS_TYPE_NS = 0x02,
+    AVAHI_DNS_TYPE_CNAME = 0x05,
+    AVAHI_DNS_TYPE_SOA = 0x06,
+    AVAHI_DNS_TYPE_PTR = 0x0C,
+    AVAHI_DNS_TYPE_HINFO = 0x0D,
+    AVAHI_DNS_TYPE_MX = 0x0F,
+    AVAHI_DNS_TYPE_TXT = 0x10,
+    AVAHI_DNS_TYPE_AAAA = 0x1C,
+    AVAHI_DNS_TYPE_SRV = 0x21,
+    AVAHI_DNS_TYPE_ANY = 0xFF
 };
 
 enum {
-    FLX_DNS_CLASS_IN = 0x01,
-    FLX_DNS_CACHE_FLUSH = 0x8000,
-    FLX_DNS_UNICAST_RESPONSE = 0x8000
+    AVAHI_DNS_CLASS_IN = 0x01,
+    AVAHI_DNS_CACHE_FLUSH = 0x8000,
+    AVAHI_DNS_UNICAST_RESPONSE = 0x8000
 };
 
-#define FLX_DEFAULT_TTL (120*60)
+#define AVAHI_DEFAULT_TTL (120*60)
 
 typedef struct {
     guint ref;
     gchar *name;
     guint16 class;
     guint16 type;
-} flxKey;
+} AvahiKey;
 
 typedef struct  {
     guint ref;
-    flxKey *key;
+    AvahiKey *key;
     
     guint32 ttl;
 
@@ -64,54 +64,54 @@ typedef struct  {
         } hinfo;
 
         struct {
-            flxStringList *string_list;
+            AvahiStringList *string_list;
         } txt;
 
         struct {
-            flxIPv4Address address;
+            AvahiIPv4Address address;
         } a;
 
         struct {
-            flxIPv6Address address;
+            AvahiIPv6Address address;
         } aaaa;
 
     } data;
     
-} flxRecord;
+} AvahiRecord;
 
-flxKey *flx_key_new(const gchar *name, guint16 class, guint16 type);
-flxKey *flx_key_ref(flxKey *k);
-void flx_key_unref(flxKey *k);
+AvahiKey *avahi_key_new(const gchar *name, guint16 class, guint16 type);
+AvahiKey *avahi_key_ref(AvahiKey *k);
+void avahi_key_unref(AvahiKey *k);
 
-gboolean flx_key_equal(const flxKey *a, const flxKey *b);  /* Treat FLX_DNS_CLASS_ANY like any other type */
-gboolean flx_key_pattern_match(const flxKey *pattern, const flxKey *k); /* If pattern.type is FLX_DNS_CLASS_ANY, k.type is ignored */
+gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b);  /* Treat AVAHI_DNS_CLASS_ANY like any other type */
+gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k); /* If pattern.type is AVAHI_DNS_CLASS_ANY, k.type is ignored */
 
-gboolean flx_key_is_pattern(const flxKey *k);
+gboolean avahi_key_is_pattern(const AvahiKey *k);
 
-guint flx_key_hash(const flxKey *k);
+guint avahi_key_hash(const AvahiKey *k);
 
-flxRecord *flx_record_new(flxKey *k);
-flxRecord *flx_record_new_full(const gchar *name, guint16 class, guint16 type);
-flxRecord *flx_record_ref(flxRecord *r);
-void flx_record_unref(flxRecord *r);
+AvahiRecord *avahi_record_new(AvahiKey *k);
+AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type);
+AvahiRecord *avahi_record_ref(AvahiRecord *r);
+void avahi_record_unref(AvahiRecord *r);
 
-const gchar *flx_dns_class_to_string(guint16 class);
-const gchar *flx_dns_type_to_string(guint16 type);
+const gchar *avahi_dns_class_to_string(guint16 class);
+const gchar *avahi_dns_type_to_string(guint16 type);
 
-gchar *flx_key_to_string(const flxKey *k); /* g_free() the result! */
-gchar *flx_record_to_string(const flxRecord *r);  /* g_free() the result! */
+gchar *avahi_key_to_string(const AvahiKey *k); /* g_free() the result! */
+gchar *avahi_record_to_string(const AvahiRecord *r);  /* g_free() the result! */
 
-gboolean flx_record_equal_no_ttl(const flxRecord *a, const flxRecord *b);
+gboolean avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b);
 
-flxRecord *flx_record_copy(flxRecord *r);
+AvahiRecord *avahi_record_copy(AvahiRecord *r);
 
 /* returns a maximum estimate for the space that is needed to store
  * this key in a DNS packet */
-guint flx_key_get_estimate_size(flxKey *k);
+guint avahi_key_get_estimate_size(AvahiKey *k);
 
 /* ditto */
-guint flx_record_get_estimate_size(flxRecord *r);
+guint avahi_record_get_estimate_size(AvahiRecord *r);
 
-gint flx_record_lexicographical_compare(flxRecord *a, flxRecord *b);
+gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
 
 #endif

@@ -7,34 +7,34 @@
 
 typedef struct {
     guint32 address;
-} flxIPv4Address;
+} AvahiIPv4Address;
 
 typedef struct {
     guint8 address[16];
-} flxIPv6Address;
+} AvahiIPv6Address;
 
 typedef struct {
     guchar family;
 
     union {
-        flxIPv6Address ipv6;
-        flxIPv4Address ipv4;
+        AvahiIPv6Address ipv6;
+        AvahiIPv4Address ipv4;
         guint8 data[0];
     } data;
-} flxAddress;
+} AvahiAddress;
 
-guint flx_address_get_size(const flxAddress *a);
-gint flx_address_cmp(const flxAddress *a, const flxAddress *b);
+guint avahi_address_get_size(const AvahiAddress *a);
+gint avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b);
 
-gchar *flx_address_snprint(char *ret_s, guint length, const flxAddress *a);
+gchar *avahi_address_snprint(char *ret_s, guint length, const AvahiAddress *a);
 
-flxAddress *flx_address_parse(const char *s, guchar family, flxAddress *ret_addr);
+AvahiAddress *avahi_address_parse(const char *s, guchar family, AvahiAddress *ret_addr);
 
-flxAddress *flx_address_from_sockaddr(const struct sockaddr* sa, flxAddress *ret_addr);
-guint16 flx_port_from_sockaddr(const struct sockaddr* sa);
+AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddress *ret_addr);
+guint16 avahi_port_from_sockaddr(const struct sockaddr* sa);
 
-gchar* flx_reverse_lookup_name_ipv4(const flxIPv4Address *a);
-gchar* flx_reverse_lookup_name_ipv6_arpa(const flxIPv6Address *a);
-gchar* flx_reverse_lookup_name_ipv6_int(const flxIPv6Address *a);
+gchar* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a);
+gchar* avahi_reverse_lookup_name_ipv6_arpa(const AvahiIPv6Address *a);
+gchar* avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a);
 
 #endif

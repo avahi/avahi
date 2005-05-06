@@ -2,30 +2,30 @@
 #define foosubscribehfoo
 
 #include "llist.h"
-#include "flx.h"
+#include "Avahi.h"
 #include "subscribe.h"
 #include "timeeventq.h"
 #include "server.h"
 
-struct _flxSubscription {
-    flxServer *server;
-    flxKey *key;
+struct _AvahiSubscription {
+    AvahiServer *server;
+    AvahiKey *key;
     gint interface;
     guchar protocol;
     gint n_query;
     guint sec_delay;
 
-    flxTimeEvent *time_event;
+    AvahiTimeEvent *time_event;
 
-    flxSubscriptionCallback callback;
+    AvahiSubscriptionCallback callback;
     gpointer userdata;
 
-    FLX_LLIST_FIELDS(flxSubscription, subscriptions);
-    FLX_LLIST_FIELDS(flxSubscription, by_key);
+    AVAHI_LLIST_FIELDS(AvahiSubscription, subscriptions);
+    AVAHI_LLIST_FIELDS(AvahiSubscription, by_key);
 };
 
-void flx_subscription_notify(flxServer *s, flxInterface *i, flxRecord *record, flxSubscriptionEvent event);
+void avahi_subscription_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiSubscriptionEvent event);
 
-gboolean flx_is_subscribed(flxServer *s, flxKey *k);
+gboolean avahi_is_subscribed(AvahiServer *s, AvahiKey *k);
 
 #endif

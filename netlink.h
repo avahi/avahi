@@ -7,14 +7,14 @@
 
 #include <glib.h>
 
-struct _flxNetlink;
-typedef struct _flxNetlink flxNetlink;
+struct _AvahiNetlink;
+typedef struct _AvahiNetlink AvahiNetlink;
 
-flxNetlink *flx_netlink_new(GMainContext *c, gint priority, guint32 groups, void (*cb) (flxNetlink *n, struct nlmsghdr *m, gpointer userdata), gpointer userdata);
-void flx_netlink_free(flxNetlink *n);
+AvahiNetlink *avahi_netlink_new(GMainContext *c, gint priority, guint32 groups, void (*cb) (AvahiNetlink *n, struct nlmsghdr *m, gpointer userdata), gpointer userdata);
+void avahi_netlink_free(AvahiNetlink *n);
 
-int flx_netlink_send(flxNetlink *n, struct nlmsghdr *m, guint *ret_seq);
+int avahi_netlink_send(AvahiNetlink *n, struct nlmsghdr *m, guint *ret_seq);
 
-gboolean flx_netlink_work(flxNetlink *n, gboolean block);
+gboolean avahi_netlink_work(AvahiNetlink *n, gboolean block);
 
 #endif

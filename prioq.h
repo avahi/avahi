@@ -3,33 +3,33 @@
 
 #include <glib.h>
 
-struct _flxPrioQueue;
-typedef struct _flxPrioQueue flxPrioQueue;
+struct _AvahiPrioQueue;
+typedef struct _AvahiPrioQueue AvahiPrioQueue;
 
-struct _flxPrioQueueNode;
-typedef struct _flxPrioQueueNode flxPrioQueueNode;
+struct _AvahiPrioQueueNode;
+typedef struct _AvahiPrioQueueNode AvahiPrioQueueNode;
 
-struct _flxPrioQueue {
-    flxPrioQueueNode *root, *last;
+struct _AvahiPrioQueue {
+    AvahiPrioQueueNode *root, *last;
     
     guint n_nodes;
     gint (*compare) (gconstpointer a, gconstpointer b);
 };
 
-struct _flxPrioQueueNode {
-    flxPrioQueue *queue;
+struct _AvahiPrioQueueNode {
+    AvahiPrioQueue *queue;
     gpointer data;
     guint x, y;
 
-    flxPrioQueueNode *left, *right, *parent, *next, *prev;
+    AvahiPrioQueueNode *left, *right, *parent, *next, *prev;
 };
 
-flxPrioQueue* flx_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b));
-void flx_prio_queue_free(flxPrioQueue *q);
+AvahiPrioQueue* avahi_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b));
+void avahi_prio_queue_free(AvahiPrioQueue *q);
 
-flxPrioQueueNode* flx_prio_queue_put(flxPrioQueue *q, gpointer data);
-void flx_prio_queue_remove(flxPrioQueue *q, flxPrioQueueNode *n);
+AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, gpointer data);
+void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n);
 
-void flx_prio_queue_shuffle(flxPrioQueue *q, flxPrioQueueNode *n);
+void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n);
 
 #endif

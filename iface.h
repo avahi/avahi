@@ -3,10 +3,10 @@
 
 #include <glib.h>
 
-typedef struct _flxInterfaceMonitor flxInterfaceMonitor;
-typedef struct _flxInterfaceAddress flxInterfaceAddress;
-typedef struct _flxInterface flxInterface;
-typedef struct _flxHwInterface flxHwInterface;
+typedef struct _AvahiInterfaceMonitor AvahiInterfaceMonitor;
+typedef struct _AvahiInterfaceAddress AvahiInterfaceAddress;
+typedef struct _AvahiInterface AvahiInterface;
+typedef struct _AvahiHwInterface AvahiHwInterface;
 
 #include "address.h"
 #include "server.h"
@@ -17,13 +17,13 @@ typedef struct _flxHwInterface flxHwInterface;
 #include "dns.h"
 #include "announce.h"
 
-struct _flxInterfaceMonitor {
-    flxServer *server;
-    flxNetlink *netlink;
+struct _AvahiInterfaceMonitor {
+    AvahiServer *server;
+    AvahiNetlink *netlink;
     GHashTable *hash_table;
 
-    FLX_LLIST_HEAD(flxInterface, interfaces);
-    FLX_LLIST_HEAD(flxHwInterface, hw_interfaces);
+    AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
+    AVAHI_LLIST_HEAD(AvahiHwInterface, hw_interfaces);
     
     guint query_addr_seq, query_link_seq;
     
@@ -34,69 +34,69 @@ struct _flxInterfaceMonitor {
     } list;
 };
 
-struct _flxHwInterface {
-    FLX_LLIST_FIELDS(flxHwInterface, hardware);
-    flxInterfaceMonitor *monitor;
+struct _AvahiHwInterface {
+    AVAHI_LLIST_FIELDS(AvahiHwInterface, hardware);
+    AvahiInterfaceMonitor *monitor;
 
     gchar *name;
     gint index;
     guint flags;
     guint mtu;
 
-    FLX_LLIST_HEAD(flxInterface, interfaces);
+    AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
 };
 
-struct _flxInterface {
-    FLX_LLIST_FIELDS(flxInterface, interface);
-    FLX_LLIST_FIELDS(flxInterface, by_hardware);
-    flxInterfaceMonitor *monitor;
+struct _AvahiInterface {
+    AVAHI_LLIST_FIELDS(AvahiInterface, interface);
+    AVAHI_LLIST_FIELDS(AvahiInterface, by_hardware);
+    AvahiInterfaceMonitor *monitor;
     
-    flxHwInterface *hardware;
+    AvahiHwInterface *hardware;
     guchar protocol;
     gboolean announcing;
 
-    flxCache *cache;
-    flxPacketScheduler *scheduler;
+    AvahiCache *cache;
+    AvahiPacketScheduler *scheduler;
 
-    FLX_LLIST_HEAD(flxInterfaceAddress, addresses);
-    FLX_LLIST_HEAD(flxAnnouncement, announcements);
+    AVAHI_LLIST_HEAD(AvahiInterfaceAddress, addresses);
+    AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
 };
 
-struct _flxInterfaceAddress {
-    FLX_LLIST_FIELDS(flxInterfaceAddress, address);
-    flxInterfaceMonitor *monitor;
+struct _AvahiInterfaceAddress {
+    AVAHI_LLIST_FIELDS(AvahiInterfaceAddress, address);
+    AvahiInterfaceMonitor *monitor;
     
     guchar flags;
     guchar scope;
-    flxAddress address;
+    AvahiAddress address;
     
-    flxEntryGroup *entry_group;
-    flxInterface *interface;
+    AvahiEntryGroup *entry_group;
+    AvahiInterface *interface;
 };
 
-flxInterfaceMonitor *flx_interface_monitor_new(flxServer *server);
-void flx_interface_monitor_free(flxInterfaceMonitor *m);
+AvahiInterfaceMonitor *avahi_interface_monitor_new(AvahiServer *server);
+void avahi_interface_monitor_free(AvahiInterfaceMonitor *m);
 
-void flx_interface_monitor_sync(flxInterfaceMonitor *m);
+void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m);
 
-flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index, guchar protocol);
-flxHwInterface* flx_interface_monitor_get_hw_interface(flxInterfaceMonitor *m, gint index);
+AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, gint index, guchar protocol);
+AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, gint index);
 
-void flx_interface_send_packet(flxInterface *i, flxDnsPacket *p);
+void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 
-void flx_interface_post_query(flxInterface *i, flxKey *k, gboolean immediately);
-void flx_interface_post_probe(flxInterface *i, flxRecord *p, gboolean immediately);
-void flx_interface_post_response(flxInterface *i, const flxAddress *a, flxRecord *record, gboolean flush_cache, gboolean immediately);
+void avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean immediately);
+void avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
+void avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
 
-void flx_dump_caches(flxInterfaceMonitor *m, FILE *f);
+void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f);
 
-gboolean flx_interface_relevant(flxInterface *i);
-gboolean flx_interface_address_relevant(flxInterfaceAddress *a);
+gboolean avahi_interface_relevant(AvahiInterface *i);
+gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a);
 
-gboolean flx_interface_match(flxInterface *i, gint index, guchar protocol);
+gboolean avahi_interface_match(AvahiInterface *i, gint index, guchar protocol);
 
-typedef void (*flxInterfaceMonitorWalkCallback)(flxInterfaceMonitor *m, flxInterface *i, gpointer userdata);
+typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata);
     
-void flx_interface_monitor_walk(flxInterfaceMonitor *m, gint index, guchar protocol, flxInterfaceMonitorWalkCallback callback, gpointer userdata);
+void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint index, guchar protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata);
 
 #endif

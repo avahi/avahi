@@ -3,24 +3,24 @@
 
 #include <glib.h>
 
-gchar *flx_normalize_name(const gchar *s); /* g_free() the result! */
-gchar *flx_get_host_name(void); /* g_free() the result! */
+gchar *avahi_normalize_name(const gchar *s); /* g_free() the result! */
+gchar *avahi_get_host_name(void); /* g_free() the result! */
 
-gint flx_timeval_compare(const GTimeVal *a, const GTimeVal *b);
-glong flx_timeval_diff(const GTimeVal *a, const GTimeVal *b);
+gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b);
+glong avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b);
 
-gint flx_set_cloexec(gint fd);
-gint flx_set_nonblock(gint fd);
-gint flx_wait_for_write(gint fd);
+gint avahi_set_cloexec(gint fd);
+gint avahi_set_nonblock(gint fd);
+gint avahi_wait_for_write(gint fd);
 
-GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter);
+GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter);
 
-gint flx_age(const GTimeVal *a);
+gint avahi_age(const GTimeVal *a);
 
-guint flx_domain_hash(const gchar *p);
-gboolean flx_domain_cmp(const gchar *a, const gchar *b);
-gboolean flx_domain_equal(const gchar *a, const gchar *b);
+guint avahi_domain_hash(const gchar *p);
+gboolean avahi_domain_cmp(const gchar *a, const gchar *b);
+gboolean avahi_domain_equal(const gchar *a, const gchar *b);
 
-void flx_hexdump(gconstpointer p, guint size);
+void avahi_hexdump(gconstpointer p, guint size);
 
 #endif

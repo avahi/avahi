@@ -4,17 +4,17 @@
 
 #include "netlink.h"
 
-struct _flxNetlink {
+struct _AvahiNetlink {
     GMainContext *context;
     gint fd;
     guint seq;
     GPollFD poll_fd;
     GSource *source;
-    void (*callback) (flxNetlink *nl, struct nlmsghdr *n, gpointer userdata);
+    void (*callback) (AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata);
     gpointer userdata;
 };
 
-gboolean flx_netlink_work(flxNetlink *nl, gboolean block) {
+gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
     g_assert(nl);
 
     for (;;) {
@@ -58,29 +58,29 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
 }
 
 static gboolean check_func(GSource *source) {
-    flxNetlink* nl;
+    AvahiNetlink* nl;
     g_assert(source);
 
-    nl = *((flxNetlink**) (((guint8*) source) + sizeof(GSource)));
+    nl = *((AvahiNetlink**) (((guint8*) source) + sizeof(GSource)));
     g_assert(nl);
     
     return nl->poll_fd.revents & (G_IO_IN|G_IO_HUP|G_IO_ERR);
 }
 
 static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
-    flxNetlink* nl;
+    AvahiNetlink* nl;
     g_assert(source);
 
-    nl = *((flxNetlink**) (((guint8*) source) + sizeof(GSource)));
+    nl = *((AvahiNetlink**) (((guint8*) source) + sizeof(GSource)));
     g_assert(nl);
     
-    return flx_netlink_work(nl, FALSE);
+    return avahi_netlink_work(nl, FALSE);
 }
 
-flxNetlink *flx_netlink_new(GMainContext *context, gint priority, guint32 groups, void (*cb) (flxNetlink *nl, struct nlmsghdr *n, gpointer userdata), gpointer userdata) {
+AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata), gpointer userdata) {
     int fd;
     struct sockaddr_nl addr;
-    flxNetlink *nl;
+    AvahiNetlink *nl;
 
     static GSourceFuncs source_funcs = {
         prepare_func,
@@ -110,7 +110,7 @@ flxNetlink *flx_netlink_new(GMainContext *context, gint priority, guint32 groups
         return NULL;
     }
 
-    nl = g_new(flxNetlink, 1);
+    nl = g_new(AvahiNetlink, 1);
     nl->context = context;
     g_main_context_ref(context);
     nl->fd = fd;
@@ -118,8 +118,8 @@ flxNetlink *flx_netlink_new(GMainContext *context, gint priority, guint32 groups
     nl->callback = cb;
     nl->userdata = userdata;
 
-    nl->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(flxNetlink*));
-    *((flxNetlink**) (((guint8*) nl->source) + sizeof(GSource))) = nl;
+    nl->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(AvahiNetlink*));
+    *((AvahiNetlink**) (((guint8*) nl->source) + sizeof(GSource))) = nl;
 
     g_source_set_priority(nl->source, priority);
     
@@ -133,7 +133,7 @@ flxNetlink *flx_netlink_new(GMainContext *context, gint priority, guint32 groups
     return nl;
 }
 
-void flx_netlink_free(flxNetlink *nl) {
+void avahi_netlink_free(AvahiNetlink *nl) {
     g_assert(nl);
     
     g_source_destroy(nl->source);
@@ -143,7 +143,7 @@ void flx_netlink_free(flxNetlink *nl) {
     g_free(nl);
 }
 
-int flx_netlink_send(flxNetlink *nl, struct nlmsghdr *m, guint *ret_seq) {
+int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, guint *ret_seq) {
     g_assert(nl);
     g_assert(m);
     

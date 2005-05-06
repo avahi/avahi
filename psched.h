@@ -1,78 +1,78 @@
 #ifndef foopschedhfoo
 #define foopschedhfoo
 
-typedef struct _flxQueryJob flxQueryJob;
-typedef struct _flxResponseJob flxResponseJob;
-typedef struct _flxPacketScheduler flxPacketScheduler;
-typedef struct _flxKnownAnswer flxKnownAnswer;
-typedef struct _flxProbeJob flxProbeJob;
+typedef struct _AvahiQueryJob AvahiQueryJob;
+typedef struct _AvahiResponseJob AvahiResponseJob;
+typedef struct _AvahiPacketScheduler AvahiPacketScheduler;
+typedef struct _AvahiKnownAnswer AvahiKnownAnswer;
+typedef struct _AvahiProbeJob AvahiProbeJob;
 
 #include "timeeventq.h"
 #include "rr.h"
 #include "llist.h"
 #include "iface.h"
 
-struct _flxQueryJob {
-    flxPacketScheduler *scheduler;
-    flxTimeEvent *time_event;
-    flxKey *key;
+struct _AvahiQueryJob {
+    AvahiPacketScheduler *scheduler;
+    AvahiTimeEvent *time_event;
+    AvahiKey *key;
     gboolean done;
     GTimeVal delivery;
-    FLX_LLIST_FIELDS(flxQueryJob, jobs);
+    AVAHI_LLIST_FIELDS(AvahiQueryJob, jobs);
 };
 
-struct _flxResponseJob {
-    flxPacketScheduler *scheduler;
-    flxTimeEvent *time_event;
-    flxRecord *record;
-    flxAddress address;
+struct _AvahiResponseJob {
+    AvahiPacketScheduler *scheduler;
+    AvahiTimeEvent *time_event;
+    AvahiRecord *record;
+    AvahiAddress address;
     gboolean address_valid;
     gboolean done;
     GTimeVal delivery;
     gboolean flush_cache;
-    FLX_LLIST_FIELDS(flxResponseJob, jobs);
+    AVAHI_LLIST_FIELDS(AvahiResponseJob, jobs);
 };
 
-struct _flxKnownAnswer {
-    flxPacketScheduler *scheduler;
-    flxRecord *record;
+struct _AvahiKnownAnswer {
+    AvahiPacketScheduler *scheduler;
+    AvahiRecord *record;
 
-    FLX_LLIST_FIELDS(flxKnownAnswer, known_answer);
+    AVAHI_LLIST_FIELDS(AvahiKnownAnswer, known_answer);
 };
 
-struct _flxProbeJob {
-    flxPacketScheduler *scheduler;
-    flxTimeEvent *time_event;
-    flxRecord *record;
+struct _AvahiProbeJob {
+    AvahiPacketScheduler *scheduler;
+    AvahiTimeEvent *time_event;
+    AvahiRecord *record;
 
     gboolean chosen; /* Use for packet assembling */
     GTimeVal delivery;
     
-    FLX_LLIST_FIELDS(flxProbeJob, jobs);
+    AVAHI_LLIST_FIELDS(AvahiProbeJob, jobs);
 };
 
-struct _flxPacketScheduler {
-    flxServer *server;
+struct _AvahiPacketScheduler {
+    AvahiServer *server;
     
-    flxInterface *interface;
+    AvahiInterface *interface;
 
-    FLX_LLIST_HEAD(flxQueryJob, query_jobs);
-    FLX_LLIST_HEAD(flxResponseJob, response_jobs);
-    FLX_LLIST_HEAD(flxKnownAnswer, known_answers);
-    FLX_LLIST_HEAD(flxProbeJob, probe_jobs);
+    AVAHI_LLIST_HEAD(AvahiQueryJob, query_jobs);
+    AVAHI_LLIST_HEAD(AvahiResponseJob, response_jobs);
+    AVAHI_LLIST_HEAD(AvahiKnownAnswer, known_answers);
+    AVAHI_LLIST_HEAD(AvahiProbeJob, probe_jobs);
 };
 
-flxPacketScheduler *flx_packet_scheduler_new(flxServer *server, flxInterface *i);
-void flx_packet_scheduler_free(flxPacketScheduler *s);
+AvahiPacketScheduler *avahi_packet_scheduler_new(AvahiServer *server, AvahiInterface *i);
+void avahi_packet_scheduler_free(AvahiPacketScheduler *s);
 
-void flx_packet_scheduler_post_query(flxPacketScheduler *s, flxKey *key, gboolean immediately);
-void flx_packet_scheduler_post_response(flxPacketScheduler *s, const flxAddress *a, flxRecord *record, gboolean flush_cache, gboolean immediately);
-void flx_packet_scheduler_post_probe(flxPacketScheduler *s, flxRecord *record, gboolean immediately);
+void avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately);
+void avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
+void avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *record, gboolean immediately);
 
-void flx_packet_scheduler_incoming_query(flxPacketScheduler *s, flxKey *key);
-void flx_packet_scheduler_incoming_response(flxPacketScheduler *s, flxRecord *record);
-void flx_packet_scheduler_incoming_known_answer(flxPacketScheduler *s, flxRecord *record, const flxAddress *a);
+void avahi_packet_scheduler_incoming_query(AvahiPacketScheduler *s, AvahiKey *key);
+void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record);
+void avahi_packet_scheduler_incoming_known_answer(AvahiPacketScheduler *s, AvahiRecord *record, const AvahiAddress *a);
 
-void flx_packet_scheduler_flush_responses(flxPacketScheduler *s);
+void avahi_packet_scheduler_flush_responses(AvahiPacketScheduler *s);
 
 #endif

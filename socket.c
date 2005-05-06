@@ -21,7 +21,7 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     memset(ret_sa, 0, sizeof(struct sockaddr_in));
     
     ret_sa->sin_family = AF_INET;
-    ret_sa->sin_port = htons(FLX_MDNS_PORT);
+    ret_sa->sin_port = htons(AVAHI_MDNS_PORT);
     inet_pton(AF_INET, "224.0.0.251", &ret_sa->sin_addr);
 }
 
@@ -32,11 +32,11 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
     memset(ret_sa, 0, sizeof(struct sockaddr_in6));
     
     ret_sa->sin6_family = AF_INET6;
-    ret_sa->sin6_port = htons(FLX_MDNS_PORT);
+    ret_sa->sin6_port = htons(AVAHI_MDNS_PORT);
     inet_pton(AF_INET6, "ff02::fb", &ret_sa->sin6_addr);
 }
 
-int flx_mdns_mcast_join_ipv4 (int index, int fd)
+int avahi_mdns_mcast_join_ipv4 (int index, int fd)
 {
     struct ip_mreqn mreq; 
     struct sockaddr_in sa;
@@ -55,7 +55,7 @@ int flx_mdns_mcast_join_ipv4 (int index, int fd)
     return 0;
 }
 
-int flx_mdns_mcast_join_ipv6 (int index, int fd)
+int avahi_mdns_mcast_join_ipv6 (int index, int fd)
 {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
@@ -74,7 +74,7 @@ int flx_mdns_mcast_join_ipv6 (int index, int fd)
     return 0;
 }
 
-int flx_mdns_mcast_leave_ipv4 (int index, int fd)
+int avahi_mdns_mcast_leave_ipv4 (int index, int fd)
 {
     struct ip_mreqn mreq; 
     struct sockaddr_in sa;
@@ -93,7 +93,7 @@ int flx_mdns_mcast_leave_ipv4 (int index, int fd)
     return 0;
 }
 
-int flx_mdns_mcast_leave_ipv6 (int index, int fd)
+int avahi_mdns_mcast_leave_ipv6 (int index, int fd)
 {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
@@ -112,7 +112,7 @@ int flx_mdns_mcast_leave_ipv6 (int index, int fd)
     return 0;
 }
 
-gint flx_open_socket_ipv4(void) {
+gint avahi_open_socket_ipv4(void) {
     struct sockaddr_in sa, local;
     int fd = -1, ttl, yes;
         
@@ -148,7 +148,7 @@ gint flx_open_socket_ipv4(void) {
     
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
-    local.sin_port = htons(FLX_MDNS_PORT);
+    local.sin_port = htons(AVAHI_MDNS_PORT);
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         g_warning("bind() failed: %s\n", strerror(errno));
@@ -167,12 +167,12 @@ gint flx_open_socket_ipv4(void) {
         goto fail;
     }
     
-    if (flx_set_cloexec(fd) < 0) {
+    if (avahi_set_cloexec(fd) < 0) {
         g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
         goto fail;
     }
     
-    if (flx_set_nonblock(fd) < 0) {
+    if (avahi_set_nonblock(fd) < 0) {
         g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -186,7 +186,7 @@ fail:
     return -1;
 }
 
-gint flx_open_socket_ipv6(void) {
+gint avahi_open_socket_ipv6(void) {
     struct sockaddr_in6 sa, local;
     int fd = -1, ttl, yes;
 
@@ -229,7 +229,7 @@ gint flx_open_socket_ipv6(void) {
 
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
-    local.sin6_port = htons(FLX_MDNS_PORT);
+    local.sin6_port = htons(AVAHI_MDNS_PORT);
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         g_warning("bind() failed: %s\n", strerror(errno));
@@ -248,12 +248,12 @@ gint flx_open_socket_ipv6(void) {
         goto fail;
     }
     
-    if (flx_set_cloexec(fd) < 0) {
+    if (avahi_set_cloexec(fd) < 0) {
         g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
         goto fail;
     }
     
-    if (flx_set_nonblock(fd) < 0) {
+    if (avahi_set_nonblock(fd) < 0) {
         g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
         goto fail;
     }
@@ -281,14 +281,14 @@ static gint sendmsg_loop(gint fd, struct msghdr *msg, gint flags) {
             return -1;
         }
         
-        if (flx_wait_for_write(fd) < 0)
+        if (avahi_wait_for_write(fd) < 0)
             return -1;
     }
 
     return 0;
 }
 
-gint flx_send_dns_packet_ipv4(gint fd, gint interface, flxDnsPacket *p) {
+gint avahi_send_dns_packet_ipv4(gint fd, gint interface, AvahiDnsPacket *p) {
     struct sockaddr_in sa;
     struct msghdr msg;
     struct iovec io;
@@ -299,12 +299,12 @@ gint flx_send_dns_packet_ipv4(gint fd, gint interface, flxDnsPacket *p) {
 
     g_assert(fd >= 0);
     g_assert(p);
-    g_assert(flx_dns_packet_check_valid(p) >= 0);
+    g_assert(avahi_dns_packet_check_valid(p) >= 0);
 
     mdns_mcast_group_ipv4(&sa);
 
     memset(&io, 0, sizeof(io));
-    io.iov_base = FLX_DNS_PACKET_DATA(p);
+    io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->size;
 
     memset(cmsg_data, 0, sizeof(cmsg_data));
@@ -328,7 +328,7 @@ gint flx_send_dns_packet_ipv4(gint fd, gint interface, flxDnsPacket *p) {
     return sendmsg_loop(fd, &msg, MSG_DONTROUTE);
 }
 
-gint flx_send_dns_packet_ipv6(gint fd, gint interface, flxDnsPacket *p) {
+gint avahi_send_dns_packet_ipv6(gint fd, gint interface, AvahiDnsPacket *p) {
     struct sockaddr_in6 sa;
     struct msghdr msg;
     struct iovec io;
@@ -339,12 +339,12 @@ gint flx_send_dns_packet_ipv6(gint fd, gint interface, flxDnsPacket *p) {
 
     g_assert(fd >= 0);
     g_assert(p);
-    g_assert(flx_dns_packet_check_valid(p) >= 0);
+    g_assert(avahi_dns_packet_check_valid(p) >= 0);
 
     mdns_mcast_group_ipv6(&sa);
 
     memset(&io, 0, sizeof(io));
-    io.iov_base = FLX_DNS_PACKET_DATA(p);
+    io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->size;
 
     memset(cmsg_data, 0, sizeof(cmsg_data));
@@ -368,8 +368,8 @@ gint flx_send_dns_packet_ipv6(gint fd, gint interface, flxDnsPacket *p) {
     return sendmsg_loop(fd, &msg, MSG_DONTROUTE);
 }
 
-flxDnsPacket* flx_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint *ret_iface, guint8* ret_ttl) {
-    flxDnsPacket *p= NULL;
+AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint *ret_iface, guint8* ret_ttl) {
+    AvahiDnsPacket *p= NULL;
     struct msghdr msg;
     struct iovec io;
     uint8_t aux[64];
@@ -382,9 +382,9 @@ flxDnsPacket* flx_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
-    p = flx_dns_packet_new(0);
+    p = avahi_dns_packet_new(0);
 
-    io.iov_base = FLX_DNS_PACKET_DATA(p);
+    io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->max_size;
     
     memset(&msg, 0, sizeof(msg));
@@ -422,13 +422,13 @@ flxDnsPacket* flx_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint
 
 fail:
     if (p)
-        flx_dns_packet_free(p);
+        avahi_dns_packet_free(p);
 
     return NULL;
 }
 
-flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gint *ret_iface, guint8* ret_ttl) {
-    flxDnsPacket *p = NULL;
+AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gint *ret_iface, guint8* ret_ttl) {
+    AvahiDnsPacket *p = NULL;
     struct msghdr msg;
     struct iovec io;
     uint8_t aux[64];
@@ -441,9 +441,9 @@ flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gin
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
-    p = flx_dns_packet_new(0);
+    p = avahi_dns_packet_new(0);
 
-    io.iov_base = FLX_DNS_PACKET_DATA(p);
+    io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->max_size;
     
     memset(&msg, 0, sizeof(msg));
@@ -481,7 +481,7 @@ flxDnsPacket* flx_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gin
 
 fail:
     if (p)
-        flx_dns_packet_free(p);
+        avahi_dns_packet_free(p);
 
     return NULL;
 }

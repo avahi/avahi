@@ -7,7 +7,7 @@
 
 #include "util.h"
 
-gchar *flx_get_host_name(void) {
+gchar *avahi_get_host_name(void) {
 #ifdef HOST_NAME_MAX
     char t[HOST_NAME_MAX];
 #else
@@ -15,10 +15,10 @@ gchar *flx_get_host_name(void) {
 #endif
     gethostname(t, sizeof(t));
     t[sizeof(t)-1] = 0;
-    return flx_normalize_name(t);
+    return avahi_normalize_name(t);
 }
 
-gchar *flx_normalize_name(const gchar *s) {
+gchar *avahi_normalize_name(const gchar *s) {
     size_t l;
     g_assert(s);
 
@@ -33,7 +33,7 @@ gchar *flx_normalize_name(const gchar *s) {
     return g_strdup_printf("%s.", s);
 }
 
-gint flx_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
+gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
     g_assert(a);
     g_assert(b);
 
@@ -52,18 +52,18 @@ gint flx_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
     return 0;
 }
 
-glong flx_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
+glong avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
     g_assert(a);
     g_assert(b);
 
-    if (flx_timeval_compare(a, b) < 0)
-        return flx_timeval_diff(b, a);
+    if (avahi_timeval_compare(a, b) < 0)
+        return avahi_timeval_diff(b, a);
 
     return ((glong) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
 }
 
 
-gint flx_set_cloexec(gint fd) {
+gint avahi_set_cloexec(gint fd) {
     gint n;
 
     g_assert(fd >= 0);
@@ -77,7 +77,7 @@ gint flx_set_cloexec(gint fd) {
     return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
 }
 
-gint flx_set_nonblock(gint fd) {
+gint avahi_set_nonblock(gint fd) {
     gint n;
 
     g_assert(fd >= 0);
@@ -91,7 +91,7 @@ gint flx_set_nonblock(gint fd) {
     return fcntl(fd, F_SETFL, n|O_NONBLOCK);
 }
 
-gint flx_wait_for_write(gint fd) {
+gint avahi_wait_for_write(gint fd) {
     fd_set fds;
     gint r;
     
@@ -109,7 +109,7 @@ gint flx_wait_for_write(gint fd) {
     return 0;
 }
 
-GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
+GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
     g_assert(tv);
 
     g_get_current_time(tv);
@@ -123,17 +123,17 @@ GTimeVal *flx_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
     return tv;
 }
 
-gint flx_age(const GTimeVal *a) {
+gint avahi_age(const GTimeVal *a) {
     GTimeVal now;
     
     g_assert(a);
 
     g_get_current_time(&now);
 
-    return flx_timeval_diff(&now, a);
+    return avahi_timeval_diff(&now, a);
 }
 
-gboolean flx_domain_cmp(const gchar *a, const gchar *b) {
+gboolean avahi_domain_cmp(const gchar *a, const gchar *b) {
     int escaped_a = 0, escaped_b = 0;
     g_assert(a);
     g_assert(b);
@@ -167,11 +167,11 @@ gboolean flx_domain_cmp(const gchar *a, const gchar *b) {
     }
 }
 
-gboolean flx_domain_equal(const gchar *a, const gchar *b) {
-    return flx_domain_cmp(a, b) == 0;
+gboolean avahi_domain_equal(const gchar *a, const gchar *b) {
+    return avahi_domain_cmp(a, b) == 0;
 }
 
-guint flx_domain_hash(const gchar *p) {
+guint avahi_domain_hash(const gchar *p) {
     char t[256];
     strncpy(t, p, sizeof(t)-1);
     t[sizeof(t)-1] = 0;
@@ -179,7 +179,7 @@ guint flx_domain_hash(const gchar *p) {
     return g_int_hash(t);
 }
 
-void flx_hexdump(gconstpointer p, guint size) {
+void avahi_hexdump(gconstpointer p, guint size) {
     const guint8 *c = p;
     g_assert(p);
 

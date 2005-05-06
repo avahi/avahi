@@ -14,7 +14,7 @@ static int compare_ptr(gconstpointer a, gconstpointer b) {
     return a < b ? -1 : (a > b ? 1 : 0);
 }
 
-static void rec(flxPrioQueueNode *n) {
+static void rec(AvahiPrioQueueNode *n) {
     if (!n)
         return;
 
@@ -52,16 +52,16 @@ static void rec(flxPrioQueueNode *n) {
 }
 
 int main(int argc, char *argv[]) {
-    flxPrioQueue *q, *q2;
+    AvahiPrioQueue *q, *q2;
     gint i, prev;
 
-    q = flx_prio_queue_new(compare_int);
-    q2 = flx_prio_queue_new(compare_ptr);
+    q = avahi_prio_queue_new(compare_int);
+    q2 = avahi_prio_queue_new(compare_ptr);
 
     srand(time(NULL));
 
     for (i = 0; i < 10000; i++)
-        flx_prio_queue_put(q2, flx_prio_queue_put(q, GINT_TO_POINTER(random() & 0xFFFF)));
+        avahi_prio_queue_put(q2, avahi_prio_queue_put(q, GINT_TO_POINTER(random() & 0xFFFF)));
 
     while (q2->root) {
         rec(q->root);
@@ -69,10 +69,10 @@ int main(int argc, char *argv[]) {
 
         g_assert(q->n_nodes == q2->n_nodes);
 
-        printf("%i\n", GPOINTER_TO_INT(((flxPrioQueueNode*)q2->root->data)->data));
+        printf("%i\n", GPOINTER_TO_INT(((AvahiPrioQueueNode*)q2->root->data)->data));
         
-        flx_prio_queue_remove(q, q2->root->data);
-        flx_prio_queue_remove(q2, q2->root);
+        avahi_prio_queue_remove(q, q2->root->data);
+        avahi_prio_queue_remove(q2, q2->root);
     }
 
         
@@ -81,11 +81,11 @@ int main(int argc, char *argv[]) {
 /*         gint v = GPOINTER_TO_INT(q->root->data); */
 /*         rec(q->root); */
 /*         printf("%i\n", v); */
-/*         flx_prio_queue_remove(q, q->root); */
+/*         avahi_prio_queue_remove(q, q->root); */
 /*         g_assert(v >= prev); */
 /*         prev = v; */
 /*     } */
 
-    flx_prio_queue_free(q);
+    avahi_prio_queue_free(q);
     return 0;
 }

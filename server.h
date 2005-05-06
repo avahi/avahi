@@ -1,7 +1,7 @@
-#ifndef fooflxserverhfoo
-#define fooflxserverhfoo
+#ifndef fooAvahiserverhfoo
+#define fooAvahiserverhfoo
 
-#include "flx.h"
+#include "Avahi.h"
 #include "iface.h"
 #include "prioq.h"
 #include "llist.h"
@@ -9,53 +9,53 @@
 #include "announce.h"
 #include "subscribe.h"
 
-struct _flxEntry {
-    flxServer *server;
-    flxEntryGroup *group;
+struct _AvahiEntry {
+    AvahiServer *server;
+    AvahiEntryGroup *group;
 
     gboolean dead;
     
-    flxEntryFlags flags;
-    flxRecord *record;
+    AvahiEntryFlags flags;
+    AvahiRecord *record;
     gint interface;
     guchar protocol;
 
-    FLX_LLIST_FIELDS(flxEntry, entries);
-    FLX_LLIST_FIELDS(flxEntry, by_key);
-    FLX_LLIST_FIELDS(flxEntry, by_group);
+    AVAHI_LLIST_FIELDS(AvahiEntry, entries);
+    AVAHI_LLIST_FIELDS(AvahiEntry, by_key);
+    AVAHI_LLIST_FIELDS(AvahiEntry, by_group);
     
-    FLX_LLIST_HEAD(flxAnnouncement, announcements);
+    AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
 };
 
-struct _flxEntryGroup {
-    flxServer *server;
+struct _AvahiEntryGroup {
+    AvahiServer *server;
     gboolean dead;
 
-    flxEntryGroupState state;
+    AvahiEntryGroupState state;
     gpointer userdata;
-    flxEntryGroupCallback callback;
+    AvahiEntryGroupCallback callback;
 
     guint n_probing;
     
-    FLX_LLIST_FIELDS(flxEntryGroup, groups);
-    FLX_LLIST_HEAD(flxEntry, entries);
+    AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
+    AVAHI_LLIST_HEAD(AvahiEntry, entries);
 };
 
-struct _flxServer {
+struct _AvahiServer {
     GMainContext *context;
-    flxInterfaceMonitor *monitor;
+    AvahiInterfaceMonitor *monitor;
 
-    FLX_LLIST_HEAD(flxEntry, entries);
+    AVAHI_LLIST_HEAD(AvahiEntry, entries);
     GHashTable *entries_by_key;
 
-    FLX_LLIST_HEAD(flxEntryGroup, groups);
+    AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
     
-    FLX_LLIST_HEAD(flxSubscription, subscriptions);
+    AVAHI_LLIST_HEAD(AvahiSubscription, subscriptions);
     GHashTable *subscription_hashtable;
 
     gboolean need_entry_cleanup, need_group_cleanup;
     
-    flxTimeEventQueue *time_event_queue;
+    AvahiTimeEventQueue *time_event_queue;
     
     gchar *hostname;
 
@@ -67,13 +67,13 @@ struct _flxServer {
     gboolean ignore_bad_ttl;
 };
 
-gboolean flx_server_entry_match_interface(flxEntry *e, flxInterface *i);
+gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
 
-void flx_server_post_query(flxServer *s, gint interface, guchar protocol, flxKey *key);
-void flx_server_post_response(flxServer *s, gint interface, guchar protocol, flxRecord *record, gboolean flush_cache);
+void avahi_server_post_query(AvahiServer *s, gint interface, guchar protocol, AvahiKey *key);
+void avahi_server_post_response(AvahiServer *s, gint interface, guchar protocol, AvahiRecord *record, gboolean flush_cache);
 
-void flx_entry_group_change_state(flxEntryGroup *g, flxEntryGroupState state);
+void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state);
 
-gboolean flx_entry_commited(flxEntry *e);
+gboolean avahi_entry_commited(AvahiEntry *e);
 
 #endif

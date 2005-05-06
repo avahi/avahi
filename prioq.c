@@ -1,29 +1,29 @@
 #include "prioq.h"
 
-flxPrioQueue* flx_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b)) {
-    flxPrioQueue *q;
+AvahiPrioQueue* avahi_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b)) {
+    AvahiPrioQueue *q;
     g_assert(compare);
 
-    q = g_new(flxPrioQueue, 1);
+    q = g_new(AvahiPrioQueue, 1);
     q->root = q->last = NULL;
     q->n_nodes = 0;
     q->compare = compare;
     return q;
 }
 
-void flx_prio_queue_free(flxPrioQueue *q) {
+void avahi_prio_queue_free(AvahiPrioQueue *q) {
     g_assert(q);
 
     while (q->last)
-        flx_prio_queue_remove(q, q->last);
+        avahi_prio_queue_remove(q, q->last);
 
     g_assert(!q->n_nodes);
     g_free(q);
 }
 
-static flxPrioQueueNode* get_node_at_xy(flxPrioQueue *q, guint x, guint y) {
+static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, guint x, guint y) {
     guint r;
-    flxPrioQueueNode *n;
+    AvahiPrioQueueNode *n;
     g_assert(q);
 
     n = q->root;
@@ -44,8 +44,8 @@ static flxPrioQueueNode* get_node_at_xy(flxPrioQueue *q, guint x, guint y) {
     return n;
 }
 
-static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNode *b) {
-    flxPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn;
+static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQueueNode *b) {
+    AvahiPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn;
     gint t;
     g_assert(q);
     g_assert(a);
@@ -128,7 +128,7 @@ static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNod
                 b->left->parent = b;
         }
     } else {
-        flxPrioQueueNode *apl = NULL, *bpl = NULL;
+        AvahiPrioQueueNode *apl = NULL, *bpl = NULL;
         
         /* Swap parents */
         ap = a->parent;
@@ -224,7 +224,7 @@ static void exchange_nodes(flxPrioQueue *q, flxPrioQueueNode *a, flxPrioQueueNod
 }
 
 /* Move a node to the correct position */
-void flx_prio_queue_shuffle(flxPrioQueue *q, flxPrioQueueNode *n) {
+void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     g_assert(q);
     g_assert(n);
 
@@ -234,7 +234,7 @@ void flx_prio_queue_shuffle(flxPrioQueue *q, flxPrioQueueNode *n) {
 
     /* Move down until the position is OK */
     for (;;) {
-        flxPrioQueueNode *min;
+        AvahiPrioQueueNode *min;
 
         if (!(min = n->left)) {
             /* No children */
@@ -255,11 +255,11 @@ void flx_prio_queue_shuffle(flxPrioQueue *q, flxPrioQueueNode *n) {
     }
 }
 
-flxPrioQueueNode* flx_prio_queue_put(flxPrioQueue *q, gpointer data) {
-    flxPrioQueueNode *n;
+AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, gpointer data) {
+    AvahiPrioQueueNode *n;
     g_assert(q);
 
-    n = g_new(flxPrioQueueNode, 1);
+    n = g_new(AvahiPrioQueueNode, 1);
     n->queue = q;
     n->data = data;
 
@@ -298,20 +298,20 @@ flxPrioQueueNode* flx_prio_queue_put(flxPrioQueue *q, gpointer data) {
     q->last = n;
     q->n_nodes++;
 
-    flx_prio_queue_shuffle(q, n);
+    avahi_prio_queue_shuffle(q, n);
 
     return n;
 }
 
-void flx_prio_queue_remove(flxPrioQueue *q, flxPrioQueueNode *n) {
+void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     g_assert(q);
     g_assert(n);
 
     if (n != q->last) {
-        flxPrioQueueNode *replacement = q->last;
+        AvahiPrioQueueNode *replacement = q->last;
         exchange_nodes(q, replacement, n);
-        flx_prio_queue_remove(q, n);
-        flx_prio_queue_shuffle(q, replacement);
+        avahi_prio_queue_remove(q, n);
+        avahi_prio_queue_shuffle(q, replacement);
         return;
     }
 

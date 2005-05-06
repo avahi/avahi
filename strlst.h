@@ -3,32 +3,32 @@
 
 #include <glib.h>
 
-typedef struct _flxStringList flxStringList;
+typedef struct _AvahiStringList AvahiStringList;
 
-struct _flxStringList {
-    flxStringList *next;
+struct _AvahiStringList {
+    AvahiStringList *next;
     guint size;
     guint8 text[1];
 };
 
-flxStringList *flx_string_list_new(const gchar *txt, ...);
-flxStringList *flx_string_list_new_va(va_list va);
+AvahiStringList *avahi_string_list_new(const gchar *txt, ...);
+AvahiStringList *avahi_string_list_new_va(va_list va);
 
-void flx_string_list_free(flxStringList *l);
+void avahi_string_list_free(AvahiStringList *l);
 
-flxStringList *flx_string_list_add(flxStringList *l, const gchar *text);
-flxStringList *flx_string_list_add_arbitrary(flxStringList *l, const guint8 *text, guint size);
-flxStringList *flx_string_list_add_many(flxStringList *r, ...);
-flxStringList *flx_string_list_add_many_va(flxStringList *r, va_list va);
+AvahiStringList *avahi_string_list_add(AvahiStringList *l, const gchar *text);
+AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint8 *text, guint size);
+AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...);
+AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
 
-gchar* flx_string_list_to_string(flxStringList *l);
+gchar* avahi_string_list_to_string(AvahiStringList *l);
 
-guint flx_string_list_serialize(flxStringList *l, gpointer data, guint size);
-flxStringList *flx_string_list_parse(gconstpointer data, guint size);
+guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size);
+AvahiStringList *avahi_string_list_parse(gconstpointer data, guint size);
 
-gboolean flx_string_list_equal(flxStringList *a, flxStringList *b);
+gboolean avahi_string_list_equal(AvahiStringList *a, AvahiStringList *b);
 
-flxStringList *flx_string_list_copy(flxStringList *l);
+AvahiStringList *avahi_string_list_copy(AvahiStringList *l);
 
 #endif
 

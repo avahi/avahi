@@ -5,66 +5,66 @@
 
 #include "rr.h"
 
-#define FLX_DNS_PACKET_MAX_SIZE 9000
-#define FLX_DNS_PACKET_HEADER_SIZE 12
+#define AVAHI_DNS_PACKET_MAX_SIZE 9000
+#define AVAHI_DNS_PACKET_HEADER_SIZE 12
 
-typedef struct _flxDnsPacket {
+typedef struct _AvahiDnsPacket {
     guint size, rindex, max_size;
     GHashTable *name_table; /* for name compression */
-} flxDnsPacket;
+} AvahiDnsPacket;
 
 
-#define FLX_DNS_PACKET_DATA(p) (((guint8*) p) + sizeof(flxDnsPacket))
+#define AVAHI_DNS_PACKET_DATA(p) (((guint8*) p) + sizeof(AvahiDnsPacket))
 
-flxDnsPacket* flx_dns_packet_new(guint size);
-flxDnsPacket* flx_dns_packet_new_query(guint size);
-flxDnsPacket* flx_dns_packet_new_response(guint size);
+AvahiDnsPacket* avahi_dns_packet_new(guint size);
+AvahiDnsPacket* avahi_dns_packet_new_query(guint size);
+AvahiDnsPacket* avahi_dns_packet_new_response(guint size);
 
-void flx_dns_packet_free(flxDnsPacket *p);
-void flx_dns_packet_set_field(flxDnsPacket *p, guint index, guint16 v);
-guint16 flx_dns_packet_get_field(flxDnsPacket *p, guint index);
+void avahi_dns_packet_free(AvahiDnsPacket *p);
+void avahi_dns_packet_set_field(AvahiDnsPacket *p, guint index, guint16 v);
+guint16 avahi_dns_packet_get_field(AvahiDnsPacket *p, guint index);
 
-guint8 *flx_dns_packet_extend(flxDnsPacket *p, guint l);
+guint8 *avahi_dns_packet_extend(AvahiDnsPacket *p, guint l);
 
-guint8 *flx_dns_packet_append_uint16(flxDnsPacket *p, guint16 v);
-guint8 *flx_dns_packet_append_uint32(flxDnsPacket *p, guint32 v);
-guint8 *flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name);
-guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer, guint l);
-guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k, gboolean unicast_response);
-guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush);
-guint8* flx_dns_packet_append_string(flxDnsPacket *p, const gchar *s);
+guint8 *avahi_dns_packet_append_uint16(AvahiDnsPacket *p, guint16 v);
+guint8 *avahi_dns_packet_append_uint32(AvahiDnsPacket *p, guint32 v);
+guint8 *avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name);
+guint8 *avahi_dns_packet_append_bytes(AvahiDnsPacket  *p, gconstpointer, guint l);
+guint8* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, gboolean unicast_response);
+guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboolean cache_flush);
+guint8* avahi_dns_packet_append_string(AvahiDnsPacket *p, const gchar *s);
 
-gint flx_dns_packet_is_query(flxDnsPacket *p);
-gint flx_dns_packet_check_valid(flxDnsPacket *p);
+gint avahi_dns_packet_is_query(AvahiDnsPacket *p);
+gint avahi_dns_packet_check_valid(AvahiDnsPacket *p);
 
-gint flx_dns_packet_consume_uint16(flxDnsPacket *p, guint16 *ret_v);
-gint flx_dns_packet_consume_uint32(flxDnsPacket *p, guint32 *ret_v);
-gint flx_dns_packet_consume_name(flxDnsPacket *p, gchar *ret_name, guint l);
-gint flx_dns_packet_consume_bytes(flxDnsPacket *p, gpointer ret_data, guint l);
-flxKey* flx_dns_packet_consume_key(flxDnsPacket *p, gboolean *ret_unicast_response);
-flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_flush);
-gint flx_dns_packet_consume_string(flxDnsPacket *p, gchar *ret_string, guint l);
+gint avahi_dns_packet_consume_uint16(AvahiDnsPacket *p, guint16 *ret_v);
+gint avahi_dns_packet_consume_uint32(AvahiDnsPacket *p, guint32 *ret_v);
+gint avahi_dns_packet_consume_name(AvahiDnsPacket *p, gchar *ret_name, guint l);
+gint avahi_dns_packet_consume_bytes(AvahiDnsPacket *p, gpointer ret_data, guint l);
+AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, gboolean *ret_unicast_response);
+AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_cache_flush);
+gint avahi_dns_packet_consume_string(AvahiDnsPacket *p, gchar *ret_string, guint l);
 
-gconstpointer flx_dns_packet_get_rptr(flxDnsPacket *p);
+gconstpointer avahi_dns_packet_get_rptr(AvahiDnsPacket *p);
 
-gint flx_dns_packet_skip(flxDnsPacket *p, guint length);
+gint avahi_dns_packet_skip(AvahiDnsPacket *p, guint length);
 
-gboolean flx_dns_packet_is_empty(flxDnsPacket *p);
-guint flx_dns_packet_space(flxDnsPacket *p);
+gboolean avahi_dns_packet_is_empty(AvahiDnsPacket *p);
+guint avahi_dns_packet_space(AvahiDnsPacket *p);
 
-#define FLX_DNS_FIELD_ID 0
-#define FLX_DNS_FIELD_FLAGS 1
-#define FLX_DNS_FIELD_QDCOUNT 2
-#define FLX_DNS_FIELD_ANCOUNT 3
-#define FLX_DNS_FIELD_NSCOUNT 4
-#define FLX_DNS_FIELD_ARCOUNT 5
+#define AVAHI_DNS_FIELD_ID 0
+#define AVAHI_DNS_FIELD_FLAGS 1
+#define AVAHI_DNS_FIELD_QDCOUNT 2
+#define AVAHI_DNS_FIELD_ANCOUNT 3
+#define AVAHI_DNS_FIELD_NSCOUNT 4
+#define AVAHI_DNS_FIELD_ARCOUNT 5
 
-#define FLX_DNS_FLAG_QR (1 << 15)
-#define FLX_DNS_FLAG_OPCODE (15 << 11)
-#define FLX_DNS_FLAG_RCODE (15)
-#define FLX_DNS_FLAG_TC (1 << 9)
+#define AVAHI_DNS_FLAG_QR (1 << 15)
+#define AVAHI_DNS_FLAG_OPCODE (15 << 11)
+#define AVAHI_DNS_FLAG_RCODE (15)
+#define AVAHI_DNS_FLAG_TC (1 << 9)
 
-#define FLX_DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
+#define AVAHI_DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
         (((guint16) !!qr << 15) |  \
          ((guint16) (opcode & 15) << 11) | \
          ((guint16) !!aa << 10) | \
@@ -76,7 +76,7 @@ guint flx_dns_packet_space(flxDnsPacket *p);
          ((guint16) (rd & 15)))
          
 
-gchar *flx_unescape_label(gchar *dest, guint size, const gchar **name);
+gchar *avahi_unescape_label(gchar *dest, guint size, const gchar **name);
 
 #endif
 

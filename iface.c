@@ -12,26 +12,26 @@
 #include "socket.h"
 #include "announce.h"
 
-static void update_address_rr(flxInterfaceMonitor *m, flxInterfaceAddress *a, int remove) {
+static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, int remove) {
     g_assert(m);
     g_assert(a);
 
-    if (!flx_interface_address_relevant(a) || remove) {
+    if (!avahi_interface_address_relevant(a) || remove) {
         if (a->entry_group) {
-            flx_entry_group_free(a->entry_group);
+            avahi_entry_group_free(a->entry_group);
             a->entry_group = NULL;
         }
     } else {
         if (!a->entry_group) {
-            a->entry_group = flx_entry_group_new(m->server, NULL, NULL);
-            flx_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address);
-            flx_entry_group_commit(a->entry_group);
+            a->entry_group = avahi_entry_group_new(m->server, NULL, NULL);
+            avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address);
+            avahi_entry_group_commit(a->entry_group);
         }
     }
 }
 
-static void update_interface_rr(flxInterfaceMonitor *m, flxInterface *i, int remove) {
-    flxInterfaceAddress *a;
+static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, int remove) {
+    AvahiInterfaceAddress *a;
     g_assert(m);
     g_assert(i);
 
@@ -39,8 +39,8 @@ static void update_interface_rr(flxInterfaceMonitor *m, flxInterface *i, int rem
         update_address_rr(m, a, remove);
 }
 
-static void update_hw_interface_rr(flxInterfaceMonitor *m, flxHwInterface *hw, int remove) {
-    flxInterface *i;
+static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, int remove) {
+    AvahiInterface *i;
 
     g_assert(m);
     g_assert(hw);
@@ -49,27 +49,27 @@ static void update_hw_interface_rr(flxInterfaceMonitor *m, flxHwInterface *hw, i
         update_interface_rr(m, i, remove);
 }
 
-static void free_address(flxInterfaceMonitor *m, flxInterfaceAddress *a) {
+static void free_address(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a) {
     g_assert(m);
     g_assert(a);
     g_assert(a->interface);
 
-    FLX_LLIST_REMOVE(flxInterfaceAddress, address, a->interface->addresses, a);
+    AVAHI_LLIST_REMOVE(AvahiInterfaceAddress, address, a->interface->addresses, a);
 
     if (a->entry_group)
-        flx_entry_group_free(a->entry_group);
+        avahi_entry_group_free(a->entry_group);
     
     g_free(a);
 }
 
-static void free_interface(flxInterfaceMonitor *m, flxInterface *i, gboolean send_goodbye) {
+static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean send_goodbye) {
     g_assert(m);
     g_assert(i);
 
     g_message("removing interface %s.%i", i->hardware->name, i->protocol);
-    flx_goodbye_interface(m->server, i, send_goodbye);
+    avahi_goodbye_interface(m->server, i, send_goodbye);
     g_message("flushing...");
-    flx_packet_scheduler_flush_responses(i->scheduler);
+    avahi_packet_scheduler_flush_responses(i->scheduler);
     g_message("done");
     
     g_assert(!i->announcements);
@@ -77,44 +77,44 @@ static void free_interface(flxInterfaceMonitor *m, flxInterface *i, gboolean sen
     while (i->addresses)
         free_address(m, i->addresses);
 
-    flx_packet_scheduler_free(i->scheduler);
-    flx_cache_free(i->cache);
+    avahi_packet_scheduler_free(i->scheduler);
+    avahi_cache_free(i->cache);
     
-    FLX_LLIST_REMOVE(flxInterface, interface, m->interfaces, i);
-    FLX_LLIST_REMOVE(flxInterface, by_hardware, i->hardware->interfaces, i);
+    AVAHI_LLIST_REMOVE(AvahiInterface, interface, m->interfaces, i);
+    AVAHI_LLIST_REMOVE(AvahiInterface, by_hardware, i->hardware->interfaces, i);
     
     g_free(i);
 }
 
-static void free_hw_interface(flxInterfaceMonitor *m, flxHwInterface *hw, gboolean send_goodbye) {
+static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gboolean send_goodbye) {
     g_assert(m);
     g_assert(hw);
 
     while (hw->interfaces)
         free_interface(m, hw->interfaces, send_goodbye);
 
-    FLX_LLIST_REMOVE(flxHwInterface, hardware, m->hw_interfaces, hw);
+    AVAHI_LLIST_REMOVE(AvahiHwInterface, hardware, m->hw_interfaces, hw);
     g_hash_table_remove(m->hash_table, &hw->index);
 
     g_free(hw->name);
     g_free(hw);
 }
 
-static flxInterfaceAddress* get_address(flxInterfaceMonitor *m, flxInterface *i, const flxAddress *raddr) {
-    flxInterfaceAddress *ia;
+static AvahiInterfaceAddress* get_address(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr) {
+    AvahiInterfaceAddress *ia;
     
     g_assert(m);
     g_assert(i);
     g_assert(raddr);
 
     for (ia = i->addresses; ia; ia = ia->address_next)
-        if (flx_address_cmp(&ia->address, raddr) == 0)
+        if (avahi_address_cmp(&ia->address, raddr) == 0)
             return ia;
 
     return NULL;
 }
 
-static int netlink_list_items(flxNetlink *nl, guint16 type, guint *ret_seq) {
+static int netlink_list_items(AvahiNetlink *nl, guint16 type, guint *ret_seq) {
     struct nlmsghdr *n;
     struct rtgenmsg *gen;
     guint8 req[1024];
@@ -130,66 +130,66 @@ static int netlink_list_items(flxNetlink *nl, guint16 type, guint *ret_seq) {
     memset(gen, 0, sizeof(struct rtgenmsg));
     gen->rtgen_family = AF_UNSPEC;
 
-    return flx_netlink_send(nl, n, ret_seq);
+    return avahi_netlink_send(nl, n, ret_seq);
 }
 
-static void new_interface(flxInterfaceMonitor *m, flxHwInterface *hw, guchar protocol) {
-    flxInterface *i;
+static void new_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, guchar protocol) {
+    AvahiInterface *i;
     
     g_assert(m);
     g_assert(hw);
     g_assert(protocol != AF_UNSPEC);
 
-    i = g_new(flxInterface, 1);
+    i = g_new(AvahiInterface, 1);
     i->monitor = m;
     i->hardware = hw;
     i->protocol = protocol;
     i->announcing = FALSE;
 
-    FLX_LLIST_HEAD_INIT(flxInterfaceAddress, i->addresses);
-    FLX_LLIST_HEAD_INIT(flxAnnouncement, i->announcements);
+    AVAHI_LLIST_HEAD_INIT(AvahiInterfaceAddress, i->addresses);
+    AVAHI_LLIST_HEAD_INIT(AvahiAnnouncement, i->announcements);
 
-    i->cache = flx_cache_new(m->server, i);
-    i->scheduler = flx_packet_scheduler_new(m->server, i);
+    i->cache = avahi_cache_new(m->server, i);
+    i->scheduler = avahi_packet_scheduler_new(m->server, i);
 
-    FLX_LLIST_PREPEND(flxInterface, by_hardware, hw->interfaces, i);
-    FLX_LLIST_PREPEND(flxInterface, interface, m->interfaces, i);
+    AVAHI_LLIST_PREPEND(AvahiInterface, by_hardware, hw->interfaces, i);
+    AVAHI_LLIST_PREPEND(AvahiInterface, interface, m->interfaces, i);
 }
 
-static void check_interface_relevant(flxInterfaceMonitor *m, flxInterface *i) {
+static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i) {
     gboolean b;
 
     g_assert(m);
     g_assert(i);
 
-    b = flx_interface_relevant(i);
+    b = avahi_interface_relevant(i);
 
     if (b && !i->announcing) {
         g_message("New relevant interface %s.%i", i->hardware->name, i->protocol);
 
         if (i->protocol == AF_INET)
-            flx_mdns_mcast_join_ipv4 (i->hardware->index, m->server->fd_ipv4);
+            avahi_mdns_mcast_join_ipv4 (i->hardware->index, m->server->fd_ipv4);
         if (i->protocol == AF_INET6)
-            flx_mdns_mcast_join_ipv6 (i->hardware->index, m->server->fd_ipv6);
+            avahi_mdns_mcast_join_ipv6 (i->hardware->index, m->server->fd_ipv6);
 
         i->announcing = TRUE;
-        flx_announce_interface(m->server, i);
+        avahi_announce_interface(m->server, i);
     } else if (!b && i->announcing) {
         g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
-        flx_goodbye_interface(m->server, i, FALSE);
+        avahi_goodbye_interface(m->server, i, FALSE);
 
         if (i->protocol == AF_INET)
-            flx_mdns_mcast_leave_ipv4 (i->hardware->index, m->server->fd_ipv4);
+            avahi_mdns_mcast_leave_ipv4 (i->hardware->index, m->server->fd_ipv4);
         if (i->protocol == AF_INET6)
-            flx_mdns_mcast_leave_ipv6 (i->hardware->index, m->server->fd_ipv6);
+            avahi_mdns_mcast_leave_ipv6 (i->hardware->index, m->server->fd_ipv6);
 
         i->announcing = FALSE;
     }
 }
 
-static void check_hw_interface_relevant(flxInterfaceMonitor *m, flxHwInterface *hw) {
-    flxInterface *i;
+static void check_hw_interface_relevant(AvahiInterfaceMonitor *m, AvahiHwInterface *hw) {
+    AvahiInterface *i;
     
     g_assert(m);
     g_assert(hw);
@@ -198,8 +198,8 @@ static void check_hw_interface_relevant(flxInterfaceMonitor *m, flxHwInterface *
         check_interface_relevant(m, i);
 }
 
-static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
-    flxInterfaceMonitor *m = userdata;
+static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
+    AvahiInterfaceMonitor *m = userdata;
     
     g_assert(m);
     g_assert(n);
@@ -207,7 +207,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
 
     if (n->nlmsg_type == RTM_NEWLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
-        flxHwInterface *hw;
+        AvahiHwInterface *hw;
         struct rtattr *a = NULL;
         size_t l;
 
@@ -215,15 +215,15 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             return;
 
         if (!(hw = g_hash_table_lookup(m->hash_table, &ifinfomsg->ifi_index))) {
-            hw = g_new(flxHwInterface, 1);
+            hw = g_new(AvahiHwInterface, 1);
             hw->monitor = m;
             hw->name = NULL;
             hw->flags = 0;
             hw->mtu = 1500;
             hw->index = ifinfomsg->ifi_index;
 
-            FLX_LLIST_HEAD_INIT(flxInterface, hw->interfaces);
-            FLX_LLIST_PREPEND(flxHwInterface, hardware, m->hw_interfaces, hw);
+            AVAHI_LLIST_HEAD_INIT(AvahiInterface, hw->interfaces);
+            AVAHI_LLIST_PREPEND(AvahiHwInterface, hardware, m->hw_interfaces, hw);
             
             g_hash_table_insert(m->hash_table, &hw->index, hw);
 
@@ -262,13 +262,13 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
         
     } else if (n->nlmsg_type == RTM_DELLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
-        flxHwInterface *hw;
-        flxInterface *i;
+        AvahiHwInterface *hw;
+        AvahiInterface *i;
 
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
         
-        if (!(hw = flx_interface_monitor_get_hw_interface(m, ifinfomsg->ifi_index)))
+        if (!(hw = avahi_interface_monitor_get_hw_interface(m, ifinfomsg->ifi_index)))
             return;
 
         update_hw_interface_rr(m, hw, TRUE);
@@ -277,16 +277,16 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
         struct ifaddrmsg *ifaddrmsg = NLMSG_DATA(n);
-        flxInterface *i;
+        AvahiInterface *i;
         struct rtattr *a = NULL;
         size_t l;
-        flxAddress raddr;
+        AvahiAddress raddr;
         int raddr_valid = 0;
 
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
             return;
 
-        if (!(i = (flxInterface*) flx_interface_monitor_get_interface(m, ifaddrmsg->ifa_index, ifaddrmsg->ifa_family)))
+        if (!(i = (AvahiInterface*) avahi_interface_monitor_get_interface(m, ifaddrmsg->ifa_index, ifaddrmsg->ifa_family)))
             return;
 
         raddr.family = ifaddrmsg->ifa_family;
@@ -318,16 +318,16 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             return;
 
         if (n->nlmsg_type == RTM_NEWADDR) {
-            flxInterfaceAddress *addr;
+            AvahiInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr))) {
-                addr = g_new(flxInterfaceAddress, 1);
+                addr = g_new(AvahiInterfaceAddress, 1);
                 addr->monitor = m;
                 addr->address = raddr;
                 addr->interface = i;
                 addr->entry_group = NULL;
 
-                FLX_LLIST_PREPEND(flxInterfaceAddress, address, i->addresses, addr);
+                AVAHI_LLIST_PREPEND(AvahiInterfaceAddress, address, i->addresses, addr);
             }
             
             addr->flags = ifaddrmsg->ifa_flags;
@@ -336,7 +336,7 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             update_address_rr(m, addr, FALSE);
             check_interface_relevant(m, i);
         } else {
-            flxInterfaceAddress *addr;
+            AvahiInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr)))
                 return;
@@ -369,18 +369,18 @@ static void callback(flxNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
     }
 }
 
-flxInterfaceMonitor *flx_interface_monitor_new(flxServer *s) {
-    flxInterfaceMonitor *m = NULL;
+AvahiInterfaceMonitor *avahi_interface_monitor_new(AvahiServer *s) {
+    AvahiInterfaceMonitor *m = NULL;
 
-    m = g_new0(flxInterfaceMonitor, 1);
+    m = g_new0(AvahiInterfaceMonitor, 1);
     m->server = s;
-    if (!(m->netlink = flx_netlink_new(s->context, G_PRIORITY_DEFAULT-10, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
+    if (!(m->netlink = avahi_netlink_new(s->context, G_PRIORITY_DEFAULT-10, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
         goto fail;
 
     m->hash_table = g_hash_table_new(g_int_hash, g_int_equal);
 
-    FLX_LLIST_HEAD_INIT(flxInterface, m->interfaces);
-    FLX_LLIST_HEAD_INIT(flxHwInterface, m->hw_interfaces);
+    AVAHI_LLIST_HEAD_INIT(AvahiInterface, m->interfaces);
+    AVAHI_LLIST_HEAD_INIT(AvahiHwInterface, m->hw_interfaces);
 
     if (netlink_list_items(m->netlink, RTM_GETLINK, &m->query_link_seq) < 0)
         goto fail;
@@ -390,20 +390,20 @@ flxInterfaceMonitor *flx_interface_monitor_new(flxServer *s) {
     return m;
 
 fail:
-    flx_interface_monitor_free(m);
+    avahi_interface_monitor_free(m);
     return NULL;
 }
 
-void flx_interface_monitor_sync(flxInterfaceMonitor *m) {
+void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
     g_assert(m);
     
     while (m->list != LIST_DONE) {
-        if (!flx_netlink_work(m->netlink, TRUE))
+        if (!avahi_netlink_work(m->netlink, TRUE))
             break;
     } 
 }
 
-void flx_interface_monitor_free(flxInterfaceMonitor *m) {
+void avahi_interface_monitor_free(AvahiInterfaceMonitor *m) {
     g_assert(m);
 
     while (m->hw_interfaces)
@@ -413,7 +413,7 @@ void flx_interface_monitor_free(flxInterfaceMonitor *m) {
 
     
     if (m->netlink)
-        flx_netlink_free(m->netlink);
+        avahi_netlink_free(m->netlink);
     
     if (m->hash_table)
         g_hash_table_destroy(m->hash_table);
@@ -422,15 +422,15 @@ void flx_interface_monitor_free(flxInterfaceMonitor *m) {
 }
 
 
-flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint index, guchar protocol) {
-    flxHwInterface *hw;
-    flxInterface *i;
+AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, gint index, guchar protocol) {
+    AvahiHwInterface *hw;
+    AvahiInterface *i;
     
     g_assert(m);
     g_assert(index > 0);
     g_assert(protocol != AF_UNSPEC);
 
-    if (!(hw = flx_interface_monitor_get_hw_interface(m, index)))
+    if (!(hw = avahi_interface_monitor_get_hw_interface(m, index)))
         return NULL;
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
@@ -440,7 +440,7 @@ flxInterface* flx_interface_monitor_get_interface(flxInterfaceMonitor *m, gint i
     return NULL;
 }
 
-flxHwInterface* flx_interface_monitor_get_hw_interface(flxInterfaceMonitor *m, gint index) {
+AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, gint index) {
     g_assert(m);
     g_assert(index > 0);
 
@@ -448,59 +448,59 @@ flxHwInterface* flx_interface_monitor_get_hw_interface(flxInterfaceMonitor *m, g
 }
 
 
-void flx_interface_send_packet(flxInterface *i, flxDnsPacket *p) {
+void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p) {
     g_assert(i);
     g_assert(p);
 
-    if (flx_interface_relevant(i)) {
+    if (avahi_interface_relevant(i)) {
         g_message("sending on '%s.%i'", i->hardware->name, i->protocol);
 
         if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
-            flx_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p);
+            avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p);
         else if (i->protocol == AF_INET6 && i->monitor->server->fd_ipv6 >= 0)
-            flx_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p);
+            avahi_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p);
     }
 }
 
-void flx_interface_post_query(flxInterface *i, flxKey *key, gboolean immediately) {
+void avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean immediately) {
     g_assert(i);
     g_assert(key);
 
-    if (flx_interface_relevant(i))
-        flx_packet_scheduler_post_query(i->scheduler, key, immediately);
+    if (avahi_interface_relevant(i))
+        avahi_packet_scheduler_post_query(i->scheduler, key, immediately);
 }
 
 
-void flx_interface_post_response(flxInterface *i, const flxAddress *a, flxRecord *record, gboolean flush_cache, gboolean immediately) {
+void avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
-    if (flx_interface_relevant(i))
-        flx_packet_scheduler_post_response(i->scheduler, a, record, flush_cache, immediately);
+    if (avahi_interface_relevant(i))
+        avahi_packet_scheduler_post_response(i->scheduler, a, record, flush_cache, immediately);
 }
 
-void flx_interface_post_probe(flxInterface *i, flxRecord *record, gboolean immediately) {
+void avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, gboolean immediately) {
     g_assert(i);
     g_assert(record);
     
-    if (flx_interface_relevant(i))
-        flx_packet_scheduler_post_probe(i->scheduler, record, immediately);
+    if (avahi_interface_relevant(i))
+        avahi_packet_scheduler_post_probe(i->scheduler, record, immediately);
 }
 
-void flx_dump_caches(flxInterfaceMonitor *m, FILE *f) {
-    flxInterface *i;
+void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f) {
+    AvahiInterface *i;
     g_assert(m);
 
     for (i = m->interfaces; i; i = i->interface_next) {
-        if (flx_interface_relevant(i)) {
+        if (avahi_interface_relevant(i)) {
             fprintf(f, "\n;;; INTERFACE %s.%i ;;;\n", i->hardware->name, i->protocol);
-            flx_cache_dump(i->cache, f);
+            avahi_cache_dump(i->cache, f);
         }
     }
     fprintf(f, "\n");
 }
 
-gboolean flx_interface_relevant(flxInterface *i) {
+gboolean avahi_interface_relevant(AvahiInterface *i) {
     g_assert(i);
 
     return
@@ -511,14 +511,14 @@ gboolean flx_interface_relevant(flxInterface *i) {
         i->addresses;
 }
 
-gboolean flx_interface_address_relevant(flxInterfaceAddress *a) { 
+gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a) { 
     g_assert(a);
 
     return a->scope == RT_SCOPE_UNIVERSE;
 }
 
 
-gboolean flx_interface_match(flxInterface *i, gint index, guchar protocol) {
+gboolean avahi_interface_match(AvahiInterface *i, gint index, guchar protocol) {
     g_assert(i);
     
     if (index > 0 && index != i->hardware->index)
@@ -531,32 +531,32 @@ gboolean flx_interface_match(flxInterface *i, gint index, guchar protocol) {
 }
 
 
-void flx_interface_monitor_walk(flxInterfaceMonitor *m, gint interface, guchar protocol, flxInterfaceMonitorWalkCallback callback, gpointer userdata) {
+void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint interface, guchar protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata) {
     g_assert(m);
     g_assert(callback);
     
     if (interface > 0) {
         if (protocol != AF_UNSPEC) {
-            flxInterface *i;
+            AvahiInterface *i;
             
-            if ((i = flx_interface_monitor_get_interface(m, interface, protocol)))
+            if ((i = avahi_interface_monitor_get_interface(m, interface, protocol)))
                 callback(m, i, userdata);
             
         } else {
-            flxHwInterface *hw;
-            flxInterface *i;
+            AvahiHwInterface *hw;
+            AvahiInterface *i;
 
-            if ((hw = flx_interface_monitor_get_hw_interface(m, interface)))
+            if ((hw = avahi_interface_monitor_get_hw_interface(m, interface)))
                 for (i = hw->interfaces; i; i = i->by_hardware_next)
-                    if (flx_interface_match(i, interface, protocol))
+                    if (avahi_interface_match(i, interface, protocol))
                         callback(m, i, userdata);
         }
         
     } else {
-        flxInterface *i;
+        AvahiInterface *i;
         
         for (i = m->interfaces; i; i = i->interface_next)
-            if (flx_interface_match(i, interface, protocol))
+            if (avahi_interface_match(i, interface, protocol))
                 callback(m, i, userdata);
     }
 }

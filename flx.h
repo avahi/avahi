@@ -1,99 +1,99 @@
-#ifndef fooflxhfoo
-#define fooflxhfoo
+#ifndef fooAvahihfoo
+#define fooAvahihfoo
 
 #include <stdio.h>
 #include <glib.h>
 
-typedef struct _flxServer flxServer;
-typedef struct _flxEntry flxEntry;
-typedef struct _flxEntryGroup flxEntryGroup;
+typedef struct _AvahiServer AvahiServer;
+typedef struct _AvahiEntry AvahiEntry;
+typedef struct _AvahiEntryGroup AvahiEntryGroup;
 
 #include "address.h"
 #include "rr.h"
 
 typedef enum {
-    FLX_ENTRY_NULL = 0,
-    FLX_ENTRY_UNIQUE = 1,
-    FLX_ENTRY_NOPROBE = 2,
-    FLX_ENTRY_NOANNOUNCE = 4
-} flxEntryFlags;
+    AVAHI_ENTRY_NULL = 0,
+    AVAHI_ENTRY_UNIQUE = 1,
+    AVAHI_ENTRY_NOPROBE = 2,
+    AVAHI_ENTRY_NOANNOUNCE = 4
+} AvahiEntryFlags;
 
 typedef enum {
-    FLX_ENTRY_GROUP_UNCOMMITED,
-    FLX_ENTRY_GROUP_REGISTERING,
-    FLX_ENTRY_GROUP_ESTABLISHED,
-    FLX_ENTRY_GROUP_COLLISION
-} flxEntryGroupState;
+    AVAHI_ENTRY_GROUP_UNCOMMITED,
+    AVAHI_ENTRY_GROUP_REGISTERING,
+    AVAHI_ENTRY_GROUP_ESTABLISHED,
+    AVAHI_ENTRY_GROUP_COLLISION
+} AvahiEntryGroupState;
 
-typedef void (*flxEntryGroupCallback) (flxServer *s, flxEntryGroup *g, flxEntryGroupState state, gpointer userdata);
+typedef void (*AvahiEntryGroupCallback) (AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata);
 
-flxServer *flx_server_new(GMainContext *c);
-void flx_server_free(flxServer* s);
+AvahiServer *avahi_server_new(GMainContext *c);
+void avahi_server_free(AvahiServer* s);
 
-const flxRecord *flx_server_iterate(flxServer *s, flxEntryGroup *g, void **state);
-void flx_server_dump(flxServer *s, FILE *f);
+const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state);
+void avahi_server_dump(AvahiServer *s, FILE *f);
 
-flxEntryGroup *flx_entry_group_new(flxServer *s, flxEntryGroupCallback callback, gpointer userdata);
-void flx_entry_group_free(flxEntryGroup *g);
-void flx_entry_group_commit(flxEntryGroup *g);
-flxEntryGroupState flx_entry_group_get_state(flxEntryGroup *g);
+AvahiEntryGroup *avahi_entry_group_new(AvahiServer *s, AvahiEntryGroupCallback callback, gpointer userdata);
+void avahi_entry_group_free(AvahiEntryGroup *g);
+void avahi_entry_group_commit(AvahiEntryGroup *g);
+AvahiEntryGroupState avahi_entry_group_get_state(AvahiEntryGroup *g);
 
-void flx_server_add(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxEntryFlags flags,
-    flxRecord *r);
+    AvahiEntryFlags flags,
+    AvahiRecord *r);
 
-void flx_server_add_ptr(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_ptr(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxEntryFlags flags,
+    AvahiEntryFlags flags,
     const gchar *name,
     const gchar *dest);
 
-void flx_server_add_address(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_address(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxEntryFlags flags,
+    AvahiEntryFlags flags,
     const gchar *name,
-    flxAddress *a);
+    AvahiAddress *a);
 
-void flx_server_add_text(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_text(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxEntryFlags flags,
+    AvahiEntryFlags flags,
     const gchar *name,
     ... /* text records, terminated by NULL */);
 
-void flx_server_add_text_va(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_text_va(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxEntryFlags flags,
+    AvahiEntryFlags flags,
     const gchar *name,
     va_list va);
 
-void flx_server_add_text_strlst(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_text_strlst(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    flxEntryFlags flags,
+    AvahiEntryFlags flags,
     const gchar *name,
-    flxStringList *strlst);
+    AvahiStringList *strlst);
 
-void flx_server_add_service(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_service(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
     const gchar *type,
@@ -103,9 +103,9 @@ void flx_server_add_service(
     guint16 port,
     ...  /* text records, terminated by NULL */);
 
-void flx_server_add_service_va(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_service_va(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
     const gchar *type,
@@ -115,9 +115,9 @@ void flx_server_add_service_va(
     guint16 port,
     va_list va);
 
-void flx_server_add_service_strlst(
-    flxServer *s,
-    flxEntryGroup *g,
+void avahi_server_add_service_strlst(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
     const gchar *type,
@@ -125,19 +125,19 @@ void flx_server_add_service_strlst(
     const gchar *domain,
     const gchar *host,
     guint16 port,
-    flxStringList *strlst);
+    AvahiStringList *strlst);
 
 typedef enum {
-    FLX_SUBSCRIPTION_NEW,
-    FLX_SUBSCRIPTION_REMOVE,
-    FLX_SUBSCRIPTION_CHANGE
-} flxSubscriptionEvent;
+    AVAHI_SUBSCRIPTION_NEW,
+    AVAHI_SUBSCRIPTION_REMOVE,
+    AVAHI_SUBSCRIPTION_CHANGE
+} AvahiSubscriptionEvent;
 
-typedef struct _flxSubscription flxSubscription;
+typedef struct _AvahiSubscription AvahiSubscription;
 
-typedef void (*flxSubscriptionCallback)(flxSubscription *s, flxRecord *record, gint interface, guchar protocol, flxSubscriptionEvent event, gpointer userdata);
+typedef void (*AvahiSubscriptionCallback)(AvahiSubscription *s, AvahiRecord *record, gint interface, guchar protocol, AvahiSubscriptionEvent event, gpointer userdata);
 
-flxSubscription *flx_subscription_new(flxServer *s, flxKey *key, gint interface, guchar protocol, flxSubscriptionCallback callback, gpointer userdata);
-void flx_subscription_free(flxSubscription *s);
+AvahiSubscription *avahi_subscription_new(AvahiServer *s, AvahiKey *key, gint interface, guchar protocol, AvahiSubscriptionCallback callback, gpointer userdata);
+void avahi_subscription_free(AvahiSubscription *s);
 
 #endif

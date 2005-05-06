@@ -3,7 +3,7 @@
 
 #include <glib.h>
 
-typedef struct _flxAnnouncement flxAnnouncement;
+typedef struct _AvahiAnnouncement AvahiAnnouncement;
 
 #include "llist.h"
 #include "iface.h"
@@ -11,41 +11,41 @@ typedef struct _flxAnnouncement flxAnnouncement;
 #include "timeeventq.h"
 
 typedef enum {
-    FLX_PROBING,
-    FLX_WAITING,         /* wait for other records in group */
-    FLX_ANNOUNCING,
-    FLX_ESTABLISHED
-} flxAnnouncementState;
+    AVAHI_PROBING,
+    AVAHI_WAITING,         /* wait for other records in group */
+    AVAHI_ANNOUNCING,
+    AVAHI_ESTABLISHED
+} AvahiAnnouncementState;
 
-struct _flxAnnouncement {
-    flxServer *server;
-    flxInterface *interface;
-    flxEntry *entry;
+struct _AvahiAnnouncement {
+    AvahiServer *server;
+    AvahiInterface *interface;
+    AvahiEntry *entry;
 
-    flxTimeEvent *time_event;
+    AvahiTimeEvent *time_event;
 
-    flxAnnouncementState state;
+    AvahiAnnouncementState state;
     guint n_iteration;
     guint sec_delay;
 
-    FLX_LLIST_FIELDS(flxAnnouncement, by_interface);
-    FLX_LLIST_FIELDS(flxAnnouncement, by_entry);
+    AVAHI_LLIST_FIELDS(AvahiAnnouncement, by_interface);
+    AVAHI_LLIST_FIELDS(AvahiAnnouncement, by_entry);
 };
 
-void flx_announce_interface(flxServer *s, flxInterface *i);
-void flx_announce_entry(flxServer *s, flxEntry *e);
-void flx_announce_group(flxServer *s, flxEntryGroup *g);
+void avahi_announce_interface(AvahiServer *s, AvahiInterface *i);
+void avahi_announce_entry(AvahiServer *s, AvahiEntry *e);
+void avahi_announce_group(AvahiServer *s, AvahiEntryGroup *g);
 
-void flx_entry_group_check_probed(flxEntryGroup *g, gboolean immediately);
+void avahi_entry_group_check_probed(AvahiEntryGroup *g, gboolean immediately);
 
-gboolean flx_entry_registered(flxServer *s, flxEntry *e, flxInterface *i);
-gboolean flx_entry_registering(flxServer *s, flxEntry *e, flxInterface *i);
+gboolean avahi_entry_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+gboolean avahi_entry_registering(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
-void flx_goodbye_interface(flxServer *s, flxInterface *i, gboolean send);
-void flx_goodbye_entry(flxServer *s, flxEntry *e, gboolean send);
+void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, gboolean send);
+void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, gboolean send);
 
-void flx_goodbye_all(flxServer *s, gboolean send);
+void avahi_goodbye_all(AvahiServer *s, gboolean send);
 
-flxAnnouncement *flx_get_announcement(flxServer *s, flxEntry *e, flxInterface *i);
+AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
 #endif

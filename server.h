@@ -1,7 +1,7 @@
 #ifndef fooAvahiserverhfoo
 #define fooAvahiserverhfoo
 
-#include "Avahi.h"
+#include "avahi.h"
 #include "iface.h"
 #include "prioq.h"
 #include "llist.h"

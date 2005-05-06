@@ -3,7 +3,7 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
-#include "Avahi.h"
+#include "avahi.h"
 
 static gboolean quit_timeout(gpointer data) {
     g_main_loop_quit(data);

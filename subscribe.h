@@ -2,7 +2,7 @@
 #define foosubscribehfoo
 
 #include "llist.h"
-#include "Avahi.h"
+#include "avahi.h"
 #include "subscribe.h"
 #include "timeeventq.h"
 #include "server.h"

@@ -35,27 +35,27 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
 }
 
 int main(int argc, char *argv[]) {
-    AvahiServer *Avahi;
+    AvahiServer *avahi;
     gchar *r;
     GMainLoop *loop = NULL;
     AvahiSubscription *s;
     AvahiKey *k;
     AvahiEntryGroup *g;
 
-    Avahi = avahi_server_new(NULL);
+    avahi = avahi_server_new(NULL);
 
-/*     g = avahi_entry_group_new(Avahi, entry_group_callback, NULL);  */
+/*     g = avahi_entry_group_new(avahi, entry_group_callback, NULL);  */
     
-/*    avahi_server_add_text(Avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, NULL, "hallo", NULL); */
-/*      avahi_server_add_service(Avahi, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);  */
+/*    avahi_server_add_text(avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, NULL, "hallo", NULL); */
+/*      avahi_server_add_service(avahi, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);  */
     
 /*     avahi_entry_group_commit(g);  */
 
-    avahi_server_dump(Avahi, stdout);
+    avahi_server_dump(avahi, stdout);
     
     
 /*     k = avahi_key_new("ecstasy.local.", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_ANY); */
-/*     s = avahi_subscription_new(Avahi, k, 0, AF_UNSPEC, subscription, NULL); */
+/*     s = avahi_subscription_new(avahi, k, 0, AF_UNSPEC, subscription, NULL); */
 /*     avahi_key_unref(k); */
 
     loop = g_main_loop_new(NULL, FALSE);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
 /*     avahi_subscription_free(s); */
     /* avahi_entry_group_free(g);  */
-    avahi_server_free(Avahi);
+    avahi_server_free(avahi);
     
     return 0;
 }

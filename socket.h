@@ -5,6 +5,10 @@
 
 #include "dns.h"
 
+#define FLX_MDNS_PORT 5353
+
+
+
 gint flx_open_socket_ipv4(void);
 gint flx_open_socket_ipv6(void);
 

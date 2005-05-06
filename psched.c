@@ -111,7 +111,7 @@ static guint8* packet_add_query_job(flxPacketScheduler *s, flxDnsPacket *p, flxQ
     g_assert(p);
     g_assert(qj);
 
-    if ((d = flx_dns_packet_append_key(p, qj->key))) {
+    if ((d = flx_dns_packet_append_key(p, qj->key, FALSE))) {
         GTimeVal tv;
 
         qj->done = 1;
@@ -603,7 +603,7 @@ static guint8* packet_add_probe_query(flxPacketScheduler *s, flxDnsPacket *p, fl
 
     /* Create the probe query */
     k = flx_key_new(pj->record->key->name, pj->record->key->class, FLX_DNS_TYPE_ANY);
-    ret = flx_dns_packet_append_key(p, k);
+    ret = flx_dns_packet_append_key(p, k, FALSE);
     g_assert(ret);
 
     /* Mark this job for addition to the packet */

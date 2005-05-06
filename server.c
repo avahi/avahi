@@ -77,7 +77,7 @@ static void cleanup_dead(flxServer *s) {
     }
 }
 
-static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flxAddress *a) {
+static void handle_query_key(flxServer *s, flxKey *k, flxInterface *i, const flxAddress *a, guint16 port, gboolean legacy_unicast, gboolean unicast_response) {
     flxEntry *e;
     gchar *txt;
     
@@ -141,7 +141,6 @@ static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
     t = flx_record_to_string(record);
 
 /*     g_message("PROBE: [%s]", t); */
-
     
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
@@ -164,7 +163,7 @@ static void incoming_probe(flxServer *s, flxRecord *record, flxInterface *i) {
     g_free(t);
 }
 
-static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a) {
+static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const flxAddress *a, guint16 port, gboolean legacy_unicast) {
     guint n;
     
     g_assert(s);
@@ -175,17 +174,18 @@ static void handle_query(flxServer *s, flxDnsPacket *p, flxInterface *i, const f
     /* Handle the questions */
     for (n = flx_dns_packet_get_field(p, FLX_DNS_FIELD_QDCOUNT); n > 0; n --) {
         flxKey *key;
+        gboolean unicast_response = FALSE;
 
-        if (!(key = flx_dns_packet_consume_key(p))) {
+        if (!(key = flx_dns_packet_consume_key(p, &unicast_response))) {
             g_warning("Packet too short (1)");
             return;
         }
 
-        handle_query_key(s, key, i, a);
+        handle_query_key(s, key, i, a, port, legacy_unicast, unicast_response);
         flx_key_unref(key);
     }
 
-    /* Known Answer Suppresion */
+    /* Known Answer Suppression */
     for (n = flx_dns_packet_get_field(p, FLX_DNS_FIELD_ANCOUNT); n > 0; n --) {
         flxRecord *record;
         gboolean unique = FALSE;
@@ -320,36 +320,30 @@ static void handle_response(flxServer *s, flxDnsPacket *p, flxInterface *i, cons
 static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, gint iface, gint ttl) {
     flxInterface *i;
     flxAddress a;
+    guint16 port;
     
     g_assert(s);
     g_assert(p);
     g_assert(sa);
     g_assert(iface > 0);
 
-    g_message("new packet recieved.");
-
     if (!(i = flx_interface_monitor_get_interface(s->monitor, iface, sa->sa_family))) {
         g_warning("Recieved packet from invalid interface.");
         return;
     }
 
-    if (ttl != 255) {
-        g_warning("Recieved packet with invalid TTL on interface '%s.%i'.", i->hardware->name, i->protocol);
-        if (!s->ignore_bad_ttl)
-            return;
-    }
+    g_message("new packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol);
 
     if (sa->sa_family == AF_INET6) {
-        static const unsigned char ipv4_in_ipv6[] = {
+        static const guint8 ipv4_in_ipv6[] = {
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00,
             0xFF, 0xFF, 0xFF, 0xFF };
 
-        if (memcmp(((struct sockaddr_in6*) sa)->sin6_addr.s6_addr, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0) {
+        /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
 
-            /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
+        if (memcmp(((struct sockaddr_in6*) sa)->sin6_addr.s6_addr, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0)
             return;
-        }
     }
 
     if (flx_dns_packet_check_valid(p) < 0) {
@@ -357,19 +351,46 @@ static void dispatch_packet(flxServer *s, flxDnsPacket *p, struct sockaddr *sa, 
         return;
     }
 
+    port = flx_port_from_sockaddr(sa);
     flx_address_from_sockaddr(sa, &a);
 
     if (flx_dns_packet_is_query(p)) {
+        gboolean legacy_unicast = FALSE;
 
         if (flx_dns_packet_get_field(p, FLX_DNS_FIELD_QDCOUNT) == 0 ||
             flx_dns_packet_get_field(p, FLX_DNS_FIELD_ARCOUNT) != 0) {
             g_warning("Invalid query packet.");
             return;
         }
-                
-        handle_query(s, p, i, &a);    
+
+        if (port != FLX_MDNS_PORT) {
+            /* Legacy Unicast */
+
+            if ((flx_dns_packet_get_field(p, FLX_DNS_FIELD_ANCOUNT) != 0 ||
+                 flx_dns_packet_get_field(p, FLX_DNS_FIELD_NSCOUNT) != 0)) {
+                g_warning("Invalid legacy unicast query packet.");
+                return;
+            }
+        
+            legacy_unicast = TRUE;
+        }
+
+        handle_query(s, p, i, &a, port, legacy_unicast);
+        
         g_message("Handled query");
     } else {
+
+        if (port != FLX_MDNS_PORT) {
+            g_warning("Recieved repsonse with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
+            return;
+        }
+
+        if (ttl != 255) {
+            g_warning("Recieved response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
+            if (!s->ignore_bad_ttl)
+                return;
+        }
+
         if (flx_dns_packet_get_field(p, FLX_DNS_FIELD_QDCOUNT) != 0 ||
             flx_dns_packet_get_field(p, FLX_DNS_FIELD_ANCOUNT) == 0 ||
             flx_dns_packet_get_field(p, FLX_DNS_FIELD_NSCOUNT) != 0) {

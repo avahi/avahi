@@ -113,3 +113,14 @@ flxAddress *flx_address_from_sockaddr(const struct sockaddr* sa, flxAddress *ret
 
     return ret_addr;
 }
+
+guint16 flx_port_from_sockaddr(const struct sockaddr* sa) {
+    g_assert(sa);
+
+    g_assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
+
+    if (sa->sa_family == AF_INET)
+        return ntohs(((struct sockaddr_in*) sa)->sin_port);
+    else
+        return ntohs(((struct sockaddr_in6*) sa)->sin6_port);
+}

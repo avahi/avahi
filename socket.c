@@ -13,8 +13,7 @@
 
 #include "dns.h"
 #include "util.h"
-
-#define MDNS_PORT 5353
+#include "socket.h"
 
 static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     g_assert(ret_sa);
@@ -22,7 +21,7 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     memset(ret_sa, 0, sizeof(struct sockaddr_in));
     
     ret_sa->sin_family = AF_INET;
-    ret_sa->sin_port = htons(MDNS_PORT);
+    ret_sa->sin_port = htons(FLX_MDNS_PORT);
     inet_pton(AF_INET, "224.0.0.251", &ret_sa->sin_addr);
 }
 
@@ -33,7 +32,7 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
     memset(ret_sa, 0, sizeof(struct sockaddr_in6));
     
     ret_sa->sin6_family = AF_INET6;
-    ret_sa->sin6_port = htons(MDNS_PORT);
+    ret_sa->sin6_port = htons(FLX_MDNS_PORT);
     inet_pton(AF_INET6, "ff02::fb", &ret_sa->sin6_addr);
 }
 
@@ -149,7 +148,7 @@ gint flx_open_socket_ipv4(void) {
     
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
-    local.sin_port = htons(MDNS_PORT);
+    local.sin_port = htons(FLX_MDNS_PORT);
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         g_warning("bind() failed: %s\n", strerror(errno));
@@ -230,7 +229,7 @@ gint flx_open_socket_ipv6(void) {
 
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
-    local.sin6_port = htons(MDNS_PORT);
+    local.sin6_port = htons(FLX_MDNS_PORT);
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         g_warning("bind() failed: %s\n", strerror(errno));

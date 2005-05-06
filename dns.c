@@ -478,13 +478,12 @@ flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_fl
         flx_dns_packet_consume_uint32(p, &ttl) < 0 ||
         flx_dns_packet_consume_uint16(p, &rdlength) < 0 ||
         p->rindex + rdlength > p->size)
-        
         goto fail;
 
 /*     g_message("name = %s, rdlength = %u", name, rdlength); */
 
     *ret_cache_flush = !!(class & FLX_DNS_CACHE_FLUSH);
-    class &= ~ FLX_DNS_CACHE_FLUSH;
+    class &= ~FLX_DNS_CACHE_FLUSH;
     
     start = flx_dns_packet_get_rptr(p);
     
@@ -595,23 +594,25 @@ fail:
     return NULL;
 }
 
-flxKey* flx_dns_packet_consume_key(flxDnsPacket *p) {
+flxKey* flx_dns_packet_consume_key(flxDnsPacket *p, gboolean *ret_unicast_response) {
     gchar name[256];
     guint16 type, class;
 
     g_assert(p);
+    g_assert(ret_unicast_response);
 
     if (flx_dns_packet_consume_name(p, name, sizeof(name)) < 0 ||
         flx_dns_packet_consume_uint16(p, &type) < 0 ||
         flx_dns_packet_consume_uint16(p, &class) < 0)
         return NULL;
 
-    class &= ~ FLX_DNS_CACHE_FLUSH;
+    *ret_unicast_response = !!(class & FLX_DNS_UNICAST_RESPONSE);
+    class &= ~FLX_DNS_UNICAST_RESPONSE;
 
     return flx_key_new(name, class, type);
 }
 
-guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k) {
+guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k, gboolean unicast_response) {
     guint8 *t;
     guint size;
     
@@ -622,7 +623,7 @@ guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k) {
     
     if (!(t = flx_dns_packet_append_name(p, k->name)) ||
         !flx_dns_packet_append_uint16(p, k->type) ||
-        !flx_dns_packet_append_uint16(p, k->class)) {
+        !flx_dns_packet_append_uint16(p, k->class | (unicast_response ? FLX_DNS_UNICAST_RESPONSE : 0))) {
         p->size = size;
         return NULL;
     }

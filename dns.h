@@ -30,7 +30,7 @@ guint8 *flx_dns_packet_append_uint16(flxDnsPacket *p, guint16 v);
 guint8 *flx_dns_packet_append_uint32(flxDnsPacket *p, guint32 v);
 guint8 *flx_dns_packet_append_name(flxDnsPacket *p, const gchar *name);
 guint8 *flx_dns_packet_append_bytes(flxDnsPacket  *p, gconstpointer, guint l);
-guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k);
+guint8* flx_dns_packet_append_key(flxDnsPacket *p, flxKey *k, gboolean unicast_response);
 guint8* flx_dns_packet_append_record(flxDnsPacket *p, flxRecord *r, gboolean cache_flush);
 guint8* flx_dns_packet_append_string(flxDnsPacket *p, const gchar *s);
 
@@ -41,7 +41,7 @@ gint flx_dns_packet_consume_uint16(flxDnsPacket *p, guint16 *ret_v);
 gint flx_dns_packet_consume_uint32(flxDnsPacket *p, guint32 *ret_v);
 gint flx_dns_packet_consume_name(flxDnsPacket *p, gchar *ret_name, guint l);
 gint flx_dns_packet_consume_bytes(flxDnsPacket *p, gpointer ret_data, guint l);
-flxKey* flx_dns_packet_consume_key(flxDnsPacket *p);
+flxKey* flx_dns_packet_consume_key(flxDnsPacket *p, gboolean *ret_unicast_response);
 flxRecord* flx_dns_packet_consume_record(flxDnsPacket *p, gboolean *ret_cache_flush);
 gint flx_dns_packet_consume_string(flxDnsPacket *p, gchar *ret_string, guint l);
 

@@ -7,7 +7,6 @@ todo:
 
 * Add some APIs to get the clean service name from RR for browsing
 
-* change flx_* to avahi_*
 * autoconf
 * release!
 
@@ -26,4 +25,4 @@ done:
 * defend our entries on incoming goodbye
 * allow NULL bytes in TXT records
 * add flx_server_add_service_strlst() and friends
-
+* change flx_* to avahi_*

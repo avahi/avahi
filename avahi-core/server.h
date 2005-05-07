@@ -30,7 +30,7 @@
 #include "announce.h"
 #include "subscribe.h"
 
-struct _AvahiEntry {
+struct AvahiEntry {
     AvahiServer *server;
     AvahiEntryGroup *group;
 
@@ -48,7 +48,7 @@ struct _AvahiEntry {
     AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
 };
 
-struct _AvahiEntryGroup {
+struct AvahiEntryGroup {
     AvahiServer *server;
     gboolean dead;
 
@@ -62,7 +62,7 @@ struct _AvahiEntryGroup {
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
 };
 
-struct _AvahiServer {
+struct AvahiServer {
     GMainContext *context;
     AvahiInterfaceMonitor *monitor;
 

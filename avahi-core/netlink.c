@@ -29,7 +29,7 @@
 
 #include "netlink.h"
 
-struct _AvahiNetlink {
+struct AvahiNetlink {
     GMainContext *context;
     gint fd;
     guint seq;

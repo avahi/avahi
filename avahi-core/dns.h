@@ -29,7 +29,7 @@
 #define AVAHI_DNS_PACKET_MAX_SIZE 9000
 #define AVAHI_DNS_PACKET_HEADER_SIZE 12
 
-typedef struct _AvahiDnsPacket {
+typedef struct AvahiDnsPacket {
     guint size, rindex, max_size;
     GHashTable *name_table; /* for name compression */
 } AvahiDnsPacket;

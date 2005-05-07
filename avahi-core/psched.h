@@ -22,18 +22,18 @@
   USA.
 ***/
 
-typedef struct _AvahiQueryJob AvahiQueryJob;
-typedef struct _AvahiResponseJob AvahiResponseJob;
-typedef struct _AvahiPacketScheduler AvahiPacketScheduler;
-typedef struct _AvahiKnownAnswer AvahiKnownAnswer;
-typedef struct _AvahiProbeJob AvahiProbeJob;
+typedef struct AvahiQueryJob AvahiQueryJob;
+typedef struct AvahiResponseJob AvahiResponseJob;
+typedef struct AvahiPacketScheduler AvahiPacketScheduler;
+typedef struct AvahiKnownAnswer AvahiKnownAnswer;
+typedef struct AvahiProbeJob AvahiProbeJob;
 
 #include "timeeventq.h"
 #include "rr.h"
 #include "llist.h"
 #include "iface.h"
 
-struct _AvahiQueryJob {
+struct AvahiQueryJob {
     AvahiPacketScheduler *scheduler;
     AvahiTimeEvent *time_event;
     AvahiKey *key;
@@ -42,7 +42,7 @@ struct _AvahiQueryJob {
     AVAHI_LLIST_FIELDS(AvahiQueryJob, jobs);
 };
 
-struct _AvahiResponseJob {
+struct AvahiResponseJob {
     AvahiPacketScheduler *scheduler;
     AvahiTimeEvent *time_event;
     AvahiRecord *record;
@@ -54,14 +54,14 @@ struct _AvahiResponseJob {
     AVAHI_LLIST_FIELDS(AvahiResponseJob, jobs);
 };
 
-struct _AvahiKnownAnswer {
+struct AvahiKnownAnswer {
     AvahiPacketScheduler *scheduler;
     AvahiRecord *record;
 
     AVAHI_LLIST_FIELDS(AvahiKnownAnswer, known_answer);
 };
 
-struct _AvahiProbeJob {
+struct AvahiProbeJob {
     AvahiPacketScheduler *scheduler;
     AvahiTimeEvent *time_event;
     AvahiRecord *record;
@@ -72,7 +72,7 @@ struct _AvahiProbeJob {
     AVAHI_LLIST_FIELDS(AvahiProbeJob, jobs);
 };
 
-struct _AvahiPacketScheduler {
+struct AvahiPacketScheduler {
     AvahiServer *server;
     
     AvahiInterface *interface;

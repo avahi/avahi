@@ -28,8 +28,7 @@
 
 #include <glib.h>
 
-struct _AvahiNetlink;
-typedef struct _AvahiNetlink AvahiNetlink;
+typedef struct AvahiNetlink AvahiNetlink;
 
 AvahiNetlink *avahi_netlink_new(GMainContext *c, gint priority, guint32 groups, void (*cb) (AvahiNetlink *n, struct nlmsghdr *m, gpointer userdata), gpointer userdata);
 void avahi_netlink_free(AvahiNetlink *n);

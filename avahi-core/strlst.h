@@ -24,13 +24,11 @@
 
 #include <glib.h>
 
-typedef struct _AvahiStringList AvahiStringList;
-
-struct _AvahiStringList {
-    AvahiStringList *next;
+typedef struct AvahiStringList {
+    struct AvahiStringList *next;
     guint size;
     guint8 text[1];
-};
+} AvahiStringList;
 
 AvahiStringList *avahi_string_list_new(const gchar *txt, ...);
 AvahiStringList *avahi_string_list_new_va(va_list va);

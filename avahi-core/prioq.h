@@ -24,20 +24,18 @@
 
 #include <glib.h>
 
-struct _AvahiPrioQueue;
-typedef struct _AvahiPrioQueue AvahiPrioQueue;
+typedef struct AvahiPrioQueue AvahiPrioQueue;
 
-struct _AvahiPrioQueueNode;
-typedef struct _AvahiPrioQueueNode AvahiPrioQueueNode;
+typedef struct AvahiPrioQueueNode AvahiPrioQueueNode;
 
-struct _AvahiPrioQueue {
+struct AvahiPrioQueue {
     AvahiPrioQueueNode *root, *last;
     
     guint n_nodes;
     gint (*compare) (gconstpointer a, gconstpointer b);
 };
 
-struct _AvahiPrioQueueNode {
+struct AvahiPrioQueueNode {
     AvahiPrioQueue *queue;
     gpointer data;
     guint x, y;

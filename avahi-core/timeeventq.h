@@ -22,12 +22,12 @@
   USA.
 ***/
 
-typedef struct _AvahiTimeEventQueue AvahiTimeEventQueue;
-typedef struct _AvahiTimeEvent AvahiTimeEvent;
+typedef struct AvahiTimeEventQueue AvahiTimeEventQueue;
+typedef struct AvahiTimeEvent AvahiTimeEvent;
 
 #include "prioq.h"
 
-struct _AvahiTimeEvent {
+struct AvahiTimeEvent {
     AvahiTimeEventQueue *queue;
     AvahiPrioQueueNode *node;
     GTimeVal expiry;
@@ -35,7 +35,7 @@ struct _AvahiTimeEvent {
     void *userdata;
 };
 
-struct _AvahiTimeEventQueue {
+struct AvahiTimeEventQueue {
     GSource source;
     AvahiPrioQueue *prioq;
 };

@@ -24,7 +24,7 @@
 
 #include <glib.h>
 
-typedef struct _AvahiAnnouncement AvahiAnnouncement;
+typedef struct AvahiAnnouncement AvahiAnnouncement;
 
 #include "llist.h"
 #include "iface.h"
@@ -38,7 +38,7 @@ typedef enum {
     AVAHI_ESTABLISHED
 } AvahiAnnouncementState;
 
-struct _AvahiAnnouncement {
+struct AvahiAnnouncement {
     AvahiServer *server;
     AvahiInterface *interface;
     AvahiEntry *entry;

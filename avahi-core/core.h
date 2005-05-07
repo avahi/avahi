@@ -25,9 +25,9 @@
 #include <stdio.h>
 #include <glib.h>
 
-typedef struct _AvahiServer AvahiServer;
-typedef struct _AvahiEntry AvahiEntry;
-typedef struct _AvahiEntryGroup AvahiEntryGroup;
+typedef struct AvahiServer AvahiServer;
+typedef struct AvahiEntry AvahiEntry;
+typedef struct AvahiEntryGroup AvahiEntryGroup;
 
 #include <avahi-core/address.h>
 #include <avahi-core/rr.h>
@@ -154,7 +154,7 @@ typedef enum {
     AVAHI_SUBSCRIPTION_CHANGE
 } AvahiSubscriptionEvent;
 
-typedef struct _AvahiSubscription AvahiSubscription;
+typedef struct AvahiSubscription AvahiSubscription;
 
 typedef void (*AvahiSubscriptionCallback)(AvahiSubscription *s, AvahiRecord *record, gint interface, guchar protocol, AvahiSubscriptionEvent event, gpointer userdata);
 

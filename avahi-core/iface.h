@@ -24,10 +24,10 @@
 
 #include <glib.h>
 
-typedef struct _AvahiInterfaceMonitor AvahiInterfaceMonitor;
-typedef struct _AvahiInterfaceAddress AvahiInterfaceAddress;
-typedef struct _AvahiInterface AvahiInterface;
-typedef struct _AvahiHwInterface AvahiHwInterface;
+typedef struct AvahiInterfaceMonitor AvahiInterfaceMonitor;
+typedef struct AvahiInterfaceAddress AvahiInterfaceAddress;
+typedef struct AvahiInterface AvahiInterface;
+typedef struct AvahiHwInterface AvahiHwInterface;
 
 #include "address.h"
 #include "server.h"
@@ -38,7 +38,7 @@ typedef struct _AvahiHwInterface AvahiHwInterface;
 #include "dns.h"
 #include "announce.h"
 
-struct _AvahiInterfaceMonitor {
+struct AvahiInterfaceMonitor {
     AvahiServer *server;
     AvahiNetlink *netlink;
     GHashTable *hash_table;
@@ -55,7 +55,7 @@ struct _AvahiInterfaceMonitor {
     } list;
 };
 
-struct _AvahiHwInterface {
+struct AvahiHwInterface {
     AVAHI_LLIST_FIELDS(AvahiHwInterface, hardware);
     AvahiInterfaceMonitor *monitor;
 
@@ -67,7 +67,7 @@ struct _AvahiHwInterface {
     AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
 };
 
-struct _AvahiInterface {
+struct AvahiInterface {
     AVAHI_LLIST_FIELDS(AvahiInterface, interface);
     AVAHI_LLIST_FIELDS(AvahiInterface, by_hardware);
     AvahiInterfaceMonitor *monitor;
@@ -83,7 +83,7 @@ struct _AvahiInterface {
     AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
 };
 
-struct _AvahiInterfaceAddress {
+struct AvahiInterfaceAddress {
     AVAHI_LLIST_FIELDS(AvahiInterfaceAddress, address);
     AvahiInterfaceMonitor *monitor;
     

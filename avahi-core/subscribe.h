@@ -28,7 +28,7 @@
 #include "timeeventq.h"
 #include "server.h"
 
-struct _AvahiSubscription {
+struct AvahiSubscription {
     AvahiServer *server;
     AvahiKey *key;
     gint interface;

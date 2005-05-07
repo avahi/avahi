@@ -24,8 +24,7 @@
 
 #include <glib.h>
 
-struct _AvahiCache;
-typedef struct _AvahiCache AvahiCache;
+typedef struct AvahiCache AvahiCache;
 
 #include "prioq.h"
 #include "server.h"
@@ -57,7 +56,7 @@ struct AvahiCacheEntry {
     AVAHI_LLIST_FIELDS(AvahiCacheEntry, entry);
 };
 
-struct _AvahiCache {
+struct AvahiCache {
     AvahiServer *server;
     
     AvahiInterface *interface;

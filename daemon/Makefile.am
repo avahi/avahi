@@ -33,6 +33,6 @@ avahi_SOURCES = \
 	main.c
 
 avahi_CFLAGS = $(AM_CFLAGS)
-avahi_LDADD = $(AM_LDADD) ../libavahi-core/libavahi-core.la
+avahi_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la
 
 

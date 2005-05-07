@@ -417,7 +417,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../libavahi-core/avahi.h ../libavahi-core/address.h ../libavahi-core/rr.h ../libavahi-core/strlst.h
+INPUT                  = ../avahi-core/core.h ../avahi-core/address.h ../avahi-core/rr.h ../avahi-core/strlst.h
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 

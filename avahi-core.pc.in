@@ -3,7 +3,7 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
-Name: libavahi-core
+Name: avahi-core
 Description: Avahi Embeddable Multicast DNS Engine
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lavahic-core

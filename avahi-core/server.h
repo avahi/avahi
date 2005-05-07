@@ -22,7 +22,7 @@
   USA.
 ***/
 
-#include "avahi.h"
+#include "core.h"
 #include "iface.h"
 #include "prioq.h"
 #include "llist.h"

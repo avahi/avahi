@@ -23,7 +23,7 @@
 ***/
 
 #include "llist.h"
-#include "avahi.h"
+#include "core.h"
 #include "subscribe.h"
 #include "timeeventq.h"
 #include "server.h"

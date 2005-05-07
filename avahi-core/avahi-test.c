@@ -28,7 +28,7 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
-#include "avahi.h"
+#include "core.h"
 
 static gboolean quit_timeout(gpointer data) {
     g_main_loop_quit(data);

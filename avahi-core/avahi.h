@@ -1,5 +1,5 @@
-#ifndef fooavahihfoo
-#define fooavahihfoo
+#ifndef foocorehfoo
+#define foocorehfoo
 
 /* $Id$ */
 
@@ -29,8 +29,8 @@ typedef struct _AvahiServer AvahiServer;
 typedef struct _AvahiEntry AvahiEntry;
 typedef struct _AvahiEntryGroup AvahiEntryGroup;
 
-#include "address.h"
-#include "rr.h"
+#include <avahi-core/address.h>
+#include <avahi-core/rr.h>
 
 typedef enum {
     AVAHI_ENTRY_NULL = 0,

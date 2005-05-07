@@ -18,10 +18,10 @@
 # USA.
 
 EXTRA_DIST = bootstrap.sh LICENSE doxygen/Makefile.am doxygen/Makefile.in doxygen/doxygen.conf.in libtool.m4
-SUBDIRS = libavahi-core
+SUBDIRS = avahi-core daemon
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libavahi-core.pc
+pkgconfig_DATA = avahi-core.pc
 
 doxygen:
 	$(MAKE) -C doxygen doxygen

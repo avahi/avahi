@@ -22,7 +22,7 @@
 
 AC_PREREQ(2.57)
 AC_INIT([avahi],[0.1],[mzninuv (at) 0pointer (dot) de])
-AC_CONFIG_SRCDIR([libavahi-core])
+AC_CONFIG_SRCDIR([avahi-core])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wall])
 
@@ -71,5 +71,5 @@ if test "x$GCC" = "xyes" ; then
    rm -f conftest.o
 fi
 
-AC_CONFIG_FILES([Makefile libavahi-core.pc doxygen/Makefile doxygen/doxygen.conf libavahi-core/Makefile])
+AC_CONFIG_FILES([Makefile avahi-core.pc doxygen/Makefile doxygen/doxygen.conf avahi-core/Makefile daemon/Makefile])
 AC_OUTPUT

@@ -61,8 +61,29 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
     inet_pton(AF_INET6, "ff02::fb", &ret_sa->sin6_addr);
 }
 
-int avahi_mdns_mcast_join_ipv4 (int index, int fd)
-{
+static void ipv4_address_to_sockaddr(struct sockaddr_in *ret_sa, const AvahiIPv4Address *a, guint16 port) {
+    g_assert(ret_sa);
+    g_assert(a);
+    g_assert(port > 0);
+
+    memset(ret_sa, 0, sizeof(struct sockaddr_in));
+    ret_sa->sin_family = AF_INET;
+    ret_sa->sin_port = htons(port);
+    memcpy(&ret_sa->sin_addr, a, sizeof(AvahiIPv4Address));
+}
+
+static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv6Address *a, guint16 port) {
+    g_assert(ret_sa);
+    g_assert(a);
+    g_assert(port > 0);
+
+    memset(ret_sa, 0, sizeof(struct sockaddr_in6));
+    ret_sa->sin6_family = AF_INET6;
+    ret_sa->sin6_port = htons(port);
+    memcpy(&ret_sa->sin6_addr, a, sizeof(AvahiIPv6Address));
+}
+
+int avahi_mdns_mcast_join_ipv4 (int index, int fd) {
     struct ip_mreqn mreq; 
     struct sockaddr_in sa;
 
@@ -80,8 +101,7 @@ int avahi_mdns_mcast_join_ipv4 (int index, int fd)
     return 0;
 }
 
-int avahi_mdns_mcast_join_ipv6 (int index, int fd)
-{
+int avahi_mdns_mcast_join_ipv6 (int index, int fd) {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
 
@@ -99,8 +119,7 @@ int avahi_mdns_mcast_join_ipv6 (int index, int fd)
     return 0;
 }
 
-int avahi_mdns_mcast_leave_ipv4 (int index, int fd)
-{
+int avahi_mdns_mcast_leave_ipv4 (int index, int fd) {
     struct ip_mreqn mreq; 
     struct sockaddr_in sa;
     
@@ -118,8 +137,7 @@ int avahi_mdns_mcast_leave_ipv4 (int index, int fd)
     return 0;
 }
 
-int avahi_mdns_mcast_leave_ipv6 (int index, int fd)
-{
+int avahi_mdns_mcast_leave_ipv6 (int index, int fd) {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
 
@@ -313,7 +331,7 @@ static gint sendmsg_loop(gint fd, struct msghdr *msg, gint flags) {
     return 0;
 }
 
-gint avahi_send_dns_packet_ipv4(gint fd, gint interface, AvahiDnsPacket *p) {
+gint avahi_send_dns_packet_ipv4(gint fd, gint interface, AvahiDnsPacket *p, const AvahiIPv4Address *a, guint16 port) {
     struct sockaddr_in sa;
     struct msghdr msg;
     struct iovec io;
@@ -324,8 +342,12 @@ gint avahi_send_dns_packet_ipv4(gint fd, gint interface, AvahiDnsPacket *p) {
     g_assert(fd >= 0);
     g_assert(p);
     g_assert(avahi_dns_packet_check_valid(p) >= 0);
+    g_assert(!a || port > 0);
 
-    mdns_mcast_group_ipv4(&sa);
+    if (!a)
+        mdns_mcast_group_ipv4(&sa);
+    else
+        ipv4_address_to_sockaddr(&sa, a, port);
 
     memset(&io, 0, sizeof(io));
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
@@ -352,7 +374,7 @@ gint avahi_send_dns_packet_ipv4(gint fd, gint interface, AvahiDnsPacket *p) {
     return sendmsg_loop(fd, &msg, MSG_DONTROUTE);
 }
 
-gint avahi_send_dns_packet_ipv6(gint fd, gint interface, AvahiDnsPacket *p) {
+gint avahi_send_dns_packet_ipv6(gint fd, gint interface, AvahiDnsPacket *p, const AvahiIPv6Address *a, guint16 port) {
     struct sockaddr_in6 sa;
     struct msghdr msg;
     struct iovec io;
@@ -364,7 +386,10 @@ gint avahi_send_dns_packet_ipv6(gint fd, gint interface, AvahiDnsPacket *p) {
     g_assert(p);
     g_assert(avahi_dns_packet_check_valid(p) >= 0);
 
-    mdns_mcast_group_ipv6(&sa);
+    if (!a)
+        mdns_mcast_group_ipv6(&sa);
+    else
+        ipv6_address_to_sockaddr(&sa, a, port);
 
     memset(&io, 0, sizeof(io));
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);

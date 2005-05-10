@@ -472,43 +472,62 @@ AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor
 }
 
 
+void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port) {
+    g_assert(i);
+    g_assert(p);
+    char t[64];
+
+    if (!avahi_interface_relevant(i))
+        return;
+    
+    g_assert(!a || a->family == i->protocol);
+
+    if (a)
+        g_message("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port);
+    else
+        g_message("multicast sending on '%s.%i'", i->hardware->name, i->protocol);
+    
+    if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
+        avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, a ? &a->data.ipv4 : NULL, port);
+    else if (i->protocol == AF_INET6 && i->monitor->server->fd_ipv6 >= 0)
+        avahi_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p, a ? &a->data.ipv6 : NULL, port);
+}
+
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p) {
     g_assert(i);
     g_assert(p);
 
-    if (avahi_interface_relevant(i)) {
-        g_message("sending on '%s.%i'", i->hardware->name, i->protocol);
-
-        if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
-            avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p);
-        else if (i->protocol == AF_INET6 && i->monitor->server->fd_ipv6 >= 0)
-            avahi_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p);
-    }
+    avahi_interface_send_packet_unicast(i, p, NULL, 0);
 }
 
-void avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean immediately) {
+gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean immediately) {
     g_assert(i);
     g_assert(key);
 
     if (avahi_interface_relevant(i))
-        avahi_packet_scheduler_post_query(i->scheduler, key, immediately);
+        return avahi_packet_scheduler_post_query(i->scheduler, key, immediately);
+
+    return FALSE;
 }
 
-
-void avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
+gboolean avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
     if (avahi_interface_relevant(i))
-        avahi_packet_scheduler_post_response(i->scheduler, a, record, flush_cache, immediately);
+        return avahi_packet_scheduler_post_response(i->scheduler, a, record, flush_cache, immediately);
+
+    return FALSE;
 }
 
-void avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, gboolean immediately) {
+gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, gboolean immediately) {
     g_assert(i);
     g_assert(record);
     
     if (avahi_interface_relevant(i))
-        avahi_packet_scheduler_post_probe(i->scheduler, record, immediately);
+        return avahi_packet_scheduler_post_probe(i->scheduler, record, immediately);
+
+    return FALSE;
 }
 
 void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f) {

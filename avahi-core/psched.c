@@ -163,7 +163,7 @@ static void append_known_answers_and_send(AvahiPacketScheduler *s, AvahiDnsPacke
     
     while ((ka = s->known_answers)) {
 
-        while (!avahi_dns_packet_append_record(p, ka->record, FALSE)) {
+        while (!avahi_dns_packet_append_record(p, ka->record, FALSE, 0)) {
 
             g_assert(!avahi_dns_packet_is_empty(p));
 
@@ -172,7 +172,7 @@ static void append_known_answers_and_send(AvahiPacketScheduler *s, AvahiDnsPacke
             avahi_interface_send_packet(s->interface, p);
             avahi_dns_packet_free(p);
 
-            p = avahi_dns_packet_new_query(s->interface->hardware->mtu - 48);
+            p = avahi_dns_packet_new_query(s->interface->hardware->mtu);
             n = 0;
         }
 
@@ -206,7 +206,7 @@ static void query_elapse(AvahiTimeEvent *e, gpointer data) {
 
     g_assert(!s->known_answers);
     
-    p = avahi_dns_packet_new_query(s->interface->hardware->mtu - 48);
+    p = avahi_dns_packet_new_query(s->interface->hardware->mtu);
     d = packet_add_query_job(s, p, qj);
     g_assert(d);
     n = 1;
@@ -246,7 +246,7 @@ AvahiQueryJob* query_job_new(AvahiPacketScheduler *s, AvahiKey *key) {
     return qj;
 }
 
-void avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately) {
+gboolean avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately) {
     GTimeVal tv;
     AvahiQueryJob *qj;
     
@@ -264,7 +264,7 @@ void avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, g
             /* Duplicate questions suppression */
             if (d >= 0 && d <= AVAHI_QUERY_HISTORY_MSEC*1000) {
                 g_message("WARNING! DUPLICATE QUERY SUPPRESSION ACTIVE!");
-                return;
+                return FALSE;
             }
             
             query_job_free(s, qj);
@@ -276,6 +276,7 @@ void avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, g
     qj = query_job_new(s, key);
     qj->delivery = tv;
     qj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &qj->delivery, query_elapse, qj);
+    return TRUE;
 }
 
 static guint8* packet_add_response_job(AvahiPacketScheduler *s, AvahiDnsPacket *p, AvahiResponseJob *rj) {
@@ -285,7 +286,7 @@ static guint8* packet_add_response_job(AvahiPacketScheduler *s, AvahiDnsPacket *
     g_assert(p);
     g_assert(rj);
 
-    if ((d = avahi_dns_packet_append_record(p, rj->record, rj->flush_cache))) {
+    if ((d = avahi_dns_packet_append_record(p, rj->record, rj->flush_cache, 0))) {
         GTimeVal tv;
 
         rj->done = 1;
@@ -306,7 +307,7 @@ static void send_response_packet(AvahiPacketScheduler *s, AvahiResponseJob *rj) 
 
     g_assert(s);
 
-    p = avahi_dns_packet_new_response(s->interface->hardware->mtu - 200);
+    p = avahi_dns_packet_new_response(s->interface->hardware->mtu);
     n = 0;
 
     /* If a job was specified, put it in the packet. */
@@ -382,7 +383,7 @@ static AvahiResponseJob* response_job_new(AvahiPacketScheduler *s, AvahiRecord *
     return rj;
 }
 
-void avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
+gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
     AvahiResponseJob *rj;
     GTimeVal tv;
     
@@ -415,7 +416,7 @@ void avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAd
 
             rj->flush_cache = flush_cache;
             
-            return;
+            return FALSE;
         }
 
         /* Either one was a goodbye packet, but the other was not, so
@@ -438,6 +439,8 @@ void avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAd
 
     if ((rj->address_valid = !!a))
         rj->address = *a;
+
+    return TRUE;
 }
 
 void avahi_packet_scheduler_incoming_query(AvahiPacketScheduler *s, AvahiKey *key) {
@@ -663,7 +666,7 @@ static void probe_elapse(AvahiTimeEvent *e, gpointer data) {
     g_assert(pj);
     s = pj->scheduler;
 
-    p = avahi_dns_packet_new_query(s->interface->hardware->mtu - 48);
+    p = avahi_dns_packet_new_query(s->interface->hardware->mtu);
 
     /* Add the import probe */
     if (!packet_add_probe_query(s, p, pj)) {
@@ -698,7 +701,7 @@ static void probe_elapse(AvahiTimeEvent *e, gpointer data) {
         if (!pj->chosen)
             continue;
 
-        if (!avahi_dns_packet_append_record(p, pj->record, TRUE)) {
+        if (!avahi_dns_packet_append_record(p, pj->record, TRUE, 0)) {
             g_warning("Bad probe size estimate!");
 
             /* Unmark all following jobs */
@@ -720,7 +723,7 @@ static void probe_elapse(AvahiTimeEvent *e, gpointer data) {
     avahi_dns_packet_free(p);
 }
 
-void avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *record, gboolean immediately) {
+gboolean avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *record, gboolean immediately) {
     AvahiProbeJob *pj;
     GTimeVal tv;
     
@@ -734,4 +737,6 @@ void avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *rec
     pj = probe_job_new(s, record);
     pj->delivery = tv;
     pj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &pj->delivery, probe_elapse, pj);
+
+    return TRUE;
 }

@@ -31,8 +31,8 @@
 gint avahi_open_socket_ipv4(void);
 gint avahi_open_socket_ipv6(void);
 
-gint avahi_send_dns_packet_ipv4(gint fd, gint iface, AvahiDnsPacket *p);
-gint avahi_send_dns_packet_ipv6(gint fd, gint iface, AvahiDnsPacket *p);
+gint avahi_send_dns_packet_ipv4(gint fd, gint iface, AvahiDnsPacket *p, const AvahiIPv4Address *a, guint16 port);
+gint avahi_send_dns_packet_ipv6(gint fd, gint iface, AvahiDnsPacket *p, const AvahiIPv6Address *a, guint16 port);
 
 AvahiDnsPacket *avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in*ret_sa, gint *ret_iface, guint8 *ret_ttl);
 AvahiDnsPacket *avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6*ret_sa, gint *ret_iface, guint8 *ret_ttl);

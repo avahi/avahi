@@ -1,7 +1,4 @@
 todo:
-* Unicast responses/queries
-* Legacy unicast
-
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 
@@ -25,3 +22,5 @@ done:
 * allow NULL bytes in TXT records
 * add flx_server_add_service_strlst() and friends
 * change flx_* to avahi_*
+* Unicast responses/queries
+* Legacy unicast

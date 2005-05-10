@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     gchar t[256], *a, *b, *c, *d;
     AvahiDnsPacket *p;
 
-    p = avahi_dns_packet_new(8000);
+    p = avahi_dns_packet_new(0);
 
     avahi_dns_packet_append_name(p, a = "hello.hello.hello.de.");
     avahi_dns_packet_append_name(p, b = "this is a test.hello.de."); 

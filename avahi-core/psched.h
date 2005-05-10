@@ -86,9 +86,9 @@ struct AvahiPacketScheduler {
 AvahiPacketScheduler *avahi_packet_scheduler_new(AvahiServer *server, AvahiInterface *i);
 void avahi_packet_scheduler_free(AvahiPacketScheduler *s);
 
-void avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately);
-void avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
-void avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *record, gboolean immediately);
+gboolean avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately);
+gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
+gboolean avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *record, gboolean immediately);
 
 void avahi_packet_scheduler_incoming_query(AvahiPacketScheduler *s, AvahiKey *key);
 void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record);

@@ -104,10 +104,11 @@ AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, 
 AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, gint index);
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
+void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port);
 
-void avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean immediately);
-void avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
-void avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
+gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean immediately);
+gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
+gboolean avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
 
 void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f);
 

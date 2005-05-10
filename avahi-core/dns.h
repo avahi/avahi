@@ -37,9 +37,11 @@ typedef struct AvahiDnsPacket {
 
 #define AVAHI_DNS_PACKET_DATA(p) (((guint8*) p) + sizeof(AvahiDnsPacket))
 
-AvahiDnsPacket* avahi_dns_packet_new(guint size);
-AvahiDnsPacket* avahi_dns_packet_new_query(guint size);
-AvahiDnsPacket* avahi_dns_packet_new_response(guint size);
+AvahiDnsPacket* avahi_dns_packet_new(guint mtu);
+AvahiDnsPacket* avahi_dns_packet_new_query(guint mtu);
+AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu);
+
+AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolean copy_queries, gboolean aa);
 
 void avahi_dns_packet_free(AvahiDnsPacket *p);
 void avahi_dns_packet_set_field(AvahiDnsPacket *p, guint index, guint16 v);
@@ -52,7 +54,7 @@ guint8 *avahi_dns_packet_append_uint32(AvahiDnsPacket *p, guint32 v);
 guint8 *avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name);
 guint8 *avahi_dns_packet_append_bytes(AvahiDnsPacket  *p, gconstpointer, guint l);
 guint8* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, gboolean unicast_response);
-guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboolean cache_flush);
+guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboolean cache_flush, guint max_ttl);
 guint8* avahi_dns_packet_append_string(AvahiDnsPacket *p, const gchar *s);
 
 gint avahi_dns_packet_is_query(AvahiDnsPacket *p);
@@ -84,6 +86,7 @@ guint avahi_dns_packet_space(AvahiDnsPacket *p);
 #define AVAHI_DNS_FLAG_OPCODE (15 << 11)
 #define AVAHI_DNS_FLAG_RCODE (15)
 #define AVAHI_DNS_FLAG_TC (1 << 9)
+#define AVAHI_DNS_FLAG_AA (1 << 10)
 
 #define AVAHI_DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
         (((guint16) !!qr << 15) |  \

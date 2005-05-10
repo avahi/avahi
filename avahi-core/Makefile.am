@@ -86,3 +86,8 @@ avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD) libavahi-core.la
 
 
+valgrind: avahi-test
+	libtool --mode=execute valgrind ./avahi-test
+
+gdb: avahi-test
+	libtool --mode=execute gdb ./avahi-test

@@ -29,6 +29,7 @@
 #include "timeeventq.h"
 #include "announce.h"
 #include "subscribe.h"
+#include "dns.h"
 
 struct AvahiEntry {
     AvahiServer *server;
@@ -86,6 +87,8 @@ struct AvahiServer {
     GSource *source;
 
     gboolean ignore_bad_ttl;
+
+    AvahiDnsPacket *unicast_packet;
 };
 
 gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);

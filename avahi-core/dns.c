@@ -32,12 +32,18 @@
 #include "dns.h"
 #include "util.h"
 
-AvahiDnsPacket* avahi_dns_packet_new(guint max_size) {
+AvahiDnsPacket* avahi_dns_packet_new(guint mtu) {
     AvahiDnsPacket *p;
+    guint max_size;
 
-    if (max_size <= 0)
+    if (mtu <= 0)
         max_size = AVAHI_DNS_PACKET_MAX_SIZE;
-    else if (max_size < AVAHI_DNS_PACKET_HEADER_SIZE)
+    else if (mtu >= 48)
+        max_size = mtu - 48;
+    else
+        max_size = 0;
+
+    if (max_size < AVAHI_DNS_PACKET_HEADER_SIZE)
         max_size = AVAHI_DNS_PACKET_HEADER_SIZE;
     
     p = g_malloc(sizeof(AvahiDnsPacket) + max_size);
@@ -49,21 +55,59 @@ AvahiDnsPacket* avahi_dns_packet_new(guint max_size) {
     return p;
 }
 
-AvahiDnsPacket* avahi_dns_packet_new_query(guint max_size) {
+AvahiDnsPacket* avahi_dns_packet_new_query(guint mtu) {
     AvahiDnsPacket *p;
 
-    p = avahi_dns_packet_new(max_size);
+    p = avahi_dns_packet_new(mtu);
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_FLAGS, AVAHI_DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
     return p;
 }
 
-AvahiDnsPacket* avahi_dns_packet_new_response(guint max_size) {
+AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu) {
     AvahiDnsPacket *p;
 
-    p = avahi_dns_packet_new(max_size);
+    p = avahi_dns_packet_new(mtu);
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_FLAGS, AVAHI_DNS_FLAGS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
     return p;
 }
+
+AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolean copy_queries, gboolean aa) {
+    AvahiDnsPacket *r;
+    g_assert(p);
+
+    r = avahi_dns_packet_new_response(mtu);
+
+    if (copy_queries) {
+        guint n, saved_rindex;
+
+        saved_rindex = p->rindex;
+        p->rindex = AVAHI_DNS_PACKET_HEADER_SIZE;
+        
+        for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT); n > 0; n--) {
+            AvahiKey *k;
+            gboolean unicast_response;
+
+            if ((k = avahi_dns_packet_consume_key(p, &unicast_response))) {
+                avahi_dns_packet_append_key(r, k, unicast_response);
+                avahi_key_unref(k);
+            }
+        }
+
+        p->rindex = saved_rindex;
+
+        avahi_dns_packet_set_field(r, AVAHI_DNS_FIELD_QDCOUNT, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT));
+    }
+
+    avahi_dns_packet_set_field(r, AVAHI_DNS_FIELD_ID, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID));
+
+    avahi_dns_packet_set_field(r, AVAHI_DNS_FIELD_FLAGS,
+                               (avahi_dns_packet_get_field(r, AVAHI_DNS_FIELD_FLAGS) & ~AVAHI_DNS_FLAG_OPCODE) |
+                               (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_OPCODE) |
+                               (aa ? AVAHI_DNS_FLAG_AA : 0));
+
+    return r;
+} 
+
 
 void avahi_dns_packet_free(AvahiDnsPacket *p) {
     g_assert(p);
@@ -654,7 +698,7 @@ guint8* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, gboolean uni
     return t;
 }
 
-guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboolean cache_flush) {
+guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboolean cache_flush, guint max_ttl) {
     guint8 *t, *l, *start;
     guint size;
 
@@ -666,7 +710,7 @@ guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboole
     if (!(t = avahi_dns_packet_append_name(p, r->key->name)) ||
         !avahi_dns_packet_append_uint16(p, r->key->type) ||
         !avahi_dns_packet_append_uint16(p, cache_flush ? (r->key->class | AVAHI_DNS_CACHE_FLUSH) : (r->key->class &~ AVAHI_DNS_CACHE_FLUSH)) ||
-        !avahi_dns_packet_append_uint32(p, r->ttl) ||
+        !avahi_dns_packet_append_uint32(p, (max_ttl && r->ttl > max_ttl) ? max_ttl : r->ttl) ||
         !(l = avahi_dns_packet_append_uint16(p, 0)))
         goto fail;
 

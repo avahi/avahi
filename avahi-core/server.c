@@ -265,64 +265,6 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     g_free(t);
 }
 
-static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
-    guint n;
-    
-    g_assert(s);
-    g_assert(p);
-    g_assert(i);
-    g_assert(a);
-
-    g_assert(!s->unicast_packet);
-
-    /* Handle the questions */
-    for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT); n > 0; n --) {
-        AvahiKey *key;
-        gboolean unicast_response = FALSE;
-
-        if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
-            g_warning("Packet too short (1)");
-            return;
-        }
-
-        handle_query_key(s, p, key, i, a, port, legacy_unicast, unicast_response);
-        avahi_key_unref(key);
-    }
-
-    /* Known Answer Suppression */
-    for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT); n > 0; n --) {
-        AvahiRecord *record;
-        gboolean unique = FALSE;
-
-        if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-            g_warning("Packet too short (2)");
-            return;
-        }
-
-        avahi_packet_scheduler_incoming_known_answer(i->scheduler, record, a);
-        avahi_record_unref(record);
-    }
-
-    /* Probe record */
-    for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT); n > 0; n --) {
-        AvahiRecord *record;
-        gboolean unique = FALSE;
-
-        if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-            g_warning("Packet too short (3)");
-            return;
-        }
-
-        if (record->key->type != AVAHI_DNS_TYPE_ANY)
-            incoming_probe(s, record, i);
-        
-        avahi_record_unref(record);
-    }
-
-    if (s->unicast_packet)
-        send_unicast_response_packet(s, i, a, port);
-}
-
 static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, gboolean unique, const AvahiAddress *a) {
     gboolean valid = TRUE;
     AvahiEntry *e, *n;
@@ -388,6 +330,76 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
     g_free(t);
 
     return valid;
+}
+
+static void incoming_known_answer(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, gboolean legacy_unicast, gboolean unique, const AvahiAddress *a) {
+    g_assert(s);
+    g_assert(i);
+    g_assert(r);
+    
+    if (legacy_unicast)
+        return;
+
+    if (handle_conflict(s, i, r, unique, a))
+        avahi_packet_scheduler_incoming_known_answer(i->scheduler, r, a);
+}
+
+static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
+    guint n;
+    
+    g_assert(s);
+    g_assert(p);
+    g_assert(i);
+    g_assert(a);
+
+    g_assert(!s->unicast_packet);
+
+    /* Handle the questions */
+    for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT); n > 0; n --) {
+        AvahiKey *key;
+        gboolean unicast_response = FALSE;
+
+        if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
+            g_warning("Packet too short (1)");
+            return;
+        }
+
+        handle_query_key(s, p, key, i, a, port, legacy_unicast, unicast_response);
+        avahi_key_unref(key);
+    }
+
+    /* Known Answer Suppression */
+    for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT); n > 0; n --) {
+        AvahiRecord *record;
+        gboolean unique = FALSE;
+
+        if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
+            g_warning("Packet too short (2)");
+            return;
+        }
+
+        incoming_known_answer(s, i, record, legacy_unicast, unique, a);
+        avahi_record_unref(record);
+    }
+
+    /* Probe record */
+    for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT); n > 0; n --) {
+        AvahiRecord *record;
+        gboolean unique = FALSE;
+
+        if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
+            g_warning("Packet too short (3)");
+            return;
+        }
+
+        if (record->key->type != AVAHI_DNS_TYPE_ANY)
+            incoming_probe(s, record, i);
+        
+        avahi_record_unref(record);
+    }
+
+    if (s->unicast_packet)
+        send_unicast_response_packet(s, i, a, port);
 }
 
 static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a) {

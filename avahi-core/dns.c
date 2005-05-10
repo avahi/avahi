@@ -63,11 +63,11 @@ AvahiDnsPacket* avahi_dns_packet_new_query(guint mtu) {
     return p;
 }
 
-AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu) {
+AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu, gboolean aa) {
     AvahiDnsPacket *p;
 
     p = avahi_dns_packet_new(mtu);
-    avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_FLAGS, AVAHI_DNS_FLAGS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+    avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_FLAGS, AVAHI_DNS_FLAGS(1, 0, aa, 0, 0, 0, 0, 0, 0, 0));
     return p;
 }
 
@@ -75,7 +75,7 @@ AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolea
     AvahiDnsPacket *r;
     g_assert(p);
 
-    r = avahi_dns_packet_new_response(mtu);
+    r = avahi_dns_packet_new_response(mtu, aa);
 
     if (copy_queries) {
         guint n, saved_rindex;
@@ -102,8 +102,7 @@ AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolea
 
     avahi_dns_packet_set_field(r, AVAHI_DNS_FIELD_FLAGS,
                                (avahi_dns_packet_get_field(r, AVAHI_DNS_FIELD_FLAGS) & ~AVAHI_DNS_FLAG_OPCODE) |
-                               (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_OPCODE) |
-                               (aa ? AVAHI_DNS_FLAG_AA : 0));
+                               (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_OPCODE));
 
     return r;
 } 

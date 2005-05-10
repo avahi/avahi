@@ -307,7 +307,7 @@ static void send_response_packet(AvahiPacketScheduler *s, AvahiResponseJob *rj) 
 
     g_assert(s);
 
-    p = avahi_dns_packet_new_response(s->interface->hardware->mtu);
+    p = avahi_dns_packet_new_response(s->interface->hardware->mtu, TRUE);
     n = 0;
 
     /* If a job was specified, put it in the packet. */

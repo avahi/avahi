@@ -39,7 +39,7 @@ typedef struct AvahiDnsPacket {
 
 AvahiDnsPacket* avahi_dns_packet_new(guint mtu);
 AvahiDnsPacket* avahi_dns_packet_new_query(guint mtu);
-AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu);
+AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu, gboolean aa);
 
 AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolean copy_queries, gboolean aa);
 

@@ -181,11 +181,11 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         g_assert(percent > 0);
 
-        g_message("Requesting cache entry update at %i%%.", percent);
-
         /* Request a cache update, if we are subscribed to this entry */
-        if (avahi_is_subscribed(e->cache->server, e->record->key))
+        if (avahi_is_subscribed(e->cache->server, e->record->key)) {
+            g_message("Requesting cache entry update at %i%%.", percent);
             avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
+        }
 
         /* Check again later */
         next_expiry(e->cache, e, percent);

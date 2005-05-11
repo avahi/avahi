@@ -69,12 +69,12 @@ int main(int argc, char *argv[]) {
 
     avahi = avahi_server_new(NULL);
 
-/*     g = avahi_entry_group_new(avahi, entry_group_callback, NULL);  */
+     g = avahi_entry_group_new(avahi, entry_group_callback, NULL);  
     
-/*    avahi_server_add_text(avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, NULL, "hallo", NULL); */
-/*      avahi_server_add_service(avahi, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);  */
+    avahi_server_add_text(avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, NULL, "hallo", NULL); 
+    avahi_server_add_service(avahi, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);  
     
-/*     avahi_entry_group_commit(g);  */
+    avahi_entry_group_commit(g);  
 
     avahi_server_dump(avahi, stdout);
     
@@ -86,13 +86,13 @@ int main(int argc, char *argv[]) {
     loop = g_main_loop_new(NULL, FALSE);
     
   /*   g_timeout_add(1000*20, dump_timeout, Avahi); */
-/*     g_timeout_add(1000*30, quit_timeout, loop); */
+/*     g_timeout_add(1000*30, quit_timeout, loop);  */
     
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 
 /*     avahi_subscription_free(s); */
-    /* avahi_entry_group_free(g);  */
+    avahi_entry_group_free(g);  
     avahi_server_free(avahi);
     
     return 0;

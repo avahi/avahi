@@ -51,7 +51,8 @@ libavahi_core_la_SOURCES = \
 	psched.c psched.h \
 	announce.c announce.h \
 	subscribe.c subscribe.h \
-	strlst.c strlst.h
+	strlst.c strlst.h \
+	rrlist.c rrlist.h
 
 prioq_test_SOURCES = \
 	prioq-test.c  \
@@ -84,7 +85,6 @@ avahi_test_SOURCES = \
 	avahi-test.c
 avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD) libavahi-core.la
-
 
 valgrind: avahi-test
 	libtool --mode=execute valgrind ./avahi-test

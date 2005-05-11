@@ -46,6 +46,7 @@ AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolea
 void avahi_dns_packet_free(AvahiDnsPacket *p);
 void avahi_dns_packet_set_field(AvahiDnsPacket *p, guint index, guint16 v);
 guint16 avahi_dns_packet_get_field(AvahiDnsPacket *p, guint index);
+void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint index);
 
 guint8 *avahi_dns_packet_extend(AvahiDnsPacket *p, guint l);
 

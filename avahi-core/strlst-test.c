@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
     AvahiStringList *a = NULL, *b;
     guint size, n;
 
+    a = avahi_string_list_new("prefix", "a", "b", NULL);
+    
     a = avahi_string_list_add(a, "start");
     a = avahi_string_list_add(a, "foo");
     a = avahi_string_list_add(a, "bar");

@@ -510,12 +510,12 @@ gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean i
     return FALSE;
 }
 
-gboolean avahi_interface_post_response(AvahiInterface *i, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
+gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
     if (avahi_interface_relevant(i))
-        return avahi_packet_scheduler_post_response(i->scheduler, a, record, flush_cache, immediately);
+        return avahi_packet_scheduler_post_response(i->scheduler, record, flush_cache, immediately);
 
     return FALSE;
 }

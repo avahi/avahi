@@ -131,6 +131,14 @@ guint16 avahi_dns_packet_get_field(AvahiDnsPacket *p, guint index) {
     return g_ntohs(((guint16*) AVAHI_DNS_PACKET_DATA(p))[index]);
 }
 
+void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint index) {
+    g_assert(p);
+
+    avahi_dns_packet_set_field(p, index, avahi_dns_packet_get_field(p, index) + 1);
+}   
+
+
+
 /* Read the first label from string *name, unescape "\" and write it to dest */
 gchar *avahi_unescape_label(gchar *dest, guint size, const gchar **name) {
     guint i = 0;

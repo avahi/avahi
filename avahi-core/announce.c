@@ -152,7 +152,7 @@ static void next_state(AvahiAnnouncement *a) {
 
     } else if (a->state == AVAHI_ANNOUNCING) {
 
-        avahi_interface_post_response(a->interface, NULL, a->entry->record, a->entry->flags & AVAHI_ENTRY_UNIQUE, FALSE);
+        avahi_interface_post_response(a->interface, a->entry->record, a->entry->flags & AVAHI_ENTRY_UNIQUE, FALSE);
 
         if (++a->n_iteration >= 4) {
             gchar *t;
@@ -364,7 +364,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, g
         return;
     
     g = make_goodbye_record(e->record);
-    avahi_interface_post_response(i, NULL, g, e->flags & AVAHI_ENTRY_UNIQUE, TRUE);
+    avahi_interface_post_response(i, g, e->flags & AVAHI_ENTRY_UNIQUE, TRUE);
     avahi_record_unref(g);
 }
     

@@ -375,7 +375,6 @@ static AvahiResponseJob* response_job_new(AvahiPacketScheduler *s, AvahiRecord *
     rj->record = avahi_record_ref(record);
     rj->done = FALSE;
     rj->time_event = NULL;
-    rj->address_valid = FALSE;
     rj->flush_cache = FALSE;
     
     AVAHI_LLIST_PREPEND(AvahiResponseJob, jobs, s->response_jobs, rj);
@@ -383,7 +382,7 @@ static AvahiResponseJob* response_job_new(AvahiPacketScheduler *s, AvahiRecord *
     return rj;
 }
 
-gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const AvahiAddress *a, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
+gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
     AvahiResponseJob *rj;
     GTimeVal tv;
     
@@ -407,13 +406,6 @@ gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const Ava
             d >= 0 && d <= AVAHI_RESPONSE_HISTORY_MSEC*1000) {
             g_message("WARNING! DUPLICATE RESPONSE SUPPRESSION ACTIVE!");
 
-            /* This job is no longer specific to a single querier, so
-             * make sure it isn't suppressed by known answer
-             * suppresion */
-
-            if (rj->address_valid && (!a || avahi_address_cmp(a, &rj->address) != 0))
-                rj->address_valid = FALSE;
-
             rj->flush_cache = flush_cache;
             
             return FALSE;
@@ -432,13 +424,6 @@ gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, const Ava
     rj->flush_cache = flush_cache;
     rj->delivery = tv;
     rj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &rj->delivery, response_elapse, rj);
-
-    /* Store the address of the host this messages is intended to, so
-       that we can drop this job in case a truncated message with
-       known answer suppresion entries is recieved */
-
-    if ((rj->address_valid = !!a))
-        rj->address = *a;
 
     return TRUE;
 }
@@ -489,7 +474,6 @@ void response_job_set_elapse_time(AvahiPacketScheduler *s, AvahiResponseJob *rj,
         avahi_time_event_queue_update(s->server->time_event_queue, rj->time_event, &tv);
     else
         rj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &tv, response_elapse, rj);
-    
 }
 
 void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record) {
@@ -551,31 +535,6 @@ mark_done:
     response_job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
 
     g_get_current_time(&rj->delivery);
-}
-
-void avahi_packet_scheduler_incoming_known_answer(AvahiPacketScheduler *s, AvahiRecord *record, const AvahiAddress *a) {
-    AvahiResponseJob *rj;
-    
-    g_assert(s);
-    g_assert(record);
-    g_assert(a);
-
-    for (rj = s->response_jobs; rj; rj = rj->jobs_next) {
-
-        g_assert(record->ttl > 0);
-        g_assert(rj->record->ttl/2);
-        
-        if (avahi_record_equal_no_ttl(rj->record, record))
-            if (rj->address_valid)
-                if (avahi_address_cmp(&rj->address, a))
-                    if (record->ttl >= rj->record->ttl/2) {
-
-            /* Let's suppress it */
-
-            response_job_free(s, rj);
-            break;
-        }
-    }
 }
 
 void avahi_packet_scheduler_flush_responses(AvahiPacketScheduler *s) {

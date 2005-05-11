@@ -30,6 +30,7 @@
 #include "announce.h"
 #include "subscribe.h"
 #include "dns.h"
+#include "rrlist.h"
 
 struct AvahiEntry {
     AvahiServer *server;
@@ -88,7 +89,7 @@ struct AvahiServer {
 
     gboolean ignore_bad_ttl;
 
-    AvahiDnsPacket *unicast_packet;
+    AvahiRecordList *record_list; /* Used for assembling responses */
 };
 
 gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);

@@ -1,16 +1,10 @@
 todo:
-* add SRV and TXT records referenced from PTR records automatically to packet
-* add A and AAAA records referenced from SRV records automatically to packet
-
 * Add some APIs to get the clean service name from RR for browsing
 
 RFC MUSTs:
 	* Return to probing state on conflict
 	* fix flush bit when working on RRsets
 	* one RR too large for single packet
-
-* check wether RRsets are supported correctly (i.e. that all records of an
-  RRset are really sent if it is requested) (rfc 2181)
 
 * test against apple test suite
 
@@ -37,3 +31,9 @@ done:
 * no flush bit in known answer
 * always set AA
 * check: TC bit is valid for queries ONLY
+* add SRV and TXT records referenced from PTR records automatically to packet
+* add A and AAAA records referenced from SRV records automatically to packet
+* support known answer suppresion for incoming unicast queries
+* check wether RRsets are supported correctly (i.e. that all records of an
+  RRset are really sent if it is requested) (rfc 2181)
+

@@ -5,6 +5,7 @@ RFC MUSTs:
 	* Return to probing state on conflict
 	* fix flush bit when working on RRsets
 	* one RR too large for single packet
+	* case insensitve comparision
 
 * test against apple test suite
 

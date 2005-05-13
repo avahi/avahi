@@ -38,10 +38,18 @@ GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter);
 
 gint avahi_age(const GTimeVal *a);
 
-guint avahi_domain_hash(const gchar *p);
-gboolean avahi_domain_cmp(const gchar *a, const gchar *b);
 gboolean avahi_domain_equal(const gchar *a, const gchar *b);
+gint avahi_binary_domain_cmp(const gchar *a, const gchar *b);
 
 void avahi_hexdump(gconstpointer p, guint size);
+
+/* Read the first label from the textual domain name *name, unescape
+ * it and write it to dest, *name is changed to point to the next label*/
+gchar *avahi_unescape_label(const gchar **name, gchar *dest, guint size);
+
+/* Escape the domain name in *src and write it to *ret_name */
+gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name, guint *ret_size);
+
+gint avahi_domain_hash(const gchar *s);
 
 #endif

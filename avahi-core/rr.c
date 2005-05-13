@@ -274,7 +274,10 @@ gboolean avahi_key_is_pattern(const AvahiKey *k) {
 guint avahi_key_hash(const AvahiKey *k) {
     g_assert(k);
 
-    return avahi_domain_hash(k->name) + k->type + k->class;
+    return
+        avahi_domain_hash(k->name) + 
+        k->type +
+        k->class;
 }
 
 static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
@@ -305,8 +308,8 @@ static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
 
         case AVAHI_DNS_TYPE_HINFO:
             return
-                !strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu) &&
-                !strcmp(a->data.hinfo.os, b->data.hinfo.os);
+                !g_utf8_collate(a->data.hinfo.cpu, b->data.hinfo.cpu) &&
+                !g_utf8_collate(a->data.hinfo.os, b->data.hinfo.os);
 
         case AVAHI_DNS_TYPE_TXT:
             return avahi_string_list_equal(a->data.txt.string_list, b->data.txt.string_list);
@@ -439,7 +442,7 @@ static gint lexicographical_memcmp(gconstpointer a, size_t al, gconstpointer b, 
     g_assert(b);
 
     c = al < bl ? al : bl;
-    if ((ret = memcmp(a, b, c)) != 0)
+    if ((ret = memcmp(a, b, c)))
         return ret;
 
     if (al == bl)
@@ -452,97 +455,37 @@ static gint uint16_cmp(guint16 a, guint16 b) {
     return a == b ? 0 : (a < b ? a : b);
 }
 
-static gint lexicographical_domain_cmp(const gchar *a, const gchar *b) {
-    g_assert(a);
-    g_assert(b);
-    
-
-    for (;;) {
-        gchar t1[64];
-        gchar t2[64];
-        size_t al, bl;
-        gint r;
-
-        if (!a && !b)
-            return 0;
-
-        if (a && !b)
-            return 1;
-
-        if (b && !a)
-            return -1;
-        
-        avahi_unescape_label(t1, sizeof(t1), &a);
-        avahi_unescape_label(t2, sizeof(t2), &b);
-
-        al = strlen(t1);
-        bl = strlen(t2);
-        
-        if (al != bl) 
-            return al < bl ? -1 : 1;
-
-        if ((r =  strcmp(t1, t2)) != 0)
-            return r;
-    }
-}
-
 gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
     g_assert(a);
     g_assert(b);
+    gint r;
 
     if (a == b)
         return 0;
-    
-/*     gchar *t; */
 
-/*     g_message("comparing [%s]", t = avahi_record_to_string(a)); */
-/*     g_free(t); */
-
-/*     g_message("and [%s]", t = avahi_record_to_string(b)); */
-/*     g_free(t); */
-
-    if (a->key->class < b->key->class)
-        return -1;
-    else if (a->key->class > b->key->class)
-        return 1;
-
-    if (a->key->type < b->key->type)
-        return -1;
-    else if (a->key->type > b->key->type)
-        return 1;
+    if ((r = uint16_cmp(a->key->class, b->key->class)) ||
+        (r = uint16_cmp(a->key->type, b->key->type)))
+        return r;
 
     switch (a->key->type) {
 
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
-            return lexicographical_domain_cmp(a->data.ptr.name, b->data.ptr.name);
+            return avahi_binary_domain_cmp(a->data.ptr.name, b->data.ptr.name);
 
         case AVAHI_DNS_TYPE_SRV: {
-            gint r;
             if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) == 0 &&
                 (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) == 0 &&
                 (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) == 0)
-                r = lexicographical_domain_cmp(a->data.srv.name, b->data.srv.name);
+                r = avahi_binary_domain_cmp(a->data.srv.name, b->data.srv.name);
             
             return r;
         }
 
         case AVAHI_DNS_TYPE_HINFO: {
-            size_t al = strlen(a->data.hinfo.cpu), bl = strlen(b->data.hinfo.cpu);
-            gint r;
 
-            if (al != bl)
-                return al < bl ? -1 : 1;
-
-            if ((r = strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu)) != 0)
-                return r;
-
-            al = strlen(a->data.hinfo.os), bl = strlen(b->data.hinfo.os);
-
-            if (al != bl)
-                return al < bl ? -1 : 1;
-
-            if ((r = strcmp(a->data.hinfo.os, b->data.hinfo.os)) != 0)
+            if ((r = strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu)) ||
+                (r = strcmp(a->data.hinfo.os, b->data.hinfo.os)))
                 return r;
 
             return 0;
@@ -553,7 +496,6 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
 
             guint8 *ma, *mb;
             guint asize, bsize;
-            gint r;
 
             ma = g_new(guint8, asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0));
             mb = g_new(guint8, bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0));

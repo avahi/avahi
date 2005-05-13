@@ -34,11 +34,15 @@ int main(int argc, char *argv[]) {
     g_message("%s", s = avahi_normalize_name("foo.foo."));
     g_free(s);
     
-    g_message("%s", s = avahi_normalize_name("foo.foo."));
+    g_message("%s", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
     g_free(s);
 
-
     g_message("%i", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
+    g_message("%i", avahi_domain_equal("\\A", "a"));
 
+    g_message("%i", avahi_domain_equal("a", "aaa"));
+
+    g_message("%u = %u", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
+    
     return 0;
 }

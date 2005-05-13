@@ -5,7 +5,6 @@ RFC MUSTs:
 	* Return to probing state on conflict
 	* fix flush bit when working on RRsets
 	* one RR too large for single packet
-	* case insensitve comparision
 
 * test against apple test suite
 
@@ -37,4 +36,5 @@ done:
 * support known answer suppresion for incoming unicast queries
 * check wether RRsets are supported correctly (i.e. that all records of an
   RRset are really sent if it is requested) (rfc 2181)
+* case insensitve comparision
 

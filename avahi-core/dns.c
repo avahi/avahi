@@ -139,48 +139,6 @@ void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint index) {
 
 
 
-/* Read the first label from string *name, unescape "\" and write it to dest */
-gchar *avahi_unescape_label(gchar *dest, guint size, const gchar **name) {
-    guint i = 0;
-    gchar *d;
-    
-    g_assert(dest);
-    g_assert(size > 0);
-    g_assert(name);
-    g_assert(*name);
-
-    d = dest;
-    
-    for (;;) {
-        if (i >= size)
-            return NULL;
-
-        if (**name == '.') {
-            (*name)++;
-            break;
-        }
-        
-        if (**name == 0)
-            break;
-        
-        if (**name == '\\') {
-            (*name) ++;
-            
-            if (**name == 0)
-                break;
-        }
-        
-        *(d++) = *((*name) ++);
-        i++;
-    }
-
-    g_assert(i < size);
-
-    *d = 0;
-
-    return dest;
-}
-
 guint8* avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name) {
     guint8 *d, *saved_ptr = NULL;
     guint saved_size;
@@ -218,14 +176,15 @@ guint8* avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name) {
 
         pname = name;
         
-        if (!(avahi_unescape_label(label, sizeof(label), &name)))
+        if (!(avahi_unescape_label(&name, label, sizeof(label))))
             goto fail;
 
         if (!(d = avahi_dns_packet_append_string(p, label)))
             goto fail;
 
         if (!p->name_table)
-            p->name_table = g_hash_table_new_full((GHashFunc) avahi_domain_hash, (GEqualFunc) avahi_domain_equal, g_free, NULL);
+            /* This works only for normalized domain names */
+            p->name_table = g_hash_table_new_full((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal, g_free, NULL);
 
         g_hash_table_insert(p->name_table, g_strdup(pname), d);
     }
@@ -333,42 +292,6 @@ gint avahi_dns_packet_is_query(AvahiDnsPacket *p) {
     return !(avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_QR);
 }
 
-/* Read a label from a DNS packet, escape "\" and ".", append \0 */
-static gchar *escape_label(guint8* src, guint src_length, gchar **ret_name, guint *ret_name_length) {
-    gchar *r;
-
-    g_assert(src);
-    g_assert(ret_name);
-    g_assert(*ret_name);
-    g_assert(ret_name_length);
-    g_assert(*ret_name_length > 0);
-
-    r = *ret_name;
-
-    while (src_length > 0) {
-        if (*src == '.' || *src == '\\') {
-            if (*ret_name_length < 3)
-                return NULL;
-            
-            *((*ret_name) ++) = '\\';
-            (*ret_name_length) --;
-        }
-
-        if (*ret_name_length < 2)
-            return NULL;
-        
-        *((*ret_name)++) = *src;
-        (*ret_name_length) --;
-
-        src_length --;
-        src++;
-    }
-
-    **ret_name = 0;
-
-    return r;
-}
-
 static gint consume_labels(AvahiDnsPacket *p, guint index, gchar *ret_name, guint l) {
     gint ret = 0;
     int compressed = 0;
@@ -412,7 +335,7 @@ static gint consume_labels(AvahiDnsPacket *p, guint index, gchar *ret_name, guin
             } else
                 first_label = 0;
 
-            if (!(escape_label(AVAHI_DNS_PACKET_DATA(p) + index, n, &ret_name, &l)))
+            if (!(avahi_escape_label(AVAHI_DNS_PACKET_DATA(p) + index, n, &ret_name, &l)))
                 return -1;
 
             index += n;

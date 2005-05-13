@@ -71,7 +71,9 @@ int main(int argc, char *argv[]) {
 
      g = avahi_entry_group_new(avahi, entry_group_callback, NULL);  
     
-    avahi_server_add_text(avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, NULL, "hallo", NULL); 
+    avahi_server_add_text(avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, "HALLO", "hallo", NULL); 
+    avahi_server_add_text(avahi, g, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, "hallo", "waldo", NULL);
+    
     avahi_server_add_service(avahi, g, 0, AF_UNSPEC, "_http._tcp", "gurke", NULL, NULL, 80, "foo", NULL);  
     
     avahi_entry_group_commit(g);  

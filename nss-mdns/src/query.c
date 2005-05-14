@@ -248,7 +248,7 @@ static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t* ret_
             
             for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg,cmsg)) {
                 if (cmsg->cmsg_level == SOL_IP && cmsg->cmsg_type == IP_TTL) {
-                    *ret_ttl = *(uint8_t *) CMSG_DATA(cmsg);
+                    *ret_ttl = (uint8_t) ntohl(*(uint32_t*)CMSG_DATA(cmsg));
                     break;
                 }
             }

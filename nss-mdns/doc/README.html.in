@@ -42,9 +42,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Sun May 15 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.4.tar.gz">Version 0.4</a>
+released. Changes include: small portability fix for big endian
+architectures; send "legacy unicast" packets instead of normal mDNS
+packets (this should reduce traffic and improve response time)</p>
+
 <div class="news-date">Jan Sun 16 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.3.tar.gz">Version 0.3</a>
-released. Changes include: add Debianization, use <tt>ip6.arpa</tt> instead of <tt>ip6.int</tt> for reverse IPv6 lookups.</p>
+released. Changes include: add Debianization; use <tt>ip6.arpa</tt> instead of <tt>ip6.int</tt> for reverse IPv6 lookups.</p>
 
 <div class="news-date">Fri Dec 17 2004: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.2.tar.gz">Version 0.2</a>
@@ -70,11 +76,12 @@ means that you have to run a mDNS responder daemon seperately
 from <tt>nss-mdns</tt> if you want to register the local host name via
 mDNS (e.g. <a href="http://www.porchdogsoft.com/products/howl/">HOWL</a>).</p>
 
-<p><tt>nss-mdns</tt> is very lightweight (22 KByte stripped binary <tt>.so</tt> compiled with 
-<tt>-DNDEBUG=1</tt> on i386, <tt>gcc</tt> 3.3), has no dependencies besides the <tt>glibc</tt> and requires only minimal
-configuration.</p>
+<p><tt>nss-mdns</tt> is very lightweight (23 KByte stripped binary
+<tt>.so</tt> compiled with <tt>-DNDEBUG=1</tt> on i386, <tt>gcc</tt>
+3.3), has no dependencies besides the <tt>glibc</tt> and requires only
+minimal configuration.</p>
 
-<h2><a name="status">Status</a></h2>
+<h2><a name="status">Current Status</a></h2>
 
 <p>It works!</p>
 
@@ -100,7 +107,8 @@ lookup for IPv4.</p>
 
 <p>To activate one of the NSS modules you have to edit
 <tt>/etc/nsswitch.conf</tt> and add <tt>mdns4</tt>
-(resp. <tt>mdns</tt>, <tt>mdns6</tt>) to the line starting with "<tt>hosts:</tt>". On Debian this looks like this:</p>
+(resp. <tt>mdns</tt>, <tt>mdns6</tt>) to the line starting with
+"<tt>hosts:</tt>". On Debian this looks like this:</p>
 
 <pre># /etc/nsswitch.conf
 
@@ -125,23 +133,24 @@ use <tt>glibc</tt>'s <tt>getent</tt> tool:
 <pre>$ getent hosts <i>foo</i>.local
 192.168.50.4    foo.local</pre>
 
-<p>Replace <i>foo</i> whith a host name that has been registered with an mDNS responder.</p>
+<p>Replace <i>foo</i> whith a host name that has been registered with
+an mDNS responder.</p>
 
-<p>Due to some traffic suppression algorithms in mDNS responders
-repeated mDNS resolutions are slowed down. Consider installing <tt>glibc</tt>'s name
-service cache daemon <tt>nscd</tt> to work around this limitation.</p>
+<p>To reduce the traffic <tt>nss-mdns</tt> is responsible for consider
+installing <tt>glibc</tt>'s name service cache daemon
+<tt>nscd</tt>. However, when doing troubleshooting for
+<tt>nss-mdns</tt>, don't forget to disable <tt>nscd</tt> for getting
+sensible results.</p>
 
-<p>When doing troubleshooting for <tt>nss-mdns</tt>, don't forget to
-disable <tt>nscd</tt> for getting sensible results.</p>
-
-<p>If you run a firewall, don't forget to allow UDP traffic from and to port 5353
-from and to the the mDNS multicast address <tt>224.0.0.251</tt>.</p>
+<p>If you run a firewall, don't forget to allow UDP traffic to the the
+mDNS multicast address <tt>224.0.0.251</tt> on port 5353.</p>
 
 <h2><a name="requirements">Requirements</a></h2>
 
-<p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly modern <tt>glibc</tt> installation with development headers (2.0 or newer) is required. Not
-suprisingly <tt>nss-mdns</tt> requires a kernel compiled with IPv4
-multicasting support enabled.</p>
+<p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly
+modern <tt>glibc</tt> installation with development headers (2.0 or
+newer) is required. Not suprisingly <tt>nss-mdns</tt> requires a
+kernel compiled with IPv4 multicasting support enabled.</p>
 
 <p><tt>nss-mdns</tt> was developed and tested on Debian GNU/Linux
 "testing" from December 2004, it should work on most other Linux

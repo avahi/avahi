@@ -157,9 +157,6 @@ int dns_packet_check_valid_response(struct dns_packet *p) {
     if (!(flags & DNS_FLAG_QR))
         return -1;
 
-    if (dns_packet_get_field(p, DNS_FIELD_QDCOUNT) > 0)
-        return -1;
-
     return 0;
     
 }
@@ -278,7 +275,7 @@ int dns_packet_consume_bytes(struct dns_packet *p, void *ret_data, size_t l) {
 }
 
 int dns_packet_consume_seek(struct dns_packet *p, size_t length) {
-    assert(p && length >= 0);
+    assert(p);
 
     if (!length)
         return 0;

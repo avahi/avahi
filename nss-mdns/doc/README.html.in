@@ -184,7 +184,7 @@ compilation and <tt>make install</tt> (as root) for installation of
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 
 <hr/>
-<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, January 2005</address>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, May 2005</address>
 <div class="grey"><i>$Id$</i></div>
 
 </body>

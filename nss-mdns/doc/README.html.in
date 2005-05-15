@@ -169,7 +169,7 @@ compilation and <tt>make install</tt> (as root) for installation of
 
 <h2><a name="acks">Acknowledgements</a></h2>
 
-<p>Nothing here yet.</p>
+<p>SHIROYAMA Takayuki for a patch.</p>
 
 <h2><a name="download">Download</a></h2>
 
@@ -180,6 +180,8 @@ compilation and <tt>make install</tt> (as root) for installation of
 <p>Get <tt>nss-mdns</tt>'s development sources from the <a href="http://subversion.tigris.org/">Subversion</a> <a href="svn://seth.intheinter.net/nss-mdns">repository</a> (<a href="http://0pointer.de/cgi-bin/viewcvs.cgi/?root=nss-mdns">viewcvs</a>): </p>
 
 <pre>svn checkout svn://seth.intheinter.net/nss-mdns/trunk nss-mdns</pre>
+
+<p>You may find an up to date Debian package of <tt>nss-mdns</tt> on the <a href="http://packages.debian.org/libnss-mdns">Debian package repository</a>.</p>
 
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 

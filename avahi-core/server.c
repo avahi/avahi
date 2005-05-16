@@ -416,8 +416,7 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
 
         if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
             g_warning("Packet too short (1)");
-            avahi_record_list_flush(s->record_list);
-            return;
+            goto fail;
        }
 
         avahi_packet_scheduler_incoming_query(i->scheduler, key);
@@ -425,9 +424,6 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
         avahi_key_unref(key);
     }
 
-    if (!avahi_record_list_empty(s->record_list))
-        avahi_server_generate_response(s, i, p, a, port, legacy_unicast);
-    
     /* Known Answer Suppression */
     for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT); n > 0; n --) {
         AvahiRecord *record;
@@ -435,11 +431,13 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
 
         if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
             g_warning("Packet too short (2)");
-            return;
+            goto fail;
         }
 
-        if (handle_conflict(s, i, record, unique, a))
+        if (handle_conflict(s, i, record, unique, a)) {
             avahi_packet_scheduler_incoming_known_answer(i->scheduler, record, a);
+            avahi_record_list_drop(s->record_list, record);
+        }
         
         avahi_record_unref(record);
     }
@@ -451,7 +449,7 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
 
         if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
             g_warning("Packet too short (3)");
-            return;
+            goto fail;
         }
 
         if (record->key->type != AVAHI_DNS_TYPE_ANY)
@@ -459,6 +457,15 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
         
         avahi_record_unref(record);
     }
+
+    if (!avahi_record_list_empty(s->record_list))
+        avahi_server_generate_response(s, i, p, a, port, legacy_unicast);
+
+    return;
+    
+fail:
+    avahi_record_list_flush(s->record_list);
+
 }
 
 static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a) {

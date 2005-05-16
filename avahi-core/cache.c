@@ -220,8 +220,17 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
     update_time_event(c, e);
 }
 
+static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
+    g_assert(c);
+    g_assert(e);
+    
+    e->state = AVAHI_CACHE_FINAL;
+    g_get_current_time(&e->expiry);
+    g_time_val_add(&e->expiry, 1000000); /* 1s */
+    update_time_event(c, e);
+}
+
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const AvahiAddress *a) {
-    AvahiCacheEntry *e, *t;
     gchar *txt;
     
     g_assert(c);
@@ -231,50 +240,50 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
     g_free(txt);
 
     if (r->ttl == 0) {
-
         /* This is a goodbye request */
 
-        if ((e = avahi_cache_lookup_record(c, r))) {
+        AvahiCacheEntry *e;
 
-            e->state = AVAHI_CACHE_FINAL;
-            g_get_current_time(&e->timestamp);
-            e->expiry = e->timestamp;
-            g_time_val_add(&e->expiry, 1000000); /* 1s */
-            update_time_event(c, e);
-        }
+        if ((e = avahi_cache_lookup_record(c, r)))
+            expire_in_one_second(c, e);
 
     } else {
+        AvahiCacheEntry *e = NULL, *first;
+        GTimeVal now;
+
+        g_get_current_time(&now);
 
         /* This is an update request */
 
-        if ((t = e = avahi_cache_lookup_key(c, r->key))) {
-        
+        if ((first = avahi_cache_lookup_key(c, r->key))) {
+            
             if (unique) {
-                
-                /* For unique records, remove all entries but one */
-                while (e->by_key_next)
-                    remove_entry(c, e->by_key_next);
-                
-            } else {
-                
-                /* For non-unique record, look for exactly the same entry */
-                for (; e; e = e->by_key_next)
-                    if (avahi_record_equal_no_ttl(e->record, r))
-                        break;
+
+                /* For unique entries drop all entries older than one second */
+                for (e = first; e; e = e->by_key_next) {
+                    glong t;
+
+                    t = avahi_timeval_diff(&now, &e->timestamp);
+
+                    if (t > 1000000)
+                        expire_in_one_second(c, e);
+                }
             }
+                
+            /* Look for exactly the same entry */
+            for (e = first; e; e = e->by_key_next)
+                if (avahi_record_equal_no_ttl(e->record, r))
+                    break;
         }
     
         if (e) {
             
-/*         g_message("found matching cache entry"); */
-            
-            /* We are the first in the linked list so let's replace the hash table key with the new one */
+            g_message("found matching cache entry"); 
+
+            /* We need to update the hash table key if we replace the
+             * record */
             if (e->by_key_prev == NULL)
                 g_hash_table_replace(c->hash_table, r->key, e);
-            
-            /* Notify subscribers */
-            if (!avahi_record_equal_no_ttl(e->record, r))
-                avahi_subscription_notify(c->server, c->interface, r, AVAHI_SUBSCRIPTION_CHANGE);    
             
             /* Update the record */
             avahi_record_unref(e->record);
@@ -283,7 +292,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
         } else {
             /* No entry found, therefore we create a new one */
             
-/*         g_message("couldn't find matching cache entry"); */
+            g_message("couldn't find matching cache entry"); 
             
             e = g_new(AvahiCacheEntry, 1);
             e->cache = c;
@@ -291,8 +300,8 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
             e->record = avahi_record_ref(r);
 
             /* Append to hash table */
-            AVAHI_LLIST_PREPEND(AvahiCacheEntry, by_key, t, e);
-            g_hash_table_replace(c->hash_table, e->record->key, t);
+            AVAHI_LLIST_PREPEND(AvahiCacheEntry, by_key, first, e);
+            g_hash_table_replace(c->hash_table, e->record->key, first);
 
             /* Append to linked list */
             AVAHI_LLIST_PREPEND(AvahiCacheEntry, entry, c->entries, e);
@@ -302,49 +311,24 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
         } 
         
         e->origin = *a;
-        g_get_current_time(&e->timestamp);
+        e->timestamp = now;
         next_expiry(c, e, 80);
         e->state = AVAHI_CACHE_VALID;
     }
 }
 
-static gpointer drop_key_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, gpointer userdata) {
-    g_assert(c);
-    g_assert(pattern);
-    g_assert(e);
-
-    remove_entry(c, e);
-    return NULL;
-}
-
-void avahi_cache_drop_key(AvahiCache *c, AvahiKey *k) {
-    g_assert(c);
-    g_assert(k);
-
-    avahi_cache_walk(c, k, drop_key_callback, NULL);
-}
-
-void avahi_cache_drop_record(AvahiCache *c, AvahiRecord *r) {
-    AvahiCacheEntry *e;
-    
-    g_assert(c);
-    g_assert(r);
-
-    if ((e = avahi_cache_lookup_record(c, r))) 
-        remove_entry(c, e);
-}
-
-static void func(gpointer key, gpointer data, gpointer userdata) {
+static void dump_callback(gpointer key, gpointer data, gpointer userdata) {
     AvahiCacheEntry *e = data;
     AvahiKey *k = key;
-    gchar *t;
 
     g_assert(k);
     g_assert(e);
-    
-    t = avahi_record_to_string(e->record);
-    fprintf((FILE*) userdata, "%s\n", t);
-    g_free(t);
+
+    for (; e; e = e->by_key_next) {
+        gchar *t = avahi_record_to_string(e->record);
+        fprintf((FILE*) userdata, "%s\n", t);
+        g_free(t);
+    }
 }
 
 void avahi_cache_dump(AvahiCache *c, FILE *f) {
@@ -352,7 +336,7 @@ void avahi_cache_dump(AvahiCache *c, FILE *f) {
     g_assert(f);
 
     fprintf(f, ";;; CACHE DUMP FOLLOWS ;;;\n");
-    g_hash_table_foreach(c->hash_table, func, f);
+    g_hash_table_foreach(c->hash_table, dump_callback, f);
 }
 
 gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
@@ -366,7 +350,14 @@ gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 
     age = avahi_timeval_diff(&now, &e->timestamp)/1000000;
 
-    g_message("age: %u, ttl/2: %u", age, e->record->ttl);
+/*     g_message("age: %u, ttl/2: %u", age, e->record->ttl); */
     
     return age >= e->record->ttl/2;
+}
+
+void avahi_cache_flush(AvahiCache *c) {
+    g_assert(c);
+
+    while (c->entries)
+        remove_entry(c, c->entries);
 }

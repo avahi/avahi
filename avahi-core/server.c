@@ -102,26 +102,19 @@ static void cleanup_dead(AvahiServer *s) {
     }
 }
 
-static void post_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response);
-
 static void add_aux_records(AvahiServer *s, AvahiInterface *i, const gchar *name, guint16 type, gboolean unicast_response) {
     AvahiKey *k;
-    AvahiEntry *e;
-    
+
     g_assert(s);
     g_assert(i);
     g_assert(name);
 
     k = avahi_key_new(name, AVAHI_DNS_CLASS_IN, type);
-    
-    for (e = g_hash_table_lookup(s->entries_by_key, k); e; e = e->by_key_next)
-        if (!e->dead && avahi_entry_registered(s, e, i))
-            post_response(s, i, e, unicast_response);
-
+    avahi_server_prepare_matching_responses(s, i, k, unicast_response);
     avahi_key_unref(k);
 }
 
-static void post_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response) {
+void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response) {
     g_assert(s);
     g_assert(i);
     g_assert(e);
@@ -140,7 +133,8 @@ static void post_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboo
         }
     }
 }
-static void handle_query_key(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response) {
+
+void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response) {
     AvahiEntry *e;
     gchar *txt;
     
@@ -148,18 +142,16 @@ static void handle_query_key(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gbo
     g_assert(i);
     g_assert(k);
 
-    g_message("Handling query: %s", txt = avahi_key_to_string(k));
+    g_message("Posting responses matching [%s]", txt = avahi_key_to_string(k));
     g_free(txt);
 
-    avahi_packet_scheduler_incoming_query(i->scheduler, k);
-
-    if (k->type == AVAHI_DNS_TYPE_ANY) {
+    if (avahi_key_is_pattern(k)) {
 
         /* Handle ANY query */
         
         for (e = s->entries; e; e = e->entries_next)
             if (!e->dead && avahi_key_pattern_match(k, e->record->key) && avahi_entry_registered(s, e, i))
-                post_response(s, i, e, unicast_response);
+                avahi_server_prepare_response(s, i, e, unicast_response);
 
     } else {
 
@@ -167,14 +159,13 @@ static void handle_query_key(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gbo
         
         for (e = g_hash_table_lookup(s->entries_by_key, k); e; e = e->by_key_next)
             if (!e->dead && avahi_entry_registered(s, e, i))
-                post_response(s, i, e, unicast_response);
+                avahi_server_prepare_response(s, i, e, unicast_response);
     }
 }
 
 static void withdraw_entry(AvahiServer *s, AvahiEntry *e) {
     g_assert(s);
     g_assert(e);
-
     
     if (e->group) {
         AvahiEntry *k;
@@ -193,33 +184,50 @@ static void withdraw_entry(AvahiServer *s, AvahiEntry *e) {
     s->need_entry_cleanup = TRUE;
 }
 
+static void withdraw_rrset(AvahiServer *s, AvahiKey *key) {
+    AvahiEntry *e;
+    
+    g_assert(s);
+    g_assert(key);
+
+   for (e = g_hash_table_lookup(s->entries_by_key, key); e; e = e->by_key_next)
+        withdraw_entry(s, e);
+}
+
 static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i) {
     AvahiEntry *e, *n;
     gchar *t;
+    gboolean ours = FALSE, won = FALSE, lost = FALSE;
     
     g_assert(s);
     g_assert(record);
     g_assert(i);
 
-    t = avahi_record_to_string(record);
-
-/*     g_message("PROBE: [%s]", t); */
-    
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
+        gint cmp;
         n = e->by_key_next;
 
-        if (e->dead || avahi_record_equal_no_ttl(record, e->record))
+        if (e->dead || !avahi_entry_probing(s, e, i))
             continue;
+        
+        if ((cmp = avahi_record_lexicographical_compare(e->record, record)) == 0) {
+            ours = TRUE;
+            break;
+        } else if (cmp > 0)
+            won = TRUE;
+        else /* cmp < 0 */
+            lost = TRUE;
+    }
 
-        if (avahi_entry_registering(s, e, i)) {
-            gint cmp;
+    t = avahi_record_to_string(record);
 
-            if ((cmp = avahi_record_lexicographical_compare(record, e->record)) > 0) {
-                withdraw_entry(s, e);
-                g_message("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
-            } else if (cmp < 0)
-                g_message("Recieved conflicting probe [%s]. Local host won.", t);
+    if (!ours) {
 
+        if (won)
+            g_message("Recieved conflicting probe [%s]. Local host won.", t);
+        else if (lost) {
+            g_message("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
+            withdraw_rrset(s, record->key);
         }
     }
 
@@ -227,8 +235,8 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
 }
 
 static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, gboolean unique, const AvahiAddress *a) {
-    gboolean valid = TRUE;
-    AvahiEntry *e, *n;
+    gboolean valid = TRUE, ours = FALSE, conflict = FALSE, withdraw_immediately = FALSE;
+    AvahiEntry *e, *n, *conflicting_entry = NULL;
     gchar *t;
     
     g_assert(s);
@@ -237,54 +245,65 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
 
     t = avahi_record_to_string(record);
 
-/*     g_message("CHECKING FOR CONFLICT: [%s]", t); */
+    g_message("CHECKING FOR CONFLICT: [%s]", t);  
 
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
 
-        if (e->dead)
+        if (e->dead || (!(e->flags & AVAHI_ENTRY_UNIQUE) && !unique))
             continue;
+
+        /* Either our entry or the other is intended to be unique, so let's check */
         
         if (avahi_entry_registered(s, e, i)) {
 
-            gboolean equal = avahi_record_equal_no_ttl(record, e->record);
-                
-            /* Check whether there is a unique record conflict */
-            if (!equal && ((e->flags & AVAHI_ENTRY_UNIQUE) || unique)) {
-                gint cmp;
-                
-                /* The lexicographically later data wins. */
-                if ((cmp = avahi_record_lexicographical_compare(record, e->record)) > 0) {
-                    g_message("Recieved conflicting record [%s]. Local host lost. Withdrawing.", t);
-                    withdraw_entry(s, e);
-                } else if (cmp < 0) {
-                    /* Tell the other host that our entry is lexicographically later */
-
-                    g_message("Recieved conflicting record [%s]. Local host won. Refreshing.", t);
-
-                    valid = FALSE;
-                    avahi_interface_post_response(i, e->record, e->flags & AVAHI_ENTRY_UNIQUE, TRUE);
-                }
+            if (avahi_record_equal_no_ttl(e->record, record)) {
+                ours = TRUE; /* We have an identical record, so this is no conflict */
                 
                 /* Check wheter there is a TTL conflict */
-            } else if (equal && record->ttl <= e->record->ttl/2) {
-                /* Correct the TTL */
-                valid = FALSE;
-                avahi_interface_post_response(i, e->record, e->flags & AVAHI_ENTRY_UNIQUE, TRUE);
-                g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
+                if (record->ttl <= e->record->ttl/2) {
+                    /* Refresh */
+                    g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
+                    avahi_interface_post_response(i, e->record, FALSE, TRUE, NULL);
+                    valid = FALSE;
+                }
+                
+                /* There's no need to check the other entries of this RRset */
+                break;
+            } else {
+                /* A conflict => we have to return to probe mode */
+                conflict = TRUE;
+                conflicting_entry = e;
             }
+
+        } else if (avahi_entry_probing(s, e, i)) {
+
+            if (!avahi_record_equal_no_ttl(record, e->record)) {
             
-        } else if (avahi_entry_registering(s, e, i)) {
-
-            if (!avahi_record_equal_no_ttl(record, e->record) && ((e->flags & AVAHI_ENTRY_UNIQUE) || unique)) {
-
                 /* We are currently registering a matching record, but
                  * someone else already claimed it, so let's
                  * withdraw */
-                
-                g_message("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
-                withdraw_entry(s, e);
+                conflict = TRUE;
+                withdraw_immediately = TRUE;
             }
+        }
+    }
+
+/*     g_message("ours=%i conflict=%i", ours, conflict); */
+
+    if (!ours && conflict) {
+        valid = FALSE;
+
+        if (withdraw_immediately) {
+            g_message("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
+            withdraw_rrset(s, record->key);
+        } else {
+            g_assert(conflicting_entry);
+            g_message("Recieved conflicting record [%s]. Resetting our record.", t);
+            avahi_entry_return_to_initial_state(s, conflicting_entry, i);
+
+            /* Local unique records are returned to probin
+             * state. Local shared records are reannounced. */
         }
     }
 
@@ -293,12 +312,11 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
     return valid;
 }
 
-static void generate_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
+void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
 
     g_assert(s);
-    g_assert(p);
     g_assert(i);
-    g_assert(a);
+    g_assert(!legacy_unicast || (a && port > 0 && p));
 
     if (legacy_unicast) {
         AvahiDnsPacket *reply;
@@ -331,7 +349,7 @@ static void generate_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface 
         
         while ((r = avahi_record_list_pop(s->record_list, &flush_cache, &unicast_response))) {
 
-            if (!avahi_interface_post_response(i, r, flush_cache, FALSE) && unicast_response) {
+            if (!avahi_interface_post_response(i, r, flush_cache, FALSE, a) && unicast_response) {
             
                 /* Due to some reasons the record has not been scheduled.
                  * The client requested an unicast response in that
@@ -339,8 +357,10 @@ static void generate_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface 
 
                 for (;;) {
                 
-                    if (!reply)
+                    if (!reply) {
+                        g_assert(p);
                         reply = avahi_dns_packet_new_reply(p, i->hardware->mtu, FALSE, FALSE);
+                    }
                 
                     if (avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
 
@@ -385,6 +405,8 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
     g_assert(i);
     g_assert(a);
 
+/*     g_message("query"); */
+
     g_assert(avahi_record_list_empty(s->record_list));
     
     /* Handle the questions */
@@ -394,13 +416,18 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
 
         if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
             g_warning("Packet too short (1)");
-            goto fail;
-        }
+            avahi_record_list_flush(s->record_list);
+            return;
+       }
 
-        handle_query_key(s, i, key, unicast_response);
+        avahi_packet_scheduler_incoming_query(i->scheduler, key);
+        avahi_server_prepare_matching_responses(s, i, key, unicast_response);
         avahi_key_unref(key);
     }
 
+    if (!avahi_record_list_empty(s->record_list))
+        avahi_server_generate_response(s, i, p, a, port, legacy_unicast);
+    
     /* Known Answer Suppression */
     for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT); n > 0; n --) {
         AvahiRecord *record;
@@ -408,11 +435,11 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
 
         if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
             g_warning("Packet too short (2)");
-            goto fail;
+            return;
         }
 
         if (handle_conflict(s, i, record, unique, a))
-            avahi_record_list_drop(s->record_list, record);
+            avahi_packet_scheduler_incoming_known_answer(i->scheduler, record, a);
         
         avahi_record_unref(record);
     }
@@ -424,7 +451,7 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
 
         if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
             g_warning("Packet too short (3)");
-            goto fail;
+            return;
         }
 
         if (record->key->type != AVAHI_DNS_TYPE_ANY)
@@ -432,14 +459,6 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
         
         avahi_record_unref(record);
     }
-
-    if (!avahi_record_list_empty(s->record_list))
-        generate_response(s, p, i, a, port, legacy_unicast);
-    
-    return;
-    
-fail:
-    avahi_record_list_flush(s->record_list);
 }
 
 static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a) {
@@ -449,6 +468,8 @@ static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i
     g_assert(p);
     g_assert(i);
     g_assert(a);
+
+/*     g_message("response"); */
     
     for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) +
              avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT); n > 0; n--) {
@@ -468,7 +489,7 @@ static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i
             
             if (handle_conflict(s, i, record, cache_flush, a)) {
                 avahi_cache_update(i->cache, record, cache_flush, a);
-                avahi_packet_scheduler_incoming_response(i->scheduler, record);
+                avahi_packet_scheduler_incoming_response(i->scheduler, record, cache_flush);
             }
         }
             
@@ -486,7 +507,8 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *
     g_assert(sa);
     g_assert(iface > 0);
 
-    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family))) {
+    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
+        !avahi_interface_relevant(i)) {
         g_warning("Recieved packet from invalid interface.");
         return;
     }
@@ -516,8 +538,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *
     if (avahi_dns_packet_is_query(p)) {
         gboolean legacy_unicast = FALSE;
 
-        if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT) == 0 ||
-            avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT) != 0) {
+        if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT) != 0) {
             g_warning("Invalid query packet.");
             return;
         }
@@ -623,9 +644,11 @@ static void add_default_entries(AvahiServer *s) {
     AvahiRecord *r;
     
     g_assert(s);
+
+    return ;
     
     /* Fill in HINFO rr */
-    r = avahi_record_new_full(s->hostname, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO);
+    r = avahi_record_new_full(s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO);
     uname(&utsname);
     r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
     r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
@@ -634,14 +657,13 @@ static void add_default_entries(AvahiServer *s) {
 
     /* Add localhost entries */
     avahi_address_parse("127.0.0.1", AF_INET, &a);
-    avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE|AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "localhost", &a);
+    avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "localhost", &a);
 
     avahi_address_parse("::1", AF_INET6, &a);
-    avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE|AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "ip6-localhost", &a);
+    avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "ip6-localhost", &a);
 }
 
 AvahiServer *avahi_server_new(GMainContext *c) {
-    gchar *hn;
     AvahiServer *s;
     
     static GSourceFuncs source_funcs = {
@@ -659,7 +681,7 @@ AvahiServer *avahi_server_new(GMainContext *c) {
     s->need_entry_cleanup = s->need_group_cleanup = FALSE;
     
     s->fd_ipv4 = avahi_open_socket_ipv4();
-    s->fd_ipv6 = avahi_open_socket_ipv6();
+    s->fd_ipv6 = -1 /* avahi_open_socket_ipv6() */ ;
     
     if (s->fd_ipv6 < 0 && s->fd_ipv4 < 0) {
         g_critical("Failed to create IP sockets.\n");
@@ -685,11 +707,12 @@ AvahiServer *avahi_server_new(GMainContext *c) {
     s->subscription_hashtable = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
 
     /* Get host name */
-    hn = avahi_get_host_name();
-    hn[strcspn(hn, ".")] = 0;
+    s->host_name = avahi_get_host_name();
+    s->host_name[strcspn(s->host_name, ".")] = 0;
 
-    s->hostname = g_strdup_printf("%s.local.", hn);
-    g_free(hn);
+    s->domain = avahi_normalize_name("local.");
+
+    s->host_name_fqdn = g_strdup_printf("%s.%s", s->host_name, s->domain);
 
     s->record_list = avahi_record_list_new();
 
@@ -743,7 +766,9 @@ void avahi_server_free(AvahiServer* s) {
     if (s->fd_ipv6 >= 0)
         close(s->fd_ipv6);
 
-    g_free(s->hostname);
+    g_free(s->host_name);
+    g_free(s->domain);
+    g_free(s->host_name_fqdn);
 
     g_source_destroy(s->source);
     g_source_unref(s->source);
@@ -841,7 +866,7 @@ void avahi_server_add_ptr(
 
     g_assert(dest);
 
-    r = avahi_record_new_full(name ? name : s->hostname, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
+    r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     r->data.ptr.name = avahi_normalize_name(dest);
     avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
@@ -860,7 +885,7 @@ void avahi_server_add_address(
     g_assert(s);
     g_assert(a);
 
-    name = name ? (n = avahi_normalize_name(name)) : s->hostname;
+    name = name ? (n = avahi_normalize_name(name)) : s->host_name_fqdn;
     
     if (a->family == AF_INET) {
         gchar *reverse;
@@ -868,12 +893,11 @@ void avahi_server_add_address(
 
         r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
         r->data.a.address = a->data.ipv4;
-        avahi_server_add(s, g, interface, protocol, flags, r);
+        avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, r);
         avahi_record_unref(r);
         
         reverse = avahi_reverse_lookup_name_ipv4(&a->data.ipv4);
-        g_assert(reverse);
-        avahi_server_add_ptr(s, g, interface, protocol, flags, reverse, name);
+        avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
         g_free(reverse);
         
     } else {
@@ -882,17 +906,15 @@ void avahi_server_add_address(
             
         r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
         r->data.aaaa.address = a->data.ipv6;
-        avahi_server_add(s, g, interface, protocol, flags, r);
+        avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, r);
         avahi_record_unref(r);
 
         reverse = avahi_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
-        g_assert(reverse);
-        avahi_server_add_ptr(s, g, interface, protocol, flags, reverse, name);
+        avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
         g_free(reverse);
     
         reverse = avahi_reverse_lookup_name_ipv6_int(&a->data.ipv6);
-        g_assert(reverse);
-        avahi_server_add_ptr(s, g, interface, protocol, flags, reverse, name);
+        avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
         g_free(reverse);
     }
     
@@ -912,7 +934,7 @@ void avahi_server_add_text_strlst(
     
     g_assert(s);
     
-    r = avahi_record_new_full(name ? name : s->hostname, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
+    r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
     r->data.txt.string_list = strlst;
     avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
@@ -1000,7 +1022,7 @@ void avahi_server_add_service_strlst(
         domain = "local";
 
     if (!host)
-        host = s->hostname;
+        host = s->host_name_fqdn;
 
     snprintf(ptr_name, sizeof(ptr_name), "%s.%s", type, domain);
     snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, type, domain);
@@ -1080,36 +1102,12 @@ void avahi_server_post_query(AvahiServer *s, gint interface, guchar protocol, Av
     avahi_interface_monitor_walk(s->monitor, interface, protocol, post_query_callback, key);
 }
 
-struct tmpdata {
-    AvahiRecord *record;
-    gboolean flush_cache;
-};
-
-static void post_response_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata) {
-    struct tmpdata *tmpdata = userdata;
-
-    g_assert(m);
-    g_assert(i);
-    g_assert(tmpdata);
-
-    avahi_interface_post_response(i, tmpdata->record, tmpdata->flush_cache, FALSE);
-}
-
-void avahi_server_post_response(AvahiServer *s, gint interface, guchar protocol, AvahiRecord *record, gboolean flush_cache) {
-    struct tmpdata tmpdata;
-    
-    g_assert(s);
-    g_assert(record);
-
-    tmpdata.record = record;
-    tmpdata.flush_cache = flush_cache;
-
-    avahi_interface_monitor_walk(s->monitor, interface, protocol, post_response_callback, &tmpdata);
-}
-
 void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state) {
     g_assert(g);
 
+    if (g->state == state)
+        return;
+    
     g->state = state;
     
     if (g->callback) {
@@ -1170,4 +1168,16 @@ AvahiEntryGroupState avahi_entry_group_get_state(AvahiEntryGroup *g) {
     g_assert(!g->dead);
 
     return g->state;
+}
+
+const gchar* avahi_server_get_domain(AvahiServer *s) {
+    g_assert(s);
+
+    return s->domain;
+}
+
+const gchar* avahi_server_get_host_name(AvahiServer *s) {
+    g_assert(s);
+
+    return s->host_name_fqdn;
 }

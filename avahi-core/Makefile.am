@@ -27,14 +27,15 @@ AM_LDADD=$(GLIB20_LIBS)
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 lib_LTLIBRARIES = \
-	libavahi-core.la
+	libavahi-core.la 
 
 noinst_PROGRAMS = \
 	dns-test \
 	domain-test \
 	prioq-test \
 	strlst-test \
-	avahi-test
+	avahi-test \
+	alternative-test
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -82,9 +83,17 @@ dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD)
 
 avahi_test_SOURCES = \
-	avahi-test.c
+	avahi-test.c \
+	$(libavahi_core_la_SOURCES)
+
 avahi_test_CFLAGS = $(AM_CFLAGS)
-avahi_test_LDADD = $(AM_LDADD) libavahi-core.la
+avahi_test_LDADD = $(AM_LDADD)
+
+alternative_test_SOURCES = \
+	alternative-test.c \
+	util.c util.h
+alternative_test_CFLAGS = $(AM_CFLAGS)
+alternative_test_LDADD = $(AM_LDADD)
 
 valgrind: avahi-test
 	libtool --mode=execute valgrind ./avahi-test

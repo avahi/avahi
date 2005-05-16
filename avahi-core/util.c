@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
 
 #include "util.h"
 
@@ -400,4 +402,56 @@ gint avahi_domain_hash(const gchar *s) {
         g_free(m);
         g_free(n);
     }
+}
+
+
+gchar * avahi_alternative_host_name(const gchar *s) {
+    const gchar *p, *e = NULL;
+    gchar *c, *r;
+    gint n;
+
+    g_assert(s);
+    
+    for (p = s; *p; p++)
+        if (!isdigit(*p))
+            e = p+1;
+
+    if (e && *e)
+        n = atoi(e)+1;
+    else
+        n = 2;
+
+    c = e ? g_strndup(s, e-s) : g_strdup(s);
+    r = g_strdup_printf("%s%i", c, n);
+    g_free(c);
+    
+    return r;
+    
+}
+
+gchar *avahi_alternative_service_name(const gchar *s) {
+    const gchar *e;
+    g_assert(s);
+
+    if ((e = strstr(s, " #"))) {
+        const gchar *n, *p;
+        e += 2;
+    
+        while ((n = strstr(e, " #")))
+            e = n + 2;
+
+        for (p = e; *p; p++)
+            if (!isdigit(*p)) {
+                e = NULL;
+                break;
+            }
+    }
+    
+    if (e) {
+        gchar *r, *c = g_strndup(s, e-s);
+        r = g_strdup_printf("%s%i", c, atoi(e)+1);
+        g_free(c);
+        return r;
+    } else
+        return g_strdup_printf("%s #2", s);
 }

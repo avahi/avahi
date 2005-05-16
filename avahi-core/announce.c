@@ -152,7 +152,13 @@ static void next_state(AvahiAnnouncement *a) {
 
     } else if (a->state == AVAHI_ANNOUNCING) {
 
-        avahi_interface_post_response(a->interface, a->entry->record, a->entry->flags & AVAHI_ENTRY_UNIQUE, FALSE);
+        if (a->entry->flags & AVAHI_ENTRY_UNIQUE)
+            /* Send the whole rrset at once */
+            avahi_server_prepare_matching_responses(a->server, a->interface, a->entry->record->key, FALSE);
+        else
+            avahi_server_prepare_response(a->server, a->interface, a->entry, FALSE);
+
+        avahi_server_generate_response(a->server, a->interface, NULL, NULL, 0, FALSE);
 
         if (++a->n_iteration >= 4) {
             gchar *t;
@@ -196,9 +202,43 @@ AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiIn
     return NULL;
 }
 
+static void go_to_initial_state(AvahiAnnouncement *a, gboolean immediately) {
+    AvahiEntry *e;
+    GTimeVal tv;
+        
+    g_assert(a);
+    e = a->entry;
+    
+    if ((e->flags & AVAHI_ENTRY_UNIQUE) && !(e->flags & AVAHI_ENTRY_NOPROBE))
+        a->state = AVAHI_PROBING;
+    else if (!(e->flags & AVAHI_ENTRY_NOANNOUNCE)) {
+
+        if (!e->group || e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED)
+            a->state = AVAHI_ANNOUNCING;
+        else
+            a->state = AVAHI_WAITING;
+        
+    } else
+        a->state = AVAHI_ESTABLISHED;
+
+    a->n_iteration = 1;
+    a->sec_delay = 1;
+
+    if (a->state == AVAHI_PROBING && e->group)
+        e->group->n_probing++;
+
+    if (a->state == AVAHI_PROBING) {
+        avahi_elapse_time(&tv, 0, immediately ? 0 : AVAHI_PROBE_JITTER_MSEC);
+        set_timeout(a, &tv);
+    } else if (a->state == AVAHI_ANNOUNCING) {
+        avahi_elapse_time(&tv, 0, immediately ? 0 : AVAHI_ANNOUNCEMENT_JITTER_MSEC);
+        set_timeout(a, &tv);
+    } else
+        set_timeout(a, NULL);
+}
+
 static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     AvahiAnnouncement *a;
-    GTimeVal tv;
     gchar *t; 
 
     g_assert(s);
@@ -220,41 +260,15 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     a->server = s;
     a->interface = i;
     a->entry = e;
-
-    if ((e->flags & AVAHI_ENTRY_UNIQUE) && !(e->flags & AVAHI_ENTRY_NOPROBE))
-        a->state = AVAHI_PROBING;
-    else if (!(e->flags & AVAHI_ENTRY_NOANNOUNCE)) {
-
-        if (!e->group || e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED)
-            a->state = AVAHI_ANNOUNCING;
-        else
-            a->state = AVAHI_WAITING;
-        
-    } else
-        a->state = AVAHI_ESTABLISHED;
-
-
-    g_message("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state);
-    g_free(t);
-
-    a->n_iteration = 1;
-    a->sec_delay = 1;
     a->time_event = NULL;
 
-    if (a->state == AVAHI_PROBING)
-        if (e->group)
-            e->group->n_probing++;
-    
     AVAHI_LLIST_PREPEND(AvahiAnnouncement, by_interface, i->announcements, a);
     AVAHI_LLIST_PREPEND(AvahiAnnouncement, by_entry, e->announcements, a);
 
-    if (a->state == AVAHI_PROBING) {
-        avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC);
-        set_timeout(a, &tv);
-    } else if (a->state == AVAHI_ANNOUNCING) {
-        avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
-        set_timeout(a, &tv);
-    }
+    go_to_initial_state(a, FALSE);
+    
+    g_message("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state);
+    g_free(t);
 }
 
 void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {
@@ -312,10 +326,13 @@ gboolean avahi_entry_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i
     if (!(a = avahi_get_announcement(s, e, i)))
         return FALSE;
     
-    return a->state == AVAHI_ANNOUNCING || a->state == AVAHI_ESTABLISHED;
+    return
+        a->state == AVAHI_ANNOUNCING ||
+        a->state == AVAHI_ESTABLISHED ||
+        (a->state == AVAHI_WAITING && !(e->flags & AVAHI_ENTRY_UNIQUE));
 }
 
-gboolean avahi_entry_registering(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
+gboolean avahi_entry_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     AvahiAnnouncement *a;
 
     g_assert(s);
@@ -326,7 +343,25 @@ gboolean avahi_entry_registering(AvahiServer *s, AvahiEntry *e, AvahiInterface *
     if (!(a = avahi_get_announcement(s, e, i)))
         return FALSE;
     
-    return a->state == AVAHI_PROBING || a->state == AVAHI_WAITING;
+    return
+        a->state == AVAHI_PROBING ||
+        (a->state == AVAHI_WAITING && (e->flags & AVAHI_ENTRY_UNIQUE));
+}
+
+void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
+    AvahiAnnouncement *a;
+    
+    g_assert(s);
+    g_assert(e);
+    g_assert(i);
+
+    if (!(a = avahi_get_announcement(s, e, i)))
+        return;
+
+    if (a->state == AVAHI_PROBING && a->entry->group)
+        a->entry->group->n_probing--;
+
+    go_to_initial_state(a, TRUE);
 }
 
 static AvahiRecord *make_goodbye_record(AvahiRecord *r) {
@@ -364,7 +399,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, g
         return;
     
     g = make_goodbye_record(e->record);
-    avahi_interface_post_response(i, g, e->flags & AVAHI_ENTRY_UNIQUE, TRUE);
+    avahi_interface_post_response(i, g, e->flags & AVAHI_ENTRY_UNIQUE, TRUE, NULL);
     avahi_record_unref(g);
 }
     

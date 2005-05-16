@@ -49,7 +49,7 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
     } else {
         if (!a->entry_group) {
             a->entry_group = avahi_entry_group_new(m->server, NULL, NULL);
-            avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address);
+            avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); 
             avahi_entry_group_commit(a->entry_group);
         }
     }
@@ -202,12 +202,13 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
     } else if (!b && i->announcing) {
         g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
-        avahi_goodbye_interface(m->server, i, FALSE);
-
         if (i->protocol == AF_INET)
             avahi_mdns_mcast_leave_ipv4 (i->hardware->index, m->server->fd_ipv4);
         if (i->protocol == AF_INET6)
             avahi_mdns_mcast_leave_ipv6 (i->hardware->index, m->server->fd_ipv6);
+
+        avahi_goodbye_interface(m->server, i, FALSE);
+        avahi_cache_flush(i->cache);
 
         i->announcing = FALSE;
     }
@@ -510,12 +511,12 @@ gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean i
     return FALSE;
 }
 
-gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
+gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately, const AvahiAddress *querier) {
     g_assert(i);
     g_assert(record);
 
     if (avahi_interface_relevant(i))
-        return avahi_packet_scheduler_post_response(i->scheduler, record, flush_cache, immediately);
+        return avahi_packet_scheduler_post_response(i->scheduler, record, flush_cache, immediately, querier);
 
     return FALSE;
 }

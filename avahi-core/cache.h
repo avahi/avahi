@@ -74,13 +74,13 @@ AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r);
 
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const AvahiAddress *a);
 
-void avahi_cache_drop_record(AvahiCache *c,  AvahiRecord *r);
-
 void avahi_cache_dump(AvahiCache *c, FILE *f);
 
 typedef gpointer AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, gpointer userdata);
 gpointer avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, gpointer userdata);
 
 gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
+
+void avahi_cache_flush(AvahiCache *c);
 
 #endif

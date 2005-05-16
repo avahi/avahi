@@ -49,6 +49,10 @@ struct AvahiResponseJob {
     gboolean done;
     GTimeVal delivery;
     gboolean flush_cache;
+
+    AvahiAddress querier;
+    gboolean querier_valid;
+    
     AVAHI_LLIST_FIELDS(AvahiResponseJob, jobs);
 };
 
@@ -85,11 +89,12 @@ AvahiPacketScheduler *avahi_packet_scheduler_new(AvahiServer *server, AvahiInter
 void avahi_packet_scheduler_free(AvahiPacketScheduler *s);
 
 gboolean avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately);
-gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
+gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache, gboolean immediately, const AvahiAddress *querier);
 gboolean avahi_packet_scheduler_post_probe(AvahiPacketScheduler *s, AvahiRecord *record, gboolean immediately);
 
 void avahi_packet_scheduler_incoming_query(AvahiPacketScheduler *s, AvahiKey *key);
-void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record);
+void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache);
+void avahi_packet_scheduler_incoming_known_answer(AvahiPacketScheduler *s, AvahiRecord *record, const AvahiAddress *querier);
 
 void avahi_packet_scheduler_flush_responses(AvahiPacketScheduler *s);
 

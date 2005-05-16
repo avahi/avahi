@@ -108,7 +108,7 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
 
 gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean immediately);
 gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
-gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately);
+gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately, const AvahiAddress *querier);
 
 void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f);
 

@@ -51,6 +51,9 @@ typedef void (*AvahiEntryGroupCallback) (AvahiServer *s, AvahiEntryGroup *g, Ava
 AvahiServer *avahi_server_new(GMainContext *c);
 void avahi_server_free(AvahiServer* s);
 
+const gchar* avahi_server_get_domain(AvahiServer *s);
+const gchar* avahi_server_get_host_name(AvahiServer *s);
+
 const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state);
 void avahi_server_dump(AvahiServer *s, FILE *f);
 
@@ -151,7 +154,6 @@ void avahi_server_add_service_strlst(
 typedef enum {
     AVAHI_SUBSCRIPTION_NEW,
     AVAHI_SUBSCRIPTION_REMOVE,
-    AVAHI_SUBSCRIPTION_CHANGE
 } AvahiSubscriptionEvent;
 
 typedef struct AvahiSubscription AvahiSubscription;

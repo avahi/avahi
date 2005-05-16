@@ -456,9 +456,17 @@ static gint uint16_cmp(guint16 a, guint16 b) {
 }
 
 gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
+    gint r;
+/*     gchar *t1, *t2; */
+
     g_assert(a);
     g_assert(b);
-    gint r;
+
+/*     t1 = avahi_record_to_string(a); */
+/*     t2 = avahi_record_to_string(b); */
+/*     g_message("lexicocmp: %s %s", t1, t2); */
+/*     g_free(t1); */
+/*     g_free(t2); */
 
     if (a == b)
         return 0;
@@ -500,7 +508,7 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
             ma = g_new(guint8, asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0));
             mb = g_new(guint8, bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0));
             avahi_string_list_serialize(a->data.txt.string_list, ma, asize);
-            avahi_string_list_serialize(a->data.txt.string_list, mb, bsize);
+            avahi_string_list_serialize(b->data.txt.string_list, mb, bsize);
 
             r = lexicographical_memcmp(ma, asize, mb, bsize);
             g_free(ma);

@@ -229,7 +229,7 @@ static void query_elapse(AvahiTimeEvent *e, gpointer data) {
     append_known_answers_and_send(s, p);
 }
 
-AvahiQueryJob* query_job_new(AvahiPacketScheduler *s, AvahiKey *key) {
+static AvahiQueryJob* query_job_new(AvahiPacketScheduler *s, AvahiKey *key) {
     AvahiQueryJob *qj;
     
     g_assert(s);
@@ -246,6 +246,19 @@ AvahiQueryJob* query_job_new(AvahiPacketScheduler *s, AvahiKey *key) {
     return qj;
 }
 
+static AvahiQueryJob* look_for_query(AvahiPacketScheduler *s, AvahiKey *key) {
+    AvahiQueryJob *qj;
+
+    g_assert(s);
+    g_assert(key);
+
+    for (qj = s->query_jobs; qj; qj = qj->jobs_next)
+        if (avahi_key_equal(qj->key, key))
+            return qj;
+
+    return NULL;
+}
+
 gboolean avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *key, gboolean immediately) {
     GTimeVal tv;
     AvahiQueryJob *qj;
@@ -255,28 +268,57 @@ gboolean avahi_packet_scheduler_post_query(AvahiPacketScheduler *s, AvahiKey *ke
 
     avahi_elapse_time(&tv, immediately ? 0 : AVAHI_QUERY_DEFER_MSEC, 0);
 
-    for (qj = s->query_jobs; qj; qj = qj->jobs_next) {
+    if ((qj = look_for_query(s, key))) {
+        glong d = avahi_timeval_diff(&tv, &qj->delivery);
 
-        if (avahi_key_equal(qj->key, key)) {
-
-            glong d = avahi_timeval_diff(&tv, &qj->delivery);
-
-            /* Duplicate questions suppression */
-            if (d >= 0 && d <= AVAHI_QUERY_HISTORY_MSEC*1000) {
-                g_message("WARNING! DUPLICATE QUERY SUPPRESSION ACTIVE!");
-                return FALSE;
-            }
+        /* Duplicate questions suppression */
+        if (!qj->done || d <= AVAHI_QUERY_HISTORY_MSEC*1000) {
+            g_message("WARNING! DUPLICATE QUERY SUPPRESSION ACTIVE!");
             
+            if (!qj->done && d < 0) {
+                /* If the new entry should be scheduled earlier,
+                 * update the old entry */
+                qj->delivery = tv;
+                avahi_time_event_queue_update(s->server->time_event_queue, qj->time_event, &qj->delivery);
+            }
+                
+            return FALSE;
+        } else
             query_job_free(s, qj);
-            break;
-        }
-
     }
     
     qj = query_job_new(s, key);
     qj->delivery = tv;
     qj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &qj->delivery, query_elapse, qj);
     return TRUE;
+}
+
+
+void avahi_packet_scheduler_incoming_query(AvahiPacketScheduler *s, AvahiKey *key) {
+    AvahiQueryJob *qj;
+    GTimeVal tv;
+    
+    g_assert(s);
+    g_assert(key);
+
+    /* This function is called whenever an incoming query was
+     * receieved. We mark all matching queries that match as done. The
+     * keyword is "DUPLICATE QUESTION SUPPRESION". */
+
+    if (!(qj = look_for_query(s, key)))
+        qj = query_job_new(s, key);
+
+    qj->done = TRUE;
+
+    /* Drop the query after some time */
+    avahi_elapse_time(&tv, AVAHI_QUERY_HISTORY_MSEC, 0);
+    
+    if (qj->time_event)
+        avahi_time_event_queue_update(s->server->time_event_queue, qj->time_event, &tv);
+    else
+        qj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &tv, query_elapse, qj);
+
+    g_get_current_time(&qj->delivery);
 }
 
 static guint8* packet_add_response_job(AvahiPacketScheduler *s, AvahiDnsPacket *p, AvahiResponseJob *rj) {
@@ -376,13 +418,14 @@ static AvahiResponseJob* response_job_new(AvahiPacketScheduler *s, AvahiRecord *
     rj->done = FALSE;
     rj->time_event = NULL;
     rj->flush_cache = FALSE;
+    rj->querier_valid = FALSE;
     
     AVAHI_LLIST_PREPEND(AvahiResponseJob, jobs, s->response_jobs, rj);
 
     return rj;
 }
 
-gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache, gboolean immediately) {
+gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache, gboolean immediately, const AvahiAddress *querier) {
     AvahiResponseJob *rj;
     GTimeVal tv;
     
@@ -396,28 +439,37 @@ gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiReco
     /* Don't send out duplicates */
     
     if ((rj = look_for_response(s, record))) {
-        glong d;
-
-        d = avahi_timeval_diff(&tv, &rj->delivery);
         
+        glong d = avahi_timeval_diff(&tv, &rj->delivery);
+
         /* If there's already a matching packet in our history or in
          * the schedule, we do nothing. */
-        if (!!record->ttl == !!rj->record->ttl &&
-            d >= 0 && d <= AVAHI_RESPONSE_HISTORY_MSEC*1000) {
-            g_message("WARNING! DUPLICATE RESPONSE SUPPRESSION ACTIVE!");
-
-            rj->flush_cache = flush_cache;
+        
+        if ((!!record->ttl == !!rj->record->ttl) &&
+            (rj->flush_cache || !flush_cache) &&
+            ((!rj->done && d >= 0) || (rj->done && d <= AVAHI_RESPONSE_HISTORY_MSEC*1000))) {
             
+            g_message("Duplicate suppresion active.");
             return FALSE;
         }
 
-        /* Either one was a goodbye packet, but the other was not, so
-         * let's drop the older one. */
+        /* If the old job was not yet done but scheduled earlier than
+         * our new one, we chedule our new job at the same time. */ 
+        if (!rj->done && d > 0)
+            tv = rj->delivery;
+
+        /* If the old job had the flush_cache bit enabled, we must
+           enable it on our new one, too */
+        if (!rj->done && rj->flush_cache)
+            flush_cache = TRUE;
+
+        /* For known answer suppresion we have record for which host this data was intended */
+        if (querier && !rj->done && (!rj->querier_valid || avahi_address_cmp(&rj->querier, querier) != 0))
+            querier = NULL;
+        
+        /* The old job wasn't good enough, so let's drop it */
         response_job_free(s, rj);
     }
-
-/*     g_message("ACCEPTED NEW RESPONSE [%s]", t = avahi_record_to_string(record)); */
-/*     g_free(t); */
 
     /* Create a new job and schedule it */
     rj = response_job_new(s, record);
@@ -425,41 +477,10 @@ gboolean avahi_packet_scheduler_post_response(AvahiPacketScheduler *s, AvahiReco
     rj->delivery = tv;
     rj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &rj->delivery, response_elapse, rj);
 
+    if ((rj->querier_valid = !!querier))
+        rj->querier = *querier;
+
     return TRUE;
-}
-
-void avahi_packet_scheduler_incoming_query(AvahiPacketScheduler *s, AvahiKey *key) {
-    GTimeVal tv;
-    AvahiQueryJob *qj;
-    
-    g_assert(s);
-    g_assert(key);
-
-    /* This function is called whenever an incoming query was
-     * receieved. We drop all scheduled queries which match here. The
-     * keyword is "DUPLICATE QUESTION SUPPRESION". */
-
-    for (qj = s->query_jobs; qj; qj = qj->jobs_next)
-        if (avahi_key_equal(qj->key, key)) {
-
-            if (qj->done)
-                return;
-
-            goto mark_done;
-        }
-
-
-    /* No matching job was found. Add the query to the history */
-    qj = query_job_new(s, key);
-
-mark_done:
-    qj->done = TRUE;
-
-    /* Drop the query after some time */
-    avahi_elapse_time(&tv, AVAHI_QUERY_HISTORY_MSEC, 0);
-    qj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &tv, query_elapse, qj);
-
-    g_get_current_time(&qj->delivery);
 }
 
 void response_job_set_elapse_time(AvahiPacketScheduler *s, AvahiResponseJob *rj, guint msec, guint jitter) {
@@ -476,8 +497,8 @@ void response_job_set_elapse_time(AvahiPacketScheduler *s, AvahiResponseJob *rj,
         rj->time_event = avahi_time_event_queue_add(s->server->time_event_queue, &tv, response_elapse, rj);
 }
 
-void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record) {
-    AvahiResponseJob *rj;
+void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiRecord *record, gboolean flush_cache) {
+    AvahiResponseJob *rj = NULL;
     
     g_assert(s);
     g_assert(record);
@@ -485,56 +506,72 @@ void avahi_packet_scheduler_incoming_response(AvahiPacketScheduler *s, AvahiReco
     /* This function is called whenever an incoming response was
      * receieved. We drop all scheduled responses which match
      * here. The keyword is "DUPLICATE ANSWER SUPPRESION". */
+
+    if ((rj = look_for_response(s, record))) {
     
-    for (rj = s->response_jobs; rj; rj = rj->jobs_next)
-        if (avahi_record_equal_no_ttl(rj->record, record)) {
+        if (!rj->done) {
 
-            if (rj->done) {
+            if (rj->flush_cache && !flush_cache)
+                /* The incoming response didn't have flush_cache
+                 * set, but our scheduled has => we still have to
+                 * send our response */
+                return;
 
-                if (!!record->ttl == !!rj->record->ttl) {
-                    /* An entry like this is already in our history,
-                     * so let's get out of here! */
-                    
-                    return;
-                    
-                } else {
-                    /* Either one was a goodbye packet but other was
-                     * none. We remove the history entry, and add a
-                     * new one */
-                    
-                    response_job_free(s, rj);
-                    break;
-                }
-        
-            } else {
-
-                if (!!record->ttl == !!rj->record->ttl) {
-
-                    /* The incoming packet matches our scheduled
-                     * record, so let's mark that one as done */
-
-                    goto mark_done;
-                    
-                } else {
-
-                    /* Either one was a goodbye packet but other was
-                     * none. We ignore the incoming packet. */
-
-                    return;
-                }
+            
+            if (!!record->ttl != !!rj->record->ttl) {
+                /* Either one was a goodbye packet but other was
+                 * none => we still have to send our response */
+                return;
             }
         }
+        
+        /* The two responses match, so let's mark the history
+         * entry as done or update it */
+    }
 
     /* No matching job was found. Add the query to the history */
-    rj = response_job_new(s, record);
-
-mark_done:
+    if (!rj) 
+        rj = response_job_new(s, record);
+    else {
+        avahi_record_unref(rj->record);
+        rj->record = avahi_record_ref(record);
+    }
+    
     rj->done = TRUE;
+    rj->flush_cache = rj->flush_cache || flush_cache;
                     
     /* Drop response after 500ms from history */
     response_job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
 
     g_get_current_time(&rj->delivery);
+}
+
+
+void avahi_packet_scheduler_incoming_known_answer(AvahiPacketScheduler *s, AvahiRecord *record, const AvahiAddress *querier) {
+    AvahiResponseJob *rj;
+    
+    g_assert(s);
+    g_assert(record);
+    g_assert(querier);
+
+    /* Check whether a matching job has been scheduled */
+    if (!(rj = look_for_response(s, record)) || rj->done)
+        return;
+
+    /* Chech whether another querier demanded the original job */
+    if (!rj->querier_valid || avahi_address_cmp(&rj->querier, querier) != 0)
+        return;
+
+    /* Check whether one of them is a goodbye packet, while the other is not */
+    if (!!record->ttl != !!rj->record->ttl)
+        return;
+
+    /* Check whether the known answer has a good TTL */
+    if (record->ttl <= rj->record->ttl/2)
+        return;
+
+    g_message("Known answer suppression active!");
+    response_job_free(s, rj);
 }
 
 void avahi_packet_scheduler_flush_responses(AvahiPacketScheduler *s) {
@@ -660,7 +697,7 @@ static void probe_elapse(AvahiTimeEvent *e, gpointer data) {
         if (!pj->chosen)
             continue;
 
-        if (!avahi_dns_packet_append_record(p, pj->record, TRUE, 0)) {
+        if (!avahi_dns_packet_append_record(p, pj->record, FALSE, 0)) {
             g_warning("Bad probe size estimate!");
 
             /* Unmark all following jobs */

@@ -80,7 +80,7 @@ struct AvahiServer {
     
     AvahiTimeEventQueue *time_event_queue;
     
-    gchar *hostname;
+    gchar *host_name, *host_name_fqdn, *domain;
 
     gint fd_ipv4, fd_ipv6;
 
@@ -95,7 +95,10 @@ struct AvahiServer {
 gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
 
 void avahi_server_post_query(AvahiServer *s, gint interface, guchar protocol, AvahiKey *key);
-void avahi_server_post_response(AvahiServer *s, gint interface, guchar protocol, AvahiRecord *record, gboolean flush_cache);
+
+void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response);
+void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response);
+void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast);
 
 void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state);
 

@@ -35,7 +35,8 @@ noinst_PROGRAMS = \
 	prioq-test \
 	strlst-test \
 	avahi-test \
-	alternative-test
+	alternative-test \
+	conformance-test
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -49,7 +50,9 @@ libavahi_core_la_SOURCES = \
 	rr.c rr.h \
 	dns.c dns.h \
 	socket.c socket.h \
-	psched.c psched.h \
+	response-sched.c response-sched.h \
+	query-sched.c query-sched.h \
+	probe-sched.c probe-sched.h \
 	announce.c announce.h \
 	subscribe.c subscribe.h \
 	strlst.c strlst.h \
@@ -85,7 +88,6 @@ dns_test_LDADD = $(AM_LDADD)
 avahi_test_SOURCES = \
 	avahi-test.c \
 	$(libavahi_core_la_SOURCES)
-
 avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD)
 
@@ -94,6 +96,12 @@ alternative_test_SOURCES = \
 	util.c util.h
 alternative_test_CFLAGS = $(AM_CFLAGS)
 alternative_test_LDADD = $(AM_LDADD)
+
+conformance_test_SOURCES = \
+	conformance-test.c \
+	$(libavahi_core_la_SOURCES)
+conformance_test_CFLAGS = $(AM_CFLAGS)
+conformance_test_LDADD = $(AM_LDADD)
 
 valgrind: avahi-test
 	libtool --mode=execute valgrind ./avahi-test

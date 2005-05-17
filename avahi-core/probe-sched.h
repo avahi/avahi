@@ -1,5 +1,5 @@
-#ifndef foorrlisthfoo
-#define foorrlisthfoo
+#ifndef fooprobeschedhfoo
+#define fooprobeschedhfoo
 
 /* $Id$ */
 
@@ -22,19 +22,15 @@
   USA.
 ***/
 
+typedef struct AvahiProbeScheduler AvahiProbeScheduler;
 
-#include "rr.h"
+#include "iface.h"
+#include "address.h"
 
-typedef struct AvahiRecordList AvahiRecordList;
+AvahiProbeScheduler *avahi_probe_scheduler_new(AvahiInterface *i);
+void avahi_probe_scheduler_free(AvahiProbeScheduler *s);
+void avahi_probe_scheduler_clear(AvahiProbeScheduler *s);
 
-AvahiRecordList *avahi_record_list_new(void);
-void avahi_record_list_free(AvahiRecordList *l);
-void avahi_record_list_flush(AvahiRecordList *l);
-
-AvahiRecord* avahi_record_list_next(AvahiRecordList *l, gboolean *flush_cache, gboolean *unicast_response, gboolean *auxiliary);
-void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, gboolean flush_cache, gboolean unicast_response, gboolean auxiliary);
-void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r);
-
-gboolean avahi_record_list_empty(AvahiRecordList *l);
+gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record, gboolean immediately);
 
 #endif

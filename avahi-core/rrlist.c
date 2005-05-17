@@ -25,20 +25,24 @@
 typedef struct AvahiRecordListItem AvahiRecordListItem;
 
 struct AvahiRecordListItem {
+    gboolean read;
     AvahiRecord *record;
     gboolean unicast_response;
     gboolean flush_cache;
+    gboolean auxiliary;
     AVAHI_LLIST_FIELDS(AvahiRecordListItem, items);
 };
 
 
 struct AvahiRecordList {
-    AVAHI_LLIST_HEAD(AvahiRecordListItem, items);
+    AVAHI_LLIST_HEAD(AvahiRecordListItem, read);
+    AVAHI_LLIST_HEAD(AvahiRecordListItem, unread);
 };
 
 AvahiRecordList *avahi_record_list_new(void) {
     AvahiRecordList *l = g_new(AvahiRecordList, 1);
-    AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->items);
+    AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->read);
+    AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->unread);
     return l;
 }
 
@@ -50,9 +54,14 @@ void avahi_record_list_free(AvahiRecordList *l) {
 }
 
 static void item_free(AvahiRecordList *l, AvahiRecordListItem *i) {
+    g_assert(l);
     g_assert(i);
 
-    AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->items, i);
+    if (i->read) 
+        AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->read, i);
+    else
+        AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->unread, i);
+    
     avahi_record_unref(i->record);
     g_free(i);
 }
@@ -60,40 +69,71 @@ static void item_free(AvahiRecordList *l, AvahiRecordListItem *i) {
 void avahi_record_list_flush(AvahiRecordList *l) {
     g_assert(l);
     
-    while (l->items)
-        item_free(l, l->items);
+    while (l->read)
+        item_free(l, l->read);
+    while (l->unread)
+        item_free(l, l->unread);
 }
 
-AvahiRecord* avahi_record_list_pop(AvahiRecordList *l, gboolean *flush_cache, gboolean *unicast_response) {
+AvahiRecord* avahi_record_list_next(AvahiRecordList *l, gboolean *flush_cache, gboolean *unicast_response, gboolean *auxiliary) {
     AvahiRecord *r;
+    AvahiRecordListItem *i;
 
-    if (!l->items)
+    if (!(i = l->unread))
         return NULL;
-    
-    r = avahi_record_ref(l->items->record);
-    if (unicast_response) *unicast_response = l->items->unicast_response;
-    if (flush_cache) *flush_cache = l->items->flush_cache;
 
-    item_free(l, l->items);
+    g_assert(!i->read);
+    
+    r = avahi_record_ref(i->record);
+    if (unicast_response)
+        *unicast_response = i->unicast_response;
+    if (flush_cache)
+        *flush_cache = i->flush_cache;
+    if (auxiliary)
+        *auxiliary = i->auxiliary;
+
+    AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->unread, i);
+    AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->read, i);
+
+    i->read = TRUE;
     
     return r;
 }
 
-void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, gboolean flush_cache, gboolean unicast_response) {
+static AvahiRecordListItem *get(AvahiRecordList *l, AvahiRecord *r) {
+    AvahiRecordListItem *i;
+
+    g_assert(l);
+    g_assert(r);
+    
+    for (i = l->read; i; i = i->items_next)
+        if (avahi_record_equal_no_ttl(i->record, r))
+            return i;
+
+    for (i = l->unread; i; i = i->items_next)
+        if (avahi_record_equal_no_ttl(i->record, r))
+            return i;
+
+    return NULL;
+}
+
+void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, gboolean flush_cache, gboolean unicast_response, gboolean auxiliary) {
     AvahiRecordListItem *i;
         
     g_assert(l);
     g_assert(r);
-    
-    for (i = l->items; i; i = i->items_next)
-        if (avahi_record_equal_no_ttl(i->record, r))
-            return;
+
+    if (get(l, r))
+        return;
 
     i = g_new(AvahiRecordListItem, 1);
     i->unicast_response = unicast_response;
     i->flush_cache = flush_cache;
+    i->auxiliary = auxiliary;
     i->record = avahi_record_ref(r);
-    AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->items, i);
+    i->read = FALSE;
+
+    AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->unread, i);
 }
 
 void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r) {
@@ -102,16 +142,14 @@ void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r) {
     g_assert(l);
     g_assert(r);
 
-    for (i = l->items; i; i = i->items_next)
-        if (avahi_record_equal_no_ttl(i->record, r)) {
-            item_free(l, i);
-            break;
-        }
-}
+    if (!(i = get(l, r)))
+        return;
 
+    item_free(l, i);
+}
 
 gboolean avahi_record_list_empty(AvahiRecordList *l) {
     g_assert(l);
     
-    return !l->items;
+    return !l->unread && !l->read;
 }

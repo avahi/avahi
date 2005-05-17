@@ -36,7 +36,7 @@ gint avahi_wait_for_write(gint fd);
 
 GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter);
 
-gint avahi_age(const GTimeVal *a);
+glong avahi_age(const GTimeVal *a);
 
 gboolean avahi_domain_equal(const gchar *a, const gchar *b);
 gint avahi_binary_domain_cmp(const gchar *a, const gchar *b);

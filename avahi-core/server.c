@@ -102,36 +102,49 @@ static void cleanup_dead(AvahiServer *s) {
     }
 }
 
-static void add_aux_records(AvahiServer *s, AvahiInterface *i, const gchar *name, guint16 type, gboolean unicast_response) {
+static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const gchar *name, guint16 type, void (*callback)(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata), gpointer userdata) {
     AvahiKey *k;
+    AvahiEntry *e;
 
     g_assert(s);
     g_assert(i);
     g_assert(name);
+    g_assert(callback);
+
+    g_assert(type != AVAHI_DNS_TYPE_ANY);
 
     k = avahi_key_new(name, AVAHI_DNS_CLASS_IN, type);
-    avahi_server_prepare_matching_responses(s, i, k, unicast_response);
+
+    for (e = g_hash_table_lookup(s->entries_by_key, k); e; e = e->by_key_next)
+        if (!e->dead && avahi_entry_registered(s, e, i)) 
+            callback(s, e->record, e->flags & AVAHI_ENTRY_UNIQUE, userdata);
+
     avahi_key_unref(k);
 }
 
-void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response) {
+void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata), gpointer userdata) {
+    g_assert(s);
+    g_assert(i);
+    g_assert(r);
+    g_assert(callback);
+    
+    if (r->key->class == AVAHI_DNS_CLASS_IN) {
+        if (r->key->type == AVAHI_DNS_TYPE_PTR) {
+            enum_aux_records(s, i, r->data.ptr.name, AVAHI_DNS_TYPE_SRV, callback, userdata);
+            enum_aux_records(s, i, r->data.ptr.name, AVAHI_DNS_TYPE_TXT, callback, userdata);
+        } else if (r->key->type == AVAHI_DNS_TYPE_SRV) {
+            enum_aux_records(s, i, r->data.srv.name, AVAHI_DNS_TYPE_A, callback, userdata);
+            enum_aux_records(s, i, r->data.srv.name, AVAHI_DNS_TYPE_AAAA, callback, userdata);
+        }
+    }
+}
+
+void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response, gboolean auxiliary) {
     g_assert(s);
     g_assert(i);
     g_assert(e);
 
-    /* Append a record to a packet and all the records referred by it */
-
-    avahi_record_list_push(s->record_list, e->record, e->flags & AVAHI_ENTRY_UNIQUE, unicast_response);
-    
-    if (e->record->key->class == AVAHI_DNS_CLASS_IN) {
-        if (e->record->key->type == AVAHI_DNS_TYPE_PTR) {
-            add_aux_records(s, i, e->record->data.ptr.name, AVAHI_DNS_TYPE_SRV, unicast_response);
-            add_aux_records(s, i, e->record->data.ptr.name, AVAHI_DNS_TYPE_TXT, unicast_response);
-        } else if (e->record->key->type == AVAHI_DNS_TYPE_SRV) {
-            add_aux_records(s, i, e->record->data.srv.name, AVAHI_DNS_TYPE_A, unicast_response);
-            add_aux_records(s, i, e->record->data.srv.name, AVAHI_DNS_TYPE_AAAA, unicast_response);
-        }
-    }
+    avahi_record_list_push(s->record_list, e->record, e->flags & AVAHI_ENTRY_UNIQUE, unicast_response, auxiliary);
 }
 
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response) {
@@ -151,7 +164,7 @@ void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, 
         
         for (e = s->entries; e; e = e->entries_next)
             if (!e->dead && avahi_key_pattern_match(k, e->record->key) && avahi_entry_registered(s, e, i))
-                avahi_server_prepare_response(s, i, e, unicast_response);
+                avahi_server_prepare_response(s, i, e, unicast_response, FALSE);
 
     } else {
 
@@ -159,7 +172,7 @@ void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, 
         
         for (e = g_hash_table_lookup(s->entries_by_key, k); e; e = e->by_key_next)
             if (!e->dead && avahi_entry_registered(s, e, i))
-                avahi_server_prepare_response(s, i, e, unicast_response);
+                avahi_server_prepare_response(s, i, e, unicast_response, FALSE);
     }
 }
 
@@ -264,7 +277,7 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
                 if (record->ttl <= e->record->ttl/2) {
                     /* Refresh */
                     g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
-                    avahi_interface_post_response(i, e->record, FALSE, TRUE, NULL);
+                    avahi_interface_post_response(i, e->record, FALSE, NULL, TRUE);
                     valid = FALSE;
                 }
                 
@@ -312,6 +325,23 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
     return valid;
 }
 
+static void append_aux_callback(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata) {
+    gboolean *unicast_response = userdata;
+
+    g_assert(s);
+    g_assert(r);
+    g_assert(unicast_response);
+    
+    avahi_record_list_push(s->record_list, r, flush_cache, *unicast_response, TRUE);
+}
+
+static void append_aux_records_to_list(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, gboolean unicast_response) {
+    g_assert(s);
+    g_assert(r);
+
+    avahi_server_enumerate_aux_records(s, i, r, append_aux_callback, &unicast_response);
+}
+
 void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
 
     g_assert(s);
@@ -324,7 +354,9 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
 
         reply = avahi_dns_packet_new_reply(p, 512 /* unicast DNS maximum packet size is 512 */ , TRUE, TRUE);
         
-        while ((r = avahi_record_list_pop(s->record_list, NULL, NULL))) {
+        while ((r = avahi_record_list_next(s->record_list, NULL, NULL, NULL))) {
+
+            append_aux_records_to_list(s, i, r, FALSE);
             
             if (avahi_dns_packet_append_record(reply, r, FALSE, 10))
                 avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
@@ -343,14 +375,17 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
         avahi_dns_packet_free(reply);
 
     } else {
-        gboolean unicast_response, flush_cache;
+        gboolean unicast_response, flush_cache, auxiliary;
         AvahiDnsPacket *reply = NULL;
         AvahiRecord *r;
         
-        while ((r = avahi_record_list_pop(s->record_list, &flush_cache, &unicast_response))) {
+        while ((r = avahi_record_list_next(s->record_list, &flush_cache, &unicast_response, &auxiliary))) {
 
-            if (!avahi_interface_post_response(i, r, flush_cache, FALSE, a) && unicast_response) {
-            
+                        
+            if (!avahi_interface_post_response(i, r, flush_cache, a, flush_cache && !auxiliary) && unicast_response) {
+
+                append_aux_records_to_list(s, i, r, unicast_response);
+                
                 /* Due to some reasons the record has not been scheduled.
                  * The client requested an unicast response in that
                  * case. Therefore we prepare such a response */
@@ -373,10 +408,25 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                     }
 
                     if (avahi_dns_packet_get_field(reply, AVAHI_DNS_FIELD_ANCOUNT) == 0) {
-                        gchar *t = avahi_record_to_string(r);
-                        g_warning("Record [%s] too large, doesn't fit in any packet!", t);
-                        g_free(t);
-                        break;
+                        guint size;
+
+                        /* The record is too large for one packet, so create a larger packet */
+
+                        avahi_dns_packet_free(reply);
+                        size = avahi_record_get_estimate_size(r) + AVAHI_DNS_PACKET_HEADER_SIZE;
+                        if (size > AVAHI_DNS_PACKET_MAX_SIZE)
+                            size = AVAHI_DNS_PACKET_MAX_SIZE;
+                        reply = avahi_dns_packet_new_reply(p, size, FALSE, TRUE);
+
+                        if (!avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
+                            avahi_dns_packet_free(reply);
+                            
+                            gchar *t = avahi_record_to_string(r);
+                            g_warning("Record [%s] too large, doesn't fit in any packet!", t);
+                            g_free(t);
+                            break;
+                        } else
+                            avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
                     }
 
                     /* Appending the record didn't succeeed, so let's send this packet, and create a new one */
@@ -395,6 +445,8 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
             avahi_dns_packet_free(reply);
         }
     }
+
+    avahi_record_list_flush(s->record_list);
 }
 
 static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
@@ -417,9 +469,9 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
         if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
             g_warning("Packet too short (1)");
             goto fail;
-       }
+        }
 
-        avahi_packet_scheduler_incoming_query(i->scheduler, key);
+        avahi_query_scheduler_incoming(i->query_scheduler, key);
         avahi_server_prepare_matching_responses(s, i, key, unicast_response);
         avahi_key_unref(key);
     }
@@ -435,7 +487,7 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
         }
 
         if (handle_conflict(s, i, record, unique, a)) {
-            avahi_packet_scheduler_incoming_known_answer(i->scheduler, record, a);
+            avahi_response_scheduler_suppress(i->response_scheduler, record, a);
             avahi_record_list_drop(s->record_list, record);
         }
         
@@ -496,7 +548,7 @@ static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i
             
             if (handle_conflict(s, i, record, cache_flush, a)) {
                 avahi_cache_update(i->cache, record, cache_flush, a);
-                avahi_packet_scheduler_incoming_response(i->scheduler, record, cache_flush);
+                avahi_response_scheduler_incoming(i->response_scheduler, record, cache_flush);
             }
         }
             

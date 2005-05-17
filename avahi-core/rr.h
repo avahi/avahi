@@ -135,4 +135,6 @@ guint avahi_record_get_estimate_size(AvahiRecord *r);
 
 gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
 
+gboolean avahi_record_is_goodbye(AvahiRecord *r);
+
 #endif

@@ -156,7 +156,7 @@ static void next_state(AvahiAnnouncement *a) {
             /* Send the whole rrset at once */
             avahi_server_prepare_matching_responses(a->server, a->interface, a->entry->record->key, FALSE);
         else
-            avahi_server_prepare_response(a->server, a->interface, a->entry, FALSE);
+            avahi_server_prepare_response(a->server, a->interface, a->entry, FALSE, FALSE);
 
         avahi_server_generate_response(a->server, a->interface, NULL, NULL, 0, FALSE);
 
@@ -399,7 +399,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, g
         return;
     
     g = make_goodbye_record(e->record);
-    avahi_interface_post_response(i, g, e->flags & AVAHI_ENTRY_UNIQUE, TRUE, NULL);
+    avahi_interface_post_response(i, g, e->flags & AVAHI_ENTRY_UNIQUE, NULL, TRUE);
     avahi_record_unref(g);
 }
     

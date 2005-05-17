@@ -93,8 +93,8 @@ static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean
 
     g_message("removing interface %s.%i", i->hardware->name, i->protocol);
     avahi_goodbye_interface(m->server, i, send_goodbye);
-    g_message("flushing...");
-    avahi_packet_scheduler_flush_responses(i->scheduler);
+    g_message("forcing responses...");
+    avahi_response_scheduler_force(i->response_scheduler);
     g_message("done");
     
     g_assert(!i->announcements);
@@ -102,7 +102,9 @@ static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean
     while (i->addresses)
         free_address(m, i->addresses);
 
-    avahi_packet_scheduler_free(i->scheduler);
+    avahi_response_scheduler_free(i->response_scheduler);
+    avahi_query_scheduler_free(i->query_scheduler);
+    avahi_probe_scheduler_free(i->probe_scheduler);
     avahi_cache_free(i->cache);
     
     AVAHI_LLIST_REMOVE(AvahiInterface, interface, m->interfaces, i);
@@ -175,7 +177,9 @@ static void new_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, guchar
     AVAHI_LLIST_HEAD_INIT(AvahiAnnouncement, i->announcements);
 
     i->cache = avahi_cache_new(m->server, i);
-    i->scheduler = avahi_packet_scheduler_new(m->server, i);
+    i->response_scheduler = avahi_response_scheduler_new(i);
+    i->query_scheduler = avahi_query_scheduler_new(i);
+    i->probe_scheduler = avahi_probe_scheduler_new(i);
 
     AVAHI_LLIST_PREPEND(AvahiInterface, by_hardware, hw->interfaces, i);
     AVAHI_LLIST_PREPEND(AvahiInterface, interface, m->interfaces, i);
@@ -208,6 +212,9 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
             avahi_mdns_mcast_leave_ipv6 (i->hardware->index, m->server->fd_ipv6);
 
         avahi_goodbye_interface(m->server, i, FALSE);
+        avahi_response_scheduler_clear(i->response_scheduler);
+        avahi_query_scheduler_clear(i->query_scheduler);
+        avahi_probe_scheduler_clear(i->probe_scheduler);
         avahi_cache_flush(i->cache);
 
         i->announcing = FALSE;
@@ -506,17 +513,17 @@ gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean i
     g_assert(key);
 
     if (avahi_interface_relevant(i))
-        return avahi_packet_scheduler_post_query(i->scheduler, key, immediately);
+        return avahi_query_scheduler_post(i->query_scheduler, key, immediately);
 
     return FALSE;
 }
 
-gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately, const AvahiAddress *querier) {
+gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately) {
     g_assert(i);
     g_assert(record);
 
     if (avahi_interface_relevant(i))
-        return avahi_packet_scheduler_post_response(i->scheduler, record, flush_cache, immediately, querier);
+        return avahi_response_scheduler_post(i->response_scheduler, record, flush_cache, querier, immediately);
 
     return FALSE;
 }
@@ -526,7 +533,7 @@ gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, gboo
     g_assert(record);
     
     if (avahi_interface_relevant(i))
-        return avahi_packet_scheduler_post_probe(i->scheduler, record, immediately);
+        return avahi_probe_scheduler_post(i->probe_scheduler, record, immediately);
 
     return FALSE;
 }

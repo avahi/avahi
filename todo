@@ -1,11 +1,6 @@
 todo:
 * Add some APIs to get the clean service name from RR for browsing
 
-RFC MUSTs:
-	* one RR too large for single packet
-
-* response job dependencies
-
 * test against apple test suite
 
 * release!
@@ -41,3 +36,5 @@ done:
 * either send entire RRSET or don't set flush cache bit!
 * mantain flush cache bit correctly in psched
 * Return to probing state on conflict
+* response job dependencies
+* enlarge packet in case a record/query is too large to fit in a normal packet

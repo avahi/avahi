@@ -191,7 +191,7 @@ GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
     return tv;
 }
 
-gint avahi_age(const GTimeVal *a) {
+glong avahi_age(const GTimeVal *a) {
     GTimeVal now;
     
     g_assert(a);

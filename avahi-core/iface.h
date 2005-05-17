@@ -34,7 +34,9 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include "netlink.h"
 #include "cache.h"
 #include "llist.h"
-#include "psched.h"
+#include "response-sched.h"
+#include "query-sched.h"
+#include "probe-sched.h"
 #include "dns.h"
 #include "announce.h"
 
@@ -77,7 +79,9 @@ struct AvahiInterface {
     gboolean announcing;
 
     AvahiCache *cache;
-    AvahiPacketScheduler *scheduler;
+    AvahiQueryScheduler *query_scheduler;
+    AvahiResponseScheduler * response_scheduler;
+    AvahiProbeScheduler *probe_scheduler;
 
     AVAHI_LLIST_HEAD(AvahiInterfaceAddress, addresses);
     AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
@@ -107,8 +111,8 @@ void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port);
 
 gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean immediately);
+gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately);
 gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
-gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, gboolean immediately, const AvahiAddress *querier);
 
 void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f);
 

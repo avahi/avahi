@@ -62,6 +62,11 @@ PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
 AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
+# Check for DBUS
+PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.23, dbus-glib-1 >= 0.23 ])
+AC_SUBST(DBUS_CFLAGS)
+AC_SUBST(DBUS_LIBS)
+
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then
    CFLAGS="$CFLAGS -pipe -W -Wall -pedantic"

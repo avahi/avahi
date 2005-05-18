@@ -23,6 +23,10 @@ AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE
 AM_CFLAGS+=$(GLIB20_CFLAGS)
 AM_LDADD=$(GLIB20_LIBS)
 
+# DBUS
+AM_CFLAGS+=$(DBUS_CFLAGS)
+AM_LDADD+=$(DBUS_LIBS)
+
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 

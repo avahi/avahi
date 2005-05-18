@@ -25,17 +25,136 @@
 
 #include <avahi-core/core.h>
 
-int main(int argc, char *argv[]) {
-    AvahiServer *avahi;
-    GMainLoop *loop = NULL;
+#define DBUS_API_SUBJECT_TO_CHANGE
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
-    avahi = avahi_server_new(NULL);
+#define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
+
+static DBusHandlerResult
+do_register (DBusConnection *conn, DBusMessage *message)
+{
+	DBusError error;
+	char *s;
+
+	dbus_error_init (&error);
+
+	dbus_message_get_args (message, &error,
+			DBUS_TYPE_STRING, &s,
+			DBUS_TYPE_INVALID);
+
+	if (dbus_error_is_set (&error))
+	{
+		g_warning ("Error parsing register attempt");
+		dbus_error_free (&error);
+
+		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+	}
+
+	g_message ("Register received from: %s", s);
+
+	return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+static DBusHandlerResult
+signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
+{
+	GMainLoop *loop = user_data;
+	DBusError error;
+
+	dbus_error_init (&error);
+
+	g_message ("dbus: interface=%s, path=%s, member=%s",
+			dbus_message_get_interface (message),
+			dbus_message_get_path (message),
+			dbus_message_get_member (message));
+
+	if (dbus_message_is_signal (message, DBUS_INTERFACE_LOCAL,
+				"Disconnected"))
+	{
+		/* No, we shouldn't quit, but until we get somewhere
+		 * usefull such that we can restore our state, we will */
+		g_warning ("Disconnnected from d-bus");
+
+		g_main_loop_quit (loop);
+		return DBUS_HANDLER_RESULT_HANDLED;
+	} else if (dbus_message_is_method_call (message, DBUS_SERVICE_AVAHI,
+				"Register"))
+	{
+		return do_register (conn, message);
+	} else if (dbus_message_is_signal (message, DBUS_SERVICE_DBUS,
+				"NameAcquired"))
+	{
+		char *name;
+
+		dbus_message_get_args (message, &error,
+				DBUS_TYPE_STRING, &name,
+				DBUS_TYPE_INVALID);
+
+		if (dbus_error_is_set (&error))
+		{
+			g_warning ("Error parsing NameAcquired message");
+			dbus_error_free (&error);
+
+			return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+		}
+
+		g_message ("dbus: NameAcquired (%s)", name);
+
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+
+	g_message ("dbus: missed event");
+
+	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+		
+int main(int argc, char *argv[]) {
+    GMainLoop *loop = NULL;
+    DBusConnection *bus;
+    DBusError error;
 
     loop = g_main_loop_new(NULL, FALSE);
+
+    dbus_error_init (&error);
+
+    bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+
+    if (bus == NULL)
+    {
+	    g_warning ("dbus_bus_get(): %s", error.message);
+	    dbus_error_free (&error);
+
+	    return -1;
+    }
+
+    dbus_connection_setup_with_g_main (bus, NULL);
+
+    dbus_bus_request_name (bus, DBUS_SERVICE_AVAHI, 0, &error);
+
+    if (dbus_error_is_set (&error))
+    {
+	    g_warning ("dbus_bus_request_name (): %s", error.message);
+	    dbus_error_free (&error);
+
+	    return -1;
+    }
+
+    dbus_connection_add_filter (bus, signal_filter, loop, NULL);
+    dbus_bus_add_match (bus,
+		    "type='method_call',interface='org.freedesktop.Avahi'",
+		    &error);
+
+    if (dbus_error_is_set (&error))
+    {
+	    g_warning ("dbus_bus_add_match (): %s", error.message);
+	    dbus_error_free (&error);
+
+	    return -1;
+    }
+
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
-    
-    avahi_server_free(avahi);
     
     return 0;
 }

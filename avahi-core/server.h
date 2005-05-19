@@ -68,6 +68,8 @@ struct AvahiServer {
     GMainContext *context;
     AvahiInterfaceMonitor *monitor;
 
+    AvahiServerConfig config;
+
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
     GHashTable *entries_by_key;
 
@@ -86,8 +88,6 @@ struct AvahiServer {
 
     GPollFD pollfd_ipv4, pollfd_ipv6;
     GSource *source;
-
-    gboolean ignore_bad_ttl;
 
     /* Used for assembling responses */
     AvahiRecordList *record_list;

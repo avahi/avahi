@@ -91,7 +91,7 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
 
-    avahi = avahi_server_new(NULL);
+    avahi = avahi_server_new(NULL, NULL);
     create_service("gurke");
     avahi_server_dump(avahi, stdout);
     

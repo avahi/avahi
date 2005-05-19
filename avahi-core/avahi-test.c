@@ -65,8 +65,8 @@ int main(int argc, char *argv[]) {
     AvahiSubscription *s;
     AvahiKey *k;
     AvahiEntryGroup *g;
-
-    avahi = avahi_server_new(NULL);
+    
+    avahi = avahi_server_new(NULL, NULL);
 
     g = avahi_entry_group_new(avahi, entry_group_callback, NULL);   
     

@@ -47,7 +47,7 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
             a->entry_group = NULL;
         }
     } else {
-        if (!a->entry_group) {
+        if (!a->entry_group && m->server->config.register_addresses) {
             a->entry_group = avahi_entry_group_new(m->server, NULL, NULL);
             avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); 
             avahi_entry_group_commit(a->entry_group);

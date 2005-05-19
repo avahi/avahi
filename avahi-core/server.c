@@ -626,7 +626,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *
 
         if (ttl != 255) {
             g_warning("Recieved response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
-            if (!s->ignore_bad_ttl)
+            if (s->config.check_response_ttl)
                 return;
         }
 
@@ -698,21 +698,22 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
 }
 
 static void add_default_entries(AvahiServer *s) {
-    struct utsname utsname;
     AvahiAddress a;
-    AvahiRecord *r;
     
     g_assert(s);
 
-    return ;
-    
-    /* Fill in HINFO rr */
-    r = avahi_record_new_full(s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO);
-    uname(&utsname);
-    r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
-    r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
-    avahi_server_add(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, r);
-    avahi_record_unref(r);
+    if (s->config.register_hinfo) {
+        struct utsname utsname;
+        AvahiRecord *r;
+        
+        /* Fill in HINFO rr */
+        r = avahi_record_new_full(s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO);
+        uname(&utsname);
+        r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
+        r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
+        avahi_server_add(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, r);
+        avahi_record_unref(r);
+    }
 
     /* Add localhost entries */
     avahi_address_parse("127.0.0.1", AF_INET, &a);
@@ -722,7 +723,7 @@ static void add_default_entries(AvahiServer *s) {
     avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "ip6-localhost", &a);
 }
 
-AvahiServer *avahi_server_new(GMainContext *c) {
+AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc) {
     AvahiServer *s;
     
     static GSourceFuncs source_funcs = {
@@ -736,21 +737,26 @@ AvahiServer *avahi_server_new(GMainContext *c) {
 
     s = g_new(AvahiServer, 1);
 
-    s->ignore_bad_ttl = FALSE;
     s->need_entry_cleanup = s->need_group_cleanup = FALSE;
+
+    if (sc)
+        avahi_server_config_copy(&s->config, sc);
+    else
+        avahi_server_config_init(&s->config);
     
-    s->fd_ipv4 = avahi_open_socket_ipv4();
-    s->fd_ipv6 = -1 /* avahi_open_socket_ipv6() */ ;
+    s->fd_ipv4 = s->config.use_ipv4 ? avahi_open_socket_ipv4() : -1;
+    s->fd_ipv6 = s->config.use_ipv6 ? avahi_open_socket_ipv6() : -1;
     
     if (s->fd_ipv6 < 0 && s->fd_ipv4 < 0) {
-        g_critical("Failed to create IP sockets.\n");
+        g_critical("Selected neither IPv6 nor IPv4 support, aborting.\n");
+        avahi_server_config_free(&s->config);
         g_free(s);
         return NULL;
     }
 
-    if (s->fd_ipv4 < 0)
+    if (s->fd_ipv4 < 0 && s->config.use_ipv4)
         g_message("Failed to create IPv4 socket, proceeding in IPv6 only mode");
-    else if (s->fd_ipv6 < 0)
+    else if (s->fd_ipv6 < 0 && s->config.use_ipv6)
         g_message("Failed to create IPv6 socket, proceeding in IPv4 only mode");
     
     if (c)
@@ -778,6 +784,7 @@ AvahiServer *avahi_server_new(GMainContext *c) {
     s->time_event_queue = avahi_time_event_queue_new(s->context, G_PRIORITY_DEFAULT+10); /* Slightly less priority than the FDs */
     s->monitor = avahi_interface_monitor_new(s);
     avahi_interface_monitor_sync(s->monitor);
+    
     add_default_entries(s);
     
     /* Prepare IO source registration */
@@ -832,6 +839,8 @@ void avahi_server_free(AvahiServer* s) {
     g_source_destroy(s->source);
     g_source_unref(s->source);
     g_main_context_unref(s->context);
+
+    avahi_server_config_free(&s->config);
 
     g_free(s);
 }
@@ -1239,4 +1248,39 @@ const gchar* avahi_server_get_host_name(AvahiServer *s) {
     g_assert(s);
 
     return s->host_name_fqdn;
+}
+
+AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
+    g_assert(c);
+
+    memset(c, 0, sizeof(AvahiServerConfig));
+    c->register_hinfo = TRUE;
+    c->register_addresses = TRUE;
+    c->use_ipv6 = TRUE;
+    c->use_ipv4 = TRUE;
+    c->host_name = NULL;
+    c->domain_name = NULL;
+    c->check_response_ttl = TRUE;
+
+    return c;
+}
+
+void avahi_server_config_free(AvahiServerConfig *c) {
+    g_assert(c);
+
+    g_assert(c->host_name);
+    g_assert(c->domain_name);
+    g_free(c);
+}
+
+AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c) {
+    g_assert(ret);
+    g_assert(c);
+
+    *ret = *c;
+
+    ret->host_name = g_strdup(c->host_name);
+    ret->domain_name = g_strdup(c->domain_name);
+
+    return ret;
 }

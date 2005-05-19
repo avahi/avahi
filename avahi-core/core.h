@@ -48,9 +48,23 @@ typedef enum {
 
 typedef void (*AvahiEntryGroupCallback) (AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata);
 
-AvahiServer *avahi_server_new(GMainContext *c);
+typedef struct AvahiServerConfig {
+    gboolean register_hinfo;
+    gboolean register_addresses;
+    gboolean use_ipv4;
+    gboolean use_ipv6;
+    gchar *host_name;
+    gchar *domain_name;
+    gboolean check_response_ttl;
+} AvahiServerConfig;
+
+AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc);
 void avahi_server_free(AvahiServer* s);
 
+AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c);
+AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c);
+void avahi_server_config_free(AvahiServerConfig *c);
+    
 const gchar* avahi_server_get_domain(AvahiServer *s);
 const gchar* avahi_server_get_host_name(AvahiServer *s);
 

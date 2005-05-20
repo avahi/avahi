@@ -326,7 +326,7 @@ gboolean avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, gbool
     g_assert(key);
 
     if ((qj = find_history_job(s, key))) {
-        g_message("Query suppressed by local duplicate suppression (history)");
+/*         g_message("Query suppressed by local duplicate suppression (history)"); */
         return FALSE;
     }
     
@@ -335,7 +335,7 @@ gboolean avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, gbool
     if ((qj = find_scheduled_job(s, key))) {
         /* Duplicate questions suppression */
 
-        g_message("Query suppressed by local duplicate suppression (scheduled)");
+/*         g_message("Query suppressed by local duplicate suppression (scheduled)"); */
         
         if (avahi_timeval_compare(&tv, &qj->delivery) < 0) {
             /* If the new entry should be scheduled earlier,
@@ -346,7 +346,7 @@ gboolean avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, gbool
 
         return TRUE;
     } else {
-        g_message("Accepted new query job.\n");
+/*         g_message("Accepted new query job.\n"); */
 
         qj = job_new(s, key, FALSE);
         qj->delivery = tv;
@@ -367,7 +367,7 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
      * "DUPLICATE QUESTION SUPPRESION". */
 
     if ((qj = find_scheduled_job(s, key))) {
-        g_message("Query suppressed by distributed duplicate suppression");
+/*         g_message("Query suppressed by distributed duplicate suppression"); */
         job_mark_done(s, qj);
         return;
     }

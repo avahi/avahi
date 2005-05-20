@@ -82,13 +82,20 @@ struct AvahiServer {
     
     AvahiTimeEventQueue *time_event_queue;
     
-    gchar *host_name, *host_name_fqdn, *domain;
+    gchar *host_name, *host_name_fqdn, *domain_name;
 
     gint fd_ipv4, fd_ipv6;
 
     GPollFD pollfd_ipv4, pollfd_ipv6;
     GSource *source;
 
+    AvahiServerState state;
+    AvahiServerCallback callback;
+    gpointer userdata;
+
+    AvahiEntryGroup *hinfo_entry_group;
+    guint n_host_rr_pending;
+    
     /* Used for assembling responses */
     AvahiRecordList *record_list;
 };
@@ -106,5 +113,10 @@ void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState sta
 gboolean avahi_entry_commited(AvahiEntry *e);
 
 void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata), gpointer userdata);
+
+void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata);
+
+void avahi_server_decrease_host_rr_pending(AvahiServer *s);
+void avahi_server_increase_host_rr_pending(AvahiServer *s);
 
 #endif

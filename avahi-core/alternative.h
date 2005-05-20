@@ -1,3 +1,6 @@
+#ifndef fooalternativehfoo
+#define fooalternativehfoo
+
 /* $Id$ */
 
 /***
@@ -19,30 +22,18 @@
   USA.
 ***/
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
+#include <glib.h>
+
+/** Find an alternative for the specified host name. If called with an
+ * original host name, "2" is appended, Afterwards the number is
+ * increased on each call. (i.e. "foo" becomes "foo2" becomes "foo3"
+ * and so on.)*/
+gchar *avahi_alternative_host_name(const gchar *s);
+
+/** Find an alternative for the specified service name. If called with
+    an original service name, " #2" is appended. Afterwards the number
+    is increased on each call (i.e. "foo" becomes "foo #2" becomes
+    "foo #3" and so on.)*/
+gchar *avahi_alternative_service_name(const gchar *s);
+
 #endif
-
-#include <stdio.h>
-
-#include "alternative.h"
-
-int main(int argc, char *argv[]) {
-    gchar *r = NULL;
-    gint i, k;
-
-    for (k = 0; k < 2; k++) {
-        
-        for (i = 0; i < 20; i++) {
-            gchar *n;
-            
-            n = i == 0 ? g_strdup("gurke") : (k ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
-            g_free(r);
-            r = n;
-            
-            printf("%s\n", r);
-        }
-    }
-
-    g_free(r);
-}

@@ -56,7 +56,8 @@ libavahi_core_la_SOURCES = \
 	announce.c announce.h \
 	subscribe.c subscribe.h \
 	strlst.c strlst.h \
-	rrlist.c rrlist.h
+	rrlist.c rrlist.h \
+	alternative.c alternative.h
 
 prioq_test_SOURCES = \
 	prioq-test.c  \
@@ -93,7 +94,7 @@ avahi_test_LDADD = $(AM_LDADD)
 
 alternative_test_SOURCES = \
 	alternative-test.c \
-	util.c util.h
+	alternative.c alternative.h
 alternative_test_CFLAGS = $(AM_CFLAGS)
 alternative_test_LDADD = $(AM_LDADD)
 

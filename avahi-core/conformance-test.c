@@ -31,6 +31,7 @@
 
 #include "core.h"
 #include "util.h"
+#include "alternative.h"
 
 static gchar *name = NULL;
 static AvahiEntryGroup *group = NULL;
@@ -68,7 +69,6 @@ static void create_service(gchar *t) {
 
 static gboolean rename_timeout(gpointer data) {
     
-    
     if (access("flag", F_OK) == 0) { 
         create_service("New - Bonjour Service Name");
         return FALSE;
@@ -76,8 +76,6 @@ static gboolean rename_timeout(gpointer data) {
 
     return TRUE;
 }
-
-
 
 static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata) {
     if (state == AVAHI_ENTRY_GROUP_COLLISION)
@@ -88,10 +86,14 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
     }
 }
 
+static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
+    g_message("server state: %i", state);
+}
+
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
 
-    avahi = avahi_server_new(NULL, NULL);
+    avahi = avahi_server_new(NULL, NULL, server_callback, NULL);
     create_service("gurke");
     avahi_server_dump(avahi, stdout);
     

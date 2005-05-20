@@ -457,16 +457,16 @@ static gint uint16_cmp(guint16 a, guint16 b) {
 
 gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
     gint r;
-     gchar *t1, *t2; 
+/*      gchar *t1, *t2;  */
 
     g_assert(a);
     g_assert(b);
 
-    t1 = avahi_record_to_string(a);
-    t2 = avahi_record_to_string(b);
-    g_message("lexicocmp: %s %s", t1, t2);
-    g_free(t1);
-    g_free(t2);
+/*     t1 = avahi_record_to_string(a); */
+/*     t2 = avahi_record_to_string(b); */
+/*     g_message("lexicocmp: %s %s", t1, t2); */
+/*     g_free(t1); */
+/*     g_free(t2); */
 
     if (a == b)
         return 0;
@@ -486,8 +486,6 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
                 (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) == 0 &&
                 (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) == 0)
                 r = avahi_binary_domain_cmp(a->data.srv.name, b->data.srv.name);
-
-            g_message("SRV: %i", r);
             
             return r;
         }

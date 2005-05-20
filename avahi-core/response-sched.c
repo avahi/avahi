@@ -339,7 +339,7 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
         avahi_record_is_goodbye(record) == avahi_record_is_goodbye(rj->record) &&
         rj->record->ttl >= record->ttl/2) {
 
-        g_message("Response suppressed by known answer suppression.");
+/*         g_message("Response suppressed by known answer suppression."); */
         return FALSE;
     }
 
@@ -349,7 +349,7 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
         if (avahi_record_is_goodbye(record) == avahi_record_is_goodbye(rj->record) &&
             rj->record->ttl >= record->ttl/2 &&
             (rj->flush_cache || !flush_cache)) {
-            g_message("Response suppressed by local duplicate suppression (history)");
+/*             g_message("Response suppressed by local duplicate suppression (history)"); */
             return FALSE;
         }
 
@@ -360,7 +360,7 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
     avahi_elapse_time(&tv, immediately ? 0 : AVAHI_RESPONSE_DEFER_MSEC, immediately ? 0 : AVAHI_RESPONSE_JITTER_MSEC);
          
     if ((rj = find_scheduled_job(s, record))) {
-        g_message("Response suppressed by local duplicate suppression (scheduled)");
+/*         g_message("Response suppressed by local duplicate suppression (scheduled)"); */
 
         /* Update a little ... */
 
@@ -384,7 +384,7 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
 
         return TRUE;
     } else {
-        g_message("Accepted new response job.");
+/*         g_message("Accepted new response job."); */
 
         /* Create a new job and schedule it */
         rj = job_new(s, record, AVAHI_SCHEDULED);
@@ -414,7 +414,7 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
             record->ttl >= rj->record->ttl/2) {     /* sensible TTL */
 
             /* A matching entry was found, so let's mark it done */
-            g_message("Response suppressed by distributed duplicate suppression");
+/*             g_message("Response suppressed by distributed duplicate suppression"); */
             job_mark_done(s, rj);
         }
 
@@ -450,7 +450,7 @@ void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *r
             record->ttl >= rj->record->ttl/2) {                                  /* sensible TTL */
 
             /* A matching entry was found, so let's drop it */
-            g_message("Known answer suppression active!");
+/*             g_message("Known answer suppression active!"); */
             job_free(s, rj);
         }
     }

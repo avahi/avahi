@@ -37,25 +37,36 @@
 #include "socket.h"
 #include "announce.h"
 
-static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, int remove) {
+static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, gboolean remove) {
     g_assert(m);
     g_assert(a);
 
-    if (!avahi_interface_address_relevant(a) || remove) {
-        if (a->entry_group) {
-            avahi_entry_group_free(a->entry_group);
-            a->entry_group = NULL;
-        }
-    } else {
-        if (!a->entry_group && m->server->config.register_addresses) {
-            a->entry_group = avahi_entry_group_new(m->server, NULL, NULL);
+    
+    if (avahi_interface_address_relevant(a) &&
+        !remove &&
+        m->server->config.register_addresses &&
+        (m->server->state == AVAHI_SERVER_RUNNING ||
+        m->server->state == AVAHI_SERVER_REGISTERING)) {
+        
+        if (!a->entry_group) {
+            a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
             avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); 
             avahi_entry_group_commit(a->entry_group);
         }
-    }
+    } else {
+
+        if (a->entry_group) {
+
+            if (avahi_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
+                avahi_server_decrease_host_rr_pending(m->server);
+            
+            avahi_entry_group_free(a->entry_group);
+            a->entry_group = NULL;
+        }
+    } 
 }
 
-static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, int remove) {
+static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean remove) {
     AvahiInterfaceAddress *a;
     g_assert(m);
     g_assert(i);
@@ -64,7 +75,7 @@ static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, int
         update_address_rr(m, a, remove);
 }
 
-static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, int remove) {
+static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gboolean remove) {
     AvahiInterface *i;
 
     g_assert(m);
@@ -483,17 +494,17 @@ AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port) {
     g_assert(i);
     g_assert(p);
-    char t[64];
+/*     char t[64]; */
 
     if (!avahi_interface_relevant(i))
         return;
     
     g_assert(!a || a->family == i->protocol);
 
-    if (a)
-        g_message("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port);
-    else
-        g_message("multicast sending on '%s.%i'", i->hardware->name, i->protocol);
+/*     if (a) */
+/*         g_message("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port); */
+/*     else */
+/*         g_message("multicast sending on '%s.%i'", i->hardware->name, i->protocol); */
     
     if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
         avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, a ? &a->data.ipv4 : NULL, port);
@@ -581,7 +592,6 @@ gboolean avahi_interface_match(AvahiInterface *i, gint index, guchar protocol) {
     return TRUE;
 }
 
-
 void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint interface, guchar protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata) {
     g_assert(m);
     g_assert(callback);
@@ -610,4 +620,13 @@ void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint interface, guch
             if (avahi_interface_match(i, interface, protocol))
                 callback(m, i, userdata);
     }
+}
+
+void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove) {
+    AvahiInterface *i;
+
+    g_assert(m);
+
+    for (i = m->interfaces; i; i = i->interface_next)
+        update_interface_rr(m, i, remove);
 }

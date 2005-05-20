@@ -52,8 +52,4 @@ gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name,
 
 gint avahi_domain_hash(const gchar *s);
 
-gchar *avahi_alternative_host_name(const gchar *s);
-gchar *avahi_alternative_service_name(const gchar *s);
-
-
 #endif

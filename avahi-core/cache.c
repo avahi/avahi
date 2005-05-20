@@ -231,13 +231,13 @@ static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
 }
 
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const AvahiAddress *a) {
-    gchar *txt;
+/*     gchar *txt; */
     
     g_assert(c);
     g_assert(r && r->ref >= 1);
 
-    g_message("cache update: %s", (txt = avahi_record_to_string(r)));
-    g_free(txt);
+/*     g_message("cache update: %s", (txt = avahi_record_to_string(r))); */
+/*     g_free(txt); */
 
     if (r->ttl == 0) {
         /* This is a goodbye request */
@@ -278,7 +278,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
     
         if (e) {
             
-            g_message("found matching cache entry"); 
+/*             g_message("found matching cache entry");  */
 
             /* We need to update the hash table key if we replace the
              * record */
@@ -292,7 +292,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
         } else {
             /* No entry found, therefore we create a new one */
             
-            g_message("couldn't find matching cache entry"); 
+/*             g_message("couldn't find matching cache entry");  */
             
             e = g_new(AvahiCacheEntry, 1);
             e->cache = c;

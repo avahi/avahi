@@ -125,4 +125,6 @@ typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, Avah
     
 void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint index, guchar protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata);
 
+void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove);
+
 #endif

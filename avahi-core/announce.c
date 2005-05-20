@@ -122,8 +122,8 @@ static void next_state(AvahiAnnouncement *a) {
             
             gchar *t;
 
-            g_message("Enough probes for record [%s]", t = avahi_record_to_string(a->entry->record));
-            g_free(t);
+/*             g_message("Enough probes for record [%s]", t = avahi_record_to_string(a->entry->record)); */
+/*             g_free(t); */
 
             if (a->entry->group) {
                 g_assert(a->entry->group->n_probing);
@@ -161,11 +161,11 @@ static void next_state(AvahiAnnouncement *a) {
         avahi_server_generate_response(a->server, a->interface, NULL, NULL, 0, FALSE);
 
         if (++a->n_iteration >= 4) {
-            gchar *t;
+/*             gchar *t; */
             /* Announcing done */
 
-            g_message("Enough announcements for record [%s]", t = avahi_record_to_string(a->entry->record));
-            g_free(t);
+/*             g_message("Enough announcements for record [%s]", t = avahi_record_to_string(a->entry->record)); */
+/*             g_free(t); */
 
             a->state = AVAHI_ESTABLISHED;
 
@@ -239,7 +239,7 @@ static void go_to_initial_state(AvahiAnnouncement *a, gboolean immediately) {
 
 static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     AvahiAnnouncement *a;
-    gchar *t; 
+/*     gchar *t;  */
 
     g_assert(s);
     g_assert(i);
@@ -254,7 +254,7 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
 
     /* We don't want duplicate announcements */
     if (avahi_get_announcement(s, e, i))
-        return;
+        return;    
 
     a = g_new(AvahiAnnouncement, 1);
     a->server = s;
@@ -267,8 +267,8 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
 
     go_to_initial_state(a, FALSE);
     
-    g_message("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state);
-    g_free(t);
+/*     g_message("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
+/*     g_free(t); */
 }
 
 void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {

@@ -267,7 +267,7 @@ gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record,
     pj->delivery = tv;
     pj->time_event = avahi_time_event_queue_add(s->time_event_queue, &pj->delivery, elapse_callback, pj);
 
-    g_message("Accepted new probe job.");
+/*     g_message("Accepted new probe job."); */
 
     return TRUE;
 }

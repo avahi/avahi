@@ -58,7 +58,8 @@ libavahi_core_la_SOURCES = \
 	strlst.c strlst.h \
 	rrlist.c rrlist.h \
 	alternative.c alternative.h \
-	resolve-host-name.c
+	resolve-host-name.c \
+	resolve-address.c
 
 prioq_test_SOURCES = \
 	prioq-test.c  \

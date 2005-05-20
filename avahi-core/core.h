@@ -212,19 +212,25 @@ typedef enum {
 } AvahiBrowserEvent;
 
 typedef struct AvahiRecordResolver AvahiRecordResolver;
-typedef struct AvahiHostNameResolver AvahiHostNameResolver;
-typedef struct AvahiReverseHostNameResolver AvahiReverseHostNameResolver;
-typedef struct AvahiDomainBrowser AvahiDomainBrowser;
-typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
-typedef struct AvahiServiceBrowser AvahiServiceBrowser;
-typedef struct AvahiServiceResolver AvahiServiceResolver;
-
 typedef void (*AvahiRecordResolverCallback)(AvahiRecordResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata);
 AvahiRecordResolver *avahi_record_resolver_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordResolverCallback callback, gpointer userdata);
 void avahi_record_resolver_free(AvahiRecordResolver *r);
 
+typedef struct AvahiHostNameResolver AvahiHostNameResolver;
 typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata);
 AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, AvahiHostNameResolverCallback calback, gpointer userdata);
 void avahi_host_name_resolver_free(AvahiHostNameResolver *r);
+
+typedef struct AvahiAddressResolver AvahiAddressResolver;
+typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *host_name, gpointer userdata);
+AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback calback, gpointer userdata);
+void avahi_address_resolver_free(AvahiAddressResolver *r);
+
+/* not yet implemented */
+
+typedef struct AvahiDomainBrowser AvahiDomainBrowser;
+typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
+typedef struct AvahiServiceBrowser AvahiServiceBrowser;
+typedef struct AvahiServiceResolver AvahiServiceResolver;
 
 #endif

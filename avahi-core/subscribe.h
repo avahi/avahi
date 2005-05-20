@@ -28,7 +28,7 @@
 #include "timeeventq.h"
 #include "server.h"
 
-struct AvahiSubscription {
+struct AvahiRecordResolver {
     AvahiServer *server;
     AvahiKey *key;
     gint interface;
@@ -38,14 +38,14 @@ struct AvahiSubscription {
 
     AvahiTimeEvent *time_event;
 
-    AvahiSubscriptionCallback callback;
+    AvahiRecordResolverCallback callback;
     gpointer userdata;
 
-    AVAHI_LLIST_FIELDS(AvahiSubscription, subscriptions);
-    AVAHI_LLIST_FIELDS(AvahiSubscription, by_key);
+    AVAHI_LLIST_FIELDS(AvahiRecordResolver, resolver);
+    AVAHI_LLIST_FIELDS(AvahiRecordResolver, by_key);
 };
 
-void avahi_subscription_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiSubscriptionEvent event);
+void avahi_resolver_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event);
 
 gboolean avahi_is_subscribed(AvahiServer *s, AvahiKey *k);
 

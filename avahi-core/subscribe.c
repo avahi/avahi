@@ -27,7 +27,7 @@
 #include "util.h"
 
 static void elapse(AvahiTimeEvent *e, void *userdata) {
-    AvahiSubscription *s = userdata;
+    AvahiRecordResolver *s = userdata;
     GTimeVal tv;
 /*     gchar *t; */
     
@@ -46,7 +46,7 @@ static void elapse(AvahiTimeEvent *e, void *userdata) {
 }
 
 struct cbdata {
-    AvahiSubscription *subscription;
+    AvahiRecordResolver *record_resolver;
     AvahiInterface *interface;
 };
 
@@ -58,19 +58,19 @@ static gpointer scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCache
     g_assert(e);
     g_assert(cbdata);
 
-    cbdata->subscription->callback(
-        cbdata->subscription,
-        e->record,
+    cbdata->record_resolver->callback(
+        cbdata->record_resolver,
         cbdata->interface->hardware->index,
         cbdata->interface->protocol,
-        AVAHI_SUBSCRIPTION_NEW,
-        cbdata->subscription->userdata);
+        AVAHI_BROWSER_NEW,
+        e->record,
+        cbdata->record_resolver->userdata);
 
     return NULL;
 }
 
 static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata) {
-    AvahiSubscription *s = userdata;
+    AvahiRecordResolver *s = userdata;
     struct cbdata cbdata = { s, i };
 
     g_assert(m);
@@ -80,8 +80,8 @@ static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
     avahi_cache_walk(i->cache, s->key, scan_cache_callback, &cbdata);
 }
 
-AvahiSubscription *avahi_subscription_new(AvahiServer *server, AvahiKey *key, gint interface, guchar protocol, AvahiSubscriptionCallback callback, gpointer userdata) {
-    AvahiSubscription *s, *t;
+AvahiRecordResolver *avahi_record_resolver_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordResolverCallback callback, gpointer userdata) {
+    AvahiRecordResolver *s, *t;
     GTimeVal tv;
 
     g_assert(server);
@@ -90,7 +90,7 @@ AvahiSubscription *avahi_subscription_new(AvahiServer *server, AvahiKey *key, gi
 
     g_assert(!avahi_key_is_pattern(key));
     
-    s = g_new(AvahiSubscription, 1);
+    s = g_new(AvahiRecordResolver, 1);
     s->server = server;
     s->key = avahi_key_ref(key);
     s->interface = interface;
@@ -105,12 +105,12 @@ AvahiSubscription *avahi_subscription_new(AvahiServer *server, AvahiKey *key, gi
     avahi_elapse_time(&tv, s->sec_delay*1000, 0);
     s->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, elapse, s);
 
-    AVAHI_LLIST_PREPEND(AvahiSubscription, subscriptions, server->subscriptions, s);
+    AVAHI_LLIST_PREPEND(AvahiRecordResolver, resolver, server->record_resolvers, s);
 
-    /* Add the new entry to the subscription hash table */
-    t = g_hash_table_lookup(server->subscription_hashtable, key);
-    AVAHI_LLIST_PREPEND(AvahiSubscription, by_key, t, s);
-    g_hash_table_replace(server->subscription_hashtable, key, t);
+    /* Add the new entry to the record_resolver hash table */
+    t = g_hash_table_lookup(server->record_resolver_hashtable, key);
+    AVAHI_LLIST_PREPEND(AvahiRecordResolver, by_key, t, s);
+    g_hash_table_replace(server->record_resolver_hashtable, key, t);
 
     /* Scan the caches */
     avahi_interface_monitor_walk(s->server->monitor, s->interface, s->protocol, scan_interface_callback, s);
@@ -118,19 +118,19 @@ AvahiSubscription *avahi_subscription_new(AvahiServer *server, AvahiKey *key, gi
     return s;
 }
 
-void avahi_subscription_free(AvahiSubscription *s) {
-    AvahiSubscription *t;
+void avahi_record_resolver_free(AvahiRecordResolver *s) {
+    AvahiRecordResolver *t;
     
     g_assert(s);
 
-    AVAHI_LLIST_REMOVE(AvahiSubscription, subscriptions, s->server->subscriptions, s);
+    AVAHI_LLIST_REMOVE(AvahiRecordResolver, resolver, s->server->record_resolvers, s);
 
-    t = g_hash_table_lookup(s->server->subscription_hashtable, s->key);
-    AVAHI_LLIST_REMOVE(AvahiSubscription, by_key, t, s);
+    t = g_hash_table_lookup(s->server->record_resolver_hashtable, s->key);
+    AVAHI_LLIST_REMOVE(AvahiRecordResolver, by_key, t, s);
     if (t)
-        g_hash_table_replace(s->server->subscription_hashtable, t->key, t);
+        g_hash_table_replace(s->server->record_resolver_hashtable, t->key, t);
     else
-        g_hash_table_remove(s->server->subscription_hashtable, s->key);
+        g_hash_table_remove(s->server->record_resolver_hashtable, s->key);
     
     avahi_time_event_queue_remove(s->server->time_event_queue, s->time_event);
     avahi_key_unref(s->key);
@@ -139,20 +139,20 @@ void avahi_subscription_free(AvahiSubscription *s) {
     g_free(s);
 }
 
-void avahi_subscription_notify(AvahiServer *server, AvahiInterface *i, AvahiRecord *record, AvahiSubscriptionEvent event) {
-    AvahiSubscription *s;
+void avahi_resolver_notify(AvahiServer *server, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event) {
+    AvahiRecordResolver *s;
     
     g_assert(server);
     g_assert(record);
 
-    for (s = g_hash_table_lookup(server->subscription_hashtable, record->key); s; s = s->by_key_next)
+    for (s = g_hash_table_lookup(server->record_resolver_hashtable, record->key); s; s = s->by_key_next)
         if (avahi_interface_match(i, s->interface, s->protocol))
-            s->callback(s, record, i->hardware->index, i->protocol, event, s->userdata);
+            s->callback(s, i->hardware->index, i->protocol, event, record, s->userdata);
 }
 
 gboolean avahi_is_subscribed(AvahiServer *server, AvahiKey *k) {
     g_assert(server);
     g_assert(k);
 
-    return !!g_hash_table_lookup(server->subscription_hashtable, k);
+    return !!g_hash_table_lookup(server->record_resolver_hashtable, k);
 }

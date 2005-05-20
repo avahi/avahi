@@ -46,16 +46,16 @@ static gboolean dump_timeout(gpointer data) {
     return TRUE;
 }
 
-static void subscription(AvahiSubscription *s, AvahiRecord *r, gint interface, guchar protocol, AvahiSubscriptionEvent event, gpointer userdata) {
+static void record_resolver_callback(AvahiRecordResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     gchar *t;
     
-    g_assert(s);
     g_assert(r);
+    g_assert(record);
     g_assert(interface > 0);
     g_assert(protocol != AF_UNSPEC);
 
-    g_message("SUBSCRIPTION: record [%s] on %i.%i is %s", t = avahi_record_to_string(r), interface, protocol,
-              event == AVAHI_SUBSCRIPTION_NEW ? "new" : "removed");
+    g_message("SUBSCRIPTION: record [%s] on %i.%i is %s", t = avahi_record_to_string(record), interface, protocol,
+              event == AVAHI_BROWSER_NEW ? "new" : "removed");
 
     g_free(t);
 }
@@ -122,30 +122,43 @@ static void create_entries(gboolean new_name) {
     avahi_entry_group_commit(group);   
 
 }
+
+static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
+    gchar t[64];
+
+    avahi_address_snprint(t, sizeof(t), a);
+
+    g_message("HNR: (%i.%i) %s -> %s [%s]", iface, protocol, hostname, t, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+}
+
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
-    AvahiSubscription *s;
+    AvahiRecordResolver *r;
+    AvahiHostNameResolver *hnr;
     AvahiKey *k;
     AvahiServerConfig config;
 
     avahi_server_config_init(&config);
-    config.host_name = g_strdup("test");
+/*     config.host_name = g_strdup("test"); */
     server = avahi_server_new(NULL, &config, server_callback, NULL);
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    s = avahi_subscription_new(server, k, 0, AF_UNSPEC, subscription, NULL);
+    r = avahi_record_resolver_new(server, 0, AF_UNSPEC, k, record_resolver_callback, NULL);
     avahi_key_unref(k);
+
+    hnr = avahi_host_name_resolver_new(server, 0, AF_UNSPEC, "ecstasy.local", hnr_callback, NULL);
 
     loop = g_main_loop_new(NULL, FALSE);
     
 /*      g_timeout_add(1000*5, dump_timeout, server);   */
-/*     g_timeout_add(1000*30, quit_timeout, loop);    */
+    g_timeout_add(1000*30, quit_timeout, loop);    
     
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 
-     avahi_subscription_free(s);  
+    avahi_record_resolver_free(r);
+    avahi_host_name_resolver_free(hnr);
 
     if (group)
         avahi_entry_group_free(group);   

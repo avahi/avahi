@@ -950,8 +950,9 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     s->entries_by_key = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
     AVAHI_LLIST_HEAD_INIT(AvahiGroup, s->groups);
 
-    AVAHI_LLIST_HEAD_INIT(AvahiSubscription, s->subscriptions);
-    s->subscription_hashtable = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
+    AVAHI_LLIST_HEAD_INIT(AvahiRecordResolver, s->record_resolvers);
+    s->record_resolver_hashtable = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
+    AVAHI_LLIST_HEAD_INIT(AvahiHostNameResolver, s->host_name_resolvers);
 
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
@@ -990,9 +991,12 @@ void avahi_server_free(AvahiServer* s) {
     while (s->groups)
         free_group(s, s->groups);
 
-    while (s->subscriptions)
-        avahi_subscription_free(s->subscriptions);
-    g_hash_table_destroy(s->subscription_hashtable);
+    while (s->host_name_resolvers)
+        avahi_host_name_resolver_free(s->host_name_resolvers);
+    
+    while (s->record_resolvers)
+        avahi_record_resolver_free(s->record_resolvers);
+    g_hash_table_destroy(s->record_resolver_hashtable);
 
     g_hash_table_destroy(s->entries_by_key);
 

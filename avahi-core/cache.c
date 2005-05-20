@@ -50,7 +50,7 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     if (e->time_event)
         avahi_time_event_queue_remove(c->server->time_event_queue, e->time_event);
 
-    avahi_subscription_notify(c->server, c->interface, e->record, AVAHI_SUBSCRIPTION_REMOVE);
+    avahi_resolver_notify(c->server, c->interface, e->record, AVAHI_BROWSER_REMOVE);
 
     avahi_record_unref(e->record);
     
@@ -307,7 +307,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
             AVAHI_LLIST_PREPEND(AvahiCacheEntry, entry, c->entries, e);
 
             /* Notify subscribers */
-            avahi_subscription_notify(c->server, c->interface, e->record, AVAHI_SUBSCRIPTION_NEW);
+            avahi_resolver_notify(c->server, c->interface, e->record, AVAHI_BROWSER_NEW);
         } 
         
         e->origin = *a;

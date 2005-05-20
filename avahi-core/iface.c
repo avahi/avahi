@@ -49,7 +49,7 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
 
         if (!a->entry_group) {
             a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
-            avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); 
+            avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address); 
             avahi_entry_group_commit(a->entry_group);
         }
     } else {
@@ -102,11 +102,8 @@ static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean
     g_assert(m);
     g_assert(i);
 
-    g_message("removing interface %s.%i", i->hardware->name, i->protocol);
     avahi_goodbye_interface(m->server, i, send_goodbye);
-    g_message("forcing responses...");
     avahi_response_scheduler_force(i->response_scheduler);
-    g_message("done");
     
     g_assert(!i->announcements);
 

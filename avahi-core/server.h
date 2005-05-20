@@ -75,8 +75,9 @@ struct AvahiServer {
 
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
     
-    AVAHI_LLIST_HEAD(AvahiSubscription, subscriptions);
-    GHashTable *subscription_hashtable;
+    AVAHI_LLIST_HEAD(AvahiRecordResolver, record_resolvers);
+    GHashTable *record_resolver_hashtable;
+    AVAHI_LLIST_HEAD(AvahiHostNameResolver, host_name_resolvers);
 
     gboolean need_entry_cleanup, need_group_cleanup;
     

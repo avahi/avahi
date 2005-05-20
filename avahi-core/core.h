@@ -207,15 +207,24 @@ void avahi_server_add_service_strlst(
     AvahiStringList *strlst);
 
 typedef enum {
-    AVAHI_SUBSCRIPTION_NEW,
-    AVAHI_SUBSCRIPTION_REMOVE,
-} AvahiSubscriptionEvent;
+    AVAHI_BROWSER_NEW,
+    AVAHI_BROWSER_REMOVE,
+} AvahiBrowserEvent;
 
-typedef struct AvahiSubscription AvahiSubscription;
+typedef struct AvahiRecordResolver AvahiRecordResolver;
+typedef struct AvahiHostNameResolver AvahiHostNameResolver;
+typedef struct AvahiReverseHostNameResolver AvahiReverseHostNameResolver;
+typedef struct AvahiDomainBrowser AvahiDomainBrowser;
+typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
+typedef struct AvahiServiceBrowser AvahiServiceBrowser;
+typedef struct AvahiServiceResolver AvahiServiceResolver;
 
-typedef void (*AvahiSubscriptionCallback)(AvahiSubscription *s, AvahiRecord *record, gint interface, guchar protocol, AvahiSubscriptionEvent event, gpointer userdata);
+typedef void (*AvahiRecordResolverCallback)(AvahiRecordResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata);
+AvahiRecordResolver *avahi_record_resolver_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordResolverCallback callback, gpointer userdata);
+void avahi_record_resolver_free(AvahiRecordResolver *r);
 
-AvahiSubscription *avahi_subscription_new(AvahiServer *s, AvahiKey *key, gint interface, guchar protocol, AvahiSubscriptionCallback callback, gpointer userdata);
-void avahi_subscription_free(AvahiSubscription *s);
+typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata);
+AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, AvahiHostNameResolverCallback calback, gpointer userdata);
+void avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 
 #endif

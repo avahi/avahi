@@ -42,7 +42,8 @@ typedef enum {
     AVAHI_SERVER_INVALID = -1,     /**< Invalid state (initial) */ 
     AVAHI_SERVER_REGISTERING = 0,  /**< Host RRs are being registered */
     AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
-    AVAHI_SERVER_COLLISION         /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
+    AVAHI_SERVER_COLLISION,        /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
+    AVAHI_SERVER_SLEEPING          /**< The host or domain name has changed and the server waits for old entries to be expired */
 } AvahiServerState;
 
 /** Flags for server entries */
@@ -76,6 +77,8 @@ typedef struct AvahiServerConfig {
     gboolean register_hinfo;               /**< Register a HINFO record for the host containing the local OS and CPU type */
     gboolean register_addresses;           /**< Register A, AAAA and PTR records for all local IP addresses */
     gboolean check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255 */
+    gboolean announce_domain;              /**< Announce the local domain for browsing */
+    gboolean use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

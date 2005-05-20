@@ -41,13 +41,12 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
     g_assert(m);
     g_assert(a);
 
-    
     if (avahi_interface_address_relevant(a) &&
         !remove &&
         m->server->config.register_addresses &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
-        
+
         if (!a->entry_group) {
             a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
             avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, AF_UNSPEC, 0, NULL, &a->address); 
@@ -68,6 +67,7 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
 
 static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean remove) {
     AvahiInterfaceAddress *a;
+    
     g_assert(m);
     g_assert(i);
 
@@ -161,7 +161,7 @@ static int netlink_list_items(AvahiNetlink *nl, guint16 type, guint *ret_seq) {
     n = (struct nlmsghdr*) req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtgenmsg));
     n->nlmsg_type = type;
-    n->nlmsg_flags = NLM_F_ROOT|NLM_F_MATCH|NLM_F_REQUEST;
+    n->nlmsg_flags = NLM_F_ROOT/*|NLM_F_MATCH*/|NLM_F_REQUEST;
     n->nlmsg_pid = 0;
 
     gen = NLMSG_DATA(n);
@@ -205,12 +205,12 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
     b = avahi_interface_relevant(i);
 
     if (b && !i->announcing) {
-        g_message("New relevant interface %s.%i", i->hardware->name, i->protocol);
+        g_message("New relevant interface %s.%i (#%i)", i->hardware->name, i->protocol, i->hardware->index);
 
         if (i->protocol == AF_INET)
-            avahi_mdns_mcast_join_ipv4 (i->hardware->index, m->server->fd_ipv4);
+            avahi_mdns_mcast_join_ipv4(i->hardware->index, m->server->fd_ipv4);
         if (i->protocol == AF_INET6)
-            avahi_mdns_mcast_join_ipv6 (i->hardware->index, m->server->fd_ipv6);
+            avahi_mdns_mcast_join_ipv6(i->hardware->index, m->server->fd_ipv6);
 
         i->announcing = TRUE;
         avahi_announce_interface(m->server, i);
@@ -218,9 +218,9 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
         if (i->protocol == AF_INET)
-            avahi_mdns_mcast_leave_ipv4 (i->hardware->index, m->server->fd_ipv4);
+            avahi_mdns_mcast_leave_ipv4(i->hardware->index, m->server->fd_ipv4);
         if (i->protocol == AF_INET6)
-            avahi_mdns_mcast_leave_ipv6 (i->hardware->index, m->server->fd_ipv6);
+            avahi_mdns_mcast_leave_ipv6(i->hardware->index, m->server->fd_ipv6);
 
         avahi_goodbye_interface(m->server, i, FALSE);
         avahi_response_scheduler_clear(i->response_scheduler);
@@ -324,7 +324,7 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
         struct rtattr *a = NULL;
         size_t l;
         AvahiAddress raddr;
-        int raddr_valid = 0;
+        gboolean raddr_valid = FALSE;
 
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
             return;
@@ -334,10 +334,11 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
 
         raddr.family = ifaddrmsg->ifa_family;
 
-        l = NLMSG_PAYLOAD(n, sizeof(struct ifinfomsg));
+        l = NLMSG_PAYLOAD(n, sizeof(struct ifaddrmsg));
         a = IFA_RTA(ifaddrmsg);
 
         while (RTA_OK(a, l)) {
+
             switch(a->rta_type) {
                 case IFA_ADDRESS:
                     if ((raddr.family == AF_INET6 && RTA_PAYLOAD(a) != 16) ||
@@ -345,7 +346,7 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                         return;
 
                     memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
-                    raddr_valid = 1;
+                    raddr_valid = TRUE;
 
                     break;
                     
@@ -355,7 +356,6 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             
             a = RTA_NEXT(a, l);
         }
-
         
         if (!raddr_valid)
             return;
@@ -563,14 +563,33 @@ void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f) {
 }
 
 gboolean avahi_interface_relevant(AvahiInterface *i) {
+    AvahiInterfaceAddress *a;
+    gboolean relevant_address;
+    
     g_assert(i);
 
+    relevant_address = FALSE;
+    
+    for (a = i->addresses; a; a = a->address_next)
+        if (avahi_interface_address_relevant(a)) {
+            relevant_address = TRUE;
+            break;
+        }
+
+/*     g_message("%p. iface-relevant: %i %i %i %i %i %i", i, relevant_address, */
+/*               (i->hardware->flags & IFF_UP), */
+/*               (i->hardware->flags & IFF_RUNNING), */
+/*               !(i->hardware->flags & IFF_LOOPBACK), */
+/*               (i->hardware->flags & IFF_MULTICAST), */
+/*               !(i->hardware->flags & IFF_POINTOPOINT)); */
+    
     return
         (i->hardware->flags & IFF_UP) &&
-        (i->hardware->flags & IFF_RUNNING) &&
+        (!i->monitor->server->config.use_iff_running || (i->hardware->flags & IFF_RUNNING)) &&
         !(i->hardware->flags & IFF_LOOPBACK) &&
         (i->hardware->flags & IFF_MULTICAST) &&
-        i->addresses;
+        !(i->hardware->flags & IFF_POINTOPOINT) && 
+        relevant_address;
 }
 
 gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a) { 

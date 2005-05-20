@@ -151,7 +151,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
     if (e->state == AVAHI_CACHE_FINAL) {
         remove_entry(e->cache, e);
-        g_message("Removing entry from cache due to expiration");
+/*         g_message("Removing entry from cache due to expiration"); */
     } else {
         guint percent = 0;
     
@@ -183,7 +183,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         /* Request a cache update, if we are subscribed to this entry */
         if (avahi_is_subscribed(e->cache->server, e->record->key)) {
-            g_message("Requesting cache entry update at %i%%.", percent);
+/*             g_message("Requesting cache entry update at %i%%.", percent); */
             avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
         }
 

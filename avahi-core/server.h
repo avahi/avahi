@@ -94,7 +94,10 @@ struct AvahiServer {
     gpointer userdata;
 
     AvahiEntryGroup *hinfo_entry_group;
+    AvahiEntryGroup *browse_domain_entry_group;
     guint n_host_rr_pending;
+
+    AvahiTimeEvent *register_time_event;
     
     /* Used for assembling responses */
     AvahiRecordList *record_list;

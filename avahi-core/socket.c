@@ -420,7 +420,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     AvahiDnsPacket *p= NULL;
     struct msghdr msg;
     struct iovec io;
-    uint8_t aux[64];
+    uint8_t aux[1024];
     ssize_t l;
     struct cmsghdr *cmsg;
     gboolean found_ttl = FALSE, found_iface = FALSE;
@@ -444,24 +444,41 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     msg.msg_controllen = sizeof(aux);
     msg.msg_flags = 0;
     
-    if ((l = recvmsg(fd, &msg, 0)) < 0)
+    if ((l = recvmsg(fd, &msg, 0)) < 0) {
+        g_warning("recvmsg(): %s\n", strerror(errno));
         goto fail;
+    }
 
+    if (ret_sa->sin_addr.s_addr == INADDR_ANY) {
+        /* Linux 2.4 behaves very strangely sometimes! */
+        goto fail;
+    }
+    
+    g_assert(!(msg.msg_flags & MSG_CTRUNC));
+    g_assert(!(msg.msg_flags & MSG_TRUNC));
     p->size = (size_t) l;
     
     *ret_ttl = 0;
+
+/*     avahi_hexdump(msg.msg_control, msg.msg_controllen); */
         
-    for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg,cmsg)) {
-        if (cmsg->cmsg_level == SOL_IP && cmsg->cmsg_type == IP_TTL) {
-            *ret_ttl = *(uint8_t *) CMSG_DATA(cmsg);
-            found_ttl = TRUE;
-        }
+    for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+
+/*         avahi_hexdump(CMSG_DATA(cmsg), cmsg->cmsg_len - sizeof(struct cmsghdr)); */
+        
+        if (cmsg->cmsg_level == SOL_IP) {
             
-        if (cmsg->cmsg_level == SOL_IP && cmsg->cmsg_type == IP_PKTINFO) {
-            *ret_iface = ((struct in_pktinfo*) CMSG_DATA(cmsg))->ipi_ifindex;
-            found_iface = TRUE;
+            if (cmsg->cmsg_type == IP_TTL) {
+                *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
+                found_ttl = TRUE;
+            } else if (cmsg->cmsg_type == IP_PKTINFO) {
+                *ret_iface = (gint) ((struct in_pktinfo*) CMSG_DATA(cmsg))->ipi_ifindex;
+                found_iface = TRUE;
+            }
         }
     }
+
+/*     g_message("ttl=%u iface=%i", *ret_ttl, *ret_iface); */
 
     g_assert(found_iface);
     g_assert(found_ttl);
@@ -512,7 +529,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
 
     for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
         if (cmsg->cmsg_level == SOL_IPV6 && cmsg->cmsg_type == IPV6_HOPLIMIT) {
-            *ret_ttl = *(uint8_t *) CMSG_DATA(cmsg);
+            *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
             found_ttl = TRUE;
         }
             

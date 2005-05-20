@@ -65,24 +65,31 @@ static void remove_entries(void);
 static void create_entries(gboolean new_name);
 
 static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata) {
-    g_message("=======> entry group state: %i", state);
+    g_message("entry group state: %i", state); 
 
     if (state == AVAHI_ENTRY_GROUP_COLLISION) {
         remove_entries();
         create_entries(TRUE);
+        g_message("Service name conflict, retrying with <%s>", service_name);
+    } else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
+        g_message("Service established under name <%s>", service_name);
     }
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
-    g_message("=======> server state: %i", state);
 
-    if (state == AVAHI_SERVER_RUNNING)
+     g_message("server state: %i", state); 
+    
+    if (state == AVAHI_SERVER_RUNNING) {
+        g_message("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
         create_entries(FALSE);
-    else if (state == AVAHI_SERVER_COLLISION) {
+    } else if (state == AVAHI_SERVER_COLLISION) {
         gchar *n;
         remove_entries();
 
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
+
+        g_message("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
         g_free(n);
     }
@@ -103,7 +110,7 @@ static void create_entries(gboolean new_name) {
     if (!service_name)
         service_name = g_strdup("Test Service");
     else if (new_name) {
-        gchar *n = avahi_alternative_service_name(avahi_server_get_host_name(server));
+        gchar *n = avahi_alternative_service_name(service_name);
         g_free(service_name);
         service_name = n;
     }
@@ -117,24 +124,28 @@ static void create_entries(gboolean new_name) {
 }
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
-/*     AvahiSubscription *s; */
-/*     AvahiKey *k; */
-    
-    server = avahi_server_new(NULL, NULL, server_callback, NULL);
+    AvahiSubscription *s;
+    AvahiKey *k;
+    AvahiServerConfig config;
 
-/*     k = avahi_key_new("HALLO", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT); */
-/*     s = avahi_subscription_new(avahi, k, 0, AF_UNSPEC, subscription, NULL); */
-/*     avahi_key_unref(k); */
+    avahi_server_config_init(&config);
+    config.host_name = g_strdup("test");
+    server = avahi_server_new(NULL, &config, server_callback, NULL);
+    avahi_server_config_free(&config);
+
+    k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
+    s = avahi_subscription_new(server, k, 0, AF_UNSPEC, subscription, NULL);
+    avahi_key_unref(k);
 
     loop = g_main_loop_new(NULL, FALSE);
     
-    g_timeout_add(1000*5, dump_timeout, server); 
+/*      g_timeout_add(1000*5, dump_timeout, server);   */
 /*     g_timeout_add(1000*30, quit_timeout, loop);    */
     
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 
-/*     avahi_subscription_free(s);  */
+     avahi_subscription_free(s);  
 
     if (group)
         avahi_entry_group_free(group);   

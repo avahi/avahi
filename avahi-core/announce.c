@@ -120,7 +120,7 @@ static void next_state(AvahiAnnouncement *a) {
         if (a->n_iteration >= 4) {
             /* Probing done */
             
-            gchar *t;
+/*             gchar *t; */
 
 /*             g_message("Enough probes for record [%s]", t = avahi_record_to_string(a->entry->record)); */
 /*             g_free(t); */

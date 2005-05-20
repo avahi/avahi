@@ -29,7 +29,7 @@
 static void elapse(AvahiTimeEvent *e, void *userdata) {
     AvahiSubscription *s = userdata;
     GTimeVal tv;
-    gchar *t;
+/*     gchar *t; */
     
     g_assert(s);
 
@@ -38,8 +38,8 @@ static void elapse(AvahiTimeEvent *e, void *userdata) {
     if (s->n_query++ <= 8)
         s->sec_delay *= 2;
 
-    g_message("%i. Continuous querying for %s", s->n_query, t = avahi_key_to_string(s->key));
-    g_free(t);
+/*     g_message("%i. Continuous querying for %s", s->n_query, t = avahi_key_to_string(s->key)); */
+/*     g_free(t); */
     
     avahi_elapse_time(&tv, s->sec_delay*1000, 0);
     avahi_time_event_queue_update(s->server->time_event_queue, s->time_event, &tv);

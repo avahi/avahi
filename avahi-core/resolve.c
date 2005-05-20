@@ -23,7 +23,7 @@
 #include <config.h>
 #endif
 
-#include "subscribe.h"
+#include "resolve.h"
 #include "util.h"
 
 static void elapse(AvahiTimeEvent *e, void *userdata) {

@@ -54,7 +54,7 @@ libavahi_core_la_SOURCES = \
 	query-sched.c query-sched.h \
 	probe-sched.c probe-sched.h \
 	announce.c announce.h \
-	subscribe.c subscribe.h \
+	resolve.c resolve.h \
 	strlst.c strlst.h \
 	rrlist.c rrlist.h \
 	alternative.c alternative.h \

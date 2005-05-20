@@ -1,5 +1,5 @@
-#ifndef foosubscribehfoo
-#define foosubscribehfoo
+#ifndef fooresolvehfoo
+#define fooresolvehfoo
 
 /* $Id$ */
 
@@ -24,7 +24,7 @@
 
 #include "llist.h"
 #include "core.h"
-#include "subscribe.h"
+#include "resolve.h"
 #include "timeeventq.h"
 #include "server.h"
 

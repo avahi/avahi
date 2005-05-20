@@ -28,7 +28,7 @@
 #include "llist.h"
 #include "timeeventq.h"
 #include "announce.h"
-#include "subscribe.h"
+#include "resolve.h"
 #include "dns.h"
 #include "rrlist.h"
 

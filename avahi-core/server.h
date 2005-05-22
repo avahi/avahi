@@ -81,6 +81,7 @@ struct AvahiServer {
     AVAHI_LLIST_HEAD(AvahiAddressResolver, address_resolvers);
     AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
+    AVAHI_LLIST_HEAD(AvahiServiceBrowser, service_browsers);
 
     gboolean need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
     

@@ -28,21 +28,23 @@
 #include "browse.h"
 #include "util.h"
 
-struct AvahiServiceTypeBrowser {
+struct AvahiServiceBrowser {
     AvahiServer *server;
     gchar *domain_name;
+    gchar *service_type;
     
     AvahiRecordBrowser *record_browser;
 
-    AvahiServiceTypeBrowserCallback callback;
+    AvahiServiceBrowserCallback callback;
     gpointer userdata;
 
-    AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, browser);
+    AVAHI_LLIST_FIELDS(AvahiServiceBrowser, browser);
 };
 
 static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
-    AvahiServiceTypeBrowser *b = userdata;
-    gchar *n, *e, *c;
+    AvahiServiceBrowser *b = userdata;
+    gchar *n, *e, *c, *s;
+    gchar service[128];
 
     g_assert(rr);
     g_assert(record);
@@ -50,12 +52,12 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
 
     g_assert(record->key->type == AVAHI_DNS_TYPE_PTR);
 
-    n = avahi_normalize_name(record->data.ptr.name);
+    c = n = avahi_normalize_name(record->data.ptr.name);
 
-    if (*n != '_')
+    if (!(avahi_unescape_label((const gchar**) &c, service, sizeof(service))))
         goto fail;
-    
-    for (c = e = n; *c == '_';) {
+
+    for (s = e = c; *c == '_';) {
         c += strcspn(c, ".");
 
         if (*c == 0)
@@ -71,51 +73,51 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
     if (!avahi_domain_equal(c, b->domain_name))
         goto fail;
     
-    b->callback(b, interface, protocol, event, n, c, b->userdata);
+    b->callback(b, interface, protocol, event, service, s, c, b->userdata);
     g_free(n);
 
     return;
 
 fail:
-    g_warning("Invalid service type '%s'", n);
+    g_warning("Invalid service '%s'", n);
     g_free(n);
 }
 
-AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiServiceTypeBrowserCallback callback, gpointer userdata) {
-    AvahiServiceTypeBrowser *b;
+AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *service_type, const gchar *domain, AvahiServiceBrowserCallback callback, gpointer userdata) {
+    AvahiServiceBrowser *b;
     AvahiKey *k;
     gchar *n = NULL;
     
     g_assert(server);
     g_assert(callback);
+    g_assert(service_type);
 
-    b = g_new(AvahiServiceTypeBrowser, 1);
+    b = g_new(AvahiServiceBrowser, 1);
     b->server = server;
     b->domain_name = avahi_normalize_name(domain ? domain : "local.");
+    b->service_type = avahi_normalize_name(service_type);
     b->callback = callback;
     b->userdata = userdata;
 
-
-    n = g_strdup_printf("_services._dns-sd._udp.%s", b->domain_name);
+    n = g_strdup_printf("%s%s", b->service_type, b->domain_name);
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     g_free(n);
     
     b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
 
-    AVAHI_LLIST_PREPEND(AvahiServiceTypeBrowser, browser, server->service_type_browsers, b);
+    AVAHI_LLIST_PREPEND(AvahiServiceBrowser, browser, server->service_browsers, b);
     
     return b;
 }
 
-void avahi_service_type_browser_free(AvahiServiceTypeBrowser *b) {
+void avahi_service_browser_free(AvahiServiceBrowser *b) {
     g_assert(b);
 
-    AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, browser, b->server->service_type_browsers, b);
+    AVAHI_LLIST_REMOVE(AvahiServiceBrowser, browser, b->server->service_browsers, b);
 
     avahi_record_browser_free(b->record_browser);
     g_free(b->domain_name);
+    g_free(b->service_type);
     g_free(b);
 }
-
-

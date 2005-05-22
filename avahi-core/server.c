@@ -966,6 +966,7 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     AVAHI_LLIST_HEAD_INIT(AvahiAddressResolver, s->address_resolvers);
     AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, s->domain_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, s->service_type_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, s->service_browsers);
 
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
@@ -1012,6 +1013,8 @@ void avahi_server_free(AvahiServer* s) {
         avahi_domain_browser_free(s->domain_browsers);
     while (s->service_type_browsers)
         avahi_service_type_browser_free(s->service_type_browsers);
+    while (s->service_browsers)
+        avahi_service_browser_free(s->service_browsers);
     while (s->record_browsers)
         avahi_record_browser_destroy(s->record_browsers);
     g_hash_table_destroy(s->record_browser_hashtable);

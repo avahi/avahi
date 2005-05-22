@@ -61,7 +61,8 @@ libavahi_core_la_SOURCES = \
 	resolve-host-name.c \
 	resolve-address.c \
 	browse-domain.c \
-	browse-service-type.c
+	browse-service-type.c \
+	browse-service.c
 
 prioq_test_SOURCES = \
 	prioq-test.c  \

@@ -128,7 +128,7 @@ static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, 
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
-    g_message("HNR: (%i.%i) %s -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_BROWSER_NEW ? "found" : "timeout");
+    g_message("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_BROWSER_NEW ? "found" : "timeout");
 }
 
 static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
@@ -136,17 +136,21 @@ static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, Av
 
     avahi_address_snprint(t, sizeof(t), a);
 
-    g_message("AR: (%i.%i) %s -> %s [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_BROWSER_NEW ? "found" : "timeout");
+    g_message("AR: (%i.%i) %s -> <%s> [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_BROWSER_NEW ? "found" : "timeout");
 }
 
 static void db_callback(AvahiDomainBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
 
-    g_message("DB: (%i.%i) %s [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+    g_message("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
 static void stb_callback(AvahiServiceTypeBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
 
-    g_message("STB: (%i.%i) %s in %s [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+    g_message("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+}
+
+static void sb_callback(AvahiServiceBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *name, const gchar *service_type, const gchar *domain, gpointer userdata) {
+   g_message("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
     
 int main(int argc, char *argv[]) {
@@ -159,6 +163,7 @@ int main(int argc, char *argv[]) {
     AvahiAddress a;
     AvahiDomainBrowser *db;
     AvahiServiceTypeBrowser *stb;
+    AvahiServiceBrowser *sb;
 
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */
@@ -176,6 +181,8 @@ int main(int argc, char *argv[]) {
     db = avahi_domain_browser_new(server, -1, AF_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
 
     stb = avahi_service_type_browser_new(server, -1, AF_UNSPEC, NULL, stb_callback, NULL);
+
+    sb = avahi_service_browser_new(server, -1, AF_UNSPEC, "_http._tcp", NULL, sb_callback, NULL);
     
     loop = g_main_loop_new(NULL, FALSE);
     
@@ -189,6 +196,7 @@ int main(int argc, char *argv[]) {
     avahi_host_name_resolver_free(hnr);
     avahi_address_resolver_free(ar);
     avahi_service_type_browser_free(stb);
+    avahi_service_browser_free(sb);
 
     if (group)
         avahi_entry_group_free(group);   

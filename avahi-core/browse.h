@@ -1,5 +1,5 @@
-#ifndef fooresolvehfoo
-#define fooresolvehfoo
+#ifndef foobrowsehfoo
+#define foobrowsehfoo
 
 /* $Id$ */
 
@@ -24,7 +24,6 @@
 
 #include "llist.h"
 #include "core.h"
-#include "resolve.h"
 #include "timeeventq.h"
 #include "server.h"
 

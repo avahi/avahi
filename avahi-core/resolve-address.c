@@ -23,7 +23,7 @@
 #include <config.h>
 #endif
 
-#include "resolve.h"
+#include "browse.h"
 #include "util.h"
 
 struct AvahiAddressResolver {

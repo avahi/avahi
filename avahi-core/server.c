@@ -33,7 +33,7 @@
 #include "util.h"
 #include "iface.h"
 #include "socket.h"
-#include "resolve.h"
+#include "browse.h"
 
 #define AVAHI_HOST_RR_HOLDOFF_MSEC 1000
 

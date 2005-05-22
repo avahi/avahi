@@ -221,7 +221,12 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint inter
     avahi_escape_label((guint8*) name, strlen(name), &n, &l);
     snprintf(n, l, ".%s%s", r->service_type, r->domain_name);
 
-    g_message("<%s>", t);
+    avahi_elapse_time(&tv, 1000, 0);
+    r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
+    
+    AVAHI_LLIST_PREPEND(AvahiServiceResolver, resolver, server->service_resolvers, r);
+
+    r->record_browser_a = r->record_browser_aaaa = r->record_browser_srv = r->record_browser_txt = NULL;
     
     k = avahi_key_new(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
     r->record_browser_srv = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
@@ -230,13 +235,6 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint inter
     k = avahi_key_new(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
     r->record_browser_txt = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
     avahi_key_unref(k);
-    
-    r->record_browser_a = r->record_browser_aaaa = NULL;
-    
-    avahi_elapse_time(&tv, 1000, 0);
-    r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
-    
-    AVAHI_LLIST_PREPEND(AvahiServiceResolver, resolver, server->service_resolvers, r);
     
     return r;
 }

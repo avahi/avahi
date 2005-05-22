@@ -26,6 +26,15 @@ AM_LDADD=$(GLIB20_LIBS)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+avahiincludedir=$(includedir)/avahi-core
+
+avahiinclude_HEADERS = \
+	rr.h \
+	address.h \
+	strlst.h \
+	core.h \
+	alternative.h
+
 lib_LTLIBRARIES = \
 	libavahi-core.la 
 

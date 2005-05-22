@@ -119,24 +119,25 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint in
     r->callback = callback;
     r->userdata = userdata;
 
+    r->record_browser_a = r->record_browser_aaaa = NULL;
+        
+    avahi_elapse_time(&tv, 1000, 0);
+    r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
+
+    AVAHI_LLIST_PREPEND(AvahiHostNameResolver, resolver, server->host_name_resolvers, r);
+
+    
     if (aprotocol == AF_INET || aprotocol == AF_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
         r->record_browser_a = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
-    } else
-        r->record_browser_a = NULL;
+    } 
 
     if (aprotocol == AF_INET6 || aprotocol == AF_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
         r->record_browser_aaaa = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
-    } else
-        r->record_browser_aaaa = NULL;
-
-    avahi_elapse_time(&tv, 1000, 0);
-    r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
-    
-    AVAHI_LLIST_PREPEND(AvahiHostNameResolver, resolver, server->host_name_resolvers, r);
+    }
     
     return r;
 }

@@ -244,8 +244,14 @@ typedef void (*AvahiDomainBrowserCallback)(AvahiDomainBrowser *b, gint interface
 AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, gpointer userdata);
 void avahi_domain_browser_free(AvahiDomainBrowser *b);
 
-/* not yet implemented */
 typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
+typedef void (*AvahiServiceTypeBrowserCallback)(AvahiServiceTypeBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *type, const gchar *domain, gpointer userdata);
+AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiServiceTypeBrowserCallback callback, gpointer userdata);
+void avahi_service_type_browser_free(AvahiServiceTypeBrowser *b);
+
+
+/* Not yet implemented */
+
 typedef struct AvahiServiceBrowser AvahiServiceBrowser;
 typedef struct AvahiServiceResolver AvahiServiceResolver;
 

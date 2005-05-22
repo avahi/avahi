@@ -144,6 +144,11 @@ static void db_callback(AvahiDomainBrowser *b, gint iface, guchar protocol, Avah
     g_message("DB: (%i.%i) %s [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
+static void stb_callback(AvahiServiceTypeBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
+
+    g_message("STB: (%i.%i) %s in %s [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+}
+    
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     AvahiRecordBrowser *r;
@@ -153,6 +158,7 @@ int main(int argc, char *argv[]) {
     AvahiServerConfig config;
     AvahiAddress a;
     AvahiDomainBrowser *db;
+    AvahiServiceTypeBrowser *stb;
 
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */
@@ -160,14 +166,16 @@ int main(int argc, char *argv[]) {
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    r = avahi_record_browser_new(server, 0, AF_UNSPEC, k, record_browser_callback, NULL);
+    r = avahi_record_browser_new(server, -1, AF_UNSPEC, k, record_browser_callback, NULL);
     avahi_key_unref(k);
 
-    hnr = avahi_host_name_resolver_new(server, 0, AF_UNSPEC, "codes-CompUTER.local", AF_UNSPEC, hnr_callback, NULL);
+    hnr = avahi_host_name_resolver_new(server, -1, AF_UNSPEC, "codes-CompUTER.local", AF_UNSPEC, hnr_callback, NULL);
 
-    ar = avahi_address_resolver_new(server, 0, AF_UNSPEC, avahi_address_parse("192.168.50.15", AF_INET, &a), ar_callback, NULL);
+    ar = avahi_address_resolver_new(server, -1, AF_UNSPEC, avahi_address_parse("192.168.50.15", AF_INET, &a), ar_callback, NULL);
 
-    db = avahi_domain_browser_new(server, 0, AF_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
+    db = avahi_domain_browser_new(server, -1, AF_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
+
+    stb = avahi_service_type_browser_new(server, -1, AF_UNSPEC, NULL, stb_callback, NULL);
     
     loop = g_main_loop_new(NULL, FALSE);
     
@@ -180,6 +188,7 @@ int main(int argc, char *argv[]) {
     avahi_record_browser_free(r);
     avahi_host_name_resolver_free(hnr);
     avahi_address_resolver_free(ar);
+    avahi_service_type_browser_free(stb);
 
     if (group)
         avahi_entry_group_free(group);   

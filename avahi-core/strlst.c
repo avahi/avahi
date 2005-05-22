@@ -102,10 +102,10 @@ gchar* avahi_string_list_to_string(AvahiStringList *l) {
         if (n != l)
             s ++;
 
-        s += n->size+3;
+        s += n->size+2;
     }
 
-    t = e = g_new(gchar, s);
+    t = e = g_new(gchar, s+1);
 
     for (n = l; n; n = n->next) {
         if (n != l)
@@ -116,10 +116,12 @@ gchar* avahi_string_list_to_string(AvahiStringList *l) {
         e[n->size] = 0;
         e = strchr(e, 0);
         *(e++) = '"';
+
+        g_assert(e);
     }
 
     l = string_list_reverse(l);
-
+    
     *e = 0;
 
     return t;

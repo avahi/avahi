@@ -181,6 +181,9 @@ const gchar *avahi_dns_type_to_string(guint16 type) {
 
 
 gchar *avahi_key_to_string(const AvahiKey *k) {
+    g_assert(k);
+    g_assert(k->ref >= 1);
+    
     return g_strdup_printf("%s\t%s\t%s",
                            k->name,
                            avahi_dns_class_to_string(k->class),
@@ -191,6 +194,9 @@ gchar *avahi_record_to_string(const AvahiRecord *r) {
     gchar *p, *s;
     char buf[257], *t = NULL, *d = NULL;
 
+    g_assert(r);
+    g_assert(r->ref >= 1);
+    
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_A:
             inet_ntop(AF_INET, &r->data.a.address.address, t = buf, sizeof(buf));

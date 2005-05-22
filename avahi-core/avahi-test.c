@@ -46,7 +46,7 @@ static gboolean dump_timeout(gpointer data) {
     return TRUE;
 }
 
-static void record_resolver_callback(AvahiRecordResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     gchar *t;
     
     g_assert(r);
@@ -55,11 +55,10 @@ static void record_resolver_callback(AvahiRecordResolver *r, gint interface, guc
     g_assert(protocol != AF_UNSPEC);
 
     g_message("SUBSCRIPTION: record [%s] on %i.%i is %s", t = avahi_record_to_string(record), interface, protocol,
-              event == AVAHI_BROWSER_NEW ? "new" : "removed");
+              event == AVAHI_BROWSER_NEW ? "new" : "remove");
 
     g_free(t);
 }
-
 
 static void remove_entries(void);
 static void create_entries(gboolean new_name);
@@ -126,17 +125,34 @@ static void create_entries(gboolean new_name) {
 static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
     gchar t[64];
 
+    if (a)
+        avahi_address_snprint(t, sizeof(t), a);
+
+    g_message("HNR: (%i.%i) %s -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_BROWSER_NEW ? "found" : "timeout");
+}
+
+static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
+    gchar t[64];
+
     avahi_address_snprint(t, sizeof(t), a);
 
-    g_message("HNR: (%i.%i) %s -> %s [%s]", iface, protocol, hostname, t, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+    g_message("AR: (%i.%i) %s -> %s [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_BROWSER_NEW ? "found" : "timeout");
+}
+
+static void db_callback(AvahiDomainBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
+
+    g_message("DB: (%i.%i) %s [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
-    AvahiRecordResolver *r;
+    AvahiRecordBrowser *r;
     AvahiHostNameResolver *hnr;
+    AvahiAddressResolver *ar;
     AvahiKey *k;
     AvahiServerConfig config;
+    AvahiAddress a;
+    AvahiDomainBrowser *db;
 
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */
@@ -144,21 +160,26 @@ int main(int argc, char *argv[]) {
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    r = avahi_record_resolver_new(server, 0, AF_UNSPEC, k, record_resolver_callback, NULL);
+    r = avahi_record_browser_new(server, 0, AF_UNSPEC, k, record_browser_callback, NULL);
     avahi_key_unref(k);
 
-    hnr = avahi_host_name_resolver_new(server, 0, AF_UNSPEC, "ecstasy.local", hnr_callback, NULL);
+    hnr = avahi_host_name_resolver_new(server, 0, AF_UNSPEC, "codes-CompUTER.local", AF_UNSPEC, hnr_callback, NULL);
 
+    ar = avahi_address_resolver_new(server, 0, AF_UNSPEC, avahi_address_parse("192.168.50.15", AF_INET, &a), ar_callback, NULL);
+
+    db = avahi_domain_browser_new(server, 0, AF_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
+    
     loop = g_main_loop_new(NULL, FALSE);
     
 /*      g_timeout_add(1000*5, dump_timeout, server);   */
-    g_timeout_add(1000*30, quit_timeout, loop);    
+/*     g_timeout_add(1000*30, quit_timeout, loop);     */
     
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 
-    avahi_record_resolver_free(r);
+    avahi_record_browser_free(r);
     avahi_host_name_resolver_free(hnr);
+    avahi_address_resolver_free(ar);
 
     if (group)
         avahi_entry_group_free(group);   

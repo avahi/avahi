@@ -62,7 +62,6 @@ static gchar *unescape_uneeded(const gchar *src, gchar *ret_dest, size_t size) {
             
             *(ret_dest++) = '\\';
             *(ret_dest++) = *src;
-
             escaped = FALSE;
         } else {
             if (--size <= 1) break;

@@ -50,7 +50,7 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     if (e->time_event)
         avahi_time_event_queue_remove(c->server->time_event_queue, e->time_event);
 
-    avahi_resolver_notify(c->server, c->interface, e->record, AVAHI_BROWSER_REMOVE);
+    avahi_browser_notify(c->server, c->interface, e->record, AVAHI_BROWSER_REMOVE);
 
     avahi_record_unref(e->record);
     
@@ -182,7 +182,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         g_assert(percent > 0);
 
         /* Request a cache update, if we are subscribed to this entry */
-        if (avahi_is_subscribed(e->cache->server, e->record->key)) {
+        if (avahi_is_subscribed(e->cache->server, e->cache->interface, e->record->key)) {
 /*             g_message("Requesting cache entry update at %i%%.", percent); */
             avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
         }
@@ -307,7 +307,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
             AVAHI_LLIST_PREPEND(AvahiCacheEntry, entry, c->entries, e);
 
             /* Notify subscribers */
-            avahi_resolver_notify(c->server, c->interface, e->record, AVAHI_BROWSER_NEW);
+            avahi_browser_notify(c->server, c->interface, e->record, AVAHI_BROWSER_NEW);
         } 
         
         e->origin = *a;

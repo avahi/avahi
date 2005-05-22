@@ -75,12 +75,13 @@ struct AvahiServer {
 
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
     
-    AVAHI_LLIST_HEAD(AvahiRecordResolver, record_resolvers);
-    GHashTable *record_resolver_hashtable;
+    AVAHI_LLIST_HEAD(AvahiRecordBrowser, record_browsers);
+    GHashTable *record_browser_hashtable;
     AVAHI_LLIST_HEAD(AvahiHostNameResolver, host_name_resolvers);
     AVAHI_LLIST_HEAD(AvahiAddressResolver, address_resolvers);
+    AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
 
-    gboolean need_entry_cleanup, need_group_cleanup;
+    gboolean need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
     
     AvahiTimeEventQueue *time_event_queue;
     

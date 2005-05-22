@@ -51,7 +51,4 @@ void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, co
 AvahiTimeEvent* avahi_time_event_queue_root(AvahiTimeEventQueue *q);
 AvahiTimeEvent* avahi_time_event_next(AvahiTimeEvent *e);
 
-
-
-
 #endif

@@ -105,7 +105,7 @@ void avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name);
 gpointer avahi_server_get_data(AvahiServer *s);
 void avahi_server_set_data(AvahiServer *s, gpointer userdata);
 
-AvahiServerState avhai_server_get_state(AvahiServer *s);
+AvahiServerState avahi_server_get_state(AvahiServer *s);
 
 const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state);
 void avahi_server_dump(AvahiServer *s, FILE *f);
@@ -207,28 +207,44 @@ void avahi_server_add_service_strlst(
     AvahiStringList *strlst);
 
 typedef enum {
-    AVAHI_BROWSER_NEW,
-    AVAHI_BROWSER_REMOVE,
+    AVAHI_BROWSER_NEW = 0,
+    AVAHI_BROWSER_REMOVE = -1
 } AvahiBrowserEvent;
 
-typedef struct AvahiRecordResolver AvahiRecordResolver;
-typedef void (*AvahiRecordResolverCallback)(AvahiRecordResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata);
-AvahiRecordResolver *avahi_record_resolver_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordResolverCallback callback, gpointer userdata);
-void avahi_record_resolver_free(AvahiRecordResolver *r);
+typedef enum {
+    AVAHI_RESOLVER_FOUND = 0,
+    AVAHI_RESOLVER_TIMEOUT = -1
+} AvahiResolverEvent;
+
+
+typedef struct AvahiRecordBrowser AvahiRecordBrowser;
+typedef void (*AvahiRecordBrowserCallback)(AvahiRecordBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata);
+AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata);
+void avahi_record_browser_free(AvahiRecordBrowser *b);
 
 typedef struct AvahiHostNameResolver AvahiHostNameResolver;
-typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata);
-AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, AvahiHostNameResolverCallback calback, gpointer userdata);
+typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata);
+AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, guchar aprotocol, AvahiHostNameResolverCallback calback, gpointer userdata);
 void avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 
 typedef struct AvahiAddressResolver AvahiAddressResolver;
-typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, gint interface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *host_name, gpointer userdata);
+typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const AvahiAddress *a, const gchar *host_name, gpointer userdata);
 AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback calback, gpointer userdata);
 void avahi_address_resolver_free(AvahiAddressResolver *r);
 
-/* not yet implemented */
+typedef enum {
+    AVAHI_DOMAIN_BROWSER_REGISTER,
+    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,
+    AVAHI_DOMAIN_BROWSER_BROWSE,
+    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT
+} AvahiDomainBrowserType;
 
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
+typedef void (*AvahiDomainBrowserCallback)(AvahiDomainBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata);
+AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, gpointer userdata);
+void avahi_domain_browser_free(AvahiDomainBrowser *b);
+
+/* not yet implemented */
 typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 typedef struct AvahiServiceBrowser AvahiServiceBrowser;
 typedef struct AvahiServiceResolver AvahiServiceResolver;

@@ -102,6 +102,9 @@ static void cleanup_dead(AvahiServer *s) {
 
         s->need_entry_cleanup = FALSE;
     }
+
+    if (s->need_browser_cleanup)
+        avahi_browser_cleanup(s);
 }
 
 static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const gchar *name, guint16 type, void (*callback)(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata), gpointer userdata) {
@@ -252,13 +255,11 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
 static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, gboolean unique, const AvahiAddress *a) {
     gboolean valid = TRUE, ours = FALSE, conflict = FALSE, withdraw_immediately = FALSE;
     AvahiEntry *e, *n, *conflicting_entry = NULL;
-    gchar *t;
     
     g_assert(s);
     g_assert(i);
     g_assert(record);
 
-    t = avahi_record_to_string(record);
 
 /*     g_message("CHECKING FOR CONFLICT: [%s]", t);   */
 
@@ -277,10 +278,15 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
                 
                 /* Check wheter there is a TTL conflict */
                 if (record->ttl <= e->record->ttl/2) {
+                    gchar *t;
                     /* Refresh */
+                    t = avahi_record_to_string(record); 
+                           
                     g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
-                    avahi_interface_post_response(i, e->record, FALSE, NULL, TRUE);
+                    avahi_server_prepare_matching_responses(s, i, e->record->key, FALSE);
                     valid = FALSE;
+
+                    g_free(t);
                 }
                 
                 /* There's no need to check the other entries of this RRset */
@@ -307,8 +313,12 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
 /*     g_message("ours=%i conflict=%i", ours, conflict); */
 
     if (!ours && conflict) {
+        gchar *t;
+ 
         valid = FALSE;
 
+        t = avahi_record_to_string(record); 
+ 
         if (withdraw_immediately) {
             g_message("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
             withdraw_rrset(s, record->key);
@@ -320,9 +330,9 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
             /* Local unique records are returned to probin
              * state. Local shared records are reannounced. */
         }
-    }
 
-    g_free(t);
+        g_free(t);
+    }
 
     return valid;
 }
@@ -900,7 +910,7 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
 
     s = g_new(AvahiServer, 1);
     s->n_host_rr_pending = 0;
-    s->need_entry_cleanup = s->need_group_cleanup = FALSE;
+    s->need_entry_cleanup = s->need_group_cleanup = s->need_browser_cleanup = FALSE;
 
     if (sc)
         avahi_server_config_copy(&s->config, sc);
@@ -950,10 +960,11 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     s->entries_by_key = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
     AVAHI_LLIST_HEAD_INIT(AvahiGroup, s->groups);
 
-    AVAHI_LLIST_HEAD_INIT(AvahiRecordResolver, s->record_resolvers);
-    s->record_resolver_hashtable = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
+    AVAHI_LLIST_HEAD_INIT(AvahiRecordBrowser, s->record_browsers);
+    s->record_browser_hashtable = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
     AVAHI_LLIST_HEAD_INIT(AvahiHostNameResolver, s->host_name_resolvers);
     AVAHI_LLIST_HEAD_INIT(AvahiAddressResolver, s->address_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, s->domain_browsers);
 
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
@@ -996,9 +1007,11 @@ void avahi_server_free(AvahiServer* s) {
         avahi_host_name_resolver_free(s->host_name_resolvers);
     while (s->address_resolvers)
         avahi_address_resolver_free(s->address_resolvers);
-    while (s->record_resolvers)
-        avahi_record_resolver_free(s->record_resolvers);
-    g_hash_table_destroy(s->record_resolver_hashtable);
+    while (s->domain_browsers)
+        avahi_domain_browser_free(s->domain_browsers);
+    while (s->record_browsers)
+        avahi_record_browser_destroy(s->record_browsers);
+    g_hash_table_destroy(s->record_browser_hashtable);
 
     g_hash_table_destroy(s->entries_by_key);
 
@@ -1470,7 +1483,7 @@ void avahi_server_set_data(AvahiServer *s, gpointer userdata) {
     s->userdata = userdata;
 }
 
-AvahiServerState avhai_server_get_state(AvahiServer *s) {
+AvahiServerState avahi_server_get_state(AvahiServer *s) {
     g_assert(s);
 
     return s->state;

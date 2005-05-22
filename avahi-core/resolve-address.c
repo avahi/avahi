@@ -30,28 +30,57 @@ struct AvahiAddressResolver {
     AvahiServer *server;
     AvahiAddress address;
     
-    AvahiRecordResolver *record_resolver;
+    AvahiRecordBrowser *record_browser;
 
     AvahiAddressResolverCallback callback;
     gpointer userdata;
 
+    AvahiTimeEvent *time_event;
+
     AVAHI_LLIST_FIELDS(AvahiAddressResolver, resolver);
 };
 
-static void record_resolver_callback(AvahiRecordResolver*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void finish(AvahiAddressResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, AvahiRecord *record) {
+    g_assert(r);
+    
+    avahi_record_browser_free(r->record_browser);
+    r->record_browser = NULL;
+
+    avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
+    r->time_event = NULL;
+
+    r->callback(r, interface, protocol, event, &r->address, record ? record->data.ptr.name : NULL, r->userdata);
+}
+
+static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiAddressResolver *r = userdata;
 
     g_assert(rr);
     g_assert(record);
     g_assert(r);
 
-    r->callback(r, interface, protocol, event, &r->address, record->data.ptr.name, r->userdata);
+    if (!(event == AVAHI_BROWSER_NEW))
+        return;
+
+    g_assert(record->key->type == AVAHI_DNS_TYPE_PTR);
+
+    finish(r, interface, protocol, AVAHI_RESOLVER_FOUND, record);
+}
+
+static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
+    AvahiAddressResolver *r = userdata;
+    
+    g_assert(e);
+    g_assert(r);
+
+    finish(r, -1, AF_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
 }
 
 AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback callback, gpointer userdata) {
     AvahiAddressResolver *r;
     AvahiKey *k;
     gchar *n;
+    GTimeVal tv;
 
     g_assert(server);
     g_assert(address);
@@ -73,8 +102,11 @@ AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint inter
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     g_free(n);
     
-    r->record_resolver = avahi_record_resolver_new(server, interface, protocol, k, record_resolver_callback, r);
+    r->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
     avahi_key_unref(k);
+
+    avahi_elapse_time(&tv, 1000, 0);
+    r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
 
     AVAHI_LLIST_PREPEND(AvahiAddressResolver, resolver, server->address_resolvers, r);
     
@@ -85,6 +117,12 @@ void avahi_address_resolver_free(AvahiAddressResolver *r) {
     g_assert(r);
 
     AVAHI_LLIST_REMOVE(AvahiAddressResolver, resolver, r->server->address_resolvers, r);
-    avahi_record_resolver_free(r->record_resolver);
+
+    if (r->record_browser)
+        avahi_record_browser_free(r->record_browser);
+
+    if (r->time_event)
+        avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
+    
     g_free(r);
 }

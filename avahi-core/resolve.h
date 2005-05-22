@@ -28,25 +28,11 @@
 #include "timeeventq.h"
 #include "server.h"
 
-struct AvahiRecordResolver {
-    AvahiServer *server;
-    AvahiKey *key;
-    gint interface;
-    guchar protocol;
-    gint n_query;
-    guint sec_delay;
+void avahi_browser_cleanup(AvahiServer *server);
+void avahi_browser_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event);
 
-    AvahiTimeEvent *time_event;
+gboolean avahi_is_subscribed(AvahiServer *s, AvahiInterface *i, AvahiKey *k);
 
-    AvahiRecordResolverCallback callback;
-    gpointer userdata;
-
-    AVAHI_LLIST_FIELDS(AvahiRecordResolver, resolver);
-    AVAHI_LLIST_FIELDS(AvahiRecordResolver, by_key);
-};
-
-void avahi_resolver_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event);
-
-gboolean avahi_is_subscribed(AvahiServer *s, AvahiKey *k);
+void avahi_record_browser_destroy(AvahiRecordBrowser *b);
 
 #endif

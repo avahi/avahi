@@ -1,7 +1,7 @@
 # $Id$
-
-# This file is part of avahi.
 #
+# This file is part of avahi.
+# 
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -17,13 +17,19 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-EXTRA_DIST = bootstrap.sh LICENSE doxygen/Makefile.am doxygen/Makefile.in doxygen/doxygen.conf.in libtool.m4
-SUBDIRS = avahi-core avahi-discover
+AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = avahi-core.pc
+AM_CFLAGS+=$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)
+AM_LDADD=$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
-doxygen:
-	$(MAKE) -C doxygen doxygen
+# This cool debug trap works on i386/gcc only
+AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-.PHONY: distcleancheck doxygen
+bin_PROGRAMS = \
+	avahi-discover
+
+avahi_discover_SOURCES = \
+	main.c
+
+avahi_discover_CFLAGS = $(AM_CFLAGS)
+avahi_discover_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la

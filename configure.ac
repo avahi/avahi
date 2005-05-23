@@ -62,6 +62,16 @@ PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
 AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
+# Check for GTK 2.0
+PKG_CHECK_MODULES(GLIB20, [ gtk+-2.0 >= 2.4.0 ])
+AC_SUBST(GTK20_CFLAGS)
+AC_SUBST(GTK20_LIBS)
+
+# Check for GLADE 2.0
+PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
+AC_SUBST(GLADE20_CFLAGS)
+AC_SUBST(GLADE20_LIBS)
+
 # Check for DBUS
 PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.23, dbus-glib-1 >= 0.23 ])
 AC_SUBST(DBUS_CFLAGS)
@@ -76,5 +86,5 @@ if test "x$GCC" = "xyes" ; then
    rm -f conftest.o
 fi
 
-AC_CONFIG_FILES([Makefile avahi-core.pc doxygen/Makefile doxygen/doxygen.conf avahi-core/Makefile daemon/Makefile])
+AC_CONFIG_FILES([Makefile avahi-core.pc doxygen/Makefile doxygen/doxygen.conf avahi-core/Makefile daemon/Makefile avahi-discover/Makefile])
 AC_OUTPUT

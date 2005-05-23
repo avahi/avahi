@@ -50,6 +50,6 @@ gchar *avahi_unescape_label(const gchar **name, gchar *dest, guint size);
 /* Escape the domain name in *src and write it to *ret_name */
 gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name, guint *ret_size);
 
-gint avahi_domain_hash(const gchar *s);
+guint avahi_domain_hash(const gchar *s);
 
 #endif

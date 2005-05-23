@@ -381,7 +381,7 @@ void avahi_hexdump(gconstpointer p, guint size) {
     }
 }
 
-gint avahi_domain_hash(const gchar *s) {
+guint avahi_domain_hash(const gchar *s) {
     guint hash = 0;
     
     for (;;) {

@@ -465,6 +465,52 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
     avahi_record_list_flush(s->record_list);
 }
 
+
+static void reflect_response(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, gboolean flush_cache) {
+    AvahiInterface *j;
+    
+    g_assert(s);
+    g_assert(i);
+    g_assert(r);
+
+    if (!s->config.enable_reflector)
+        return;
+
+    for (j = s->monitor->interfaces; j; j = j->interface_next)
+        if (j != i)
+            avahi_interface_post_response(j, r, flush_cache, NULL, TRUE);
+}
+
+static void reflect_query(AvahiServer *s, AvahiInterface *i, AvahiKey *k) {
+    AvahiInterface *j;
+    
+    g_assert(s);
+    g_assert(i);
+    g_assert(k);
+
+    if (!s->config.enable_reflector)
+        return;
+
+    for (j = s->monitor->interfaces; j; j = j->interface_next)
+        if (j != i)
+            avahi_interface_post_query(j, k, TRUE);
+}
+
+static void reflect_probe(AvahiServer *s, AvahiInterface *i, AvahiRecord *r) {
+    AvahiInterface *j;
+    
+    g_assert(s);
+    g_assert(i);
+    g_assert(r);
+
+    if (!s->config.enable_reflector)
+        return;
+
+    for (j = s->monitor->interfaces; j; j = j->interface_next)
+        if (j != i)
+            avahi_interface_post_probe(j, r, TRUE);
+}
+
 static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
     guint n;
     
@@ -487,6 +533,7 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
             goto fail;
         }
 
+        reflect_query(s, i, key);
         avahi_query_scheduler_incoming(i->query_scheduler, key);
         avahi_server_prepare_matching_responses(s, i, key, unicast_response);
         avahi_key_unref(key);
@@ -520,8 +567,10 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
             goto fail;
         }
 
-        if (record->key->type != AVAHI_DNS_TYPE_ANY)
+        if (record->key->type != AVAHI_DNS_TYPE_ANY) {
+            reflect_probe(s, i, record);
             incoming_probe(s, record, i);
+        }
         
         avahi_record_unref(record);
     }
@@ -563,6 +612,7 @@ static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i
 /*             g_free(txt); */
             
             if (handle_conflict(s, i, record, cache_flush, a)) {
+                reflect_response(s, i, record, cache_flush);
                 avahi_cache_update(i->cache, record, cache_flush, a);
                 avahi_response_scheduler_incoming(i->response_scheduler, record, cache_flush);
             }
@@ -1511,6 +1561,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->check_response_ttl = TRUE;
     c->announce_domain = TRUE;
     c->use_iff_running = FALSE;
+    c->enable_reflector = FALSE;
     
     return c;
 }

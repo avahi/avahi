@@ -1,5 +1,10 @@
 todo:
-* Add some APIs to get the clean service name from RR for browsing
+* reflector:
+  - handle legacy unicast
+  - handle unicast reply
+  - handle known answer
+
+* debug linux 2.4 spurious packet
 
 * test against apple test suite
 

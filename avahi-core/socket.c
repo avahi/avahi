@@ -451,6 +451,10 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
 
     if (ret_sa->sin_addr.s_addr == INADDR_ANY) {
         /* Linux 2.4 behaves very strangely sometimes! */
+
+        avahi_hexdump(AVAHI_DNS_PACKET_DATA(p), l); 
+        
+        
         goto fail;
     }
     

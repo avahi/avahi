@@ -79,24 +79,51 @@ typedef struct AvahiServerConfig {
     gboolean check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255 */
     gboolean announce_domain;              /**< Announce the local domain for browsing */
     gboolean use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
+    gboolean enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */
 AvahiServer *avahi_server_new(
     GMainContext *c,               /**< The GLIB main loop context to attach to */
-    const AvahiServerConfig *sc,   /**< If non-NULL a pointer to a configuration structure for the server */
+    const AvahiServerConfig *sc,   /**< If non-NULL a pointer to a configuration structure for the server. The server makes an internal deep copy of this structure, so you may free it using avahi_server_config_done() immediately after calling this function. */
     AvahiServerCallback callback,  /**< A callback which is called whenever the state of the server changes */
     gpointer userdata              /**< An opaque pointer which is passed to the callback function */);
 
 /** Free an mDNS responder object */
 void avahi_server_free(AvahiServer* s);
 
-AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c);
-AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c);
+/** Fill in default values for a server configuration structure. If you
+ * make use of an AvahiServerConfig structure be sure to initialize
+ * it with this function for the sake of upwards library
+ * compatibility. This call may allocate strings on the heap. To
+ * release this memory make sure to call
+ * avahi_server_config_done(). If you want to replace any strings in
+ * the structure be sure to free the strings filled in by this
+ * function with g_free() first and allocate the replacements with
+ * g_malloc() (or g_strdup()).*/
+AvahiServerConfig* avahi_server_config_init(
+   AvahiServerConfig *c /**< A structure which shall be filled in */ );
+
+/** Make a deep copy of the configuration structure *c to *ret. */
+AvahiServerConfig* avahi_server_config_copy(
+    AvahiServerConfig *ret /**< destination */,
+    const AvahiServerConfig *c /**< source */);
+
+/** Free the data in a server configuration structure. */
 void avahi_server_config_free(AvahiServerConfig *c);
-    
+
+/** Return the currently chosen domain name of the server object. The
+ * return value points to an internally allocated string. Be sure to
+ * make a copy of the string before calling any other library
+ * functions. */
 const gchar* avahi_server_get_domain_name(AvahiServer *s);
+
+/** Return the currently chosen host name. The return value points to a internally allocated string. */
 const gchar* avahi_server_get_host_name(AvahiServer *s);
+
+/** Return the currently chosen host name as a FQDN ("fully qualified
+ * domain name", i.e. the concatenation of the host and domain
+ * name). The return value points to a internally allocated string. */
 const gchar* avahi_server_get_host_name_fqdn(AvahiServer *s);
 
 void avahi_server_set_host_name(AvahiServer *s, const gchar *host_name);

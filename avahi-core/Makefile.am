@@ -45,7 +45,8 @@ noinst_PROGRAMS = \
 	strlst-test \
 	avahi-test \
 	alternative-test \
-	conformance-test
+	conformance-test \
+	avahi-reflector
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -118,6 +119,12 @@ conformance_test_SOURCES = \
 	$(libavahi_core_la_SOURCES)
 conformance_test_CFLAGS = $(AM_CFLAGS)
 conformance_test_LDADD = $(AM_LDADD)
+
+avahi_reflector_SOURCES = \
+	avahi-reflector.c \
+	$(libavahi_core_la_SOURCES)
+avahi_reflector_CFLAGS = $(AM_CFLAGS)
+avahi_reflector_LDADD = $(AM_LDADD)
 
 valgrind: avahi-test
 	libtool --mode=execute valgrind ./avahi-test

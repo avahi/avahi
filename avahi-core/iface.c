@@ -244,6 +244,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
 
         i->announcing = TRUE;
         avahi_announce_interface(m->server, i);
+        avahi_browser_new_interface(m->server, i);
     } else if (!b && i->announcing) {
         g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 

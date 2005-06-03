@@ -244,6 +244,7 @@ gboolean main_window_on_delete_event(GtkWidget *widget, GdkEvent *event, gpointe
 int main(int argc, char *argv[]) {
     GladeXML *xml;
     AvahiServerConfig config;
+    GtkTreeViewColumn *c;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -261,6 +262,10 @@ int main(int argc, char *argv[]) {
     gtk_tree_view_set_model(tree_view, GTK_TREE_MODEL(tree_store));
     gtk_tree_view_insert_column_with_attributes(tree_view, -1, "Name", gtk_cell_renderer_text_new(), "text", 0, NULL);
     gtk_tree_view_insert_column_with_attributes(tree_view, -1, "Interface", gtk_cell_renderer_text_new(), "text", 1, NULL);
+
+    gtk_tree_view_column_set_resizable(c = gtk_tree_view_get_column(tree_view, 0), TRUE);
+    gtk_tree_view_column_set_sizing(c, GTK_TREE_VIEW_COLUMN_GROW_ONLY);
+    gtk_tree_view_column_set_expand(c, TRUE);
     
     service_type_hash_table = g_hash_table_new((GHashFunc) avahi_domain_hash, (GEqualFunc) avahi_domain_equal);
     

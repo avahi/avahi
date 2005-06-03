@@ -41,7 +41,7 @@ struct AvahiRecordBrowser {
     AvahiRecordBrowserCallback callback;
     gpointer userdata;
 
-    AVAHI_LLIST_FIELDS(AvahiRecordBrowser, resolver);
+    AVAHI_LLIST_FIELDS(AvahiRecordBrowser, browser);
     AVAHI_LLIST_FIELDS(AvahiRecordBrowser, by_key);
 };
 
@@ -128,7 +128,7 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface
     avahi_elapse_time(&tv, b->sec_delay*1000, 0);
     b->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, elapse, b);
 
-    AVAHI_LLIST_PREPEND(AvahiRecordBrowser, resolver, server->record_browsers, b);
+    AVAHI_LLIST_PREPEND(AvahiRecordBrowser, browser, server->record_browsers, b);
 
     /* Add the new entry to the record_browser hash table */
     t = g_hash_table_lookup(server->record_browser_hashtable, key);
@@ -159,7 +159,7 @@ void avahi_record_browser_destroy(AvahiRecordBrowser *b) {
     
     g_assert(b);
     
-    AVAHI_LLIST_REMOVE(AvahiRecordBrowser, resolver, b->server->record_browsers, b);
+    AVAHI_LLIST_REMOVE(AvahiRecordBrowser, browser, b->server->record_browsers, b);
 
     t = g_hash_table_lookup(b->server->record_browser_hashtable, b->key);
     AVAHI_LLIST_REMOVE(AvahiRecordBrowser, by_key, t, b);
@@ -182,7 +182,7 @@ void avahi_browser_cleanup(AvahiServer *server) {
     g_assert(server);
 
     for (b = server->record_browsers; b; b = n) {
-        n = b->resolver_next;
+        n = b->browser_next;
         
         if (b->dead)
             avahi_record_browser_destroy(b);
@@ -212,4 +212,15 @@ gboolean avahi_is_subscribed(AvahiServer *server, AvahiInterface *i, AvahiKey *k
             return TRUE;
 
     return FALSE;
+}
+
+void avahi_browser_new_interface(AvahiServer*s, AvahiInterface *i) {
+    AvahiRecordBrowser *b;
+    
+    g_assert(s);
+    g_assert(i);
+    
+    for (b = s->record_browsers; b; b = b->browser_next)
+        if (avahi_interface_match(i, b->interface, b->protocol))
+            avahi_interface_post_query(i, b->key, FALSE);
 }

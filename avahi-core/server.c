@@ -226,16 +226,21 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         gint cmp;
         n = e->by_key_next;
 
-        if (e->dead || !avahi_entry_probing(s, e, i))
+        if (e->dead)
             continue;
         
         if ((cmp = avahi_record_lexicographical_compare(e->record, record)) == 0) {
             ours = TRUE;
             break;
-        } else if (cmp > 0)
-            won = TRUE;
-        else /* cmp < 0 */
-            lost = TRUE;
+        } else {
+            
+            if (avahi_entry_probing(s, e, i)) {
+                if (cmp > 0)
+                    won = TRUE;
+                else /* cmp < 0 */
+                    lost = TRUE;
+            }
+        }
     }
 
     t = avahi_record_to_string(record);
@@ -243,9 +248,9 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     if (!ours) {
 
         if (won)
-            g_message("Recieved conflicting probe [%s]. Local host won.", t);
+            g_message("xxx Recieved conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            g_message("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
+            g_message("yyy Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
             withdraw_rrset(s, record->key);
         }
     }
@@ -272,36 +277,36 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
 
         /* Either our entry or the other is intended to be unique, so let's check */
         
-        if (avahi_entry_registered(s, e, i)) {
-
-            if (avahi_record_equal_no_ttl(e->record, record)) {
-                ours = TRUE; /* We have an identical record, so this is no conflict */
+        if (avahi_record_equal_no_ttl(e->record, record)) {
+            ours = TRUE; /* We have an identical record, so this is no conflict */
+            
+            /* Check wheter there is a TTL conflict */
+            if (record->ttl <= e->record->ttl/2 &&
+                avahi_entry_registered(s, e, i)) {
+                gchar *t;
+                /* Refresh */
+                t = avahi_record_to_string(record); 
                 
-                /* Check wheter there is a TTL conflict */
-                if (record->ttl <= e->record->ttl/2) {
-                    gchar *t;
-                    /* Refresh */
-                    t = avahi_record_to_string(record); 
-                           
-                    g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
-                    avahi_server_prepare_matching_responses(s, i, e->record->key, FALSE);
-                    valid = FALSE;
-
-                    g_free(t);
-                }
+                g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
+                avahi_server_prepare_matching_responses(s, i, e->record->key, FALSE);
+                valid = FALSE;
                 
-                /* There's no need to check the other entries of this RRset */
-                break;
-            } else {
+                g_free(t);
+            }
+                
+            /* There's no need to check the other entries of this RRset */
+            break;
+
+        } else {
+            
+            if (avahi_entry_registered(s, e, i)) {
+                
                 /* A conflict => we have to return to probe mode */
                 conflict = TRUE;
                 conflicting_entry = e;
-            }
 
-        } else if (avahi_entry_probing(s, e, i)) {
+            } else if (avahi_entry_probing(s, e, i)) {
 
-            if (!avahi_record_equal_no_ttl(record, e->record)) {
-            
                 /* We are currently registering a matching record, but
                  * someone else already claimed it, so let's
                  * withdraw */

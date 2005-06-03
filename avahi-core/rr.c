@@ -463,7 +463,7 @@ static gint uint16_cmp(guint16 a, guint16 b) {
 
 gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
     gint r;
-/*      gchar *t1, *t2;  */
+/*      gchar *t1, *t2; */
 
     g_assert(a);
     g_assert(b);

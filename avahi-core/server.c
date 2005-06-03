@@ -1187,7 +1187,7 @@ static void delayed_register_stuff(AvahiServer *s) {
         s->register_time_event = avahi_time_event_queue_add(s->time_event_queue, &tv, register_time_event_callback, s);
 }
 
-void avahi_server_set_host_name(AvahiServer *s, const gchar *host_name) {
+gint avahi_server_set_host_name(AvahiServer *s, const gchar *host_name) {
     g_assert(s);
     g_assert(host_name);
 
@@ -1200,9 +1200,10 @@ void avahi_server_set_host_name(AvahiServer *s, const gchar *host_name) {
     update_fqdn(s);
 
     delayed_register_stuff(s);
+    return 0;
 }
 
-void avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
+gint avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
     g_assert(s);
     g_assert(domain_name);
 
@@ -1214,6 +1215,7 @@ void avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
     update_fqdn(s);
 
     delayed_register_stuff(s);
+    return 0;
 }
 
 
@@ -1391,7 +1393,7 @@ void avahi_server_free(AvahiServer* s) {
     g_free(s);
 }
 
-void avahi_server_add(
+gint avahi_server_add(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1428,7 +1430,10 @@ void avahi_server_add(
         AVAHI_LLIST_PREPEND(AvahiEntry, by_group, g->entries, e); 
 
     avahi_announce_entry(s, e);
+
+    return 0;
 }
+
 const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state) {
     AvahiEntry **e = (AvahiEntry**) state;
     g_assert(s);
@@ -1467,7 +1472,7 @@ void avahi_server_dump(AvahiServer *s, FILE *f) {
     avahi_dump_caches(s->monitor, f);
 }
 
-void avahi_server_add_ptr(
+gint avahi_server_add_ptr(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1484,9 +1489,10 @@ void avahi_server_add_ptr(
     r->data.ptr.name = avahi_normalize_name(dest);
     avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
+    return 0;
 }
 
-void avahi_server_add_address(
+gint avahi_server_add_address(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1533,9 +1539,11 @@ void avahi_server_add_address(
     }
     
     g_free(n);
+
+    return 0;
 }
 
-void avahi_server_add_text_strlst(
+gint avahi_server_add_text_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1552,9 +1560,11 @@ void avahi_server_add_text_strlst(
     r->data.txt.string_list = strlst;
     avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
+
+    return 0;
 }
 
-void avahi_server_add_text_va(
+gint avahi_server_add_text_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1566,9 +1576,10 @@ void avahi_server_add_text_va(
     g_assert(s);
 
     avahi_server_add_text_strlst(s, g, interface, protocol, flags, name, avahi_string_list_new_va(va));
+    return 0;
 }
 
-void avahi_server_add_text(
+gint avahi_server_add_text(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1584,6 +1595,8 @@ void avahi_server_add_text(
     va_start(va, name);
     avahi_server_add_text_va(s, g, interface, protocol, flags, name, va);
     va_end(va);
+
+    return 0;
 }
 
 static void escape_service_name(gchar *d, guint size, const gchar *s) {
@@ -1608,7 +1621,7 @@ static void escape_service_name(gchar *d, guint size, const gchar *s) {
     *(d++) = 0;
 }
 
-void avahi_server_add_service_strlst(
+gint avahi_server_add_service_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1655,9 +1668,11 @@ void avahi_server_add_service_strlst(
 
     snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
     avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, enum_ptr, ptr_name);
+
+    return 0;
 }
 
-void avahi_server_add_service_va(
+gint avahi_server_add_service_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1674,9 +1689,10 @@ void avahi_server_add_service_va(
     g_assert(name);
 
     avahi_server_add_service_strlst(s, g, interface, protocol, type, name, domain, host, port, avahi_string_list_new_va(va));
+    return 0;
 }
 
-void avahi_server_add_service(
+gint avahi_server_add_service(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1697,6 +1713,7 @@ void avahi_server_add_service(
     va_start(va, port);
     avahi_server_add_service_va(s, g, interface, protocol, type, name, domain, host, port, va);
     va_end(va);
+    return 0;
 }
 
 static void post_query_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata) {
@@ -1765,16 +1782,18 @@ void avahi_entry_group_free(AvahiEntryGroup *g) {
     g->server->need_entry_cleanup = TRUE;
 }
 
-void avahi_entry_group_commit(AvahiEntryGroup *g) {
+gint avahi_entry_group_commit(AvahiEntryGroup *g) {
     g_assert(g);
     g_assert(!g->dead);
 
     if (g->state != AVAHI_ENTRY_GROUP_UNCOMMITED)
-        return;
+        return -1;
 
     avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
     avahi_announce_group(g->server, g);
     avahi_entry_group_check_probed(g, FALSE);
+
+    return 0;
 }
 
 gboolean avahi_entry_commited(AvahiEntry *e) {

@@ -1,13 +1,4 @@
 todo:
-* reflector:
-  - handle legacy unicast
-  - handle unicast reply
-  - handle known answer
-
-* debug linux 2.4 spurious packet
-
-* test against apple test suite
-
 * release!
 
 done:
@@ -43,3 +34,5 @@ done:
 * Return to probing state on conflict
 * response job dependencies
 * enlarge packet in case a record/query is too large to fit in a normal packet
+* reflector
+* test against apple test suite

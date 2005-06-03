@@ -128,25 +128,63 @@ const gchar* avahi_server_get_host_name(AvahiServer *s);
  * name). The return value points to a internally allocated string. */
 const gchar* avahi_server_get_host_name_fqdn(AvahiServer *s);
 
-void avahi_server_set_host_name(AvahiServer *s, const gchar *host_name);
-void avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name);
+/** Change the host name of a running mDNS responder. This will drop
+all automicatilly generated RRs and readd them with the new
+name. Since the responder has to probe for the new RRs this function
+takes some time to take effect altough it returns immediately. This
+function is intended to be called when a host name conflict is
+reported using AvahiServerCallback. The caller should readd all user
+defined RRs too since they otherwise continue to point to the outdated
+host name..*/
+gint avahi_server_set_host_name(AvahiServer *s, const gchar *host_name);
 
+/** Change the domain name of a running mDNS responder. The same rules
+ * as with avahi_server_set_host_name() apply. */
+gint avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name);
+
+/** Return the opaque user data pointer attached to a server object */
 gpointer avahi_server_get_data(AvahiServer *s);
+
+/** Change the opaque user data pointer attached to a server object */
 void avahi_server_set_data(AvahiServer *s, gpointer userdata);
 
+/** Return the current state of the server object */
 AvahiServerState avahi_server_get_state(AvahiServer *s);
 
+/** Iterate through all local entries of the server. (when g is NULL)
+ * or of a specified entry group. At the first call state should point
+ * to a NULL initialized void pointer, That pointer is used to track
+ * the current iteration. It is not safe to call any other
+ * avahi_server_xxx() function during the iteration. If the last entry
+ * has been read, NULL is returned. */
 const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state);
+
+/** Dump the current server status to the specified FILE object */
 void avahi_server_dump(AvahiServer *s, FILE *f);
 
+/** Create a new entry group. The specified callback function is
+ * called whenever the state of the group changes. Use entry group
+ * objects to keep track of you RRs. Add new RRs to a group using
+ * avahi_server_add_xxx(). Make sure to call avahi_entry_group_commit()
+ * to start the registration process for your RRs */
 AvahiEntryGroup *avahi_entry_group_new(AvahiServer *s, AvahiEntryGroupCallback callback, gpointer userdata);
+
+/** Free an entry group. All RRs assigned to the group are removed from the server */
 void avahi_entry_group_free(AvahiEntryGroup *g);
-void avahi_entry_group_commit(AvahiEntryGroup *g);
+
+/** Commit an entry group. This starts the probing and registration process for all RRs in the group */
+gint avahi_entry_group_commit(AvahiEntryGroup *g);
+
+/** Return the current state of the specified entry group */
 AvahiEntryGroupState avahi_entry_group_get_state(AvahiEntryGroup *g);
+
+/** Change the opaque user data pointer attached to an entry group object */
 void avahi_entry_group_set_data(AvahiEntryGroup *g, gpointer userdata);
+
+/** Return the opaque user data pointer currently set for the entry group object */
 gpointer avahi_entry_group_get_data(AvahiEntryGroup *g);
 
-void avahi_server_add(
+gint avahi_server_add(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -154,7 +192,7 @@ void avahi_server_add(
     AvahiEntryFlags flags,
     AvahiRecord *r);
 
-void avahi_server_add_ptr(
+gint avahi_server_add_ptr(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -163,7 +201,7 @@ void avahi_server_add_ptr(
     const gchar *name,
     const gchar *dest);
 
-void avahi_server_add_address(
+gint avahi_server_add_address(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -172,7 +210,7 @@ void avahi_server_add_address(
     const gchar *name,
     AvahiAddress *a);
 
-void avahi_server_add_text(
+gint avahi_server_add_text(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -181,7 +219,7 @@ void avahi_server_add_text(
     const gchar *name,
     ... /* text records, terminated by NULL */);
 
-void avahi_server_add_text_va(
+gint avahi_server_add_text_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -190,7 +228,7 @@ void avahi_server_add_text_va(
     const gchar *name,
     va_list va);
 
-void avahi_server_add_text_strlst(
+gint avahi_server_add_text_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -199,7 +237,7 @@ void avahi_server_add_text_strlst(
     const gchar *name,
     AvahiStringList *strlst);
 
-void avahi_server_add_service(
+gint avahi_server_add_service(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -211,7 +249,7 @@ void avahi_server_add_service(
     guint16 port,
     ...  /* text records, terminated by NULL */);
 
-void avahi_server_add_service_va(
+gint avahi_server_add_service_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -223,7 +261,7 @@ void avahi_server_add_service_va(
     guint16 port,
     va_list va);
 
-void avahi_server_add_service_strlst(
+gint avahi_server_add_service_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -261,11 +299,12 @@ typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, gint inter
 AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback calback, gpointer userdata);
 void avahi_address_resolver_free(AvahiAddressResolver *r);
 
+/** The type of domain to browse for */
 typedef enum {
-    AVAHI_DOMAIN_BROWSER_REGISTER,
-    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,
-    AVAHI_DOMAIN_BROWSER_BROWSE,
-    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT
+    AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
+    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
+    AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
+    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT     /**< Browse for the default browsing domain */
 } AvahiDomainBrowserType;
 
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;

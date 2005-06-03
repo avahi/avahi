@@ -28,6 +28,7 @@
 
 #define AVAHI_DNS_PACKET_MAX_SIZE 9000
 #define AVAHI_DNS_PACKET_HEADER_SIZE 12
+#define AVAHI_DNS_PACKET_EXTRA_SIZE 48
 
 typedef struct AvahiDnsPacket {
     guint size, rindex, max_size;

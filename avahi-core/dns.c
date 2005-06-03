@@ -38,8 +38,8 @@ AvahiDnsPacket* avahi_dns_packet_new(guint mtu) {
 
     if (mtu <= 0)
         max_size = AVAHI_DNS_PACKET_MAX_SIZE;
-    else if (mtu >= 48)
-        max_size = mtu - 48;
+    else if (mtu >= AVAHI_DNS_PACKET_EXTRA_SIZE)
+        max_size = mtu - AVAHI_DNS_PACKET_EXTRA_SIZE;
     else
         max_size = 0;
 

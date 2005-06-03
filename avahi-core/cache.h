@@ -65,6 +65,8 @@ struct AvahiCache {
     GHashTable *hash_table;
 
     AVAHI_LLIST_HEAD(AvahiCacheEntry, entries);
+
+    guint n_entries;
 };
 
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *interface);

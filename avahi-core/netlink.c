@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
 #include "netlink.h"
 
@@ -43,16 +44,18 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
     g_assert(nl);
 
     for (;;) {
-        guint8 replybuf[64*1024];
         ssize_t bytes;
-        struct nlmsghdr *p = (struct nlmsghdr *) replybuf;
+        struct nlmsghdr *p;
+        guint8 buffer[64*1024];
 
-        if ((bytes = recv(nl->fd, replybuf, sizeof(replybuf), block ? 0 : MSG_DONTWAIT)) < 0) {
+        p = (struct nlmsghdr *) buffer;
+
+        if ((bytes = recv(nl->fd, buffer, sizeof(buffer), block ? 0 : MSG_DONTWAIT)) < 0) {
 
             if (errno == EAGAIN || errno == EINTR)
                 break;
 
-            g_warning("NETLINK: recv() failed");
+            g_warning("NETLINK: recv() failed: %s", strerror(errno));
             return FALSE;
         }
 
@@ -160,7 +163,7 @@ AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 gr
 
 void avahi_netlink_free(AvahiNetlink *nl) {
     g_assert(nl);
-    
+
     g_source_destroy(nl->source);
     g_source_unref(nl->source);
     g_main_context_unref(nl->context);

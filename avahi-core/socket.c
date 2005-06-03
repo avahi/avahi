@@ -424,13 +424,19 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     ssize_t l;
     struct cmsghdr *cmsg;
     gboolean found_ttl = FALSE, found_iface = FALSE;
+    guint ms;
 
     g_assert(fd >= 0);
     g_assert(ret_sa);
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
-    p = avahi_dns_packet_new(0);
+    if (ioctl(fd, FIONREAD, &ms) < 0) {
+        g_warning("ioctl(): %s", strerror(errno));
+        goto fail;
+    }
+
+    p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->max_size;
@@ -445,7 +451,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     msg.msg_flags = 0;
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
-        g_warning("recvmsg(): %s\n", strerror(errno));
+        g_warning("recvmsg(): %s", strerror(errno));
         goto fail;
     }
 
@@ -502,6 +508,8 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
     struct iovec io;
     uint8_t aux[64];
     ssize_t l;
+    guint ms;
+    
     struct cmsghdr *cmsg;
     gboolean found_ttl = FALSE, found_iface = FALSE;
 
@@ -510,7 +518,12 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
-    p = avahi_dns_packet_new(0);
+    if (ioctl(fd, FIONREAD, &ms) < 0) {
+        g_warning("ioctl(): %s", strerror(errno));
+        goto fail;
+    }
+    
+    p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->max_size;
@@ -524,8 +537,10 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
     msg.msg_controllen = sizeof(aux);
     msg.msg_flags = 0;
     
-    if ((l = recvmsg(fd, &msg, 0)) < 0)
+    if ((l = recvmsg(fd, &msg, 0)) < 0) {
+        g_warning("recvmsg(): %s", strerror(errno));
         goto fail;
+    }
 
     p->size = (size_t) l;
     

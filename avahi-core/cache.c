@@ -28,6 +28,8 @@
 #include "util.h"
 #include "cache.h"
 
+#define AVAHI_MAX_CACHE_ENTRIES 200
+
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
 
@@ -55,6 +57,8 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     avahi_record_unref(e->record);
     
     g_free(e);
+
+    g_assert(c->n_entries-- >= 1);
 }
 
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {
@@ -67,6 +71,7 @@ AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {
     c->hash_table = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
 
     AVAHI_LLIST_HEAD_INIT(AvahiCacheEntry, c->entries);
+    c->n_entries = 0;
     
     return c;
 }
@@ -76,6 +81,7 @@ void avahi_cache_free(AvahiCache *c) {
 
     while (c->entries)
         remove_entry(c, c->entries);
+    g_assert(c->n_entries == 0);
     
     g_hash_table_destroy(c->hash_table);
     
@@ -293,6 +299,11 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
             /* No entry found, therefore we create a new one */
             
 /*             g_message("couldn't find matching cache entry");  */
+
+            if (c->n_entries >= AVAHI_MAX_CACHE_ENTRIES)
+                return;
+
+            c->n_entries++;
             
             e = g_new(AvahiCacheEntry, 1);
             e->cache = c;

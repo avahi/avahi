@@ -36,7 +36,7 @@
 #include "socket.h"
 #include "browse.h"
 
-#define AVAHI_HOST_RR_HOLDOFF_MSEC 1000
+#define AVAHI_HOST_RR_HOLDOFF_MSEC 2000
 
 static void free_entry(AvahiServer*s, AvahiEntry *e) {
     AvahiEntry *t;

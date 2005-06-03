@@ -52,4 +52,6 @@ gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name,
 
 guint avahi_domain_hash(const gchar *s);
 
+gchar *avahi_format_mac_address(const guint8* mac, guint size);
+
 #endif

@@ -1856,6 +1856,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->use_iff_running = FALSE;
     c->enable_reflector = FALSE;
     c->ipv_reflect = FALSE;
+    c->register_workstation = TRUE;
     
     return c;
 }

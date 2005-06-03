@@ -105,8 +105,6 @@ static void service_browser_callback(AvahiServiceBrowser *b, gint interface, guc
         s->protocol = protocol;
         s->service_type = g_hash_table_lookup(service_type_hash_table, service_type);
         g_assert(s->service_type);
-
-
         
         s->service_type->services = g_list_prepend(s->service_type->services, s);
 
@@ -267,7 +265,7 @@ int main(int argc, char *argv[]) {
     service_type_hash_table = g_hash_table_new((GHashFunc) avahi_domain_hash, (GEqualFunc) avahi_domain_equal);
     
     avahi_server_config_init(&config);
-    config.register_hinfo = config.register_addresses = config.announce_domain = FALSE;
+    config.register_hinfo = config.register_addresses = config.announce_domain = config.register_workstation = FALSE;
     server = avahi_server_new(NULL, &config, NULL, NULL);
     avahi_server_config_free(&config);
 

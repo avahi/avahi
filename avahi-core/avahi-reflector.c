@@ -36,10 +36,10 @@ int main(int argc, char*argv[]) {
     AvahiServerConfig config;
     GMainLoop *loop;
 
-
     avahi_server_config_init(&config);
     config.register_hinfo = FALSE;
     config.register_addresses = FALSE;
+    config.register_workstation = FALSE;
     config.announce_domain = FALSE;
     config.use_ipv6 = FALSE;
     config.enable_reflector = TRUE;

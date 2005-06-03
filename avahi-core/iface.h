@@ -40,6 +40,8 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include "dns.h"
 #include "announce.h"
 
+#define AVAHI_MAX_MAC_ADDRESS 32
+
 struct AvahiInterfaceMonitor {
     AvahiServer *server;
     AvahiNetlink *netlink;
@@ -65,6 +67,11 @@ struct AvahiHwInterface {
     gint index;
     guint flags;
     guint mtu;
+
+    guint8 mac_address[AVAHI_MAX_MAC_ADDRESS];
+    guint mac_address_size;
+
+    AvahiEntryGroup *entry_group;
 
     AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
 };

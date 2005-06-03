@@ -36,6 +36,7 @@
 #include "dns.h"
 #include "socket.h"
 #include "announce.h"
+#include "util.h"
 
 static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, gboolean remove) {
     g_assert(m);
@@ -83,6 +84,36 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
         update_interface_rr(m, i, remove);
+
+    if (!remove &&
+        m->server->config.register_workstation &&
+        (m->server->state == AVAHI_SERVER_RUNNING ||
+        m->server->state == AVAHI_SERVER_REGISTERING)) {
+
+        if (!hw->entry_group) {
+            gchar *name;
+            gchar *t = avahi_format_mac_address(hw->mac_address, hw->mac_address_size);
+            name = g_strdup_printf("%s [%s]", m->server->host_name, t);
+            g_free(t);
+            
+            hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
+            avahi_server_add_service(m->server, hw->entry_group, hw->index, AF_UNSPEC, "_workstation._tcp", name, NULL, NULL, 9, NULL); 
+            avahi_entry_group_commit(hw->entry_group);
+
+            g_free(name);
+        }
+        
+    } else {
+
+        if (hw->entry_group) {
+
+            if (avahi_entry_group_get_state(hw->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
+                avahi_server_decrease_host_rr_pending(m->server);
+
+            avahi_entry_group_free(hw->entry_group);
+            hw->entry_group = NULL;
+        }
+    }
 }
 
 static void free_address(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a) {
@@ -90,10 +121,8 @@ static void free_address(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a) {
     g_assert(a);
     g_assert(a->interface);
 
+    update_address_rr(m, a, TRUE);
     AVAHI_LLIST_REMOVE(AvahiInterfaceAddress, address, a->interface->addresses, a);
-
-    if (a->entry_group)
-        avahi_entry_group_free(a->entry_group);
     
     g_free(a);
 }
@@ -107,6 +136,8 @@ static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean
     
     g_assert(!i->announcements);
 
+    update_interface_rr(m, i, TRUE);
+    
     while (i->addresses)
         free_address(m, i->addresses);
 
@@ -125,6 +156,8 @@ static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gb
     g_assert(m);
     g_assert(hw);
 
+    update_hw_interface_rr(m, hw, TRUE);
+    
     while (hw->interfaces)
         free_interface(m, hw->interfaces, send_goodbye);
 
@@ -262,6 +295,8 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             hw->flags = 0;
             hw->mtu = 1500;
             hw->index = ifinfomsg->ifi_index;
+            hw->mac_address_size = 0;
+            hw->entry_group = NULL;
 
             AVAHI_LLIST_HEAD_INIT(AvahiInterface, hw->interfaces);
             AVAHI_LLIST_PREPEND(AvahiHwInterface, hardware, m->hw_interfaces, hw);
@@ -290,6 +325,15 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
                     g_assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
                     hw->mtu = *((unsigned int*) RTA_DATA(a));
                     break;
+
+                case IFLA_ADDRESS: {
+                    hw->mac_address_size = RTA_PAYLOAD(a);
+                    if (hw->mac_address_size > AVAHI_MAX_MAC_ADDRESS)
+                        hw->mac_address_size = AVAHI_MAX_MAC_ADDRESS;
+                    
+                    memcpy(hw->mac_address, RTA_DATA(a), hw->mac_address_size);
+                    break;
+                }
                     
                 default:
                     ;
@@ -639,12 +683,12 @@ void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint interface, guch
 }
 
 void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove) {
-    AvahiInterface *i;
+    AvahiHwInterface *hw;
 
     g_assert(m);
 
-    for (i = m->interfaces; i; i = i->interface_next)
-        update_interface_rr(m, i, remove);
+    for (hw = m->hw_interfaces; hw; hw = hw->hardware_next)
+        update_hw_interface_rr(m, hw, remove);
 }
 
 gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a) {

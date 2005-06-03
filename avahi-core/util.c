@@ -403,3 +403,26 @@ guint avahi_domain_hash(const gchar *s) {
     }
 }
 
+gchar *avahi_format_mac_address(const guint8* mac, guint size) {
+    gchar *r, *t;
+    guint i;
+    static const gchar hex[] = "0123456789abcdef";
+
+    t = r = g_new(gchar, size > 0 ? size*3 : 1);
+
+    if (size <= 0) {
+        *r = 0;
+        return r;
+    }
+    
+    for (i = 0; i < size; i++) {
+        *(t++) = hex[*mac >> 4];
+        *(t++) = hex[*mac & 0xF];
+        *(t++) = ':';
+
+        mac++;
+    }
+
+    *(--t) = 0;
+    return r;
+}

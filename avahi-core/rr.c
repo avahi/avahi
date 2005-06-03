@@ -516,7 +516,15 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
             avahi_string_list_serialize(a->data.txt.string_list, ma, asize);
             avahi_string_list_serialize(b->data.txt.string_list, mb, bsize);
 
-            r = lexicographical_memcmp(ma, asize, mb, bsize);
+            if (asize && bsize)
+                r = lexicographical_memcmp(ma, asize, mb, bsize);
+            else if (asize && !bsize)
+                r = 1;
+            else if (!asize && bsize)
+                r = -1;
+            else
+                r = 0;
+            
             g_free(ma);
             g_free(mb);
 

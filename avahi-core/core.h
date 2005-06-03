@@ -76,6 +76,7 @@ typedef struct AvahiServerConfig {
     gboolean use_ipv6;                     /**< Enable IPv6 support */
     gboolean register_hinfo;               /**< Register a HINFO record for the host containing the local OS and CPU type */
     gboolean register_addresses;           /**< Register A, AAAA and PTR records for all local IP addresses */
+    gboolean register_workstation;         /**< Register a _workstation._tcp service */
     gboolean check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255 */
     gboolean announce_domain;              /**< Announce the local domain for browsing */
     gboolean use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */

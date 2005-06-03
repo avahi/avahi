@@ -26,7 +26,8 @@
 #include "probe-sched.h"
 #include "util.h"
 
-#define AVAHI_PROBE_DEFER_MSEC 70
+#define AVAHI_PROBE_HISTORY_MSEC 150
+#define AVAHI_PROBE_DEFER_MSEC 50
 
 typedef struct AvahiProbeJob AvahiProbeJob;
 
@@ -35,6 +36,7 @@ struct AvahiProbeJob {
     AvahiTimeEvent *time_event;
     
     gboolean chosen; /* Use for packet assembling */
+    gboolean done;
     GTimeVal delivery;
 
     AvahiRecord *record;
@@ -47,9 +49,10 @@ struct AvahiProbeScheduler {
     AvahiTimeEventQueue *time_event_queue;
 
     AVAHI_LLIST_HEAD(AvahiProbeJob, jobs);
+    AVAHI_LLIST_HEAD(AvahiProbeJob, history);
 };
 
-static AvahiProbeJob* job_new(AvahiProbeScheduler *s, AvahiRecord *record) {
+static AvahiProbeJob* job_new(AvahiProbeScheduler *s, AvahiRecord *record, gboolean done) {
     AvahiProbeJob *pj;
     
     g_assert(s);
@@ -60,8 +63,11 @@ static AvahiProbeJob* job_new(AvahiProbeScheduler *s, AvahiRecord *record) {
     pj->record = avahi_record_ref(record);
     pj->time_event = NULL;
     pj->chosen = FALSE;
-    
-    AVAHI_LLIST_PREPEND(AvahiProbeJob, jobs, s->jobs, pj);
+
+    if ((pj->done = done))
+        AVAHI_LLIST_PREPEND(AvahiProbeJob, jobs, s->history, pj);
+    else
+        AVAHI_LLIST_PREPEND(AvahiProbeJob, jobs, s->jobs, pj);
 
     return pj;
 }
@@ -72,12 +78,45 @@ static void job_free(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
     if (pj->time_event)
         avahi_time_event_queue_remove(s->time_event_queue, pj->time_event);
 
-    AVAHI_LLIST_REMOVE(AvahiProbeJob, jobs, s->jobs, pj);
+    if (pj->done)
+        AVAHI_LLIST_REMOVE(AvahiProbeJob, jobs, s->history, pj);
+    else
+        AVAHI_LLIST_REMOVE(AvahiProbeJob, jobs, s->jobs, pj);
 
     avahi_record_unref(pj->record);
     g_free(pj);
 }
 
+static void elapse_callback(AvahiTimeEvent *e, gpointer data);
+
+static void job_set_elapse_time(AvahiProbeScheduler *s, AvahiProbeJob *pj, guint msec, guint jitter) {
+    GTimeVal tv;
+
+    g_assert(s);
+    g_assert(pj);
+
+    avahi_elapse_time(&tv, msec, jitter);
+
+    if (pj->time_event)
+        avahi_time_event_queue_update(s->time_event_queue, pj->time_event, &tv);
+    else
+        pj->time_event = avahi_time_event_queue_add(s->time_event_queue, &tv, elapse_callback, pj);
+}
+
+static void job_mark_done(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
+    g_assert(s);
+    g_assert(pj);
+
+    g_assert(!pj->done);
+
+    AVAHI_LLIST_REMOVE(AvahiProbeJob, jobs, s->jobs, pj);
+    AVAHI_LLIST_PREPEND(AvahiProbeJob, jobs, s->history, pj);
+
+    pj->done = TRUE;
+
+    job_set_elapse_time(s, pj, AVAHI_PROBE_HISTORY_MSEC, 0);
+    g_get_current_time(&pj->delivery);
+}
 
 AvahiProbeScheduler *avahi_probe_scheduler_new(AvahiInterface *i) {
     AvahiProbeScheduler *s;
@@ -89,6 +128,7 @@ AvahiProbeScheduler *avahi_probe_scheduler_new(AvahiInterface *i) {
     s->time_event_queue = i->monitor->server->time_event_queue;
 
     AVAHI_LLIST_HEAD_INIT(AvahiProbeJob, s->jobs);
+    AVAHI_LLIST_HEAD_INIT(AvahiProbeJob, s->history);
     
     return s;
 }
@@ -105,6 +145,8 @@ void avahi_probe_scheduler_clear(AvahiProbeScheduler *s) {
     
     while (s->jobs)
         job_free(s, s->jobs);
+    while (s->history)
+        job_free(s, s->history);
 }
  
 static gboolean packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, AvahiProbeJob *pj) {
@@ -166,6 +208,12 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
     g_assert(pj);
     s = pj->scheduler;
 
+    if (pj->done) {
+        /* Lets remove it  from the history */
+        job_free(s, pj);
+        return;
+    }
+
     p = avahi_dns_packet_new_query(s->interface->hardware->mtu);
     n = 1;
     
@@ -201,7 +249,7 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
             g_warning("Probe record too large, cannot send");   
         
         avahi_dns_packet_free(p);
-        job_free(s, pj);
+        job_mark_done(s, pj);
 
         return;
     }
@@ -240,7 +288,7 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
             break;
         }
 
-        job_free(s, pj);
+        job_mark_done(s, pj);
         
         n ++;
     }
@@ -252,6 +300,47 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
     avahi_dns_packet_free(p);
 }
 
+static AvahiProbeJob* find_scheduled_job(AvahiProbeScheduler *s, AvahiRecord *record) {
+    AvahiProbeJob *pj;
+
+    g_assert(s);
+    g_assert(record);
+
+    for (pj = s->jobs; pj; pj = pj->jobs_next) {
+        g_assert(!pj->done);
+        
+        if (avahi_record_equal_no_ttl(pj->record, record))
+            return pj;
+    }
+
+    return NULL;
+}
+
+static AvahiProbeJob* find_history_job(AvahiProbeScheduler *s, AvahiRecord *record) {
+    AvahiProbeJob *pj;
+    
+    g_assert(s);
+    g_assert(record);
+
+    for (pj = s->history; pj; pj = pj->jobs_next) {
+        g_assert(pj->done);
+
+        if (avahi_record_equal_no_ttl(pj->record, record)) {
+            /* Check whether this entry is outdated */
+
+            if (avahi_age(&pj->delivery) > AVAHI_PROBE_HISTORY_MSEC*1000) {
+                /* it is outdated, so let's remove it */
+                job_free(s, pj);
+                return NULL;
+            }
+                
+            return pj;
+        }
+    }
+
+    return NULL;
+}
+
 gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record, gboolean immediately) {
     AvahiProbeJob *pj;
     GTimeVal tv;
@@ -259,15 +348,30 @@ gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record,
     g_assert(s);
     g_assert(record);
     g_assert(!avahi_key_is_pattern(record->key));
+
+    if ((pj = find_history_job(s, record)))
+        return FALSE;
     
     avahi_elapse_time(&tv, immediately ? 0 : AVAHI_PROBE_DEFER_MSEC, 0);
 
-    /* Create a new job and schedule it */
-    pj = job_new(s, record);
-    pj->delivery = tv;
-    pj->time_event = avahi_time_event_queue_add(s->time_event_queue, &pj->delivery, elapse_callback, pj);
+    if ((pj = find_scheduled_job(s, record))) {
 
+        if (avahi_timeval_compare(&tv, &pj->delivery) < 0) {
+            /* If the new entry should be scheduled earlier, update the old entry */
+            pj->delivery = tv;
+            avahi_time_event_queue_update(s->time_event_queue, pj->time_event, &pj->delivery);
+        }
+
+        return TRUE;
+    } else {
+        /* Create a new job and schedule it */
+        pj = job_new(s, record, FALSE);
+        pj->delivery = tv;
+        pj->time_event = avahi_time_event_queue_add(s->time_event_queue, &pj->delivery, elapse_callback, pj);
+
+        
 /*     g_message("Accepted new probe job."); */
 
-    return TRUE;
+        return TRUE;
+    }
 }

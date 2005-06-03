@@ -646,3 +646,17 @@ void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove) {
     for (i = m->interfaces; i; i = i->interface_next)
         update_interface_rr(m, i, remove);
 }
+
+gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a) {
+    AvahiInterface *i;
+    AvahiInterfaceAddress *ia;
+    g_assert(m);
+    g_assert(a);
+
+    for (i = m->interfaces; i; i = i->interface_next)
+        for (ia = i->addresses; ia; ia = ia->address_next)
+            if (avahi_address_cmp(a, &ia->address) == 0)
+                return TRUE;
+
+    return FALSE;
+}

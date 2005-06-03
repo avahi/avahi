@@ -137,8 +137,6 @@ void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint index) {
     avahi_dns_packet_set_field(p, index, avahi_dns_packet_get_field(p, index) + 1);
 }   
 
-
-
 guint8* avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name) {
     guint8 *d, *saved_ptr = NULL;
     guint saved_size;

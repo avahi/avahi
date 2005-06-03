@@ -555,3 +555,98 @@ fail:
     return NULL;
 }
 
+gint avahi_open_legacy_unicast_socket_ipv4(void) {
+    struct sockaddr_in local;
+    int fd = -1, yes;
+        
+    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        g_warning("socket() failed: %s\n", strerror(errno));
+        goto fail;
+    }
+    
+    memset(&local, 0, sizeof(local));
+    local.sin_family = AF_INET;
+    
+    if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
+        g_warning("bind() failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    yes = 1;
+    if (setsockopt(fd, SOL_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
+        g_warning("IP_RECVTTL failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    yes = 1;
+    if (setsockopt(fd, SOL_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
+        g_warning("IP_PKTINFO failed: %s\n", strerror(errno));
+        goto fail;
+    }
+    
+    if (avahi_set_cloexec(fd) < 0) {
+        g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
+        goto fail;
+    }
+    
+    if (avahi_set_nonblock(fd) < 0) {
+        g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    return fd;
+
+fail:
+    if (fd >= 0)
+        close(fd);
+
+    return -1;
+}
+
+gint avahi_open_legacy_unicast_socket_ipv6(void) {
+    struct sockaddr_in local;
+    int fd = -1, yes;
+        
+    if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
+        g_warning("socket() failed: %s\n", strerror(errno));
+        goto fail;
+    }
+    
+    memset(&local, 0, sizeof(local));
+    local.sin_family = AF_INET;
+    
+    if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
+        g_warning("bind() failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    yes = 1;
+    if (setsockopt(fd, SOL_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
+        g_warning("IPV6_HOPLIMIT failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    yes = 1;
+    if (setsockopt(fd, SOL_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
+        g_warning("IPV6_PKTINFO failed: %s\n", strerror(errno));
+        goto fail;
+    }
+    
+    if (avahi_set_cloexec(fd) < 0) {
+        g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
+        goto fail;
+    }
+    
+    if (avahi_set_nonblock(fd) < 0) {
+        g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
+        goto fail;
+    }
+
+    return fd;
+
+fail:
+    if (fd >= 0)
+        close(fd);
+
+    return -1;
+}

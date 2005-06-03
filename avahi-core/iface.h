@@ -127,4 +127,6 @@ void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, gint index, guchar p
 
 void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove);
 
+gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
+
 #endif

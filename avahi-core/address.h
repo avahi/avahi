@@ -57,4 +57,6 @@ gchar* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a);
 gchar* avahi_reverse_lookup_name_ipv6_arpa(const AvahiIPv6Address *a);
 gchar* avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a);
 
+gboolean avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a);
+
 #endif

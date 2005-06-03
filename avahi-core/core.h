@@ -80,6 +80,7 @@ typedef struct AvahiServerConfig {
     gboolean announce_domain;              /**< Announce the local domain for browsing */
     gboolean use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
     gboolean enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
+    gboolean ipv_reflect;                  /**< if enable_reflector is TRUE, enable/disable reflecting between IPv4 and IPv6 */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

@@ -31,6 +31,9 @@
 gint avahi_open_socket_ipv4(void);
 gint avahi_open_socket_ipv6(void);
 
+gint avahi_open_legacy_unicast_socket_ipv4(void);
+gint avahi_open_legacy_unicast_socket_ipv6(void);
+
 gint avahi_send_dns_packet_ipv4(gint fd, gint iface, AvahiDnsPacket *p, const AvahiIPv4Address *a, guint16 port);
 gint avahi_send_dns_packet_ipv6(gint fd, gint iface, AvahiDnsPacket *p, const AvahiIPv6Address *a, guint16 port);
 

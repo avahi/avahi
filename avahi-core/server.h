@@ -32,6 +32,21 @@
 #include "dns.h"
 #include "rrlist.h"
 
+#define AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS 100
+
+typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;
+
+struct AvahiLegacyUnicastReflectSlot {
+    AvahiServer *server;
+    
+    guint16 id, original_id;
+    AvahiAddress address;
+    guint16 port;
+    gint interface;
+    GTimeVal elapse_time;
+    AvahiTimeEvent *time_event;
+};
+
 struct AvahiEntry {
     AvahiServer *server;
     AvahiEntryGroup *group;
@@ -90,9 +105,11 @@ struct AvahiServer {
     
     gchar *host_name, *host_name_fqdn, *domain_name;
 
-    gint fd_ipv4, fd_ipv6;
+    gint fd_ipv4, fd_ipv6,
+        /* The following two sockets two are used for reflection only */
+        fd_legacy_unicast_ipv4, fd_legacy_unicast_ipv6;
 
-    GPollFD pollfd_ipv4, pollfd_ipv6;
+    GPollFD pollfd_ipv4, pollfd_ipv6, pollfd_legacy_unicast_ipv4, pollfd_legacy_unicast_ipv6;
     GSource *source;
 
     AvahiServerState state;
@@ -107,6 +124,10 @@ struct AvahiServer {
     
     /* Used for assembling responses */
     AvahiRecordList *record_list;
+
+    /* Used for reflection of legacy unicast packets */
+    AvahiLegacyUnicastReflectSlot **legacy_unicast_reflect_slots;
+    guint16 legacy_unicast_reflect_id;
 };
 
 gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);

@@ -46,6 +46,7 @@ struct AvahiCacheEntry {
     AvahiRecord *record;
     GTimeVal timestamp;
     GTimeVal expiry;
+    gboolean cache_flush;
     
     AvahiAddress origin;
 
@@ -72,7 +73,7 @@ void avahi_cache_free(AvahiCache *c);
 AvahiCacheEntry *avahi_cache_lookup_key(AvahiCache *c, AvahiKey *k);
 AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r);
 
-void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const AvahiAddress *a);
+void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, const AvahiAddress *a);
 
 void avahi_cache_dump(AvahiCache *c, FILE *f);
 

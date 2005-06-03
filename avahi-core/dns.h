@@ -34,7 +34,6 @@ typedef struct AvahiDnsPacket {
     GHashTable *name_table; /* for name compression */
 } AvahiDnsPacket;
 
-
 #define AVAHI_DNS_PACKET_DATA(p) (((guint8*) p) + sizeof(AvahiDnsPacket))
 
 AvahiDnsPacket* avahi_dns_packet_new(guint mtu);

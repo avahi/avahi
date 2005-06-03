@@ -28,6 +28,7 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "server.h"
 #include "util.h"
@@ -477,8 +478,20 @@ static void reflect_response(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, 
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i)
+        if (j != i && (s->config.ipv_reflect || j->protocol == i->protocol))
             avahi_interface_post_response(j, r, flush_cache, NULL, TRUE);
+}
+
+static gpointer reflect_cache_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, gpointer userdata) {
+    AvahiServer *s = userdata;
+
+    g_assert(c);
+    g_assert(pattern);
+    g_assert(e);
+    g_assert(s);
+
+    avahi_record_list_push(s->record_list, e->record, e->cache_flush, FALSE, FALSE);
+    return NULL;
 }
 
 static void reflect_query(AvahiServer *s, AvahiInterface *i, AvahiKey *k) {
@@ -492,8 +505,15 @@ static void reflect_query(AvahiServer *s, AvahiInterface *i, AvahiKey *k) {
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i)
+        if (j != i && (s->config.ipv_reflect || j->protocol == i->protocol)) {
+            /* Post the query to other networks */
             avahi_interface_post_query(j, k, TRUE);
+
+            /* Reply from caches of other network. This is needed to
+             * "work around" known answer suppression. */
+
+            avahi_cache_walk(j->cache, k, reflect_cache_walk_callback, s);
+        }
 }
 
 static void reflect_probe(AvahiServer *s, AvahiInterface *i, AvahiRecord *r) {
@@ -507,11 +527,11 @@ static void reflect_probe(AvahiServer *s, AvahiInterface *i, AvahiRecord *r) {
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i)
+        if (j != i && (s->config.ipv_reflect || j->protocol == i->protocol))
             avahi_interface_post_probe(j, r, TRUE);
 }
 
-static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
+static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
     guint n;
     
     g_assert(s);
@@ -533,7 +553,8 @@ static void handle_query(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, c
             goto fail;
         }
 
-        reflect_query(s, i, key);
+        if (!legacy_unicast)
+            reflect_query(s, i, key);
         avahi_query_scheduler_incoming(i->query_scheduler, key);
         avahi_server_prepare_matching_responses(s, i, key, unicast_response);
         avahi_key_unref(key);
@@ -585,7 +606,7 @@ fail:
 
 }
 
-static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a) {
+static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a) {
     guint n;
     
     g_assert(s);
@@ -622,7 +643,182 @@ static void handle_response(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i
     }
 }
 
-static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *sa, gint iface, gint ttl) {
+static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {
+    guint n, index = (guint) -1;
+    AvahiLegacyUnicastReflectSlot *slot;
+    
+    g_assert(s);
+
+    if (!s->legacy_unicast_reflect_slots)
+        s->legacy_unicast_reflect_slots = g_new0(AvahiLegacyUnicastReflectSlot*, AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS);
+
+    for (n = 0; n < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; n++, s->legacy_unicast_reflect_id++) {
+        index = s->legacy_unicast_reflect_id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+        
+        if (!s->legacy_unicast_reflect_slots[index])
+            break;
+    }
+
+    if (index == (guint) -1 || s->legacy_unicast_reflect_slots[index])
+        return NULL;
+
+    slot = s->legacy_unicast_reflect_slots[index] = g_new(AvahiLegacyUnicastReflectSlot, 1);
+    slot->id = s->legacy_unicast_reflect_id++;
+    slot->server = s;
+    return slot;
+}
+
+static void deallocate_slot(AvahiServer *s, AvahiLegacyUnicastReflectSlot *slot) {
+    guint index;
+
+    g_assert(s);
+    g_assert(slot);
+
+    index = slot->id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+
+    g_assert(s->legacy_unicast_reflect_slots[index] == slot);
+
+    avahi_time_event_queue_remove(s->time_event_queue, slot->time_event);
+    
+    g_free(slot);
+    s->legacy_unicast_reflect_slots[index] = NULL;
+}
+
+static void free_slots(AvahiServer *s) {
+    guint index;
+    g_assert(s);
+
+    if (!s->legacy_unicast_reflect_slots)
+        return;
+
+    for (index = 0; index < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; index ++)
+        if (s->legacy_unicast_reflect_slots[index])
+            deallocate_slot(s, s->legacy_unicast_reflect_slots[index]);
+
+    g_free(s->legacy_unicast_reflect_slots);
+    s->legacy_unicast_reflect_slots = NULL;
+}
+
+static AvahiLegacyUnicastReflectSlot* find_slot(AvahiServer *s, guint16 id) {
+    guint index;
+    
+    g_assert(s);
+
+    if (!s->legacy_unicast_reflect_slots)
+        return NULL;
+    
+    index = id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+
+    if (!s->legacy_unicast_reflect_slots[index] || s->legacy_unicast_reflect_slots[index]->id != id)
+        return NULL;
+
+    return s->legacy_unicast_reflect_slots[index];
+}
+
+static void legacy_unicast_reflect_slot_timeout(AvahiTimeEvent *e, void *userdata) {
+    AvahiLegacyUnicastReflectSlot *slot = userdata;
+
+    g_assert(e);
+    g_assert(slot);
+    g_assert(slot->time_event == e);
+
+    deallocate_slot(slot->server, slot);
+}
+
+static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port) {
+    AvahiLegacyUnicastReflectSlot *slot;
+    AvahiInterface *j;
+
+    g_assert(s);
+    g_assert(p);
+    g_assert(i);
+    g_assert(a);
+    g_assert(port > 0);
+    g_assert(i->protocol == a->family);
+    
+    if (!s->config.enable_reflector)
+        return;
+
+/*     g_message("legacy unicast reflectr"); */
+    
+    /* Reflecting legacy unicast queries is a little more complicated
+       than reflecting normal queries, since we must route the
+       responses back to the right client. Therefore we must store
+       some information for finding the right client contact data for
+       response packets. In contrast to normal queries legacy
+       unicast query and response packets are reflected untouched and
+       are not reassembled into larger packets */
+
+    if (!(slot = allocate_slot(s))) {
+        /* No slot available, we drop this legacy unicast query */
+        g_warning("No slot available for legacy unicast reflection, dropping query packet.");
+        return;
+    }
+
+    slot->original_id = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID);
+    slot->address = *a;
+    slot->port = port;
+    slot->interface = i->hardware->index;
+
+    avahi_elapse_time(&slot->elapse_time, 2000, 0);
+    slot->time_event = avahi_time_event_queue_add(s->time_event_queue, &slot->elapse_time, legacy_unicast_reflect_slot_timeout, slot);
+
+    /* Patch the packet with our new locally generatedt id */
+    avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->id);
+    
+    for (j = s->monitor->interfaces; j; j = j->interface_next)
+        if (avahi_interface_relevant(j) &&
+            j != i &&
+            (s->config.ipv_reflect || j->protocol == i->protocol)) {
+
+            if (j->protocol == AF_INET && s->fd_legacy_unicast_ipv4 >= 0) {
+                avahi_send_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, j->hardware->index, p, NULL, 0);
+                } else if (j->protocol == AF_INET6 && s->fd_legacy_unicast_ipv6 >= 0)
+                avahi_send_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, j->hardware->index, p, NULL, 0);
+        }
+
+    /* Reset the id */
+    avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->original_id);
+}
+
+static gboolean originates_from_local_legacy_unicast_socket(AvahiServer *s, const struct sockaddr *sa) {
+    AvahiAddress a;
+    g_assert(s);
+    g_assert(sa);
+
+    if (!s->config.enable_reflector)
+        return FALSE;
+    
+    avahi_address_from_sockaddr(sa, &a);
+
+    if (!avahi_address_is_local(s->monitor, &a))
+        return FALSE;
+    
+    if (sa->sa_family == AF_INET && s->fd_legacy_unicast_ipv4 >= 0) {
+        struct sockaddr_in lsa;
+        socklen_t l = sizeof(lsa);
+        
+        if (getsockname(s->fd_legacy_unicast_ipv4, &lsa, &l) != 0)
+            g_warning("getsockname(): %s", strerror(errno));
+        else
+            return lsa.sin_port == ((struct sockaddr_in*) sa)->sin_port;
+
+    }
+
+    if (sa->sa_family == AF_INET6 && s->fd_legacy_unicast_ipv6 >= 0) {
+        struct sockaddr_in6 lsa;
+        socklen_t l = sizeof(lsa);
+
+        if (getsockname(s->fd_legacy_unicast_ipv6, &lsa, &l) != 0)
+            g_warning("getsockname(): %s", strerror(errno));
+        else
+            return lsa.sin6_port == ((struct sockaddr_in6*) sa)->sin6_port;
+    }
+
+    return FALSE;
+}
+
+static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, gint iface, gint ttl) {
     AvahiInterface *i;
     AvahiAddress a;
     guint16 port;
@@ -640,25 +836,21 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *
 
 /*     g_message("new packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
 
-    if (sa->sa_family == AF_INET6) {
-        static const guint8 ipv4_in_ipv6[] = {
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-            0xFF, 0xFF, 0xFF, 0xFF };
-
+    port = avahi_port_from_sockaddr(sa);
+    avahi_address_from_sockaddr(sa, &a);
+    
+    if (avahi_address_is_ipv4_in_ipv6(&a))
         /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
+        return;
 
-        if (memcmp(((struct sockaddr_in6*) sa)->sin6_addr.s6_addr, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0)
-            return;
-    }
+    if (originates_from_local_legacy_unicast_socket(s, sa))
+        /* This originates from our local reflector, so let's ignore it */
+        return;
 
     if (avahi_dns_packet_check_valid(p) < 0) {
         g_warning("Recieved invalid packet.");
         return;
     }
-
-    port = avahi_port_from_sockaddr(sa);
-    avahi_address_from_sockaddr(sa, &a);
 
     if (avahi_dns_packet_is_query(p)) {
         gboolean legacy_unicast = FALSE;
@@ -680,7 +872,10 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *
             legacy_unicast = TRUE;
         }
 
-        handle_query(s, p, i, &a, port, legacy_unicast);
+        if (legacy_unicast)
+            reflect_legacy_unicast_query_packet(s, p, i, &a, port);
+        
+        handle_query_packet(s, p, i, &a, port, legacy_unicast);
         
 /*         g_message("Handled query"); */
     } else {
@@ -703,9 +898,59 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, struct sockaddr *
             return;
         }
 
-        handle_response(s, p, i, &a);
+        handle_response_packet(s, p, i, &a);
 /*         g_message("Handled response"); */
     }
+}
+
+static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, gint iface, gint ttl) {
+    AvahiInterface *i, *j;
+    AvahiAddress a;
+    guint16 port;
+    AvahiLegacyUnicastReflectSlot *slot;
+    
+    g_assert(s);
+    g_assert(p);
+    g_assert(sa);
+    g_assert(iface > 0);
+
+    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
+        !avahi_interface_relevant(i)) {
+        g_warning("Recieved packet from invalid interface.");
+        return;
+    }
+
+/*     g_message("new legacy unicast packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
+
+    port = avahi_port_from_sockaddr(sa);
+    avahi_address_from_sockaddr(sa, &a);
+    
+    if (avahi_address_is_ipv4_in_ipv6(&a))
+        /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
+        return;
+
+    if (avahi_dns_packet_check_valid(p) < 0 || avahi_dns_packet_is_query(p)) {
+        g_warning("Recieved invalid packet.");
+        return;
+    }
+
+    if (!(slot = find_slot(s, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID)))) {
+        g_warning("Recieved legacy unicast response with unknown id");
+        return;
+    }
+
+    if (!(j = avahi_interface_monitor_get_interface(s->monitor, slot->interface, slot->address.family)) ||
+        !avahi_interface_relevant(j))
+        return;
+
+    /* Patch the original ID into this response */
+    avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->original_id);
+
+    /* Forward the response to the correct client */
+    avahi_interface_send_packet_unicast(j, p, &slot->address, slot->port);
+
+    /* Undo changes to packet */
+    avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->id);
 }
 
 static void work(AvahiServer *s) {
@@ -717,16 +962,30 @@ static void work(AvahiServer *s) {
         
     g_assert(s);
 
-    if (s->pollfd_ipv4.revents & G_IO_IN) {
+    if (s->fd_ipv4 >= 0 && (s->pollfd_ipv4.revents & G_IO_IN)) {
         if ((p = avahi_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &iface, &ttl))) {
             dispatch_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
             avahi_dns_packet_free(p);
         }
     }
 
-    if (s->pollfd_ipv6.revents & G_IO_IN) {
+    if (s->fd_ipv6 >= 0 && (s->pollfd_ipv6.revents & G_IO_IN)) {
         if ((p = avahi_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &iface, &ttl))) {
             dispatch_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
+            avahi_dns_packet_free(p);
+        }
+    }
+
+    if (s->fd_legacy_unicast_ipv4 >= 0 && (s->pollfd_legacy_unicast_ipv4.revents & G_IO_IN)) {
+        if ((p = avahi_recv_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, &sa, &iface, &ttl))) {
+            dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
+            avahi_dns_packet_free(p);
+        }
+    }
+
+    if (s->fd_legacy_unicast_ipv6 >= 0 && (s->pollfd_legacy_unicast_ipv6.revents & G_IO_IN)) {
+        if ((p = avahi_recv_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, &sa6, &iface, &ttl))) {
+            dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
             avahi_dns_packet_free(p);
         }
     }
@@ -742,12 +1001,23 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
 
 static gboolean check_func(GSource *source) {
     AvahiServer* s;
+    gushort revents = 0;
+    
     g_assert(source);
 
     s = *((AvahiServer**) (((guint8*) source) + sizeof(GSource)));
     g_assert(s);
+
+    if (s->fd_ipv4 >= 0)
+        revents |= s->pollfd_ipv4.revents;
+    if (s->fd_ipv6 >= 0)
+        revents |= s->pollfd_ipv6.revents;
+    if (s->fd_legacy_unicast_ipv4 >= 0)
+        revents |= s->pollfd_legacy_unicast_ipv4.revents;
+    if (s->fd_legacy_unicast_ipv6 >= 0)
+        revents |= s->pollfd_legacy_unicast_ipv6.revents;
     
-    return (s->pollfd_ipv4.revents | s->pollfd_ipv6.revents) & (G_IO_IN | G_IO_HUP | G_IO_ERR);
+    return !!(revents & (G_IO_IN | G_IO_HUP | G_IO_ERR));
 }
 
 static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
@@ -946,6 +1216,18 @@ void avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
     delayed_register_stuff(s);
 }
 
+
+static void prepare_pollfd(AvahiServer *s, GPollFD *pollfd, gint fd) {
+    g_assert(s);
+    g_assert(pollfd);
+    g_assert(fd >= 0);
+
+    memset(pollfd, 0, sizeof(GPollFD));
+    pollfd->fd = fd;
+    pollfd->events = G_IO_IN|G_IO_ERR|G_IO_HUP;
+    g_source_add_poll(s->source, pollfd);
+}
+
 AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, AvahiServerCallback callback, gpointer userdata) {
     AvahiServer *s;
     
@@ -981,6 +1263,9 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
         g_message("Failed to create IPv4 socket, proceeding in IPv6 only mode");
     else if (s->fd_ipv6 < 0 && s->config.use_ipv6)
         g_message("Failed to create IPv6 socket, proceeding in IPv4 only mode");
+
+    s->fd_legacy_unicast_ipv4 = s->fd_ipv4 >= 0 && s->config.enable_reflector ? avahi_open_legacy_unicast_socket_ipv4() : -1;
+    s->fd_legacy_unicast_ipv6 = s->fd_ipv6 >= 0 && s->config.enable_reflector ? avahi_open_legacy_unicast_socket_ipv6() : -1;
     
     if (c)
         g_main_context_ref(s->context = c);
@@ -991,16 +1276,15 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     s->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(AvahiServer*));
     *((AvahiServer**) (((guint8*) s->source) + sizeof(GSource))) = s;
 
-    memset(&s->pollfd_ipv4, 0, sizeof(s->pollfd_ipv4));
-    s->pollfd_ipv4.fd = s->fd_ipv4;
-    s->pollfd_ipv4.events = G_IO_IN|G_IO_ERR|G_IO_HUP;
-    g_source_add_poll(s->source, &s->pollfd_ipv4);
+    if (s->fd_ipv4 >= 0)
+        prepare_pollfd(s, &s->pollfd_ipv4, s->fd_ipv4);
+    if (s->fd_ipv6 >= 0)
+        prepare_pollfd(s, &s->pollfd_ipv6, s->fd_ipv6);
+    if (s->fd_legacy_unicast_ipv4 >= 0)
+        prepare_pollfd(s, &s->pollfd_legacy_unicast_ipv4, s->fd_legacy_unicast_ipv4);
+    if (s->fd_legacy_unicast_ipv6 >= 0)
+        prepare_pollfd(s, &s->pollfd_legacy_unicast_ipv6, s->fd_legacy_unicast_ipv6);
     
-    memset(&s->pollfd_ipv6, 0, sizeof(s->pollfd_ipv6));
-    s->pollfd_ipv6.fd = s->fd_ipv6;
-    s->pollfd_ipv6.events = G_IO_IN|G_IO_ERR|G_IO_HUP;
-    g_source_add_poll(s->source, &s->pollfd_ipv6);
-
     g_source_attach(s->source, s->context);
     
     s->callback = callback;
@@ -1019,6 +1303,9 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, s->service_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, s->service_resolvers);
 
+    s->legacy_unicast_reflect_slots = NULL;
+    s->legacy_unicast_reflect_id = 0;
+    
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
     s->host_name[strcspn(s->host_name, ".")] = 0;
@@ -1056,6 +1343,8 @@ void avahi_server_free(AvahiServer* s) {
     while (s->groups)
         free_group(s, s->groups);
 
+    free_slots(s);
+    
     while (s->host_name_resolvers)
         avahi_host_name_resolver_free(s->host_name_resolvers);
     while (s->address_resolvers)
@@ -1084,6 +1373,10 @@ void avahi_server_free(AvahiServer* s) {
         close(s->fd_ipv4);
     if (s->fd_ipv6 >= 0)
         close(s->fd_ipv6);
+    if (s->fd_legacy_unicast_ipv4 >= 0)
+        close(s->fd_legacy_unicast_ipv4);
+    if (s->fd_legacy_unicast_ipv6 >= 0)
+        close(s->fd_legacy_unicast_ipv6);
 
     g_free(s->host_name);
     g_free(s->domain_name);
@@ -1562,6 +1855,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->announce_domain = TRUE;
     c->use_iff_running = FALSE;
     c->enable_reflector = FALSE;
+    c->ipv_reflect = FALSE;
     
     return c;
 }

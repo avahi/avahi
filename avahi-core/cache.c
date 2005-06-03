@@ -230,7 +230,7 @@ static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
     update_time_event(c, e);
 }
 
-void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const AvahiAddress *a) {
+void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, const AvahiAddress *a) {
 /*     gchar *txt; */
     
     g_assert(c);
@@ -257,7 +257,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
 
         if ((first = avahi_cache_lookup_key(c, r->key))) {
             
-            if (unique) {
+            if (cache_flush) {
 
                 /* For unique entries drop all entries older than one second */
                 for (e = first; e; e = e->by_key_next) {
@@ -288,7 +288,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
             /* Update the record */
             avahi_record_unref(e->record);
             e->record = avahi_record_ref(r);
-            
+
         } else {
             /* No entry found, therefore we create a new one */
             
@@ -314,6 +314,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean unique, const Av
         e->timestamp = now;
         next_expiry(c, e, 80);
         e->state = AVAHI_CACHE_VALID;
+        e->cache_flush = cache_flush;
     }
 }
 

@@ -149,3 +149,18 @@ guint16 avahi_port_from_sockaddr(const struct sockaddr* sa) {
     else
         return ntohs(((struct sockaddr_in6*) sa)->sin6_port);
 }
+
+gboolean avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
+    static const guint8 ipv4_in_ipv6[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0xFF, 0xFF, 0xFF, 0xFF };
+    
+    g_assert(a);
+
+    if (a->family != AF_INET6)
+        return FALSE;
+
+    return memcmp(a->data.ipv6.address, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0;
+}
+

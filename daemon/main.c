@@ -69,7 +69,8 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
 			dbus_message_get_path (message),
 			dbus_message_get_member (message));
 
-	if (dbus_message_is_signal (message, DBUS_INTERFACE_LOCAL,
+	if (dbus_message_is_signal (message,
+				DBUS_INTERFACE_ORG_FREEDESKTOP_LOCAL,
 				"Disconnected"))
 	{
 		/* No, we shouldn't quit, but until we get somewhere
@@ -82,8 +83,9 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
 				"Register"))
 	{
 		return do_register (conn, message);
-	} else if (dbus_message_is_signal (message, DBUS_SERVICE_DBUS,
-				"NameAcquired"))
+	} else if (dbus_message_is_signal (message,
+				DBUS_INTERFACE_ORG_FREEDESKTOP_DBUS,
+				"ServiceAcquired"))
 	{
 		char *name;
 
@@ -99,7 +101,7 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
 			return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 		}
 
-		g_message ("dbus: NameAcquired (%s)", name);
+		g_message ("dbus: ServiceAcquired (%s)", name);
 
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
@@ -118,6 +120,7 @@ int main(int argc, char *argv[]) {
 
     dbus_error_init (&error);
 
+
     bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 
     if (bus == NULL)
@@ -129,12 +132,13 @@ int main(int argc, char *argv[]) {
     }
 
     dbus_connection_setup_with_g_main (bus, NULL);
+    dbus_connection_set_exit_on_disconnect (bus, FALSE);
 
-    dbus_bus_request_name (bus, DBUS_SERVICE_AVAHI, 0, &error);
+    dbus_bus_acquire_service (bus, DBUS_SERVICE_AVAHI, 0, &error);
 
     if (dbus_error_is_set (&error))
     {
-	    g_warning ("dbus_bus_request_name (): %s", error.message);
+	    g_warning ("dbus_error_is_set (): %s", error.message);
 	    dbus_error_free (&error);
 
 	    return -1;

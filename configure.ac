@@ -86,5 +86,5 @@ if test "x$GCC" = "xyes" ; then
    rm -f conftest.o
 fi
 
-AC_CONFIG_FILES([Makefile avahi-core.pc doxygen/Makefile doxygen/doxygen.conf avahi-common/Makefile avahi-core/Makefile daemon/Makefile avahi-discover/Makefile])
+AC_CONFIG_FILES([Makefile avahi-core.pc doxygen/Makefile doxygen/doxygen.conf avahi-common/Makefile avahi-core/Makefile daemon/Makefile avahi-discover/Makefile avahi-client/Makefile])
 AC_OUTPUT

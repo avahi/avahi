@@ -1,0 +1,23 @@
+<!DOCTYPE busconfig PUBLIC
+ "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+<busconfig>
+
+  <policy user="lathiat">
+    <allow own="org.freedesktop.Avahi"/>
+  </policy>
+  <policy user="root">
+    <allow own="org.freedesktop.Avahi"/>
+  </policy>
+
+  <!-- Allow anyone to invoke methods on the Manager and Device interfaces -->
+  <policy context="default">
+    <allow send_interface="org.freedesktop.Avahi"/>
+
+    <allow receive_interface="org.freedesktop.Avahi"
+           receive_sender="org.freedesktop.Avahi"/>
+  </policy>
+
+  <limit name="max_match_rules_per_connection">512</limit>
+
+</busconfig>

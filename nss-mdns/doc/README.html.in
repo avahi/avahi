@@ -42,6 +42,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Sat Jun 4 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.5.tar.gz">Version 0.5</a>
+released. Changes include: only lookup hostnames ending in
+<tt>.local</tt>; add support for a configuration file
+(<tt>/etc/mdns.allow</tt>) to allow lookups for other names.</p>
+
 <div class="news-date">Sun May 15 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.4.tar.gz">Version 0.4</a>
 released. Changes include: small portability fix for big endian
@@ -145,6 +151,39 @@ sensible results.</p>
 <p>If you run a firewall, don't forget to allow UDP traffic to the the
 mDNS multicast address <tt>224.0.0.251</tt> on port 5353.</p>
 
+<p>Starting with version 0.5, <tt>nss-mdns</tt> has a simple
+configuration file <tt>/etc/mdns.allow</tt> for enabling name lookups
+via mDNS in other domains than <tt>.local</tt>. The file contains
+valid domain suffixes, seperated by newlines. Empty lines are ignored
+as are comments starting with #. To enable mDNS lookups of all names,
+regardless of the domain suffix add a line consisting of <tt>*</tt>
+only (similar to <tt>nss-mdns</tt> mode of operation of versions &lt;= 0.4):</p>
+
+<pre># /etc/mdns.allow
+*</pre>
+
+<p>If the configuration file is absent or unreadable
+<tt>nss-mdns</tt> behaves as if a configuration file with the following
+contents is read: </p>
+
+<pre># /etc/mdns.allow
+.local.
+.local</pre>
+
+<p>i.e. only hostnames ending with <tt>.local</tt> are resolved via
+mDNS.</p>
+
+<p>If the configuration file is existent but empty, mDNS name lookups
+are disabled completely.</p>
+
+<p><tt>nss-mdns</tt> does not honour the domain search list of
+<tt>/etc/resolv.conf</tt>, because I don't consider that this would be
+a good idea, since every name lookup for non-existing domains would
+result in a series of long timeouts of <tt>nss-mdns</tt>. If somebody
+still considers this a good idea, he is free to send me a sensible
+patch, which I might apply, but only if the domain search list may be
+disabled.</p>
+
 <h2><a name="requirements">Requirements</a></h2>
 
 <p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly
@@ -156,8 +195,7 @@ kernel compiled with IPv4 multicasting support enabled.</p>
 "testing" from December 2004, it should work on most other Linux
 distributions (and maybe Unix versions) since it uses GNU autoconf and
 GNU libtool for source code configuration and shared library
-management. <tt>nss-mdns</tt> has been tested exclusively against the
-HOWL mDNS responder daemon.</p>
+management.</p>
 
 <h2><a name="installation">Installation</a></h2>
 
@@ -186,7 +224,7 @@ compilation and <tt>make install</tt> (as root) for installation of
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 
 <hr/>
-<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, May 2005</address>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, June 2005</address>
 <div class="grey"><i>$Id$</i></div>
 
 </body>

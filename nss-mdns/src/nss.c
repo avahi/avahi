@@ -30,6 +30,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <nss.h>
+#include <stdio.h>
 
 #include "query.h"
 
@@ -92,6 +93,58 @@ static void name_callback(const char*name, void *userdata) {
     u->data_len += strlen(name)+1;
 }
 
+static int ends_with(const char *name, const char* suffix) {
+    size_t ln, ls;
+    assert(name);
+    assert(suffix);
+
+    if ((ls = strlen(suffix)) > (ln = strlen(name)))
+        return 0;
+
+    return strcasecmp(name+ln-ls, suffix) == 0;
+}
+
+static int verify_name_allowed(const char *name) {
+    FILE *f;
+    int valid = 0;
+    
+    assert(name);
+
+    if (!(f = fopen(MDNS_ALLOW_FILE, "r")))
+        return ends_with(name, ".local") || ends_with(name, ".local."); 
+
+    while (!feof(f)) {
+        char ln[128], ln2[128], *t;
+        
+        if (!fgets(ln, sizeof(ln), f))
+            break;
+
+        ln[strcspn(ln, "#\t\n\r ")] = 0;
+
+        if (ln[0] == 0)
+            continue;
+
+        if (strcmp(ln, "*") == 0) {
+            valid = 1;
+            break;
+        }
+
+        if (ln[0] != '.')
+            snprintf(t = ln2, sizeof(ln2), ".%s", ln);
+        else
+            t = ln;
+
+        if (ends_with(name, t)) {
+            valid = 1;
+            break;
+        }
+    }
+
+    fclose(f);
+
+    return valid;
+}
+
 enum nss_status _nss_mdns_gethostbyname2_r(
     const char *name,
     int af,
@@ -120,6 +173,13 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     {    
         *errnop = EINVAL;
         *h_errnop = NO_RECOVERY;
+        goto finish;
+    }
+
+    if (! verify_name_allowed(name)) {
+        *errnop = ENOENT;
+        *h_errnop = HOST_NOT_FOUND;
+        status = NSS_STATUS_NOTFOUND;
         goto finish;
     }
 

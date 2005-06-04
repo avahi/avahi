@@ -19,7 +19,7 @@
 
 rootlibexecdir=/lib
 
-AM_CFLAGS=-D_GNU_SOURCE 
+AM_CFLAGS=-D_GNU_SOURCE -DMDNS_ALLOW_FILE=\"$(sysconfdir)/mdns.allow\"
 #-DNDEBUG=1
 
 # This cool debug trap works on i386/gcc only

@@ -3,7 +3,7 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <avahi-core/core.h>
-#include <avahi-core/strlst.h>
+#include <avahi-common/strlst.h>
 
 struct ServiceType;
 

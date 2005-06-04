@@ -32,4 +32,4 @@ avahi_discover_SOURCES = \
 	main.c
 
 avahi_discover_CFLAGS = $(AM_CFLAGS)
-avahi_discover_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la
+avahi_discover_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la

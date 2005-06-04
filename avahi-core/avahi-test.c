@@ -29,7 +29,6 @@
 #include <stdlib.h>
 
 #include <avahi-core/core.h>
-#include <avahi-core/alternative.h>
 
 static AvahiEntryGroup *group = NULL;
 static AvahiServer *server = NULL;

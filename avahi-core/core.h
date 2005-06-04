@@ -34,8 +34,9 @@ typedef struct AvahiEntry AvahiEntry;
 /** A group of locally registered DNS RRs */
 typedef struct AvahiEntryGroup AvahiEntryGroup;
 
-#include <avahi-core/address.h>
-#include <avahi-core/rr.h>
+#include <avahi-common/address.h>
+#include <avahi-common/rr.h>
+#include <avahi-common/alternative.h>
 
 /** States of a server object */
 typedef enum {

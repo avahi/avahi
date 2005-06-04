@@ -21,30 +21,24 @@ AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
+AM_LDADD=$(GLIB20_LIBS) ../avahi-common/libavahi-common.la
+
+AM_CFLAGS+=-I$(top_srcdir)/avahi-common
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-avahiincludedir=$(includedir)/avahi-core
+avahiincludedir=$(includedir)/avahi-core 
 
-avahiinclude_HEADERS = \
-	rr.h \
-	address.h \
-	strlst.h \
-	core.h \
-	alternative.h
+avahiinclude_HEADERS =
+	core.h
 
 lib_LTLIBRARIES = \
 	libavahi-core.la 
 
 noinst_PROGRAMS = \
-	dns-test \
-	domain-test \
 	prioq-test \
-	strlst-test \
 	avahi-test \
-	alternative-test \
 	conformance-test \
 	avahi-reflector
 
@@ -53,21 +47,15 @@ libavahi_core_la_SOURCES = \
 	iface.c iface.h \
 	netlink.c netlink.h \
 	server.c server.h \
-	address.c address.h \
-	util.c util.h \
 	prioq.c prioq.h \
 	cache.c cache.h\
-	rr.c rr.h \
-	dns.c dns.h \
 	socket.c socket.h \
 	response-sched.c response-sched.h \
 	query-sched.c query-sched.h \
 	probe-sched.c probe-sched.h \
 	announce.c announce.h \
 	browse.c browse.h \
-	strlst.c strlst.h \
 	rrlist.c rrlist.h \
-	alternative.c alternative.h \
 	resolve-host-name.c \
 	resolve-address.c \
 	browse-domain.c \
@@ -81,38 +69,11 @@ prioq_test_SOURCES = \
 prioq_test_CFLAGS = $(AM_CFLAGS)
 prioq_test_LDADD = $(AM_LDADD)
 
-strlst_test_SOURCES = \
-	strlst-test.c \
-	strlst.c strlst.h
-strlst_test_CFLAGS = $(AM_CFLAGS)
-strlst_test_LDADD = $(AM_LDADD)
-
-domain_test_SOURCES = \
-	domain-test.c \
-	util.c util.h
-domain_test_CFLAGS = $(AM_CFLAGS)
-domain_test_LDADD = $(AM_LDADD)
-
-dns_test_SOURCES = \
-	dns-test.c \
-	util.c util.h \
-	dns.c dns.h \
-	rr.c rr.h \
-	strlst.c strlst.h
-dns_test_CFLAGS = $(AM_CFLAGS)
-dns_test_LDADD = $(AM_LDADD)
-
 avahi_test_SOURCES = \
 	avahi-test.c \
 	$(libavahi_core_la_SOURCES)
 avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD)
-
-alternative_test_SOURCES = \
-	alternative-test.c \
-	alternative.c alternative.h
-alternative_test_CFLAGS = $(AM_CFLAGS)
-alternative_test_LDADD = $(AM_LDADD)
 
 conformance_test_SOURCES = \
 	conformance-test.c \

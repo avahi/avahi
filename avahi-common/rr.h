@@ -24,8 +24,8 @@
 
 #include <glib.h>
 
-#include <avahi-core/strlst.h>
-#include <avahi-core/address.h>
+#include <avahi-common/strlst.h>
+#include <avahi-common/address.h>
 
 enum {
     AVAHI_DNS_TYPE_A = 0x01,

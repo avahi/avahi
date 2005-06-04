@@ -29,7 +29,6 @@
 #include <stdlib.h>
 
 #include <avahi-core/core.h>
-#include <avahi-core/alternative.h>
 
 int main(int argc, char*argv[]) {
     AvahiServer *server;

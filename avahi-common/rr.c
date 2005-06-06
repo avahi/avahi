@@ -31,7 +31,6 @@
 
 #include "util.h"
 #include "rr.h"
-#include "dns.h"
 
 AvahiKey *avahi_key_new(const gchar *name, guint16 class, guint16 type) {
     AvahiKey *k;

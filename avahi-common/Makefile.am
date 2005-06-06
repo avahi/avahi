@@ -33,12 +33,10 @@ avahi_commoninclude_HEADERS =
 	address.h \
 	alternative.h \
 	rr.h \
-	util.h \
-	dns.h
+	util.h
 
 noinst_PROGRAMS = \
 	strlst-test \
-	dns-test \
 	domain-test \
 	alternative-test
 
@@ -50,7 +48,6 @@ libavahi_common_la_SOURCES = \
 	strlst.c strlst.h \
 	alternative.c alternative.h \
 	rr.c rr.h \
-	dns.c dns.h \
 	util.c util.h
 
 strlst_test_SOURCES = \
@@ -58,15 +55,6 @@ strlst_test_SOURCES = \
         strlst-test.c
 strlst_test_CFLAGS = $(AM_CFLAGS)
 strlst_test_LDADD = $(AM_LDADD)
-
-dns_test_SOURCES = \
-	util.c util.h \
-	dns.c dns.h \
-	rr.c rr.h \
-	strlst.c strlst \
-	dns-test.c
-dns_test_CFLAGS = $(AM_CFLAGS)
-dns_test_LDADD = $(AM_LDADD)
 
 alternative_test_SOURCES = \
 	alternative.c alternative.h \

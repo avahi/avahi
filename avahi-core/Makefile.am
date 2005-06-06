@@ -21,9 +21,11 @@ AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS) ../avahi-common/libavahi-common.la
+AM_LDADD=$(GLIB20_LIBS)
 
-AM_CFLAGS+=-I$(top_srcdir)/avahi-common
+# Import stuff from avahi-common
+AM_CFLAGS+=-I$(top_srcdir)/avahi-common 
+AM_LDADD+=../avahi-common/libavahi-common.la
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
@@ -40,7 +42,8 @@ noinst_PROGRAMS = \
 	prioq-test \
 	avahi-test \
 	conformance-test \
-	avahi-reflector
+	avahi-reflector \
+	dns-test
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -61,7 +64,8 @@ libavahi_core_la_SOURCES = \
 	browse-domain.c \
 	browse-service-type.c \
 	browse-service.c \
-	resolve-service.c
+	resolve-service.c \
+	dns.c dns.h
 
 prioq_test_SOURCES = \
 	prioq-test.c  \
@@ -86,6 +90,12 @@ avahi_reflector_SOURCES = \
 	$(libavahi_core_la_SOURCES)
 avahi_reflector_CFLAGS = $(AM_CFLAGS)
 avahi_reflector_LDADD = $(AM_LDADD)
+
+dns_test_SOURCES = \
+	dns.c dns.h \
+        dns-test.c
+dns_test_CFLAGS = $(AM_CFLAGS)
+dns_test_LDADD = $(AM_LDADD)
 
 valgrind: avahi-test
 	libtool --mode=execute valgrind ./avahi-test

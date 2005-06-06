@@ -18,7 +18,7 @@
 # USA.
 
 EXTRA_DIST = bootstrap.sh LICENSE doxygen/Makefile.am doxygen/Makefile.in doxygen/doxygen.conf.in libtool.m4
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client daemon
+SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc

@@ -25,6 +25,7 @@ AM_LDADD=$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+if ENABLE_GTK
 bin_PROGRAMS = \
 	avahi-discover
 
@@ -33,3 +34,4 @@ avahi_discover_SOURCES = \
 
 avahi_discover_CFLAGS = $(AM_CFLAGS)
 avahi_discover_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+endif

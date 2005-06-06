@@ -62,20 +62,32 @@ PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
 AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
-# Check for GTK 2.0
-PKG_CHECK_MODULES(GLIB20, [ gtk+-2.0 >= 2.4.0 ])
-AC_SUBST(GTK20_CFLAGS)
-AC_SUBST(GTK20_LIBS)
-
-# Check for GLADE 2.0
-PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
-AC_SUBST(GLADE20_CFLAGS)
-AC_SUBST(GLADE20_LIBS)
-
 # Check for DBUS
 PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.23, dbus-glib-1 >= 0.23 ])
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
+
+AC_ARG_ENABLE(gtk,
+        AC_HELP_STRING([--enable-gtk],[use GTK+ (default=yes)]),
+        [case "${enableval}" in
+                yes) ENABLE_GTK=yes ;;
+                no)  ENABLE_GTK=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk) ;;
+        esac],
+        [ENABLE_GTK=yes]) dnl Default value
+
+if test "x$ENABLE_GTK" = "xyes"; then
+        # Check for GTK 2.0
+        PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.4.0 ])
+        AC_SUBST(GTK20_CFLAGS)
+        AC_SUBST(GTK20_LIBS)
+        
+        # Check for GLADE 2.0
+        PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
+        AC_SUBST(GLADE20_CFLAGS)
+        AC_SUBST(GLADE20_LIBS)
+fi
+AM_CONDITIONAL(ENABLE_GTK, test "x$ENABLE_GTK" = "xyes")
 
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then

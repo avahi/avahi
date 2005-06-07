@@ -65,7 +65,9 @@ libavahi_core_la_SOURCES = \
 	browse-service-type.c \
 	browse-service.c \
 	resolve-service.c \
-	dns.c dns.h
+	dns.c dns.h \
+	core.h \
+	llist.h
 
 prioq_test_SOURCES = \
 	prioq-test.c  \

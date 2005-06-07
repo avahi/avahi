@@ -17,6 +17,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+if ENABLE_DOXYGEN
+all: doxygen
+endif
+
 doxygen: doxygen.conf
 	doxygen $<
 

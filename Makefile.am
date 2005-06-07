@@ -17,8 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-EXTRA_DIST = bootstrap.sh LICENSE doxygen/Makefile.am doxygen/Makefile.in doxygen/doxygen.conf.in libtool.m4
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon
+EXTRA_DIST = bootstrap.sh LICENSE doxygen/Makefile.am doxygen/Makefile.in doxygen/doxygen.conf.in
+SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon doxygen
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc

@@ -30,6 +30,7 @@ AM_LDADD+=$(DBUS_LIBS)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+if ENABLE_DBUS
 bin_PROGRAMS = \
 	avahi
 
@@ -38,3 +39,4 @@ avahi_SOURCES = \
 
 avahi_CFLAGS = $(AM_CFLAGS)
 avahi_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+endif

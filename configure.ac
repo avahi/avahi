@@ -62,11 +62,6 @@ PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
 AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
-# Check for DBUS
-PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.23, dbus-glib-1 >= 0.23 ])
-AC_SUBST(DBUS_CFLAGS)
-AC_SUBST(DBUS_LIBS)
-
 AC_ARG_ENABLE(gtk,
         AC_HELP_STRING([--enable-gtk],[use GTK+ (default=yes)]),
         [case "${enableval}" in
@@ -99,6 +94,24 @@ AC_ARG_ENABLE(doxygen,
         [ENABLE_DOXYGEN=yes]) dnl Default value
 
 AM_CONDITIONAL(ENABLE_DOXYGEN, test "x$ENABLE_DOXYGEN" = "xyes")
+
+AC_ARG_ENABLE(dbus,
+        AC_HELP_STRING([--enable-dbus],[use DBus (default=yes)]),
+        [case "${enableval}" in
+                yes) ENABLE_DBUS=yes ;;
+                no)  ENABLE_DBUS=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-dbus) ;;
+        esac],
+	[ENABLE_DBUS=yes]) dnl Default value
+
+if test "x$ENABLE_DBUS" = "xyes"; then
+        PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.23])
+        AC_SUBST(DBUS_CFLAGS)
+	AC_SUBST(DBUS_LIBS)
+fi
+
+AM_CONDITIONAL(ENABLE_DBUS, test "x$ENABLE_DBUS" = "xyes")
+
 
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then

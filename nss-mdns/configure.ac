@@ -28,6 +28,8 @@ AM_INIT_AUTOMAKE([foreign -Wall])
 
 AC_SUBST(PACKAGE_URL, [http://0pointer.de/lennart/projects/nss-mdns/])
 
+ac_default_prefix="/"
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP

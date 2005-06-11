@@ -32,6 +32,7 @@
 #include "core.h"
 #include "util.h"
 #include "alternative.h"
+#include "log.h"
 
 static gchar *name = NULL;
 static AvahiEntryGroup *group = NULL;
@@ -81,13 +82,13 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
     if (state == AVAHI_ENTRY_GROUP_COLLISION)
         create_service(NULL);
     else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
-        g_message("ESTABLISHED !!!!");
+        avahi_log_debug("ESTABLISHED !!!!");
         try = 0;
     }
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
-    g_message("server state: %i", state);
+    avahi_log_debug("server state: %i", state);
 }
 
 int main(int argc, char *argv[]) {

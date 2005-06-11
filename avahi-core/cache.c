@@ -36,7 +36,7 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     g_assert(c);
     g_assert(e);
 
-/*     g_message("removing from cache: %p %p", c, e); */
+/*     avahi_log_debug("removing from cache: %p %p", c, e); */
 
     /* Remove from hash table */
     t = g_hash_table_lookup(c->hash_table, e->record->key);
@@ -157,7 +157,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
     if (e->state == AVAHI_CACHE_FINAL) {
         remove_entry(e->cache, e);
-/*         g_message("Removing entry from cache due to expiration"); */
+/*         avahi_log_debug("Removing entry from cache due to expiration"); */
     } else {
         guint percent = 0;
     
@@ -189,7 +189,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         /* Request a cache update, if we are subscribed to this entry */
         if (avahi_is_subscribed(e->cache->server, e->cache->interface, e->record->key)) {
-/*             g_message("Requesting cache entry update at %i%%.", percent); */
+/*             avahi_log_debug("Requesting cache entry update at %i%%.", percent); */
             avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
         }
 
@@ -242,7 +242,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
     g_assert(c);
     g_assert(r && r->ref >= 1);
 
-/*     g_message("cache update: %s", (txt = avahi_record_to_string(r))); */
+/*     avahi_log_debug("cache update: %s", (txt = avahi_record_to_string(r))); */
 /*     g_free(txt); */
 
     if (r->ttl == 0) {
@@ -284,7 +284,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
     
         if (e) {
             
-/*             g_message("found matching cache entry");  */
+/*             avahi_log_debug("found matching cache entry");  */
 
             /* We need to update the hash table key if we replace the
              * record */
@@ -298,7 +298,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
         } else {
             /* No entry found, therefore we create a new one */
             
-/*             g_message("couldn't find matching cache entry");  */
+/*             avahi_log_debug("couldn't find matching cache entry");  */
 
             if (c->n_entries >= AVAHI_MAX_CACHE_ENTRIES)
                 return;
@@ -362,7 +362,7 @@ gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 
     age = avahi_timeval_diff(&now, &e->timestamp)/1000000;
 
-/*     g_message("age: %u, ttl/2: %u", age, e->record->ttl); */
+/*     avahi_log_debug("age: %u, ttl/2: %u", age, e->record->ttl); */
     
     return age >= e->record->ttl/2;
 }

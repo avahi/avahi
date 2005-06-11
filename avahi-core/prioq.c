@@ -356,12 +356,6 @@ void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     if (n->parent) {
         g_assert(n->prev);
         if (n->parent->left == n) {
-            if (n->parent->right != NULL) {
-                g_message("fuck");
-                for (;;);
-                
-            }
-            
             g_assert(n->parent->right == NULL);
             n->parent->left = NULL;
         } else {

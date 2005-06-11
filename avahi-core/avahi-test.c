@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 #include <avahi-core/core.h>
+#include <avahi-core/log.h>
 
 static AvahiEntryGroup *group = NULL;
 static AvahiServer *server = NULL;
@@ -53,7 +54,7 @@ static void record_browser_callback(AvahiRecordBrowser *r, gint interface, gucha
     g_assert(interface > 0);
     g_assert(protocol != AF_UNSPEC);
 
-    g_message("SUBSCRIPTION: record [%s] on %i.%i is %s", t = avahi_record_to_string(record), interface, protocol,
+    avahi_log_debug("SUBSCRIPTION: record [%s] on %i.%i is %s", t = avahi_record_to_string(record), interface, protocol,
               event == AVAHI_BROWSER_NEW ? "new" : "remove");
 
     g_free(t);
@@ -63,23 +64,23 @@ static void remove_entries(void);
 static void create_entries(gboolean new_name);
 
 static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata) {
-    g_message("entry group state: %i", state); 
+    avahi_log_debug("entry group state: %i", state); 
 
     if (state == AVAHI_ENTRY_GROUP_COLLISION) {
         remove_entries();
         create_entries(TRUE);
-        g_message("Service name conflict, retrying with <%s>", service_name);
+        avahi_log_debug("Service name conflict, retrying with <%s>", service_name);
     } else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
-        g_message("Service established under name <%s>", service_name);
+        avahi_log_debug("Service established under name <%s>", service_name);
     }
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
 
-     g_message("server state: %i", state); 
+     avahi_log_debug("server state: %i", state); 
     
     if (state == AVAHI_SERVER_RUNNING) {
-        g_message("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
+        avahi_log_debug("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
         create_entries(FALSE);
     } else if (state == AVAHI_SERVER_COLLISION) {
         gchar *n;
@@ -87,7 +88,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
 
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
 
-        g_message("Host name conflict, retrying with <%s>", n);
+        avahi_log_debug("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
         g_free(n);
     }
@@ -127,7 +128,7 @@ static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, 
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
-    g_message("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
+    avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
 static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
@@ -135,35 +136,35 @@ static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, Av
 
     avahi_address_snprint(t, sizeof(t), a);
 
-    g_message("AR: (%i.%i) %s -> <%s> [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
+    avahi_log_debug("AR: (%i.%i) %s -> <%s> [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
 static void db_callback(AvahiDomainBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
 
-    g_message("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+    avahi_log_debug("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
 static void stb_callback(AvahiServiceTypeBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
 
-    g_message("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+    avahi_log_debug("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
 static void sb_callback(AvahiServiceBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *name, const gchar *service_type, const gchar *domain, gpointer userdata) {
-   g_message("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+   avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
 
 static void sr_callback(AvahiServiceResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *service_name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
-        g_message("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, service_name, service_type, domain_name);
+        avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, service_name, service_type, domain_name);
     else {
         gchar t[64], *s;
         
         avahi_address_snprint(t, sizeof(t), a);
 
         s = avahi_string_list_to_string(txt);
-        g_message("SR: (%i.%i) <%s> as %s in <%s>: %s/%s:%i (%s) [found]", iface, protocol, service_name, service_type, domain_name, hostname, t, port, s);
+        avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s>: %s/%s:%i (%s) [found]", iface, protocol, service_name, service_type, domain_name, hostname, t, port, s);
         g_free(s);
     }
 }

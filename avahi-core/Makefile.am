@@ -68,7 +68,8 @@ libavahi_core_la_SOURCES = \
 	resolve-service.c \
 	dns.c dns.h \
 	core.h \
-	llist.h
+	llist.h \
+	log.c log.h
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)
 libavahi_core_la_LIBADD = $(AM_LDADD) $(COMMON_LDADD)
 
@@ -98,7 +99,8 @@ avahi_reflector_LDADD = $(AM_LDADD) $(STATIC_COMMON_LDADD)
 
 dns_test_SOURCES = \
 	dns.c dns.h \
-        dns-test.c
+	dns-test.c \
+	log.c log.h
 dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD) $(STATIC_COMMON_LDADD)
 

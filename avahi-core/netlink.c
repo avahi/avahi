@@ -29,6 +29,7 @@
 #include <sys/ioctl.h>
 
 #include "netlink.h"
+#include "log.h"
 
 struct AvahiNetlink {
     GMainContext *context;
@@ -55,14 +56,14 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
             if (errno == EAGAIN || errno == EINTR)
                 break;
 
-            g_warning("NETLINK: recv() failed: %s", strerror(errno));
+            avahi_log_warn("NETLINK: recv() failed: %s", strerror(errno));
             return FALSE;
         }
 
         if (nl->callback) {
             for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
                 if (!NLMSG_OK(p, (size_t) bytes)) {
-                    g_warning("NETLINK: packet truncated");
+                    avahi_log_warn("NETLINK: packet truncated");
                     return FALSE;
                 }
 
@@ -179,7 +180,7 @@ int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, guint *ret_seq) {
     m->nlmsg_flags |= NLM_F_ACK;
 
     if (send(nl->fd, m, m->nlmsg_len, 0) < 0) {
-        g_warning("NETLINK: send(): %s\n", strerror(errno));
+        avahi_log_warn("NETLINK: send(): %s\n", strerror(errno));
         return -1;
     }
 

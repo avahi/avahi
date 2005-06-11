@@ -57,7 +57,7 @@ static void elapse(AvahiTimeEvent *e, void *userdata) {
     if (s->n_query++ <= 8)
         s->sec_delay *= 2;
 
-/*     g_message("%i. Continuous querying for %s", s->n_query, t = avahi_key_to_string(s->key)); */
+/*     avahi_log_debug("%i. Continuous querying for %s", s->n_query, t = avahi_key_to_string(s->key)); */
 /*     g_free(t); */
     
     avahi_elapse_time(&tv, s->sec_delay*1000, 0);

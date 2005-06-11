@@ -27,6 +27,7 @@
 
 #include "browse.h"
 #include "util.h"
+#include "log.h"
 
 struct AvahiServiceBrowser {
     AvahiServer *server;
@@ -79,7 +80,7 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
     return;
 
 fail:
-    g_warning("Invalid service '%s'", n);
+    avahi_log_warn("Invalid service '%s'", n);
     g_free(n);
 }
 

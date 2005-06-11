@@ -107,7 +107,7 @@ void avahi_entry_group_check_probed(AvahiEntryGroup *g, gboolean immediately) {
 static void next_state(AvahiAnnouncement *a) {
     g_assert(a);
 
-/*     g_message("%i -- %u", a->state, a->n_iteration);   */
+/*     avahi_log_debug("%i -- %u", a->state, a->n_iteration);   */
     
     if (a->state == AVAHI_WAITING) {
 
@@ -122,7 +122,7 @@ static void next_state(AvahiAnnouncement *a) {
             
 /*             gchar *t; */
 
-/*             g_message("Enough probes for record [%s]", t = avahi_record_to_string(a->entry->record)); */
+/*             avahi_log_debug("Enough probes for record [%s]", t = avahi_record_to_string(a->entry->record)); */
 /*             g_free(t); */
 
             if (a->entry->group) {
@@ -164,7 +164,7 @@ static void next_state(AvahiAnnouncement *a) {
 /*             gchar *t; */
             /* Announcing done */
 
-/*             g_message("Enough announcements for record [%s]", t = avahi_record_to_string(a->entry->record)); */
+/*             avahi_log_debug("Enough announcements for record [%s]", t = avahi_record_to_string(a->entry->record)); */
 /*             g_free(t); */
 
             a->state = AVAHI_ESTABLISHED;
@@ -246,7 +246,7 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     g_assert(e);
     g_assert(!e->dead);
 
-/*     g_message("NEW ANNOUNCEMENT: %s.%i [%s]", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record)); */
+/*     avahi_log_debug("NEW ANNOUNCEMENT: %s.%i [%s]", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record)); */
 /*     g_free(t); */
     
     if (!avahi_interface_match(i, e->interface, e->protocol) || !i->announcing || !avahi_entry_commited(e))
@@ -267,7 +267,7 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
 
     go_to_initial_state(a, FALSE);
     
-/*     g_message("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
+/*     avahi_log_debug("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
 /*     g_free(t); */
 }
 
@@ -370,7 +370,7 @@ static AvahiRecord *make_goodbye_record(AvahiRecord *r) {
     
     g_assert(r);
 
-/*     g_message("Preparing goodbye for record [%s]", t = avahi_record_to_string(r)); */
+/*     avahi_log_debug("Preparing goodbye for record [%s]", t = avahi_record_to_string(r)); */
 /*     g_free(t); */
 
     g = avahi_record_copy(r);
@@ -407,7 +407,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, gboolean goodbye
     g_assert(s);
     g_assert(i);
 
-/*     g_message("goodbye interface: %s.%u", i->hardware->name, i->protocol); */
+/*     avahi_log_debug("goodbye interface: %s.%u", i->hardware->name, i->protocol); */
 
     if (goodbye && avahi_interface_relevant(i)) {
         AvahiEntry *e;
@@ -420,7 +420,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, gboolean goodbye
     while (i->announcements)
         remove_announcement(s, i->announcements);
 
-/*     g_message("goodbye interface done: %s.%u", i->hardware->name, i->protocol); */
+/*     avahi_log_debug("goodbye interface done: %s.%u", i->hardware->name, i->protocol); */
 
 }
 
@@ -428,7 +428,7 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, gboolean goodbye) {
     g_assert(s);
     g_assert(e);
     
-/*     g_message("goodbye entry: %p", e); */
+/*     avahi_log_debug("goodbye entry: %p", e); */
     
     if (goodbye && !e->dead)
         avahi_interface_monitor_walk(s->monitor, 0, AF_UNSPEC, send_goodbye_callback, e);
@@ -436,7 +436,7 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, gboolean goodbye) {
     while (e->announcements)
         remove_announcement(s, e->announcements);
 
-/*     g_message("goodbye entry done: %p", e); */
+/*     avahi_log_debug("goodbye entry done: %p", e); */
 
 }
 
@@ -445,13 +445,13 @@ void avahi_goodbye_all(AvahiServer *s, gboolean goodbye) {
     
     g_assert(s);
 
-/*     g_message("goodbye all"); */
+/*     avahi_log_debug("goodbye all"); */
 
     for (e = s->entries; e; e = e->entries_next)
         if (!e->dead)
             avahi_goodbye_entry(s, e, goodbye);
 
-/*     g_message("goodbye all done"); */
+/*     avahi_log_debug("goodbye all done"); */
 
 }
 

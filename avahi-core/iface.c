@@ -37,6 +37,7 @@
 #include "socket.h"
 #include "announce.h"
 #include "util.h"
+#include "log.h"
 
 static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, gboolean remove) {
     g_assert(m);
@@ -235,7 +236,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
     b = avahi_interface_relevant(i);
 
     if (b && !i->announcing) {
-        g_message("New relevant interface %s.%i (#%i)", i->hardware->name, i->protocol, i->hardware->index);
+        avahi_log_debug("New relevant interface %s.%i (#%i)", i->hardware->name, i->protocol, i->hardware->index);
 
         if (i->protocol == AF_INET)
             avahi_mdns_mcast_join_ipv4(i->hardware->index, m->server->fd_ipv4);
@@ -246,7 +247,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         avahi_announce_interface(m->server, i);
         avahi_browser_new_interface(m->server, i);
     } else if (!b && i->announcing) {
-        g_message("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
+        avahi_log_debug("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
         if (i->protocol == AF_INET)
             avahi_mdns_mcast_leave_ipv4(i->hardware->index, m->server->fd_ipv4);
@@ -438,19 +439,19 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             m->list = LIST_DONE;
             
             if (netlink_list_items(m->netlink, RTM_GETADDR, &m->query_addr_seq) < 0)
-                g_warning("NETLINK: Failed to list addrs: %s", strerror(errno));
+                avahi_log_warn("NETLINK: Failed to list addrs: %s", strerror(errno));
             else
                 m->list = LIST_ADDR;
         } else {
             m->list = LIST_DONE;
-            g_message("Enumeration complete");
+            avahi_log_debug("Enumeration complete");
         }
         
     } else if (n->nlmsg_type == NLMSG_ERROR && (n->nlmsg_seq == m->query_link_seq || n->nlmsg_seq == m->query_addr_seq)) {
         struct nlmsgerr *e = NLMSG_DATA (n);
                     
         if (e->error)
-            g_warning("NETLINK: Failed to browse: %s", strerror(-e->error));
+            avahi_log_warn("NETLINK: Failed to browse: %s", strerror(-e->error));
     }
 }
 
@@ -544,9 +545,9 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
     g_assert(!a || a->family == i->protocol);
 
 /*     if (a) */
-/*         g_message("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port); */
+/*         avahi_log_debug("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port); */
 /*     else */
-/*         g_message("multicast sending on '%s.%i'", i->hardware->name, i->protocol); */
+/*         avahi_log_debug("multicast sending on '%s.%i'", i->hardware->name, i->protocol); */
     
     if (i->protocol == AF_INET && i->monitor->server->fd_ipv4 >= 0)
         avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, a ? &a->data.ipv4 : NULL, port);
@@ -618,7 +619,7 @@ gboolean avahi_interface_relevant(AvahiInterface *i) {
             break;
         }
 
-/*     g_message("%p. iface-relevant: %i %i %i %i %i %i", i, relevant_address, */
+/*     avahi_log_debug("%p. iface-relevant: %i %i %i %i %i %i", i, relevant_address, */
 /*               (i->hardware->flags & IFF_UP), */
 /*               (i->hardware->flags & IFF_RUNNING), */
 /*               !(i->hardware->flags & IFF_LOOPBACK), */

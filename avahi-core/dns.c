@@ -465,7 +465,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
     g_assert(p);
     g_assert(ret_cache_flush);
 
-/*     g_message("consume_record()"); */
+/*     avahi_log_debug("consume_record()"); */
 
     if (avahi_dns_packet_consume_name(p, name, sizeof(name)) < 0 ||
         avahi_dns_packet_consume_uint16(p, &type) < 0 ||
@@ -475,7 +475,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
         p->rindex + rdlength > p->size)
         goto fail;
 
-/*     g_message("name = %s, rdlength = %u", name, rdlength); */
+/*     avahi_log_debug("name = %s, rdlength = %u", name, rdlength); */
 
     *ret_cache_flush = !!(class & AVAHI_DNS_CACHE_FLUSH);
     class &= ~AVAHI_DNS_CACHE_FLUSH;
@@ -488,7 +488,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
 
-/*             g_message("ptr"); */
+/*             avahi_log_debug("ptr"); */
             
             if (avahi_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
                 goto fail;
@@ -499,7 +499,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
             
         case AVAHI_DNS_TYPE_SRV:
 
-/*             g_message("srv"); */
+/*             avahi_log_debug("srv"); */
             
             if (avahi_dns_packet_consume_uint16(p, &r->data.srv.priority) < 0 ||
                 avahi_dns_packet_consume_uint16(p, &r->data.srv.weight) < 0 ||
@@ -512,7 +512,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
 
         case AVAHI_DNS_TYPE_HINFO:
             
-/*             g_message("hinfo"); */
+/*             avahi_log_debug("hinfo"); */
 
             if (avahi_dns_packet_consume_string(p, buf, sizeof(buf)) < 0)
                 goto fail;
@@ -527,7 +527,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
 
         case AVAHI_DNS_TYPE_TXT:
 
-/*             g_message("txt"); */
+/*             avahi_log_debug("txt"); */
 
             if (rdlength > 0) {
                 r->data.txt.string_list = avahi_string_list_parse(avahi_dns_packet_get_rptr(p), rdlength);
@@ -541,7 +541,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
 
         case AVAHI_DNS_TYPE_A:
 
-/*             g_message("A"); */
+/*             avahi_log_debug("A"); */
 
             if (avahi_dns_packet_consume_bytes(p, &r->data.a.address, sizeof(AvahiIPv4Address)) < 0)
                 goto fail;
@@ -550,7 +550,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
 
         case AVAHI_DNS_TYPE_AAAA:
 
-/*             g_message("aaaa"); */
+/*             avahi_log_debug("aaaa"); */
             
             if (avahi_dns_packet_consume_bytes(p, &r->data.aaaa.address, sizeof(AvahiIPv6Address)) < 0)
                 goto fail;
@@ -559,7 +559,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
             
         default:
 
-/*             g_message("generic"); */
+/*             avahi_log_debug("generic"); */
             
             if (rdlength > 0) {
 
@@ -572,7 +572,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
             break;
     }
 
-/*     g_message("%i == %u ?", (guint8*) avahi_dns_packet_get_rptr(p) - (guint8*) start, rdlength); */
+/*     avahi_log_debug("%i == %u ?", (guint8*) avahi_dns_packet_get_rptr(p) - (guint8*) start, rdlength); */
     
     /* Check if we read enough data */
     if ((guint8*) avahi_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
@@ -678,7 +678,7 @@ guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboole
 
             size = avahi_string_list_serialize(r->data.txt.string_list, NULL, 0);
 
-/*             g_message("appending string: %u %p", size, r->data.txt.string_list); */
+/*             avahi_log_debug("appending string: %u %p", size, r->data.txt.string_list); */
 
             if (!(data = avahi_dns_packet_extend(p, size)))
                 goto fail;
@@ -717,7 +717,7 @@ guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboole
     size = avahi_dns_packet_extend(p, 0) - start;
     g_assert(size <= 0xFFFF);
 
-/*     g_message("appended %u", size); */
+/*     avahi_log_debug("appended %u", size); */
 
     * (guint16*) l = g_htons((guint16) size);
     

@@ -35,6 +35,7 @@
 #include "iface.h"
 #include "socket.h"
 #include "browse.h"
+#include "log.h"
 
 #define AVAHI_HOST_RR_HOLDOFF_MSEC 2000
 
@@ -161,7 +162,7 @@ void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, 
     g_assert(i);
     g_assert(k);
 
-/*     g_message("Posting responses matching [%s]", txt = avahi_key_to_string(k)); */
+/*     avahi_log_debug("Posting responses matching [%s]", txt = avahi_key_to_string(k)); */
 /*     g_free(txt); */
 
     if (avahi_key_is_pattern(k)) {
@@ -248,9 +249,9 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     if (!ours) {
 
         if (won)
-            g_message("xxx Recieved conflicting probe [%s]. Local host won.", t);
+            avahi_log_debug("xxx Recieved conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            g_message("yyy Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
+            avahi_log_debug("yyy Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
             withdraw_rrset(s, record->key);
         }
     }
@@ -267,7 +268,7 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
     g_assert(record);
 
 
-/*     g_message("CHECKING FOR CONFLICT: [%s]", t);   */
+/*     avahi_log_debug("CHECKING FOR CONFLICT: [%s]", t);   */
 
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
@@ -287,7 +288,7 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
                 /* Refresh */
                 t = avahi_record_to_string(record); 
                 
-                g_message("Recieved record with bad TTL [%s]. Refreshing.", t);
+                avahi_log_debug("Recieved record with bad TTL [%s]. Refreshing.", t);
                 avahi_server_prepare_matching_responses(s, i, e->record->key, FALSE);
                 valid = FALSE;
                 
@@ -316,7 +317,7 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
         }
     }
 
-/*     g_message("ours=%i conflict=%i", ours, conflict); */
+/*     avahi_log_debug("ours=%i conflict=%i", ours, conflict); */
 
     if (!ours && conflict) {
         gchar *t;
@@ -326,11 +327,11 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
         t = avahi_record_to_string(record); 
  
         if (withdraw_immediately) {
-            g_message("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
+            avahi_log_debug("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
             withdraw_rrset(s, record->key);
         } else {
             g_assert(conflicting_entry);
-            g_message("Recieved conflicting record [%s]. Resetting our record.", t);
+            avahi_log_debug("Recieved conflicting record [%s]. Resetting our record.", t);
             avahi_entry_return_to_initial_state(s, conflicting_entry, i);
 
             /* Local unique records are returned to probin
@@ -380,7 +381,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                 avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
             else {
                 gchar *t = avahi_record_to_string(r);
-                g_warning("Record [%s] not fitting in legacy unicast packet, dropping.", t);
+                avahi_log_warn("Record [%s] not fitting in legacy unicast packet, dropping.", t);
                 g_free(t);
             }
 
@@ -444,7 +445,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                             avahi_dns_packet_free(reply);
                             
                             gchar *t = avahi_record_to_string(r);
-                            g_warning("Record [%s] too large, doesn't fit in any packet!", t);
+                            avahi_log_warn("Record [%s] too large, doesn't fit in any packet!", t);
                             g_free(t);
                             break;
                         } else
@@ -544,7 +545,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
     g_assert(i);
     g_assert(a);
 
-/*     g_message("query"); */
+/*     avahi_log_debug("query"); */
 
     g_assert(avahi_record_list_empty(s->record_list));
     
@@ -554,7 +555,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
         gboolean unicast_response = FALSE;
 
         if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
-            g_warning("Packet too short (1)");
+            avahi_log_warn("Packet too short (1)");
             goto fail;
         }
 
@@ -571,7 +572,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
         gboolean unique = FALSE;
 
         if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-            g_warning("Packet too short (2)");
+            avahi_log_warn("Packet too short (2)");
             goto fail;
         }
 
@@ -589,7 +590,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
         gboolean unique = FALSE;
 
         if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-            g_warning("Packet too short (3)");
+            avahi_log_warn("Packet too short (3)");
             goto fail;
         }
 
@@ -619,7 +620,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
     g_assert(i);
     g_assert(a);
 
-/*     g_message("response"); */
+/*     avahi_log_debug("response"); */
     
     for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) +
              avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT); n > 0; n--) {
@@ -628,13 +629,13 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 /*         gchar *txt; */
         
         if (!(record = avahi_dns_packet_consume_record(p, &cache_flush))) {
-            g_warning("Packet too short (4)");
+            avahi_log_warn("Packet too short (4)");
             break;
         }
 
         if (record->key->type != AVAHI_DNS_TYPE_ANY) {
 
-/*             g_message("Handling response: %s", txt = avahi_record_to_string(record)); */
+/*             avahi_log_debug("Handling response: %s", txt = avahi_record_to_string(record)); */
 /*             g_free(txt); */
             
             if (handle_conflict(s, i, record, cache_flush, a)) {
@@ -744,7 +745,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     if (!s->config.enable_reflector)
         return;
 
-/*     g_message("legacy unicast reflectr"); */
+/*     avahi_log_debug("legacy unicast reflectr"); */
     
     /* Reflecting legacy unicast queries is a little more complicated
        than reflecting normal queries, since we must route the
@@ -756,7 +757,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
 
     if (!(slot = allocate_slot(s))) {
         /* No slot available, we drop this legacy unicast query */
-        g_warning("No slot available for legacy unicast reflection, dropping query packet.");
+        avahi_log_warn("No slot available for legacy unicast reflection, dropping query packet.");
         return;
     }
 
@@ -804,7 +805,7 @@ static gboolean originates_from_local_legacy_unicast_socket(AvahiServer *s, cons
         socklen_t l = sizeof(lsa);
         
         if (getsockname(s->fd_legacy_unicast_ipv4, &lsa, &l) != 0)
-            g_warning("getsockname(): %s", strerror(errno));
+            avahi_log_warn("getsockname(): %s", strerror(errno));
         else
             return lsa.sin_port == ((struct sockaddr_in*) sa)->sin_port;
 
@@ -815,7 +816,7 @@ static gboolean originates_from_local_legacy_unicast_socket(AvahiServer *s, cons
         socklen_t l = sizeof(lsa);
 
         if (getsockname(s->fd_legacy_unicast_ipv6, &lsa, &l) != 0)
-            g_warning("getsockname(): %s", strerror(errno));
+            avahi_log_warn("getsockname(): %s", strerror(errno));
         else
             return lsa.sin6_port == ((struct sockaddr_in6*) sa)->sin6_port;
     }
@@ -835,11 +836,11 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
         !avahi_interface_relevant(i)) {
-        g_warning("Recieved packet from invalid interface.");
+        avahi_log_warn("Recieved packet from invalid interface.");
         return;
     }
 
-/*     g_message("new packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
+/*     avahi_log_debug("new packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
 
     port = avahi_port_from_sockaddr(sa);
     avahi_address_from_sockaddr(sa, &a);
@@ -853,7 +854,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         return;
 
     if (avahi_dns_packet_check_valid(p) < 0) {
-        g_warning("Recieved invalid packet.");
+        avahi_log_warn("Recieved invalid packet.");
         return;
     }
 
@@ -861,7 +862,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         gboolean legacy_unicast = FALSE;
 
         if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT) != 0) {
-            g_warning("Invalid query packet.");
+            avahi_log_warn("Invalid query packet.");
             return;
         }
 
@@ -870,7 +871,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
 
             if ((avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) != 0 ||
                  avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) != 0)) {
-                g_warning("Invalid legacy unicast query packet.");
+                avahi_log_warn("Invalid legacy unicast query packet.");
                 return;
             }
         
@@ -882,16 +883,16 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         
         handle_query_packet(s, p, i, &a, port, legacy_unicast);
         
-/*         g_message("Handled query"); */
+/*         avahi_log_debug("Handled query"); */
     } else {
 
         if (port != AVAHI_MDNS_PORT) {
-            g_warning("Recieved repsonse with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
+            avahi_log_warn("Recieved repsonse with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
             return;
         }
 
         if (ttl != 255) {
-            g_warning("Recieved response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
+            avahi_log_warn("Recieved response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
             if (s->config.check_response_ttl)
                 return;
         }
@@ -899,12 +900,12 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT) != 0 ||
             avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0 ||
             avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) != 0) {
-            g_warning("Invalid response packet.");
+            avahi_log_warn("Invalid response packet.");
             return;
         }
 
         handle_response_packet(s, p, i, &a);
-/*         g_message("Handled response"); */
+/*         avahi_log_debug("Handled response"); */
     }
 }
 
@@ -921,11 +922,11 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
         !avahi_interface_relevant(i)) {
-        g_warning("Recieved packet from invalid interface.");
+        avahi_log_warn("Recieved packet from invalid interface.");
         return;
     }
 
-/*     g_message("new legacy unicast packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
+/*     avahi_log_debug("new legacy unicast packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
 
     port = avahi_port_from_sockaddr(sa);
     avahi_address_from_sockaddr(sa, &a);
@@ -935,12 +936,12 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
         return;
 
     if (avahi_dns_packet_check_valid(p) < 0 || avahi_dns_packet_is_query(p)) {
-        g_warning("Recieved invalid packet.");
+        avahi_log_warn("Recieved invalid packet.");
         return;
     }
 
     if (!(slot = find_slot(s, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID)))) {
-        g_warning("Recieved legacy unicast response with unknown id");
+        avahi_log_warn("Recieved legacy unicast response with unknown id");
         return;
     }
 
@@ -1267,9 +1268,9 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     }
 
     if (s->fd_ipv4 < 0 && s->config.use_ipv4)
-        g_message("Failed to create IPv4 socket, proceeding in IPv6 only mode");
+        avahi_log_debug("Failed to create IPv4 socket, proceeding in IPv6 only mode");
     else if (s->fd_ipv6 < 0 && s->config.use_ipv6)
-        g_message("Failed to create IPv6 socket, proceeding in IPv4 only mode");
+        avahi_log_debug("Failed to create IPv6 socket, proceeding in IPv4 only mode");
 
     s->fd_legacy_unicast_ipv4 = s->fd_ipv4 >= 0 && s->config.enable_reflector ? avahi_open_legacy_unicast_socket_ipv4() : -1;
     s->fd_legacy_unicast_ipv6 = s->fd_ipv6 >= 0 && s->config.enable_reflector ? avahi_open_legacy_unicast_socket_ipv6() : -1;

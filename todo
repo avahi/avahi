@@ -36,3 +36,4 @@ done:
 * enlarge packet in case a record/query is too large to fit in a normal packet
 * reflector
 * test against apple test suite
+* sensible logging

@@ -25,6 +25,7 @@
 
 #include "probe-sched.h"
 #include "util.h"
+#include "log.h"
 
 #define AVAHI_PROBE_HISTORY_MSEC 150
 #define AVAHI_PROBE_DEFER_MSEC 50
@@ -246,7 +247,7 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
             avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_QDCOUNT, 1);
             avahi_interface_send_packet(s->interface, p);
         } else
-            g_warning("Probe record too large, cannot send");   
+            avahi_log_warn("Probe record too large, cannot send");   
         
         avahi_dns_packet_free(p);
         job_mark_done(s, pj);
@@ -279,7 +280,7 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
             continue;
 
         if (!avahi_dns_packet_append_record(p, pj->record, FALSE, 0)) {
-            g_warning("Bad probe size estimate!");
+            avahi_log_warn("Bad probe size estimate!");
 
             /* Unmark all following jobs */
             for (; pj; pj = pj->jobs_next)
@@ -370,7 +371,7 @@ gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record,
         pj->time_event = avahi_time_event_queue_add(s->time_event_queue, &pj->delivery, elapse_callback, pj);
 
         
-/*     g_message("Accepted new probe job."); */
+/*     avahi_log_debug("Accepted new probe job."); */
 
         return TRUE;
     }

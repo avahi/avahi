@@ -25,6 +25,7 @@
 
 #include "dns.h"
 #include "util.h"
+#include "log.h"
 
 int main(int argc, char *argv[]) {
     gchar t[256], *a, *b, *c, *d;
@@ -40,19 +41,19 @@ int main(int argc, char *argv[]) {
     avahi_hexdump(AVAHI_DNS_PACKET_DATA(p), p->size);
 
     avahi_dns_packet_consume_name(p, t, sizeof(t));
-    g_message(">%s<", t);
+    avahi_log_debug(">%s<", t);
     g_assert(avahi_domain_equal(a, t));
     
     avahi_dns_packet_consume_name(p, t, sizeof(t));
-    g_message(">%s<", t);
+    avahi_log_debug(">%s<", t);
     g_assert(avahi_domain_equal(b, t));
 
     avahi_dns_packet_consume_name(p, t, sizeof(t));
-    g_message(">%s<", t);
+    avahi_log_debug(">%s<", t);
     g_assert(avahi_domain_equal(c, t));
 
     avahi_dns_packet_consume_name(p, t, sizeof(t));
-    g_message(">%s<", t);
+    avahi_log_debug(">%s<", t);
     g_assert(avahi_domain_equal(d, t));
     
     avahi_dns_packet_free(p);

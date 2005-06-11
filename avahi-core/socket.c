@@ -39,6 +39,7 @@
 #include "dns.h"
 #include "util.h"
 #include "socket.h"
+#include "log.h"
 
 static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     g_assert(ret_sa);
@@ -94,7 +95,7 @@ int avahi_mdns_mcast_join_ipv4 (int index, int fd) {
     mreq.imr_ifindex = index;
  
     if (setsockopt(fd, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        g_warning("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
         return -1;
     } 
 
@@ -112,7 +113,7 @@ int avahi_mdns_mcast_join_ipv6 (int index, int fd) {
     mreq6.ipv6mr_interface = index;
 
     if (setsockopt(fd, SOL_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
-        g_warning("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
         return -1;
     }
 
@@ -130,7 +131,7 @@ int avahi_mdns_mcast_leave_ipv4 (int index, int fd) {
     mreq.imr_ifindex = index;
  
     if (setsockopt(fd, SOL_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        g_warning("IP_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
         return -1;
     }
 
@@ -148,7 +149,7 @@ int avahi_mdns_mcast_leave_ipv6 (int index, int fd) {
     mreq6.ipv6mr_interface = index;
 
     if (setsockopt(fd, SOL_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
-        g_warning("IPV6_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
         return -1;
     }
 
@@ -160,31 +161,31 @@ gint avahi_open_socket_ipv4(void) {
     int fd = -1, ttl, yes;
         
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        g_warning("socket() failed: %s\n", strerror(errno));
+        avahi_log_warn("socket() failed: %s\n", strerror(errno));
         goto fail;
     }
     
     ttl = 255;
     if (setsockopt(fd, SOL_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)) < 0) {
-        g_warning("IP_MULTICAST_TTL failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_MULTICAST_TTL failed: %s\n", strerror(errno));
         goto fail;
     }
 
     ttl = 255;
     if (setsockopt(fd, SOL_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
-        g_warning("IP_TTL failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_TTL failed: %s\n", strerror(errno));
         goto fail;
     }
     
     yes = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-        g_warning("SO_REUSEADDR failed: %s\n", strerror(errno));
+        avahi_log_warn("SO_REUSEADDR failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_MULTICAST_LOOP, &yes, sizeof(yes)) < 0) {
-        g_warning("IP_MULTICAST_LOOP failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_MULTICAST_LOOP failed: %s\n", strerror(errno));
         goto fail;
     }
 
@@ -194,29 +195,29 @@ gint avahi_open_socket_ipv4(void) {
     local.sin_port = htons(AVAHI_MDNS_PORT);
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-        g_warning("bind() failed: %s\n", strerror(errno));
+        avahi_log_warn("bind() failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
-        g_warning("IP_RECVTTL failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_RECVTTL failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
-        g_warning("IP_PKTINFO failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_cloexec(fd) < 0) {
-        g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
+        avahi_log_warn("FD_CLOEXEC failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_nonblock(fd) < 0) {
-        g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
+        avahi_log_warn("O_NONBLOCK failed: %s\n", strerror(errno));
         goto fail;
     }
 
@@ -236,37 +237,37 @@ gint avahi_open_socket_ipv6(void) {
     mdns_mcast_group_ipv6(&sa);
         
     if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
-        g_warning("socket() failed: %s\n", strerror(errno));
+        avahi_log_warn("socket() failed: %s\n", strerror(errno));
         goto fail;
     }
     
     ttl = 255;
     if (setsockopt(fd, SOL_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
-        g_warning("IPV6_MULTICAST_HOPS failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_MULTICAST_HOPS failed: %s\n", strerror(errno));
         goto fail;
     }
 
     ttl = 255;
     if (setsockopt(fd, SOL_IPV6, IPV6_UNICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
-        g_warning("IPV6_UNICAST_HOPS failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_UNICAST_HOPS failed: %s\n", strerror(errno));
         goto fail;
     }
     
     yes = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-        g_warning("SO_REUSEADDR failed: %s\n", strerror(errno));
+        avahi_log_warn("SO_REUSEADDR failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_V6ONLY, &yes, sizeof(yes)) < 0) {
-        g_warning("IPV6_V6ONLY failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_V6ONLY failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_MULTICAST_LOOP, &yes, sizeof(yes)) < 0) {
-        g_warning("IPV6_MULTICAST_LOOP failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_MULTICAST_LOOP failed: %s\n", strerror(errno));
         goto fail;
     }
 
@@ -275,29 +276,29 @@ gint avahi_open_socket_ipv6(void) {
     local.sin6_port = htons(AVAHI_MDNS_PORT);
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-        g_warning("bind() failed: %s\n", strerror(errno));
+        avahi_log_warn("bind() failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
-        g_warning("IPV6_HOPLIMIT failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_HOPLIMIT failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
-        g_warning("IPV6_PKTINFO failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_cloexec(fd) < 0) {
-        g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
+        avahi_log_warn("FD_CLOEXEC failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_nonblock(fd) < 0) {
-        g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
+        avahi_log_warn("O_NONBLOCK failed: %s\n", strerror(errno));
         goto fail;
     }
 
@@ -320,7 +321,7 @@ static gint sendmsg_loop(gint fd, struct msghdr *msg, gint flags) {
             break;
         
         if (errno != EAGAIN) {
-            g_message("sendmsg() failed: %s\n", strerror(errno));
+            avahi_log_debug("sendmsg() failed: %s\n", strerror(errno));
             return -1;
         }
         
@@ -432,7 +433,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     g_assert(ret_ttl);
 
     if (ioctl(fd, FIONREAD, &ms) < 0) {
-        g_warning("ioctl(): %s", strerror(errno));
+        avahi_log_warn("ioctl(): %s", strerror(errno));
         goto fail;
     }
 
@@ -451,7 +452,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     msg.msg_flags = 0;
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
-        g_warning("recvmsg(): %s", strerror(errno));
+        avahi_log_warn("recvmsg(): %s", strerror(errno));
         goto fail;
     }
 
@@ -488,7 +489,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
         }
     }
 
-/*     g_message("ttl=%u iface=%i", *ret_ttl, *ret_iface); */
+/*     avahi_log_debug("ttl=%u iface=%i", *ret_ttl, *ret_iface); */
 
     g_assert(found_iface);
     g_assert(found_ttl);
@@ -519,7 +520,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
     g_assert(ret_ttl);
 
     if (ioctl(fd, FIONREAD, &ms) < 0) {
-        g_warning("ioctl(): %s", strerror(errno));
+        avahi_log_warn("ioctl(): %s", strerror(errno));
         goto fail;
     }
     
@@ -538,7 +539,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
     msg.msg_flags = 0;
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
-        g_warning("recvmsg(): %s", strerror(errno));
+        avahi_log_warn("recvmsg(): %s", strerror(errno));
         goto fail;
     }
 
@@ -575,7 +576,7 @@ gint avahi_open_legacy_unicast_socket_ipv4(void) {
     int fd = -1, yes;
         
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        g_warning("socket() failed: %s\n", strerror(errno));
+        avahi_log_warn("socket() failed: %s\n", strerror(errno));
         goto fail;
     }
     
@@ -583,29 +584,29 @@ gint avahi_open_legacy_unicast_socket_ipv4(void) {
     local.sin_family = AF_INET;
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-        g_warning("bind() failed: %s\n", strerror(errno));
+        avahi_log_warn("bind() failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
-        g_warning("IP_RECVTTL failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_RECVTTL failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
-        g_warning("IP_PKTINFO failed: %s\n", strerror(errno));
+        avahi_log_warn("IP_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_cloexec(fd) < 0) {
-        g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
+        avahi_log_warn("FD_CLOEXEC failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_nonblock(fd) < 0) {
-        g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
+        avahi_log_warn("O_NONBLOCK failed: %s\n", strerror(errno));
         goto fail;
     }
 
@@ -623,7 +624,7 @@ gint avahi_open_legacy_unicast_socket_ipv6(void) {
     int fd = -1, yes;
         
     if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
-        g_warning("socket() failed: %s\n", strerror(errno));
+        avahi_log_warn("socket() failed: %s\n", strerror(errno));
         goto fail;
     }
     
@@ -631,29 +632,29 @@ gint avahi_open_legacy_unicast_socket_ipv6(void) {
     local.sin_family = AF_INET;
     
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-        g_warning("bind() failed: %s\n", strerror(errno));
+        avahi_log_warn("bind() failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
-        g_warning("IPV6_HOPLIMIT failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_HOPLIMIT failed: %s\n", strerror(errno));
         goto fail;
     }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
-        g_warning("IPV6_PKTINFO failed: %s\n", strerror(errno));
+        avahi_log_warn("IPV6_PKTINFO failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_cloexec(fd) < 0) {
-        g_warning("FD_CLOEXEC failed: %s\n", strerror(errno));
+        avahi_log_warn("FD_CLOEXEC failed: %s\n", strerror(errno));
         goto fail;
     }
     
     if (avahi_set_nonblock(fd) < 0) {
-        g_warning("O_NONBLOCK failed: %s\n", strerror(errno));
+        avahi_log_warn("O_NONBLOCK failed: %s\n", strerror(errno));
         goto fail;
     }
 

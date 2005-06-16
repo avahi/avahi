@@ -29,9 +29,12 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
+#include "main.h"
 #include "simple-protocol.h"
 
 #define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
+
+AvahiServer *avahi_server = NULL;
 
 static DBusHandlerResult
 do_register (DBusConnection *conn, DBusMessage *message)
@@ -112,12 +115,30 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
 
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
-                
+
+static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
+    g_assert(s);
+
+    if (state == AVAHI_SERVER_RUNNING)
+        g_message("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
+    else if (state == AVAHI_SERVER_COLLISION) {
+        gchar *n;
+        n = avahi_alternative_host_name(avahi_server_get_host_name(s));
+        g_message("Host name conflict, retrying with <%s>", n);
+        avahi_server_set_host_name(s, n);
+        g_free(n);
+    }
+}
+
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     DBusConnection *bus = NULL;
     DBusError error;
-    gint r = -1;
+    gint r = 255;
+    AvahiServer *server = NULL;
+    AvahiServerConfig config;
+
+    avahi_server_config_init(&config);
 
     loop = g_main_loop_new(NULL, FALSE);
 
@@ -162,6 +183,9 @@ int main(int argc, char *argv[]) {
     if (simple_protocol_setup(NULL) < 0)
         goto finish;
 
+    if (!(avahi_server = avahi_server_new(NULL, &config, server_callback, NULL)))
+        goto finish;
+
     g_main_loop_run(loop);
 
     r = 0;
@@ -175,8 +199,13 @@ finish:
         dbus_connection_unref(bus);
     }
 
+    if (avahi_server)
+        avahi_server_free(avahi_server);
+    
     if (loop)
         g_main_loop_unref(loop);
+
+    avahi_server_config_free(&config);
 
     return r;
 }

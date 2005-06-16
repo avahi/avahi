@@ -115,10 +115,20 @@ AvahiAddress *avahi_address_parse(const char *s, guchar family, AvahiAddress *re
     g_assert(ret_addr);
     g_assert(s);
 
-    if (inet_pton(family, s, ret_addr->data.data) < 0)
-        return NULL;
-
-    ret_addr->family = family;
+    if (family == AF_UNSPEC) {
+        if (inet_pton(AF_INET, s, ret_addr->data.data) <= 0) {
+            if (inet_pton(AF_INET6, s, ret_addr->data.data) <= 0)
+                return NULL;
+            else
+                ret_addr->family = AF_INET6;
+        } else
+            ret_addr->family = AF_INET;
+    } else {
+        if (inet_pton(family, s, ret_addr->data.data) <= 0)
+            return NULL;
+        
+        ret_addr->family = family;
+    }
     
     return ret_addr;
 }

@@ -36,6 +36,7 @@
 #include <avahi-core/llist.h>
 
 #include "simple-protocol.h"
+#include "main.h"
 
 #define BUFFER_SIZE (10*1024)
 
@@ -47,14 +48,26 @@
 typedef struct Client Client;
 typedef struct Server Server;
 
+typedef enum {
+    CLIENT_IDLE,
+    CLIENT_RESOLVE_HOSTNAME,
+    CLIENT_RESOLVE_ADDRESS,
+    CLIENT_DEAD
+} ClientState;
+
 struct Client {
     Server *server;
+
+    ClientState state;
     
     gint fd;
     GPollFD poll_fd;
 
     gchar inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     guint inbuf_length, outbuf_length;
+
+    AvahiHostNameResolver *host_name_resolver;
+    AvahiAddressResolver *address_resolver;
     
     AVAHI_LLIST_FIELDS(Client, clients);
 };
@@ -76,6 +89,12 @@ static void client_free(Client *c) {
 
     g_assert(c->server->n_clients >= 1);
     c->server->n_clients--;
+
+    if (c->host_name_resolver)
+        avahi_host_name_resolver_free(c->host_name_resolver);
+
+    if (c->address_resolver)
+        avahi_address_resolver_free(c->address_resolver);
     
     g_source_remove_poll(&c->server->source, &c->poll_fd);
     close(c->fd);
@@ -91,8 +110,12 @@ static void client_new(Server *s, int fd) {
     c = g_new(Client, 1);
     c->server = s;
     c->fd = fd;
+    c->state = CLIENT_IDLE;
 
     c->inbuf_length = c->outbuf_length = 0;
+
+    c->host_name_resolver = NULL;
+    c->address_resolver = NULL;
 
     memset(&c->poll_fd, 0, sizeof(GPollFD));
     c->poll_fd.fd = fd;
@@ -117,16 +140,101 @@ static void client_output(Client *c, const guint8*data, guint size) {
 
     memcpy(c->outbuf + c->outbuf_length, data, m);
     c->outbuf_length += m;
+
+    c->poll_fd.events |= G_IO_OUT;
+}
+
+static void client_output_printf(Client *c, gchar *format, ...) {
+    gchar txt[256];
+    va_list ap;
+    
+    va_start(ap, format);
+    vsnprintf(txt, sizeof(txt), format, ap);
+    va_end(ap);
+
+    client_output(c, (guint8*) txt, strlen(txt));
+}
+
+static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
+    Client *c = userdata;
+    
+    g_assert(c);
+
+
+    if (event == AVAHI_RESOLVER_TIMEOUT)
+        client_output_printf(c, "- Query timed out\n");
+    else {
+        gchar t[64];
+        avahi_address_snprint(t, sizeof(t), a);
+        client_output_printf(c, "+ %s\n", t);
+    }
+
+    c->state = CLIENT_DEAD;
+}
+
+static void address_resolver_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
+    Client *c = userdata;
+    
+    g_assert(c);
+
+    if (event == AVAHI_RESOLVER_TIMEOUT)
+        client_output_printf(c, "- Query timed out\n");
+    else 
+        client_output_printf(c, "+ %s\n", hostname);
+
+    c->state = CLIENT_DEAD;
 }
 
 static void handle_line(Client *c, const gchar *s) {
-    gchar t[256];
+    gchar cmd[64], arg[64];
+    gint n_args;
 
     g_assert(c);
     g_assert(s);
 
-    snprintf(t, sizeof(t), "you said <%s>\n", s);
-    client_output(c, (guint8*) t, strlen(t));
+    if (c->state != CLIENT_IDLE)
+        return;
+
+    if ((n_args = sscanf(s, "%63s %63s", cmd, arg)) < 1 ) {
+        client_output_printf(c, "- Failed to parse command, try \"HELP\".\n");
+        c->state = CLIENT_DEAD;
+        return;
+    }
+
+    if (strcmp(cmd, "HELP") == 0) {
+        client_output_printf(c,
+                             "+ Available commands are:\n"
+                             "+      RESOLVE-HOSTNAME <hostname>\n"
+                             "+      RESOLVE-HOSTNAME-IPV6 <hostname>\n"
+                             "+      RESOLVE-HOSTNAME-IPV4 <hostname>\n"
+                             "+      RESOLVE-ADDRESS <address>\n");
+        c->state = CLIENT_DEAD; }
+    else if (strcmp(cmd, "FUCK") == 0 && n_args == 1) {
+        client_output_printf(c, "FUCK: Go fuck yourself!\n");
+        c->state = CLIENT_DEAD;
+    } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV4") == 0 && n_args == 2) {
+        c->state = CLIENT_RESOLVE_HOSTNAME;
+        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, AF_INET, host_name_resolver_callback, c);
+    } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
+        c->state = CLIENT_RESOLVE_HOSTNAME;
+        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, AF_INET6, host_name_resolver_callback, c);
+    } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
+        c->state = CLIENT_RESOLVE_HOSTNAME;
+        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, AF_UNSPEC, host_name_resolver_callback, c);
+    } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
+        AvahiAddress addr;
+        
+        if (!(avahi_address_parse(arg, AF_UNSPEC, &addr))) {
+            client_output_printf(c, "- Failed to parse address \"%s\".\n", arg);
+            c->state = CLIENT_DEAD;
+        } else {
+            c->state = CLIENT_RESOLVE_ADDRESS;
+            c->address_resolver = avahi_address_resolver_new(avahi_server, -1, AF_UNSPEC, &addr, address_resolver_callback, c);
+        }
+    } else {
+        client_output_printf(c, "- Invalid command \"%s\", try \"HELP\".\n", cmd);
+        c->state = CLIENT_DEAD;
+    }
 }
 
 static void handle_input(Client *c) {
@@ -181,6 +289,11 @@ static void client_work(Client *c) {
         
         if (c->outbuf_length)
             memmove(c->outbuf, c->outbuf + r, c->outbuf_length - r);
+
+        if (c->outbuf_length == 0 && c->state == CLIENT_DEAD) {
+            client_free(c);
+            return;
+        }
     }
 
     c->poll_fd.events =

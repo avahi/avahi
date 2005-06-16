@@ -125,7 +125,6 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint in
     r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
 
     AVAHI_LLIST_PREPEND(AvahiHostNameResolver, resolver, server->host_name_resolvers, r);
-
     
     if (aprotocol == AF_INET || aprotocol == AF_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);

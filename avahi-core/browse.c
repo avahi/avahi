@@ -40,6 +40,7 @@ struct AvahiRecordBrowser {
 
     AvahiRecordBrowserCallback callback;
     gpointer userdata;
+    guint scan_idle_source;
 
     AVAHI_LLIST_FIELDS(AvahiRecordBrowser, browser);
     AVAHI_LLIST_FIELDS(AvahiRecordBrowser, by_key);
@@ -102,6 +103,17 @@ static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
     avahi_cache_walk(i->cache, s->key, scan_cache_callback, &cbdata);
 }
 
+gboolean scan_idle_callback(gpointer data) {
+    AvahiRecordBrowser *b = data;
+    g_assert(b);
+
+    /* Scan the caches */
+    avahi_interface_monitor_walk(b->server->monitor, b->interface, b->protocol, scan_interface_callback, b);
+    b->scan_idle_source = (guint) -1;
+
+    return FALSE;
+}
+
 AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata) {
     AvahiRecordBrowser *b, *t;
     GTimeVal tv;
@@ -135,9 +147,8 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface
     AVAHI_LLIST_PREPEND(AvahiRecordBrowser, by_key, t, b);
     g_hash_table_replace(server->record_browser_hashtable, key, t);
 
-    /* Scan the caches */
-    avahi_interface_monitor_walk(b->server->monitor, b->interface, b->protocol, scan_interface_callback, b);
-    
+    /* The currenlty cached entries are scanned a bit later */
+    b->scan_idle_source = g_idle_add_full(G_PRIORITY_HIGH, scan_idle_callback, b, NULL);
     return b;
 }
 
@@ -151,6 +162,12 @@ void avahi_record_browser_free(AvahiRecordBrowser *b) {
     if (b->time_event) {
         avahi_time_event_queue_remove(b->server->time_event_queue, b->time_event);
         b->time_event = NULL;
+
+        if (b->scan_idle_source != (guint) -1) {
+            g_source_remove(b->scan_idle_source);
+            b->scan_idle_source = (guint) -1;
+        }
+
     }
 }
 
@@ -171,6 +188,9 @@ void avahi_record_browser_destroy(AvahiRecordBrowser *b) {
     if (b->time_event)
         avahi_time_event_queue_remove(b->server->time_event_queue, b->time_event);
     avahi_key_unref(b->key);
+
+    if (b->scan_idle_source != (guint) -1)
+        g_source_remove(b->scan_idle_source);
     
     g_free(b);
 }

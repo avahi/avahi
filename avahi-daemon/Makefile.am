@@ -1,4 +1,4 @@
-# $Id: Makefile.am 52 2005-05-06 16:23:30Z lennart $
+# $Id$
 #
 # This file is part of avahi.
 # 
@@ -35,7 +35,8 @@ bin_PROGRAMS = \
 	avahi
 
 avahi_SOURCES = \
-	main.c
+	main.c \
+	simple-protocol.c
 
 avahi_CFLAGS = $(AM_CFLAGS)
 avahi_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la

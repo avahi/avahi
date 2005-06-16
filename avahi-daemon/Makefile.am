@@ -17,11 +17,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE
+AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE -DAVAHI_SERVICE_DIRECTORY=\"`pwd`\"
+AM_LDADD=-lexpat
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
+AM_LDADD+=$(GLIB20_LIBS)
 
 # DBUS
 AM_CFLAGS+=$(DBUS_CFLAGS)
@@ -35,9 +36,13 @@ bin_PROGRAMS = \
 	avahi
 
 avahi_SOURCES = \
-	main.c \
-	simple-protocol.c
+	main.c main.h \
+	simple-protocol.c simple-protocol.h \
+	static-services.c static-services.h
 
 avahi_CFLAGS = $(AM_CFLAGS)
 avahi_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 endif
+
+xmllint:
+	xmllint --noout --valid example.service

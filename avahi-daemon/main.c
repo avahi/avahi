@@ -31,6 +31,7 @@
 
 #include "main.h"
 #include "simple-protocol.h"
+#include "static-services.h"
 
 #define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
 
@@ -119,10 +120,14 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
     g_assert(s);
 
-    if (state == AVAHI_SERVER_RUNNING)
+    if (state == AVAHI_SERVER_RUNNING) {
         g_message("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
-    else if (state == AVAHI_SERVER_COLLISION) {
+        static_service_add_to_server();
+    } else if (state == AVAHI_SERVER_COLLISION) {
         gchar *n;
+
+        static_service_remove_from_server();
+        
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
         g_message("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
@@ -135,7 +140,6 @@ int main(int argc, char *argv[]) {
     DBusConnection *bus = NULL;
     DBusError error;
     gint r = 255;
-    AvahiServer *server = NULL;
     AvahiServerConfig config;
 
     avahi_server_config_init(&config);
@@ -186,12 +190,17 @@ int main(int argc, char *argv[]) {
     if (!(avahi_server = avahi_server_new(NULL, &config, server_callback, NULL)))
         goto finish;
 
+    static_service_load();
+
     g_main_loop_run(loop);
 
     r = 0;
     
 finish:
 
+    static_service_remove_from_server();
+    static_service_free_all();
+    
     simple_protocol_shutdown();
 
     if (bus) {

@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+
+  <!-- $Id -->
+
+  <name replace-wildcards="yes">Remote Terminal on %h</name>
+
+  <service>
+    <type>_ssh._tcp</type>
+<!--     <domain-name>local</domain-name> -->
+<!--     <host-name>gurki.local</host-name>  -->
+    <port>22</port>
+    <txt-record>foo=gaga</txt-record>
+  </service>
+
+  <service>
+    <type>_telnet._tcp</type>
+<!--    <domain-name>local</domain-name>
+    <host-name>gurki.local</host-name> -->
+    <port>23</port>
+    <txt-record>foo=bar</txt-record>
+  </service>
+
+</service-group>

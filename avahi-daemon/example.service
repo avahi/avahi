@@ -2,7 +2,7 @@
 <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
 <service-group>
 
-  <!-- $Id -->
+  <!-- $Id$ -->
 
   <name replace-wildcards="yes">Remote Terminal on %h</name>
 

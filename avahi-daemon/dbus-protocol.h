@@ -22,6 +22,8 @@
   USA.
 ***/
 
+#define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
+
 int dbus_protocol_setup ();
 int dbus_protocol_shutdown ();
 

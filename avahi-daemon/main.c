@@ -29,8 +29,6 @@
 #include "simple-protocol.h"
 #include "static-services.h"
 
-#define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
-
 AvahiServer *avahi_server = NULL;
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {

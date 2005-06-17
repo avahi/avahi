@@ -217,7 +217,7 @@ static void service_resolver_callback(AvahiServiceResolver *r, gint interface, g
     }
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
-        gtk_label_set_text(info_label, "<i>Failed to resolve.</i>");
+        gtk_label_set_markup(info_label, "<i>Failed to resolve.</i>");
     else 
         update_label(s, host_name, a, port, txt);
 }

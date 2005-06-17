@@ -112,6 +112,15 @@ fi
 
 AM_CONDITIONAL(ENABLE_DBUS, test "x$ENABLE_DBUS" = "xyes")
 
+AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
+
+if ! $have_expat ; then
+   AC_MSG_ERROR([*** libexpat not found ***])
+fi
+
+PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.5 ])
+AC_SUBST(LIBDAEMON_CFLAGS)
+AC_SUBST(LIBDAEMON_LIBS)
 
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then

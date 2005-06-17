@@ -49,6 +49,26 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
     }
 }
 
+static void help(FILE *f, const gchar *argv0) {
+    fprintf(f,
+            "%s [options]\n"
+            " -h --help        Show this help\n"
+            " -D --daemon      Daemonize after startup\n"
+            " -k --kill        Kill a running daemon\n"
+            " -v --version     Show version\n",
+            argv0);
+}
+
+static gint parse_command_line(AvahiServerConfig *config, int argc, char *argv[]) {
+
+    return 0;
+}
+
+static gint load_config_file(AvahiServerConfig *config) {
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     gint r = 255;
@@ -56,6 +76,12 @@ int main(int argc, char *argv[]) {
 
     avahi_server_config_init(&config);
 
+    if (load_config_file(&config) < 0)
+        goto finish;
+
+    if (parse_command_line(&config, argc, argv) < 0)
+        goto finish;
+    
     loop = g_main_loop_new(NULL, FALSE);
 
     if (simple_protocol_setup(NULL) < 0)

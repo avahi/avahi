@@ -109,7 +109,7 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
 }
 
 int
-dbus_protocol_setup ()
+dbus_protocol_setup (GMainLoop *loop)
 {
     DBusError error;
 
@@ -122,7 +122,7 @@ dbus_protocol_setup ()
         g_warning ("dbus_bus_get(): %s", error.message);
         dbus_error_free (&error);
 
-        goto finish;
+	return 1;
     }
 
     dbus_connection_setup_with_g_main (bus, NULL);
@@ -135,7 +135,7 @@ dbus_protocol_setup ()
         g_warning ("dbus_error_is_set (): %s", error.message);
         dbus_error_free (&error);
 
-        goto finish;
+    	return 1;
     }
 
     dbus_connection_add_filter (bus, signal_filter, loop, NULL);
@@ -148,8 +148,10 @@ dbus_protocol_setup ()
         g_warning ("dbus_bus_add_match (): %s", error.message);
         dbus_error_free (&error);
 
-        goto finish;
+    	return 1;
     }
+
+    return 0;
 }
 
 void

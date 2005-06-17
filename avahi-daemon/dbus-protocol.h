@@ -24,7 +24,9 @@
 
 #define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
 
-int dbus_protocol_setup ();
-int dbus_protocol_shutdown ();
+#include <glib.h>
+
+int dbus_protocol_setup (GMainLoop *loop);
+void dbus_protocol_shutdown ();
 
 #endif

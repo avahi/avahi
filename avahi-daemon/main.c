@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         goto finish;
 
 #ifdef ENABLE_DBUS
-    if (dbus_protocol_setup () < 0)
+    if (dbus_protocol_setup (loop) < 0)
         goto finish;
 #endif
 

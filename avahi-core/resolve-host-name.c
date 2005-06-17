@@ -55,9 +55,11 @@ static void finish(AvahiHostNameResolver *r, gint interface, guchar protocol, Av
         avahi_record_browser_free(r->record_browser_aaaa);
         r->record_browser_aaaa = NULL;
     }
- 
-    avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
-    r->time_event = NULL;
+
+    if (r->time_event) {
+        avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
+        r->time_event = NULL;
+    }
 
     if (record) {
         switch (record->key->type) {
@@ -148,8 +150,12 @@ void avahi_host_name_resolver_free(AvahiHostNameResolver *r) {
 
     if (r->record_browser_a)
         avahi_record_browser_free(r->record_browser_a);
+
     if (r->record_browser_aaaa)
         avahi_record_browser_free(r->record_browser_aaaa);
+
+    if (r->time_event)
+        avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
     
     g_free(r->host_name);
     g_free(r);

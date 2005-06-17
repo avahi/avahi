@@ -46,8 +46,10 @@ static void finish(AvahiAddressResolver *r, gint interface, guchar protocol, Ava
     avahi_record_browser_free(r->record_browser);
     r->record_browser = NULL;
 
-    avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
-    r->time_event = NULL;
+    if (r->time_event) {
+        avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
+        r->time_event = NULL;
+    }
 
     r->callback(r, interface, protocol, event, &r->address, record ? record->data.ptr.name : NULL, r->userdata);
 }
@@ -109,7 +111,6 @@ AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint inter
     
     r->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
     avahi_key_unref(k);
-
     
     return r;
 }

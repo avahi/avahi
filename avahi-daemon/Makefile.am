@@ -24,14 +24,15 @@ AM_LDADD=-lexpat
 AM_CFLAGS+=$(GLIB20_CFLAGS)
 AM_LDADD+=$(GLIB20_LIBS)
 
+if ENABLE_DBUS
 # DBUS
 AM_CFLAGS+=$(DBUS_CFLAGS)
 AM_LDADD+=$(DBUS_LIBS)
+endif
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-if ENABLE_DBUS
 bin_PROGRAMS = \
 	avahi
 
@@ -40,9 +41,12 @@ avahi_SOURCES = \
 	simple-protocol.c simple-protocol.h \
 	static-services.c static-services.h
 
+if ENABLE_DBUS
+avahi_SOURCES += dbus-protocol.c dbus-protocol.h
+endif
+
 avahi_CFLAGS = $(AM_CFLAGS)
 avahi_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
-endif
 
 xmllint:
 	xmllint --noout --valid example.service

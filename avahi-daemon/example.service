@@ -8,18 +8,17 @@
 
   <service>
     <type>_ssh._tcp</type>
-<!--     <domain-name>local</domain-name> -->
-<!--     <host-name>gurki.local</host-name>  -->
     <port>22</port>
-    <txt-record>foo=gaga</txt-record>
   </service>
 
   <service>
     <type>_telnet._tcp</type>
-<!--    <domain-name>local</domain-name>
-    <host-name>gurki.local</host-name> -->
+    <domain-name>local</domain-name>
+    <host-name>ecstasy.local</host-name>
     <port>23</port>
     <txt-record>foo=bar</txt-record>
+    <txt-record>waldo=buzz</txt-record>
+    <txt-record>another=record</txt-record>
   </service>
 
 </service-group>

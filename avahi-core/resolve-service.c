@@ -75,9 +75,11 @@ static void finish(AvahiServiceResolver *r, AvahiResolverEvent event) {
         avahi_record_browser_free(r->record_browser_txt);
         r->record_browser_txt = NULL;
     }
-    
-    avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
-    r->time_event = NULL;
+
+    if (r->time_event) {
+        avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
+        r->time_event = NULL;
+    }
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         r->callback(r, r->interface, r->protocol, event, r->service_name, r->service_type, r->domain_name, NULL, NULL, 0, NULL, r->userdata);
@@ -244,6 +246,9 @@ void avahi_service_resolver_free(AvahiServiceResolver *r) {
 
     AVAHI_LLIST_REMOVE(AvahiServiceResolver, resolver, r->server->service_resolvers, r);
 
+    if (r->time_event)
+        avahi_time_event_queue_remove(r->server->time_event_queue, r->time_event);
+    
     if (r->record_browser_srv)
         avahi_record_browser_free(r->record_browser_srv);
     if (r->record_browser_txt)

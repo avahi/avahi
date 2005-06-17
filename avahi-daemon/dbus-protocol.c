@@ -20,6 +20,11 @@
 ***/
 
 #include <glib.h>
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -67,7 +72,11 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
                dbus_message_get_member (message));
 
     if (dbus_message_is_signal (message,
+#ifdef DBUS_USE_NEW_API
+			    	DBUS_INTERFACE_LOCAL,
+#else
                                 DBUS_INTERFACE_ORG_FREEDESKTOP_LOCAL,
+#endif
                                 "Disconnected"))
     {
         /* No, we shouldn't quit, but until we get somewhere
@@ -81,7 +90,11 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
     {
         return do_register (conn, message);
     } else if (dbus_message_is_signal (message,
+#ifdef DBUS_USE_NEW_API
+			    	       DBUS_INTERFACE_DBUS,
+#else
                                        DBUS_INTERFACE_ORG_FREEDESKTOP_DBUS,
+#endif
                                        "ServiceAcquired"))
     {
         char *name;
@@ -128,7 +141,11 @@ dbus_protocol_setup (GMainLoop *loop)
     dbus_connection_setup_with_g_main (bus, NULL);
     dbus_connection_set_exit_on_disconnect (bus, FALSE);
 
+#ifdef DBUS_USE_NEW_API
+    dbus_bus_request_name (bus, DBUS_SERVICE_AVAHI, 0, &error);
+#else
     dbus_bus_acquire_service (bus, DBUS_SERVICE_AVAHI, 0, &error);
+#endif
 
     if (dbus_error_is_set (&error))
     {

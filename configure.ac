@@ -104,10 +104,16 @@ AC_ARG_ENABLE(dbus,
         esac],
 	[ENABLE_DBUS=yes]) dnl Default value
 
+AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
+
 if test "x$ENABLE_DBUS" = "xyes"; then
         PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.23])
         AC_SUBST(DBUS_CFLAGS)
 	AC_SUBST(DBUS_LIBS)
+
+	if pkg-config dbus-1 --atleast-version=0.30 ; then
+		AC_DEFINE(DBUS_USE_NEW_API, 1, [Whether to use the new API for DBUS 0.30])
+	fi
 fi
 
 AM_CONDITIONAL(ENABLE_DBUS, test "x$ENABLE_DBUS" = "xyes")

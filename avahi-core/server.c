@@ -484,7 +484,7 @@ static void reflect_response(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, 
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i && (s->config.ipv_reflect || j->protocol == i->protocol))
+        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol))
             avahi_interface_post_response(j, r, flush_cache, NULL, TRUE);
 }
 
@@ -511,7 +511,7 @@ static void reflect_query(AvahiServer *s, AvahiInterface *i, AvahiKey *k) {
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i && (s->config.ipv_reflect || j->protocol == i->protocol)) {
+        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol)) {
             /* Post the query to other networks */
             avahi_interface_post_query(j, k, TRUE);
 
@@ -533,7 +533,7 @@ static void reflect_probe(AvahiServer *s, AvahiInterface *i, AvahiRecord *r) {
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i && (s->config.ipv_reflect || j->protocol == i->protocol))
+        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol))
             avahi_interface_post_probe(j, r, TRUE);
 }
 
@@ -775,7 +775,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     for (j = s->monitor->interfaces; j; j = j->interface_next)
         if (avahi_interface_relevant(j) &&
             j != i &&
-            (s->config.ipv_reflect || j->protocol == i->protocol)) {
+            (s->config.reflect_ipv || j->protocol == i->protocol)) {
 
             if (j->protocol == AF_INET && s->fd_legacy_unicast_ipv4 >= 0) {
                 avahi_send_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, j->hardware->index, p, NULL, 0);
@@ -1105,7 +1105,7 @@ static void register_hinfo(AvahiServer *s) {
     
     g_assert(s);
     
-    if (!s->config.register_hinfo || s->hinfo_entry_group)
+    if (!s->config.publish_hinfo || s->hinfo_entry_group)
         return;
     
     s->hinfo_entry_group = avahi_entry_group_new(s, avahi_host_rr_entry_group_callback, NULL);
@@ -1136,7 +1136,7 @@ static void register_localhost(AvahiServer *s) {
 static void register_browse_domain(AvahiServer *s) {
     g_assert(s);
 
-    if (!s->config.announce_domain || s->browse_domain_entry_group)
+    if (!s->config.publish_domain || s->browse_domain_entry_group)
         return;
 
     s->browse_domain_entry_group = avahi_entry_group_new(s, NULL, NULL);
@@ -1870,18 +1870,18 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     g_assert(c);
 
     memset(c, 0, sizeof(AvahiServerConfig));
-    c->register_hinfo = TRUE;
-    c->register_addresses = TRUE;
     c->use_ipv6 = TRUE;
     c->use_ipv4 = TRUE;
     c->host_name = NULL;
     c->domain_name = NULL;
     c->check_response_ttl = TRUE;
-    c->announce_domain = TRUE;
+    c->publish_hinfo = TRUE;
+    c->publish_addresses = TRUE;
+    c->publish_workstation = TRUE;
+    c->publish_domain = TRUE;
     c->use_iff_running = FALSE;
     c->enable_reflector = FALSE;
-    c->ipv_reflect = FALSE;
-    c->register_workstation = TRUE;
+    c->reflect_ipv = FALSE;
     
     return c;
 }

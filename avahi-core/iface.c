@@ -45,7 +45,7 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
 
     if (avahi_interface_address_relevant(a) &&
         !remove &&
-        m->server->config.register_addresses &&
+        m->server->config.publish_addresses &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
 
@@ -87,7 +87,7 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
         update_interface_rr(m, i, remove);
 
     if (!remove &&
-        m->server->config.register_workstation &&
+        m->server->config.publish_workstation &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
 

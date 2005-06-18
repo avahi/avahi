@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
     service_type_hash_table = g_hash_table_new((GHashFunc) avahi_domain_hash, (GEqualFunc) avahi_domain_equal);
     
     avahi_server_config_init(&config);
-    config.register_hinfo = config.register_addresses = config.announce_domain = config.register_workstation = FALSE;
+    config.publish_hinfo = config.publish_addresses = config.publish_domain = config.publish_workstation = FALSE;
     server = avahi_server_new(NULL, &config, NULL, NULL);
     avahi_server_config_free(&config);
 

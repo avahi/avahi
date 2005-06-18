@@ -75,14 +75,14 @@ typedef struct AvahiServerConfig {
     gchar *domain_name;                    /**< Default domain name. If left empty defaults to .local */
     gboolean use_ipv4;                     /**< Enable IPv4 support */
     gboolean use_ipv6;                     /**< Enable IPv6 support */
-    gboolean register_hinfo;               /**< Register a HINFO record for the host containing the local OS and CPU type */
-    gboolean register_addresses;           /**< Register A, AAAA and PTR records for all local IP addresses */
-    gboolean register_workstation;         /**< Register a _workstation._tcp service */
+    gboolean publish_hinfo;                /**< Register a HINFO record for the host containing the local OS and CPU type */
+    gboolean publish_addresses;            /**< Register A, AAAA and PTR records for all local IP addresses */
+    gboolean publish_workstation;          /**< Register a _workstation._tcp service */
+    gboolean publish_domain;               /**< Announce the local domain for browsing */
     gboolean check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255 */
-    gboolean announce_domain;              /**< Announce the local domain for browsing */
-    gboolean use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
+    gboolean use_iff_running;        /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
     gboolean enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
-    gboolean ipv_reflect;                  /**< if enable_reflector is TRUE, enable/disable reflecting between IPv4 and IPv6 */
+    gboolean reflect_ipv;                  /**< if enable_reflector is TRUE, enable/disable reflecting between IPv4 and IPv6 */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

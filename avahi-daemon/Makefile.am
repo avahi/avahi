@@ -17,12 +17,17 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE -DAVAHI_SERVICE_DIRECTORY=\"`pwd`\"
+AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE -DAVAHI_SERVICE_DIRECTORY=\"`pwd`\" -DAVAHI_CONFIG_FILE=\"avahi.conf\"
 AM_LDADD=-lexpat
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)
 AM_LDADD+=$(GLIB20_LIBS)
+
+# libdaemon
+AM_CFLAGS+=$(LIBDAEMON_CFLAGS)
+AM_LDADD+=$(LIBDAEMON_LIBS)
+
 
 if ENABLE_DBUS
 # DBUS

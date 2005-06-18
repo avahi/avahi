@@ -211,7 +211,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                 -1, AF_UNSPEC,
                 s->type, g->chosen_name,
                 s->domain_name, s->host_name, s->port,
-                s->txt_records) < 0) {
+                avahi_string_list_copy(s->txt_records)) < 0) {
             g_message("Failed to add service '%s' of type '%s', ignoring service group (%s)", g->chosen_name, s->type, g->filename);
             remove_static_service_group_from_server(g);
             return;

@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <avahi-core/llist.h>
+#include <avahi-core/log.h>
 
 #include "simple-protocol.h"
 #include "main.h"
@@ -80,6 +81,7 @@ struct Server {
     AVAHI_LLIST_HEAD(Client, clients);
 
     guint n_clients;
+    gboolean bind_successful;
 };
 
 static Server *server = NULL;
@@ -264,7 +266,7 @@ static void client_work(Client *c) {
         
         if ((r = read(c->fd, c->inbuf + c->inbuf_length, sizeof(c->inbuf) - c->inbuf_length)) <= 0) {
             if (r < 0)
-                g_warning("read(): %s", strerror(errno));
+                avahi_log_warn("read(): %s", strerror(errno));
             client_free(c);
             return;
         }
@@ -279,7 +281,7 @@ static void client_work(Client *c) {
         ssize_t r;
 
         if ((r = write(c->fd, c->outbuf, c->outbuf_length)) < 0) {
-            g_warning("write(): %s", strerror(errno));
+            avahi_log_warn("write(): %s", strerror(errno));
             client_free(c);
             return;
         }
@@ -337,7 +339,7 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
         gint fd;
 
         if ((fd = accept(s->fd, NULL, NULL)) < 0)
-            g_warning("accept(): %s", strerror(errno));
+            avahi_log_warn("accept(): %s", strerror(errno));
         else
             client_new(s, fd);
     } else if (s->poll_fd.revents)
@@ -368,23 +370,21 @@ int simple_protocol_setup(GMainContext *c) {
     g_assert(!server);
 
     server = (Server*) g_source_new(&source_funcs, sizeof(Server));
+    server->bind_successful = FALSE;
     server->fd = -1;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
-    if (c)
-        g_main_context_ref(server->context = c);
-    else
-        server->context = g_main_context_default();
+    g_main_context_ref(server->context = (c ? c : g_main_context_default()));
     server->clients = NULL;
 
     u = umask(0000);
 
     if (mkdir(UNIX_SOCKET_PATH, 0755) < 0 && errno != EEXIST) {
-        g_warning("mkdir(): %s", strerror(errno));
+        avahi_log_warn("mkdir(): %s", strerror(errno));
         goto fail;
     }
     
     if ((server->fd = socket(PF_LOCAL, SOCK_STREAM, 0)) < 0) {
-        g_warning("socket(PF_LOCAL, SOCK_STREAM, 0): %s", strerror(errno));
+        avahi_log_warn("socket(PF_LOCAL, SOCK_STREAM, 0): %s", strerror(errno));
         goto fail;
     }
 
@@ -393,12 +393,14 @@ int simple_protocol_setup(GMainContext *c) {
     strncpy(sa.sun_path, UNIX_SOCKET, sizeof(sa.sun_path)-1);
 
     if (bind(server->fd, &sa, sizeof(sa)) < 0) {
-        g_warning("bind(): %s", strerror(errno));
+        avahi_log_warn("bind(): %s", strerror(errno));
         goto fail;
     }
+
+    server->bind_successful = TRUE;
     
     if (listen(server->fd, 2) < 0) {
-        g_warning("listen(): %s", strerror(errno));
+        avahi_log_warn("listen(): %s", strerror(errno));
         goto fail;
     }
 
@@ -427,13 +429,15 @@ void simple_protocol_shutdown(void) {
 
         while (server->clients)
             client_free(server->clients);
+
+        if (server->bind_successful)
+            unlink(UNIX_SOCKET);
         
-        if (server->fd >= 0) {
-            unlink(UNIX_SOCKET_PATH);
+        if (server->fd >= 0)
             close(server->fd);
-        }
 
         g_main_context_unref(server->context);
+        
         g_source_destroy(&server->source);
         g_source_unref(&server->source);
 

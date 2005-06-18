@@ -26,6 +26,8 @@
 #include <getopt.h>
 #include <string.h>
 #include <signal.h>
+#include <errno.h>
+#include <string.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -143,7 +145,7 @@ static gint load_config_file(DaemonConfig *config) {
     int r = -1;
     GKeyFile *f = NULL;
     GError *err = NULL;
-    gchar **groups = NULL, **g, **keys = NULL;
+    gchar **groups = NULL, **g, **keys = NULL, *v = NULL;
 
     g_assert(config);
     
@@ -163,27 +165,38 @@ static gint load_config_file(DaemonConfig *config) {
             keys = g_key_file_get_keys(f, *g, NULL, NULL);
 
             for (k = keys; *k; k++) {
+
+                v = g_key_file_get_value(f, *g, *k, NULL);
+                
                 if (g_strcasecmp(*k, "host-name") == 0) {
                     g_free(config->server_config.host_name);
-                    config->server_config.host_name = g_strdup(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.host_name = v;
+                    v = NULL;
                 } else if (g_strcasecmp(*k, "domain-name") == 0) {
                     g_free(config->server_config.domain_name);
-                    config->server_config.domain_name = g_strdup(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.domain_name = v;
+                    v = NULL;
                 } else if (g_strcasecmp(*k, "use-ipv4") == 0)
-                    config->server_config.use_ipv4 = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.use_ipv4 = is_yes(v);
                 else if (g_strcasecmp(*k, "use-ipv6") == 0)
-                    config->server_config.use_ipv6 = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.use_ipv6 = is_yes(v);
                 else if (g_strcasecmp(*k, "check-response-ttl") == 0)
-                    config->server_config.check_response_ttl = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.check_response_ttl = is_yes(v);
                 else if (g_strcasecmp(*k, "use-iff-running") == 0)
-                    config->server_config.use_iff_running = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.use_iff_running = is_yes(v);
                 else if (g_strcasecmp(*k, "enable-dbus") == 0)
-                    config->enable_dbus = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->enable_dbus = is_yes(v);
                 else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
                 }
+
+                g_free(v);
+                v = NULL;
             }
+        
+            g_strfreev(keys);
+            keys = NULL;
             
         } else if (g_strcasecmp(*g, "publish") == 0) {
             gchar **k;
@@ -191,19 +204,28 @@ static gint load_config_file(DaemonConfig *config) {
             keys = g_key_file_get_keys(f, *g, NULL, NULL);
 
             for (k = keys; *k; k++) {
+
+                v = g_key_file_get_string(f, *g, *k, NULL);
+                
                 if (g_strcasecmp(*k, "publish-addresses") == 0)
-                    config->server_config.publish_addresses = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.publish_addresses = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-hinfo") == 0)
-                    config->server_config.publish_hinfo = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.publish_hinfo = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-workstation") == 0)
-                    config->server_config.publish_workstation = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.publish_workstation = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-domain") == 0)
-                    config->server_config.publish_domain = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.publish_domain = is_yes(v);
                 else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
                 }
+
+                g_free(v);
+                v = NULL;
             }
+
+            g_strfreev(keys);
+            keys = NULL;
 
         } else if (g_strcasecmp(*g, "reflector") == 0) {
             gchar **k;
@@ -211,16 +233,25 @@ static gint load_config_file(DaemonConfig *config) {
             keys = g_key_file_get_keys(f, *g, NULL, NULL);
 
             for (k = keys; *k; k++) {
+
+                v = g_key_file_get_string(f, *g, *k, NULL);
+                
                 if (g_strcasecmp(*k, "enable-reflector") == 0)
-                    config->server_config.enable_reflector = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.enable_reflector = is_yes(v);
                 else if (g_strcasecmp(*k, "reflect-ipv") == 0)
-                    config->server_config.reflect_ipv = is_yes(g_key_file_get_string(f, *g, *k, NULL));
+                    config->server_config.reflect_ipv = is_yes(v);
                 else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
                 }
+
+                g_free(v);
+                v = NULL;
             }
     
+            g_strfreev(keys);
+            keys = NULL;
+            
         } else {
             fprintf(stderr, "Invalid configuration file group \"%s\".\n", *g);
             goto finish;
@@ -233,6 +264,7 @@ finish:
 
     g_strfreev(groups);
     g_strfreev(keys);
+    g_free(v);
 
     if (err)
         g_error_free (err);
@@ -259,13 +291,61 @@ static void log_function(AvahiLogLevel level, const gchar *txt) {
     daemon_log(log_level_map[level], "%s", txt);
 }
 
+static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpointer data) {
+    gint sig;
+    g_assert(source);
+
+    if ((sig = daemon_signal_next()) <= 0) {
+        avahi_log_error("daemon_signal_next() failed");
+        return FALSE;
+    }
+
+    switch (sig) {
+        case SIGINT:
+        case SIGQUIT:
+        case SIGTERM:
+            avahi_log_info(
+                "Got %s, quitting.",
+                sig == SIGINT ? "SIGINT" :
+                (sig == SIGQUIT ? "SIGQUIT" : "SIGTERM"));
+            g_main_loop_quit((GMainLoop*) data);
+            break;
+
+        case SIGHUP:
+            avahi_log_info("Got SIGHUP, reloading.");
+            static_service_load();
+            break;
+
+        default:
+            avahi_log_warn("Got spurious signal, ignoring.");
+            break;
+    }
+
+    return TRUE;
+}
+
 static gint run_server(DaemonConfig *config) {
     GMainLoop *loop = NULL;
     gint r = -1;
+    GIOChannel *io = NULL;
+    guint watch_id = (guint) -1;
 
     g_assert(config);
     
     loop = g_main_loop_new(NULL, FALSE);
+
+    if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, 0) < 0) {
+        avahi_log_error("Could not register signal handlers (%s).", strerror(errno));
+        goto finish;
+    }
+
+    if (!(io = g_io_channel_unix_new(daemon_signal_fd()))) {
+        avahi_log_error( "Failed to create signal io channel.");
+        goto finish;
+    }
+
+    g_io_channel_set_close_on_unref(io, FALSE);
+    g_io_add_watch(io, G_IO_IN, signal_callback, loop);
     
     if (simple_protocol_setup(NULL) < 0)
         goto finish;
@@ -285,9 +365,8 @@ static gint run_server(DaemonConfig *config) {
         daemon_retval_send(0);
         r = 0;
     }
-    
-    g_main_loop_run(loop);
 
+    g_main_loop_run(loop);
 
 finish:
     
@@ -303,12 +382,21 @@ finish:
 
     if (avahi_server)
         avahi_server_free(avahi_server);
+
+    daemon_signal_done();
+
+    if (watch_id != (guint) -1)
+        g_source_remove(watch_id);
     
+    if (io)
+        g_io_channel_unref(io);
+
+        
     if (loop)
         g_main_loop_unref(loop);
 
     if (r != 0 && config->daemonize)
-        daemon_retval_send(0);
+        daemon_retval_send(1);
     
     return r;
 }
@@ -348,7 +436,7 @@ int main(int argc, char *argv[]) {
 
     } else if (config.command == DAEMON_KILL) {
         if (daemon_pid_file_kill_wait(SIGTERM, 5) < 0) {
-            avahi_log_warn("Failed to kill daemon");
+            avahi_log_warn("Failed to kill daemon: %s", strerror(errno));
             goto finish;
         }
 
@@ -385,8 +473,10 @@ int main(int argc, char *argv[]) {
         }
 
         if (daemon_pid_file_create() < 0) {
-            avahi_log_error("Failed to create PID file.");
-            daemon_retval_send(1);
+            avahi_log_error("Failed to create PID file: %s", strerror(errno));
+
+            if (config.daemonize)
+                daemon_retval_send(1);
             goto finish;
         } else
             wrote_pid_file = TRUE;

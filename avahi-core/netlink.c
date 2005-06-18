@@ -120,7 +120,6 @@ AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 gr
         NULL
     };
     
-    g_assert(context);
     g_assert(cb);
 
     if ((fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
@@ -140,8 +139,7 @@ AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 gr
     }
 
     nl = g_new(AvahiNetlink, 1);
-    nl->context = context;
-    g_main_context_ref(context);
+    g_main_context_ref(nl->context = context ? context : g_main_context_default());
     nl->fd = fd;
     nl->seq = 0;
     nl->callback = cb;

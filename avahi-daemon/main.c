@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <grp.h>
+#include <pwd.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -59,6 +61,7 @@ typedef struct {
     gboolean daemonize;
     gchar *config_file;
     gboolean enable_dbus;
+    gboolean drop_root;
 } DaemonConfig;
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
@@ -194,6 +197,8 @@ static gint load_config_file(DaemonConfig *config) {
                     config->server_config.use_iff_running = is_yes(v);
                 else if (g_strcasecmp(*k, "enable-dbus") == 0)
                     config->enable_dbus = is_yes(v);
+                else if (g_strcasecmp(*k, "drop-root") == 0)
+                    config->drop_root = is_yes(v);
                 else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
@@ -410,6 +415,65 @@ finish:
     return r;
 }
 
+static gint drop_root(void) {
+    struct passwd *pw;
+    struct group * gr;
+    gint r;
+    
+    if (!(pw = getpwnam(AVAHI_USER))) {
+        avahi_log_error( "Failed to find user '"AVAHI_USER"'.");
+        return -1;
+    }
+
+    if (!(gr = getgrnam(AVAHI_GROUP))) {
+        avahi_log_error( "Failed to find group '"AVAHI_GROUP"'.");
+        return -1;
+    }
+
+    avahi_log_info("Found user '"AVAHI_USER"' (UID %lu) and group '"AVAHI_GROUP"' (GID %lu).", (unsigned long) pw->pw_uid, (unsigned long) gr->gr_gid);
+
+    if (initgroups(AVAHI_USER, gr->gr_gid) != 0) {
+        avahi_log_error("Failed to change group list: %s", strerror(errno));
+        return -1;
+    }
+
+#if defined(HAVE_SETRESGID)
+    r = setresgid(gr->gr_gid, gr->gr_gid, gr->gr_gid);
+#elif defined(HAVE_SETREGID)
+    r = setregid(gr->gr_gid, gr->gr_gid);
+#else
+    if ((r = setgid(gr->gr_gid)) >= 0)
+        r = setegid(gr->gr_gid);
+#endif
+
+    if (r < 0) {
+        avahi_log_error("Failed to change GID: %s", strerror(errno));
+        return -1;
+    }
+
+#if defined(HAVE_SETRESUID)
+    r = setresuid(pw->pw_uid, pw->pw_uid, pw->pw_uid);
+#elif defined(HAVE_SETREUID)
+    r = setreuid(pw->pw_uid, pw->pw_uid);
+#else
+    if ((r = setuid(pw->pw_uid)) >= 0)
+        r = seteuid(pw->pw_uid);
+#endif
+
+    if (r < 0) {
+        avahi_log_error("Failed to change UID: %s", strerror(errno));
+        return -1;
+    }
+
+    g_setenv("USER", pw->pw_name, 1);
+    g_setenv("LOGNAME", pw->pw_name, 1);
+    g_setenv("HOME", pw->pw_dir, 1);
+    
+    avahi_log_info("Successfully dropped root privileges.");
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     gint r = 255;
     DaemonConfig config;
@@ -423,6 +487,7 @@ int main(int argc, char *argv[]) {
     config.daemonize = FALSE;
     config.config_file = NULL;
     config.enable_dbus = TRUE;
+    config.drop_root = TRUE;
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
@@ -494,6 +559,8 @@ int main(int argc, char *argv[]) {
             /* Child */
         }
 
+        chdir("/");
+
         if (daemon_pid_file_create() < 0) {
             avahi_log_error("Failed to create PID file: %s", strerror(errno));
 
@@ -502,6 +569,11 @@ int main(int argc, char *argv[]) {
             goto finish;
         } else
             wrote_pid_file = TRUE;
+
+        if (config.drop_root) {
+            if (drop_root() < 0)
+                goto finish;
+        }
 
         if (run_server(&config) == 0)
             r = 0;

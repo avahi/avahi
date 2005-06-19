@@ -24,7 +24,9 @@ AM_CFLAGS= \
 	-I$(top_srcdir) \
 	-D_GNU_SOURCE \
 	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
-	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\"
+	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\" \
+	-DAVAHI_USER=\"avahi\" \
+	-DAVAHI_GROUP=\"avahi\"
 AM_LDADD=-lexpat
 
 # GLIB 2.0

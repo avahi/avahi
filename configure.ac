@@ -57,6 +57,9 @@ AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([gethostname memset select socket strchr strcspn strerror uname])
 
+AC_CHECK_FUNCS(setresuid)
+AC_CHECK_FUNCS(setreuid)
+
 # Check for GLIB 2.0
 PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
 AC_SUBST(GLIB20_CFLAGS)

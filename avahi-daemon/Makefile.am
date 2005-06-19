@@ -17,7 +17,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE -DAVAHI_SERVICE_DIRECTORY=\"`pwd`\" -DAVAHI_CONFIG_FILE=\"avahi.conf\"
+pkgsysconfdir=$(sysconfdir)/avahi
+servicedir=$(pkgsysconfdir)/services
+
+AM_CFLAGS= \
+	-I$(top_srcdir) \
+	-D_GNU_SOURCE \
+	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
+	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\"
 AM_LDADD=-lexpat
 
 # GLIB 2.0
@@ -45,6 +52,15 @@ avahi_SOURCES = \
 	main.c main.h \
 	simple-protocol.c simple-protocol.h \
 	static-services.c static-services.h
+
+pkgsysconf_DATA = \
+	avahi.conf
+
+service_DATA = \
+	example.service
+
+pkgdata_DATA = \
+	avahi-service.dtd
 
 if ENABLE_DBUS
 avahi_SOURCES += dbus-protocol.c dbus-protocol.h

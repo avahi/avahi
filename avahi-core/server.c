@@ -1268,14 +1268,14 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     }
 
     if (s->fd_ipv4 < 0 && s->config.use_ipv4)
-        avahi_log_debug("Failed to create IPv4 socket, proceeding in IPv6 only mode");
+        avahi_log_notice("Failed to create IPv4 socket, proceeding in IPv6 only mode");
     else if (s->fd_ipv6 < 0 && s->config.use_ipv6)
-        avahi_log_debug("Failed to create IPv6 socket, proceeding in IPv4 only mode");
+        avahi_log_notice("Failed to create IPv6 socket, proceeding in IPv4 only mode");
 
     s->fd_legacy_unicast_ipv4 = s->fd_ipv4 >= 0 && s->config.enable_reflector ? avahi_open_legacy_unicast_socket_ipv4() : -1;
     s->fd_legacy_unicast_ipv6 = s->fd_ipv6 >= 0 && s->config.enable_reflector ? avahi_open_legacy_unicast_socket_ipv6() : -1;
 
-    g_main_context_ref(c->context = c ? c : g_main_context_default());
+    g_main_context_ref(s->context = (c ? c : g_main_context_default()));
 
     /* Prepare IO source registration */
     s->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(AvahiServer*));

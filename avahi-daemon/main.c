@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -48,7 +49,8 @@ typedef enum {
     DAEMON_RUN,
     DAEMON_KILL,
     DAEMON_VERSION,
-    DAEMON_HELP
+    DAEMON_HELP,
+    DAEMON_RELOAD
 } DaemonCommand;
 
 typedef struct {
@@ -83,8 +85,10 @@ static void help(FILE *f, const gchar *argv0) {
             "    -h --help        Show this help\n"
             "    -D --daemonize   Daemonize after startup\n"
             "    -k --kill        Kill a running daemon\n"
+            "    -r --reload      Request a running daemon to reload static services\n"
             "    -V --version     Show version\n"
-            "    -f --file=FILE   Load the specified configuration file instead of the default\n",
+            "    -f --file=FILE   Load the specified configuration file instead of\n"
+            "                     "AVAHI_CONFIG_FILE"\n",
             argv0);
 }
 
@@ -97,12 +101,13 @@ static gint parse_command_line(DaemonConfig *config, int argc, char *argv[]) {
         { "kill",      no_argument,       NULL, 'k' },
         { "version",   no_argument,       NULL, 'V' },
         { "file",      required_argument, NULL, 'f' },
+        { "reload",    no_argument,       NULL, 'r' },
     };
 
     g_assert(config);
 
     opterr = 0;
-    while ((c = getopt_long(argc, argv, "hDkVf:", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "hDkVf:r", long_options, NULL)) >= 0) {
 
         switch(c) {
             case 'h':
@@ -120,6 +125,9 @@ static gint parse_command_line(DaemonConfig *config, int argc, char *argv[]) {
             case 'f':
                 g_free(config->config_file);
                 config->config_file = g_strdup(optarg);
+                break;
+            case 'r':
+                config->command = DAEMON_RELOAD;
                 break;
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", c);
@@ -314,6 +322,7 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
         case SIGHUP:
             avahi_log_info("Got SIGHUP, reloading.");
             static_service_load();
+            static_service_add_to_server();
             break;
 
         default:
@@ -425,9 +434,6 @@ int main(int argc, char *argv[]) {
     if (parse_command_line(&config, argc, argv) < 0)
         goto finish;
 
-    if (load_config_file(&config) < 0)
-        goto finish;
-
     if (config.command == DAEMON_HELP) {
         help(stdout, argv0);
         r = 0;
@@ -442,14 +448,30 @@ int main(int argc, char *argv[]) {
 
         r = 0;
         
+    } else if (config.command == DAEMON_RELOAD) {
+        if (daemon_pid_file_kill(SIGHUP) < 0) {
+            avahi_log_warn("Failed to kill daemon: %s", strerror(errno));
+            goto finish;
+        }
+
+        r = 0;
+        
     } else if (config.command == DAEMON_RUN) {
         pid_t pid;
+
+        if (getuid() != 0) {
+            avahi_log_error("This program is intended to be run as root.");
+            goto finish;
+        }
         
         if ((pid = daemon_pid_file_is_running()) >= 0) {
             avahi_log_error("Daemon already running on PID %u", pid);
             goto finish;
         }
 
+        if (load_config_file(&config) < 0)
+            goto finish;
+        
         if (config.daemonize) {
 
             daemon_retval_init();

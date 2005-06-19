@@ -35,6 +35,7 @@
 #include <expat.h>
 
 #include <avahi-core/llist.h>
+#include <avahi-core/log.h>
 
 #include "main.h"
 
@@ -178,11 +179,11 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *eg, AvahiEntry
         g_free(g->chosen_name);
         g->chosen_name = n;
 
-        g_message("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
+        avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
 
         add_static_service_group_to_server(g);
-    } else
-        g_message("Service \"%s\" (%s) successfully establised.", g->chosen_name, g->filename);
+    } else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED)
+        avahi_log_info("Service \"%s\" (%s) successfully established.", g->chosen_name, g->filename);
 }
 
 static void add_static_service_group_to_server(StaticServiceGroup *g) {
@@ -212,7 +213,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                 s->type, g->chosen_name,
                 s->domain_name, s->host_name, s->port,
                 avahi_string_list_copy(s->txt_records)) < 0) {
-            g_message("Failed to add service '%s' of type '%s', ignoring service group (%s)", g->chosen_name, s->type, g->filename);
+            avahi_log_error("Failed to add service '%s' of type '%s', ignoring service group (%s)", g->chosen_name, s->type, g->filename);
             remove_static_service_group_from_server(g);
             return;
         }
@@ -313,14 +314,14 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
         
         u->current_tag = XML_TAG_TXT_RECORD;
     } else {
-        g_message("%s: parse failure: didn't expect element <%s>.", u->group->filename, el);
+        avahi_log_error("%s: parse failure: didn't expect element <%s>.", u->group->filename, el);
         u->failed = TRUE;
     }
 
     return;
 
 invalid_attr:
-    g_message("%s: parse failure: invalid attribute for element <%s>.", u->group->filename, el);
+    avahi_log_error("%s: parse failure: invalid attribute for element <%s>.", u->group->filename, el);
     u->failed = TRUE;
     return;
 }
@@ -336,7 +337,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
         case XML_TAG_SERVICE_GROUP:
 
             if (!u->group->name || !u->group->services) {
-                g_message("%s: parse failure: service group incomplete.", u->group->filename);
+                avahi_log_error("%s: parse failure: service group incomplete.", u->group->filename);
                 u->failed = TRUE;
                 return;
             }
@@ -347,7 +348,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
         case XML_TAG_SERVICE:
 
             if (u->service->port == 0 || !u->service->type) {
-                g_message("%s: parse failure: service incomplete.", u->group->filename);
+                avahi_log_error("%s: parse failure: service incomplete.", u->group->filename);
                 u->failed = TRUE;
                 return;
             }
@@ -367,7 +368,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
             p = u->buf ? atoi(u->buf) : 0;
 
             if (p <= 0 || p > 0xFFFF) {
-                g_message("%s: parse failure: invalid port specification \"%s\".", u->group->filename, u->buf);
+                avahi_log_error("%s: parse failure: invalid port specification \"%s\".", u->group->filename, u->buf);
                 u->failed = TRUE;
                 return;
             }
@@ -484,17 +485,17 @@ static gint static_service_group_load(StaticServiceGroup *g) {
     g->replace_wildcards = FALSE;
     
     if (!(parser = XML_ParserCreate(NULL))) {
-        g_warning("XML_ParserCreate() failed.");
+        avahi_log_error("XML_ParserCreate() failed.");
         goto finish;
     }
 
     if ((fd = open(g->filename, O_RDONLY)) < 0) {
-        g_warning("open(\"%s\", O_RDONLY): %s", g->filename, strerror(errno));
+        avahi_log_error("open(\"%s\", O_RDONLY): %s", g->filename, strerror(errno));
         goto finish;
     }
 
     if (fstat(fd, &st) < 0) {
-        g_warning("fstat(): %s", strerror(errno));
+        avahi_log_error("fstat(): %s", strerror(errno));
         goto finish;
     }
 
@@ -511,17 +512,17 @@ static gint static_service_group_load(StaticServiceGroup *g) {
 #define BUFSIZE (10*1024)
 
         if (!(buffer = XML_GetBuffer(parser, BUFSIZE))) {
-            g_warning("XML_GetBuffer() failed.");
+            avahi_log_error("XML_GetBuffer() failed.");
             goto finish;
         }
 
         if ((n = read(fd, buffer, BUFSIZE)) < 0) {
-            g_warning("read(): %s\n", strerror(errno));
+            avahi_log_error("read(): %s\n", strerror(errno));
             goto finish;
         }
 
         if (!XML_ParseBuffer(parser, n, n == 0)) {
-            g_warning("XML_ParseBuffer() failed at line %d: %s.\n", XML_GetCurrentLineNumber(parser), XML_ErrorString(XML_GetErrorCode(parser)));
+            avahi_log_error("XML_ParseBuffer() failed at line %d: %s.\n", XML_GetCurrentLineNumber(parser), XML_ErrorString(XML_GetErrorCode(parser)));
             goto finish;
         }
 
@@ -551,9 +552,11 @@ static void load_file(gchar *n) {
         if (strcmp(g->filename, n) == 0)
             return;
 
+    avahi_log_info("Loading service file %s", n);
+    
     g = static_service_group_new(n);
     if (static_service_group_load(g) < 0) {
-        g_warning("Failed to load service group file %s, ignoring.", g->filename);
+        avahi_log_error("Failed to load service group file %s, ignoring.", g->filename);
         static_service_group_free(g);
     }
 }
@@ -571,16 +574,16 @@ void static_service_load(void) {
         if (stat(g->filename, &st) < 0) {
 
             if (errno == ENOENT)
-                g_message("Service group file %s vanished, removing seervices.", g->filename);
+                avahi_log_info("Service group file %s vanished, removing services.", g->filename);
             else
-                g_warning("Failed to stat() file %s, ignoring: %s", g->filename, strerror(errno));
+                avahi_log_warn("Failed to stat() file %s, ignoring: %s", g->filename, strerror(errno));
             
             static_service_group_free(g);
         } else if (st.st_mtime != g->mtime) {
-            g_message("Service group file %s changed, reloading.", g->filename);
+            avahi_log_info("Service group file %s changed, reloading.", g->filename);
             
             if (static_service_group_load(g) < 0) {
-                g_warning("Failed to load service group file %s, removing service.", g->filename);
+                avahi_log_warn("Failed to load service group file %s, removing service.", g->filename);
                 static_service_group_free(g);
             }
         }
@@ -588,7 +591,7 @@ void static_service_load(void) {
 
     memset(&globbuf, 0, sizeof(globbuf));
     if (glob(AVAHI_SERVICE_DIRECTORY "/*.service", GLOB_ERR, NULL, &globbuf) != 0)
-        g_warning("glob() failed.\n");
+        avahi_log_error("glob() failed.\n");
     else {
         for (p = globbuf.gl_pathv; *p; p++)
             load_file(*p);

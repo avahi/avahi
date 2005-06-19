@@ -156,6 +156,50 @@ int avahi_mdns_mcast_leave_ipv6 (int index, int fd) {
     return 0;
 }
 
+static gint bind_with_warn(int fd, const struct sockaddr *sa, socklen_t l) {
+    gint yes;
+    
+    g_assert(fd >= 0);
+    g_assert(sa);
+    g_assert(l > 0);
+    
+    if (bind(fd, sa, l) < 0) {
+
+        if (errno != EADDRINUSE) {
+            avahi_log_warn("bind() failed: %s\n", strerror(errno));
+            return -1;
+        }
+            
+        avahi_log_warn("*** WARNING: Detected another %s mDNS stack running on this host. This makes mDNS unreliable and is thus not recommended. ***",
+                       sa->sa_family == AF_INET ? "IPv4" : "IPv6");
+
+        /* Try again, this time with SO_REUSEADDR set */
+        yes = 1;
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+            avahi_log_warn("SO_REUSEADDR failed: %s\n", strerror(errno));
+            return -1;
+        }
+
+        if (bind(fd, sa, l) < 0) {
+            avahi_log_warn("bind() failed: %s\n", strerror(errno));
+            return -1;
+        }
+    } else {
+
+        /* We enable SO_REUSEADDR afterwards, to make sure that the
+         * user may run other mDNS implementations if he really
+         * wants. */
+        
+        yes = 1;
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+            avahi_log_warn("SO_REUSEADDR failed: %s\n", strerror(errno));
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 gint avahi_open_socket_ipv4(void) {
     struct sockaddr_in local;
     int fd = -1, ttl, yes;
@@ -178,26 +222,17 @@ gint avahi_open_socket_ipv4(void) {
     }
     
     yes = 1;
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-        avahi_log_warn("SO_REUSEADDR failed: %s\n", strerror(errno));
-        goto fail;
-    }
-
-    yes = 1;
     if (setsockopt(fd, SOL_IP, IP_MULTICAST_LOOP, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IP_MULTICAST_LOOP failed: %s\n", strerror(errno));
         goto fail;
     }
-
     
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
     local.sin_port = htons(AVAHI_MDNS_PORT);
-    
-    if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-        avahi_log_warn("bind() failed: %s\n", strerror(errno));
+
+    if (bind_with_warn(fd, (struct sockaddr*) &local, sizeof(local)) < 0)
         goto fail;
-    }
 
     yes = 1;
     if (setsockopt(fd, SOL_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
@@ -254,12 +289,6 @@ gint avahi_open_socket_ipv6(void) {
     }
     
     yes = 1;
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-        avahi_log_warn("SO_REUSEADDR failed: %s\n", strerror(errno));
-        goto fail;
-    }
-
-    yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_V6ONLY, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IPV6_V6ONLY failed: %s\n", strerror(errno));
         goto fail;
@@ -275,10 +304,8 @@ gint avahi_open_socket_ipv6(void) {
     local.sin6_family = AF_INET6;
     local.sin6_port = htons(AVAHI_MDNS_PORT);
     
-    if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-        avahi_log_warn("bind() failed: %s\n", strerror(errno));
+    if (bind_with_warn(fd, (struct sockaddr*) &local, sizeof(local)) < 0)
         goto fail;
-    }
 
     yes = 1;
     if (setsockopt(fd, SOL_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {

@@ -84,6 +84,18 @@ if test "x$ENABLE_GTK" = "xyes"; then
         PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
         AC_SUBST(GLADE20_CFLAGS)
         AC_SUBST(GLADE20_LIBS)
+
+	DATADIRNAME=share
+	if test "x${prefix}" = "xNONE"; then
+	   AC_DEFINE_UNQUOTED(INTERFACES_DIR, "${ac_default_prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/", [path where glade files will be installed])
+	   interfacesdir="${ac_default_prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/"
+	   AC_SUBST(interfacesdir)
+	else
+	   AC_DEFINE_UNQUOTED(INTERFACES_DIR, "${prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/", [path where glade files will be installed])
+	   interfacesdir="${prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/"
+	   AC_SUBST(interfacesdir)
+	fi
+
 fi
 AM_CONDITIONAL(ENABLE_GTK, test "x$ENABLE_GTK" = "xyes")
 

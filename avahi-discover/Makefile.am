@@ -34,4 +34,12 @@ avahi_discover_SOURCES = \
 
 avahi_discover_CFLAGS = $(AM_CFLAGS)
 avahi_discover_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+
+interfaces = \
+        avahi-discover.glade
+
+interfaces_DATA = $(interfaces)
+
+EXTRA_DIST = \
+	$(interfaces)
 endif

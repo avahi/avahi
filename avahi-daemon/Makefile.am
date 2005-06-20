@@ -19,14 +19,13 @@
 
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
+dbusservicedir=$(DBUS_SYS_DIR)
 
 AM_CFLAGS= \
 	-I$(top_srcdir) \
 	-D_GNU_SOURCE \
 	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
-	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\" \
-	-DAVAHI_USER=\"avahi\" \
-	-DAVAHI_GROUP=\"avahi\"
+	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\"
 AM_LDADD=-lexpat
 
 # GLIB 2.0
@@ -66,6 +65,10 @@ pkgdata_DATA = \
 
 if ENABLE_DBUS
 avahi_SOURCES += dbus-protocol.c dbus-protocol.h
+
+dbusservice_DATA = avahi-dbus.conf
+
+EXTRA_DIST = $(dbusservice_DATA)
 endif
 
 avahi_CFLAGS = $(AM_CFLAGS)

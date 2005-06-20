@@ -1,0 +1,16 @@
+SUBDIRS = 
+if TARGET_REDHAT
+SUBDIRS += RedHat
+endif
+if TARGET_GENTOO
+SUBDIRS += Gentoo
+endif
+if TARGET_DEBIAN
+SUBDIRS += Debian
+endif
+if TARGET_SLACKWARE
+SUBDIRS += Slackware
+endif
+if TARGET_SUSE
+SUBDIRS += SUSE
+endif

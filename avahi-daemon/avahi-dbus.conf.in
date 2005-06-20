@@ -3,7 +3,8 @@
  "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
 <busconfig>
 
-  <policy user="lathiat">
+  <!-- Only root or user @AVAHI_USER@ can own the Avahi service -->
+  <policy user="@AVAHI_USER@">
     <allow own="org.freedesktop.Avahi"/>
   </policy>
   <policy user="root">

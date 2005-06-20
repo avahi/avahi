@@ -111,6 +111,21 @@ AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
 
 if test "x$ENABLE_DBUS" = "xyes"; then
         PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.23])
+
+	AC_ARG_WITH(dbus-sys, [  --with-dbus-sys=<dir>   where D-BUS system.d directory is])
+
+	if ! test -z "$with_dbus_sys" ; then
+    	   DBUS_SYS_DIR="$with_dbus_sys"
+	else
+	   DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
+	fi
+	AC_SUBST(DBUS_SYS_DIR)
+	AC_DEFINE_UNQUOTED(DBUS_SYSTEMD_DIR, "$DBUS_SYS_DIR", [Where system.d dir for DBUS is])
+
+	if pkg-config dbus-1 --atleast-version=0.30 ; then
+	   AC_DEFINE(DBUS_USE_NEW_API, 1, [Whether to use the new API for DBUS 0.30])
+	fi
+
         AC_SUBST(DBUS_CFLAGS)
 	AC_SUBST(DBUS_LIBS)
 
@@ -140,5 +155,93 @@ if test "x$GCC" = "xyes" ; then
    rm -f conftest.o
 fi
 
-AC_CONFIG_FILES([Makefile avahi-core.pc doxygen/Makefile doxygen/doxygen.conf avahi-common/Makefile avahi-core/Makefile avahi-daemon/Makefile avahi-discover/Makefile avahi-client/Makefile])
+#
+# Detecting the linux distro for specific things like initscripts.
+#
+AC_ARG_WITH(distro, AC_HELP_STRING([--with-distro=DISTRO], [Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, or slackware]))
+if test "z$with_distro" = "z"; then
+   AC_CHECK_FILE(/etc/redhat-release,with_distro="redhat")
+   AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
+   AC_CHECK_FILE(/etc/fedora-release,with_distro="redhat")
+   AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
+   AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
+   AC_CHECK_FILE(/etc/slackware-version,with_distro="slackware")
+fi
+with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
+
+if test "z$with_distro" = "z"; then
+   echo "Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO"
+   exit 1
+else
+case $with_distro in
+   debian)
+     ;;
+   *)
+     echo "Your distribution (${with_distro}) is not yet supported!  (patches welcome)"
+     exit 1
+     ;;
+esac
+
+fi
+AM_CONDITIONAL(TARGET_REDHAT, test x"$with_distro" = xredhat)
+AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
+AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
+AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
+AM_CONDITIONAL(TARGET_SLACKWARE, test x"$with_distro" = xslackware)
+
+#
+# Defining Avahi User and Group.
+#
+AC_ARG_WITH(avahi_user,[  --with-avahi-user=<user>  User for running the Avahi daemon (avahi)])
+if test -z "$with_avahi_user" ; then
+    AVAHI_USER=avahi
+else
+    AVAHI_USER=$with_avahi_user
+fi
+AC_SUBST(AVAHI_USER)
+AC_DEFINE_UNQUOTED(AVAHI_USER,"$AVAHI_USER", [User for running the Avahi daemon])
+
+AC_ARG_WITH(avahi_group,[  --with-avahi-group=<grp>  Group for Avahi (avahi)])
+if test -z "$with_avahi_group" ; then
+    AVAHI_GROUP=avahi
+else
+    AVAHI_GROUP=$with_avahi_group
+fi
+AC_SUBST(AVAHI_GROUP)
+AC_DEFINE_UNQUOTED(AVAHI_GROUP,"$AVAHI_GROUP", [Group for Avahi])
+
+AC_CONFIG_FILES([
+Makefile 
+avahi-core.pc 
+doxygen/Makefile 
+doxygen/doxygen.conf 
+avahi-common/Makefile 
+avahi-core/Makefile 
+avahi-daemon/Makefile 
+avahi-daemon/avahi-dbus.conf
+avahi-discover/Makefile 
+avahi-client/Makefile 
+initscript/Makefile 
+initscript/Debian/Makefile
+initscript/Debian/15avahi
+])
 AC_OUTPUT
+
+dnl ==========================================================================
+echo "
+                   $PACKAGE_NAME $VERSION
+                  ============
+
+        prefix:                   ${prefix}
+        sysconfdir:               ${sysconfdir}
+        dbus-1 system.d dir:      ${DBUS_SYS_DIR}
+	dbus-1 version:           `pkg-config dbus-1 --modversion`
+        compiler:                 ${CC}
+        cflags:                   ${CFLAGS}
+	Linux Distro:             ${with_distro}
+        User for Avahi:           ${AVAHI_USER}
+        Group for Avahi:          ${AVAHI_GROUP}
+"
+
+echo "NOTE: Remember to create user ${AVAHI_USER} and group ${AVAHI_GROUP} before make install"
+echo

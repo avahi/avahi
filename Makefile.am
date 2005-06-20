@@ -18,7 +18,7 @@
 # USA.
 
 EXTRA_DIST = bootstrap.sh LICENSE
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon doxygen
+SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon doxygen initscript
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc

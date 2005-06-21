@@ -1,0 +1,10 @@
+* Quick install instructions (tested on debian/ubuntu only!)
+./bootstrap.sh
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+make
+make install
+/etc/init.d/dbus-1 restart
+
+* Note:
+On other linux distributions, the dbus initscript may be different (eg redhat /etc/init.d/messagebus).
+You need to restart dbus to make it knows about /etc/dbus-1/system.d/avahi-dbus.conf .

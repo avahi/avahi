@@ -1,0 +1,10 @@
+* Quick start guide:
+0) make sure you read the INSTALL file.
+1) start the deamon in background as root: avahi -D
+2) start the Gui to browse zeroconf network as your user: avahi-discover
+
+
+* Basic instructions to control the avahi deamon (as root):
+- starting it:			avahi
+- starting it in background:	avahi -D
+- stopping it:			avahi -k

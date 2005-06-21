@@ -8,18 +8,12 @@
 
 . /lib/lsb/init-functions
 
-set -e
+#set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi ZeroConf daemon"
 NAME="avahi"
 DAEMON=/usr/bin/$NAME
-PIDDIR=/var/run/$NAME
-PIDFILE=$PIDDIR/$NAME.pid
-DAEMONUSER=@AVAHI_USER@
-DAEMONGRP=@AVAHI_GROUP@
-
-
 
 # Gracefully exit if the package has been removed.
 test -x $DAEMON || exit 0
@@ -28,40 +22,41 @@ test -x $DAEMON || exit 0
 #       Function that starts the daemon/service.
 #
 d_start() {
-  if [ ! -d $PIDDIR ]; then
-    mkdir -p $PIDDIR
-  fi
-  chown -R $DAEMONUSER:$DAEMONGRP $PIDDIR
-
-        start-stop-daemon --start \
-	    --background --chuid $DAEMONUSER \
-	    -m --pidfile $PIDFILE \
-            --exec $DAEMON -- $DAEMON_OPTS
-
+    $DAEMON -D
 }
 
 #
 #       Function that stops the daemon/service.
 #
 d_stop() {
-        start-stop-daemon --stop --oknodo --quiet --pidfile $PIDFILE \
-                --exec $DAEMON
+    $DAEMON -k || /bin/true
+}
 
+#
+#       Function that reload the config file for the daemon/service.
+#
+d_reload() {
+    $DAEMON -r
 }
 
 
 case "$1" in
-  start)
+    start)
         log_begin_msg "Starting $DESC: $NAME"
         d_start
         log_end_msg $?
         ;;
-  stop)
+    stop)
         log_begin_msg "Stopping $DESC: $NAME"
         d_stop
         log_end_msg $?
         ;;
-  restart|force-reload)
+    reload)
+        log_begin_msg "Reloading config file for $DESC: $NAME"
+	d_reload
+        log_end_msg $?
+        ;;
+    restart|force-reload)
         log_begin_msg "Restarting $DESC: $NAME"
         d_stop
         sleep 1
@@ -69,7 +64,7 @@ case "$1" in
         log_end_msg $?
         ;;
   *)
-        echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+        echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|reload}" >&2
         exit 1
         ;;
 esac

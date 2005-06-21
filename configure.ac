@@ -140,10 +140,6 @@ if test "x$ENABLE_DBUS" = "xyes"; then
 
         AC_SUBST(DBUS_CFLAGS)
 	AC_SUBST(DBUS_LIBS)
-
-	if pkg-config dbus-1 --atleast-version=0.30 ; then
-		AC_DEFINE(DBUS_USE_NEW_API, 1, [Whether to use the new API for DBUS 0.30])
-	fi
 fi
 
 AM_CONDITIONAL(ENABLE_DBUS, test "x$ENABLE_DBUS" = "xyes")

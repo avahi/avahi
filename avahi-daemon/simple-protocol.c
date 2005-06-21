@@ -41,8 +41,7 @@
 
 #define BUFFER_SIZE (10*1024)
 
-#define UNIX_SOCKET_PATH "/tmp/avahi"
-#define UNIX_SOCKET UNIX_SOCKET_PATH"/socket"
+#define UNIX_SOCKET AVAHI_RUNTIME_DIR "/socket"
 
 #define CLIENTS_MAX 50
 
@@ -378,11 +377,6 @@ int simple_protocol_setup(GMainContext *c) {
 
     u = umask(0000);
 
-    if (mkdir(UNIX_SOCKET_PATH, 0755) < 0 && errno != EEXIST) {
-        avahi_log_warn("mkdir(): %s", strerror(errno));
-        goto fail;
-    }
-    
     if ((server->fd = socket(PF_LOCAL, SOCK_STREAM, 0)) < 0) {
         avahi_log_warn("socket(PF_LOCAL, SOCK_STREAM, 0): %s", strerror(errno));
         goto fail;

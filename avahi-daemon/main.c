@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <grp.h>
 #include <pwd.h>
+#include <sys/stat.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -474,6 +475,59 @@ static gint drop_root(void) {
     return 0;
 }
 
+static const char* pid_file_proc(void) {
+    return AVAHI_RUNTIME_DIR"/pid";
+}
+
+static gint make_runtime_dir(void) {
+    gint r = -1;
+    mode_t u;
+    gboolean reset_umask = FALSE;
+    struct passwd *pw;
+    struct group * gr;
+    struct stat st;
+
+    if (!(pw = getpwnam(AVAHI_USER))) {
+        avahi_log_error( "Failed to find user '"AVAHI_USER"'.");
+        goto fail;
+    }
+
+    if (!(gr = getgrnam(AVAHI_GROUP))) {
+        avahi_log_error( "Failed to find group '"AVAHI_GROUP"'.");
+        goto fail;
+    }
+
+    u = umask(0000);
+    reset_umask = TRUE;
+    
+    if (mkdir(AVAHI_RUNTIME_DIR, 0755) < 0 && errno != EEXIST) {
+        avahi_log_error("mkdir(\""AVAHI_RUNTIME_DIR"\"): %s", strerror(errno));
+        goto fail;
+    }
+    
+    chown(AVAHI_RUNTIME_DIR, pw->pw_uid, gr->gr_gid);
+
+    if (stat(AVAHI_RUNTIME_DIR, &st) < 0) {
+        avahi_log_error("stat(): %s\n", strerror(errno));
+        goto fail;
+    }
+
+    if (!S_ISDIR(st.st_mode) || st.st_uid != pw->pw_uid || st.st_gid != gr->gr_gid) {
+        avahi_log_error("Failed to create runtime directory "AVAHI_RUNTIME_DIR".");
+        goto fail;
+    }
+
+    r = 0;
+
+fail:
+    if (reset_umask)
+        umask(u);
+    return r;
+
+}
+    
+
+
 int main(int argc, char *argv[]) {
     gint r = 255;
     DaemonConfig config;
@@ -495,6 +549,8 @@ int main(int argc, char *argv[]) {
         argv0 = argv[0];
 
     daemon_pid_file_ident = daemon_log_ident = (char *) argv0;
+
+    daemon_pid_file_proc = pid_file_proc;
     
     if (parse_command_line(&config, argc, argv) < 0)
         goto finish;
@@ -561,6 +617,14 @@ int main(int argc, char *argv[]) {
 
         chdir("/");
 
+        if (make_runtime_dir() < 0)
+            goto finish;
+
+        if (config.drop_root) {
+            if (drop_root() < 0)
+                goto finish;
+        }
+
         if (daemon_pid_file_create() < 0) {
             avahi_log_error("Failed to create PID file: %s", strerror(errno));
 
@@ -569,11 +633,6 @@ int main(int argc, char *argv[]) {
             goto finish;
         } else
             wrote_pid_file = TRUE;
-
-        if (config.drop_root) {
-            if (drop_root() < 0)
-                goto finish;
-        }
 
         if (run_server(&config) == 0)
             r = 0;

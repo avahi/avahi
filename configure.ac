@@ -55,10 +55,12 @@ AC_HEADER_TIME
 # Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
-AC_CHECK_FUNCS([gethostname memset select socket strchr strcspn strerror uname])
+AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strerror strrchr strstr uname setresuid setreuid])
 
-AC_CHECK_FUNCS(setresuid)
-AC_CHECK_FUNCS(setreuid)
+AC_FUNC_CHOWN
+AC_FUNC_STAT
+AC_TYPE_MODE_T
+AC_TYPE_PID_T
 
 # Check for GLIB 2.0
 PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])

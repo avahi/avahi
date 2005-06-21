@@ -52,7 +52,8 @@ typedef enum {
     AVAHI_ENTRY_NULL = 0,          /**< No special flags */
     AVAHI_ENTRY_UNIQUE = 1,        /**< The RRset is intended to be unique */
     AVAHI_ENTRY_NOPROBE = 2,       /**< Though the RRset is intended to be unique no probes shall be sent */
-    AVAHI_ENTRY_NOANNOUNCE = 4     /**< Do not announce this RR to other hosts */
+    AVAHI_ENTRY_NOANNOUNCE = 4,    /**< Do not announce this RR to other hosts */
+    AVAHI_ENTRY_ALLOWMUTIPLE = 8   /**< Allow multiple local records of this type, even if they are intended to be unique */
 } AvahiEntryFlags;
 
 /** States of an entry group object */

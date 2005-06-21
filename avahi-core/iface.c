@@ -51,8 +51,12 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
 
         if (!a->entry_group) {
             a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
-            avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address); 
-            avahi_entry_group_commit(a->entry_group);
+            if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
+                avahi_log_warn(__FILE__": avahi_server_add_address() failed.");
+                avahi_entry_group_free(a->entry_group);
+                a->entry_group = NULL;
+            } else
+                avahi_entry_group_commit(a->entry_group);
         }
     } else {
 
@@ -98,8 +102,12 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
             g_free(t);
             
             hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
-            avahi_server_add_service(m->server, hw->entry_group, hw->index, AF_UNSPEC, "_workstation._tcp", name, NULL, NULL, 9, NULL); 
-            avahi_entry_group_commit(hw->entry_group);
+            if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AF_UNSPEC, "_workstation._tcp", name, NULL, NULL, 9, NULL) < 0) { 
+                avahi_log_warn(__FILE__": avahi_server_add_service() failed.");
+                avahi_entry_group_free(hw->entry_group);
+                hw->entry_group = NULL;
+            } else
+                avahi_entry_group_commit(hw->entry_group);
 
             g_free(name);
         }

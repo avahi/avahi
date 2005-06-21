@@ -114,12 +114,29 @@ static void create_entries(gboolean new_name) {
         service_name = n;
     }
     
-    avahi_server_add_service(server, group, 0, AF_UNSPEC, "_http._tcp", service_name, NULL, NULL, 80, "foo", NULL);
-    avahi_server_add_service(server, group, 0, AF_UNSPEC, "_ftp._tcp", service_name, NULL, NULL, 21, "foo", NULL);   
-    avahi_server_add_service(server, group, 0, AF_UNSPEC, "_webdav._tcp", service_name, NULL, NULL, 80, "foo", NULL);   
-    
-    avahi_entry_group_commit(group);   
+    if (avahi_server_add_service(server, group, 0, AF_UNSPEC, "_http._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
+        avahi_log_error("Failed to add HTTP service");
+        goto fail;
+    }
 
+    if (avahi_server_add_service(server, group, 0, AF_UNSPEC, "_ftp._tcp", service_name, NULL, NULL, 21, "foo", NULL) < 0) {
+        avahi_log_error("Failed to add FTP service");
+        goto fail;
+    }
+
+    if (avahi_server_add_service(server, group, 0, AF_UNSPEC, "_webdav._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
+        avahi_log_error("Failed to add WEBDAV service");
+        goto fail;
+    }
+    
+    avahi_entry_group_commit(group);
+    return;
+
+fail:
+    if (group)
+        avahi_entry_group_free(group);
+
+    group = NULL;
 }
 
 static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {

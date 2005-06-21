@@ -452,7 +452,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
     ssize_t l;
     struct cmsghdr *cmsg;
     gboolean found_ttl = FALSE, found_iface = FALSE;
-    guint ms;
+    gint ms;
 
     g_assert(fd >= 0);
     g_assert(ret_sa);
@@ -536,7 +536,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
     struct iovec io;
     uint8_t aux[64];
     ssize_t l;
-    guint ms;
+    gint ms;
     
     struct cmsghdr *cmsg;
     gboolean found_ttl = FALSE, found_iface = FALSE;

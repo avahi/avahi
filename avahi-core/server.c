@@ -561,7 +561,13 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
 
         if (!legacy_unicast)
             reflect_query(s, i, key);
-        avahi_query_scheduler_incoming(i->query_scheduler, key);
+
+        if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0 &&
+            !(avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_TC))
+            /* Allow our own queries to be suppressed by incoming
+             * queries only when they do not include known answers */
+            avahi_query_scheduler_incoming(i->query_scheduler, key);
+        
         avahi_server_prepare_matching_responses(s, i, key, unicast_response);
         avahi_key_unref(key);
     }
@@ -1396,6 +1402,36 @@ void avahi_server_free(AvahiServer* s) {
     g_free(s);
 }
 
+static gint check_record_conflict(AvahiServer *s, gint interface, guchar protocol, AvahiRecord *r, AvahiEntryFlags flags) {
+    AvahiEntry *e;
+    
+    g_assert(s);
+    g_assert(r);
+
+    for (e = g_hash_table_lookup(s->entries_by_key, r->key); e; e = e->by_key_next) {
+        if (e->dead)
+            continue;
+
+        if (!(flags & AVAHI_ENTRY_UNIQUE) && !(e->flags & AVAHI_ENTRY_UNIQUE))
+            continue;
+        
+        if ((flags & AVAHI_ENTRY_ALLOWMUTIPLE) && (e->flags & AVAHI_ENTRY_ALLOWMUTIPLE) )
+            continue;
+
+        if (interface <= 0 ||
+            e->interface <= 0 ||
+            e->interface == interface ||
+            protocol == AF_UNSPEC ||
+            e->protocol == AF_UNSPEC ||
+            e->protocol == protocol)
+
+            return -1;
+
+    }
+
+    return 0;
+}
+
 gint avahi_server_add(
     AvahiServer *s,
     AvahiEntryGroup *g,
@@ -1409,6 +1445,9 @@ gint avahi_server_add(
     g_assert(r);
 
     g_assert(r->key->type != AVAHI_DNS_TYPE_ANY);
+
+    if (check_record_conflict(s, interface, protocol, r, flags) < 0)
+        return -1;
 
     e = g_new(AvahiEntry, 1);
     e->server = s;
@@ -1485,14 +1524,15 @@ gint avahi_server_add_ptr(
     const gchar *dest) {
 
     AvahiRecord *r;
+    gint ret;
 
     g_assert(dest);
 
     r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     r->data.ptr.name = avahi_normalize_name(dest);
-    avahi_server_add(s, g, interface, protocol, flags, r);
+    ret = avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
-    return 0;
+    return ret;
 }
 
 gint avahi_server_add_address(
@@ -1505,6 +1545,7 @@ gint avahi_server_add_address(
     AvahiAddress *a) {
 
     gchar *n = NULL;
+    gint ret = 0;
     g_assert(s);
     g_assert(a);
 
@@ -1516,11 +1557,11 @@ gint avahi_server_add_address(
 
         r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
         r->data.a.address = a->data.ipv4;
-        avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, r);
+        ret = avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
         avahi_record_unref(r);
         
         reverse = avahi_reverse_lookup_name_ipv4(&a->data.ipv4);
-        avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
+        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
         g_free(reverse);
         
     } else {
@@ -1529,21 +1570,21 @@ gint avahi_server_add_address(
             
         r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
         r->data.aaaa.address = a->data.ipv6;
-        avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, r);
+        ret = avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
         avahi_record_unref(r);
 
         reverse = avahi_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
-        avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
+        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
         g_free(reverse);
     
         reverse = avahi_reverse_lookup_name_ipv6_int(&a->data.ipv6);
-        avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
+        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
         g_free(reverse);
     }
     
     g_free(n);
 
-    return 0;
+    return ret;
 }
 
 gint avahi_server_add_text_strlst(
@@ -1556,15 +1597,16 @@ gint avahi_server_add_text_strlst(
     AvahiStringList *strlst) {
 
     AvahiRecord *r;
+    gint ret;
     
     g_assert(s);
     
     r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
     r->data.txt.string_list = strlst;
-    avahi_server_add(s, g, interface, protocol, flags, r);
+    ret = avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
 
-    return 0;
+    return ret;
 }
 
 gint avahi_server_add_text_va(
@@ -1578,8 +1620,7 @@ gint avahi_server_add_text_va(
     
     g_assert(s);
 
-    avahi_server_add_text_strlst(s, g, interface, protocol, flags, name, avahi_string_list_new_va(va));
-    return 0;
+    return avahi_server_add_text_strlst(s, g, interface, protocol, flags, name, avahi_string_list_new_va(va));
 }
 
 gint avahi_server_add_text(
@@ -1592,14 +1633,15 @@ gint avahi_server_add_text(
     ...) {
 
     va_list va;
+    gint ret;
     
     g_assert(s);
 
     va_start(va, name);
-    avahi_server_add_text_va(s, g, interface, protocol, flags, name, va);
+    ret = avahi_server_add_text_va(s, g, interface, protocol, flags, name, va);
     va_end(va);
 
-    return 0;
+    return ret;
 }
 
 static void escape_service_name(gchar *d, guint size, const gchar *s) {
@@ -1638,6 +1680,7 @@ gint avahi_server_add_service_strlst(
 
     gchar ptr_name[256], svc_name[256], ename[64], enum_ptr[256];
     AvahiRecord *r;
+    gint ret = 0;
     
     g_assert(s);
     g_assert(type);
@@ -1657,22 +1700,22 @@ gint avahi_server_add_service_strlst(
     snprintf(ptr_name, sizeof(ptr_name), "%s.%s", type, domain);
     snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, type, domain);
     
-    avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, ptr_name, svc_name);
+    ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, ptr_name, svc_name);
 
     r = avahi_record_new_full(svc_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
     r->data.srv.priority = 0;
     r->data.srv.weight = 0;
     r->data.srv.port = port;
     r->data.srv.name = avahi_normalize_name(host);
-    avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
+    ret |= avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
     avahi_record_unref(r);
 
-    avahi_server_add_text_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, svc_name, strlst);
+    ret |= avahi_server_add_text_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, svc_name, strlst);
 
     snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
-    avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, enum_ptr, ptr_name);
+    ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, enum_ptr, ptr_name);
 
-    return 0;
+    return ret;
 }
 
 gint avahi_server_add_service_va(
@@ -1691,8 +1734,7 @@ gint avahi_server_add_service_va(
     g_assert(type);
     g_assert(name);
 
-    avahi_server_add_service_strlst(s, g, interface, protocol, type, name, domain, host, port, avahi_string_list_new_va(va));
-    return 0;
+    return avahi_server_add_service_strlst(s, g, interface, protocol, type, name, domain, host, port, avahi_string_list_new_va(va));
 }
 
 gint avahi_server_add_service(
@@ -1708,15 +1750,16 @@ gint avahi_server_add_service(
     ... ){
 
     va_list va;
+    gint ret;
     
     g_assert(s);
     g_assert(type);
     g_assert(name);
 
     va_start(va, port);
-    avahi_server_add_service_va(s, g, interface, protocol, type, name, domain, host, port, va);
+    ret = avahi_server_add_service_va(s, g, interface, protocol, type, name, domain, host, port, va);
     va_end(va);
-    return 0;
+    return ret;
 }
 
 static void post_query_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata) {

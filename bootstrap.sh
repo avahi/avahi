@@ -42,7 +42,7 @@ else
     run_versioned automake 1.7 -a -c --foreign
     autoconf -Wall
 
-    CFLAGS="-g -O0" ./configure --sysconfdir=/etc --localstatedir=/var"$@"
+    CFLAGS="-g -O0" ./configure --sysconfdir=/etc --localstatedir=/var "$@"
 
     make clean
 fi

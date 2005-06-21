@@ -121,9 +121,9 @@ AC_ARG_ENABLE(dbus,
         esac],
 	[ENABLE_DBUS=yes]) dnl Default value
 
-AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
 
 if test "x$ENABLE_DBUS" = "xyes"; then
+	AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
         PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.23])
 
 	AC_ARG_WITH(dbus-sys, [  --with-dbus-sys=<dir>   where D-BUS system.d directory is])

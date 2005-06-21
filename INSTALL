@@ -1,10 +1,27 @@
-* Quick install instructions (tested on debian/ubuntu only!)
-./bootstrap.sh
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
-make
-make install
-/etc/init.d/dbus-1 restart
+*** Quick install instructions (tested on debian/ubuntu only!) ***
 
-* Note:
-On other linux distributions, the dbus initscript may be different (eg redhat /etc/init.d/messagebus).
-You need to restart dbus to make it knows about /etc/dbus-1/system.d/avahi-dbus.conf .
+$ ./bootstrap.sh
+	(this will run autoconf/automake and finally ./configure
+	--prefix=/usr --sysconfdir=/etc --localstatedir=/var)
+
+$ make
+# make install
+
+# addgroup --system avahi
+# adduser --system --no-create-home --ingroup avahi avahi
+	(These commands are Debian specific and may be different on other
+	distributions)
+
+# /etc/init.d/dbus-1 restart
+	(This whill restart DBUS and avahi too)
+
+While "make" and "boostrap.sh" may be run as normal users all other commands
+need to be run is root.
+
+*** Note ***
+
+On other linux distributions, the dbus initscript may be different (eg redhat
+/etc/init.d/messagebus).  You need to restart dbus to make it know about
+/etc/dbus-1/system.d/avahi-dbus.conf .
+
+$Id$

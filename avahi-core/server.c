@@ -615,7 +615,6 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
     
 fail:
     avahi_record_list_flush(s->record_list);
-
 }
 
 static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a) {
@@ -653,6 +652,12 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
             
         avahi_record_unref(record);
     }
+
+    /* If the incoming response contained a conflicting record, some
+       records have been scheduling for sending. We need to flush them
+       here. */
+    if (!avahi_record_list_empty(s->record_list))
+        avahi_server_generate_response(s, i, NULL, NULL, 0, FALSE);
 }
 
 static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {

@@ -386,6 +386,13 @@ int simple_protocol_setup(GMainContext *c) {
     sa.sun_family = AF_LOCAL;
     strncpy(sa.sun_path, UNIX_SOCKET, sizeof(sa.sun_path)-1);
 
+    /* We simply remove existing UNIX sockets under this name. The
+       Avahi daemons makes sure that it runs only once on a host,
+       therefore sockets that already exist are stale and may be
+       removed without any ill effects */
+
+    unlink(UNIX_SOCKET);
+    
     if (bind(server->fd, &sa, sizeof(sa)) < 0) {
         avahi_log_warn("bind(): %s", strerror(errno));
         goto fail;

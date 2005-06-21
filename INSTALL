@@ -1,9 +1,9 @@
 *** Quick install instructions (tested on debian/ubuntu only!) ***
 
 $ ./bootstrap.sh
-	(this will run autoconf/automake and finally ./configure
-	--prefix=/usr --sysconfdir=/etc --localstatedir=/var)
+	(this will run autoconf/automake)
 
+$ ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
 $ make
 # make install
 

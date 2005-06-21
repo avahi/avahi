@@ -233,7 +233,7 @@ avahi-discover/Makefile
 avahi-client/Makefile 
 initscript/Makefile 
 initscript/Debian/Makefile
-initscript/Debian/15avahi
+initscript/Debian/75avahi
 ])
 AC_OUTPUT
 

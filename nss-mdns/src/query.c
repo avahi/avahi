@@ -220,7 +220,7 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
     return n_sent;
 }
 
-static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t* ret_ttl, struct timeval *end) {
+static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t *ret_ttl, struct timeval *end) {
     struct dns_packet *p= NULL;
     struct msghdr msg;
     struct iovec io;

@@ -83,5 +83,22 @@ fi
 
 AM_CONDITIONAL([USE_LYNX], [test "x$lynx" = xyes])
 
+AC_ARG_ENABLE(avahi,
+        AC_HELP_STRING([--enable-avahi],[use Avahi (default=yes)]),
+        [case "${enableval}" in
+                yes) ENABLE_AVAHI=yes ;;
+                no)  ENABLE_AVAHI=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-avahi) ;;
+        esac],
+        [ENABLE_AVAHI=yes]) dnl Default value
+
+
+AM_CONDITIONAL([ENABLE_AVAHI], [test "x$ENABLE_AVAHI" = "xyes"])
+
+if test "x$ENABLE_AVAHI" = "xyes" ; then
+   AC_DEFINE(ENABLE_AVAHI, [1], [Try to make use of a running avahi mDNS server before resolving on our own behalf])
+fi
+
+
 AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile doc/README.html ])
 AC_OUTPUT

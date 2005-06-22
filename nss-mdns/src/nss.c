@@ -34,6 +34,10 @@
 
 #include "query.h"
 
+#ifdef ENABLE_AVAHI
+#include "avahi.h"
+#endif
+
 #define MAX_ENTRIES 16
 
 #ifdef NSS_IPV4_ONLY
@@ -161,6 +165,10 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     void (*ipv4_func)(const ipv4_address_t *ipv4, void *userdata);
     void (*ipv6_func)(const ipv6_address_t *ipv6, void *userdata);
 
+#ifdef ENABLE_AVAHI
+    uint8_t data[128];
+#endif
+
 /*     DEBUG_TRAP; */
 
 #ifdef NSS_IPV4_ONLY
@@ -195,39 +203,56 @@ enum nss_status _nss_mdns_gethostbyname2_r(
         goto finish;
     }
     
-    if ((fd = mdns_open_socket()) < 0) {
-
-        *errnop = errno;
-        *h_errnop = NO_RECOVERY;
-        goto finish;
-    }
-
     u.count = 0;
     u.data_len = 0;
 
-#ifndef NSS_IPV6_ONLY
-    ipv4_func = af == AF_INET ? ipv4_callback : NULL;
-#else
+#ifdef NSS_IPV6_ONLY
     ipv4_func = NULL;
+#else
+    ipv4_func = af == AF_INET ? ipv4_callback : NULL;
 #endif    
 
-#ifndef NSS_IPV4_ONLY
-    ipv6_func = af == AF_INET6 ? ipv6_callback : NULL;
-#else
+#ifdef NSS_IPV4_ONLY
     ipv6_func = NULL;
+#else
+    ipv6_func = af == AF_INET6 ? ipv6_callback : NULL;
 #endif
-    
-    if ((r = mdns_query_name(fd, name, ipv4_func, ipv6_func, &u)) < 0) {
+
+#ifdef ENABLE_AVAHI
+
+    if ((r = avahi_resolve_name(af, name, data)) == 0) {
+        if (af == AF_INET && ipv4_func)
+            ipv4_func((ipv4_address_t*) data, &u);
+        if (af == AF_INET6 && ipv4_func)
+            ipv6_func((ipv6_address_t*)data, &u);
+    } else if (r > 0) {
         *errnop = ETIMEDOUT;
         *h_errnop = HOST_NOT_FOUND;
         goto finish;
     }
+    
+#endif
 
+    if (u.count == 0) {
+        if ((fd = mdns_open_socket()) < 0) {
+            
+            *errnop = errno;
+            *h_errnop = NO_RECOVERY;
+            goto finish;
+        }
+        
+        if ((r = mdns_query_name(fd, name, ipv4_func, ipv6_func, &u)) < 0) {
+            *errnop = ETIMEDOUT;
+            *h_errnop = HOST_NOT_FOUND;
+            goto finish;
+        }
+    }
+        
     /* Alias names */
     *((char**) buffer) = NULL;
     result->h_aliases = (char**) buffer;
     index = sizeof(char*);
-
+    
     /* Official name */
     strcpy(buffer+index, name); 
     result->h_name = buffer+index;
@@ -235,7 +260,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     
     result->h_addrtype = af;
     result->h_length = address_length;
-
+    
     /* Check if there's enough space for the addresses */
     if (buflen < index+u.data_len+sizeof(char*)*(u.count+1)) {
         *errnop = ERANGE;
@@ -302,6 +327,9 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     enum nss_status status = NSS_STATUS_UNAVAIL;
     int fd = -1, r;
     size_t address_length, index, astart;
+#ifdef ENABLE_AVAHI
+    char t[256];
+#endif
 
     *errnop = EINVAL;
     *h_errnop = NO_RECOVERY;
@@ -335,31 +363,46 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
 
         goto finish;
     }
-    
-    if ((fd = mdns_open_socket()) < 0) {
 
-        *errnop = errno;
-        *h_errnop = NO_RECOVERY;
-        goto finish;
-    }
+#ifdef ENABLE_AVAHI
 
-#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
-    if (af == AF_INET)
-#endif
-#ifndef NSS_IPV6_ONLY        
-        r = mdns_query_ipv4(fd, (ipv4_address_t*) addr, name_callback, &u);
-#endif
-#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
-    else
-#endif
-#ifndef NSS_IPV4_ONLY        
-        r = mdns_query_ipv6(fd, (ipv6_address_t*) addr, name_callback, &u);
-#endif
-    
-    if (r < 0) {
+    if ((r = avahi_resolve_address(af, addr, t, sizeof(t))) == 0) {
+        name_callback(t, &u);
+    } else if (r > 0) {
         *errnop = ETIMEDOUT;
         *h_errnop = HOST_NOT_FOUND;
         goto finish;
+    }
+
+#endif 
+
+    if (u.count == 0) {
+
+        if ((fd = mdns_open_socket()) < 0) {
+            
+            *errnop = errno;
+            *h_errnop = NO_RECOVERY;
+            goto finish;
+        }
+        
+#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
+        if (af == AF_INET)
+#endif
+#ifndef NSS_IPV6_ONLY        
+            r = mdns_query_ipv4(fd, (ipv4_address_t*) addr, name_callback, &u);
+#endif
+#if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
+        else
+#endif
+#ifndef NSS_IPV4_ONLY        
+            r = mdns_query_ipv6(fd, (ipv6_address_t*) addr, name_callback, &u);
+#endif
+        
+        if (r < 0) {
+            *errnop = ETIMEDOUT;
+            *h_errnop = HOST_NOT_FOUND;
+            goto finish;
+        }
     }
 
     /* Alias names */

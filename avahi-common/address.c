@@ -33,9 +33,9 @@
 guint avahi_address_get_size(const AvahiAddress *a) {
     g_assert(a);
 
-    if (a->family == AF_INET)
+    if (a->family == AVAHI_PROTO_INET)
         return 4;
-    else if (a->family == AF_INET6)
+    else if (a->family == AVAHI_PROTO_INET6)
         return 16;
 
     return 0;
@@ -111,18 +111,18 @@ gchar *avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a) {
     return reverse_lookup_name_ipv6(a, "ip6.int");
 }
 
-AvahiAddress *avahi_address_parse(const char *s, guchar family, AvahiAddress *ret_addr) {
+AvahiAddress *avahi_address_parse(const gchar *s, AvahiProtocol family, AvahiAddress *ret_addr) {
     g_assert(ret_addr);
     g_assert(s);
 
-    if (family == AF_UNSPEC) {
+    if (family == AVAHI_PROTO_UNSPEC) {
         if (inet_pton(AF_INET, s, ret_addr->data.data) <= 0) {
             if (inet_pton(AF_INET6, s, ret_addr->data.data) <= 0)
                 return NULL;
             else
-                ret_addr->family = AF_INET6;
+                ret_addr->family = AVAHI_PROTO_INET6;
         } else
-            ret_addr->family = AF_INET;
+            ret_addr->family = AVAHI_PROTO_INET;
     } else {
         if (inet_pton(family, s, ret_addr->data.data) <= 0)
             return NULL;
@@ -168,7 +168,7 @@ gboolean avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
     
     g_assert(a);
 
-    if (a->family != AF_INET6)
+    if (a->family != AVAHI_PROTO_INET6)
         return FALSE;
 
     return memcmp(a->data.ipv6.address, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0;

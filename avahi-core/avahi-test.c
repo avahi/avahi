@@ -52,7 +52,7 @@ static void record_browser_callback(AvahiRecordBrowser *r, gint interface, gucha
     g_assert(r);
     g_assert(record);
     g_assert(interface > 0);
-    g_assert(protocol != AF_UNSPEC);
+    g_assert(protocol != AVAHI_PROTO_UNSPEC);
 
     avahi_log_debug("SUBSCRIPTION: record [%s] on %i.%i is %s", t = avahi_record_to_string(record), interface, protocol,
               event == AVAHI_BROWSER_NEW ? "new" : "remove");
@@ -115,22 +115,22 @@ static void create_entries(gboolean new_name) {
         service_name = n;
     }
     
-    if (avahi_server_add_service(server, group, 0, AF_UNSPEC, "_http._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add HTTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, 0, AF_UNSPEC, "_ftp._tcp", service_name, NULL, NULL, 21, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_ftp._tcp", service_name, NULL, NULL, 21, "foo", NULL) < 0) {
         avahi_log_error("Failed to add FTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, 0, AF_UNSPEC, "_webdav._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_webdav._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add WEBDAV service");
         goto fail;
     }
 
-    if (avahi_server_add_dns_server_address(server, group, 0, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AF_UNSPEC, &a), 53) < 0) {
+    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a), 53) < 0) {
         avahi_log_error("Failed to add new DNS Server address");
         goto fail;
     }
@@ -218,22 +218,22 @@ int main(int argc, char *argv[]) {
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    r = avahi_record_browser_new(server, -1, AF_UNSPEC, k, record_browser_callback, NULL);
+    r = avahi_record_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, k, record_browser_callback, NULL);
     avahi_key_unref(k);
 
-    hnr = avahi_host_name_resolver_new(server, -1, AF_UNSPEC, "codes-CompUTER.local", AF_UNSPEC, hnr_callback, NULL);
+    hnr = avahi_host_name_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "codes-CompUTER.local", AVAHI_PROTO_UNSPEC, hnr_callback, NULL);
 
-    ar = avahi_address_resolver_new(server, -1, AF_UNSPEC, avahi_address_parse("192.168.50.15", AF_INET, &a), ar_callback, NULL);
+    ar = avahi_address_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, avahi_address_parse("192.168.50.15", AVAHI_PROTO_INET, &a), ar_callback, NULL);
 
-    db = avahi_domain_browser_new(server, -1, AF_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
+    db = avahi_domain_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
 
-    stb = avahi_service_type_browser_new(server, -1, AF_UNSPEC, NULL, stb_callback, NULL);
+    stb = avahi_service_type_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, stb_callback, NULL);
 
-    sb = avahi_service_browser_new(server, -1, AF_UNSPEC, "_http._tcp", NULL, sb_callback, NULL);
+    sb = avahi_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, sb_callback, NULL);
 
-    sr = avahi_service_resolver_new(server, -1, AF_UNSPEC, "Ecstasy HTTP", "_http._tcp", "local", AF_UNSPEC, sr_callback, NULL);
+    sr = avahi_service_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Ecstasy HTTP", "_http._tcp", "local", AVAHI_PROTO_UNSPEC, sr_callback, NULL);
 
-    dsb = avahi_dns_server_browser_new(server, -1, AF_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AF_UNSPEC, dsb_callback, NULL);
+    dsb = avahi_dns_server_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AVAHI_PROTO_UNSPEC, dsb_callback, NULL);
 
     loop = g_main_loop_new(NULL, FALSE);
     

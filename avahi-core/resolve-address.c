@@ -75,7 +75,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     g_assert(e);
     g_assert(r);
 
-    finish(r, -1, AF_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
+    finish(r, -1, AVAHI_PROTO_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
 }
 
 AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback callback, gpointer userdata) {
@@ -88,7 +88,7 @@ AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint inter
     g_assert(address);
     g_assert(callback);
 
-    g_assert(address->family == AF_INET || address->family == AF_INET6);
+    g_assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
 
     r = g_new(AvahiAddressResolver, 1);
     r->server = server;
@@ -101,7 +101,7 @@ AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint inter
 
     AVAHI_LLIST_PREPEND(AvahiAddressResolver, resolver, server->address_resolvers, r);
     
-    if (address->family == AF_INET)
+    if (address->family == AVAHI_PROTO_INET)
         n = avahi_reverse_lookup_name_ipv4(&address->data.ipv4);
     else 
         n = avahi_reverse_lookup_name_ipv6_arpa(&address->data.ipv6);

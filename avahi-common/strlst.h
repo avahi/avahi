@@ -24,30 +24,64 @@
 
 #include <glib.h>
 
+/** Linked list of strings that can contain any number of binary
+ * characters, include NUL bytes. An empty list is created by
+ * assigning a NULL to a pointer to AvahiStringList. The string list
+ * is stored in reverse order, so that appending to the string list is
+ * effectively a prepending to the linked list.  This object is used
+ * primarily for storing DNS TXT record data. */
 typedef struct AvahiStringList {
-    struct AvahiStringList *next;
-    guint size;
-    guint8 text[1];
+    struct AvahiStringList *next; /**< Pointe to the next linked list element */
+    guint size;  /**< Size of text[] */
+    guint8 text[1]; /**< Character data */
 } AvahiStringList;
 
+/** Create a new string list by taking a variable list of NUL
+ * terminated strings. The strings are copied using g_strdup(). The
+ * argument list must be terminated by a NULL pointer. */
 AvahiStringList *avahi_string_list_new(const gchar *txt, ...);
+
+/** Same as avahi_string_list_new() but pass a va_list structure */
 AvahiStringList *avahi_string_list_new_va(va_list va);
 
+/** Free a string list */
 void avahi_string_list_free(AvahiStringList *l);
 
+/** Append a NUL terminated string to the specified string list. The
+ * passed string is copied using g_strdup(). Returns the new list
+ * start. */
 AvahiStringList *avahi_string_list_add(AvahiStringList *l, const gchar *text);
+
+/** Append am arbitrary length byte string to the list. Returns the
+ * new list start. */
 AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint8 *text, guint size);
+
+/** Same as avahi_string_list_add(), but takes a variable number of
+ * NUL terminated strings. The argument list must be terminated by a
+ * NULL pointer. Returns the new list start. */
 AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...);
+
+/** Same as avahi_string_list_add_many(), but use a va_list
+ * structure. Returns the new list start. */
 AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
 
+/** Convert the string list object to a single character string,
+ * seperated by spaces and enclosed in "". g_free() the result! This
+ * function doesn't work well with string that contain NUL bytes. */
 gchar* avahi_string_list_to_string(AvahiStringList *l);
 
+/** Serialize the string list object in a way that is compatible with
+ * the storing of DNS TXT records. Strings longer than 255 bytes are truncated. */
 guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size);
+
+/** Inverse of avahi_string_list_serialize() */
 AvahiStringList *avahi_string_list_parse(gconstpointer data, guint size);
 
-gboolean avahi_string_list_equal(AvahiStringList *a, AvahiStringList *b);
+/** Compare to string lists */
+gboolean avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b);
 
-AvahiStringList *avahi_string_list_copy(AvahiStringList *l);
+/** Copy a string list */
+AvahiStringList *avahi_string_list_copy(const AvahiStringList *l);
 
 #endif
 

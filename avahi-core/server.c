@@ -600,7 +600,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             goto fail;
         }
 
-        if (record->key->type != AVAHI_DNS_TYPE_ANY) {
+        if (!avahi_key_is_pattern(record->key)) {
             reflect_probe(s, i, record);
             incoming_probe(s, record, i);
         }
@@ -638,7 +638,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
             break;
         }
 
-        if (record->key->type != AVAHI_DNS_TYPE_ANY) {
+        if (!avahi_key_is_pattern(record->key)) {
 
 /*             avahi_log_debug("Handling response: %s", txt = avahi_record_to_string(record)); */
 /*             g_free(txt); */
@@ -788,9 +788,9 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
             j != i &&
             (s->config.reflect_ipv || j->protocol == i->protocol)) {
 
-            if (j->protocol == AF_INET && s->fd_legacy_unicast_ipv4 >= 0) {
+            if (j->protocol == AVAHI_PROTO_INET && s->fd_legacy_unicast_ipv4 >= 0) {
                 avahi_send_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, j->hardware->index, p, NULL, 0);
-                } else if (j->protocol == AF_INET6 && s->fd_legacy_unicast_ipv6 >= 0)
+                } else if (j->protocol == AVAHI_PROTO_INET6 && s->fd_legacy_unicast_ipv6 >= 0)
                 avahi_send_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, j->hardware->index, p, NULL, 0);
         }
 
@@ -835,7 +835,15 @@ static gboolean originates_from_local_legacy_unicast_socket(AvahiServer *s, cons
     return FALSE;
 }
 
-static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, gint iface, gint ttl) {
+static gboolean is_mdns_mcast_address(const AvahiAddress *a) {
+    AvahiAddress b;
+    g_assert(a);
+
+    avahi_address_parse(a->family == AVAHI_PROTO_INET ? AVAHI_IPV4_MCAST_GROUP : AVAHI_IPV6_MCAST_GROUP, a->family, &b);
+    return avahi_address_cmp(a, &b) == 0;
+}
+
+static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, AvahiAddress *dest, AvahiIfIndex iface, gint ttl) {
     AvahiInterface *i;
     AvahiAddress a;
     guint16 port;
@@ -843,6 +851,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
     g_assert(s);
     g_assert(p);
     g_assert(sa);
+    g_assert(dest);
     g_assert(iface > 0);
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
@@ -896,18 +905,22 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         
 /*         avahi_log_debug("Handled query"); */
     } else {
-
         if (port != AVAHI_MDNS_PORT) {
             avahi_log_warn("Recieved repsonse with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
             return;
         }
 
-        if (ttl != 255) {
+        if (ttl != 255 && s->config.check_response_ttl) {
             avahi_log_warn("Recieved response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
-            if (s->config.check_response_ttl)
-                return;
+            return;
         }
 
+        if (!is_mdns_mcast_address(dest) &&
+            !avahi_interface_address_on_link(i, &a)) {
+            avahi_log_warn("Recivied non-local response on interface '%s.%i'.", i->hardware->name, i->protocol);
+            return;
+        }
+        
         if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT) != 0 ||
             avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0 ||
             avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) != 0) {
@@ -920,7 +933,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
     }
 }
 
-static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, gint iface, gint ttl) {
+static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, AvahiIfIndex iface, gint ttl) {
     AvahiInterface *i, *j;
     AvahiAddress a;
     guint16 port;
@@ -973,6 +986,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
 static void work(AvahiServer *s) {
     struct sockaddr_in6 sa6;
     struct sockaddr_in sa;
+    AvahiAddress dest;
     AvahiDnsPacket *p;
     gint iface = 0;
     guint8 ttl;
@@ -980,28 +994,32 @@ static void work(AvahiServer *s) {
     g_assert(s);
 
     if (s->fd_ipv4 >= 0 && (s->pollfd_ipv4.revents & G_IO_IN)) {
-        if ((p = avahi_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &iface, &ttl))) {
-            dispatch_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
+        dest.family = AVAHI_PROTO_INET;
+        if ((p = avahi_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &dest.data.ipv4, &iface, &ttl))) {
+            dispatch_packet(s, p, (struct sockaddr*) &sa, &dest, iface, ttl);
             avahi_dns_packet_free(p);
         }
     }
 
     if (s->fd_ipv6 >= 0 && (s->pollfd_ipv6.revents & G_IO_IN)) {
-        if ((p = avahi_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &iface, &ttl))) {
-            dispatch_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
+        dest.family = AVAHI_PROTO_INET6;
+        if ((p = avahi_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &dest.data.ipv6, &iface, &ttl))) {
+            dispatch_packet(s, p, (struct sockaddr*) &sa6, &dest, iface, ttl);
             avahi_dns_packet_free(p);
         }
     }
 
     if (s->fd_legacy_unicast_ipv4 >= 0 && (s->pollfd_legacy_unicast_ipv4.revents & G_IO_IN)) {
-        if ((p = avahi_recv_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, &sa, &iface, &ttl))) {
+        dest.family = AVAHI_PROTO_INET;
+        if ((p = avahi_recv_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, &sa, &dest.data.ipv4, &iface, &ttl))) {
             dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
             avahi_dns_packet_free(p);
         }
     }
 
     if (s->fd_legacy_unicast_ipv6 >= 0 && (s->pollfd_legacy_unicast_ipv6.revents & G_IO_IN)) {
-        if ((p = avahi_recv_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, &sa6, &iface, &ttl))) {
+        dest.family = AVAHI_PROTO_INET6;
+        if ((p = avahi_recv_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, &sa6, &dest.data.ipv6, &iface, &ttl))) {
             dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
             avahi_dns_packet_free(p);
         }
@@ -1126,7 +1144,7 @@ static void register_hinfo(AvahiServer *s) {
     uname(&utsname);
     r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
     r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
-    avahi_server_add(s, s->hinfo_entry_group, 0, AF_UNSPEC, AVAHI_ENTRY_UNIQUE, r);
+    avahi_server_add(s, s->hinfo_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_ENTRY_UNIQUE, r);
     avahi_record_unref(r);
 
     avahi_entry_group_commit(s->hinfo_entry_group);
@@ -1137,11 +1155,11 @@ static void register_localhost(AvahiServer *s) {
     g_assert(s);
     
     /* Add localhost entries */
-    avahi_address_parse("127.0.0.1", AF_INET, &a);
-    avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "localhost", &a);
+    avahi_address_parse("127.0.0.1", AVAHI_PROTO_INET, &a);
+    avahi_server_add_address(s, NULL, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "localhost", &a);
 
-    avahi_address_parse("::1", AF_INET6, &a);
-    avahi_server_add_address(s, NULL, 0, AF_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "ip6-localhost", &a);
+    avahi_address_parse("::1", AVAHI_PROTO_INET6, &a);
+    avahi_server_add_address(s, NULL, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_ENTRY_NOPROBE|AVAHI_ENTRY_NOANNOUNCE, "ip6-localhost", &a);
 }
 
 static void register_browse_domain(AvahiServer *s) {
@@ -1151,7 +1169,7 @@ static void register_browse_domain(AvahiServer *s) {
         return;
 
     s->browse_domain_entry_group = avahi_entry_group_new(s, NULL, NULL);
-    avahi_server_add_ptr(s, s->browse_domain_entry_group, 0, AF_UNSPEC, 0, "b._dns-sd._udp.local", s->domain_name);
+    avahi_server_add_ptr(s, s->browse_domain_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "b._dns-sd._udp.local", s->domain_name);
     avahi_entry_group_commit(s->browse_domain_entry_group);
 }
 
@@ -1429,8 +1447,8 @@ static gint check_record_conflict(AvahiServer *s, gint interface, guchar protoco
         if (interface <= 0 ||
             e->interface <= 0 ||
             e->interface == interface ||
-            protocol == AF_UNSPEC ||
-            e->protocol == AF_UNSPEC ||
+            protocol == AVAHI_PROTO_UNSPEC ||
+            e->protocol == AVAHI_PROTO_UNSPEC ||
             e->protocol == protocol)
 
             return -1;
@@ -1449,10 +1467,12 @@ gint avahi_server_add(
     AvahiRecord *r) {
     
     AvahiEntry *e, *t;
+    
     g_assert(s);
     g_assert(r);
 
-    g_assert(r->key->type != AVAHI_DNS_TYPE_ANY);
+    if (avahi_key_is_pattern(r->key))
+        return -1;
 
     if (check_record_conflict(s, interface, protocol, r, flags) < 0)
         return -1;
@@ -1559,7 +1579,7 @@ gint avahi_server_add_address(
 
     name = name ? (n = avahi_normalize_name(name)) : s->host_name_fqdn;
     
-    if (a->family == AF_INET) {
+    if (a->family == AVAHI_PROTO_INET) {
         gchar *reverse;
         AvahiRecord  *r;
 
@@ -1809,9 +1829,9 @@ gint avahi_server_add_dns_server_address(
     g_assert(s);
     g_assert(address);
     g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
-    g_assert(address->family == AF_INET || address->family == AF_INET6);
+    g_assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
 
-    if (address->family == AF_INET) {
+    if (address->family == AVAHI_PROTO_INET) {
         hexstring(n+2, sizeof(n)-2, &address->data, 4);
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
         r->data.a.address = address->data.ipv4;
@@ -2019,7 +2039,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->use_ipv4 = TRUE;
     c->host_name = NULL;
     c->domain_name = NULL;
-    c->check_response_ttl = TRUE;
+    c->check_response_ttl = FALSE;
     c->publish_hinfo = TRUE;
     c->publish_addresses = TRUE;
     c->publish_workstation = TRUE;

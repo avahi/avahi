@@ -48,7 +48,7 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     
     ret_sa->sin_family = AF_INET;
     ret_sa->sin_port = htons(AVAHI_MDNS_PORT);
-    inet_pton(AF_INET, "224.0.0.251", &ret_sa->sin_addr);
+    inet_pton(AF_INET, AVAHI_IPV4_MCAST_GROUP, &ret_sa->sin_addr);
 }
 
 static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
@@ -59,7 +59,7 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
     
     ret_sa->sin6_family = AF_INET6;
     ret_sa->sin6_port = htons(AVAHI_MDNS_PORT);
-    inet_pton(AF_INET6, "ff02::fb", &ret_sa->sin6_addr);
+    inet_pton(AF_INET6, AVAHI_IPV6_MCAST_GROUP, &ret_sa->sin6_addr);
 }
 
 static void ipv4_address_to_sockaddr(struct sockaddr_in *ret_sa, const AvahiIPv4Address *a, guint16 port) {
@@ -399,7 +399,7 @@ gint avahi_send_dns_packet_ipv4(gint fd, gint interface, AvahiDnsPacket *p, cons
     msg.msg_controllen = sizeof(cmsg_data);
     msg.msg_flags = 0;
 
-    return sendmsg_loop(fd, &msg, MSG_DONTROUTE);
+    return sendmsg_loop(fd, &msg, 0 /*MSG_DONTROUTE*/);
 }
 
 gint avahi_send_dns_packet_ipv6(gint fd, gint interface, AvahiDnsPacket *p, const AvahiIPv6Address *a, guint16 port) {
@@ -441,10 +441,10 @@ gint avahi_send_dns_packet_ipv6(gint fd, gint interface, AvahiDnsPacket *p, cons
     msg.msg_controllen = sizeof(cmsg_data);
     msg.msg_flags = 0;
 
-    return sendmsg_loop(fd, &msg, MSG_DONTROUTE);
+    return sendmsg_loop(fd, &msg, 0 /*MSG_DONTROUTE*/);
 }
 
-AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, gint *ret_iface, guint8* ret_ttl) {
+AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, AvahiIPv4Address *ret_dest_address, gint *ret_iface, guint8* ret_ttl) {
     AvahiDnsPacket *p= NULL;
     struct msghdr msg;
     struct iovec io;
@@ -456,6 +456,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
 
     g_assert(fd >= 0);
     g_assert(ret_sa);
+    g_assert(ret_dest_address);
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
@@ -487,8 +488,6 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
         /* Linux 2.4 behaves very strangely sometimes! */
 
         avahi_hexdump(AVAHI_DNS_PACKET_DATA(p), l); 
-        
-        
         goto fail;
     }
     
@@ -510,7 +509,9 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in *ret_sa, 
                 *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
                 found_ttl = TRUE;
             } else if (cmsg->cmsg_type == IP_PKTINFO) {
-                *ret_iface = (gint) ((struct in_pktinfo*) CMSG_DATA(cmsg))->ipi_ifindex;
+                struct in_pktinfo *i = (struct in_pktinfo*) CMSG_DATA(cmsg);
+                *ret_iface = (gint) i->ipi_ifindex;
+                ret_dest_address->address = i->ipi_addr.s_addr;
                 found_iface = TRUE;
             }
         }
@@ -530,7 +531,7 @@ fail:
     return NULL;
 }
 
-AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, gint *ret_iface, guint8* ret_ttl) {
+AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa, AvahiIPv6Address *ret_dest_address, gint *ret_iface, guint8* ret_ttl) {
     AvahiDnsPacket *p = NULL;
     struct msghdr msg;
     struct iovec io;
@@ -543,6 +544,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
 
     g_assert(fd >= 0);
     g_assert(ret_sa);
+    g_assert(ret_dest_address);
     g_assert(ret_iface);
     g_assert(ret_ttl);
 
@@ -581,7 +583,9 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6 *ret_sa,
         }
             
         if (cmsg->cmsg_level == SOL_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO) {
-            *ret_iface = ((struct in6_pktinfo*) CMSG_DATA(cmsg))->ipi6_ifindex;
+            struct in6_pktinfo *i = (struct in6_pktinfo*) CMSG_DATA(cmsg);
+            *ret_iface = i->ipi6_ifindex;
+            memcpy(ret_dest_address->address, i->ipi6_addr.s6_addr, 16);
             found_iface = TRUE;
         }
     }

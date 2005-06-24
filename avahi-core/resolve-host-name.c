@@ -64,12 +64,12 @@ static void finish(AvahiHostNameResolver *r, gint interface, guchar protocol, Av
     if (record) {
         switch (record->key->type) {
             case AVAHI_DNS_TYPE_A:
-                a.family = AF_INET;
+                a.family = AVAHI_PROTO_INET;
                 a.data.ipv4 = record->data.a.address;
                 break;
                 
             case AVAHI_DNS_TYPE_AAAA:
-                a.family = AF_INET6;
+                a.family = AVAHI_PROTO_INET6;
                 a.data.ipv6 = record->data.aaaa.address;
                 break;
                 
@@ -101,7 +101,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     g_assert(e);
     g_assert(r);
 
-    finish(r, -1, AF_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
+    finish(r, -1, AVAHI_PROTO_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
 }
 
 AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, guchar aprotocol, AvahiHostNameResolverCallback callback, gpointer userdata) {
@@ -113,7 +113,7 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint in
     g_assert(host_name);
     g_assert(callback);
 
-    g_assert(aprotocol == AF_UNSPEC || aprotocol == AF_INET || aprotocol == AF_INET6);
+    g_assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
 
     r = g_new(AvahiHostNameResolver, 1);
     r->server = server;
@@ -128,13 +128,13 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint in
 
     AVAHI_LLIST_PREPEND(AvahiHostNameResolver, resolver, server->host_name_resolvers, r);
     
-    if (aprotocol == AF_INET || aprotocol == AF_UNSPEC) {
+    if (aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
         r->record_browser_a = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
     } 
 
-    if (aprotocol == AF_INET6 || aprotocol == AF_UNSPEC) {
+    if (aprotocol == AVAHI_PROTO_INET6 || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
         r->record_browser_aaaa = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);

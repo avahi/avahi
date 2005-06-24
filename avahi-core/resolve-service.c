@@ -94,12 +94,12 @@ static void finish(AvahiServiceResolver *r, AvahiResolverEvent event) {
         
         switch (r->address_record->key->type) {
             case AVAHI_DNS_TYPE_A:
-                a.family = AF_INET;
+                a.family = AVAHI_PROTO_INET;
                 a.data.ipv4 = r->address_record->data.a.address;
                 break;
                 
             case AVAHI_DNS_TYPE_AAAA:
-                a.family = AF_INET6;
+                a.family = AVAHI_PROTO_INET6;
                 a.data.ipv6 = r->address_record->data.aaaa.address;
                 break;
                 
@@ -134,13 +134,13 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
     if (r->interface > 0 && interface != r->interface)
         return;
 
-    if (r->protocol != AF_UNSPEC && protocol != r->protocol)
+    if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
         return;
     
     if (r->interface <= 0)
         r->interface = interface;
 
-    if (r->protocol == AF_UNSPEC)
+    if (r->protocol == AVAHI_PROTO_UNSPEC)
         r->protocol = protocol;
     
     switch (record->key->type) {
@@ -150,13 +150,13 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
 
                 g_assert(!r->record_browser_a && !r->record_browser_aaaa);
                 
-                if (r->address_protocol == AF_INET || r->address_protocol == AF_UNSPEC) {
+                if (r->address_protocol == AVAHI_PROTO_INET || r->address_protocol == AVAHI_PROTO_UNSPEC) {
                     AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
                     r->record_browser_a = avahi_record_browser_new(r->server, r->interface, r->protocol, k, record_browser_callback, r);
                     avahi_key_unref(k);
                 } 
                 
-                if (r->address_protocol == AF_INET6 || r->address_protocol == AF_UNSPEC) {
+                if (r->address_protocol == AVAHI_PROTO_INET6 || r->address_protocol == AVAHI_PROTO_UNSPEC) {
                     AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
                     r->record_browser_aaaa = avahi_record_browser_new(r->server, r->interface, r->protocol, k, record_browser_callback, r);
                     avahi_key_unref(k);
@@ -204,7 +204,7 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint inter
     g_assert(type);
     g_assert(callback);
 
-    g_assert(aprotocol == AF_UNSPEC || aprotocol == AF_INET || aprotocol == AF_INET6);
+    g_assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
 
     r = g_new(AvahiServiceResolver, 1);
     r->server = server;

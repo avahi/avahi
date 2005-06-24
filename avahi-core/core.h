@@ -80,7 +80,7 @@ typedef struct AvahiServerConfig {
     gboolean publish_addresses;            /**< Register A, AAAA and PTR records for all local IP addresses */
     gboolean publish_workstation;          /**< Register a _workstation._tcp service */
     gboolean publish_domain;               /**< Announce the local domain for browsing */
-    gboolean check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255 */
+    gboolean check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255. Newer versions of the RFC do no longer contain this check, so it is disabled by default. */
     gboolean use_iff_running;        /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
     gboolean enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
     gboolean reflect_ipv;                  /**< if enable_reflector is TRUE, enable/disable reflecting between IPv4 and IPv6 */
@@ -186,19 +186,20 @@ void avahi_entry_group_set_data(AvahiEntryGroup *g, gpointer userdata);
 /** Return the opaque user data pointer currently set for the entry group object */
 gpointer avahi_entry_group_get_data(AvahiEntryGroup *g);
 
+/** Add a new resource record to the server. Returns 0 on success, negative otherwise. */
 gint avahi_server_add(
-    AvahiServer *s,
-    AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
-    AvahiEntryFlags flags,
-    AvahiRecord *r);
+    AvahiServer *s,           /**< The server object to add this record to */
+    AvahiEntryGroup *g,       /**< An entry group object if this new record shall be attached to one, or NULL. If you plan to remove the record sometime later you a required to pass an entry group object here. */
+    AvahiIfIndex interface,   /**< A numeric index of a network interface to attach this record to, or AVAHI_IF_UNSPEC to attach this record to all interfaces */
+    AvahiProtocol protocol,   /**< A protocol family to attach this record to. One of the AVAHI_PROTO_xxx constants. Use AVAHI_PROTO_UNSPEC to make this record available on all protocols (wich means on both IPv4 and IPv6). */
+    AvahiEntryFlags flags,    /**< Special flags for this record */
+    AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */   );
 
 gint avahi_server_add_ptr(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     const gchar *name,
     const gchar *dest);
@@ -206,8 +207,8 @@ gint avahi_server_add_ptr(
 gint avahi_server_add_address(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     const gchar *name,
     AvahiAddress *a);
@@ -215,8 +216,8 @@ gint avahi_server_add_address(
 gint avahi_server_add_text(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     const gchar *name,
     ... /* text records, terminated by NULL */);
@@ -224,8 +225,8 @@ gint avahi_server_add_text(
 gint avahi_server_add_text_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     const gchar *name,
     va_list va);
@@ -233,8 +234,8 @@ gint avahi_server_add_text_va(
 gint avahi_server_add_text_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     const gchar *name,
     AvahiStringList *strlst);
@@ -242,20 +243,20 @@ gint avahi_server_add_text_strlst(
 gint avahi_server_add_service(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *type,
     const gchar *name,
     const gchar *domain,
     const gchar *host,
     guint16 port,
-    ...  /* text records, terminated by NULL */);
+    ...  /**< text records, terminated by NULL */);
 
 gint avahi_server_add_service_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *type,
     const gchar *name,
     const gchar *domain,
@@ -266,8 +267,8 @@ gint avahi_server_add_service_va(
 gint avahi_server_add_service_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *type,
     const gchar *name,
     const gchar *domain,
@@ -287,8 +288,8 @@ typedef enum {
 gint avahi_server_add_dns_server_address(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *domain,
     AvahiDNSServerType type,
     const AvahiAddress *address,
@@ -300,8 +301,8 @@ resolvable via mDNS */
 gint avahi_server_add_dns_server_name(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *domain,
     AvahiDNSServerType type,
     const gchar *name,
@@ -319,18 +320,18 @@ typedef enum {
 
 
 typedef struct AvahiRecordBrowser AvahiRecordBrowser;
-typedef void (*AvahiRecordBrowserCallback)(AvahiRecordBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata);
-AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata);
+typedef void (*AvahiRecordBrowserCallback)(AvahiRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata);
+AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata);
 void avahi_record_browser_free(AvahiRecordBrowser *b);
 
 typedef struct AvahiHostNameResolver AvahiHostNameResolver;
-typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata);
-AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, guchar aprotocol, AvahiHostNameResolverCallback calback, gpointer userdata);
+typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata);
+AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *host_name, AvahiProtocol aprotocol, AvahiHostNameResolverCallback calback, gpointer userdata);
 void avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 
 typedef struct AvahiAddressResolver AvahiAddressResolver;
-typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const AvahiAddress *a, const gchar *host_name, gpointer userdata);
-AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback calback, gpointer userdata);
+typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *a, const gchar *host_name, gpointer userdata);
+AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const AvahiAddress *address, AvahiAddressResolverCallback calback, gpointer userdata);
 void avahi_address_resolver_free(AvahiAddressResolver *r);
 
 /** The type of domain to browse for */
@@ -343,23 +344,23 @@ typedef enum {
 } AvahiDomainBrowserType;
 
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
-typedef void (*AvahiDomainBrowserCallback)(AvahiDomainBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata);
-AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, gpointer userdata);
+typedef void (*AvahiDomainBrowserCallback)(AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata);
+AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, gpointer userdata);
 void avahi_domain_browser_free(AvahiDomainBrowser *b);
 
 typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
-typedef void (*AvahiServiceTypeBrowserCallback)(AvahiServiceTypeBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *type, const gchar *domain, gpointer userdata);
-AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiServiceTypeBrowserCallback callback, gpointer userdata);
+typedef void (*AvahiServiceTypeBrowserCallback)(AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *type, const gchar *domain, gpointer userdata);
+AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *domain, AvahiServiceTypeBrowserCallback callback, gpointer userdata);
 void avahi_service_type_browser_free(AvahiServiceTypeBrowser *b);
 
 typedef struct AvahiServiceBrowser AvahiServiceBrowser;
-typedef void (*AvahiServiceBrowserCallback)(AvahiServiceBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *name, const gchar *type, const gchar *domain, gpointer userdata);
-AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *service_type, const gchar *domain, AvahiServiceBrowserCallback callback, gpointer userdata);
+typedef void (*AvahiServiceBrowserCallback)(AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *name, const gchar *type, const gchar *domain, gpointer userdata);
+AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *service_type, const gchar *domain, AvahiServiceBrowserCallback callback, gpointer userdata);
 void avahi_service_browser_free(AvahiServiceBrowser *b);
 
 typedef struct AvahiServiceResolver AvahiServiceResolver;
-typedef void (*AvahiServiceResolverCallback)(AvahiServiceResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const gchar *name, const gchar *type, const gchar *domain, const gchar *host_name, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata);
-AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *name, const gchar *type, const gchar *domain, guchar aprotocol, AvahiServiceResolverCallback calback, gpointer userdata);
+typedef void (*AvahiServiceResolverCallback)(AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *name, const gchar *type, const gchar *domain, const gchar *host_name, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata);
+AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *name, const gchar *type, const gchar *domain, AvahiProtocol aprotocol, AvahiServiceResolverCallback calback, gpointer userdata);
 void avahi_service_resolver_free(AvahiServiceResolver *r);
 
 
@@ -367,8 +368,8 @@ void avahi_service_resolver_free(AvahiServiceResolver *r);
  * conventional unicast DNS servers which may be used to resolve
  * conventional domain names */
 typedef struct AvahiDNSServerBrowser AvahiDNSServerBrowser;
-typedef void (*AvahiDNSServerBrowserCallback)(AvahiDNSServerBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata);
-AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDNSServerType type, guchar aprotocol, AvahiDNSServerBrowserCallback callback, gpointer userdata);
+typedef void (*AvahiDNSServerBrowserCallback)(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata);
+AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *domain, AvahiDNSServerType type, AvahiProtocol aprotocol, AvahiDNSServerBrowserCallback callback, gpointer userdata);
 void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b);
 
 #endif

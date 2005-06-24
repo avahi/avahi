@@ -148,11 +148,15 @@ void avahi_record_unref(AvahiRecord *r) {
 const gchar *avahi_dns_class_to_string(guint16 class) {
     if (class & AVAHI_DNS_CACHE_FLUSH) 
         return "FLUSH";
-    
-    if (class == AVAHI_DNS_CLASS_IN)
-        return "IN";
 
-    return NULL;
+    switch (class) {
+        case AVAHI_DNS_CLASS_IN:
+            return "IN";
+        case AVAHI_DNS_CLASS_ANY:
+            return "ANY";
+        default:
+            return NULL;
+    }
 }
 
 const gchar *avahi_dns_type_to_string(guint16 type) {
@@ -266,15 +270,16 @@ gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
     
     return avahi_domain_equal(pattern->name, k->name) &&
         (pattern->type == k->type || pattern->type == AVAHI_DNS_TYPE_ANY) &&
-        pattern->class == k->class;
+        (pattern->class == k->class || pattern->type == AVAHI_DNS_CLASS_ANY);
 }
 
 gboolean avahi_key_is_pattern(const AvahiKey *k) {
     g_assert(k);
 
-    return k->type == AVAHI_DNS_TYPE_ANY;
+    return
+        k->type == AVAHI_DNS_TYPE_ANY ||
+        k->class == AVAHI_DNS_CLASS_ANY;
 }
-
 
 guint avahi_key_hash(const AvahiKey *k) {
     g_assert(k);
@@ -313,8 +318,8 @@ static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
 
         case AVAHI_DNS_TYPE_HINFO:
             return
-                !g_utf8_collate(a->data.hinfo.cpu, b->data.hinfo.cpu) &&
-                !g_utf8_collate(a->data.hinfo.os, b->data.hinfo.os);
+                !strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu) &&
+                !strcmp(a->data.hinfo.os, b->data.hinfo.os);
 
         case AVAHI_DNS_TYPE_TXT:
             return avahi_string_list_equal(a->data.txt.string_list, b->data.txt.string_list);

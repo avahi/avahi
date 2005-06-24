@@ -176,7 +176,7 @@ guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size)
     return used;
 }
 
-gboolean avahi_string_list_equal(AvahiStringList *a, AvahiStringList *b) {
+gboolean avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b) {
 
     for (;;) {
         if (!a && !b)
@@ -235,7 +235,7 @@ AvahiStringList *avahi_string_list_new_va(va_list va) {
     return avahi_string_list_add_many_va(NULL, va);
 }
 
-AvahiStringList *avahi_string_list_copy(AvahiStringList *l) {
+AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
     AvahiStringList *r = NULL;
 
     for (; l; l = l->next)

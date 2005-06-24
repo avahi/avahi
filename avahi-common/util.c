@@ -79,25 +79,18 @@ static gchar *unescape_uneeded(const gchar *src, gchar *ret_dest, size_t size) {
 
 gchar *avahi_normalize_name(const gchar *s) {
     gchar tmp[256];
-    gchar *n, *t;
     guint l;
     g_assert(s);
 
     unescape_uneeded(s, tmp, sizeof(tmp));
 
-    n = g_utf8_normalize(tmp, -1, G_NORMALIZE_DEFAULT);
-
-    if ((l = strlen(n)) == 0) {
-        g_free(n);
+    if ((l = strlen(tmp)) == 0)
         return g_strdup(".");
-    }
 
-    if (n[l-1] == '.')
-        return n;
+    if (tmp[l-1] == '.')
+        return g_strdup(tmp);
 
-    t = g_strdup_printf("%s.", n);
-    g_free(n);
-    return t;
+    return g_strdup_printf("%s.", tmp);
 }
 
 gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
@@ -280,22 +273,6 @@ gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name,
     return r;
 }
 
-static gint utf8_strcasecmp(const gchar *a, const gchar *b) {
-    gchar *ta, *tb;
-    gint r;
-    
-    g_assert(a);
-    g_assert(b);
-
-    ta = g_utf8_casefold(a, -1);
-    tb = g_utf8_casefold(b, -1);
-    r = g_utf8_collate(ta, tb);
-    g_free(ta);
-    g_free(tb);
-
-    return r;
-}
-
 gboolean avahi_domain_equal(const gchar *a, const gchar *b) {
     g_assert(a);
     g_assert(b);
@@ -314,7 +291,7 @@ gboolean avahi_domain_equal(const gchar *a, const gchar *b) {
         else if ((pa && !pb) || (!pa && pb))
             return FALSE;
 
-        if (utf8_strcasecmp(pa, pb))
+        if (g_ascii_strcasecmp(pa, pb))
             return FALSE;
     }
 
@@ -385,7 +362,7 @@ guint avahi_domain_hash(const gchar *s) {
     guint hash = 0;
     
     for (;;) {
-        gchar c[65], *n, *m;
+        gchar c[65], *m;
 
         if (!avahi_unescape_label(&s, c, sizeof(c)))
             return hash;
@@ -393,13 +370,9 @@ guint avahi_domain_hash(const gchar *s) {
         if (!c[0])
             continue;
         
-        n = g_utf8_normalize(c, -1, G_NORMALIZE_DEFAULT);
-        m = g_utf8_strdown(n, -1);
-
+        m = g_ascii_strdown(c, -1);
         hash += g_str_hash(m);
-
         g_free(m);
-        g_free(n);
     }
 }
 

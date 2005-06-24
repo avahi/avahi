@@ -70,7 +70,7 @@ void avahi_key_unref(AvahiKey *k) {
     }
 }
 
-AvahiRecord *avahi_record_new(AvahiKey *k) {
+AvahiRecord *avahi_record_new(AvahiKey *k, guint32 ttl) {
     AvahiRecord *r;
     
     g_assert(k);
@@ -81,19 +81,19 @@ AvahiRecord *avahi_record_new(AvahiKey *k) {
 
     memset(&r->data, 0, sizeof(r->data));
 
-    r->ttl = AVAHI_DEFAULT_TTL;
+    r->ttl = ttl != (guint32) -1 ? ttl : AVAHI_DEFAULT_TTL;
 
     return r;
 }
 
-AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type) {
+AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type, guint32 ttl) {
     AvahiRecord *r;
     AvahiKey *k;
 
     g_assert(name);
     
     k = avahi_key_new(name, class, type);
-    r = avahi_record_new(k);
+    r = avahi_record_new(k, ttl);
     avahi_key_unref(k);
 
     return r;

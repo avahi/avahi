@@ -48,7 +48,11 @@ enum {
     AVAHI_DNS_UNICAST_RESPONSE = 0x8000
 };
 
-#define AVAHI_DEFAULT_TTL (120*60)
+/** The default TTL for RRs which contain a host name of some kind. */
+#define AVAHI_DEFAULT_TTL_HOST_NAME (120)
+
+/** The default TTL for all other records. */
+#define AVAHI_DEFAULT_TTL (75*60)
 
 typedef struct {
     guint ref;
@@ -112,8 +116,8 @@ gboolean avahi_key_is_pattern(const AvahiKey *k);
 
 guint avahi_key_hash(const AvahiKey *k);
 
-AvahiRecord *avahi_record_new(AvahiKey *k);
-AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type);
+AvahiRecord *avahi_record_new(AvahiKey *k, guint32 ttl);
+AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type, guint32 ttl);
 AvahiRecord *avahi_record_ref(AvahiRecord *r);
 void avahi_record_unref(AvahiRecord *r);
 

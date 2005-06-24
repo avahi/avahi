@@ -482,7 +482,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
     
     start = avahi_dns_packet_get_rptr(p);
     
-    r = avahi_record_new_full(name, class, type);
+    r = avahi_record_new_full(name, class, type, ttl);
     
     switch (type) {
         case AVAHI_DNS_TYPE_PTR:
@@ -577,8 +577,6 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
     /* Check if we read enough data */
     if ((guint8*) avahi_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
         goto fail;
-    
-    r->ttl = ttl;
 
     return r;
 

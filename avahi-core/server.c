@@ -1140,7 +1140,7 @@ static void register_hinfo(AvahiServer *s) {
     s->hinfo_entry_group = avahi_entry_group_new(s, avahi_host_rr_entry_group_callback, NULL);
     
     /* Fill in HINFO rr */
-    r = avahi_record_new_full(s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO);
+    r = avahi_record_new_full(s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO, AVAHI_DEFAULT_TTL_HOST_NAME);
     uname(&utsname);
     r->data.hinfo.cpu = g_strdup(g_strup(utsname.machine));
     r->data.hinfo.os = g_strdup(g_strup(utsname.sysname));
@@ -1169,7 +1169,7 @@ static void register_browse_domain(AvahiServer *s) {
         return;
 
     s->browse_domain_entry_group = avahi_entry_group_new(s, NULL, NULL);
-    avahi_server_add_ptr(s, s->browse_domain_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "b._dns-sd._udp.local", s->domain_name);
+    avahi_server_add_ptr(s, s->browse_domain_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, AVAHI_DEFAULT_TTL, "b._dns-sd._udp.local", s->domain_name);
     avahi_entry_group_commit(s->browse_domain_entry_group);
 }
 
@@ -1471,6 +1471,9 @@ gint avahi_server_add(
     g_assert(s);
     g_assert(r);
 
+    if (r->ttl == 0)
+        return -1;
+
     if (avahi_key_is_pattern(r->key))
         return -1;
 
@@ -1548,6 +1551,7 @@ gint avahi_server_add_ptr(
     gint interface,
     guchar protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     const gchar *dest) {
 
@@ -1556,7 +1560,7 @@ gint avahi_server_add_ptr(
 
     g_assert(dest);
 
-    r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
+    r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR, ttl);
     r->data.ptr.name = avahi_normalize_name(dest);
     ret = avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
@@ -1583,30 +1587,30 @@ gint avahi_server_add_address(
         gchar *reverse;
         AvahiRecord  *r;
 
-        r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
+        r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.a.address = a->data.ipv4;
         ret = avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
         avahi_record_unref(r);
         
         reverse = avahi_reverse_lookup_name_ipv4(&a->data.ipv4);
-        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
+        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
         g_free(reverse);
         
     } else {
         gchar *reverse;
         AvahiRecord *r;
             
-        r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
+        r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.aaaa.address = a->data.ipv6;
         ret = avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
         avahi_record_unref(r);
 
         reverse = avahi_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
-        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
+        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
         g_free(reverse);
     
         reverse = avahi_reverse_lookup_name_ipv6_int(&a->data.ipv6);
-        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, reverse, name);
+        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
         g_free(reverse);
     }
     
@@ -1621,6 +1625,7 @@ gint avahi_server_add_text_strlst(
     gint interface,
     guchar protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     AvahiStringList *strlst) {
 
@@ -1629,7 +1634,7 @@ gint avahi_server_add_text_strlst(
     
     g_assert(s);
     
-    r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
+    r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT, ttl);
     r->data.txt.string_list = strlst;
     ret = avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
@@ -1643,12 +1648,13 @@ gint avahi_server_add_text_va(
     gint interface,
     guchar protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     va_list va) {
     
     g_assert(s);
 
-    return avahi_server_add_text_strlst(s, g, interface, protocol, flags, name, avahi_string_list_new_va(va));
+    return avahi_server_add_text_strlst(s, g, interface, protocol, flags, ttl, name, avahi_string_list_new_va(va));
 }
 
 gint avahi_server_add_text(
@@ -1657,6 +1663,7 @@ gint avahi_server_add_text(
     gint interface,
     guchar protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     ...) {
 
@@ -1666,7 +1673,7 @@ gint avahi_server_add_text(
     g_assert(s);
 
     va_start(va, name);
-    ret = avahi_server_add_text_va(s, g, interface, protocol, flags, name, va);
+    ret = avahi_server_add_text_va(s, g, interface, protocol, flags, ttl, name, va);
     va_end(va);
 
     return ret;
@@ -1728,9 +1735,9 @@ gint avahi_server_add_service_strlst(
     snprintf(ptr_name, sizeof(ptr_name), "%s.%s", type, domain);
     snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, type, domain);
     
-    ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, ptr_name, svc_name);
+    ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, ptr_name, svc_name);
 
-    r = avahi_record_new_full(svc_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
+    r = avahi_record_new_full(svc_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME);
     r->data.srv.priority = 0;
     r->data.srv.weight = 0;
     r->data.srv.port = port;
@@ -1738,10 +1745,10 @@ gint avahi_server_add_service_strlst(
     ret |= avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
     avahi_record_unref(r);
 
-    ret |= avahi_server_add_text_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, svc_name, strlst);
+    ret |= avahi_server_add_text_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
 
     snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
-    ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, enum_ptr, ptr_name);
+    ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
     return ret;
 }
@@ -1824,7 +1831,7 @@ gint avahi_server_add_dns_server_address(
 
     AvahiRecord *r;
     gint ret;
-    gchar n[64] = "ip";
+    gchar n[64] = "ip-";
 
     g_assert(s);
     g_assert(address);
@@ -1832,12 +1839,12 @@ gint avahi_server_add_dns_server_address(
     g_assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
 
     if (address->family == AVAHI_PROTO_INET) {
-        hexstring(n+2, sizeof(n)-2, &address->data, 4);
-        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
+        hexstring(n+3, sizeof(n)-3, &address->data, 4);
+        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.a.address = address->data.ipv4;
     } else {
-        hexstring(n+2, sizeof(n)-2, &address->data, 6);
-        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
+        hexstring(n+3, sizeof(n)-3, &address->data, 6);
+        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.aaaa.address = address->data.ipv6;
     }
     
@@ -1875,7 +1882,7 @@ gint avahi_server_add_dns_server_name(
 
     snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", domain);
     
-    r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
+    r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME);
     r->data.srv.priority = 0;
     r->data.srv.weight = 0;
     r->data.srv.port = port;

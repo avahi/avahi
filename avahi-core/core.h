@@ -201,6 +201,7 @@ gint avahi_server_add_ptr(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     const gchar *dest);
 
@@ -219,6 +220,7 @@ gint avahi_server_add_text(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     ... /* text records, terminated by NULL */);
 
@@ -228,6 +230,7 @@ gint avahi_server_add_text_va(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     va_list va);
 
@@ -237,6 +240,7 @@ gint avahi_server_add_text_strlst(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
+    guint32 ttl,
     const gchar *name,
     AvahiStringList *strlst);
 

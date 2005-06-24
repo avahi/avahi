@@ -1151,7 +1151,7 @@ static void register_browse_domain(AvahiServer *s) {
         return;
 
     s->browse_domain_entry_group = avahi_entry_group_new(s, NULL, NULL);
-    avahi_server_add_ptr(s, s->browse_domain_entry_group, 0, AF_UNSPEC, 0, "_browse._dns-sd._udp.local", s->domain_name);
+    avahi_server_add_ptr(s, s->browse_domain_entry_group, 0, AF_UNSPEC, 0, "b._dns-sd._udp.local", s->domain_name);
     avahi_entry_group_commit(s->browse_domain_entry_group);
 }
 
@@ -1318,6 +1318,7 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, s->service_type_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, s->service_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, s->service_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiDNSServerBrowser, s->dns_server_browsers);
 
     s->legacy_unicast_reflect_slots = NULL;
     s->legacy_unicast_reflect_id = 0;
@@ -1360,7 +1361,9 @@ void avahi_server_free(AvahiServer* s) {
         free_group(s, s->groups);
 
     free_slots(s);
-    
+
+    while (s->dns_server_browsers)
+        avahi_dns_server_browser_free(s->dns_server_browsers);
     while (s->host_name_resolvers)
         avahi_host_name_resolver_free(s->host_name_resolvers);
     while (s->address_resolvers)
@@ -1766,6 +1769,103 @@ gint avahi_server_add_service(
     va_end(va);
     return ret;
 }
+
+static void hexstring(gchar *s, size_t sl, const void *p, size_t pl) {
+    static const gchar hex[] = "0123456789abcdef";
+    gboolean b = FALSE;
+    const guint8 *k = p;
+
+    while (sl > 1 && pl > 0) {
+        *(s++) = hex[(b ? *k : *k >> 4) & 0xF];
+
+        if (b) {
+            k++;
+            pl--;
+        }
+        
+        b = !b;
+
+        sl--;
+    }
+
+    if (sl > 0)
+        *s = 0;
+}
+
+gint avahi_server_add_dns_server_address(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    const gchar *domain,
+    AvahiDNSServerType type,
+    const AvahiAddress *address,
+    guint16 port /** should be 53 */) {
+
+    AvahiRecord *r;
+    gint ret;
+    gchar n[64] = "ip";
+
+    g_assert(s);
+    g_assert(address);
+    g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
+    g_assert(address->family == AF_INET || address->family == AF_INET6);
+
+    if (address->family == AF_INET) {
+        hexstring(n+2, sizeof(n)-2, &address->data, 4);
+        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
+        r->data.a.address = address->data.ipv4;
+    } else {
+        hexstring(n+2, sizeof(n)-2, &address->data, 6);
+        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
+        r->data.aaaa.address = address->data.ipv6;
+    }
+    
+    ret = avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
+    avahi_record_unref(r);
+    
+    ret |= avahi_server_add_dns_server_name(s, g, interface, protocol, domain, type, n, port);
+
+    return ret;
+}
+
+gint avahi_server_add_dns_server_name(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    const gchar *domain,
+    AvahiDNSServerType type,
+    const gchar *name,
+    guint16 port /** should be 53 */) {
+
+    gint ret = -1;
+    gchar t[256];
+    AvahiRecord *r;
+    
+    g_assert(s);
+    g_assert(name);
+    g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
+
+    if (domain) {
+        while (domain[0] == '.')
+            domain++;
+    } else
+        domain = s->domain_name;
+
+    snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", domain);
+    
+    r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
+    r->data.srv.priority = 0;
+    r->data.srv.weight = 0;
+    r->data.srv.port = port;
+    r->data.srv.name = avahi_normalize_name(name);
+    ret = avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_NULL, r);
+    avahi_record_unref(r);
+
+    return ret;
+}
+
 
 static void post_query_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata) {
     AvahiKey *k = userdata;

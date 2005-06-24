@@ -69,16 +69,19 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface
 
     switch (type) {
         case AVAHI_DOMAIN_BROWSER_BROWSE:
-            n = g_strdup_printf("_browse._dns-sd._udp.%s", b->domain_name);
+            n = g_strdup_printf("b._dns-sd._udp.%s", b->domain_name);
             break;
         case AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT:
-            n = g_strdup_printf("_default._browse._dns-sd._udp.%s", b->domain_name);
+            n = g_strdup_printf("db._dns-sd._udp.%s", b->domain_name);
             break;
         case AVAHI_DOMAIN_BROWSER_REGISTER:
-            n = g_strdup_printf("_register._dns-sd._udp.%s", b->domain_name);
+            n = g_strdup_printf("r._dns-sd._udp.%s", b->domain_name);
             break;
         case AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT:
-            n = g_strdup_printf("_default._register._dns-sd._udp.%s", b->domain_name);
+            n = g_strdup_printf("dr._dns-sd._udp.%s", b->domain_name);
+            break;
+        case AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY:
+            n = g_strdup_printf("lb._dns-sd._udp.%s", b->domain_name);
             break;
     }
 

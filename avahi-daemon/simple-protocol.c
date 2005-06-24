@@ -39,7 +39,7 @@
 #include "simple-protocol.h"
 #include "main.h"
 
-#define BUFFER_SIZE (10*1024)
+#define BUFFER_SIZE (20*1024)
 
 #define UNIX_SOCKET AVAHI_RUNTIME_DIR "/socket"
 
@@ -52,6 +52,7 @@ typedef enum {
     CLIENT_IDLE,
     CLIENT_RESOLVE_HOSTNAME,
     CLIENT_RESOLVE_ADDRESS,
+    CLIENT_BROWSE_DNS_SERVERS,
     CLIENT_DEAD
 } ClientState;
 
@@ -68,6 +69,7 @@ struct Client {
 
     AvahiHostNameResolver *host_name_resolver;
     AvahiAddressResolver *address_resolver;
+    AvahiDNSServerBrowser *dns_server_browser;
     
     AVAHI_LLIST_FIELDS(Client, clients);
 };
@@ -96,6 +98,9 @@ static void client_free(Client *c) {
 
     if (c->address_resolver)
         avahi_address_resolver_free(c->address_resolver);
+
+    if (c->dns_server_browser)
+        avahi_dns_server_browser_free(c->dns_server_browser);
     
     g_source_remove_poll(&c->server->source, &c->poll_fd);
     close(c->fd);
@@ -117,6 +122,7 @@ static void client_new(Server *s, int fd) {
 
     c->host_name_resolver = NULL;
     c->address_resolver = NULL;
+    c->dns_server_browser = NULL;
 
     memset(&c->poll_fd, 0, sizeof(GPollFD));
     c->poll_fd.fd = fd;
@@ -146,14 +152,15 @@ static void client_output(Client *c, const guint8*data, guint size) {
 }
 
 static void client_output_printf(Client *c, gchar *format, ...) {
-    gchar txt[256];
+    gchar *t;
     va_list ap;
     
     va_start(ap, format);
-    vsnprintf(txt, sizeof(txt), format, ap);
+    t = g_strdup_vprintf(format, ap);
     va_end(ap);
 
-    client_output(c, (guint8*) txt, strlen(txt));
+    client_output(c, (guint8*) t, strlen(t));
+    g_free(t);
 }
 
 static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
@@ -167,7 +174,7 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, gu
     else {
         gchar t[64];
         avahi_address_snprint(t, sizeof(t), a);
-        client_output_printf(c, "+ %s\n", t);
+        client_output_printf(c, "+ %i %u %s %s\n", iface, protocol, hostname, t);
     }
 
     c->state = CLIENT_DEAD;
@@ -176,14 +183,28 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, gu
 static void address_resolver_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
     Client *c = userdata;
     
+    
     g_assert(c);
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         client_output_printf(c, "- Query timed out\n");
     else 
-        client_output_printf(c, "+ %s\n", hostname);
+        client_output_printf(c, "+ %i %u %s\n", iface, protocol, hostname);
 
     c->state = CLIENT_DEAD;
+}
+
+static void dns_server_browser_callback(AvahiDNSServerBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata) {
+    Client *c = userdata;
+    gchar t[64];
+    
+    g_assert(c);
+
+    if (!a)
+        return;
+
+    avahi_address_snprint(t, sizeof(t), a);
+    client_output_printf(c, "%c %i %u %s %u\n", event == AVAHI_BROWSER_NEW ? '>' : '<',  interface, protocol, t, port);
 }
 
 static void handle_line(Client *c, const gchar *s) {
@@ -208,7 +229,10 @@ static void handle_line(Client *c, const gchar *s) {
                              "+      RESOLVE-HOSTNAME <hostname>\n"
                              "+      RESOLVE-HOSTNAME-IPV6 <hostname>\n"
                              "+      RESOLVE-HOSTNAME-IPV4 <hostname>\n"
-                             "+      RESOLVE-ADDRESS <address>\n");
+                             "+      RESOLVE-ADDRESS <address>\n"
+                             "+      BROWSE-DNS-SERVERS\n"
+                             "+      BROWSE-DNS-SERVERS-IPV4\n"
+                             "+      BROWSE-DNS-SERVERS-IPV6\n");
         c->state = CLIENT_DEAD; }
     else if (strcmp(cmd, "FUCK") == 0 && n_args == 1) {
         client_output_printf(c, "FUCK: Go fuck yourself!\n");
@@ -232,6 +256,18 @@ static void handle_line(Client *c, const gchar *s) {
             c->state = CLIENT_RESOLVE_ADDRESS;
             c->address_resolver = avahi_address_resolver_new(avahi_server, -1, AF_UNSPEC, &addr, address_resolver_callback, c);
         }
+    } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
+        c->state = CLIENT_BROWSE_DNS_SERVERS;
+        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, AF_INET, dns_server_browser_callback, c);
+        client_output_printf(c, "+ Browsing ...\n");
+    } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
+        c->state = CLIENT_BROWSE_DNS_SERVERS;
+        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, AF_INET6, dns_server_browser_callback, c);
+        client_output_printf(c, "+ Browsing ...\n");
+    } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
+        c->state = CLIENT_BROWSE_DNS_SERVERS;
+        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, AF_UNSPEC, dns_server_browser_callback, c);
+        client_output_printf(c, "+ Browsing ...\n");
     } else {
         client_output_printf(c, "- Invalid command \"%s\", try \"HELP\".\n", cmd);
         c->state = CLIENT_DEAD;

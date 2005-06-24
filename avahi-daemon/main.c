@@ -63,19 +63,136 @@ typedef struct {
     gchar *config_file;
     gboolean enable_dbus;
     gboolean drop_root;
+    gboolean publish_resolv_conf;
+    gchar ** publish_dns_servers;
 } DaemonConfig;
 
-static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
+#define RESOLV_CONF "/etc/resolv.conf"
+
+static AvahiEntryGroup *dns_servers_entry_group = NULL;
+static AvahiEntryGroup *resolv_conf_entry_group = NULL;
+
+static gchar **resolv_conf = NULL;
+
+static DaemonConfig config;
+
+#define MAX_NAME_SERVERS 10
+
+static gint load_resolv_conf(const DaemonConfig *config) {
+    gint ret = -1;
+    FILE *f;
+    gint i = 0;
+    
+    g_strfreev(resolv_conf);
+    resolv_conf = NULL;
+
+    if (!config->publish_resolv_conf)
+        return 0;
+
+    if (!(f = fopen(RESOLV_CONF, "r"))) {
+        avahi_log_warn("Failed to open "RESOLV_CONF".");
+        goto finish;
+    }
+
+    resolv_conf = g_new0(gchar*, MAX_NAME_SERVERS+1);
+
+    while (!feof(f) && i < MAX_NAME_SERVERS) {
+        char ln[128];
+        gchar *p;
+
+        if (!(fgets(ln, sizeof(ln), f)))
+            break;
+
+        ln[strcspn(ln, "\r\n#")] = 0;
+        p = ln + strspn(ln, "\t ");
+
+        if (g_str_has_prefix(p, "nameserver")) {
+            p += 10;
+            p += strspn(p, "\t ");
+            p[strcspn(p, "\t ")] = 0;
+            resolv_conf[i++] = strdup(p);
+        }
+    }
+
+    ret = 0;
+
+finish:
+
+    if (ret != 0) {
+        g_strfreev(resolv_conf);
+        resolv_conf = NULL;
+    }
+        
+    if (f)
+        fclose(f);
+
+    return ret;
+}
+
+static AvahiEntryGroup* add_dns_servers(AvahiServer *s, gchar **l) {
+    gchar **p;
+    AvahiEntryGroup *g;
+
     g_assert(s);
+    g_assert(l);
+
+    g = avahi_entry_group_new(s, NULL, NULL);
+
+    for (p = l; *p; p++) {
+        AvahiAddress a;
+        
+        if (!avahi_address_parse(*p, AF_UNSPEC, &a))
+            avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
+        else
+            if (avahi_server_add_dns_server_address(s, g, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
+                avahi_entry_group_free(g);
+                return NULL;
+            }
+    }
+
+    avahi_entry_group_commit(g);
+
+    return g;
+    
+}
+
+static void remove_dns_server_entry_groups(void) {
+    if (resolv_conf_entry_group) {
+        avahi_entry_group_free(resolv_conf_entry_group);
+        resolv_conf_entry_group = NULL;
+    }
+    
+    if (dns_servers_entry_group) {
+        avahi_entry_group_free(dns_servers_entry_group);
+        dns_servers_entry_group = NULL;
+    }
+}
+
+static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
+    DaemonConfig *config = userdata;
+    
+    g_assert(s);
+    g_assert(config);
 
     if (state == AVAHI_SERVER_RUNNING) {
         avahi_log_info("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
         static_service_add_to_server();
+
+        remove_dns_server_entry_groups();
+
+        if (resolv_conf && resolv_conf[0])
+            resolv_conf_entry_group = add_dns_servers(s, resolv_conf);
+
+        if (config->publish_dns_servers && config->publish_dns_servers[0])
+            dns_servers_entry_group = add_dns_servers(s, config->publish_dns_servers);
+        
     } else if (state == AVAHI_SERVER_COLLISION) {
         gchar *n;
 
         static_service_remove_from_server();
-        
+
+        remove_dns_server_entry_groups();
+
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
         avahi_log_warn("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
@@ -162,6 +279,7 @@ static gint load_config_file(DaemonConfig *config) {
     g_assert(config);
     
     f = g_key_file_new();
+    g_key_file_set_list_separator(f, ',');
     
     if (!g_key_file_load_from_file(f, config->config_file ? config->config_file : AVAHI_CONFIG_FILE, G_KEY_FILE_NONE, &err)) {
         fprintf(stderr, "Unable to read config file: %s\n", err->message);
@@ -229,7 +347,12 @@ static gint load_config_file(DaemonConfig *config) {
                     config->server_config.publish_workstation = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-domain") == 0)
                     config->server_config.publish_domain = is_yes(v);
-                else {
+                else if (g_strcasecmp(*k, "publish-resolv-conf-dns-servers") == 0)
+                    config->publish_resolv_conf = is_yes(v);
+                else if (g_strcasecmp(*k, "publish-dns-servers") == 0) {
+                    g_strfreev(config->publish_dns_servers);
+                    config->publish_dns_servers = g_key_file_get_string_list(f, *g, *k, NULL, NULL);
+                } else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
                 }
@@ -307,7 +430,10 @@ static void log_function(AvahiLogLevel level, const gchar *txt) {
 
 static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpointer data) {
     gint sig;
+    GMainLoop *loop = data;
+    
     g_assert(source);
+    g_assert(loop);
 
     if ((sig = daemon_signal_next()) <= 0) {
         avahi_log_error("daemon_signal_next() failed");
@@ -322,13 +448,24 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
                 "Got %s, quitting.",
                 sig == SIGINT ? "SIGINT" :
                 (sig == SIGQUIT ? "SIGQUIT" : "SIGTERM"));
-            g_main_loop_quit((GMainLoop*) data);
+            g_main_loop_quit(loop);
             break;
 
         case SIGHUP:
             avahi_log_info("Got SIGHUP, reloading.");
             static_service_load();
             static_service_add_to_server();
+
+            if (resolv_conf_entry_group) {
+                avahi_entry_group_free(resolv_conf_entry_group);
+                resolv_conf_entry_group = NULL;
+            }
+
+            load_resolv_conf(&config);
+            
+            if (resolv_conf && resolv_conf[0])
+                resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf);
+
             break;
 
         default:
@@ -371,8 +508,10 @@ static gint run_server(DaemonConfig *config) {
             goto finish;
 #endif
     
-    if (!(avahi_server = avahi_server_new(NULL, &config->server_config, server_callback, NULL)))
+    if (!(avahi_server = avahi_server_new(NULL, &config->server_config, server_callback, config)))
         goto finish;
+
+    load_resolv_conf(config);
     
     static_service_load();
 
@@ -387,6 +526,7 @@ finish:
     
     static_service_remove_from_server();
     static_service_free_all();
+    remove_dns_server_entry_groups();
     
     simple_protocol_shutdown();
 
@@ -394,6 +534,7 @@ finish:
     if (config->enable_dbus)
         dbus_protocol_shutdown();
 #endif
+
 
     if (avahi_server)
         avahi_server_free(avahi_server);
@@ -476,7 +617,7 @@ static gint drop_root(void) {
 }
 
 static const char* pid_file_proc(void) {
-    return AVAHI_RUNTIME_DIR"/pid";
+    return AVAHI_RUNTIME_DIR"/avahi-daemon.pid";
 }
 
 static gint make_runtime_dir(void) {
@@ -525,12 +666,9 @@ fail:
     return r;
 
 }
-    
-
 
 int main(int argc, char *argv[]) {
     gint r = 255;
-    DaemonConfig config;
     const gchar *argv0;
     gboolean wrote_pid_file = FALSE;
 
@@ -542,6 +680,8 @@ int main(int argc, char *argv[]) {
     config.config_file = NULL;
     config.enable_dbus = TRUE;
     config.drop_root = TRUE;
+    config.publish_dns_servers = NULL;
+    config.publish_resolv_conf = FALSE;
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
@@ -549,7 +689,6 @@ int main(int argc, char *argv[]) {
         argv0 = argv[0];
 
     daemon_pid_file_ident = daemon_log_ident = (char *) argv0;
-
     daemon_pid_file_proc = pid_file_proc;
     
     if (parse_command_line(&config, argc, argv) < 0)
@@ -560,7 +699,7 @@ int main(int argc, char *argv[]) {
         r = 0;
     } else if (config.command == DAEMON_VERSION) {
         printf("%s "PACKAGE_VERSION"\n", argv0);
-
+        r = 0;
     } else if (config.command == DAEMON_KILL) {
         if (daemon_pid_file_kill_wait(SIGTERM, 5) < 0) {
             avahi_log_warn("Failed to kill daemon: %s", strerror(errno));
@@ -594,7 +733,6 @@ int main(int argc, char *argv[]) {
             goto finish;
         
         if (config.daemonize) {
-
             daemon_retval_init();
             
             if ((pid = daemon_fork()) < 0)
@@ -645,6 +783,8 @@ finish:
 
     avahi_server_config_free(&config.server_config);
     g_free(config.config_file);
+    g_strfreev(config.publish_dns_servers);
+    g_strfreev(resolv_conf);
 
     if (wrote_pid_file)
         daemon_pid_file_remove();

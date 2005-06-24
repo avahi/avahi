@@ -275,6 +275,38 @@ gint avahi_server_add_service_strlst(
     guint16 port,
     AvahiStringList *strlst);
 
+/** The type of DNS server */
+typedef enum {
+    AVAHI_DNS_SERVER_RESOLVE,         /**< Unicast DNS servers for normal resolves (_domain._udp)*/
+    AVAHI_DNS_SERVER_UPDATE           /**< Unicast DNS servers for updates (_dns-update._udp)*/
+} AvahiDNSServerType;
+
+/** Publish the specified unicast DNS server address via mDNS. You may
+ * browse for records create this way wit
+ * avahi_dns_server_browser_new(). */
+gint avahi_server_add_dns_server_address(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    const gchar *domain,
+    AvahiDNSServerType type,
+    const AvahiAddress *address,
+    guint16 port /** should be 53 */);
+
+/** Similar to avahi_server_add_dns_server_address(), but specify a
+host name instead of an address. The specified host name should be
+resolvable via mDNS */
+gint avahi_server_add_dns_server_name(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
+    gint interface,
+    guchar protocol,
+    const gchar *domain,
+    AvahiDNSServerType type,
+    const gchar *name,
+    guint16 port /** should be 53 */);
+
 typedef enum {
     AVAHI_BROWSER_NEW = 0,
     AVAHI_BROWSER_REMOVE = -1
@@ -306,7 +338,8 @@ typedef enum {
     AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
     AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
     AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
-    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT     /**< Browse for the default browsing domain */
+    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT,    /**< Browse for the default browsing domain */
+    AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY      /**< Legacy browse domain - see DNS-SD spec for more information */
 } AvahiDomainBrowserType;
 
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
@@ -328,5 +361,14 @@ typedef struct AvahiServiceResolver AvahiServiceResolver;
 typedef void (*AvahiServiceResolverCallback)(AvahiServiceResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const gchar *name, const gchar *type, const gchar *domain, const gchar *host_name, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata);
 AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *name, const gchar *type, const gchar *domain, guchar aprotocol, AvahiServiceResolverCallback calback, gpointer userdata);
 void avahi_service_resolver_free(AvahiServiceResolver *r);
+
+
+/** A domain service browser object. Use this to browse for
+ * conventional unicast DNS servers which may be used to resolve
+ * conventional domain names */
+typedef struct AvahiDNSServerBrowser AvahiDNSServerBrowser;
+typedef void (*AvahiDNSServerBrowserCallback)(AvahiDNSServerBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata);
+AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDNSServerType type, guchar aprotocol, AvahiDNSServerBrowserCallback callback, gpointer userdata);
+void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b);
 
 #endif

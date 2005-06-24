@@ -102,6 +102,7 @@ static void remove_entries(void) {
 }
 
 static void create_entries(gboolean new_name) {
+    AvahiAddress a;
     remove_entries();
     
     group = avahi_entry_group_new(server, entry_group_callback, NULL);   
@@ -128,7 +129,12 @@ static void create_entries(gboolean new_name) {
         avahi_log_error("Failed to add WEBDAV service");
         goto fail;
     }
-    
+
+    if (avahi_server_add_dns_server_address(server, group, 0, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AF_UNSPEC, &a), 53) < 0) {
+        avahi_log_error("Failed to add new DNS Server address");
+        goto fail;
+    }
+
     avahi_entry_group_commit(group);
     return;
 
@@ -186,6 +192,12 @@ static void sr_callback(AvahiServiceResolver *r, gint iface, guchar protocol, Av
     }
 }
 
+static void dsb_callback(AvahiDNSServerBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar*hostname, const AvahiAddress *a, guint16 port, gpointer userdata) {
+    gchar t[64];
+    avahi_address_snprint(t, sizeof(t), a);
+    avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname, t, port, event == AVAHI_BROWSER_NEW ? "new" : "remove");
+}
+
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     AvahiRecordBrowser *r;
@@ -198,7 +210,8 @@ int main(int argc, char *argv[]) {
     AvahiServiceTypeBrowser *stb;
     AvahiServiceBrowser *sb;
     AvahiServiceResolver *sr;
-
+    AvahiDNSServerBrowser *dsb;
+    
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */
     server = avahi_server_new(NULL, &config, server_callback, NULL);
@@ -219,7 +232,9 @@ int main(int argc, char *argv[]) {
     sb = avahi_service_browser_new(server, -1, AF_UNSPEC, "_http._tcp", NULL, sb_callback, NULL);
 
     sr = avahi_service_resolver_new(server, -1, AF_UNSPEC, "Ecstasy HTTP", "_http._tcp", "local", AF_UNSPEC, sr_callback, NULL);
-    
+
+    dsb = avahi_dns_server_browser_new(server, -1, AF_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AF_UNSPEC, dsb_callback, NULL);
+
     loop = g_main_loop_new(NULL, FALSE);
     
     g_timeout_add(1000*5, dump_timeout, server);
@@ -234,6 +249,7 @@ int main(int argc, char *argv[]) {
     avahi_service_type_browser_free(stb);
     avahi_service_browser_free(sb);
     avahi_service_resolver_free(sr);
+    avahi_dns_server_browser_free(dsb);
 
     if (group)
         avahi_entry_group_free(group);   

@@ -69,7 +69,8 @@ libavahi_core_la_SOURCES = \
 	dns.c dns.h \
 	core.h \
 	llist.h \
-	log.c log.h
+	log.c log.h \
+	browse-dns-server.c browse-dns-server.h
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)
 libavahi_core_la_LIBADD = $(AM_LDADD) $(COMMON_LDADD)
 

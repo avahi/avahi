@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# $Id$
+#
+# This file is part of avahi.
+# 
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+set -e
+
+test "x$AVAHI_INTERFACE" != "x"
+
+# Command line arguments:
+#   $1 "+" if a new DNS server was found, "-" if one was removed
+#   $2 DNS Server address
+#   $3 interface index where this server was found on
+#   $4 protocol number where this server was found on
+
+# Available environment variables:
+#
+#   $AVAHI_INTERFACE               The interface name where this DNS server was found on
+#   $AVAHI_INTERFACE_DNS_SERVERS   A whitespace seperated list of DNS servers on $AVAHI_INTERFACE
+#   $AVAHI_DNS_SERVERS             The complete list of all DNS servers found on all interfaces
+
+if [ -x /sbin/resolvconf ] ; then
+
+    # We have Debian's resolvconf tool
+
+    if [ "x$AVAHI_INTERFACE_DNS_SERVERS" = "x" ] ; then
+        /sbin/resolvconf -d "$AVAHI_INTERFACE.avahi"
+    else
+        for n in $AVAHI_INTERFACE_DNS_SERVERS ; do 
+            echo "nameserver $n"
+        done | /sbin/resolvconf -a "$AVAHI_INTERFACE.avahi"
+    fi
+else
+
+    # No resolvconf tool available
+
+    if [ "x$AVAHI_DNS_SERVERS" = "x" ] ; then
+        test -f /etc/resolv.conf.avahi && mv /etc/resolv.conf.avahi /etc/resolv.conf
+    else
+        test -f /etc/resolv.conf.avahi || mv /etc/resolv.conf /etc/resolv.conf.avahi
+
+        for n in $AVAHI_DNS_SERVERS ; do 
+            echo "nameserver $n"
+        done > /etc/resolv.conf
+    fi
+fi

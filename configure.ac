@@ -234,24 +234,23 @@ avahi-client/Makefile
 initscript/Makefile 
 initscript/Debian/Makefile
 initscript/Debian/75avahi
+avahi-dnsconfd/Makefile
 ])
 AC_OUTPUT
 
 dnl ==========================================================================
 echo "
-                   $PACKAGE_NAME $VERSION
-                  ============
+ ---{ $PACKAGE_NAME $VERSION }---
 
-        prefix:                   ${prefix}
-        sysconfdir:               ${sysconfdir}
-        dbus-1 system.d dir:      ${DBUS_SYS_DIR}
-	dbus-1 version:           `pkg-config dbus-1 --modversion`
-        compiler:                 ${CC}
-        cflags:                   ${CFLAGS}
-	Linux Distro:             ${with_distro}
-        User for Avahi:           ${AVAHI_USER}
-        Group for Avahi:          ${AVAHI_GROUP}
+    prefix:                 ${prefix}
+    sysconfdir:             ${sysconfdir}
+    dbus-1 system.d dir:    ${DBUS_SYS_DIR}
+    dbus-1 version:         `pkg-config dbus-1 --modversion`
+    compiler:               ${CC}
+    cflags:                 ${CFLAGS}
+    Linux Distro:           ${with_distro}
+    User for Avahi:         ${AVAHI_USER}
+    Group for Avahi:        ${AVAHI_GROUP}
+
+ NOTE: Remember to create user ${AVAHI_USER} and group ${AVAHI_GROUP} before make install
 "
-
-echo "NOTE: Remember to create user ${AVAHI_USER} and group ${AVAHI_GROUP} before make install"
-echo

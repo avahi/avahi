@@ -1619,7 +1619,7 @@ gint avahi_server_add_address(
     return ret;
 }
 
-gint avahi_server_add_text_strlst(
+gint avahi_server_add_txt_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1642,7 +1642,7 @@ gint avahi_server_add_text_strlst(
     return ret;
 }
 
-gint avahi_server_add_text_va(
+gint avahi_server_add_txt_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1654,10 +1654,10 @@ gint avahi_server_add_text_va(
     
     g_assert(s);
 
-    return avahi_server_add_text_strlst(s, g, interface, protocol, flags, ttl, name, avahi_string_list_new_va(va));
+    return avahi_server_add_txt_strlst(s, g, interface, protocol, flags, ttl, name, avahi_string_list_new_va(va));
 }
 
-gint avahi_server_add_text(
+gint avahi_server_add_txt(
     AvahiServer *s,
     AvahiEntryGroup *g,
     gint interface,
@@ -1673,7 +1673,7 @@ gint avahi_server_add_text(
     g_assert(s);
 
     va_start(va, name);
-    ret = avahi_server_add_text_va(s, g, interface, protocol, flags, ttl, name, va);
+    ret = avahi_server_add_txt_va(s, g, interface, protocol, flags, ttl, name, va);
     va_end(va);
 
     return ret;
@@ -1745,7 +1745,7 @@ gint avahi_server_add_service_strlst(
     ret |= avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
     avahi_record_unref(r);
 
-    ret |= avahi_server_add_text_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    ret |= avahi_server_add_txt_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
 
     snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
     ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);

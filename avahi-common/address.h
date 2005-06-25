@@ -53,7 +53,7 @@ typedef struct {
     guint8 address[16]; /**< Address data */
 } AvahiIPv6Address;
 
-/** Protocol (address family) independant address structure */
+/** Protocol (address family) independent address structure */
 typedef struct {
     AvahiProtocol family; /**< Address family */
 

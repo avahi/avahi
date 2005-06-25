@@ -25,7 +25,7 @@
 #include <glib.h>
 
 /** Linked list of strings that can contain any number of binary
- * characters, include NUL bytes. An empty list is created by
+ * characters, including NUL bytes. An empty list is created by
  * assigning a NULL to a pointer to AvahiStringList. The string list
  * is stored in reverse order, so that appending to the string list is
  * effectively a prepending to the linked list.  This object is used

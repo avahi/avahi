@@ -158,7 +158,7 @@ static void next_state(AvahiAnnouncement *a) {
         else
             avahi_server_prepare_response(a->server, a->interface, a->entry, FALSE, FALSE);
 
-        avahi_server_generate_response(a->server, a->interface, NULL, NULL, 0, FALSE);
+        avahi_server_generate_response(a->server, a->interface, NULL, NULL, 0, FALSE, FALSE);
 
         if (++a->n_iteration >= 4) {
 /*             gchar *t; */

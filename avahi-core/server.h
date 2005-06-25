@@ -137,7 +137,7 @@ void avahi_server_post_query(AvahiServer *s, gint interface, guchar protocol, Av
 
 void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response, gboolean auxiliary);
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response);
-void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast);
+void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast, gboolean is_probe);
 
 void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state);
 

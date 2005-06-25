@@ -249,9 +249,9 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     if (!ours) {
 
         if (won)
-            avahi_log_debug("xxx Recieved conflicting probe [%s]. Local host won.", t);
+            avahi_log_debug("Recieved conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            avahi_log_debug("yyy Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
+            avahi_log_debug("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
             withdraw_rrset(s, record->key);
         }
     }
@@ -361,7 +361,7 @@ static void append_aux_records_to_list(AvahiServer *s, AvahiInterface *i, AvahiR
     avahi_server_enumerate_aux_records(s, i, r, append_aux_callback, &unicast_response);
 }
 
-void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
+void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast, gboolean immediately) {
 
     g_assert(s);
     g_assert(i);
@@ -405,7 +405,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
         
         while ((r = avahi_record_list_next(s->record_list, &flush_cache, &unicast_response, &auxiliary))) {
                         
-            if (!avahi_interface_post_response(i, r, flush_cache, a, !tc && flush_cache && !auxiliary) && unicast_response) {
+            if (!avahi_interface_post_response(i, r, flush_cache, a, immediately || (flush_cache && !tc && !auxiliary)) && unicast_response) {
 
                 append_aux_records_to_list(s, i, r, unicast_response);
                 
@@ -539,6 +539,7 @@ static void reflect_probe(AvahiServer *s, AvahiInterface *i, AvahiRecord *r) {
 
 static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, guint16 port, gboolean legacy_unicast) {
     guint n;
+    gboolean is_probe;
     
     g_assert(s);
     g_assert(p);
@@ -548,6 +549,8 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
 /*     avahi_log_debug("query"); */
 
     g_assert(avahi_record_list_empty(s->record_list));
+
+    is_probe = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) > 0;
     
     /* Handle the questions */
     for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_QDCOUNT); n > 0; n --) {
@@ -609,7 +612,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
     }
 
     if (!avahi_record_list_empty(s->record_list))
-        avahi_server_generate_response(s, i, p, a, port, legacy_unicast);
+        avahi_server_generate_response(s, i, p, a, port, legacy_unicast, is_probe);
 
     return;
     
@@ -657,7 +660,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
        records have been scheduling for sending. We need to flush them
        here. */
     if (!avahi_record_list_empty(s->record_list))
-        avahi_server_generate_response(s, i, NULL, NULL, 0, FALSE);
+        avahi_server_generate_response(s, i, NULL, NULL, 0, FALSE, TRUE);
 }
 
 static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {

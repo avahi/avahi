@@ -26,6 +26,8 @@
 
 #include <avahi-common/cdecl.h>
 
+/** \file alternative.h Functions to find alternative names for hosts and services in the case of name collision */
+
 AVAHI_C_DECL_BEGIN
 
 /** Find an alternative for the specified host name. If called with an

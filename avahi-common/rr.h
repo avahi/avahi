@@ -28,6 +28,8 @@
 #include <avahi-common/address.h>
 #include <avahi-common/cdecl.h>
 
+/** \file rr.h Functions and definitions for manipulating DNS resource record (RR) data. */
+
 AVAHI_C_DECL_BEGIN
 
 /** DNS record types, see RFC 1035 */

@@ -26,6 +26,8 @@
 #include <glib.h>
 #include <avahi-common/cdecl.h>
 
+/** \file address.h Defintions and functions to manipulate IP addresses. */
+
 AVAHI_C_DECL_BEGIN
 
 /** Protocol family specification, takes the values AVAHI_INET, AVAHI_INET6, AVAHI_UNSPEC */

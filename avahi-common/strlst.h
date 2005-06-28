@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <avahi-common/cdecl.h>
 
+/** \file strlst.h Implementation of a data type to store lists of strings */
+
 AVAHI_C_DECL_BEGIN
 
 /** Linked list of strings that can contain any number of binary

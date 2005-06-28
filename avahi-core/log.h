@@ -26,6 +26,8 @@
 #include <glib.h>
 #include <avahi-common/cdecl.h>
 
+/** \file log.h Extensible logging subsystem */
+
 AVAHI_C_DECL_BEGIN
 
 #ifdef __GNUC__

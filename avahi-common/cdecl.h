@@ -23,6 +23,8 @@
 ***/
 
 
+/** \file cdecl.h C++ compatibility */
+
 #ifdef __cplusplus
 /** If using C++ this macro enables C mode, otherwise does nothing */
 #define AVAHI_C_DECL_BEGIN extern "C" {

@@ -33,7 +33,6 @@ struct AvahiRecordBrowser {
     AvahiKey *key;
     gint interface;
     guchar protocol;
-    gint n_query;
     guint sec_delay;
 
     AvahiTimeEvent *time_event;
@@ -55,8 +54,10 @@ static void elapse(AvahiTimeEvent *e, void *userdata) {
 
     avahi_server_post_query(s->server, s->interface, s->protocol, s->key);
 
-    if (s->n_query++ <= 8)
-        s->sec_delay *= 2;
+    s->sec_delay *= 2;
+    
+    if (s->sec_delay >= 60*60)  /* 1h */
+        s->sec_delay = 60*60;
 
 /*     avahi_log_debug("%i. Continuous querying for %s", s->n_query, t = avahi_key_to_string(s->key)); */
 /*     g_free(t); */
@@ -132,7 +133,6 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface
     b->protocol = protocol;
     b->callback = callback;
     b->userdata = userdata;
-    b->n_query = 1;
     b->sec_delay = 1;
 
     avahi_server_post_query(b->server, b->interface, b->protocol, b->key);

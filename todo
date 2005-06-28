@@ -1,7 +1,6 @@
 todo:
 * release!
 * support for special domain PTR records based on local IP subnet address
-* Introduce AvahiProtocol
 * drop trailing dot on avahi_normalize_name()
 * c++ support
 

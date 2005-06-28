@@ -39,7 +39,7 @@ AvahiKey *avahi_key_new(const gchar *name, guint16 class, guint16 type) {
     k = g_new(AvahiKey, 1);
     k->ref = 1;
     k->name = avahi_normalize_name(name);    
-    k->class = class;
+    k->clazz = class;
     k->type = type;
 
 /*     g_message("%p %% ref=1", k); */
@@ -189,7 +189,7 @@ gchar *avahi_key_to_string(const AvahiKey *k) {
     
     return g_strdup_printf("%s\t%s\t%s",
                            k->name,
-                           avahi_dns_class_to_string(k->class),
+                           avahi_dns_class_to_string(k->clazz),
                            avahi_dns_type_to_string(k->type));
 }
 
@@ -254,7 +254,7 @@ gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
     
     return avahi_domain_equal(a->name, b->name) &&
         a->type == b->type &&
-        a->class == b->class;
+        a->clazz == b->clazz;
 }
 
 gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
@@ -270,7 +270,7 @@ gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
     
     return avahi_domain_equal(pattern->name, k->name) &&
         (pattern->type == k->type || pattern->type == AVAHI_DNS_TYPE_ANY) &&
-        (pattern->class == k->class || pattern->type == AVAHI_DNS_CLASS_ANY);
+        (pattern->clazz == k->clazz || pattern->clazz == AVAHI_DNS_CLASS_ANY);
 }
 
 gboolean avahi_key_is_pattern(const AvahiKey *k) {
@@ -278,7 +278,7 @@ gboolean avahi_key_is_pattern(const AvahiKey *k) {
 
     return
         k->type == AVAHI_DNS_TYPE_ANY ||
-        k->class == AVAHI_DNS_CLASS_ANY;
+        k->clazz == AVAHI_DNS_CLASS_ANY;
 }
 
 guint avahi_key_hash(const AvahiKey *k) {
@@ -287,7 +287,7 @@ guint avahi_key_hash(const AvahiKey *k) {
     return
         avahi_domain_hash(k->name) + 
         k->type +
-        k->class;
+        k->clazz;
 }
 
 static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
@@ -481,7 +481,7 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
     if (a == b)
         return 0;
 
-    if ((r = uint16_cmp(a->key->class, b->key->class)) ||
+    if ((r = uint16_cmp(a->key->clazz, b->key->clazz)) ||
         (r = uint16_cmp(a->key->type, b->key->type)))
         return r;
 

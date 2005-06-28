@@ -26,7 +26,9 @@
 
 #include <avahi-common/strlst.h>
 #include <avahi-common/address.h>
+#include <avahi-common/cdecl.h>
 
+AVAHI_C_DECL_BEGIN
 
 /** DNS record types, see RFC 1035 */
 enum {
@@ -64,7 +66,7 @@ enum {
 typedef struct {
     guint ref;         /**< Reference counter */
     gchar *name;       /**< Record name */
-    guint16 class;     /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
+    guint16 clazz;     /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
     guint16 type;      /**< Record type, one of the AVAHI_DNS_TYPE_xxx constants */
 } AvahiKey;
 
@@ -119,7 +121,7 @@ typedef struct  {
 } AvahiRecord;
 
 /** Create a new AvahiKey object. The reference counter will be set to 1. */
-AvahiKey *avahi_key_new(const gchar *name, guint16 class, guint16 type);
+AvahiKey *avahi_key_new(const gchar *name, guint16 clazz, guint16 type);
 
 /** Increase the reference counter of an AvahiKey object by one */
 AvahiKey *avahi_key_ref(AvahiKey *k);
@@ -150,7 +152,7 @@ guint avahi_key_hash(const AvahiKey *k);
 AvahiRecord *avahi_record_new(AvahiKey *k, guint32 ttl);
 
 /** Create a new record object. Record data should be filled in right after creation. The reference counter is set to 1. */
-AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type, guint32 ttl);
+AvahiRecord *avahi_record_new_full(const gchar *name, guint16 clazz, guint16 type, guint32 ttl);
 
 /** Increase the reference counter of an AvahiRecord by one. */
 AvahiRecord *avahi_record_ref(AvahiRecord *r);
@@ -160,7 +162,7 @@ void avahi_record_unref(AvahiRecord *r);
 
 /** Return a textual representation of the specified DNS class. The
  * returned pointer points to a read only internal string. */
-const gchar *avahi_dns_class_to_string(guint16 class);
+const gchar *avahi_dns_class_to_string(guint16 clazz);
 
 /** Return a textual representation of the specified DNS class. The
  * returned pointer points to a read only internal string. */
@@ -195,5 +197,7 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
 
 /** Return TRUE if the specified record is an mDNS goodbye record. i.e. TTL is zero. */
 gboolean avahi_record_is_goodbye(AvahiRecord *r);
+
+AVAHI_C_DECL_END
 
 #endif

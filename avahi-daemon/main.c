@@ -185,6 +185,8 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
 
         if (config->publish_dns_servers && config->publish_dns_servers[0])
             dns_servers_entry_group = add_dns_servers(s, config->publish_dns_servers);
+
+        simple_protocol_restart_queries();
         
     } else if (state == AVAHI_SERVER_COLLISION) {
         gchar *n;

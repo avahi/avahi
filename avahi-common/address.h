@@ -24,6 +24,9 @@
 
 #include <sys/socket.h>
 #include <glib.h>
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
 
 /** Protocol family specification, takes the values AVAHI_INET, AVAHI_INET6, AVAHI_UNSPEC */
 typedef guchar AvahiProtocol;
@@ -96,5 +99,7 @@ gchar* avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a);
 /** Check whether the specified IPv6 address is in fact an
  * encapsulated IPv4 address */
 gboolean avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a);
+
+AVAHI_C_DECL_END
 
 #endif

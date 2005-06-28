@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
+
 /** An mDNS responder object */
 typedef struct AvahiServer AvahiServer;
 
@@ -34,9 +38,13 @@ typedef struct AvahiEntry AvahiEntry;
 /** A group of locally registered DNS RRs */
 typedef struct AvahiEntryGroup AvahiEntryGroup;
 
+AVAHI_C_DECL_END
+
 #include <avahi-common/address.h>
 #include <avahi-common/rr.h>
 #include <avahi-common/alternative.h>
+
+AVAHI_C_DECL_BEGIN
 
 /** States of a server object */
 typedef enum {
@@ -375,5 +383,7 @@ typedef struct AvahiDNSServerBrowser AvahiDNSServerBrowser;
 typedef void (*AvahiDNSServerBrowserCallback)(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata);
 AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *domain, AvahiDNSServerType type, AvahiProtocol aprotocol, AvahiDNSServerBrowserCallback callback, gpointer userdata);
 void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b);
+
+AVAHI_C_DECL_END
 
 #endif

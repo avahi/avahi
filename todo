@@ -1,8 +1,11 @@
 todo:
 * release!
-* support for special domain PTR records based on local IP subnet address
 * drop trailing dot on avahi_normalize_name()
-* c++ support
+later:
+* support for special domain PTR records based on local IP subnet address
+* Changes resulting in updated RFC of 7th June 2005:
+  * Defer responses to replies with TC bit set by 400-500msec
+  * Defer unicast responses the same way as multicast responses 
 
 done:
 * Probing/Conflict resolution
@@ -40,3 +43,4 @@ done:
 * reflector
 * test against apple test suite
 * sensible logging
+* c++ support

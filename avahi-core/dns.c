@@ -616,7 +616,7 @@ guint8* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, gboolean uni
     
     if (!(t = avahi_dns_packet_append_name(p, k->name)) ||
         !avahi_dns_packet_append_uint16(p, k->type) ||
-        !avahi_dns_packet_append_uint16(p, k->class | (unicast_response ? AVAHI_DNS_UNICAST_RESPONSE : 0))) {
+        !avahi_dns_packet_append_uint16(p, k->clazz | (unicast_response ? AVAHI_DNS_UNICAST_RESPONSE : 0))) {
         p->size = size;
         return NULL;
     }
@@ -635,7 +635,7 @@ guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboole
 
     if (!(t = avahi_dns_packet_append_name(p, r->key->name)) ||
         !avahi_dns_packet_append_uint16(p, r->key->type) ||
-        !avahi_dns_packet_append_uint16(p, cache_flush ? (r->key->class | AVAHI_DNS_CACHE_FLUSH) : (r->key->class &~ AVAHI_DNS_CACHE_FLUSH)) ||
+        !avahi_dns_packet_append_uint16(p, cache_flush ? (r->key->clazz | AVAHI_DNS_CACHE_FLUSH) : (r->key->clazz &~ AVAHI_DNS_CACHE_FLUSH)) ||
         !avahi_dns_packet_append_uint32(p, (max_ttl && r->ttl > max_ttl) ? max_ttl : r->ttl) ||
         !(l = avahi_dns_packet_append_uint16(p, 0)))
         goto fail;

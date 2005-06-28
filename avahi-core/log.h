@@ -24,6 +24,9 @@
 
 #include <stdarg.h>
 #include <glib.h>
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
 
 #ifdef __GNUC__
 #define AVAHI_GCC_PRINTF_ATTR(a,b) __attribute__ ((format (printf, a, b)))
@@ -73,5 +76,7 @@ void avahi_log_info(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_DEBUG, ...) */
 void avahi_log_debug(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+
+AVAHI_C_DECL_END
 
 #endif

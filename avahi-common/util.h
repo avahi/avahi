@@ -24,6 +24,10 @@
 
 #include <glib.h>
 
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
+
 gchar *avahi_normalize_name(const gchar *s); /* g_free() the result! */
 gchar *avahi_get_host_name(void); /* g_free() the result! */
 
@@ -53,5 +57,7 @@ gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name,
 guint avahi_domain_hash(const gchar *s);
 
 gchar *avahi_format_mac_address(const guint8* mac, guint size);
+
+AVAHI_C_DECL_END
 
 #endif

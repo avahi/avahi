@@ -135,7 +135,7 @@ void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, Avahi
     g_assert(r);
     g_assert(callback);
     
-    if (r->key->class == AVAHI_DNS_CLASS_IN) {
+    if (r->key->clazz == AVAHI_DNS_CLASS_IN) {
         if (r->key->type == AVAHI_DNS_TYPE_PTR) {
             enum_aux_records(s, i, r->data.ptr.name, AVAHI_DNS_TYPE_SRV, callback, userdata);
             enum_aux_records(s, i, r->data.ptr.name, AVAHI_DNS_TYPE_TXT, callback, userdata);

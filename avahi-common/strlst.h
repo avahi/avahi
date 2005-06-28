@@ -23,6 +23,9 @@
 ***/
 
 #include <glib.h>
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
 
 /** Linked list of strings that can contain any number of binary
  * characters, including NUL bytes. An empty list is created by
@@ -82,6 +85,8 @@ gboolean avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList
 
 /** Copy a string list */
 AvahiStringList *avahi_string_list_copy(const AvahiStringList *l);
+
+AVAHI_C_DECL_END
 
 #endif
 

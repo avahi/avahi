@@ -171,7 +171,7 @@ static gboolean packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p
         return FALSE;
 
     /* Create the probe query */
-    k = avahi_key_new(pj->record->key->name, pj->record->key->class, AVAHI_DNS_TYPE_ANY);
+    k = avahi_key_new(pj->record->key->name, pj->record->key->clazz, AVAHI_DNS_TYPE_ANY);
     b = !!avahi_dns_packet_append_key(p, k, FALSE);
     g_assert(b);
 
@@ -184,7 +184,7 @@ static gboolean packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p
             continue;
 
         /* Does the record match the probe? */
-        if (k->class != pj->record->key->class || !avahi_domain_equal(k->name, pj->record->key->name))
+        if (k->clazz != pj->record->key->clazz || !avahi_domain_equal(k->name, pj->record->key->name))
             continue;
         
         /* This job wouldn't fit in */
@@ -238,7 +238,7 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
         
         p = avahi_dns_packet_new_query(size);
 
-        k = avahi_key_new(pj->record->key->name, pj->record->key->class, AVAHI_DNS_TYPE_ANY);
+        k = avahi_key_new(pj->record->key->name, pj->record->key->clazz, AVAHI_DNS_TYPE_ANY);
         b = avahi_dns_packet_append_key(p, k, FALSE) && avahi_dns_packet_append_record(p, pj->record, FALSE, 0);
         avahi_key_unref(k);
 

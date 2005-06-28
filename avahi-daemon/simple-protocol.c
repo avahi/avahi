@@ -70,6 +70,8 @@ struct Client {
     AvahiHostNameResolver *host_name_resolver;
     AvahiAddressResolver *address_resolver;
     AvahiDNSServerBrowser *dns_server_browser;
+
+    AvahiProtocol afquery;
     
     AVAHI_LLIST_FIELDS(Client, clients);
 };
@@ -163,6 +165,7 @@ static void client_output_printf(Client *c, gchar *format, ...) {
     g_free(t);
 }
 
+
 static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
     Client *c = userdata;
     
@@ -239,13 +242,13 @@ static void handle_line(Client *c, const gchar *s) {
         c->state = CLIENT_DEAD;
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV4") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, AF_INET, host_name_resolver_callback, c);
+        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_INET, host_name_resolver_callback, c);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, AF_INET6, host_name_resolver_callback, c);
+        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_INET6, host_name_resolver_callback, c);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, AF_UNSPEC, host_name_resolver_callback, c);
+        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_UNSPEC, host_name_resolver_callback, c);
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
         
@@ -258,15 +261,15 @@ static void handle_line(Client *c, const gchar *s) {
         }
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, AF_INET, dns_server_browser_callback, c);
+        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_INET, dns_server_browser_callback, c);
         client_output_printf(c, "+ Browsing ...\n");
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, AF_INET6, dns_server_browser_callback, c);
+        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_INET6, dns_server_browser_callback, c);
         client_output_printf(c, "+ Browsing ...\n");
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, AF_UNSPEC, dns_server_browser_callback, c);
+        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_UNSPEC, dns_server_browser_callback, c);
         client_output_printf(c, "+ Browsing ...\n");
     } else {
         client_output_printf(c, "- Invalid command \"%s\", try \"HELP\".\n", cmd);
@@ -481,3 +484,19 @@ void simple_protocol_shutdown(void) {
         server = NULL;
     }
 }
+
+void simple_protocol_restart_queries(void) {
+    Client *c;
+
+    /* Restart queries in case of local domain name changes */
+    
+    g_assert(server);
+
+    for (c = server->clients; c; c = c->clients_next)
+        if (c->state == CLIENT_BROWSE_DNS_SERVERS && c->dns_server_browser) {
+            avahi_dns_server_browser_free(c->dns_server_browser);
+            c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery, dns_server_browser_callback, c);
+        }
+}
+
+

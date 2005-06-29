@@ -186,6 +186,8 @@ else
 case $with_distro in
    debian)
      ;;
+   gentoo)
+     ;;
    *)
      echo "Your distribution (${with_distro}) is not yet supported!  (patches welcome)"
      exit 1
@@ -234,6 +236,8 @@ avahi-client/Makefile
 initscript/Makefile 
 initscript/Debian/Makefile
 initscript/Debian/75avahi
+initscript/Gentoo/Makefile
+initscript/Gentoo/avahi
 avahi-dnsconfd/Makefile
 ])
 AC_OUTPUT

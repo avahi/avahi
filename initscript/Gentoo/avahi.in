@@ -1,0 +1,20 @@
+DAEMON=/usr/bin/avahi
+
+start() {
+                    ebegin "Starting avahi"
+                            start-stop-daemon --start --quiet --exec $DAEMON
+                                    eend $?
+}
+
+stop() {
+            ebegin "Stopping avahi"
+                    start-stop-daemon --stop --quiet --exec $DAEMON
+                            eend $?
+}
+
+reload() {
+            ebegin "Reloading avahi configuration"
+                    start-stop-daemon --stop --signal 1 --quiet --exec $DAEMON
+                            eend $?
+}
+

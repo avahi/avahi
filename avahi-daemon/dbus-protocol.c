@@ -53,7 +53,7 @@ do_register (DBusConnection *conn, DBusMessage *message)
         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
     }
 
-    g_message ("Register received from: %s", s);
+    g_message ("Register received from: %s (dbus:% s)", s, dbus_message_get_sender (message));
 
     return DBUS_HANDLER_RESULT_HANDLED;
 }
@@ -92,10 +92,11 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
     } else if (dbus_message_is_signal (message,
 #ifdef DBUS_USE_NEW_API
 			    	       DBUS_INTERFACE_DBUS,
+				       "NameAcquired"))
 #else
                                        DBUS_INTERFACE_ORG_FREEDESKTOP_DBUS,
-#endif
                                        "ServiceAcquired"))
+#endif
     {
         char *name;
 

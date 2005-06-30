@@ -31,9 +31,9 @@ STATIC_COMMON_LDADD=../avahi-common/libavahi-common-static.a
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-avahiincludedir=$(includedir)/avahi-core 
+avahiincludedir=$(includedir)/avahi-core
 
-avahiinclude_HEADERS =
+avahiinclude_HEADERS = \
 	core.h
 
 lib_LTLIBRARIES = \

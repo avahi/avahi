@@ -28,7 +28,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 avahi_commonincludedir=$(includedir)/avahi-common
 
-avahi_commoninclude_HEADERS =
+avahi_commoninclude_HEADERS = \
 	strlst.h \
 	address.h \
 	alternative.h \

@@ -28,7 +28,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 avahi_clientincludedir=$(includedir)/avahi-client
 
-avahi_clientinclude_HEADERS =
+avahi_clientinclude_HEADERS = \
 	client.h
 
 noinst_PROGRAMS = \

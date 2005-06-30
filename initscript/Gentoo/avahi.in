@@ -1,20 +1,28 @@
+#!/sbin/runscript
+# Avahi ZeroConf Daemon init script
+# Many thanks to the Avahi developer's and Sebastien Estienne
+
 DAEMON=/usr/bin/avahi
 
+depend () {
+	need dbus
+}
+
 start() {
-                    ebegin "Starting avahi"
-                            start-stop-daemon --start --quiet --exec $DAEMON
-                                    eend $?
+	ebegin "Starting avahi"
+        $DAEMON -D
+	eend $?
 }
 
 stop() {
-            ebegin "Stopping avahi"
-                    start-stop-daemon --stop --quiet --exec $DAEMON
-                            eend $?
+	ebegin "Stopping avahi"
+	$DAEMON -k || /bin/true
+	eend $?
 }
 
 reload() {
-            ebegin "Reloading avahi configuration"
-                    start-stop-daemon --stop --signal 1 --quiet --exec $DAEMON
-                            eend $?
+	ebegin "Reloading avahi configuration"
+        $DAEMON -r
+	eend $?
 }
 

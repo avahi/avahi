@@ -22,9 +22,7 @@ pkgsysconfdir=$(sysconfdir)/avahi
 AM_CFLAGS= \
 	-I$(top_srcdir) \
 	-D_GNU_SOURCE \
-	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/dnsconf.action\" \
-	-DAVAHI_SOCKET=\"$(localstatedir)/run/avahi/socket\" \
-	-DAVAHI_RUNTIME_DIR=\"$(localstatedir)/run\"
+	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/dnsconf.action\"
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)

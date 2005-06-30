@@ -39,6 +39,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AC_PROG_GCC_TRADITIONAL
 
 # libtool stuff
 AC_PROG_LIBTOOL
@@ -51,11 +52,12 @@ AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h limits.h netinet/in.h stdlib.h 
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_HEADER_TIME
+AC_HEADER_SYS_WAIT
 
 # Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
-AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strerror strrchr strstr uname setresuid setreuid])
+AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid])
 
 AC_FUNC_CHOWN
 AC_FUNC_STAT
@@ -89,14 +91,12 @@ if test "x$ENABLE_GTK" = "xyes"; then
 
 	DATADIRNAME=share
 	if test "x${prefix}" = "xNONE"; then
-	   AC_DEFINE_UNQUOTED(INTERFACES_DIR, "${ac_default_prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/", [path where glade files will be installed])
 	   interfacesdir="${ac_default_prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/"
-	   AC_SUBST(interfacesdir)
 	else
-	   AC_DEFINE_UNQUOTED(INTERFACES_DIR, "${prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/", [path where glade files will be installed])
 	   interfacesdir="${prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/"
-	   AC_SUBST(interfacesdir)
 	fi
+	AC_DEFINE_UNQUOTED(INTERFACES_DIR, "${interfacesdir}", [path where glade files will be installed])
+	AC_SUBST(interfacesdir)
 
 fi
 AM_CONDITIONAL(ENABLE_GTK, test "x$ENABLE_GTK" = "xyes")
@@ -134,7 +134,7 @@ if test "x$ENABLE_DBUS" = "xyes"; then
 	   DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
 	fi
 	AC_SUBST(DBUS_SYS_DIR)
-	AC_DEFINE_UNQUOTED(DBUS_SYSTEMD_DIR, "$DBUS_SYS_DIR", [Where system.d dir for DBUS is])
+	AC_DEFINE_UNQUOTED(DBUS_SYSTEMD_DIR, `eval echo $DBUS_SYS_DIR` , [Where system.d dir for DBUS is])
 
 	if pkg-config dbus-1 --atleast-version=0.30 ; then
 	   AC_DEFINE(DBUS_USE_NEW_API, 1, [Whether to use the new API for DBUS 0.30])
@@ -184,9 +184,7 @@ if test "z$with_distro" = "z"; then
    exit 1
 else
 case $with_distro in
-   debian)
-     ;;
-   gentoo)
+   debian|gentoo)
      ;;
    *)
      echo "Your distribution (${with_distro}) is not yet supported!  (patches welcome)"
@@ -221,6 +219,14 @@ else
 fi
 AC_SUBST(AVAHI_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_GROUP,"$AVAHI_GROUP", [Group for Avahi])
+
+#
+# Avahi runtime dir
+#
+avahi_runtime_dir=`eval echo ${localstatedir}/run/avahi`
+AC_DEFINE_UNQUOTED(AVAHI_RUNTIME_DIR, "${avahi_runtime_dir}", [path where pid and socket will be stored])
+AC_DEFINE_UNQUOTED(AVAHI_SOCKET, "${avahi_runtime_dir}/socket", [path for avahi socket])
+
 
 AC_CONFIG_FILES([
 Makefile 

@@ -41,8 +41,6 @@
 
 #define BUFFER_SIZE (20*1024)
 
-#define UNIX_SOCKET AVAHI_RUNTIME_DIR "/socket"
-
 #define CLIENTS_MAX 50
 
 typedef struct Client Client;
@@ -423,14 +421,14 @@ int simple_protocol_setup(GMainContext *c) {
 
     memset(&sa, 0, sizeof(sa));
     sa.sun_family = AF_LOCAL;
-    strncpy(sa.sun_path, UNIX_SOCKET, sizeof(sa.sun_path)-1);
+    strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path)-1);
 
     /* We simply remove existing UNIX sockets under this name. The
        Avahi daemons makes sure that it runs only once on a host,
        therefore sockets that already exist are stale and may be
        removed without any ill effects */
 
-    unlink(UNIX_SOCKET);
+    unlink(AVAHI_SOCKET);
     
     if (bind(server->fd, &sa, sizeof(sa)) < 0) {
         avahi_log_warn("bind(): %s", strerror(errno));
@@ -471,7 +469,7 @@ void simple_protocol_shutdown(void) {
             client_free(server->clients);
 
         if (server->bind_successful)
-            unlink(UNIX_SOCKET);
+            unlink(AVAHI_SOCKET);
         
         if (server->fd >= 0)
             close(server->fd);

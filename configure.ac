@@ -235,9 +235,7 @@ avahi-discover/Makefile
 avahi-client/Makefile 
 initscript/Makefile 
 initscript/Debian/Makefile
-initscript/Debian/75avahi
 initscript/Gentoo/Makefile
-initscript/Gentoo/avahi
 avahi-dnsconfd/Makefile
 ])
 AC_OUTPUT

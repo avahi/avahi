@@ -53,7 +53,8 @@ typedef enum {
     DAEMON_KILL,
     DAEMON_VERSION,
     DAEMON_HELP,
-    DAEMON_RELOAD
+    DAEMON_RELOAD,
+    DAEMON_CHECK
 } DaemonCommand;
 
 typedef struct {
@@ -209,6 +210,7 @@ static void help(FILE *f, const gchar *argv0) {
             "    -D --daemonize   Daemonize after startup\n"
             "    -k --kill        Kill a running daemon\n"
             "    -r --reload      Request a running daemon to reload static services\n"
+            "    -c --check       Return 0 if a daemon is already running\n"
             "    -V --version     Show version\n"
             "    -f --file=FILE   Load the specified configuration file instead of\n"
             "                     "AVAHI_CONFIG_FILE"\n",
@@ -225,12 +227,13 @@ static gint parse_command_line(DaemonConfig *config, int argc, char *argv[]) {
         { "version",   no_argument,       NULL, 'V' },
         { "file",      required_argument, NULL, 'f' },
         { "reload",    no_argument,       NULL, 'r' },
+        { "check",     no_argument,       NULL, 'c' },
     };
 
     g_assert(config);
 
     opterr = 0;
-    while ((c = getopt_long(argc, argv, "hDkVf:r", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "hDkVf:rc", long_options, NULL)) >= 0) {
 
         switch(c) {
             case 'h':
@@ -251,6 +254,9 @@ static gint parse_command_line(DaemonConfig *config, int argc, char *argv[]) {
                 break;
             case 'r':
                 config->command = DAEMON_RELOAD;
+                break;
+            case 'c':
+                config->command = DAEMON_CHECK;
                 break;
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", c);
@@ -709,7 +715,7 @@ int main(int argc, char *argv[]) {
         }
 
         r = 0;
-        
+
     } else if (config.command == DAEMON_RELOAD) {
         if (daemon_pid_file_kill(SIGHUP) < 0) {
             avahi_log_warn("Failed to kill daemon: %s", strerror(errno));
@@ -718,7 +724,9 @@ int main(int argc, char *argv[]) {
 
         r = 0;
         
-    } else if (config.command == DAEMON_RUN) {
+    } else if (config.command == DAEMON_CHECK)
+        r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
+    else if (config.command == DAEMON_RUN) {
         pid_t pid;
 
         if (getuid() != 0) {

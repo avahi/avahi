@@ -62,7 +62,8 @@ static enum {
     DAEMON_KILL,
     DAEMON_RELOAD,
     DAEMON_VERSION,
-    DAEMON_HELP
+    DAEMON_HELP,
+    DAEMON_CHECK
 } command = DAEMON_RUN;
 
 static gboolean daemonize = FALSE;
@@ -343,6 +344,7 @@ static void help(FILE *f, const gchar *argv0) {
             "    -D --daemonize   Daemonize after startup\n"
             "    -k --kill        Kill a running daemon\n"
             "    -r --reload      Request a running daemon to reload static services\n"
+            "    -c --check       Return 0 if a daemon is already running\n"
             "    -V --version     Show version\n",
             argv0);
 }
@@ -356,10 +358,11 @@ static gint parse_command_line(int argc, char *argv[]) {
         { "kill",      no_argument,       NULL, 'k' },
         { "version",   no_argument,       NULL, 'V' },
         { "reload",    no_argument,       NULL, 'r' },
+        { "check",     no_argument,       NULL, 'c' },
     };
 
     opterr = 0;
-    while ((c = getopt_long(argc, argv, "hDkVr", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "hDkVrc", long_options, NULL)) >= 0) {
 
         switch(c) {
             case 'h':
@@ -376,6 +379,9 @@ static gint parse_command_line(int argc, char *argv[]) {
                 break;
             case 'r':
                 command = DAEMON_RELOAD;
+                break;
+            case 'c':
+                command = DAEMON_CHECK;
                 break;
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", c);
@@ -575,26 +581,33 @@ gint main(gint argc, gchar *argv[]) {
         if (run_daemon() < 0)
             goto finish;
 
+        r = 0;
     } else if (command == DAEMON_HELP) {
         help(stdout, argv0);
         
+        r = 0;
     } else if (command == DAEMON_VERSION) {
         printf("%s "PACKAGE_VERSION"\n", argv0);
         
+        r = 0;
     } else if (command == DAEMON_KILL) {
         if (daemon_pid_file_kill_wait(SIGTERM, 5) < 0) {
             daemon_log(LOG_WARNING, "Failed to kill daemon: %s", strerror(errno));
             goto finish;
         }
         
+        r = 0;
     } else if (command == DAEMON_RELOAD) {
         if (daemon_pid_file_kill(SIGHUP) < 0) {
             daemon_log(LOG_WARNING, "Failed to kill daemon: %s", strerror(errno));
             goto finish;
         }
-    }
 
-    r = 0;
+        r = 0;
+    } else if (command == DAEMON_CHECK)
+        r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
+
+
     
 finish:
 

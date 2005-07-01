@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-I$(top_srcdir) -D_GNU_SOURCE
+AM_CFLAGS=-I$(top_srcdir)
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)

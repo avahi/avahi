@@ -53,7 +53,7 @@ do_register (DBusConnection *conn, DBusMessage *message)
         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
     }
 
-    g_message ("Register received from: %s (dbus:% s)", s, dbus_message_get_sender (message));
+    g_message ("Register received from: %s (dbus: %s)", s, dbus_message_get_sender (message));
 
     return DBUS_HANDLER_RESULT_HANDLED;
 }

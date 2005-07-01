@@ -35,6 +35,7 @@ fi
 
 # Checks for programs.
 AC_PROG_CC
+AC_GNU_SOURCE
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S

@@ -22,7 +22,6 @@ servicedir=$(pkgsysconfdir)/services
 
 AM_CFLAGS= \
 	-I$(top_srcdir) \
-	-D_GNU_SOURCE \
 	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
 	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\"
 

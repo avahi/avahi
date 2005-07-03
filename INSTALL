@@ -20,8 +20,11 @@ need to be run is root.
 
 *** Note ***
 
-On other linux distributions, the dbus initscript may be different (eg redhat
+- On other linux distributions, the dbus initscript may be different (eg redhat
 /etc/init.d/messagebus).  You need to restart dbus to make it know about
 /etc/dbus-1/system.d/avahi-dbus.conf .
+
+- To automatically start avahi-dnsconfd on Debian base distro:
+# update-rc.d avahi-dnsconfd defaults 25 15
 
 $Id$

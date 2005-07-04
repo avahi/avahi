@@ -31,13 +31,29 @@
     
 #include "dbus-protocol.h"
 
-static DBusConnection *bus = NULL;
+typedef struct Server Server;
+typedef struct Client Client;
+
+struct Client {
+        int id;
+};
+
+struct Server {
+        DBusConnection *bus;
+        GSList *clients;
+        int nextid;
+};
+
+static Server *server = NULL;
 
 static DBusHandlerResult
 do_register (DBusConnection *conn, DBusMessage *message)
 {
     DBusError error;
     char *s;
+    Client *client;
+    DBusMessage *reply;
+    DBusMessageIter iter;
 
     dbus_error_init (&error);
 
@@ -49,11 +65,15 @@ do_register (DBusConnection *conn, DBusMessage *message)
     {
         g_warning ("Error parsing register attempt");
         dbus_error_free (&error);
+    } else {
+            client = g_malloc (sizeof (Client));
+            client->id = server->nextid;
+            server->nextid++;
 
-        return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+            server->clients = g_slist_append (server->clients, client);
+            
+            g_message ("Register received: idstring=(%s), dbus-id=(%s), client-id=(%d)", s, dbus_message_get_sender (message), client->id);
     }
-
-    g_message ("Register received from: %s (dbus: %s)", s, dbus_message_get_sender (message));
 
     return DBUS_HANDLER_RESULT_HANDLED;
 }
@@ -72,11 +92,7 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
                dbus_message_get_member (message));
 
     if (dbus_message_is_signal (message,
-#ifdef DBUS_USE_NEW_API
-			    	DBUS_INTERFACE_LOCAL,
-#else
-                                DBUS_INTERFACE_ORG_FREEDESKTOP_LOCAL,
-#endif
+                                    DBUS_INTERFACE_LOCAL,
                                 "Disconnected"))
     {
         /* No, we shouldn't quit, but until we get somewhere
@@ -90,13 +106,8 @@ signal_filter (DBusConnection *conn, DBusMessage *message, void *user_data)
     {
         return do_register (conn, message);
     } else if (dbus_message_is_signal (message,
-#ifdef DBUS_USE_NEW_API
-			    	       DBUS_INTERFACE_DBUS,
-				       "NameAcquired"))
-#else
-                                       DBUS_INTERFACE_ORG_FREEDESKTOP_DBUS,
-                                       "ServiceAcquired"))
-#endif
+                                           DBUS_INTERFACE_DBUS,
+                                       "NameAcquired"))
     {
         char *name;
 
@@ -129,35 +140,36 @@ dbus_protocol_setup (GMainLoop *loop)
 
     dbus_error_init (&error);
 
-    bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+    server = g_malloc (sizeof (server));
 
-    if (bus == NULL)
+    server->clients = NULL;
+    server->nextid = 1;
+
+    server->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+
+    if (server->bus == NULL)
     {
         g_warning ("dbus_bus_get(): %s", error.message);
         dbus_error_free (&error);
 
-	return 1;
+        return 1;
     }
 
-    dbus_connection_setup_with_g_main (bus, NULL);
-    dbus_connection_set_exit_on_disconnect (bus, FALSE);
+    dbus_connection_setup_with_g_main (server->bus, NULL);
+    dbus_connection_set_exit_on_disconnect (server->bus, FALSE);
 
-#ifdef DBUS_USE_NEW_API
-    dbus_bus_request_name (bus, DBUS_SERVICE_AVAHI, 0, &error);
-#else
-    dbus_bus_acquire_service (bus, DBUS_SERVICE_AVAHI, 0, &error);
-#endif
+    dbus_bus_request_name (server->bus, DBUS_SERVICE_AVAHI, 0, &error);
 
     if (dbus_error_is_set (&error))
     {
         g_warning ("dbus_error_is_set (): %s", error.message);
         dbus_error_free (&error);
 
-    	return 1;
+            return 1;
     }
 
-    dbus_connection_add_filter (bus, signal_filter, loop, NULL);
-    dbus_bus_add_match (bus,
+    dbus_connection_add_filter (server->bus, signal_filter, loop, NULL);
+    dbus_bus_add_match (server->bus,
                         "type='method_call',interface='org.freedesktop.Avahi'",
                         &error);
 
@@ -166,7 +178,7 @@ dbus_protocol_setup (GMainLoop *loop)
         g_warning ("dbus_bus_add_match (): %s", error.message);
         dbus_error_free (&error);
 
-    	return 1;
+            return 1;
     }
 
     return 0;
@@ -175,8 +187,8 @@ dbus_protocol_setup (GMainLoop *loop)
 void
 dbus_protocol_shutdown ()
 {
-    if (bus) {
-        dbus_connection_disconnect(bus);
-        dbus_connection_unref(bus);
+    if (server->bus) {
+        dbus_connection_disconnect(server->bus);
+        dbus_connection_unref(server->bus);
     }
 }

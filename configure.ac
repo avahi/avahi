@@ -125,7 +125,7 @@ AC_ARG_ENABLE(dbus,
 
 if test "x$ENABLE_DBUS" = "xyes"; then
 	AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
-        PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.23])
+        PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.30])
 
 	AC_ARG_WITH(dbus-sys, [  --with-dbus-sys=<dir>   where D-BUS system.d directory is])
 
@@ -136,10 +136,6 @@ if test "x$ENABLE_DBUS" = "xyes"; then
 	fi
 	AC_SUBST(DBUS_SYS_DIR)
 	AC_DEFINE_UNQUOTED(DBUS_SYSTEMD_DIR, `eval echo $DBUS_SYS_DIR` , [Where system.d dir for DBUS is])
-
-	if pkg-config dbus-1 --atleast-version=0.30 ; then
-	   AC_DEFINE(DBUS_USE_NEW_API, 1, [Whether to use the new API for DBUS 0.30])
-	fi
 
         AC_SUBST(DBUS_CFLAGS)
 	AC_SUBST(DBUS_LIBS)

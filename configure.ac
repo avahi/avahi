@@ -181,11 +181,10 @@ if test "z$with_distro" = "z"; then
    exit 1
 else
 case $with_distro in
-   debian|gentoo)
+   debian|gentoo|suse)
      ;;
    *)
-     echo "Your distribution (${with_distro}) is not yet supported!  (patches welcome)"
-     exit 1
+     echo "Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)"
      ;;
 esac
 
@@ -239,6 +238,7 @@ avahi-client/Makefile
 initscript/Makefile 
 initscript/Debian/Makefile
 initscript/Gentoo/Makefile
+initscript/SUSE/Makefile
 avahi-dnsconfd/Makefile
 ])
 AC_OUTPUT

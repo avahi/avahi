@@ -90,13 +90,7 @@ if test "x$ENABLE_GTK" = "xyes"; then
         AC_SUBST(GLADE20_CFLAGS)
         AC_SUBST(GLADE20_LIBS)
 
-	DATADIRNAME=share
-	if test "x${prefix}" = "xNONE"; then
-	   interfacesdir="${ac_default_prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/"
-	else
-	   interfacesdir="${prefix}/${DATADIRNAME}/${PACKAGE}/interfaces/"
-	fi
-	AC_DEFINE_UNQUOTED(INTERFACES_DIR, "${interfacesdir}", [path where glade files will be installed])
+	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
 	AC_SUBST(interfacesdir)
 
 fi
@@ -135,7 +129,6 @@ if test "x$ENABLE_DBUS" = "xyes"; then
 	   DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
 	fi
 	AC_SUBST(DBUS_SYS_DIR)
-	AC_DEFINE_UNQUOTED(DBUS_SYSTEMD_DIR, `eval echo $DBUS_SYS_DIR` , [Where system.d dir for DBUS is])
 
         AC_SUBST(DBUS_CFLAGS)
 	AC_SUBST(DBUS_LIBS)
@@ -219,10 +212,10 @@ AC_DEFINE_UNQUOTED(AVAHI_GROUP,"$AVAHI_GROUP", [Group for Avahi])
 #
 # Avahi runtime dir
 #
-avahi_runtime_dir=`eval echo ${localstatedir}/run/avahi`
-AC_DEFINE_UNQUOTED(AVAHI_RUNTIME_DIR, "${avahi_runtime_dir}", [path where pid and socket will be stored])
-AC_DEFINE_UNQUOTED(AVAHI_SOCKET, "${avahi_runtime_dir}/socket", [path for avahi socket])
-
+avahi_runtime_dir="${localstatedir}/run"
+avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
+AC_SUBST(avahi_runtime_dir)
+AC_SUBST(avahi_socket)
 
 AC_CONFIG_FILES([
 Makefile 

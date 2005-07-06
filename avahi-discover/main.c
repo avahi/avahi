@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
     glade_init();
 
-    xml = glade_xml_new(INTERFACES_DIR"avahi-discover.glade", NULL, NULL);
+    xml = glade_xml_new(AVAHI_INTERFACES_DIR"avahi-discover.glade", NULL, NULL);
     main_window = glade_xml_get_widget(xml, "main_window");
     g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);
     

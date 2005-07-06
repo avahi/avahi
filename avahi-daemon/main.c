@@ -625,7 +625,7 @@ static gint drop_root(void) {
 }
 
 static const char* pid_file_proc(void) {
-    return AVAHI_RUNTIME_DIR"/avahi-daemon.pid";
+    return AVAHI_DAEMON_RUNTIME_DIR"/pid";
 }
 
 static gint make_runtime_dir(void) {
@@ -649,20 +649,20 @@ static gint make_runtime_dir(void) {
     u = umask(0000);
     reset_umask = TRUE;
     
-    if (mkdir(AVAHI_RUNTIME_DIR, 0755) < 0 && errno != EEXIST) {
-        avahi_log_error("mkdir(\""AVAHI_RUNTIME_DIR"\"): %s", strerror(errno));
+    if (mkdir(AVAHI_DAEMON_RUNTIME_DIR, 0755) < 0 && errno != EEXIST) {
+        avahi_log_error("mkdir(\""AVAHI_DAEMON_RUNTIME_DIR"\"): %s", strerror(errno));
         goto fail;
     }
     
-    chown(AVAHI_RUNTIME_DIR, pw->pw_uid, gr->gr_gid);
+    chown(AVAHI_DAEMON_RUNTIME_DIR, pw->pw_uid, gr->gr_gid);
 
-    if (stat(AVAHI_RUNTIME_DIR, &st) < 0) {
+    if (stat(AVAHI_DAEMON_RUNTIME_DIR, &st) < 0) {
         avahi_log_error("stat(): %s\n", strerror(errno));
         goto fail;
     }
 
     if (!S_ISDIR(st.st_mode) || st.st_uid != pw->pw_uid || st.st_gid != gr->gr_gid) {
-        avahi_log_error("Failed to create runtime directory "AVAHI_RUNTIME_DIR".");
+        avahi_log_error("Failed to create runtime directory "AVAHI_DAEMON_RUNTIME_DIR".");
         goto fail;
     }
 

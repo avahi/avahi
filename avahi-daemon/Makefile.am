@@ -22,6 +22,8 @@ servicedir=$(pkgsysconfdir)/services
 
 AM_CFLAGS= \
 	-I$(top_srcdir) \
+	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
+	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
 	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\"
 

@@ -21,6 +21,8 @@ pkgsysconfdir=$(sysconfdir)/avahi
 
 AM_CFLAGS= \
 	-I$(top_srcdir) \
+	-DAVAHI_RUNTIME_DIR=\"$(avahi_runtime_dir)/\" \
+	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/dnsconf.action\"
 
 # GLIB 2.0

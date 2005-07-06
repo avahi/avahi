@@ -17,7 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-I$(top_srcdir)
+AM_CFLAGS=-I$(top_srcdir) \
+	-DAVAHI_INTERFACES_DIR=\"$(interfacesdir)\"
 
 AM_CFLAGS+=$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)
 AM_LDADD=$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)

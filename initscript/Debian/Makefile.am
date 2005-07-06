@@ -1,5 +1,5 @@
 dbusinitddir = $(sysconfdir)/dbus-1/event.d
-dbusinitd_SCRIPTS = 75avahi
+dbusinitd_SCRIPTS = 75avahi-daemon
 
 initddir = $(sysconfdir)/init.d
 initd_SCRIPTS = avahi-dnsconfd

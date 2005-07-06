@@ -2,7 +2,7 @@
 # Avahi ZeroConf Daemon init script
 # Many thanks to the Avahi developer's and Sebastien Estienne
 
-DAEMON=/usr/bin/avahi
+DAEMON=/usr/bin/avahi-daemon
 
 depend () {
 	need dbus

@@ -61,7 +61,7 @@ fi
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi ZeroConf daemon"
-NAME="avahi"
+NAME="avahi-daemon"
 DAEMON=/usr/bin/$NAME
 
 # Gracefully exit if the package has been removed.

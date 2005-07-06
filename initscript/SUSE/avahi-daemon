@@ -7,7 +7,7 @@
 # Description: Avahi, a ZeroConf daemon for mDNS and service registration
 ### END INIT INFO
 
-AVAHI_BIN=/usr/bin/avahi
+AVAHI_BIN=/usr/bin/avahi-daemon
 test -x $AVAHI_BIN || exit 5
 
 . /etc/rc.status

@@ -1,6 +1,0 @@
-On most systems you will need to setup a security policy for avahi to allow it to own the Avahi service on the system d-bus.
-
-You can find an example in avahi.conf.example, this usually goes in /etc/dbus-1/system.d
-You will need to change the username 'lathiat' to whatever username you use for testing this code (later it will be a dedicated 'avahi' user)
-
-In future this stuff should be handled automatically but for now some manual setup is required.

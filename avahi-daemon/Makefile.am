@@ -25,7 +25,7 @@ AM_CFLAGS= \
 	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
-	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi.conf\"
+	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\"
 
 
 AM_LDADD=-lexpat
@@ -48,15 +48,15 @@ endif
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 bin_PROGRAMS = \
-	avahi
+	avahi-daemon
 
-avahi_SOURCES = \
+avahi_daemon_SOURCES = \
 	main.c main.h \
 	simple-protocol.c simple-protocol.h \
 	static-services.c static-services.h
 
 pkgsysconf_DATA = \
-	avahi.conf
+	avahi-daemon.conf
 
 service_DATA = \
 	example.service
@@ -64,10 +64,10 @@ service_DATA = \
 pkgdata_DATA = \
 	avahi-service.dtd
 
-EXTRA_DIST = avahi-service.dtd avahi.conf example.service
+EXTRA_DIST = avahi-service.dtd avahi-daemon.conf example.service
 
 if ENABLE_DBUS
-avahi_SOURCES += dbus-protocol.c dbus-protocol.h
+avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h
 
 dbusservicedir = $(DBUS_SYS_DIR)
 dbusservice_DATA = avahi-dbus.conf
@@ -75,8 +75,8 @@ dbusservice_DATA = avahi-dbus.conf
 EXTRA_DIST += $(dbusservice_DATA)
 endif
 
-avahi_CFLAGS = $(AM_CFLAGS)
-avahi_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+avahi_daemon_CFLAGS = $(AM_CFLAGS)
+avahi_daemon_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
 xmllint:
 	xmllint --noout --valid example.service

@@ -38,7 +38,7 @@ bin_PROGRAMS = \
 	avahi-dnsconfd
 
 avahi_dnsconfd_SOURCES = \
-	main.c main.h
+	main.c 
 
 avahi_dnsconfd_CFLAGS = $(AM_CFLAGS)
 avahi_dnsconfd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la

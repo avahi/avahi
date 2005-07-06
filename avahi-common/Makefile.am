@@ -35,6 +35,9 @@ avahi_commoninclude_HEADERS = \
 	rr.h \
 	util.h
 
+noinst_HEADERS = \
+	cdecl.h
+
 noinst_PROGRAMS = \
 	strlst-test \
 	domain-test \

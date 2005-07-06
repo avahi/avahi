@@ -417,7 +417,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../avahi-common/cdecl.h ../avahi-core/core.h ../avahi-common/address.h ../avahi-common/rr.h ../avahi-common/strlst.h ../avahi-common/alternative.h ../avahi-core/log.h
+INPUT                  = @top_srcdir@/avahi-common/cdecl.h @top_srcdir@/avahi-core/core.h @top_srcdir@/avahi-common/address.h @top_srcdir@/avahi-common/rr.h @top_srcdir@/avahi-common/strlst.h @top_srcdir@/avahi-common/alternative.h @top_srcdir@/avahi-core/log.h
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -455,7 +455,7 @@ EXCLUDE_PATTERNS       =
 # directories that contain example code fragments that are included (see 
 # the \include command).
 
-EXAMPLE_PATH           = ../examples/
+EXAMPLE_PATH           = @top_srcdir@/examples/
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the 
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 

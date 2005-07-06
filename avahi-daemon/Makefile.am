@@ -62,13 +62,15 @@ service_DATA = \
 pkgdata_DATA = \
 	avahi-service.dtd
 
+EXTRA_DIST = avahi-service.dtd avahi.conf example.service
+
 if ENABLE_DBUS
 avahi_SOURCES += dbus-protocol.c dbus-protocol.h
 
 dbusservicedir = $(DBUS_SYS_DIR)
 dbusservice_DATA = avahi-dbus.conf
 
-EXTRA_DIST = $(dbusservice_DATA)
+EXTRA_DIST += $(dbusservice_DATA)
 endif
 
 avahi_CFLAGS = $(AM_CFLAGS)

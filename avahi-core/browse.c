@@ -25,6 +25,7 @@
 
 #include "browse.h"
 #include "util.h"
+#include "log.h"
 
 struct AvahiRecordBrowser {
     gboolean dead;
@@ -48,7 +49,7 @@ struct AvahiRecordBrowser {
 static void elapse(AvahiTimeEvent *e, void *userdata) {
     AvahiRecordBrowser *s = userdata;
     GTimeVal tv;
-/*     gchar *t; */
+/*     gchar *t;  */
     
     g_assert(s);
 
@@ -58,9 +59,9 @@ static void elapse(AvahiTimeEvent *e, void *userdata) {
     
     if (s->sec_delay >= 60*60)  /* 1h */
         s->sec_delay = 60*60;
-
-/*     avahi_log_debug("%i. Continuous querying for %s", s->n_query, t = avahi_key_to_string(s->key)); */
-/*     g_free(t); */
+    
+/*     avahi_log_debug("Continuous querying for %s (%i)", t = avahi_key_to_string(s->key), s->sec_delay);  */
+/*     g_free(t);  */
     
     avahi_elapse_time(&tv, s->sec_delay*1000, 0);
     avahi_time_event_queue_update(s->server->time_event_queue, s->time_event, &tv);

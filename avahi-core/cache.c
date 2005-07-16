@@ -27,6 +27,7 @@
 
 #include "util.h"
 #include "cache.h"
+#include "log.h"
 
 #define AVAHI_MAX_CACHE_ENTRIES 200
 
@@ -151,13 +152,16 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent);
 
 static void elapse_func(AvahiTimeEvent *t, void *userdata) {
     AvahiCacheEntry *e = userdata;
+/*     gchar *txt; */
     
     g_assert(t);
     g_assert(e);
 
+/*     txt = avahi_record_to_string(e->record); */
+
     if (e->state == AVAHI_CACHE_FINAL) {
         remove_entry(e->cache, e);
-/*         avahi_log_debug("Removing entry from cache due to expiration"); */
+/*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt);  */
     } else {
         guint percent = 0;
     
@@ -189,13 +193,15 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         /* Request a cache update, if we are subscribed to this entry */
         if (avahi_is_subscribed(e->cache->server, e->cache->interface, e->record->key)) {
-/*             avahi_log_debug("Requesting cache entry update at %i%%.", percent); */
+/*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);  */
             avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
         }
 
         /* Check again later */
         next_expiry(e->cache, e, percent);
     }
+
+/*     g_free(txt); */
 }
 
 static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
@@ -209,20 +215,25 @@ static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
 }
 
 static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
-    gulong usec;
-
     g_assert(c);
     g_assert(e);
     g_assert(percent > 0 && percent <= 100);
+    gdouble usec;
+/*     gchar *txt; */
 
-    e->expiry = e->timestamp;
 
-    usec = e->record->ttl * 10000;
+    usec = (gdouble) e->record->ttl * 10000;
 
     /* 2% jitter */
-    usec = g_random_int_range(usec*percent, usec*(percent+2));
+    usec = g_random_double_range(usec*percent, usec*(percent+2));
+/*     g_message("next expiry: %g (%s)", usec / 1000000.0, txt = avahi_record_to_string(e->record)); */
+/*     g_free(txt); */
     
-    g_time_val_add(&e->expiry, usec);
+    e->expiry = e->timestamp;
+    g_time_val_add(&e->expiry, (glong) usec);
+
+/*     g_message("wake up in +%lu seconds", e->expiry.tv_sec - e->timestamp.tv_sec); */
+    
     update_time_event(c, e);
 }
 

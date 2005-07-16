@@ -235,11 +235,11 @@ int main(int argc, char *argv[]) {
 
     dsb = avahi_dns_server_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AVAHI_PROTO_UNSPEC, dsb_callback, NULL);
 
-    loop = g_main_loop_new(NULL, FALSE);
     
     g_timeout_add(1000*5, dump_timeout, server);
     g_timeout_add(1000*60, quit_timeout, loop);     
     
+    loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 

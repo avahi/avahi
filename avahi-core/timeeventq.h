@@ -27,12 +27,15 @@ typedef struct AvahiTimeEvent AvahiTimeEvent;
 
 #include "prioq.h"
 
+typedef void (*AvahiTimeEventCallback)(AvahiTimeEvent *e, gpointer userdata);
+
 struct AvahiTimeEvent {
     AvahiTimeEventQueue *queue;
     AvahiPrioQueueNode *node;
     GTimeVal expiry;
-    void (*callback)(AvahiTimeEvent *e, void *userdata);
-    void *userdata;
+    GTimeVal last_run;
+    AvahiTimeEventCallback callback;
+    gpointer userdata;
 };
 
 struct AvahiTimeEventQueue {
@@ -43,7 +46,7 @@ struct AvahiTimeEventQueue {
 AvahiTimeEventQueue* avahi_time_event_queue_new(GMainContext *context, gint priority);
 void avahi_time_event_queue_free(AvahiTimeEventQueue *q);
 
-AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVal *timeval, void (*callback)(AvahiTimeEvent *e, void *userdata), void *userdata);
+AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVal *timeval, AvahiTimeEventCallback callback, gpointer userdata);
 void avahi_time_event_queue_remove(AvahiTimeEventQueue *q, AvahiTimeEvent *e);
 
 void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, const GTimeVal *timeval);

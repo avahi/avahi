@@ -28,8 +28,14 @@
 
 static gint compare(gconstpointer _a, gconstpointer _b) {
     const AvahiTimeEvent *a = _a,  *b = _b;
+    gint ret;
 
-    return avahi_timeval_compare(&a->expiry, &b->expiry);
+    if ((ret = avahi_timeval_compare(&a->expiry, &b->expiry)) != 0)
+        return ret;
+
+    /* If both exevents are scheduled for the same time, put the entry
+     * that has been run earlier the last time first. */
+    return avahi_timeval_compare(&a->last_run, &b->last_run);
 }
 
 static gboolean prepare_func(GSource *source, gint *timeout) {
@@ -50,12 +56,17 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
 
     g_source_get_current_time(source, &now);
 
-    if (avahi_timeval_compare(&now, &e->expiry) >= 0) {
+    if (avahi_timeval_compare(&now, &e->expiry) >= 0 &&  /* Time elapsed */
+        avahi_timeval_compare(&now, &e->last_run) != 0   /* Not yet run */) {
         *timeout = -1;
         return TRUE;
     }
 
     *timeout = (gint) (avahi_timeval_diff(&e->expiry, &now)/1000);
+
+    /* Wait at least 1 msec */
+    if (*timeout <= 0)
+        *timeout = 1;
     
     return FALSE;
 }
@@ -75,7 +86,9 @@ static gboolean check_func(GSource *source) {
 
     g_source_get_current_time(source, &now);
     
-    return avahi_timeval_compare(&now, &e->expiry) >= 0;
+    return
+        avahi_timeval_compare(&now, &e->expiry) >= 0 && /* Time elapsed */
+        avahi_timeval_compare(&now, &e->last_run) != 0;  /* Not yet run */
 }
 
 static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
@@ -89,14 +102,35 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
     while (q->prioq->root) {
         AvahiTimeEvent *e = q->prioq->root->data;
 
+        /* Not yet expired */
         if (avahi_timeval_compare(&now, &e->expiry) < 0)
             break;
 
+        /* Already ran */
+        if (avahi_timeval_compare(&now, &e->last_run) == 0)
+            break;
+
+        /* Make sure to move the entry away from the front */
+        e->last_run = now;
+        avahi_prio_queue_shuffle(q->prioq, e->node);
+
+        /* Run it */
         g_assert(e->callback);
         e->callback(e, e->userdata);
     }
 
     return TRUE;
+}
+
+static void fix_expiry_time(AvahiTimeEvent *e) {
+    GTimeVal now;
+    g_assert(e);
+
+    g_source_get_current_time(&e->queue->source, &now);
+
+    if (avahi_timeval_compare(&now, &e->expiry) > 0)
+        e->expiry = now;
+    
 }
 
 AvahiTimeEventQueue* avahi_time_event_queue_new(GMainContext *context, gint priority) {
@@ -132,7 +166,7 @@ void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
     g_source_unref(&q->source);
 }
 
-AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVal *timeval, void (*callback)(AvahiTimeEvent *e, void *userdata), void *userdata) {
+AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVal *timeval, AvahiTimeEventCallback callback, gpointer userdata) {
     AvahiTimeEvent *e;
     
     g_assert(q);
@@ -142,9 +176,14 @@ AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVa
 
     e = g_new(AvahiTimeEvent, 1);
     e->queue = q;
-    e->expiry = *timeval;
     e->callback = callback;
     e->userdata = userdata;
+
+    e->expiry = *timeval;
+    fix_expiry_time(e);
+    
+    e->last_run.tv_sec = 0;
+    e->last_run.tv_usec = 0;
 
     e->node = avahi_prio_queue_put(q->prioq, e);
     
@@ -164,8 +203,10 @@ void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, co
     g_assert(q);
     g_assert(e);
     g_assert(e->queue == q);
+    g_assert(timeval);
 
     e->expiry = *timeval;
+    fix_expiry_time(e);
 
     avahi_prio_queue_shuffle(q->prioq, e->node);
 }

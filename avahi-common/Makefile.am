@@ -41,7 +41,8 @@ noinst_HEADERS = \
 noinst_PROGRAMS = \
 	strlst-test \
 	domain-test \
-	alternative-test
+	alternative-test \
+	timeval-test
 
 lib_LTLIBRARIES = \
 	libavahi-common.la 
@@ -79,4 +80,10 @@ domain_test_SOURCES = \
 	domain-test.c
 domain_test_CFLAGS = $(AM_CFLAGS)
 domain_test_LDADD = $(AM_LDADD)
+
+timeval_test_SOURCES = \
+	util.c util.h \
+	timeval-test.c
+timeval_test_CFLAGS = $(AM_CFLAGS)
+timeval_test_LDADD = $(AM_LDADD)
 

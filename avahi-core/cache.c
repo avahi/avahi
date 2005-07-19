@@ -161,7 +161,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
     if (e->state == AVAHI_CACHE_FINAL) {
         remove_entry(e->cache, e);
-/*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt);  */
+/*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
     } else {
         guint percent = 0;
     
@@ -193,7 +193,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         /* Request a cache update, if we are subscribed to this entry */
         if (avahi_is_subscribed(e->cache->server, e->cache->interface, e->record->key)) {
-/*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);  */
+/*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);   */
             avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
         }
 
@@ -218,20 +218,19 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
     g_assert(c);
     g_assert(e);
     g_assert(percent > 0 && percent <= 100);
-    gdouble usec;
+    AvahiUsec usec;
 /*     gchar *txt; */
 
-
-    usec = (gdouble) e->record->ttl * 10000;
+    usec = ((AvahiUsec) e->record->ttl) * 10000;
 
     /* 2% jitter */
-    usec = g_random_double_range(usec*percent, usec*(percent+2));
-/*     g_message("next expiry: %g (%s)", usec / 1000000.0, txt = avahi_record_to_string(e->record)); */
+    usec = (AvahiUsec) g_random_double_range(usec*percent, usec*(percent+2));
+/*     g_message("next expiry: %lli (%s)", usec / 1000000, txt = avahi_record_to_string(e->record)); */
 /*     g_free(txt); */
     
     e->expiry = e->timestamp;
-    g_time_val_add(&e->expiry, (glong) usec);
-
+    avahi_timeval_add(&e->expiry, usec);
+    
 /*     g_message("wake up in +%lu seconds", e->expiry.tv_sec - e->timestamp.tv_sec); */
     
     update_time_event(c, e);
@@ -243,7 +242,7 @@ static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
     
     e->state = AVAHI_CACHE_FINAL;
     g_get_current_time(&e->expiry);
-    g_time_val_add(&e->expiry, 1000000); /* 1s */
+    avahi_timeval_add(&e->expiry, 1000000); /* 1s */
     update_time_event(c, e);
 }
 
@@ -253,8 +252,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
     g_assert(c);
     g_assert(r && r->ref >= 1);
 
-/*     avahi_log_debug("cache update: %s", (txt = avahi_record_to_string(r))); */
-/*     g_free(txt); */
+/*     txt = avahi_record_to_string(r); */
 
     if (r->ttl == 0) {
         /* This is a goodbye request */
@@ -278,7 +276,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
 
                 /* For unique entries drop all entries older than one second */
                 for (e = first; e; e = e->by_key_next) {
-                    glong t;
+                    AvahiUsec t;
 
                     t = avahi_timeval_diff(&now, &e->timestamp);
 
@@ -306,10 +304,12 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
             avahi_record_unref(e->record);
             e->record = avahi_record_ref(r);
 
+/*             avahi_log_debug("cache: updating %s", txt);   */
+            
         } else {
             /* No entry found, therefore we create a new one */
             
-/*             avahi_log_debug("couldn't find matching cache entry");  */
+/*             avahi_log_debug("cache: couldn't find matching cache entry for %s", txt);   */
 
             if (c->n_entries >= AVAHI_MAX_CACHE_ENTRIES)
                 return;
@@ -338,6 +338,8 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
         e->state = AVAHI_CACHE_VALID;
         e->cache_flush = cache_flush;
     }
+
+/*     g_free(txt);  */
 }
 
 static void dump_callback(gpointer key, gpointer data, gpointer userdata) {
@@ -364,7 +366,7 @@ void avahi_cache_dump(AvahiCache *c, FILE *f) {
 
 gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
     GTimeVal now;
-    guint age;
+    AvahiUsec age;
     
     g_assert(c);
     g_assert(e);
@@ -373,7 +375,7 @@ gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 
     age = avahi_timeval_diff(&now, &e->timestamp)/1000000;
 
-/*     avahi_log_debug("age: %u, ttl/2: %u", age, e->record->ttl); */
+/*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
     
     return age >= e->record->ttl/2;
 }

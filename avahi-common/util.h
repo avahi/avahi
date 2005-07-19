@@ -28,19 +28,21 @@
 
 AVAHI_C_DECL_BEGIN
 
+typedef gint64 AvahiUsec;
+
 gchar *avahi_normalize_name(const gchar *s); /* g_free() the result! */
 gchar *avahi_get_host_name(void); /* g_free() the result! */
 
 gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b);
-glong avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b);
+AvahiUsec avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b);
+GTimeVal* avahi_timeval_add(GTimeVal *a, AvahiUsec usec);
+
+AvahiUsec avahi_age(const GTimeVal *a);
+GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter);
 
 gint avahi_set_cloexec(gint fd);
 gint avahi_set_nonblock(gint fd);
 gint avahi_wait_for_write(gint fd);
-
-GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter);
-
-glong avahi_age(const GTimeVal *a);
 
 gboolean avahi_domain_equal(const gchar *a, const gchar *b);
 gint avahi_binary_domain_cmp(const gchar *a, const gchar *b);

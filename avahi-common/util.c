@@ -112,16 +112,56 @@ gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
     return 0;
 }
 
-glong avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
+AvahiUsec avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
     g_assert(a);
     g_assert(b);
 
     if (avahi_timeval_compare(a, b) < 0)
-        return avahi_timeval_diff(b, a);
+        return - avahi_timeval_diff(b, a);
 
-    return ((glong) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
+    return ((AvahiUsec) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
 }
 
+GTimeVal* avahi_timeval_add(GTimeVal *a, AvahiUsec usec) {
+    AvahiUsec u;
+    g_assert(a);
+
+    u = usec + a->tv_usec;
+
+    if (u < 0) {
+        a->tv_usec = (glong) (1000000 + (u % 1000000));
+        a->tv_sec += (glong) (-1 + (u / 1000000));
+    } else {
+        a->tv_usec = (glong) (u % 1000000);
+        a->tv_sec += (glong) (u / 1000000);
+    }
+
+    return a;
+}
+
+AvahiUsec avahi_age(const GTimeVal *a) {
+    GTimeVal now;
+    
+    g_assert(a);
+
+    g_get_current_time(&now);
+
+    return avahi_timeval_diff(&now, a);
+}
+
+GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
+    g_assert(tv);
+
+    g_get_current_time(tv);
+
+    if (msec)
+        avahi_timeval_add(tv, (AvahiUsec) msec*1000);
+
+    if (jitter)
+        avahi_timeval_add(tv, (AvahiUsec) g_random_int_range(0, jitter) * 1000);
+        
+    return tv;
+}
 
 gint avahi_set_cloexec(gint fd) {
     gint n;
@@ -167,30 +207,6 @@ gint avahi_wait_for_write(gint fd) {
     g_assert(r > 0);
 
     return 0;
-}
-
-GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
-    g_assert(tv);
-
-    g_get_current_time(tv);
-
-    if (msec)
-        g_time_val_add(tv, msec*1000);
-
-    if (jitter)
-        g_time_val_add(tv, g_random_int_range(0, jitter) * 1000);
-        
-    return tv;
-}
-
-glong avahi_age(const GTimeVal *a) {
-    GTimeVal now;
-    
-    g_assert(a);
-
-    g_get_current_time(&now);
-
-    return avahi_timeval_diff(&now, a);
 }
 
 /* Read the first label from string *name, unescape "\" and write it to dest */

@@ -429,7 +429,6 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
             addr->prefix_len = ifaddrmsg->ifa_prefixlen;
 
             update_address_rr(m, addr, FALSE);
-            check_interface_relevant(m, i);
         } else {
             AvahiInterfaceAddress *addr;
             
@@ -438,10 +437,10 @@ static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
 
             update_address_rr(m, addr, TRUE);
             free_address(m, addr);
-
-            check_interface_relevant(m, i);
         }
-                
+
+        check_interface_relevant(m, i);
+        
     } else if (n->nlmsg_type == NLMSG_DONE) {
         
         if (m->list == LIST_IFACE) {

@@ -5,7 +5,8 @@ org.freedesktop.Avahi.Server               -- Accessible through /org/freedeskto
         string GetHostNameFqdn()
         string GetDomainName()
         path EntryGroupNew()               -- Creates a new org.freedesktop.Avahi.EntryGroup object
-
+        [int32 interface, int32 protocol, string host_name, int32 aprotocol, string address] ResolveHostName(int32 interface, int32 protocol, string name, int32 aprotocol)
+        [int32 interface, int32 protocol, int32 aprotocol, string address, string host_name] ResolveAddress(int32 interface, int32 protocol, string address)
         signal StateChanged(int32 state)
 
 org.freedesktop.Avahi.EntryGroup
@@ -14,5 +15,4 @@ org.freedesktop.Avahi.EntryGroup
         int32 GetState()
         void AddService(int32 interface, int32 protocol, string type, string name, string domain, string host, uint16 port, string txt[])
         void AddAddress(int32 interface, int32 protocol, string name, string address)
-
         signal StateChanged(int32 state)

@@ -1,5 +1,8 @@
 *** Quick install instructions (tested on debian/ubuntu only!) ***
 
+While "make" and "boostrap.sh" may be run as normal users all other commands
+need to be run is root.
+
 $ ./bootstrap.sh
 	(this will run autoconf/automake)
 
@@ -12,19 +15,11 @@ $ make
 	(These commands are Debian specific and may be different on other
 	distributions)
 
-# /etc/init.d/dbus-1 restart
-	(This whill restart DBUS and avahi too)
+# kill -HUP `cat /var/run/dbus/pid`
+	(This will ask DBUS to re-read its policies)
+# /etc/dbus-1/event.d/75avahi-daemon start
 
-While "make" and "boostrap.sh" may be run as normal users all other commands
-need to be run is root.
-
-*** Note ***
-
-- On other linux distributions, the dbus initscript may be different (eg redhat
-/etc/init.d/messagebus).  You need to restart dbus to make it know about
-/etc/dbus-1/system.d/avahi-dbus.conf .
-
-- To automatically start avahi-dnsconfd on Debian base distro:
+- To automatically start avahi-dnsconfd on Debian based distro:
 # update-rc.d avahi-dnsconfd defaults 25 15
 
 $Id$

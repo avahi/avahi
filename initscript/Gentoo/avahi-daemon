@@ -1,11 +1,13 @@
 #!/sbin/runscript
 # Avahi ZeroConf Daemon init script
 # Many thanks to the Avahi developer's and Sebastien Estienne
+# Author:		Steev Klimaszewski <steev@steev.net>
 
 DAEMON=/usr/bin/avahi-daemon
 
 depend () {
-	need dbus
+	need net
+	use dbus
 }
 
 start() {

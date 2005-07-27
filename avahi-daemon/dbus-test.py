@@ -34,7 +34,7 @@ def entry_group_state_changed_callback(t):
 
 g.connect_to_signal('StateChanged', entry_group_state_changed_callback)
 
-g.AddService(0, 0, "_http._tcp", "foo", "", "", dbus.UInt16(4712), ["fuck=hallo", "gurke=mega"])
+g.AddService(0, 0, "Test Web Site", "_http._tcp", "", "", dbus.UInt16(4712), ["fuck=hallo", "gurke=mega"])
 g.AddAddress(0, 0, "foo.local", "47.11.8.15")
 g.Commit()
 

@@ -280,8 +280,8 @@ gint avahi_server_add_service(
     AvahiEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    const gchar *type,         /**< DNS-SD type, e.g. "_http._tcp" */
     const gchar *name,         /**< Service name, e.g. "Lennart's Files" */
+    const gchar *type,         /**< DNS-SD type, e.g. "_http._tcp" */
     const gchar *domain,       
     const gchar *host,         /**< Host name where this servcie resides, or NULL if on the local host */
     guint16 port,              /**< Port number of the service */
@@ -293,8 +293,8 @@ gint avahi_server_add_service_va(
     AvahiEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    const gchar *type,
     const gchar *name,
+    const gchar *type,
     const gchar *domain,
     const gchar *host,
     guint16 port,
@@ -306,8 +306,8 @@ gint avahi_server_add_service_strlst(
     AvahiEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    const gchar *type,
     const gchar *name,
+    const gchar *type,
     const gchar *domain,
     const gchar *host,
     guint16 port,

@@ -326,8 +326,8 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
                 m, &error,
                 DBUS_TYPE_INT32, &interface,
                 DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &type,
                 DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_STRING, &type,
                 DBUS_TYPE_STRING, &domain,
                 DBUS_TYPE_STRING, &host,
                 DBUS_TYPE_UINT16, &port, 
@@ -346,7 +346,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         if (host && !*host)
             host = NULL;
 
-        if (avahi_server_add_service_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, type, name, domain, host, port, strlst) < 0) {
+        if (avahi_server_add_service_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, host, port, strlst) < 0) {
             avahi_log_warn("Failed to add service: %s", name);
             return respond_error(c, m, "org.freedesktop.Avahi.InvalidServiceError", NULL);
         } else

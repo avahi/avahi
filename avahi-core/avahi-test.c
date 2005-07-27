@@ -115,17 +115,17 @@ static void create_entries(gboolean new_name) {
         service_name = n;
     }
     
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, service_name, "_http._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add HTTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_ftp._tcp", service_name, NULL, NULL, 21, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, service_name, "_ftp._tcp", NULL, NULL, 21, "foo", NULL) < 0) {
         avahi_log_error("Failed to add FTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_webdav._tcp", service_name, NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, service_name, "_webdav._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add WEBDAV service");
         goto fail;
     }

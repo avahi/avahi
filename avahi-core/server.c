@@ -1709,8 +1709,8 @@ gint avahi_server_add_service_strlst(
     AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    const gchar *type,
     const gchar *name,
+    const gchar *type,
     const gchar *domain,
     const gchar *host,
     guint16 port,
@@ -1761,8 +1761,8 @@ gint avahi_server_add_service_va(
     AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    const gchar *type,
     const gchar *name,
+    const gchar *type,
     const gchar *domain,
     const gchar *host,
     guint16 port,
@@ -1772,7 +1772,7 @@ gint avahi_server_add_service_va(
     g_assert(type);
     g_assert(name);
 
-    return avahi_server_add_service_strlst(s, g, interface, protocol, type, name, domain, host, port, avahi_string_list_new_va(va));
+    return avahi_server_add_service_strlst(s, g, interface, protocol, name, type, domain, host, port, avahi_string_list_new_va(va));
 }
 
 gint avahi_server_add_service(
@@ -1780,8 +1780,8 @@ gint avahi_server_add_service(
     AvahiEntryGroup *g,
     gint interface,
     guchar protocol,
-    const gchar *type,
     const gchar *name,
+    const gchar *type,
     const gchar *domain,
     const gchar *host,
     guint16 port,
@@ -1795,7 +1795,7 @@ gint avahi_server_add_service(
     g_assert(name);
 
     va_start(va, port);
-    ret = avahi_server_add_service_va(s, g, interface, protocol, type, name, domain, host, port, va);
+    ret = avahi_server_add_service_va(s, g, interface, protocol, name, type, domain, host, port, va);
     va_end(va);
     return ret;
 }

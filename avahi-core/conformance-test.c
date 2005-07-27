@@ -62,7 +62,7 @@ static void create_service(gchar *t) {
         sleep(2); /* ugly ugly ugly hack */
     
     group = avahi_entry_group_new(avahi, entry_group_callback, NULL);   
-    avahi_server_add_service(avahi, group, 0, AF_UNSPEC, "_http._tcp", name, NULL, NULL, 80, "foo", NULL);   
+    avahi_server_add_service(avahi, group, 0, AF_UNSPEC, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);   
     avahi_entry_group_commit(group);
 
     try++;

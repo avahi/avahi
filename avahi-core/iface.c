@@ -102,7 +102,7 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
             g_free(t);
             
             hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
-            if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, "_workstation._tcp", name, NULL, NULL, 9, NULL) < 0) { 
+            if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed.");
                 avahi_entry_group_free(hw->entry_group);
                 hw->entry_group = NULL;

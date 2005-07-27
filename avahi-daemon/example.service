@@ -14,7 +14,7 @@
   <service>
     <type>_telnet._tcp</type>
     <domain-name>local</domain-name>
-    <host-name>fuck.local</host-name>
+    <host-name>quux.local</host-name>
     <port>23</port>
     <txt-record>foo=bar</txt-record>
     <txt-record>waldo=buzz</txt-record>

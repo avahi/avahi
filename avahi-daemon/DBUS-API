@@ -8,6 +8,8 @@ org.freedesktop.Avahi.Server               -- Accessible through /org/freedeskto
         [int32 interface, int32 protocol, string host_name, int32 aprotocol, string address] ResolveHostName(int32 interface, int32 protocol, string name, int32 aprotocol)
         [int32 interface, int32 protocol, int32 aprotocol, string address, string host_name] ResolveAddress(int32 interface, int32 protocol, string address)
         signal StateChanged(int32 state)
+TODO:   [int32 interface, int32 protocol, string name, string type, string domain, string host, int32 aprotocol, string address, uint16 port, string txt[]] ResolveService(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol) 
+
 
 org.freedesktop.Avahi.EntryGroup
         void Free()
@@ -16,3 +18,21 @@ org.freedesktop.Avahi.EntryGroup
         void AddService(int32 interface, int32 protocol, string type, string name, string domain, string host, uint16 port, string txt[])
         void AddAddress(int32 interface, int32 protocol, string name, string address)
         signal StateChanged(int32 state)
+TODO:   path DomainBrowserNew(int32 interface, int32 protocol, string domain, int32 btype)
+TODO:   path ServiceTypeBrowserNew(int32 interface, int32 protocol, string domain)
+TODO:   path ServiceBrowserNew(int32 interface, int32 protocol, string type, string domain)
+
+TODO: org.freedesktop.Avahi.DomainBrowser
+TODO:   void Free()
+TODO:   signal New(int32 interface, int32 protocol, string domain)
+TODO:   signal Remove(int32 interface, int32 protocol, string domain)
+
+TODO: org.freedesktop.Avahi.ServiceTypeBrowser
+TODO:   void Free()
+TODO:   signal New(int32 interface, int32 protocol, string type, string domain)
+TODO:   signal Remove(int32 interface, int32 protocol, string type, string domain)
+
+TODO: org.freedesktop.Avahi.ServiceBrowser
+TODO:   void Free()
+TODO:   signal New(int32 interface, int32 protocol, string name, string type, string domain)
+TODO:   signal Remove(int32 interface, int32 protocol, string name, string type, string domain)

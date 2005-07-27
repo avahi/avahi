@@ -15,6 +15,9 @@ def server_state_changed_callback(t):
 
 server.connect_to_signal("StateChanged", server_state_changed_callback)
 
+print server.ResolveHostName(0, 0, "ecstasy.local", 0)
+print server.ResolveAddress(0, 0, "192.168.50.4")
+
 print "Host name: %s" % server.GetHostName()
 print "Domain name: %s" % server.GetDomainName()
 print "FQDN: %s" % server.GetHostNameFqdn()
@@ -23,6 +26,10 @@ g = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.EntryGroupNew(
 
 def entry_group_state_changed_callback(t):
     print "EntryGroup::StateChanged: ", t
+
+    if t == 1:
+        print server.ResolveHostName(0, 0, "foo.local", 0)
+        
 
 g.connect_to_signal('StateChanged', entry_group_state_changed_callback)
 

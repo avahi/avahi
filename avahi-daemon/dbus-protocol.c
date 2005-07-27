@@ -34,7 +34,6 @@
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
 
-
 #include "dbus-protocol.h"
 #include "main.h"
 
@@ -43,10 +42,17 @@
 #define AVAHI_DBUS_PATH_SERVER "/org/freedesktop/Avahi/Server"
 #define AVAHI_DBUS_INTERFACE_ENTRY_GROUP AVAHI_DBUS_NAME".EntryGroup"
 
+/* Needs wrapping:
+   - AvahiServiceResolver
+   - AvahiDomainBrowser
+   - AvahiServiceTypeBrowser
+   - AvahiServiceBrowser */
 
 typedef struct Server Server;
 typedef struct Client Client;
 typedef struct EntryGroupInfo EntryGroupInfo;
+typedef struct HostNameResolverInfo HostNameResolverInfo;
+typedef struct AddressResolverInfo AddressResolverInfo;
 
 struct EntryGroupInfo {
     guint id;
@@ -57,6 +63,22 @@ struct EntryGroupInfo {
     AVAHI_LLIST_FIELDS(EntryGroupInfo, entry_groups);
 };
 
+struct HostNameResolverInfo {
+    Client *client;
+    AvahiHostNameResolver *host_name_resolver;
+    DBusMessage *message;
+
+    AVAHI_LLIST_FIELDS(HostNameResolverInfo, host_name_resolvers);
+};
+
+struct AddressResolverInfo {
+    Client *client;
+    AvahiAddressResolver *address_resolver;
+    DBusMessage *message;
+
+    AVAHI_LLIST_FIELDS(AddressResolverInfo, address_resolvers);
+};
+
 struct Client {
     guint id;
     gchar *name;
@@ -64,11 +86,12 @@ struct Client {
     
     AVAHI_LLIST_FIELDS(Client, clients);
     AVAHI_LLIST_HEAD(EntryGroupInfo, entry_groups);
+    AVAHI_LLIST_HEAD(HostNameResolverInfo, host_name_resolvers);
+    AVAHI_LLIST_HEAD(AddressResolverInfo, address_resolvers);
 };
 
 struct Server {
     DBusConnection *bus;
-
     AVAHI_LLIST_HEAD(Client, clients);
     guint current_id;
 };
@@ -85,6 +108,24 @@ static void entry_group_free(EntryGroupInfo *i) {
     g_free(i);
  }
 
+static void host_name_resolver_free(HostNameResolverInfo *i) {
+    g_assert(i);
+
+    avahi_host_name_resolver_free(i->host_name_resolver);
+    dbus_message_unref(i->message);
+    AVAHI_LLIST_REMOVE(HostNameResolverInfo, host_name_resolvers, i->client->host_name_resolvers, i);
+    g_free(i);
+}
+
+static void address_resolver_free(AddressResolverInfo *i) {
+    g_assert(i);
+
+    avahi_address_resolver_free(i->address_resolver);
+    dbus_message_unref(i->message);
+    AVAHI_LLIST_REMOVE(AddressResolverInfo, address_resolvers, i->client->address_resolvers, i);
+    g_free(i);
+}
+
 static void client_free(Client *c) {
     
     g_assert(server);
@@ -92,6 +133,12 @@ static void client_free(Client *c) {
 
     while (c->entry_groups)
         entry_group_free(c->entry_groups);
+
+    while (c->host_name_resolvers)
+        host_name_resolver_free(c->host_name_resolvers);
+
+    while (c->address_resolvers)
+        address_resolver_free(c->address_resolvers);
     
     g_free(c->name);
     AVAHI_LLIST_REMOVE(Client, clients, server->clients, c);
@@ -116,7 +163,9 @@ static Client *client_get(const gchar *name, gboolean create) {
     client->id = server->current_id++;
     client->name = g_strdup(name);
     client->current_id = 0;
-    AVAHI_LLIST_HEAD_INIT(Client, client->entry_groups);
+    AVAHI_LLIST_HEAD_INIT(EntryGroupInfo, client->entry_groups);
+    AVAHI_LLIST_HEAD_INIT(HostNameResolverInfo, client->host_name_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AddressResolverInfo, client->address_resolvers);
 
     AVAHI_LLIST_PREPEND(Client, clients, server->clients, client);
     return client;
@@ -333,7 +382,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         
         return respond_ok(c, m);
     }
-
+    
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 
 fail:
@@ -341,6 +390,86 @@ fail:
         dbus_error_free(&error);
     
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata) {
+    HostNameResolverInfo *i = userdata;
+    DBusMessage *reply;
+    
+    g_assert(r);
+    g_assert(host_name);
+    g_assert(i);
+
+    if (event == AVAHI_RESOLVER_FOUND) {
+        char t[256], *pt = t;
+        gint32 i_interface, i_protocol, i_aprotocol;
+
+        g_assert(a);
+        avahi_address_snprint(t, sizeof(t), a);
+
+        i_interface = (gint32) interface;
+        i_protocol = (gint32) protocol;
+        i_aprotocol = (gint32) a->family;
+        
+        reply = dbus_message_new_method_return(i->message);
+        dbus_message_append_args(
+            reply,
+            DBUS_TYPE_INT32, &i_interface,
+            DBUS_TYPE_INT32, &i_protocol,
+            DBUS_TYPE_STRING, &host_name,
+            DBUS_TYPE_INT32, &i_aprotocol,
+            DBUS_TYPE_STRING, &pt,
+            DBUS_TYPE_INVALID);
+
+    } else {
+        g_assert(event == AVAHI_RESOLVER_TIMEOUT);
+        reply = dbus_message_new_error(i->message, "org.freedesktop.Avahi.TimeoutError", NULL);
+    }
+
+    dbus_connection_send(server->bus, reply, NULL);
+    dbus_message_unref(reply);
+
+    host_name_resolver_free(i);
+}
+
+static void address_resolver_callback(AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const gchar *host_name, gpointer userdata) {
+    AddressResolverInfo *i = userdata;
+    DBusMessage *reply;
+    
+    g_assert(r);
+    g_assert(address);
+    g_assert(i);
+
+    if (event == AVAHI_RESOLVER_FOUND) {
+        char t[256], *pt = t;
+        gint32 i_interface, i_protocol, i_aprotocol;
+
+        g_assert(host_name);
+        avahi_address_snprint(t, sizeof(t), address);
+
+        i_interface = (gint32) interface;
+        i_protocol = (gint32) protocol;
+        i_aprotocol = (gint32) address->family;
+        
+        reply = dbus_message_new_method_return(i->message);
+        dbus_message_append_args(
+            reply,
+            DBUS_TYPE_INT32, &i_interface,
+            DBUS_TYPE_INT32, &i_protocol,
+            DBUS_TYPE_INT32, &i_aprotocol,
+            DBUS_TYPE_STRING, &pt,
+            DBUS_TYPE_STRING, &host_name,
+            DBUS_TYPE_INVALID);
+
+    } else {
+        g_assert(event == AVAHI_RESOLVER_TIMEOUT);
+        reply = dbus_message_new_error(i->message, "org.freedesktop.Avahi.TimeoutError", NULL);
+    }
+
+    dbus_connection_send(server->bus, reply, NULL);
+    dbus_message_unref(reply);
+
+    address_resolver_free(i);
 }
 
 static DBusHandlerResult respond_string(DBusConnection *c, DBusMessage *m, const gchar *text) {
@@ -426,7 +555,68 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         dbus_message_unref(reply);
         
         return DBUS_HANDLER_RESULT_HANDLED;
-    } 
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ResolveHostName")) {
+        Client *client;
+        gint32 interface, protocol, aprotocol;
+        gchar *name;
+        HostNameResolverInfo *i;
+            
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_INT32, &aprotocol,
+                DBUS_TYPE_INVALID) || !name || !*name) {
+            avahi_log_warn("Error parsing EntryGroup::ResolveHostName message");
+            goto fail;
+        }
+
+        client = client_get(dbus_message_get_sender(m), TRUE);
+
+        i = g_new(HostNameResolverInfo, 1);
+        i->client = client;
+        i->message = dbus_message_ref(m);
+        i->host_name_resolver = avahi_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, host_name_resolver_callback, i);
+
+        AVAHI_LLIST_PREPEND(HostNameResolverInfo, host_name_resolvers, client->host_name_resolvers, i);
+        
+        return DBUS_HANDLER_RESULT_HANDLED;
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ResolveAddress")) {
+        Client *client;
+        gint32 interface, protocol;
+        gchar *address;
+        AddressResolverInfo *i;
+        AvahiAddress a;
+            
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &address,
+                DBUS_TYPE_INVALID) || !address || !*address) {
+            avahi_log_warn("Error parsing EntryGroup::ResolveAddress message");
+            goto fail;
+        }
+
+        if (!avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a)) {
+            avahi_log_warn("Error parsing address data");
+            return respond_error(c, m, "org.freedesktop.Avahi.InvalidAddressError", NULL);
+        }
+        
+        client = client_get(dbus_message_get_sender(m), TRUE);
+
+        i = g_new(AddressResolverInfo, 1);
+        i->client = client;
+        i->message = dbus_message_ref(m);
+        i->address_resolver = avahi_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, address_resolver_callback, i);
+
+        AVAHI_LLIST_PREPEND(AddressResolverInfo, address_resolvers, client->address_resolvers, i);
+        
+        return DBUS_HANDLER_RESULT_HANDLED;
+    }
     
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

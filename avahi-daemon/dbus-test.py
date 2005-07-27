@@ -1,8 +1,9 @@
 #!/usr/bin/python2.4
 
 import dbus
-import dbus.glib
-import gtk
+import gobject
+try: import dbus.glib
+except ImportError, e: pass
 
 from time import sleep
 
@@ -38,7 +39,7 @@ g.AddAddress(0, 0, "foo.local", "47.11.8.15")
 g.Commit()
 
 try:
-    gtk.main()
+    gobject.MainLoop().run()
 except KeyboardInterrupt, k:
     pass
 

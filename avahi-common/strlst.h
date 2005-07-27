@@ -49,6 +49,11 @@ AvahiStringList *avahi_string_list_new(const gchar *txt, ...);
 /** Same as avahi_string_list_new() but pass a va_list structure */
 AvahiStringList *avahi_string_list_new_va(va_list va);
 
+/** Create a new string list from a string array. The strings are
+ * copied using g_strdup(). length should contain the length of the
+ * array, or -1 if the array is NULL terminated*/
+AvahiStringList *avahi_string_list_new_from_array(const gchar **array, gint length);
+
 /** Free a string list */
 void avahi_string_list_free(AvahiStringList *l);
 

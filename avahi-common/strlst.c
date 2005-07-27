@@ -243,3 +243,15 @@ AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
 
     return string_list_reverse(r);
 }
+
+AvahiStringList *avahi_string_list_new_from_array(const gchar *array[], gint length) {
+    AvahiStringList *r = NULL;
+    gint index;
+
+    g_assert(array);
+
+    for (index = 0; length >= 0 ? index < length : !!array[index]; index++)
+        r = avahi_string_list_add(r, array[index]);
+
+    return r;
+}

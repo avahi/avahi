@@ -22,11 +22,10 @@
   USA.
 ***/
 
-#define DBUS_SERVICE_AVAHI "org.freedesktop.Avahi"
-
 #include <glib.h>
 
-int dbus_protocol_setup (GMainLoop *loop);
-void dbus_protocol_shutdown ();
+int dbus_protocol_setup(GMainLoop *loop);
+void dbus_protocol_shutdown(void);
+void dbus_protocol_server_state_changed(AvahiServerState state);
 
 #endif

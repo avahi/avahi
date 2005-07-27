@@ -175,6 +175,11 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
     g_assert(s);
     g_assert(config);
 
+#ifdef ENABLE_DBUS
+    if (config->enable_dbus)
+        dbus_protocol_server_state_changed(state);
+#endif
+
     if (state == AVAHI_SERVER_RUNNING) {
         avahi_log_info("Server startup complete.  Host name is <%s>", avahi_server_get_host_name_fqdn(s));
         static_service_add_to_server();
@@ -201,6 +206,8 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
         avahi_server_set_host_name(s, n);
         g_free(n);
     }
+
+    
 }
 
 static void help(FILE *f, const gchar *argv0) {

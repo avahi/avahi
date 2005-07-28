@@ -26,6 +26,4 @@ pkgconfig_DATA = avahi-core.pc
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-all: doxygen-doc
-
 .PHONY: distcleancheck

@@ -438,7 +438,8 @@ typedef enum {
     AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
     AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
     AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT,    /**< Browse for the default browsing domain */
-    AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY      /**< Legacy browse domain - see DNS-SD spec for more information */
+    AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY,     /**< Legacy browse domain - see DNS-SD spec for more information */
+    AVAHI_DOMAIN_BROWSER_MAX
 } AvahiDomainBrowserType;
 
 /** A local domain browsing object. May be used to enumerate domains used on the local LAN */

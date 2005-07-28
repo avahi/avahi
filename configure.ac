@@ -96,16 +96,15 @@ if test "x$ENABLE_GTK" = "xyes"; then
 fi
 AM_CONDITIONAL(ENABLE_GTK, test "x$ENABLE_GTK" = "xyes")
 
-AC_ARG_ENABLE(doxygen,
-        AC_HELP_STRING([--enable-doxygen],[use doxygen to generate API docs (default=yes)]),
-        [case "${enableval}" in
-                yes) ENABLE_DOXYGEN=yes ;;
-                no)  ENABLE_DOXYGEN=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk) ;;
-        esac],
-        [ENABLE_DOXYGEN=yes]) dnl Default value
-
-AM_CONDITIONAL(ENABLE_DOXYGEN, test "x$ENABLE_DOXYGEN" = "xyes")
+DX_HTML_FEATURE(ON)
+DX_CHM_FEATURE(OFF)
+DX_CHI_FEATURE(OFF)
+DX_MAN_FEATURE(OFF)
+DX_RTF_FEATURE(OFF)
+DX_XML_FEATURE(OFF)
+DX_PDF_FEATURE(ON)
+DX_PS_FEATURE(OFF)
+DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen-doc)
 
 AC_ARG_ENABLE(dbus,
         AC_HELP_STRING([--enable-dbus],[use DBus (default=yes)]),
@@ -220,8 +219,6 @@ AC_SUBST(avahi_socket)
 AC_CONFIG_FILES([
 Makefile 
 avahi-core.pc 
-doxygen/Makefile 
-doxygen/doxygen.conf 
 avahi-common/Makefile 
 avahi-core/Makefile 
 avahi-daemon/Makefile 

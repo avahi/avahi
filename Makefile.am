@@ -16,14 +16,16 @@
 # License along with avahi; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
+include aminclude.am
 
-EXTRA_DIST = bootstrap.sh LICENSE
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon doxygen initscript avahi-dnsconfd
+EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG)
+SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon initscript avahi-dnsconfd
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc
 
-doxygen:
-	$(MAKE) -C doxygen doxygen
+MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-.PHONY: distcleancheck doxygen
+all: doxygen-doc
+
+.PHONY: distcleancheck

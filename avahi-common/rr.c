@@ -182,7 +182,6 @@ const gchar *avahi_dns_type_to_string(guint16 type) {
     }
 }
 
-
 gchar *avahi_key_to_string(const AvahiKey *k) {
     g_assert(k);
     g_assert(k->ref >= 1);

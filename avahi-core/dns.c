@@ -432,7 +432,6 @@ gint avahi_dns_packet_consume_string(AvahiDnsPacket *p, gchar *ret_string, guint
     p->rindex += 1+k;
 
     return 0;
-    
 }
 
 gconstpointer avahi_dns_packet_get_rptr(AvahiDnsPacket *p) {

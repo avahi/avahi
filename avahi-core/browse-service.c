@@ -95,12 +95,12 @@ AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, gint interfa
 
     b = g_new(AvahiServiceBrowser, 1);
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain ? domain : "local.");
+    b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->service_type = avahi_normalize_name(service_type);
     b->callback = callback;
     b->userdata = userdata;
 
-    n = g_strdup_printf("%s%s", b->service_type, b->domain_name);
+    n = g_strdup_printf("%s.%s", b->service_type, b->domain_name);
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     g_free(n);
     

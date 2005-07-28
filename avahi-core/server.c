@@ -1249,7 +1249,7 @@ gint avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
     withdraw_host_rrs(s);
 
     g_free(s->domain_name);
-    s->domain_name = domain_name ? avahi_normalize_name(domain_name) : g_strdup("local.");
+    s->domain_name = domain_name ? avahi_normalize_name(domain_name) : g_strdup("local");
     update_fqdn(s);
 
     delayed_register_stuff(s);
@@ -1347,7 +1347,7 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
     s->host_name[strcspn(s->host_name, ".")] = 0;
-    s->domain_name = s->config.domain_name ? avahi_normalize_name(s->config.domain_name) : g_strdup("local.");
+    s->domain_name = s->config.domain_name ? avahi_normalize_name(s->config.domain_name) : g_strdup("local");
     s->host_name_fqdn = NULL;
     update_fqdn(s);
 
@@ -1717,6 +1717,7 @@ gint avahi_server_add_service_strlst(
     AvahiStringList *strlst) {
 
     gchar ptr_name[256], svc_name[256], ename[64], enum_ptr[256];
+    gchar *t, *d;
     AvahiRecord *r;
     gint ret = 0;
     
@@ -1735,9 +1736,12 @@ gint avahi_server_add_service_strlst(
     if (!host)
         host = s->host_name_fqdn;
 
-    snprintf(ptr_name, sizeof(ptr_name), "%s.%s", type, domain);
-    snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, type, domain);
+    d = avahi_normalize_name(domain);
+    t = avahi_normalize_name(type);
     
+    snprintf(ptr_name, sizeof(ptr_name), "%s.%s", t, d);
+    snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, t, d);
+
     ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, ptr_name, svc_name);
 
     r = avahi_record_new_full(svc_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME);
@@ -1750,9 +1754,12 @@ gint avahi_server_add_service_strlst(
 
     ret |= avahi_server_add_txt_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
 
-    snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", domain);
+    snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", d);
     ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
+    g_free(d);
+    g_free(t);
+    
     return ret;
 }
 
@@ -1870,7 +1877,7 @@ gint avahi_server_add_dns_server_name(
     guint16 port /** should be 53 */) {
 
     gint ret = -1;
-    gchar t[256];
+    gchar t[256], *d;
     AvahiRecord *r;
     
     g_assert(s);
@@ -1883,7 +1890,9 @@ gint avahi_server_add_dns_server_name(
     } else
         domain = s->domain_name;
 
-    snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", domain);
+    d = avahi_normalize_name(domain);
+    snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", d);
+    g_free(d);
     
     r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME);
     r->data.srv.priority = 0;
@@ -1895,7 +1904,6 @@ gint avahi_server_add_dns_server_name(
 
     return ret;
 }
-
 
 static void post_query_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata) {
     AvahiKey *k = userdata;

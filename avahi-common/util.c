@@ -84,13 +84,12 @@ gchar *avahi_normalize_name(const gchar *s) {
 
     unescape_uneeded(s, tmp, sizeof(tmp));
 
-    if ((l = strlen(tmp)) == 0)
-        return g_strdup(".");
+    l = strlen(tmp);
 
-    if (tmp[l-1] == '.')
-        return g_strdup(tmp);
+    while (l > 0 && tmp[l-1] == '.')
+        tmp[--l] = 0;
 
-    return g_strdup_printf("%s.", tmp);
+    return g_strdup(tmp);
 }
 
 gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b) {

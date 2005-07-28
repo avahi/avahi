@@ -92,7 +92,7 @@ AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gin
 
     b = g_new(AvahiServiceTypeBrowser, 1);
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain ? domain : "local.");
+    b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->callback = callback;
     b->userdata = userdata;
 

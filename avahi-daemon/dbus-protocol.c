@@ -199,6 +199,7 @@ static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *
 
         avahi_log_info("dbus: name acquired (%s)", name);
         return DBUS_HANDLER_RESULT_HANDLED;
+        
     } else if (dbus_message_is_signal(m, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
         gchar *name, *old, *new;
 
@@ -289,6 +290,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
 
         entry_group_free(i);
         return respond_ok(c, m);
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Commit")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
@@ -298,6 +300,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
 
         avahi_entry_group_commit(i->entry_group);
         return respond_ok(c, m);
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "GetState")) {
         DBusMessage *reply;
         gint32 t;
@@ -314,6 +317,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         dbus_message_unref(reply);
         
         return DBUS_HANDLER_RESULT_HANDLED;
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService")) {
         gint32 interface, protocol;
         gchar *type, *name, *domain, *host;
@@ -353,6 +357,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             avahi_log_info("Successfully added service: %s", name);
         
         return respond_ok(c, m);
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddAddress")) {
         gint32 interface, protocol;
         gchar *name, *address;

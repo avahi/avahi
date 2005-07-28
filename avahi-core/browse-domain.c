@@ -63,7 +63,7 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface
 
     b = g_new(AvahiDomainBrowser, 1);
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain ? domain : "local.");
+    b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->callback = callback;
     b->userdata = userdata;
 

@@ -1,6 +1,7 @@
 todo:
+* finish DBUS stuff
 * release!
-* drop trailing dot on avahi_normalize_name()
+
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
@@ -44,3 +45,4 @@ done:
 * test against apple test suite
 * sensible logging
 * c++ support
+* drop trailing dot on avahi_normalize_name()

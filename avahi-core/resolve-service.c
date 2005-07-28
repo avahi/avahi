@@ -208,7 +208,7 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint inter
 
     r = g_new(AvahiServiceResolver, 1);
     r->server = server;
-    r->service_name = avahi_normalize_name(name);
+    r->service_name = g_strdup(name);
     r->service_type = avahi_normalize_name(type);
     r->domain_name = avahi_normalize_name(domain);
     r->callback = callback;
@@ -221,7 +221,7 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint inter
     n = t;
     l = sizeof(t);
     avahi_escape_label((guint8*) name, strlen(name), &n, &l);
-    snprintf(n, l, ".%s%s", r->service_type, r->domain_name);
+    snprintf(n, l, ".%s.%s", r->service_type, r->domain_name);
 
     avahi_elapse_time(&tv, 1000, 0);
     r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);

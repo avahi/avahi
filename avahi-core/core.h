@@ -501,9 +501,9 @@ typedef void (*AvahiServiceBrowserCallback)(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
-    const gchar *name,     /**< Service name, e.g. "Lennart's Files" */ 
-    const gchar *type,     /**< DNS-SD type, e.g. "_http._tcp" */
-    const gchar *domain,   /**< Domain of this service, e.g. "local" */
+    const gchar *name     /**< Service name, e.g. "Lennart's Files" */,
+    const gchar *type     /**< DNS-SD type, e.g. "_http._tcp" */,
+    const gchar *domain   /**< Domain of this service, e.g. "local" */,
     gpointer userdata);
 
 /** Create a new AvahiServiceBrowser object. */
@@ -511,7 +511,7 @@ AvahiServiceBrowser *avahi_service_browser_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    const gchar *service_type, /** DNS-SD service type, e.g. "_http._tcp" */
+    const gchar *service_type /** DNS-SD service type, e.g. "_http._tcp" */,
     const gchar *domain,
     AvahiServiceBrowserCallback callback,
     gpointer userdata);

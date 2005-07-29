@@ -49,6 +49,13 @@ stb = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceTypeB
 stb.connect_to_signal('ItemNew', lambda interface, protocol, type, domain: service_type_browser_callback("NEW", interface, protocol, type, domain))
 stb.connect_to_signal('ItemRemove', lambda interface, protocol, type, domain: service_type_browser_callback("REMOVE", interface, protocol, type, domain))
 
+def service_browser_callback(a, interface, protocol, name, type, domain):
+    print "SERVICE_BROWSER: %s %i %i %s %s %s" % (a, interface, protocol, name, type, domain)
+
+sb = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceBrowserNew(0, 0, "_http._tcp", "")), 'org.freedesktop.Avahi.ServiceBrowser')
+sb.connect_to_signal('ItemNew', lambda interface, protocol, name, type, domain: service_browser_callback("NEW", interface, protocol, name, type, domain))
+sb.connect_to_signal('ItemRemove', lambda interface, protocol, name, type, domain: service_browser_callback("REMOVE", interface, protocol, name, type, domain))
+
 try:
     gobject.MainLoop().run()
 except KeyboardInterrupt, k:

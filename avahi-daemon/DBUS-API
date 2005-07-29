@@ -11,7 +11,7 @@ TODO:   [int32 interface, int32 protocol, string name, string type, string domai
         path EntryGroupNew()               -- Creates a new org.freedesktop.Avahi.EntryGroup object
         path DomainBrowserNew(int32 interface, int32 protocol, string domain, int32 btype)
         path ServiceTypeBrowserNew(int32 interface, int32 protocol, string domain)
-TODO:   path ServiceBrowserNew(int32 interface, int32 protocol, string type, string domain)
+        path ServiceBrowserNew(int32 interface, int32 protocol, string type, string domain)
         SIGNAL StateChanged(int32 state)
 
 org.freedesktop.Avahi.EntryGroup
@@ -32,7 +32,7 @@ org.freedesktop.Avahi.ServiceTypeBrowser
         SIGNAL ItemNew(int32 interface, int32 protocol, string type, string domain) 
         SIGNAL ItemRemove(int32 interface, int32 protocol, string type, string domain)
 
-TODO: org.freedesktop.Avahi.ServiceBrowser
-TODO:   void Free()
-TODO:   SIGNAL ItemNew(int32 interface, int32 protocol, string name, string type, string domain)
-TODO:   SIGNAL ItemRemove(int32 interface, int32 protocol, string name, string type, string domain)
+org.freedesktop.Avahi.ServiceBrowser
+        void Free()
+        SIGNAL ItemNew(int32 interface, int32 protocol, string name, string type, string domain)
+        SIGNAL ItemRemove(int32 interface, int32 protocol, string name, string type, string domain)

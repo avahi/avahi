@@ -1,7 +1,7 @@
 todo:
 * finish DBUS stuff:
-	- wrap missing objects
 	- introspection
+    - allow NUL bytes in TXT records
 * release!
 
 later:

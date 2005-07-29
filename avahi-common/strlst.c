@@ -78,7 +78,7 @@ void avahi_string_list_free(AvahiStringList *l) {
     }
 }
 
-static AvahiStringList* string_list_reverse(AvahiStringList *l) {
+AvahiStringList* avahi_string_list_reverse(AvahiStringList *l) {
     AvahiStringList *r = NULL, *n;
 
     while (l) {
@@ -96,7 +96,7 @@ gchar* avahi_string_list_to_string(AvahiStringList *l) {
     guint s = 0;
     gchar *t, *e;
 
-    l = string_list_reverse(l);
+    l = avahi_string_list_reverse(l);
     
     for (n = l; n; n = n->next) {
         if (n != l)
@@ -120,7 +120,7 @@ gchar* avahi_string_list_to_string(AvahiStringList *l) {
         g_assert(e);
     }
 
-    l = string_list_reverse(l);
+    l = avahi_string_list_reverse(l);
     
     *e = 0;
 
@@ -136,7 +136,7 @@ guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size)
     
         g_assert(data);
         
-        l = string_list_reverse(l);
+        l = avahi_string_list_reverse(l);
         c = data;
         
         for (n = l; n; n = n->next) {
@@ -158,7 +158,7 @@ guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size)
             used += 1+ k;
         }
         
-        l = string_list_reverse(l);
+        l = avahi_string_list_reverse(l);
     } else {
         AvahiStringList *n;
 
@@ -241,7 +241,7 @@ AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
     for (; l; l = l->next)
         r = avahi_string_list_add_arbitrary(r, l->text, l->size);
 
-    return string_list_reverse(r);
+    return avahi_string_list_reverse(r);
 }
 
 AvahiStringList *avahi_string_list_new_from_array(const gchar *array[], gint length) {
@@ -254,4 +254,13 @@ AvahiStringList *avahi_string_list_new_from_array(const gchar *array[], gint len
         r = avahi_string_list_add(r, array[index]);
 
     return r;
+}
+
+guint avahi_string_list_length(const AvahiStringList *l) {
+    guint n = 0;
+
+    for (; l; l = l->next)
+        n++;
+
+    return n;
 }

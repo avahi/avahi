@@ -93,6 +93,12 @@ gboolean avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList
 /** Copy a string list */
 AvahiStringList *avahi_string_list_copy(const AvahiStringList *l);
 
+/** Reverse the string list. */
+AvahiStringList* avahi_string_list_reverse(AvahiStringList *l);
+
+/** Return the number of elements in the string list */
+guint avahi_string_list_length(const AvahiStringList *l);
+
 AVAHI_C_DECL_END
 
 #endif

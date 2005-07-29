@@ -2,7 +2,7 @@
 # -*-python-*-
 # $Id$ 
 
-import avahi, dbus, gobject
+import avahi, dbus, gobject, sys
 
 try:
     import dbus.glib
@@ -20,6 +20,8 @@ def print_error(err):
     print "Error:", str(err)
 
 def new_service(interface, protocol, name, type, domain):
+    global server
+    
     print "Found service '%s' of type '%s' in domain '%s' on %i.%i." % (name, type, domain, interface, protocol)
 
     # Asynchronous resolving
@@ -29,6 +31,7 @@ def remove_service(interface, protocol, name, type, domain):
     print "Service '%s' of type '%s' in domain '%s' on %i.%i disappeared." % (name, type, domain, interface, protocol)
  
 def new_service_type(interface, protocol, type, domain):
+    global server, service_browsers
 
     # Are we already browsing this domain for this type? 
     if service_browsers.has_key((interface, protocol, type, domain)):
@@ -43,6 +46,7 @@ def new_service_type(interface, protocol, type, domain):
     service_browsers[(interface, protocol, type, domain)] = b
 
 def browse_domain(interface, protocol, domain):
+    global server, service_type_browsers
 
     # Are we already browsing this domain?
     if service_type_browsers.has_key((interface, protocol, domain)):
@@ -60,16 +64,27 @@ def new_domain(interface, protocol, domain):
     # We browse for .local anyway...
     if domain != "local":
         browse_domain(interface, protocol, domain)
+
+
+domain = None
+
+if len(sys.argv) > 1:
+    domain = sys.argv[1]
         
 bus = dbus.SystemBus()
 server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
 
-# Explicitly browse .local
-browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
+if domain is None:
+    # Explicitly browse .local
+    browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
 
-# Browse for other browsable domains
-db = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE)), 'org.freedesktop.Avahi.DomainBrowser')
-db.connect_to_signal('ItemNew', new_domain)
+    # Browse for other browsable domains
+    db = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE)), 'org.freedesktop.Avahi.DomainBrowser')
+    db.connect_to_signal('ItemNew', new_domain)
+
+else:
+    # Just browse the domain the user wants us to browse
+    browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, domain)
 
 try:
     gobject.MainLoop().run()

@@ -882,7 +882,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 
         return respond_string(c, m, avahi_server_get_host_name(avahi_server));
         
-    } if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetDomainName")) {
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetDomainName")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing Server::GetDomainName message");
@@ -891,7 +891,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 
         return respond_string(c, m, avahi_server_get_domain_name(avahi_server));
 
-    } if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostNameFqdn")) {
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostNameFqdn")) {
 
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetHostNameFqdn message");
@@ -900,7 +900,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
     
         return respond_string(c, m, avahi_server_get_host_name_fqdn(avahi_server));
         
-    } if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")) {
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")) {
 
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetVersionString message");
@@ -908,6 +908,52 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
     
         return respond_string(c, m, PACKAGE_STRING);
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetState")) {
+        DBusMessage *reply;
+        gint32 s;
+            
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
+            avahi_log_warn("Error parsing Server::GetState message");
+            goto fail;
+        }
+
+        s = (gint32) avahi_server_get_state(avahi_server);
+        
+        reply = dbus_message_new_method_return(m);
+        dbus_message_append_args(reply, DBUS_TYPE_INT32, &s, DBUS_TYPE_INVALID);
+        dbus_connection_send(c, reply, NULL);
+        dbus_message_unref(reply);
+        
+        return DBUS_HANDLER_RESULT_HANDLED;
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAlternativeHostName")) {
+        gchar *n, * t;
+        
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &n, DBUS_TYPE_INVALID)) || !n || !*n) {
+            avahi_log_warn("Error parsing Server::GetAlternativeHostName message");
+            goto fail;
+        }
+
+        t = avahi_alternative_host_name(n);
+        respond_string(c, m, t);
+        g_free(t);
+
+        return DBUS_HANDLER_RESULT_HANDLED;
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAlternativeServiceName")) {
+        gchar *n, *t;
+        
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &n, DBUS_TYPE_INVALID)) || !n || !*n) {
+            avahi_log_warn("Error parsing Server::GetAlternativeServiceName message");
+            goto fail;
+        }
+
+        t = avahi_alternative_service_name(n);
+        respond_string(c, m, t);
+        g_free(t);
+
+        return DBUS_HANDLER_RESULT_HANDLED;
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "EntryGroupNew")) {
         Client *client;

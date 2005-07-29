@@ -33,13 +33,13 @@ AVAHI_C_DECL_BEGIN
 /** Find an alternative for the specified host name. If called with an
  * original host name, "2" is appended, Afterwards the number is
  * increased on each call. (i.e. "foo" becomes "foo2" becomes "foo3"
- * and so on.)*/
+ * and so on.) g_free() the result. */
 gchar *avahi_alternative_host_name(const gchar *s);
 
 /** Find an alternative for the specified service name. If called with
     an original service name, " #2" is appended. Afterwards the number
     is increased on each call (i.e. "foo" becomes "foo #2" becomes
-    "foo #3" and so on.)*/
+    "foo #3" and so on.) g_free() the result. */
 gchar *avahi_alternative_service_name(const gchar *s);
 
 AVAHI_C_DECL_END

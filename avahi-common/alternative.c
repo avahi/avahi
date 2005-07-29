@@ -50,7 +50,6 @@ gchar * avahi_alternative_host_name(const gchar *s) {
     g_free(c);
     
     return r;
-    
 }
 
 gchar *avahi_alternative_service_name(const gchar *s) {

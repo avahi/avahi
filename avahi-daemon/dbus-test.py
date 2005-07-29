@@ -22,6 +22,10 @@ print server.ResolveAddress(0, 0, "192.168.50.4")
 print "Host name: %s" % server.GetHostName()
 print "Domain name: %s" % server.GetDomainName()
 print "FQDN: %s" % server.GetHostNameFqdn()
+print "State: %i" % server.GetState()
+
+print server.GetAlternativeHostName("gurkiman10")
+print server.GetAlternativeServiceName("Ahuga Service")
 
 def entry_group_state_changed_callback(t):
     print "EntryGroup::StateChanged: ", t

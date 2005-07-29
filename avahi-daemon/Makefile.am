@@ -27,7 +27,6 @@ AM_CFLAGS= \
 	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
 	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\"
 
-
 AM_LDADD=-lexpat
 
 # GLIB 2.0
@@ -64,7 +63,7 @@ service_DATA = \
 pkgdata_DATA = \
 	avahi-service.dtd
 
-EXTRA_DIST = avahi-service.dtd avahi-daemon.conf example.service
+EXTRA_DIST = avahi-service.dtd avahi-daemon.conf example.service dbus-test.py
 
 if ENABLE_DBUS
 avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h

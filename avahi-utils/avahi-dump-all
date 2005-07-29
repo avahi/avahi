@@ -1,0 +1,77 @@
+#!/usr/bin/python2.4
+# -*-python-*-
+# $Id$ 
+
+import avahi, dbus, gobject
+
+try:
+    import dbus.glib
+except ImportError, e:
+    pass
+
+service_type_browsers = {}
+service_browsers = {}
+
+def service_resolved(interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
+    print "Service data for service '%s' of type '%s' in domain '%s' on %i.%i:" % (name, type, domain, interface, protocol)
+    print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, str(txt))
+
+def print_error(err):
+    print "Error:", str(err)
+
+def new_service(interface, protocol, name, type, domain):
+    print "Found service '%s' of type '%s' in domain '%s' on %i.%i." % (name, type, domain, interface, protocol)
+
+    # Asynchronous resolving
+    server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, reply_handler=service_resolved, error_handler=print_error)
+
+def remove_service(interface, protocol, name, type, domain):
+    print "Service '%s' of type '%s' in domain '%s' on %i.%i disappeared." % (name, type, domain, interface, protocol)
+ 
+def new_service_type(interface, protocol, type, domain):
+
+    # Are we already browsing this domain for this type? 
+    if service_browsers.has_key((interface, protocol, type, domain)):
+        return
+
+    print "Browsing for services of type '%s' in domain '%s' on %i.%i ..." % (type, domain, interface, protocol)
+    
+    b = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceBrowserNew(interface, protocol, type, domain)), 'org.freedesktop.Avahi.ServiceBrowser')
+    b.connect_to_signal('ItemNew', new_service)
+    b.connect_to_signal('ItemRemove', remove_service)
+
+    service_browsers[(interface, protocol, type, domain)] = b
+
+def browse_domain(interface, protocol, domain):
+
+    # Are we already browsing this domain?
+    if service_type_browsers.has_key((interface, protocol, domain)):
+        return
+
+    print "Browsing domain '%s' on %i.%i ..." % (domain, interface, protocol)
+    
+    b = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceTypeBrowserNew(interface, protocol, domain)), 'org.freedesktop.Avahi.ServiceTypeBrowser')
+    b.connect_to_signal('ItemNew', new_service_type)
+
+    service_type_browsers[(interface, protocol, domain)] = b
+
+def new_domain(interface, protocol, domain):
+
+    # We browse for .local anyway...
+    if domain != "local":
+        browse_domain(interface, protocol, domain)
+        
+bus = dbus.SystemBus()
+server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
+
+# Explicitly browse .local
+browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
+
+# Browse for other browsable domains
+db = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE)), 'org.freedesktop.Avahi.DomainBrowser')
+db.connect_to_signal('ItemNew', new_domain)
+
+try:
+    gobject.MainLoop().run()
+except KeyboardInterrupt, k:
+    pass

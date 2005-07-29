@@ -33,17 +33,10 @@
 #include <avahi-core/llist.h>
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
+#include <avahi-common/dbus.h>
 
 #include "dbus-protocol.h"
 #include "main.h"
-
-#define AVAHI_DBUS_NAME "org.freedesktop.Avahi"
-#define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME".Server"
-#define AVAHI_DBUS_PATH_SERVER "/org/freedesktop/Avahi/Server"
-#define AVAHI_DBUS_INTERFACE_ENTRY_GROUP AVAHI_DBUS_NAME".EntryGroup"
-#define AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER AVAHI_DBUS_NAME".DomainBrowser"
-#define AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER AVAHI_DBUS_NAME".ServiceTypeBrowser"
-#define AVAHI_DBUS_INTERFACE_SERVICE_BROWSER AVAHI_DBUS_NAME".ServiceBrowser"
 
 typedef struct Server Server;
 typedef struct Client Client;

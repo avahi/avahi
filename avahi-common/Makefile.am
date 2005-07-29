@@ -33,10 +33,9 @@ avahi_commoninclude_HEADERS = \
 	address.h \
 	alternative.h \
 	rr.h \
-	util.h
-
-noinst_HEADERS = \
-	cdecl.h
+	util.h \
+	cdecl.h \
+	dbus.h
 
 noinst_PROGRAMS = \
 	strlst-test \

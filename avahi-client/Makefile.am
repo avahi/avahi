@@ -23,8 +23,14 @@ AM_CFLAGS=-I$(top_srcdir)
 AM_CFLAGS+=$(GLIB20_CFLAGS)
 AM_LDADD=$(GLIB20_LIBS)
 
+# DBUS
+AM_CFLAGS+=$(DBUS_CFLAGS)
+AM_LDADD+=$(DBUS_LIBS)
+
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
+
+if ENABLE_DBUS
 
 avahi_clientincludedir=$(includedir)/avahi-client
 
@@ -44,3 +50,5 @@ client_test_SOURCES = \
 	client-test.c
 client_test_CFLAGS = $(AM_CFLAGS)
 client_test_LDADD = $(AM_LDADD) libavahi-client.la
+
+endif

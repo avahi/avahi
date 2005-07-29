@@ -1,11 +1,15 @@
 #include <avahi-client/client.h>
+#include <stdio.h>
 
 int
 main (int argc, char *argv[])
 {
-	AvahiClient *avahi;
+    AvahiClient *avahi;
+    
+    avahi = avahi_client_new ();
 
-	avahi = avahi_client_new ();
+    if (avahi != NULL)
+        free (avahi);
 
-	g_message ("Got server ID %d", avahi->serverid);
+    return 0;
 }

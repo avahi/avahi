@@ -1,7 +1,5 @@
-#ifndef fooclienthfoo
-#define fooclienthfoo
-
-/* $Id: core.h 98 2005-06-04 18:56:52Z lathiat $ */
+#ifndef foodbushfoo
+/* $Id$ */
 
 /***
   This file is part of avahi.
@@ -22,19 +20,16 @@
   USA.
 ***/
 
-#include <avahi-common/cdecl.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-/** \file client.h Definitions and functions for the client API over D-Bus */
-
-AVAHI_C_DECL_BEGIN
-
-typedef struct {
-	int serverid;
-} AvahiClient;
-
-/** Creates a new client instance */
-AvahiClient* avahi_client_new ();
-
-AVAHI_C_DECL_END
+#define AVAHI_DBUS_NAME "org.freedesktop.Avahi"
+#define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME".Server"
+#define AVAHI_DBUS_PATH_SERVER "/org/freedesktop/Avahi/Server"
+#define AVAHI_DBUS_INTERFACE_ENTRY_GROUP AVAHI_DBUS_NAME".EntryGroup"
+#define AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER AVAHI_DBUS_NAME".DomainBrowser"
+#define AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER AVAHI_DBUS_NAME".ServiceTypeBrowser"
+#define AVAHI_DBUS_INTERFACE_SERVICE_BROWSER AVAHI_DBUS_NAME".ServiceBrowser"
 
 #endif

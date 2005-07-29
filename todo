@@ -1,5 +1,7 @@
 todo:
-* finish DBUS stuff
+* finish DBUS stuff:
+	- wrap missing objects
+	- introspection
 * release!
 
 later:

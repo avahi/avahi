@@ -47,7 +47,6 @@
 
 /* Needs wrapping:
    - AvahiServiceResolver
-   - AvahiDomainBrowser
    - AvahiServiceTypeBrowser
    - AvahiServiceBrowser */
 
@@ -304,6 +303,17 @@ static DBusHandlerResult respond_ok(DBusConnection *c, DBusMessage *m) {
     DBusMessage *reply;
 
     reply = dbus_message_new_method_return(m);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+    
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+static DBusHandlerResult respond_path(DBusConnection *c, DBusMessage *m, const gchar *path) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_method_return(m);
+    dbus_message_append_args(reply, DBUS_TYPE_OBJECT_PATH, &path, DBUS_TYPE_INVALID);
     dbus_connection_send(c, reply, NULL);
     dbus_message_unref(reply);
     
@@ -661,6 +671,72 @@ static void domain_browser_callback(AvahiDomainBrowser *b, AvahiIfIndex interfac
     dbus_message_unref(m);
 }
 
+static DBusHandlerResult msg_service_type_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
+    DBusError error;
+    ServiceTypeBrowserInfo *i = userdata;
+
+    g_assert(c);
+    g_assert(m);
+    g_assert(i);
+    
+    dbus_error_init(&error);
+
+    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+                    dbus_message_get_interface(m),
+                    dbus_message_get_path(m),
+                    dbus_message_get_member(m));
+
+    /* Access control */
+    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
+        return respond_error(c, m, DBUS_ERROR_ACCESS_DENIED, NULL);
+    
+    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Free")) {
+
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing ServiceTypeBrowser::Free message");
+            goto fail;
+        }
+
+        service_type_browser_free(i);
+        return respond_ok(c, m);
+        
+    }
+    
+    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
+
+fail:
+    if (dbus_error_is_set(&error))
+        dbus_error_free(&error);
+    
+    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+static void service_type_browser_callback(AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *type, const gchar *domain, gpointer userdata) {
+    ServiceTypeBrowserInfo *i = userdata;
+    DBusMessage *m;
+    gint32 i_interface, i_protocol;
+    
+    g_assert(b);
+    g_assert(type);
+    g_assert(domain);
+    g_assert(i);
+
+    i_interface = (gint32) interface;
+    i_protocol = (gint32) protocol;
+
+    m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, event == AVAHI_BROWSER_NEW ? "ItemNew" : "ItemRemove");
+    dbus_message_append_args(
+        m,
+        DBUS_TYPE_INT32, &i_interface,
+        DBUS_TYPE_INT32, &i_protocol,
+        DBUS_TYPE_STRING, &type,
+        DBUS_TYPE_STRING, &domain,
+        DBUS_TYPE_INVALID);
+    dbus_message_set_destination(m, i->client->name);   
+    dbus_connection_send(server->bus, m, NULL);
+    dbus_message_unref(m);
+}
+
 static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
     DBusError error;
 
@@ -718,7 +794,6 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             NULL,
             NULL
         };
-        DBusMessage *reply;
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing Server::EntryGroupNew message");
@@ -740,12 +815,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
 
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        reply = dbus_message_new_method_return(m);
-        dbus_message_append_args(reply, DBUS_TYPE_OBJECT_PATH, &i->path, DBUS_TYPE_INVALID);
-        dbus_connection_send(c, reply, NULL);
-        dbus_message_unref(reply);
-        
-        return DBUS_HANDLER_RESULT_HANDLED;
+        return respond_path(c, m, i->path);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ResolveHostName")) {
         Client *client;
@@ -817,7 +887,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         
         return DBUS_HANDLER_RESULT_HANDLED;
         
-     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "DomainBrowserNew")) {
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "DomainBrowserNew")) {
         Client *client;
         DomainBrowserInfo *i;
         static const DBusObjectPathVTable vtable = {
@@ -828,7 +898,6 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             NULL,
             NULL
         };
-        DBusMessage *reply;
         gint32 interface, protocol, type;
         gchar *domain;
         
@@ -863,14 +932,54 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        reply = dbus_message_new_method_return(m);
-        dbus_message_append_args(reply, DBUS_TYPE_OBJECT_PATH, &i->path, DBUS_TYPE_INVALID);
-        dbus_connection_send(c, reply, NULL);
-        dbus_message_unref(reply);
+        return respond_path(c, m, i->path);
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ServiceTypeBrowserNew")) {
+        Client *client;
+        ServiceTypeBrowserInfo *i;
+        static const DBusObjectPathVTable vtable = {
+            NULL,
+            msg_service_type_browser_impl,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        };
+        gint32 interface, protocol;
+        gchar *domain;
         
-        return DBUS_HANDLER_RESULT_HANDLED;
-    }
-    
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing Server::ServiceTypeBrowserNew message");
+            goto fail;
+        }
+
+        client = client_get(dbus_message_get_sender(m), TRUE);
+
+        if (!*domain)
+            domain = NULL;
+
+        i = g_new(ServiceTypeBrowserInfo, 1);
+        i->id = ++client->current_id;
+        i->client = client;
+        i->path = g_strdup_printf("/org/freedesktop/Avahi/Client%u/ServiceTypeBrowser%u", client->id, i->id);
+
+        AVAHI_LLIST_PREPEND(ServiceTypeBrowserInfo, service_type_browsers, client->service_type_browsers, i);
+
+        if (!(i->service_type_browser = avahi_service_type_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, service_type_browser_callback, i))) {
+            avahi_log_warn("Failed to create service type browser");
+            service_type_browser_free(i);
+            goto fail;
+        }
+        
+        dbus_connection_register_object_path(c, i->path, &vtable, i);
+        return respond_path(c, m, i->path);
+     }
+
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 
 

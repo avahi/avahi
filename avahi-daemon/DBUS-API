@@ -10,7 +10,7 @@ org.freedesktop.Avahi.Server               -- Accessible through /org/freedeskto
 TODO:   [int32 interface, int32 protocol, string name, string type, string domain, string host, int32 aprotocol, string address, uint16 port, string txt[]] ResolveService(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol) 
         path EntryGroupNew()               -- Creates a new org.freedesktop.Avahi.EntryGroup object
         path DomainBrowserNew(int32 interface, int32 protocol, string domain, int32 btype)
-TODO:   path ServiceTypeBrowserNew(int32 interface, int32 protocol, string domain)
+        path ServiceTypeBrowserNew(int32 interface, int32 protocol, string domain)
 TODO:   path ServiceBrowserNew(int32 interface, int32 protocol, string type, string domain)
         SIGNAL StateChanged(int32 state)
 
@@ -27,14 +27,12 @@ org.freedesktop.Avahi.DomainBrowser
         SIGNAL ItemNew(int32 interface, int32 protocol, string domain)
         SIGNAL ItemRemove(int32 interface, int32 protocol, string domain)
 
-TODO: org.freedesktop.Avahi.ServiceTypeBrowser
-TODO:   void Free()
-
-TODO:   SIGNAL ItemNew(int32 interface, int32 protocol, string type, string domain)
-TODO:   SIGNAL ItemRemove(int32 interface, int32 protocol, string type, string domain)
+org.freedesktop.Avahi.ServiceTypeBrowser
+        void Free()
+        SIGNAL ItemNew(int32 interface, int32 protocol, string type, string domain) 
+        SIGNAL ItemRemove(int32 interface, int32 protocol, string type, string domain)
 
 TODO: org.freedesktop.Avahi.ServiceBrowser
 TODO:   void Free()
-
 TODO:   SIGNAL ItemNew(int32 interface, int32 protocol, string name, string type, string domain)
 TODO:   SIGNAL ItemRemove(int32 interface, int32 protocol, string name, string type, string domain)

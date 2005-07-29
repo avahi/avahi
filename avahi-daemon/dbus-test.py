@@ -5,8 +5,6 @@ import gobject
 try: import dbus.glib
 except ImportError, e: pass
 
-from time import sleep
-
 bus = dbus.SystemBus()
 
 server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
@@ -41,9 +39,15 @@ def domain_browser_callback(a, interface, protocol, domain):
     print "DOMAIN_BROWSER: %s %i %i %s" % (a, interface, protocol, domain)
 
 db = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.DomainBrowserNew(0, 0, "", 2)), 'org.freedesktop.Avahi.DomainBrowser')
-
 db.connect_to_signal('ItemNew', lambda interface, protocol, domain: domain_browser_callback("NEW", interface, protocol, domain))
 db.connect_to_signal('ItemRemove', lambda interface, protocol, domain: domain_browser_callback("REMOVE", interface, protocol, domain))
+
+def service_type_browser_callback(a, interface, protocol, type, domain):
+    print "SERVICE_TYPE_BROWSER: %s %i %i %s %s" % (a, interface, protocol, type, domain)
+
+stb = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceTypeBrowserNew(0, 0, "")), 'org.freedesktop.Avahi.ServiceTypeBrowser')
+stb.connect_to_signal('ItemNew', lambda interface, protocol, type, domain: service_type_browser_callback("NEW", interface, protocol, type, domain))
+stb.connect_to_signal('ItemRemove', lambda interface, protocol, type, domain: service_type_browser_callback("REMOVE", interface, protocol, type, domain))
 
 try:
     gobject.MainLoop().run()
@@ -52,5 +56,6 @@ except KeyboardInterrupt, k:
 
 g.Free()
 db.Free()
+stb.Free()
 
 print "Quit"

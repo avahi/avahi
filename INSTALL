@@ -7,6 +7,17 @@ $ ./bootstrap.sh
 	(this will run autoconf/automake)
 
 $ ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+
+Extra configure options available:
+
+    --enable-gtk             use GTK+    (default=yes)
+    --enable-dbus            use DBus    (default=yes)
+    --with-dbus-sys=<dir>    where D-BUS system.d directory is
+    --with-distro=<distro>   the target Linux distribution (one of redhat,
+                                    suse, gentoo, debian or slackware)
+    --with-avahi-user=<user> User for running the Avahi daemon (avahi)
+    --with-avahi-group=<grp> Group for Avahi (avahi)
+
 $ make
 # make install
 

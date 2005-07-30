@@ -22,7 +22,6 @@
   USA.
 ***/
 
-#include <stdio.h>
 #include <glib.h>
 
 /** \file core.h The Avahi Multicast DNS and DNS Service Discovery implmentation. */

@@ -4,7 +4,7 @@
 
 <!-- see D-BUS specification for documentation -->
 
-<!ELEMENT node (node*,interface,(node|interface)*)>
+<!ELEMENT node (node|interface)*>
 <!ATTLIST node name CDATA #IMPLIED>
 
 <!ELEMENT interface (method|signal|property|annotation)*>

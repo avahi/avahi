@@ -1,11 +1,16 @@
 <?xml version="1.0" standalone='no'?><!--*-nxml-*-->
 <!DOCTYPE node SYSTEM "introspect.dtd">
 <node>
-  
+
   <!-- $Id$ -->
 
-  <interface name="org.freedesktop.Avahi.Server">
+ <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg name="data" direction="out" type="s"/>
+    </method>
+  </interface>
 
+  <interface name="org.freedesktop.Avahi.Server">
     <method name="GetVersionString">
       <arg name="version" type="s" direction="out"/>
     </method>
@@ -31,10 +36,12 @@
       <arg name="name" type="s" direction="in"/>
       <arg name="name" type="s" direction="out"/>
     </method>
+
     <method name="GetAlternativeServiceName">
       <arg name="name" type="s" direction="in"/>
       <arg name="name" type="s" direction="out"/>
     </method>
+
 
     <method name="ResolveHostName">
       <arg name="interface" type="i" direction="in"/>
@@ -82,7 +89,7 @@
     </method>
 
     <method name="EntryGroupNew">
-      <arg name="path" type="o" direction="out"/>
+      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
     </method>
 
     <method name="DomainBrowserNew">
@@ -91,15 +98,15 @@
       <arg name="domain" type="s" direction="in"/>
       <arg name="btype" type="i" direction="in"/>
 
-      <arg name="path" type="o" direction="out"/>
+      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
     </method>
-    
+
     <method name="ServiceTypeBrowserNew">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
 
-      <arg name="path" type="o" direction="out"/>
+      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
     </method>
 
     <method name="ServiceBrowserNew">
@@ -108,8 +115,9 @@
       <arg name="type" type="s" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
 
-      <arg name="path" type="o" direction="out"/>
+      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
     </method>
 
   </interface>
+
 </node>

@@ -1,0 +1,57 @@
+#!/usr/bin/python2.4
+# -*-python-*-
+
+import os
+import gtk
+import gobject
+from SimpleGladeApp import SimpleGladeApp
+
+glade_dir = "../avahi-discover/"
+
+class Main_window(SimpleGladeApp):
+    def __init__(self, path="avahi-discover.glade", root="main_window", domain=None, **kwargs):
+        path = os.path.join(glade_dir, path)
+        SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+
+    def update_label(self,interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
+        infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b> %i.%i\n<b>Address:</b> %s/%s:%i\n<b>TXT Data:</b> %s" % (type, name, domain, interface, protocol, host, address, port, str(txt))
+        self.info_label.set_markup(infos)
+
+    def insert_row(self, model,parent,
+                   firstcolumn,secondcolumn):
+        myiter=model.insert_after(parent,None)
+        model.set_value(myiter,0,firstcolumn)
+        model.set_value(myiter,1,secondcolumn)
+        return myiter
+    
+    def new(self):
+        print "A new main_window has been created"
+        self.treemodel=gtk.TreeStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
+        self.tree_view.set_model(self.treemodel)
+
+        #creating the columns headers
+        self.tree_view.set_headers_visible(True)
+        renderer=gtk.CellRendererText()
+        column=gtk.TreeViewColumn("Name",renderer, text=0)
+        column.set_resizable(True)
+        self.tree_view.append_column(column)
+        renderer=gtk.CellRendererText()
+        column=gtk.TreeViewColumn("Interface",renderer,
+                                  text=1)
+        column.set_resizable(True)
+        self.tree_view.append_column(column)
+        
+        # testing with fake data
+        model=self.treemodel
+        self.insert_row(model,None,'Service Name', 'Interface')
+        self.update_label(1, 1, "My Web Server", "_http._tcp.", ".local", "xenon", "aprotocol", "172.16.100.2", 42, "txt")
+        
+def main():
+    main_window = Main_window()
+
+    main_window.run()
+    
+if __name__ == "__main__":
+    main()
+
+                                            

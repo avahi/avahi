@@ -32,6 +32,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <sys/stat.h>
+#include <stdio.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>

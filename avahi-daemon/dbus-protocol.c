@@ -38,6 +38,9 @@
 #include "dbus-protocol.h"
 #include "main.h"
 
+/* Include generated introspection data */
+#include "server-introspect-xml.c"
+
 typedef struct Server Server;
 typedef struct Client Client;
 typedef struct EntryGroupInfo EntryGroupInfo;
@@ -873,7 +876,16 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
 
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostName")) {
+    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect")) {
+
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing Introspect message");
+            goto fail;
+        }
+
+        return respond_string(c, m, server_introspect_xml);
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostName")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing Server::GetHostName message");

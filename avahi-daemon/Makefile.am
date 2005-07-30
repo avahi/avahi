@@ -63,7 +63,8 @@ service_DATA = \
 pkgdata_DATA = \
 	avahi-service.dtd
 
-EXTRA_DIST = avahi-service.dtd avahi-daemon.conf example.service dbus-test.py
+EXTRA_DIST = avahi-service.dtd avahi-daemon.conf example.service dbus-test.py Server.introspect server-introspect-xml.c
+BUILT_SOURCES = server-introspect-xml.c
 
 if ENABLE_DBUS
 avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h
@@ -80,3 +81,7 @@ avahi_daemon_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/
 xmllint:
 	xmllint --noout --valid example.service
 	xmllint --noout --valid Server.introspect
+	xmllint --noout --valid EntryGroup.introspect
+
+server-introspect-xml.c: Server.introspect
+	python embedd-file.py -s $< server_introspect_xml > $@

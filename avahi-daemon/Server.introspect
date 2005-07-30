@@ -1,0 +1,115 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE node SYSTEM "introspect.dtd">
+<node>
+  
+  <!-- $Id$ -->
+
+  <interface name="org.freedesktop.Avahi.Server">
+
+    <method name="GetVersionString">
+      <arg name="version" type="s" direction="out"/>
+    </method>
+
+    <method name="GetHostName">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="GetHostNameFqdn">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="GetDomainName">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+
+    <method name="GetState">
+      <arg name="state" type="i" direction="out"/>
+    </method>
+    <signal name="StateChanged">
+      <arg name="state" type="i"/>
+    </signal>
+
+    <method name="GetAlternativeHostName">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="GetAlternativeServiceName">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="name" type="s" direction="out"/>
+    </method>
+
+    <method name="ResolveHostName">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="aprotocol" type="i" direction="in"/>
+
+      <arg name="interface" type="i" direction="out"/>
+      <arg name="protocol" type="i" direction="out"/>
+      <arg name="name" type="s" direction="out"/>
+      <arg name="aprotocol" type="i" direction="out"/>
+      <arg name="address" type="s" direction="out"/>
+    </method>
+
+    <method name="ResolveAddress">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="address" type="s" direction="in"/>
+
+      <arg name="interface" type="i" direction="out"/>
+      <arg name="protocol" type="i" direction="out"/>
+      <arg name="aprotocol" type="i" direction="out"/>
+      <arg name="address" type="s" direction="out"/>
+      <arg name="name" type="s" direction="out"/>
+    </method>
+
+    <method name="ResolveService">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="type" type="s" direction="in"/>
+      <arg name="domain" type="s" direction="in"/>
+      <arg name="aprotocol" type="i" direction="in"/>
+
+      <arg name="interface" type="i" direction="out"/>
+      <arg name="protocol" type="i" direction="out"/>
+      <arg name="name" type="s" direction="out"/>
+      <arg name="type" type="s" direction="out"/>
+      <arg name="domain" type="s" direction="out"/>
+      <arg name="host" type="s" direction="out"/>
+      <arg name="aprotocol" type="i" direction="out"/>
+      <arg name="address" type="s" direction="out"/>
+      <arg name="port" type="q" direction="out"/>
+      <arg name="txt" type="as" direction="out"/>
+    </method>
+
+    <method name="EntryGroupNew">
+      <arg name="path" type="o" direction="out"/>
+    </method>
+
+    <method name="DomainBrowserNew">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="domain" type="s" direction="in"/>
+      <arg name="btype" type="i" direction="in"/>
+
+      <arg name="path" type="o" direction="out"/>
+    </method>
+    
+    <method name="ServiceTypeBrowserNew">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="domain" type="s" direction="in"/>
+
+      <arg name="path" type="o" direction="out"/>
+    </method>
+
+    <method name="ServiceBrowserNew">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="type" type="s" direction="in"/>
+      <arg name="domain" type="s" direction="in"/>
+
+      <arg name="path" type="o" direction="out"/>
+    </method>
+
+  </interface>
+</node>

@@ -868,7 +868,6 @@ static void service_resolver_callback(
     DBusMessage *reply;
     
     g_assert(r);
-    g_assert(host_name);
     g_assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
@@ -878,6 +877,8 @@ static void service_resolver_callback(
         guint n, j;
         AvahiStringList *p;
 
+        g_assert(host_name);
+        
         g_assert(a);
         avahi_address_snprint(t, sizeof(t), a);
 

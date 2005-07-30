@@ -1,6 +1,5 @@
 todo:
 * finish DBUS stuff:
-	- introspection
 	- enforce limits
     - allow NUL bytes in TXT records
 * release!

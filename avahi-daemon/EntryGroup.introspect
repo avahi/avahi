@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE node SYSTEM "introspect.dtd">
+<node>
+  
+  <!-- $Id$ -->
+
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg name="data" type="s" direction="out"/>
+    </method>
+  </interface>
+
+  <interface name="org.freedesktop.Avahi.EntryGroup">
+    <method name="Free"/>
+    <method name="Commit"/>
+
+    <method name="GetState">
+      <arg name="state" type="i" direction="out"/>
+    </method>
+    <signal name="StateChanged">
+      <arg name="state" type="i"/>
+    </signal>
+
+    <method name="AddService">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="type" type="s" direction="in"/>
+      <arg name="domain" type="s" direction="in"/>
+      <arg name="host" type="s" direction="in"/>
+      <arg name="port" type="q" direction="in"/>
+      <arg name="txt" type="as" direction="in"/>
+    </method>
+
+    <method name="AddAddress">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="address" type="s" direction="in"/>
+    </method>
+
+  </interface>
+</node>

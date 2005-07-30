@@ -6,7 +6,7 @@
 
  <interface name="org.freedesktop.DBus.Introspectable">
     <method name="Introspect">
-      <arg name="data" direction="out" type="s"/>
+      <arg name="data" type="s" direction="out"/>
     </method>
   </interface>
 

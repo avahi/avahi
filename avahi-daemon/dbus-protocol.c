@@ -38,9 +38,6 @@
 #include "dbus-protocol.h"
 #include "main.h"
 
-/* Include generated introspection data */
-#include "server-introspect-xml.c"
-
 typedef struct Server Server;
 typedef struct Client Client;
 typedef struct EntryGroupInfo EntryGroupInfo;
@@ -311,6 +308,47 @@ static DBusHandlerResult respond_path(DBusConnection *c, DBusMessage *m, const g
     return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static DBusHandlerResult handle_introspect(DBusConnection *c, DBusMessage *m, const gchar *fname) {
+    gchar *path = NULL;
+    gchar *contents;
+    GError *gerror = NULL;
+    DBusError error;
+    
+    g_assert(c);
+    g_assert(m);
+    g_assert(fname);
+
+    dbus_error_init(&error);
+
+    if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+        avahi_log_warn("Error parsing Introspect message: %s", error.message);
+        goto fail;
+    }
+    
+    path = g_strdup_printf("%s/%s", AVAHI_DBUS_INTROSPECTION_DIR, fname);
+
+    if (!(g_file_get_contents(path, &contents, NULL, &gerror))) {
+        avahi_log_warn("Failed to load introspection data: %s", gerror->message);
+        g_error_free(gerror);
+        g_free(path);
+        goto fail;
+    }
+
+    g_free(path);
+    
+    respond_string(c, m, contents);
+    g_free(contents);
+    
+    return DBUS_HANDLER_RESULT_HANDLED;
+
+fail:
+    if (dbus_error_is_set(&error))
+        dbus_error_free(&error);
+    
+    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+
+}
+
 static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
     GMainLoop *loop = userdata;
     DBusError error;
@@ -398,6 +436,10 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
 
+    /* Introspection */
+    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
+        return handle_introspect(c, m, "EntryGroup.introspect");
+    
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name)) 
         return respond_error(c, m, DBUS_ERROR_ACCESS_DENIED, NULL);
@@ -613,6 +655,10 @@ static DBusHandlerResult msg_domain_browser_impl(DBusConnection *c, DBusMessage 
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
 
+    /* Introspection */
+    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
+        return handle_introspect(c, m, "DomainBrowser.introspect");
+    
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name)) 
         return respond_error(c, m, DBUS_ERROR_ACCESS_DENIED, NULL);
@@ -677,6 +723,10 @@ static DBusHandlerResult msg_service_type_browser_impl(DBusConnection *c, DBusMe
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
 
+    /* Introspection */
+    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
+        return handle_introspect(c, m, "ServiceTypeBrowser.introspect");
+    
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name)) 
         return respond_error(c, m, DBUS_ERROR_ACCESS_DENIED, NULL);
@@ -743,6 +793,10 @@ static DBusHandlerResult msg_service_browser_impl(DBusConnection *c, DBusMessage
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
 
+    /* Introspection */
+    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
+        return handle_introspect(c, m, "ServiceBrowser.introspect");
+    
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name)) 
         return respond_error(c, m, DBUS_ERROR_ACCESS_DENIED, NULL);
@@ -866,6 +920,7 @@ static void service_resolver_callback(
     service_resolver_free(i);
 }
 
+
 static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
     DBusError error;
 
@@ -876,16 +931,10 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
 
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing Introspect message");
-            goto fail;
-        }
-
-        return respond_string(c, m, server_introspect_xml);
+    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
+        return handle_introspect(c, m, "Server.introspect");
         
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostName")) {
+    else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostName")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing Server::GetHostName message");
@@ -1248,7 +1297,6 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
      }
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
 
 fail:
     if (dbus_error_is_set(&error))

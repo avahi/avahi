@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE node SYSTEM "introspect.dtd">
+<node>
+  
+  <!-- $Id$ -->
+
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg name="data" type="s" direction="out" />
+    </method>
+  </interface>
+
+  <interface name="org.freedesktop.Avahi.ServiceBrowser">
+
+    <method name="Free"/>
+      
+    <signal name="ItemNew">
+      <arg name="interface" type="i"/>
+      <arg name="protocol" type="i"/>
+      <arg name="name" type="s"/>
+      <arg name="type" type="s"/>
+      <arg name="domain" type="s"/>
+    </signal>
+
+    <signal name="ItemRemove">
+      <arg name="interface" type="i"/>
+      <arg name="protocol" type="i"/>
+      <arg name="name" type="s"/>
+      <arg name="type" type="s"/>
+      <arg name="domain" type="s"/>
+    </signal>
+
+  </interface> 
+</node>

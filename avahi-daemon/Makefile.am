@@ -19,13 +19,16 @@
 
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
+introspectiondir=$(pkgdatadir)/introspection
+dbusservicedir=$(DBUS_SYS_DIR)
 
 AM_CFLAGS= \
 	-I$(top_srcdir) \
 	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
-	-DAVAHI_SERVICE_DIRECTORY=\"$(servicedir)\" \
-	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\"
+	-DAVAHI_SERVICE_DIR=\"$(servicedir)\" \
+	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\" \
+	-DAVAHI_DBUS_INTROSPECTION_DIR=\"$(introspectiondir)\" 
 
 AM_LDADD=-lexpat
 
@@ -63,16 +66,30 @@ service_DATA = \
 pkgdata_DATA = \
 	avahi-service.dtd
 
-EXTRA_DIST = avahi-service.dtd avahi-daemon.conf example.service dbus-test.py Server.introspect server-introspect-xml.c
-BUILT_SOURCES = server-introspect-xml.c
+EXTRA_DIST = \
+	avahi-service.dtd \
+	avahi-daemon.conf \
+	example.service \
+	dbus-test.py \
+	avahi-dbus.conf \
+	Server.introspect \
+	EntryGroup.introspect \
+	DomainBrowser.introspect \
+	ServiceTypeBrowser.introspect \
+	ServiceBrowser.introspect
 
 if ENABLE_DBUS
 avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h
 
-dbusservicedir = $(DBUS_SYS_DIR)
 dbusservice_DATA = avahi-dbus.conf
 
-EXTRA_DIST += $(dbusservice_DATA)
+introspection_DATA = \
+	Server.introspect \
+	EntryGroup.introspect \
+	DomainBrowser.introspect \
+	ServiceTypeBrowser.introspect \
+	ServiceBrowser.introspect
+
 endif
 
 avahi_daemon_CFLAGS = $(AM_CFLAGS)
@@ -82,6 +99,6 @@ xmllint:
 	xmllint --noout --valid example.service
 	xmllint --noout --valid Server.introspect
 	xmllint --noout --valid EntryGroup.introspect
-
-server-introspect-xml.c: Server.introspect
-	python embedd-file.py -s $< server_introspect_xml > $@
+	xmllint --noout --valid DomainBrowser.introspect
+	xmllint --noout --valid ServiceTypeBrowser.introspect
+	xmllint --noout --valid ServiceBrowser.introspect

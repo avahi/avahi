@@ -590,7 +590,7 @@ void static_service_load(void) {
     }
 
     memset(&globbuf, 0, sizeof(globbuf));
-    if (glob(AVAHI_SERVICE_DIRECTORY "/*.service", GLOB_ERR, NULL, &globbuf) != 0)
+    if (glob(AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf) != 0)
         avahi_log_error("Failed to read service directory.");
     else {
         for (p = globbuf.gl_pathv; *p; p++)

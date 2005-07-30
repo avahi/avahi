@@ -36,7 +36,7 @@ AM_LDADD+=$(LIBDAEMON_LIBS)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-bin_PROGRAMS = \
+sbin_PROGRAMS = \
 	avahi-dnsconfd
 
 avahi_dnsconfd_SOURCES = \

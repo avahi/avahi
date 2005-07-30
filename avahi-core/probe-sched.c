@@ -352,7 +352,7 @@ gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record,
 
     if ((pj = find_history_job(s, record)))
         return FALSE;
-    
+
     avahi_elapse_time(&tv, immediately ? 0 : AVAHI_PROBE_DEFER_MSEC, 0);
 
     if ((pj = find_scheduled_job(s, record))) {

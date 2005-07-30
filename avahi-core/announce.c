@@ -208,7 +208,7 @@ static void go_to_initial_state(AvahiAnnouncement *a, gboolean immediately) {
         
     g_assert(a);
     e = a->entry;
-    
+
     if ((e->flags & AVAHI_ENTRY_UNIQUE) && !(e->flags & AVAHI_ENTRY_NOPROBE))
         a->state = AVAHI_PROBING;
     else if (!(e->flags & AVAHI_ENTRY_NOANNOUNCE)) {
@@ -342,6 +342,8 @@ gboolean avahi_entry_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
 
     if (!(a = avahi_get_announcement(s, e, i)))
         return FALSE;
+
+/*     avahi_log_debug("state: %i", a->state); */
     
     return
         a->state == AVAHI_PROBING ||

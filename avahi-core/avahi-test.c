@@ -40,9 +40,13 @@ static gboolean quit_timeout(gpointer data) {
     return FALSE;
 }
 
+static void dump_line(const gchar *text, gpointer userdata) {
+    printf("%s\n", text);
+}
+
 static gboolean dump_timeout(gpointer data) {
     AvahiServer *Avahi = data;
-    avahi_server_dump(Avahi, stdout);
+    avahi_server_dump(Avahi, dump_line, NULL);
     return TRUE;
 }
 

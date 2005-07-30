@@ -223,6 +223,10 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     g_assert(record);
     g_assert(i);
 
+    t = avahi_record_to_string(record);
+
+/*     avahi_log_debug("incoming_probe()");  */
+
     for (e = g_hash_table_lookup(s->entries_by_key, record->key); e; e = n) {
         gint cmp;
         n = e->by_key_next;
@@ -244,8 +248,6 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         }
     }
 
-    t = avahi_record_to_string(record);
-
     if (!ours) {
 
         if (won)
@@ -253,7 +255,8 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         else if (lost) {
             avahi_log_debug("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
             withdraw_rrset(s, record->key);
-        }
+        }/*  else */
+/*             avahi_log_debug("Not conflicting probe"); */
     }
 
     g_free(t);
@@ -334,7 +337,7 @@ static gboolean handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *
             avahi_log_debug("Recieved conflicting record [%s]. Resetting our record.", t);
             avahi_entry_return_to_initial_state(s, conflicting_entry, i);
 
-            /* Local unique records are returned to probin
+            /* Local unique records are returned to probing
              * state. Local shared records are reannounced. */
         }
 
@@ -1527,25 +1530,29 @@ const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void
     return avahi_record_ref((*e)->record);
 }
 
-void avahi_server_dump(AvahiServer *s, FILE *f) {
+void avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, gpointer userdata) {
     AvahiEntry *e;
+    
     g_assert(s);
-    g_assert(f);
+    g_assert(callback);
 
-    fprintf(f, "\n;;; ZONE DUMP FOLLOWS ;;;\n");
+    callback(";;; ZONE DUMP FOLLOWS ;;;", userdata);
 
     for (e = s->entries; e; e = e->entries_next) {
         gchar *t;
+        gchar ln[256];
 
         if (e->dead)
             continue;
         
         t = avahi_record_to_string(e->record);
-        fprintf(f, "%s ; iface=%i proto=%i\n", t, e->interface, e->protocol);
+        snprintf(ln, sizeof(ln), "%s ; iface=%i proto=%i", t, e->interface, e->protocol);
         g_free(t);
+
+        callback(ln, userdata);
     }
 
-    avahi_dump_caches(s->monitor, f);
+    avahi_dump_caches(s->monitor, callback, userdata);
 }
 
 gint avahi_server_add_ptr(

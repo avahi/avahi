@@ -342,26 +342,39 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
 /*     g_free(txt);  */
 }
 
+struct dump_data {
+    AvahiDumpCallback callback;
+    gpointer userdata;
+};
+
 static void dump_callback(gpointer key, gpointer data, gpointer userdata) {
     AvahiCacheEntry *e = data;
     AvahiKey *k = key;
+    struct dump_data *dump_data = userdata;
 
     g_assert(k);
     g_assert(e);
+    g_assert(data);
 
     for (; e; e = e->by_key_next) {
         gchar *t = avahi_record_to_string(e->record);
-        fprintf((FILE*) userdata, "%s\n", t);
+        dump_data->callback(t, dump_data->userdata);
         g_free(t);
     }
 }
 
-void avahi_cache_dump(AvahiCache *c, FILE *f) {
-    g_assert(c);
-    g_assert(f);
+void avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, gpointer userdata) {
+    struct dump_data data;
 
-    fprintf(f, ";;; CACHE DUMP FOLLOWS ;;;\n");
-    g_hash_table_foreach(c->hash_table, dump_callback, f);
+    g_assert(c);
+    g_assert(callback);
+
+    callback(";;; CACHE DUMP FOLLOWS ;;;", userdata);
+
+    data.callback = callback;
+    data.userdata = userdata;
+
+    g_hash_table_foreach(c->hash_table, dump_callback, &data);
 }
 
 gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {

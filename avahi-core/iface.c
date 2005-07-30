@@ -600,17 +600,18 @@ gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, gboo
     return FALSE;
 }
 
-void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f) {
+void avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, gpointer userdata) {
     AvahiInterface *i;
     g_assert(m);
 
     for (i = m->interfaces; i; i = i->interface_next) {
         if (avahi_interface_relevant(i)) {
-            fprintf(f, "\n;;; INTERFACE %s.%i ;;;\n", i->hardware->name, i->protocol);
-            avahi_cache_dump(i->cache, f);
+            char ln[256];
+            snprintf(ln, sizeof(ln), ";;; INTERFACE %s.%i ;;;", i->hardware->name, i->protocol);
+            callback(ln, userdata);
+            avahi_cache_dump(i->cache, callback, userdata);
         }
     }
-    fprintf(f, "\n");
 }
 
 gboolean avahi_interface_relevant(AvahiInterface *i) {

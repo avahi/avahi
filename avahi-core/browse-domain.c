@@ -83,6 +83,10 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface
         case AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY:
             n = g_strdup_printf("lb._dns-sd._udp.%s", b->domain_name);
             break;
+
+        case AVAHI_DOMAIN_BROWSER_MAX:
+            g_assert(FALSE);
+            break;
     }
 
     g_assert(n);

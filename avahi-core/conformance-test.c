@@ -39,8 +39,12 @@ static AvahiEntryGroup *group = NULL;
 static int try = 0;
 static AvahiServer *avahi = NULL;
 
+static void dump_line(const gchar *text, gpointer userdata) {
+    printf("%s\n", text);
+}
+
 static gboolean dump_timeout(gpointer data) {
-    avahi_server_dump(avahi, stdout);
+    avahi_server_dump(avahi, dump_line, NULL);
     return TRUE;
 }
 
@@ -96,7 +100,7 @@ int main(int argc, char *argv[]) {
 
     avahi = avahi_server_new(NULL, NULL, server_callback, NULL);
     create_service("gurke");
-    avahi_server_dump(avahi, stdout);
+    avahi_server_dump(avahi, dump_line, NULL);
     
     loop = g_main_loop_new(NULL, FALSE);
     g_timeout_add(1000*5, dump_timeout, avahi);

@@ -122,7 +122,7 @@ gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean imm
 gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately);
 gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
 
-void avahi_dump_caches(AvahiInterfaceMonitor *m, FILE *f);
+void avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, gpointer userdata);
 
 gboolean avahi_interface_relevant(AvahiInterface *i);
 gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a);

@@ -77,7 +77,7 @@ AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r);
 
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, const AvahiAddress *a);
 
-void avahi_cache_dump(AvahiCache *c, FILE *f);
+void avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, gpointer userdata);
 
 typedef gpointer AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, gpointer userdata);
 gpointer avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, gpointer userdata);

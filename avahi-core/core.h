@@ -171,8 +171,11 @@ AvahiServerState avahi_server_get_state(AvahiServer *s);
  * has been read, NULL is returned. */
 const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state);
 
-/** Dump the current server status to the specified FILE object */
-void avahi_server_dump(AvahiServer *s, FILE *f);
+/** Callback prototype for avahi_server_dump() */
+typedef void (*AvahiDumpCallback)(const gchar *text, gpointer userdata);
+
+/** Dump the current server status by calling "callback" for each line.  */
+void avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, gpointer userdata);
 
 /** Create a new entry group. The specified callback function is
  * called whenever the state of the group changes. Use entry group

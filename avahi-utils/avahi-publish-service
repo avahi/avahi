@@ -48,6 +48,7 @@ if len(txt) == 0:
     txt.append("python-dbus=brain-damage")
 
 group = None
+n_rename = 0
 
 def remove_service():
     global group
@@ -57,27 +58,31 @@ def remove_service():
         group = None
 
 def add_service():
-    global group, name, stype, domain, host, port, txt
-
+    global server, group, name, stype, domain, host, port, txt
     assert group is None
 
-    print "Adding service '%s' of type '%s' ..." % (name, args[1])
-    
+    print "Adding service '%s' of type '%s' ..." % (name, stype)
     group = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.EntryGroupNew()), 'org.freedesktop.Avahi.EntryGroup')
     group.connect_to_signal('StateChanged', entry_group_state_changed)
     group.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, stype, domain, host, dbus.UInt16(port), txt)
     group.Commit()
 
 def entry_group_state_changed(state):
-    global name, server
+    global name, server, n_rename
     
     if state == avahi.ENTRY_GROUP_ESTABLISHED:
         print "Service established."
     elif state == avahi.ENTRY_GROUP_COLLISION:
-        name = server.GetAlternativeServiceName(name)
-        print "WARNING: Service name collision, changing name to '%s' ..." % name
-        remove_service()
-        add_service()
+
+        n_rename = n_rename + 1
+        if n_rename >= 12:
+            print "ERROR: No suitable service name found after %i retries, exiting." % n_rename
+            main_loop.quit()
+        else:
+            name = server.GetAlternativeServiceName(name)
+            print "WARNING: Service name collision, changing name to '%s' ..." % name
+            remove_service()
+            add_service()
 
 def server_state_changed(state):
     if state == avahi.SERVER_COLLISION:
@@ -86,13 +91,15 @@ def server_state_changed(state):
     elif state == avahi.SERVER_RUNNING:
         add_service()
 
+main_loop = gobject.MainLoop()
+
 bus = dbus.SystemBus()
 server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
 server.connect_to_signal("StateChanged", server_state_changed)
 server_state_changed(server.GetState())
 
 try:
-    gobject.MainLoop().run()
+    main_loop.run()
 except KeyboardInterrupt, k:
     pass
 

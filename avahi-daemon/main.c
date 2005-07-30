@@ -443,6 +443,10 @@ static void log_function(AvahiLogLevel level, const gchar *txt) {
     daemon_log(log_level_map[level], "%s", txt);
 }
 
+static void dump(const gchar *text, gpointer userdata) {
+    avahi_log_info("%s", text);
+}
+
 static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpointer data) {
     gint sig;
     GMainLoop *loop = data;
@@ -483,6 +487,11 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
 
             break;
 
+        case SIGUSR1:
+            avahi_log_info("Got SIGUSR1, dumping record data.");
+            avahi_server_dump(avahi_server, dump, NULL);
+            break;
+
         default:
             avahi_log_warn("Got spurious signal, ignoring.");
             break;
@@ -501,7 +510,7 @@ static gint run_server(DaemonConfig *config) {
     
     loop = g_main_loop_new(NULL, FALSE);
 
-    if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, 0) < 0) {
+    if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, SIGUSR1, 0) < 0) {
         avahi_log_error("Could not register signal handlers (%s).", strerror(errno));
         goto finish;
     }

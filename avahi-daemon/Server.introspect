@@ -42,7 +42,6 @@
       <arg name="name" type="s" direction="out"/>
     </method>
 
-
     <method name="ResolveHostName">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
@@ -89,7 +88,7 @@
     </method>
 
     <method name="EntryGroupNew">
-      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
+      <arg name="path" type="o" direction="out"/>
     </method>
 
     <method name="DomainBrowserNew">
@@ -98,7 +97,7 @@
       <arg name="domain" type="s" direction="in"/>
       <arg name="btype" type="i" direction="in"/>
 
-      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
+      <arg name="path" type="o" direction="out"/>
     </method>
 
     <method name="ServiceTypeBrowserNew">
@@ -106,7 +105,7 @@
       <arg name="protocol" type="i" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
 
-      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
+      <arg name="path" type="o" direction="out"/>
     </method>
 
     <method name="ServiceBrowserNew">
@@ -115,7 +114,7 @@
       <arg name="type" type="s" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
 
-      <arg name="path" type="s" direction="out"/> <!-- FIXME -->
+      <arg name="path" type="o" direction="out"/>
     </method>
 
   </interface>

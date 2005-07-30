@@ -7,7 +7,7 @@ except ImportError, e: pass
 
 bus = dbus.SystemBus()
 
-server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
+server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/'), 'org.freedesktop.Avahi.Server')
 
 def server_state_changed_callback(t):
     print "Server::StateChanged: ", t

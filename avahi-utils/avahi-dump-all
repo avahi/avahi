@@ -39,7 +39,7 @@ def new_service_type(interface, protocol, type, domain):
 
     print "Browsing for services of type '%s' in domain '%s' on %i.%i ..." % (type, domain, interface, protocol)
     
-    b = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceBrowserNew(interface, protocol, type, domain)), 'org.freedesktop.Avahi.ServiceBrowser')
+    b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceBrowserNew(interface, protocol, type, domain)), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
     b.connect_to_signal('ItemNew', new_service)
     b.connect_to_signal('ItemRemove', remove_service)
 
@@ -54,7 +54,7 @@ def browse_domain(interface, protocol, domain):
 
     print "Browsing domain '%s' on %i.%i ..." % (domain, interface, protocol)
     
-    b = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.ServiceTypeBrowserNew(interface, protocol, domain)), 'org.freedesktop.Avahi.ServiceTypeBrowser')
+    b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceTypeBrowserNew(interface, protocol, domain)), avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
     b.connect_to_signal('ItemNew', new_service_type)
 
     service_type_browsers[(interface, protocol, domain)] = b
@@ -72,14 +72,14 @@ if len(sys.argv) > 1:
     domain = sys.argv[1]
         
 bus = dbus.SystemBus()
-server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
+server = dbus.Interface(bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
 
 if domain is None:
     # Explicitly browse .local
     browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
 
     # Browse for other browsable domains
-    db = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE)), 'org.freedesktop.Avahi.DomainBrowser')
+    db = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE)), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
     db.connect_to_signal('ItemNew', new_domain)
 
 else:

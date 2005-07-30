@@ -989,7 +989,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         i = g_new(EntryGroupInfo, 1);
         i->id = ++client->current_id;
         i->client = client;
-        i->path = g_strdup_printf("/org/freedesktop/Avahi/Client%u/EntryGroup%u", client->id, i->id);
+        i->path = g_strdup_printf("/Client%u/EntryGroup%u", client->id, i->id);
         AVAHI_LLIST_PREPEND(EntryGroupInfo, entry_groups, client->entry_groups, i);
 
         if (!(i->entry_group = avahi_entry_group_new(avahi_server, entry_group_callback, i))) {
@@ -1105,7 +1105,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         i = g_new(DomainBrowserInfo, 1);
         i->id = ++client->current_id;
         i->client = client;
-        i->path = g_strdup_printf("/org/freedesktop/Avahi/Client%u/DomainBrowser%u", client->id, i->id);
+        i->path = g_strdup_printf("/Client%u/DomainBrowser%u", client->id, i->id);
 
         AVAHI_LLIST_PREPEND(DomainBrowserInfo, domain_browsers, client->domain_browsers, i);
 
@@ -1150,7 +1150,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         i = g_new(ServiceTypeBrowserInfo, 1);
         i->id = ++client->current_id;
         i->client = client;
-        i->path = g_strdup_printf("/org/freedesktop/Avahi/Client%u/ServiceTypeBrowser%u", client->id, i->id);
+        i->path = g_strdup_printf("/Client%u/ServiceTypeBrowser%u", client->id, i->id);
 
         AVAHI_LLIST_PREPEND(ServiceTypeBrowserInfo, service_type_browsers, client->service_type_browsers, i);
 
@@ -1196,7 +1196,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         i = g_new(ServiceBrowserInfo, 1);
         i->id = ++client->current_id;
         i->client = client;
-        i->path = g_strdup_printf("/org/freedesktop/Avahi/Client%u/ServiceBrowser%u", client->id, i->id);
+        i->path = g_strdup_printf("/Client%u/ServiceBrowser%u", client->id, i->id);
 
         AVAHI_LLIST_PREPEND(ServiceBrowserInfo, service_browsers, client->service_browsers, i);
 

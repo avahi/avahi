@@ -62,7 +62,7 @@ def add_service():
     assert group is None
 
     print "Adding service '%s' of type '%s' ..." % (name, stype)
-    group = dbus.Interface(bus.get_object("org.freedesktop.Avahi", server.EntryGroupNew()), 'org.freedesktop.Avahi.EntryGroup')
+    group = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.EntryGroupNew()), avahi.DBUS_INTERFACE_ENTRY_GROUP)
     group.connect_to_signal('StateChanged', entry_group_state_changed)
     group.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, stype, domain, host, dbus.UInt16(port), txt)
     group.Commit()
@@ -94,7 +94,7 @@ def server_state_changed(state):
 main_loop = gobject.MainLoop()
 
 bus = dbus.SystemBus()
-server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/org/freedesktop/Avahi/Server'), 'org.freedesktop.Avahi.Server')
+server = dbus.Interface(bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
 server.connect_to_signal("StateChanged", server_state_changed)
 server_state_changed(server.GetState())
 

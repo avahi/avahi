@@ -61,7 +61,7 @@ pkgsysconf_DATA = \
 	avahi-daemon.conf
 
 service_DATA = \
-	example.service
+	ssh.service
 
 pkgdata_DATA = \
 	avahi-service.dtd
@@ -76,7 +76,9 @@ EXTRA_DIST = \
 	EntryGroup.introspect \
 	DomainBrowser.introspect \
 	ServiceTypeBrowser.introspect \
-	ServiceBrowser.introspect
+	ServiceBrowser.introspect \
+	ssh.service \
+	example.service
 
 if ENABLE_DBUS
 avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h

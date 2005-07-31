@@ -1,10 +1,22 @@
 #!/usr/bin/python2.4
 # -*-python-*-
+# $Id$
 
 import os
 import gtk
 import gobject
 from SimpleGladeApp import SimpleGladeApp
+
+import avahi, dbus, gobject, sys
+ 
+try:
+    import dbus.glib
+except ImportError, e:
+    pass
+
+service_type_browsers = {}
+service_browsers = {}
+
 
 glade_dir = "../avahi-discover/"
 
@@ -13,20 +25,93 @@ class Main_window(SimpleGladeApp):
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
 
+    def on_tree_view_cursor_changed(self, widget, *args):
+        (model, iter) = widget.get_selection().get_selected()
+        (name,interface,protocol,type,domain) = self.treemodel.get(iter,0,1,2,3,4)
+        if type == None:
+            return
+        #Asynchronous resolving
+        self.server.ResolveService( int(interface), int(protocol), name, type, domain, avahi.PROTO_UNSPEC, reply_handler=self.service_resolved, error_handler=self.print_error)
+
+
+    def service_resolved(self, interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
+        print "Service data for service '%s' of type '%s' in domain '%s' on %i.%i:" % (name, type, domain, interface, protocol)
+        print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, str(txt))
+        self.update_label(interface, protocol, name, type, domain, host, aprotocol, address, port, str(txt))
+        
+    def print_error(err):
+        print "Error:", str(err)
+            
+    def new_service(self, interface, protocol, name, type, domain):
+        print "Found service '%s' of type '%s' in domain '%s' on %i.%i." % (name, type, domain, interface, protocol)
+        if self.service_type.has_key(type) == False:
+            self.service_type[type] = self.insert_row(self.treemodel,None,type, interface,None,None,None)
+        treeiter = self.insert_row(self.treemodel,self.service_type[type],name, interface,protocol,type,domain)
+        self.services_browsed[(interface, protocol, name, type, domain)] = treeiter
+
+
+    def remove_service(self, interface, protocol, name, type, domain):
+        print "Service '%s' of type '%s' in domain '%s' on %i.%i disappeared." % (name, type, domain, interface, protocol)
+        treeiter=self.services_browsed[(interface, protocol, name, type, domain)]
+        parent = self.treemodel.iter_parent(treeiter)
+        self.treemodel.remove(treeiter)
+        del self.services_browsed[(interface, protocol, name, type, domain)]
+        if self.treemodel.iter_has_child(parent) == False:
+            self.treemodel.remove(parent)
+            del self.service_type[type]
+ 
+    def new_service_type(self, interface, protocol, type, domain):
+        global service_browsers
+
+        # Are we already browsing this domain for this type? 
+        if service_browsers.has_key((interface, protocol, type, domain)):
+            return
+        
+        print "Browsing for services of type '%s' in domain '%s' on %i.%i ..." % (type, domain, interface, protocol)
+        
+        b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(interface, protocol, type, domain)),  avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+        b.connect_to_signal('ItemNew', self.new_service)
+        b.connect_to_signal('ItemRemove', self.remove_service)
+
+        service_browsers[(interface, protocol, type, domain)] = b
+
+    def browse_domain(self, interface, protocol, domain):
+        global service_type_browsers
+
+        # Are we already browsing this domain?
+        if service_type_browsers.has_key((interface, protocol, domain)):
+            return
+            
+        print "Browsing domain '%s' on %i.%i ..." % (domain, interface, protocol)
+        
+        b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceTypeBrowserNew(interface, protocol, domain)),  avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
+        b.connect_to_signal('ItemNew', self.new_service_type)
+
+        service_type_browsers[(interface, protocol, domain)] = b
+
+    def new_domain(self,interface, protocol, domain):
+
+        # We browse for .local anyway...
+        if domain != "local":
+            browse_domain(interface, protocol, domain)
+
     def update_label(self,interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
         infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b> %i.%i\n<b>Address:</b> %s/%s:%i\n<b>TXT Data:</b> %s" % (type, name, domain, interface, protocol, host, address, port, str(txt))
         self.info_label.set_markup(infos)
 
     def insert_row(self, model,parent,
-                   firstcolumn,secondcolumn):
+                   name, interface,protocol,type,domain):
         myiter=model.insert_after(parent,None)
-        model.set_value(myiter,0,firstcolumn)
-        model.set_value(myiter,1,secondcolumn)
+        model.set_value(myiter,0,name)
+        model.set_value(myiter,1,interface)
+        model.set_value(myiter,2,protocol)
+        model.set_value(myiter,3,type)
+        model.set_value(myiter,4,domain)
         return myiter
     
     def new(self):
         print "A new main_window has been created"
-        self.treemodel=gtk.TreeStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
+        self.treemodel=gtk.TreeStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         self.tree_view.set_model(self.treemodel)
 
         #creating the columns headers
@@ -42,9 +127,29 @@ class Main_window(SimpleGladeApp):
         self.tree_view.append_column(column)
         
         # testing with fake data
+        self.service_type = {}
+        self.services_browsed = {}
+        
         model=self.treemodel
-        self.insert_row(model,None,'Service Name', 'Interface')
-        self.update_label(1, 1, "My Web Server", "_http._tcp.", ".local", "xenon", "aprotocol", "172.16.100.2", 42, "txt")
+
+        domain = None
+
+        self.bus = dbus.SystemBus()
+        self.server = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
+
+        if domain is None:
+            # Explicitly browse .local
+            self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
+
+            # Browse for other browsable domains
+            db = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE)), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
+            db.connect_to_signal('ItemNew', self.new_domain)
+
+        else:
+            # Just browse the domain the user wants us to browse
+            self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, domain)
+
+
         
 def main():
     main_window = Main_window()

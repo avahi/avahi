@@ -8,7 +8,8 @@ import gobject
 from SimpleGladeApp import SimpleGladeApp
 
 import avahi, dbus, gobject, sys
- 
+
+
 try:
     import dbus.glib
 except ImportError, e:
@@ -29,6 +30,7 @@ class Main_window(SimpleGladeApp):
         (model, iter) = widget.get_selection().get_selected()
         (name,interface,protocol,type,domain) = self.treemodel.get(iter,0,1,2,3,4)
         if type == None:
+            self.info_label.set_markup("<i>No service currently selected.</i>")
             return
         #Asynchronous resolving
         self.server.ResolveService( int(interface), int(protocol), name, type, domain, avahi.PROTO_UNSPEC, reply_handler=self.service_resolved, error_handler=self.print_error)
@@ -96,17 +98,17 @@ class Main_window(SimpleGladeApp):
             browse_domain(interface, protocol, domain)
 
     def update_label(self,interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
-        infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b> %i.%i\n<b>Address:</b> %s/%s:%i\n<b>TXT Data:</b> %s" % (type, name, domain, interface, protocol, host, address, port, str(txt))
+        if protocol == avahi.PROTO_INET:
+            protocol = "IPv4"
+        if protocol == avahi.PROTO_INET6:
+            protocol = "IPv6"
+        infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b>#%i %s\n<b>Address:</b> %s/%s:%i\n<b>TXT Data:</b> %s" % (type, name, domain, interface, protocol, host, address, port, str(txt))
         self.info_label.set_markup(infos)
 
     def insert_row(self, model,parent,
                    name, interface,protocol,type,domain):
         myiter=model.insert_after(parent,None)
-        model.set_value(myiter,0,name)
-        model.set_value(myiter,1,interface)
-        model.set_value(myiter,2,protocol)
-        model.set_value(myiter,3,type)
-        model.set_value(myiter,4,domain)
+        model.set(myiter,0,name,1,interface,2,protocol,3,type,4,domain)
         return myiter
     
     def new(self):
@@ -119,6 +121,8 @@ class Main_window(SimpleGladeApp):
         renderer=gtk.CellRendererText()
         column=gtk.TreeViewColumn("Name",renderer, text=0)
         column.set_resizable(True)
+        column.set_sizing("GTK_TREE_VIEW_COLUMN_GROW_ONLY");
+        column.set_expand(True);
         self.tree_view.append_column(column)
         renderer=gtk.CellRendererText()
         column=gtk.TreeViewColumn("Interface",renderer,

@@ -19,11 +19,11 @@
 include aminclude.am
 
 EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG)
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon initscript avahi-dnsconfd
+SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon initscript avahi-dnsconfd avahi-utils
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-.PHONY: distcleancheck
+#.PHONY: distcleancheck

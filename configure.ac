@@ -216,6 +216,8 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
+AM_PATH_PYTHON(2.2)
+
 AC_CONFIG_FILES([
 Makefile 
 avahi-core.pc 
@@ -230,6 +232,12 @@ initscript/Debian/Makefile
 initscript/Gentoo/Makefile
 initscript/SUSE/Makefile
 avahi-dnsconfd/Makefile
+avahi-utils/Makefile
+avahi-utils/avahi/Makefile
+avahi-utils/avahi-dump-all
+avahi-utils/avahi-publish-service
+avahi-utils/avahi-publish-address
+avahi-utils/avahi-discover
 ])
 AC_OUTPUT
 
@@ -243,6 +251,8 @@ echo "
     dbus-1 version:         `pkg-config dbus-1 --modversion`
     compiler:               ${CC}
     cflags:                 ${CFLAGS}
+    Enable Gtk:             ${ENABLE_GTK}
+    Enable Dbus:            ${ENABLE_DBUS}
     Linux Distro:           ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}

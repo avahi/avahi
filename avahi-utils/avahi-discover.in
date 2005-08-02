@@ -1,14 +1,13 @@
-#!/usr/bin/python2.4
+#!/usr/bin/env @PYTHON@
 # -*-python-*-
 # $Id$
 
 import os
 import gtk
 import gobject
-from SimpleGladeApp import SimpleGladeApp
 
 import avahi, dbus, gobject, sys
-
+from avahi.SimpleGladeApp import SimpleGladeApp
 
 try:
     import dbus.glib
@@ -19,7 +18,7 @@ service_type_browsers = {}
 service_browsers = {}
 
 
-glade_dir = "../avahi-discover/"
+glade_dir = "@prefix@/share/@PACKAGE@/interfaces"
 
 class Main_window(SimpleGladeApp):
     def __init__(self, path="avahi-discover.glade", root="main_window", domain=None, **kwargs):

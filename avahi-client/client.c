@@ -41,9 +41,9 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
             goto out;
         }
 
-        if (strcmp (name, AVAHI_DBUS_NAME) < 0) {
+        if (strcmp (name, AVAHI_DBUS_NAME) == 0) {
             if (old == NULL && new != NULL) {
-                fprintf(stderr, "Avahi Daemon reconnected\n");
+                fprintf(stderr, "Avahi Daemon connected\n");
             } else if (old != NULL && new == NULL) {
                 fprintf(stderr, "Avahi Daemon disconnected\n");
             }
@@ -56,7 +56,7 @@ out:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static int _dbus_add_match (DBusConnection *bus, char *type, char *interface, char *sender, char *path)
+static gint _dbus_add_match (DBusConnection *bus, char *type, char *interface, char *sender, char *path)
 {
     DBusError error;
     char *filter;
@@ -84,8 +84,8 @@ avahi_client_new ()
     AvahiClient *tmp;
     DBusError error;
 
-    tmp = malloc (sizeof (AvahiClient));
-    tmp->priv = malloc (sizeof (AvahiClientPriv));
+    tmp = g_new (AvahiClient, 1);
+    tmp->priv = g_new (AvahiClientPriv, 1);
 
     g_assert (tmp != NULL);
     g_assert (tmp->priv != NULL);
@@ -163,7 +163,7 @@ avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char
         return NULL;
     }
 
-    dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &ret);
+    dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID);
 
     if (dbus_error_is_set (&error))
     {

@@ -38,7 +38,7 @@ struct AvahiDomainBrowser {
     AVAHI_LLIST_FIELDS(AvahiDomainBrowser, browser);
 };
 
-static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiDomainBrowser *b = userdata;
     gchar *n;
 
@@ -53,7 +53,7 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
     g_free(n);
 }
 
-AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, gpointer userdata) {
+AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, gpointer userdata) {
     AvahiDomainBrowser *b;
     AvahiKey *k;
     gchar *n = NULL;

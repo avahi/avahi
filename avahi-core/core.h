@@ -253,7 +253,7 @@ gint avahi_server_add_txt_strlst(
     AvahiEntryFlags flags,
     guint32 ttl,
     const gchar *name,
-    AvahiStringList *strlst  /**< TXT decord data as a AvahiString. Only the pointer to the object and not the object itself is copied into the RR. Therefore you should not free the strlst object yourself, this will be done by the library. If you want to add multiple records with the same RR data you MUST copy the strlst object prior to calling this function with avahi_strlst_copy(). */ );
+    AvahiStringList *strlst  /**< TXT decord data as a AvahiString. This routine makes a deep copy of this object. */ );
 
 /** Add an IP address mapping to the server. This will add both the
  * host-name-to-address and the reverse mapping to the server. See
@@ -302,7 +302,7 @@ gint avahi_server_add_service_va(
     guint16 port,
     va_list va);
 
-/** Mostly identical to avahi_server_add_service(), but takes an AvahiStringList object for the TXT records.  The AvahiStringList object is not copied. You need to make a copy if this object if you want to reuse it. The object is freed if the RR is removed from the server. */
+/** Mostly identical to avahi_server_add_service(), but takes an AvahiStringList object for the TXT records.  The AvahiStringList object is copied. */
 gint avahi_server_add_service_strlst(
     AvahiServer *s,
     AvahiEntryGroup *g,

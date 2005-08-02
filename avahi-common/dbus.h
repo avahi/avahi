@@ -1,4 +1,6 @@
 #ifndef foodbushfoo
+#define foodbushfoo
+
 /* $Id$ */
 
 /***
@@ -20,9 +22,7 @@
   USA.
 ***/
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+AVAHI_C_DECL_BEGIN
 
 #define AVAHI_DBUS_NAME "org.freedesktop.Avahi"
 #define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME".Server"
@@ -31,5 +31,14 @@
 #define AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER AVAHI_DBUS_NAME".DomainBrowser"
 #define AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER AVAHI_DBUS_NAME".ServiceTypeBrowser"
 #define AVAHI_DBUS_INTERFACE_SERVICE_BROWSER AVAHI_DBUS_NAME".ServiceBrowser"
+
+#define AVAHI_DBUS_ERROR_INVALID_SERVICE "org.freedesktop.Avahi.InvalidServiceError"
+#define AVAHI_DBUS_ERROR_INVALID_ADDRESS "org.freedesktop.Avahi.InvalidAddressError"
+#define AVAHI_DBUS_ERROR_TIMEOUT "org.freedesktop.Avahi.TimeoutError"
+#define AVAHI_DBUS_ERROR_TOO_MANY_CLIENTS "org.freedesktop.Avahi.TooManyClientsError"
+#define AVAHI_DBUS_ERROR_TOO_MANY_OBJECTS "org.freedesktop.Avahi.TooManyObjectsError"
+#define AVAHI_DBUS_ERROR_TOO_MANY_ENTRIES "org.freedesktop.Avahi.TooManyEntriesError"
+
+AVAHI_C_DECL_END
 
 #endif

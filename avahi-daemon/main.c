@@ -714,7 +714,7 @@ int main(int argc, char *argv[]) {
         argv0 = argv[0];
 
     daemon_pid_file_ident = (const char *) argv0;
-    daemon_log_ident = argv0;
+    daemon_log_ident = (char*) argv0;
     daemon_pid_file_proc = pid_file_proc;
     
     if (parse_command_line(&config, argc, argv) < 0)
@@ -781,6 +781,9 @@ int main(int argc, char *argv[]) {
             /* Child */
         }
 
+
+        printf("%s "PACKAGE_VERSION" starting up.\n", argv0);
+        
         chdir("/");
 
         if (make_runtime_dir() < 0)

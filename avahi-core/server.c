@@ -1435,7 +1435,7 @@ void avahi_server_free(AvahiServer* s) {
     g_free(s);
 }
 
-static gint check_record_conflict(AvahiServer *s, gint interface, guchar protocol, AvahiRecord *r, AvahiEntryFlags flags) {
+static gint check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r, AvahiEntryFlags flags) {
     AvahiEntry *e;
     
     g_assert(s);
@@ -1468,8 +1468,8 @@ static gint check_record_conflict(AvahiServer *s, gint interface, guchar protoco
 gint avahi_server_add(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     AvahiRecord *r) {
     
@@ -1559,8 +1559,8 @@ void avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, gpointer user
 gint avahi_server_add_ptr(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     guint32 ttl,
     const gchar *name,
@@ -1581,8 +1581,8 @@ gint avahi_server_add_ptr(
 gint avahi_server_add_address(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     const gchar *name,
     AvahiAddress *a) {
@@ -1630,11 +1630,11 @@ gint avahi_server_add_address(
     return ret;
 }
 
-gint avahi_server_add_txt_strlst(
+static gint server_add_txt_strlst_nocopy(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     guint32 ttl,
     const gchar *name,
@@ -1653,26 +1653,39 @@ gint avahi_server_add_txt_strlst(
     return ret;
 }
 
+gint avahi_server_add_txt_strlst(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiEntryFlags flags,
+    guint32 ttl,
+    const gchar *name,
+    AvahiStringList *strlst) {
+
+    return server_add_txt_strlst_nocopy(s, g, interface, protocol, flags, ttl, name, avahi_string_list_copy(strlst));
+}
+
 gint avahi_server_add_txt_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     guint32 ttl,
     const gchar *name,
     va_list va) {
-    
+
     g_assert(s);
 
-    return avahi_server_add_txt_strlst(s, g, interface, protocol, flags, ttl, name, avahi_string_list_new_va(va));
+    return server_add_txt_strlst_nocopy(s, g, interface, protocol, flags, ttl, name, avahi_string_list_new_va(va));
 }
 
 gint avahi_server_add_txt(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     AvahiEntryFlags flags,
     guint32 ttl,
     const gchar *name,
@@ -1712,11 +1725,11 @@ static void escape_service_name(gchar *d, guint size, const gchar *s) {
     *(d++) = 0;
 }
 
-gint avahi_server_add_service_strlst(
+static gint server_add_service_strlst_nocopy(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *name,
     const gchar *type,
     const gchar *domain,
@@ -1760,7 +1773,7 @@ gint avahi_server_add_service_strlst(
     ret |= avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
     avahi_record_unref(r);
 
-    ret |= avahi_server_add_txt_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    ret |= server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
 
     g_snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", d);
     ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
@@ -1771,11 +1784,26 @@ gint avahi_server_add_service_strlst(
     return ret;
 }
 
+gint avahi_server_add_service_strlst(
+    AvahiServer *s,
+    AvahiEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const gchar *name,
+    const gchar *type,
+    const gchar *domain,
+    const gchar *host,
+    guint16 port,
+    AvahiStringList *strlst) {
+
+    return server_add_service_strlst_nocopy(s, g, interface, protocol, name, type, domain, host, port, avahi_string_list_copy(strlst));
+}
+
 gint avahi_server_add_service_va(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *name,
     const gchar *type,
     const gchar *domain,
@@ -1787,14 +1815,14 @@ gint avahi_server_add_service_va(
     g_assert(type);
     g_assert(name);
 
-    return avahi_server_add_service_strlst(s, g, interface, protocol, name, type, domain, host, port, avahi_string_list_new_va(va));
+    return server_add_service_strlst_nocopy(s, g, interface, protocol, name, type, domain, host, port, avahi_string_list_new_va(va));
 }
 
 gint avahi_server_add_service(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *name,
     const gchar *type,
     const gchar *domain,
@@ -1840,8 +1868,8 @@ static void hexstring(gchar *s, size_t sl, const void *p, size_t pl) {
 gint avahi_server_add_dns_server_address(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *domain,
     AvahiDNSServerType type,
     const AvahiAddress *address,
@@ -1877,8 +1905,8 @@ gint avahi_server_add_dns_server_address(
 gint avahi_server_add_dns_server_name(
     AvahiServer *s,
     AvahiEntryGroup *g,
-    gint interface,
-    guchar protocol,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const gchar *domain,
     AvahiDNSServerType type,
     const gchar *name,
@@ -1923,7 +1951,7 @@ static void post_query_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, gpo
     avahi_interface_post_query(i, k, FALSE);
 }
 
-void avahi_server_post_query(AvahiServer *s, gint interface, guchar protocol, AvahiKey *key) {
+void avahi_server_post_query(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key) {
     g_assert(s);
     g_assert(key);
 

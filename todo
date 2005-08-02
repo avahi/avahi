@@ -1,8 +1,10 @@
 todo:
 * finish DBUS stuff:
 	- enforce limits
-    - allow NUL bytes in TXT records
+    	- allow NUL bytes in TXT records
 * release!
+* add internal error codes
+* add entry_group::reset()
 
 later:
 * support for special domain PTR records based on local IP subnet address

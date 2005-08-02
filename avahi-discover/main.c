@@ -1,3 +1,24 @@
+/* $Id$ */
+
+/***
+  This file is part of avahi.
+ 
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+ 
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+***/
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -8,6 +29,7 @@
 #include <glade/glade.h>
 #include <avahi-core/core.h>
 #include <avahi-common/strlst.h>
+#include <avahi-common/util.h>
 
 struct ServiceType;
 
@@ -16,8 +38,8 @@ struct Service {
     gchar *service_name;
     gchar *domain_name;
 
-    gint interface;
-    guchar protocol;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 
     GtkTreeRowReference *tree_ref;
 };
@@ -40,11 +62,7 @@ static GHashTable *service_type_hash_table = NULL;
 static AvahiServiceResolver *service_resolver = NULL;
 static struct Service *current_service = NULL;
 
-/* very, very ugly: just import these two internal but useful functions from libavahi-core by hand */
-guint avahi_domain_hash(const gchar *s);
-gboolean avahi_domain_equal(const gchar *a, const gchar *b);
-
-static struct Service *get_service(const gchar *service_type, const gchar *service_name, const gchar*domain_name, gint interface, guchar protocol) {
+static struct Service *get_service(const gchar *service_type, const gchar *service_name, const gchar*domain_name, AvahiIfIndex interface, AvahiProtocol protocol) {
     struct ServiceType *st;
     GList *l;
 
@@ -94,7 +112,7 @@ static void free_service(struct Service *s) {
     g_free(s);
 }
 
-static void service_browser_callback(AvahiServiceBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *service_name, const gchar *service_type, const gchar *domain_name, gpointer userdata) {
+static void service_browser_callback(AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *service_name, const gchar *service_type, const gchar *domain_name, gpointer userdata) {
 
     if (event == AVAHI_BROWSER_NEW) {
         struct Service *s;
@@ -136,7 +154,7 @@ static void service_browser_callback(AvahiServiceBrowser *b, gint interface, guc
     }
 }
 
-static void service_type_browser_callback(AvahiServiceTypeBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
+static void service_type_browser_callback(AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
     struct ServiceType *st;
     GtkTreePath *path;
     GtkTreeIter iter;
@@ -210,7 +228,7 @@ static struct Service *get_service_on_cursor(void) {
 }
 
 
-static void service_resolver_callback(AvahiServiceResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const gchar *name, const gchar *type, const gchar *domain, const gchar *host_name, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
+static void service_resolver_callback(AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *name, const gchar *type, const gchar *domain, const gchar *host_name, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
     struct Service *s;
     g_assert(r);
 
@@ -240,7 +258,7 @@ static void tree_view_on_cursor_changed(GtkTreeView *tv, gpointer userdata) {
     service_resolver = avahi_service_resolver_new(server, s->interface, s->protocol, s->service_name, s->service_type->service_type, s->domain_name, AF_UNSPEC, service_resolver_callback, s);
 }
 
-gboolean main_window_on_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+static gboolean main_window_on_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
     gtk_main_quit();
     return FALSE;
 }

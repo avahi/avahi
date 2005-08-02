@@ -51,7 +51,7 @@ static gboolean dump_timeout(gpointer data) {
     return TRUE;
 }
 
-static void record_browser_callback(AvahiRecordBrowser *r, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     gchar *t;
     
     g_assert(r);
@@ -150,7 +150,7 @@ fail:
     group = NULL;
 }
 
-static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
+static void hnr_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
     gchar t[64];
 
     if (a)
@@ -159,7 +159,7 @@ static void hnr_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, 
     avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
-static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
+static void ar_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
     gchar t[64];
 
     avahi_address_snprint(t, sizeof(t), a);
@@ -167,21 +167,21 @@ static void ar_callback(AvahiAddressResolver *r, gint iface, guchar protocol, Av
     avahi_log_debug("AR: (%i.%i) %s -> <%s> [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
-static void db_callback(AvahiDomainBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
+static void db_callback(AvahiDomainBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
 
     avahi_log_debug("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void stb_callback(AvahiServiceTypeBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
+static void stb_callback(AvahiServiceTypeBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *service_type, const gchar *domain, gpointer userdata) {
 
     avahi_log_debug("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void sb_callback(AvahiServiceBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *name, const gchar *service_type, const gchar *domain, gpointer userdata) {
+static void sb_callback(AvahiServiceBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *name, const gchar *service_type, const gchar *domain, gpointer userdata) {
    avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void sr_callback(AvahiServiceResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
+static void sr_callback(AvahiServiceResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, name, service_type, domain_name);
@@ -196,7 +196,7 @@ static void sr_callback(AvahiServiceResolver *r, gint iface, guchar protocol, Av
     }
 }
 
-static void dsb_callback(AvahiDNSServerBrowser *b, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar*hostname, const AvahiAddress *a, guint16 port, gpointer userdata) {
+static void dsb_callback(AvahiDNSServerBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar*hostname, const AvahiAddress *a, guint16 port, gpointer userdata) {
     gchar t[64];
     avahi_address_snprint(t, sizeof(t), a);
     avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname, t, port, event == AVAHI_BROWSER_NEW ? "new" : "remove");

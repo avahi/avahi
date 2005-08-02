@@ -42,7 +42,7 @@ struct AvahiServiceBrowser {
     AVAHI_LLIST_FIELDS(AvahiServiceBrowser, browser);
 };
 
-static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiServiceBrowser *b = userdata;
     gchar *n, *e, *c, *s;
     gchar service[128];
@@ -84,7 +84,7 @@ fail:
     g_free(n);
 }
 
-AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *service_type, const gchar *domain, AvahiServiceBrowserCallback callback, gpointer userdata) {
+AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *service_type, const gchar *domain, AvahiServiceBrowserCallback callback, gpointer userdata) {
     AvahiServiceBrowser *b;
     AvahiKey *k;
     gchar *n = NULL;

@@ -164,7 +164,7 @@ static void client_output_printf(Client *c, const gchar *format, ...) {
 }
 
 
-static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
+static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
     Client *c = userdata;
     
     g_assert(c);
@@ -181,7 +181,7 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, gint iface, gu
     c->state = CLIENT_DEAD;
 }
 
-static void address_resolver_callback(AvahiAddressResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
+static void address_resolver_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
     Client *c = userdata;
     
     
@@ -195,7 +195,7 @@ static void address_resolver_callback(AvahiAddressResolver *r, gint iface, gucha
     c->state = CLIENT_DEAD;
 }
 
-static void dns_server_browser_callback(AvahiDNSServerBrowser *b, gint interface, guchar protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata) {
+static void dns_server_browser_callback(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata) {
     Client *c = userdata;
     gchar t[64];
     

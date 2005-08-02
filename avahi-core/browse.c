@@ -32,8 +32,8 @@ struct AvahiRecordBrowser {
     
     AvahiServer *server;
     AvahiKey *key;
-    gint interface;
-    guchar protocol;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
     guint sec_delay;
 
     AvahiTimeEvent *time_event;
@@ -116,7 +116,7 @@ static gboolean scan_idle_callback(gpointer data) {
     return FALSE;
 }
 
-AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, gint interface, guchar protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata) {
+AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata) {
     AvahiRecordBrowser *b, *t;
     GTimeVal tv;
 

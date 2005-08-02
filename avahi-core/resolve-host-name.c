@@ -41,7 +41,7 @@ struct AvahiHostNameResolver {
     AVAHI_LLIST_FIELDS(AvahiHostNameResolver, resolver);
 };
 
-static void finish(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, AvahiRecord *record) {
+static void finish(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiRecord *record) {
     AvahiAddress a;
     
     g_assert(r);
@@ -81,7 +81,7 @@ static void finish(AvahiHostNameResolver *r, gint interface, guchar protocol, Av
     r->callback(r, interface, protocol, event, record ? record->key->name : r->host_name, record ? &a : NULL, r->userdata);
 }
 
-static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiHostNameResolver *r = userdata;
 
     g_assert(rr);
@@ -104,7 +104,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     finish(r, -1, AVAHI_PROTO_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
 }
 
-AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *host_name, guchar aprotocol, AvahiHostNameResolverCallback callback, gpointer userdata) {
+AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *host_name, guchar aprotocol, AvahiHostNameResolverCallback callback, gpointer userdata) {
     AvahiHostNameResolver *r;
     AvahiKey *k;
     GTimeVal tv;

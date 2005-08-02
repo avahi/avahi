@@ -33,10 +33,10 @@ struct AvahiServiceResolver {
     gchar *service_name;
     gchar *service_type;
     gchar *domain_name;
-    guchar address_protocol;
+    AvahiProtocol address_protocol;
 
-    gint interface;
-    guchar protocol;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 
     AvahiRecordBrowser *record_browser_srv;
     AvahiRecordBrowser *record_browser_txt;
@@ -121,7 +121,7 @@ static void finish(AvahiServiceResolver *r, AvahiResolverEvent event) {
     }
 }
 
-static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiServiceResolver *r = userdata;
 
     g_assert(rr);
@@ -192,7 +192,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     finish(r, AVAHI_RESOLVER_TIMEOUT);
 }
 
-AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint interface, guchar protocol, const gchar *name, const gchar *type, const gchar *domain, guchar aprotocol, AvahiServiceResolverCallback callback, gpointer userdata) {
+AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *name, const gchar *type, const gchar *domain, AvahiProtocol aprotocol, AvahiServiceResolverCallback callback, gpointer userdata) {
     AvahiServiceResolver *r;
     AvahiKey *k;
     GTimeVal tv;

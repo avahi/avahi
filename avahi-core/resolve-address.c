@@ -40,7 +40,7 @@ struct AvahiAddressResolver {
     AVAHI_LLIST_FIELDS(AvahiAddressResolver, resolver);
 };
 
-static void finish(AvahiAddressResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, AvahiRecord *record) {
+static void finish(AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiRecord *record) {
     g_assert(r);
     
     avahi_record_browser_free(r->record_browser);
@@ -54,7 +54,7 @@ static void finish(AvahiAddressResolver *r, gint interface, guchar protocol, Ava
     r->callback(r, interface, protocol, event, &r->address, record ? record->data.ptr.name : NULL, r->userdata);
 }
 
-static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiAddressResolver *r = userdata;
 
     g_assert(rr);
@@ -78,7 +78,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     finish(r, -1, AVAHI_PROTO_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
 }
 
-AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, gint interface, guchar protocol, const AvahiAddress *address, AvahiAddressResolverCallback callback, gpointer userdata) {
+AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const AvahiAddress *address, AvahiAddressResolverCallback callback, gpointer userdata) {
     AvahiAddressResolver *r;
     AvahiKey *k;
     gchar *n;

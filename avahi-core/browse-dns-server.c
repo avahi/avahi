@@ -35,8 +35,8 @@ typedef struct AvahiDNSServerInfo AvahiDNSServerInfo;
 struct AvahiDNSServerInfo {
     AvahiDNSServerBrowser *browser;
 
-    gint interface;
-    guchar protocol;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
     AvahiRecord *srv_record;
     AvahiHostNameResolver *host_name_resolver;
     AvahiAddress address;
@@ -51,7 +51,7 @@ struct AvahiDNSServerBrowser {
     AvahiRecordBrowser *record_browser;
     AvahiDNSServerBrowserCallback callback;
     gpointer userdata;
-    guchar aprotocol;
+    AvahiProtocol aprotocol;
 
     guint n_info;
     
@@ -59,7 +59,7 @@ struct AvahiDNSServerBrowser {
     AVAHI_LLIST_HEAD(AvahiDNSServerInfo, info);
 };
 
-static AvahiDNSServerInfo* get_server_info(AvahiDNSServerBrowser *b, gint interface, guchar protocol, AvahiRecord *r) {
+static AvahiDNSServerInfo* get_server_info(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r) {
     AvahiDNSServerInfo *i;
     
     g_assert(b);
@@ -90,7 +90,7 @@ static void server_info_free(AvahiDNSServerBrowser *b, AvahiDNSServerInfo *i) {
     g_free(i);
 }
 
-static void host_name_resolver_callback(AvahiHostNameResolver *r, gint interface, guchar protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata) {
+static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata) {
     AvahiDNSServerInfo *i = userdata;
     
     g_assert(r);
@@ -107,7 +107,7 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, gint interface
     i->host_name_resolver = NULL;
 }
 
-static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, guchar protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
     AvahiDNSServerBrowser *b = userdata;
 
     g_assert(rr);
@@ -148,7 +148,7 @@ static void record_browser_callback(AvahiRecordBrowser*rr, gint interface, gucha
     }
 }
 
-AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, gint interface, guchar protocol, const gchar *domain, AvahiDNSServerType type, guchar aprotocol, AvahiDNSServerBrowserCallback callback, gpointer userdata) {
+AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *domain, AvahiDNSServerType type, AvahiProtocol aprotocol, AvahiDNSServerBrowserCallback callback, gpointer userdata) {
     AvahiDNSServerBrowser *b;
     AvahiKey *k;
     gchar *n = NULL;

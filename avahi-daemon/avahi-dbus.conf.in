@@ -20,5 +20,6 @@
   </policy>
 
   <limit name="max_match_rules_per_connection">512</limit>
+  <limit name="max_connections_per_user">20</limit>
 
 </busconfig>

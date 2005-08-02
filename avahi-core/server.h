@@ -55,8 +55,8 @@ struct AvahiEntry {
     
     AvahiEntryFlags flags;
     AvahiRecord *record;
-    gint interface;
-    guchar protocol;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 
     AVAHI_LLIST_FIELDS(AvahiEntry, entries);
     AVAHI_LLIST_FIELDS(AvahiEntry, by_key);
@@ -133,7 +133,7 @@ struct AvahiServer {
 
 gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
 
-void avahi_server_post_query(AvahiServer *s, gint interface, guchar protocol, AvahiKey *key);
+void avahi_server_post_query(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key);
 
 void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response, gboolean auxiliary);
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response);

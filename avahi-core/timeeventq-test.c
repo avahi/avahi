@@ -30,7 +30,7 @@
 
 static AvahiTimeEventQueue *q = NULL;
 
-void callback(AvahiTimeEvent*e, gpointer userdata) {
+static void callback(AvahiTimeEvent*e, gpointer userdata) {
     GTimeVal tv = {0, 0};
     g_assert(e);
     g_message("callback(%i)", GPOINTER_TO_INT(userdata));

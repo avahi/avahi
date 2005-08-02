@@ -30,6 +30,7 @@
 #include <linux/rtnetlink.h>
 #include <errno.h>
 #include <net/if.h>
+#include <stdio.h>
 
 #include "iface.h"
 #include "netlink.h"
@@ -39,12 +40,12 @@
 #include "util.h"
 #include "log.h"
 
-static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, gboolean remove) {
+static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, gboolean remove_rrs) {
     g_assert(m);
     g_assert(a);
 
     if (avahi_interface_address_relevant(a) &&
-        !remove &&
+        !remove_rrs &&
         m->server->config.publish_addresses &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
@@ -71,26 +72,26 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
     } 
 }
 
-static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean remove) {
+static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean remove_rrs) {
     AvahiInterfaceAddress *a;
     
     g_assert(m);
     g_assert(i);
 
     for (a = i->addresses; a; a = a->address_next)
-        update_address_rr(m, a, remove);
+        update_address_rr(m, a, remove_rrs);
 }
 
-static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gboolean remove) {
+static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gboolean remove_rrs) {
     AvahiInterface *i;
 
     g_assert(m);
     g_assert(hw);
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
-        update_interface_rr(m, i, remove);
+        update_interface_rr(m, i, remove_rrs);
 
-    if (!remove &&
+    if (!remove_rrs &&
         m->server->config.publish_workstation &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
@@ -247,9 +248,9 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         avahi_log_debug("New relevant interface %s.%i (#%i)", i->hardware->name, i->protocol, i->hardware->index);
 
         if (i->protocol == AVAHI_PROTO_INET)
-            avahi_mdns_mcast_join_ipv4(i->hardware->index, m->server->fd_ipv4);
+            avahi_mdns_mcast_join_ipv4(m->server->fd_ipv4, i->hardware->index);
         if (i->protocol == AVAHI_PROTO_INET6)
-            avahi_mdns_mcast_join_ipv6(i->hardware->index, m->server->fd_ipv6);
+            avahi_mdns_mcast_join_ipv6(m->server->fd_ipv6, i->hardware->index);
 
         i->announcing = TRUE;
         avahi_announce_interface(m->server, i);
@@ -258,9 +259,9 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         avahi_log_debug("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
 
         if (i->protocol == AVAHI_PROTO_INET)
-            avahi_mdns_mcast_leave_ipv4(i->hardware->index, m->server->fd_ipv4);
+            avahi_mdns_mcast_leave_ipv4(m->server->fd_ipv4, i->hardware->index);
         if (i->protocol == AVAHI_PROTO_INET6)
-            avahi_mdns_mcast_leave_ipv6(i->hardware->index, m->server->fd_ipv6);
+            avahi_mdns_mcast_leave_ipv6(m->server->fd_ipv6, i->hardware->index);
 
         avahi_goodbye_interface(m->server, i, FALSE);
         avahi_response_scheduler_clear(i->response_scheduler);
@@ -282,7 +283,7 @@ static void check_hw_interface_relevant(AvahiInterfaceMonitor *m, AvahiHwInterfa
         check_interface_relevant(m, i);
 }
 
-static void callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
+static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
     AvahiInterfaceMonitor *m = userdata;
     
     g_assert(m);
@@ -468,7 +469,7 @@ AvahiInterfaceMonitor *avahi_interface_monitor_new(AvahiServer *s) {
 
     m = g_new0(AvahiInterfaceMonitor, 1);
     m->server = s;
-    if (!(m->netlink = avahi_netlink_new(s->context, G_PRIORITY_DEFAULT-10, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, callback, m)))
+    if (!(m->netlink = avahi_netlink_new(s->context, G_PRIORITY_DEFAULT-10, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, netlink_callback, m)))
         goto fail;
 
     m->hash_table = g_hash_table_new(g_int_hash, g_int_equal);
@@ -516,15 +517,15 @@ void avahi_interface_monitor_free(AvahiInterfaceMonitor *m) {
 }
 
 
-AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex index, AvahiProtocol protocol) {
+AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol) {
     AvahiHwInterface *hw;
     AvahiInterface *i;
     
     g_assert(m);
-    g_assert(index > 0);
+    g_assert(idx > 0);
     g_assert(protocol != AVAHI_PROTO_UNSPEC);
 
-    if (!(hw = avahi_interface_monitor_get_hw_interface(m, index)))
+    if (!(hw = avahi_interface_monitor_get_hw_interface(m, idx)))
         return NULL;
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
@@ -534,11 +535,11 @@ AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, 
     return NULL;
 }
 
-AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, AvahiIfIndex index) {
+AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx) {
     g_assert(m);
-    g_assert(index > 0);
+    g_assert(idx > 0);
 
-    return g_hash_table_lookup(m->hash_table, &index);
+    return g_hash_table_lookup(m->hash_table, &idx);
 }
 
 
@@ -651,10 +652,10 @@ gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a) {
 }
 
 
-gboolean avahi_interface_match(AvahiInterface *i, AvahiIfIndex index, AvahiProtocol protocol) {
+gboolean avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol) {
     g_assert(i);
     
-    if (index > 0 && index != i->hardware->index)
+    if (idx > 0 && idx != i->hardware->index)
         return FALSE;
 
     if (protocol != AVAHI_PROTO_UNSPEC && protocol != i->protocol)
@@ -693,13 +694,13 @@ void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex interfa
     }
 }
 
-void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove) {
+void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove_rrs) {
     AvahiHwInterface *hw;
 
     g_assert(m);
 
     for (hw = m->hw_interfaces; hw; hw = hw->hardware_next)
-        update_hw_interface_rr(m, hw, remove);
+        update_hw_interface_rr(m, hw, remove_rrs);
 }
 
 gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a) {
@@ -735,13 +736,13 @@ gboolean avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *
             if ((g_ntohl(a->data.ipv4.address) & m) == (g_ntohl(ia->address.data.ipv4.address) & m))
                 return TRUE;
         } else {
-            guint i;
+            guint j;
             guchar pl;
             g_assert(a->family == AVAHI_PROTO_INET6);
 
             pl = ia->prefix_len;
             
-            for (i = 0; i < 16; i++) {
+            for (j = 0; j < 16; j++) {
                 guint8 m;
 
                 if (pl == 0)
@@ -755,7 +756,7 @@ gboolean avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *
                     pl = 0;
                 }
                 
-                if ((a->data.ipv6.address[i] & m) != (ia->address.data.ipv6.address[i] & m))
+                if ((a->data.ipv6.address[j] & m) != (ia->address.data.ipv6.address[j] & m))
                     break;
             }
         }

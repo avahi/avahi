@@ -107,8 +107,8 @@ static void finish(AvahiServiceResolver *r, AvahiResolverEvent event) {
                 g_assert(FALSE);
         }
 
-        snprintf(sn, sizeof(sn), r->service_name);
-        snprintf(st, sizeof(st), r->service_type);
+        g_snprintf(sn, sizeof(sn), r->service_name);
+        g_snprintf(st, sizeof(st), r->service_type);
 
         if ((i = strlen(sn)) > 0 && sn[i-1] == '.')
             sn[i-1] = 0;
@@ -220,8 +220,8 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, gint inter
     
     n = t;
     l = sizeof(t);
-    avahi_escape_label((guint8*) name, strlen(name), &n, &l);
-    snprintf(n, l, ".%s.%s", r->service_type, r->domain_name);
+    avahi_escape_label((const guint8*) name, strlen(name), &n, &l);
+    g_snprintf(n, l, ".%s.%s", r->service_type, r->domain_name);
 
     avahi_elapse_time(&tv, 1000, 0);
     r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);

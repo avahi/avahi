@@ -64,10 +64,10 @@ void avahi_entry_group_check_probed(AvahiEntryGroup *g, gboolean immediately);
 gboolean avahi_entry_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 gboolean avahi_entry_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
-void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, gboolean send);
-void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, gboolean send);
+void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, gboolean send_goodbye);
+void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, gboolean send_goodbye);
 
-void avahi_goodbye_all(AvahiServer *s, gboolean send);
+void avahi_goodbye_all(AvahiServer *s, gboolean send_goodbye);
 
 AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 

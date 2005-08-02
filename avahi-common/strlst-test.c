@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     a = avahi_string_list_add(a, "foo");
     a = avahi_string_list_add(a, "bar");
     a = avahi_string_list_add(a, "quux");
-    a = avahi_string_list_add_arbitrary(a, (guint8*) "null\0null", 9);
+    a = avahi_string_list_add_arbitrary(a, (const guint8*) "null\0null", 9);
     a = avahi_string_list_add(a, "end");
 
     t = avahi_string_list_to_string(a);

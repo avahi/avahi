@@ -224,7 +224,7 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
     usec = ((AvahiUsec) e->record->ttl) * 10000;
 
     /* 2% jitter */
-    usec = (AvahiUsec) g_random_double_range(usec*percent, usec*(percent+2));
+    usec = (AvahiUsec) g_random_double_range((gdouble) (usec*percent), (gdouble) (usec*(percent+2)));
 /*     g_message("next expiry: %lli (%s)", usec / 1000000, txt = avahi_record_to_string(e->record)); */
 /*     g_free(txt); */
     

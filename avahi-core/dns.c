@@ -117,24 +117,25 @@ void avahi_dns_packet_free(AvahiDnsPacket *p) {
     g_free(p);
 }
 
-void avahi_dns_packet_set_field(AvahiDnsPacket *p, guint index, guint16 v) {
+void avahi_dns_packet_set_field(AvahiDnsPacket *p, guint idx, guint16 v) {
     g_assert(p);
-    g_assert(index < AVAHI_DNS_PACKET_HEADER_SIZE);
+    g_assert(idx < AVAHI_DNS_PACKET_HEADER_SIZE);
     
-    ((guint16*) AVAHI_DNS_PACKET_DATA(p))[index] = g_htons(v);
+    ((guint16*) AVAHI_DNS_PACKET_DATA(p))[idx] = g_htons(v);
 }
 
-guint16 avahi_dns_packet_get_field(AvahiDnsPacket *p, guint index) {
+guint16 avahi_dns_packet_get_field(AvahiDnsPacket *p, guint idx) {
     g_assert(p);
-    g_assert(index < AVAHI_DNS_PACKET_HEADER_SIZE);
+    g_assert(idx < AVAHI_DNS_PACKET_HEADER_SIZE);
 
-    return g_ntohs(((guint16*) AVAHI_DNS_PACKET_DATA(p))[index]);
+    return g_ntohs(((guint16*) AVAHI_DNS_PACKET_DATA(p))[idx]);
 }
 
-void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint index) {
+void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint idx) {
     g_assert(p);
+    g_assert(idx < AVAHI_DNS_PACKET_HEADER_SIZE);
 
-    avahi_dns_packet_set_field(p, index, avahi_dns_packet_get_field(p, index) + 1);
+    avahi_dns_packet_set_field(p, idx, avahi_dns_packet_get_field(p, idx) + 1);
 }   
 
 guint8* avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name) {
@@ -155,19 +156,19 @@ guint8* avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name) {
         /* Check whether we can compress this name. */
 
         if (p->name_table && (prev = g_hash_table_lookup(p->name_table, name))) {
-            guint index;
+            guint idx;
             
             g_assert(prev >= AVAHI_DNS_PACKET_DATA(p));
-            index = (guint) (prev - AVAHI_DNS_PACKET_DATA(p));
+            idx = (guint) (prev - AVAHI_DNS_PACKET_DATA(p));
 
-            g_assert(index < p->size);
+            g_assert(idx < p->size);
 
-            if (index < 0x4000) {
+            if (idx < 0x4000) {
                 guint16 *t;
                 if (!(t = (guint16*) avahi_dns_packet_extend(p, sizeof(guint16))))
                     return NULL;
 
-                *t = g_htons((0xC000 | index));
+                *t = g_htons((0xC000 | idx));
                 return saved_ptr;
             }
         }
@@ -290,7 +291,7 @@ gint avahi_dns_packet_is_query(AvahiDnsPacket *p) {
     return !(avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_QR);
 }
 
-static gint consume_labels(AvahiDnsPacket *p, guint index, gchar *ret_name, guint l) {
+static gint consume_labels(AvahiDnsPacket *p, guint idx, gchar *ret_name, guint l) {
     gint ret = 0;
     int compressed = 0;
     int first_label = 1;
@@ -299,13 +300,13 @@ static gint consume_labels(AvahiDnsPacket *p, guint index, gchar *ret_name, guin
     for (;;) {
         guint8 n;
 
-        if (index+1 > p->size)
+        if (idx+1 > p->size)
             return -1;
 
-        n = AVAHI_DNS_PACKET_DATA(p)[index];
+        n = AVAHI_DNS_PACKET_DATA(p)[idx];
 
         if (!n) {
-            index++;
+            idx++;
             if (!compressed)
                 ret++;
 
@@ -317,11 +318,11 @@ static gint consume_labels(AvahiDnsPacket *p, guint index, gchar *ret_name, guin
             
         } else if (n <= 63) {
             /* Uncompressed label */
-            index++;
+            idx++;
             if (!compressed)
                 ret++;
         
-            if (index + n > p->size)
+            if (idx + n > p->size)
                 return -1;
 
             if ((guint) n + 1 > l)
@@ -333,20 +334,20 @@ static gint consume_labels(AvahiDnsPacket *p, guint index, gchar *ret_name, guin
             } else
                 first_label = 0;
 
-            if (!(avahi_escape_label(AVAHI_DNS_PACKET_DATA(p) + index, n, &ret_name, &l)))
+            if (!(avahi_escape_label(AVAHI_DNS_PACKET_DATA(p) + idx, n, &ret_name, &l)))
                 return -1;
 
-            index += n;
+            idx += n;
             
             if (!compressed)
                 ret += n;
         } else if ((n & 0xC0) == 0xC0) {
             /* Compressed label */
 
-            if (index+2 > p->size)
+            if (idx+2 > p->size)
                 return -1;
 
-            index = ((guint) (AVAHI_DNS_PACKET_DATA(p)[index] & ~0xC0)) << 8 | AVAHI_DNS_PACKET_DATA(p)[index+1];
+            idx = ((guint) (AVAHI_DNS_PACKET_DATA(p)[idx] & ~0xC0)) << 8 | AVAHI_DNS_PACKET_DATA(p)[idx+1];
 
             if (!compressed)
                 ret += 2;
@@ -574,7 +575,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_ca
 /*     avahi_log_debug("%i == %u ?", (guint8*) avahi_dns_packet_get_rptr(p) - (guint8*) start, rdlength); */
     
     /* Check if we read enough data */
-    if ((guint8*) avahi_dns_packet_get_rptr(p) - (guint8*) start != rdlength)
+    if ((const guint8*) avahi_dns_packet_get_rptr(p) - (const guint8*) start != rdlength)
         goto fail;
 
     return r;
@@ -671,16 +672,16 @@ guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboole
         case AVAHI_DNS_TYPE_TXT: {
 
             guint8 *data;
-            guint size;
+            guint n;
 
-            size = avahi_string_list_serialize(r->data.txt.string_list, NULL, 0);
+            n = avahi_string_list_serialize(r->data.txt.string_list, NULL, 0);
 
-/*             avahi_log_debug("appending string: %u %p", size, r->data.txt.string_list); */
+/*             avahi_log_debug("appending string: %u %p", n, r->data.txt.string_list); */
 
-            if (!(data = avahi_dns_packet_extend(p, size)))
+            if (!(data = avahi_dns_packet_extend(p, n)))
                 goto fail;
 
-            avahi_string_list_serialize(r->data.txt.string_list, data, size);
+            avahi_string_list_serialize(r->data.txt.string_list, data, n);
             break;
         }
 

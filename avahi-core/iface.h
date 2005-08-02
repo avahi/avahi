@@ -112,8 +112,8 @@ void avahi_interface_monitor_free(AvahiInterfaceMonitor *m);
 
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m);
 
-AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex index, AvahiProtocol protocol);
-AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, gint index);
+AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol);
+AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, gint idx);
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port);
@@ -127,13 +127,13 @@ void avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, gpo
 gboolean avahi_interface_relevant(AvahiInterface *i);
 gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a);
 
-gboolean avahi_interface_match(AvahiInterface *i, AvahiIfIndex index, AvahiProtocol protocol);
+gboolean avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol);
 
 typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata);
     
-void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex index, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata);
+void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata);
 
-void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove);
+void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove_rrs);
 
 gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
 

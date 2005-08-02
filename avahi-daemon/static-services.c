@@ -38,6 +38,7 @@
 #include <avahi-core/log.h>
 
 #include "main.h"
+#include "static-services.h"
 
 typedef struct StaticService StaticService;
 typedef struct StaticServiceGroup StaticServiceGroup;

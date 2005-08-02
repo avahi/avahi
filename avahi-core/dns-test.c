@@ -28,7 +28,8 @@
 #include "log.h"
 
 int main(int argc, char *argv[]) {
-    gchar t[256], *a, *b, *c, *d;
+    gchar t[256];
+    const gchar *a, *b, *c, *d;
     AvahiDnsPacket *p;
 
     p = avahi_dns_packet_new(0);

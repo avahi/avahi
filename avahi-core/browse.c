@@ -105,7 +105,7 @@ static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
     avahi_cache_walk(i->cache, s->key, scan_cache_callback, &cbdata);
 }
 
-gboolean scan_idle_callback(gpointer data) {
+static gboolean scan_idle_callback(gpointer data) {
     AvahiRecordBrowser *b = data;
     g_assert(b);
 

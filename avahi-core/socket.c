@@ -84,7 +84,7 @@ static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv
     memcpy(&ret_sa->sin6_addr, a, sizeof(AvahiIPv6Address));
 }
 
-int avahi_mdns_mcast_join_ipv4 (int index, int fd) {
+int avahi_mdns_mcast_join_ipv4(gint fd, gint idx) {
     struct ip_mreqn mreq; 
     struct sockaddr_in sa;
 
@@ -92,7 +92,7 @@ int avahi_mdns_mcast_join_ipv4 (int index, int fd) {
  
     memset(&mreq, 0, sizeof(mreq));
     mreq.imr_multiaddr = sa.sin_addr;
-    mreq.imr_ifindex = index;
+    mreq.imr_ifindex = idx;
  
     if (setsockopt(fd, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         avahi_log_warn("IP_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
@@ -102,7 +102,7 @@ int avahi_mdns_mcast_join_ipv4 (int index, int fd) {
     return 0;
 }
 
-int avahi_mdns_mcast_join_ipv6 (int index, int fd) {
+int avahi_mdns_mcast_join_ipv6(gint fd, gint idx) {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
 
@@ -110,7 +110,7 @@ int avahi_mdns_mcast_join_ipv6 (int index, int fd) {
 
     memset(&mreq6, 0, sizeof(mreq6));
     mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
-    mreq6.ipv6mr_interface = index;
+    mreq6.ipv6mr_interface = idx;
 
     if (setsockopt(fd, SOL_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
         avahi_log_warn("IPV6_ADD_MEMBERSHIP failed: %s\n", strerror(errno));
@@ -120,7 +120,7 @@ int avahi_mdns_mcast_join_ipv6 (int index, int fd) {
     return 0;
 }
 
-int avahi_mdns_mcast_leave_ipv4 (int index, int fd) {
+int avahi_mdns_mcast_leave_ipv4(gint fd, gint idx) {
     struct ip_mreqn mreq; 
     struct sockaddr_in sa;
     
@@ -128,7 +128,7 @@ int avahi_mdns_mcast_leave_ipv4 (int index, int fd) {
  
     memset(&mreq, 0, sizeof(mreq));
     mreq.imr_multiaddr = sa.sin_addr;
-    mreq.imr_ifindex = index;
+    mreq.imr_ifindex = idx;
  
     if (setsockopt(fd, SOL_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         avahi_log_warn("IP_DROP_MEMBERSHIP failed: %s\n", strerror(errno));
@@ -138,7 +138,7 @@ int avahi_mdns_mcast_leave_ipv4 (int index, int fd) {
     return 0;
 }
 
-int avahi_mdns_mcast_leave_ipv6 (int index, int fd) {
+int avahi_mdns_mcast_leave_ipv6(gint fd, gint idx) {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
 
@@ -146,7 +146,7 @@ int avahi_mdns_mcast_leave_ipv6 (int index, int fd) {
 
     memset(&mreq6, 0, sizeof(mreq6));
     mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
-    mreq6.ipv6mr_interface = index;
+    mreq6.ipv6mr_interface = idx;
 
     if (setsockopt(fd, SOL_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
         avahi_log_warn("IPV6_DROP_MEMBERSHIP failed: %s\n", strerror(errno));

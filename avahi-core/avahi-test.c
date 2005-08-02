@@ -27,6 +27,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <avahi-core/core.h>
 #include <avahi-core/log.h>
@@ -180,18 +181,17 @@ static void sb_callback(AvahiServiceBrowser *b, gint iface, guchar protocol, Ava
    avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-
-static void sr_callback(AvahiServiceResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *service_name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
+static void sr_callback(AvahiServiceResolver *r, gint iface, guchar protocol, AvahiBrowserEvent event, const gchar *name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
-        avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, service_name, service_type, domain_name);
+        avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, name, service_type, domain_name);
     else {
         gchar t[64], *s;
         
         avahi_address_snprint(t, sizeof(t), a);
 
         s = avahi_string_list_to_string(txt);
-        avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s>: %s/%s:%i (%s) [found]", iface, protocol, service_name, service_type, domain_name, hostname, t, port, s);
+        avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s>: %s/%s:%i (%s) [found]", iface, protocol, name, service_type, domain_name, hostname, t, port, s);
         g_free(s);
     }
 }

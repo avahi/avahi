@@ -39,6 +39,8 @@ struct AvahiNetlink {
     GSource *source;
     void (*callback) (AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata);
     gpointer userdata;
+    guint8* buffer;
+    guint buffer_length;
 };
 
 gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
@@ -47,19 +49,22 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
     for (;;) {
         ssize_t bytes;
         struct nlmsghdr *p;
-        guint8 buffer[64*1024];
 
-        p = (struct nlmsghdr *) buffer;
+        for (;;) {
+            if ((bytes = recv(nl->fd, nl->buffer, nl->buffer_length, block ? 0 : MSG_DONTWAIT)) < 0) {
 
-        if ((bytes = recv(nl->fd, buffer, sizeof(buffer), block ? 0 : MSG_DONTWAIT)) < 0) {
+                if (errno == EAGAIN || errno == EINTR)
+                    return TRUE;
+                
+                avahi_log_warn("NETLINK: recv() failed: %s", strerror(errno));
+                return FALSE;
+            }
 
-            if (errno == EAGAIN || errno == EINTR)
-                break;
-
-            avahi_log_warn("NETLINK: recv() failed: %s", strerror(errno));
-            return FALSE;
+            break;
         }
 
+        p = (struct nlmsghdr *) nl->buffer;
+        
         if (nl->callback) {
             for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
                 if (!NLMSG_OK(p, (size_t) bytes)) {
@@ -72,10 +77,8 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
         }
 
         if (block)
-            break;
+            return TRUE;
     }
-
-    return TRUE;
 }
 
 static gboolean prepare_func(GSource *source, gint *timeout) {
@@ -144,6 +147,7 @@ AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 gr
     nl->seq = 0;
     nl->callback = cb;
     nl->userdata = userdata;
+    nl->buffer = g_new(guint8, nl->buffer_length = 64*1024);
 
     nl->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(AvahiNetlink*));
     *((AvahiNetlink**) (((guint8*) nl->source) + sizeof(GSource))) = nl;
@@ -167,6 +171,7 @@ void avahi_netlink_free(AvahiNetlink *nl) {
     g_source_unref(nl->source);
     g_main_context_unref(nl->context);
     close(nl->fd);
+    g_free(nl->buffer);
     g_free(nl);
 }
 

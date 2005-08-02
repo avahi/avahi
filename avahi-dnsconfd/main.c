@@ -164,7 +164,7 @@ static ssize_t loop_write(int fd, const void*data, size_t size) {
             break;
 
         ret += r;
-        data = (guint8*) data + r;
+        data = (const guint8*) data + r;
         size -= r;
     }
 

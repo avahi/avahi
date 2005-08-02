@@ -29,6 +29,7 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include "server.h"
 #include "util.h"
@@ -667,7 +668,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 }
 
 static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {
-    guint n, index = (guint) -1;
+    guint n, idx = (guint) -1;
     AvahiLegacyUnicastReflectSlot *slot;
     
     g_assert(s);
@@ -676,66 +677,66 @@ static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {
         s->legacy_unicast_reflect_slots = g_new0(AvahiLegacyUnicastReflectSlot*, AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS);
 
     for (n = 0; n < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; n++, s->legacy_unicast_reflect_id++) {
-        index = s->legacy_unicast_reflect_id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+        idx = s->legacy_unicast_reflect_id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
         
-        if (!s->legacy_unicast_reflect_slots[index])
+        if (!s->legacy_unicast_reflect_slots[idx])
             break;
     }
 
-    if (index == (guint) -1 || s->legacy_unicast_reflect_slots[index])
+    if (idx == (guint) -1 || s->legacy_unicast_reflect_slots[idx])
         return NULL;
 
-    slot = s->legacy_unicast_reflect_slots[index] = g_new(AvahiLegacyUnicastReflectSlot, 1);
+    slot = s->legacy_unicast_reflect_slots[idx] = g_new(AvahiLegacyUnicastReflectSlot, 1);
     slot->id = s->legacy_unicast_reflect_id++;
     slot->server = s;
     return slot;
 }
 
 static void deallocate_slot(AvahiServer *s, AvahiLegacyUnicastReflectSlot *slot) {
-    guint index;
+    guint idx;
 
     g_assert(s);
     g_assert(slot);
 
-    index = slot->id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+    idx = slot->id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
 
-    g_assert(s->legacy_unicast_reflect_slots[index] == slot);
+    g_assert(s->legacy_unicast_reflect_slots[idx] == slot);
 
     avahi_time_event_queue_remove(s->time_event_queue, slot->time_event);
     
     g_free(slot);
-    s->legacy_unicast_reflect_slots[index] = NULL;
+    s->legacy_unicast_reflect_slots[idx] = NULL;
 }
 
 static void free_slots(AvahiServer *s) {
-    guint index;
+    guint idx;
     g_assert(s);
 
     if (!s->legacy_unicast_reflect_slots)
         return;
 
-    for (index = 0; index < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; index ++)
-        if (s->legacy_unicast_reflect_slots[index])
-            deallocate_slot(s, s->legacy_unicast_reflect_slots[index]);
+    for (idx = 0; idx < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; idx ++)
+        if (s->legacy_unicast_reflect_slots[idx])
+            deallocate_slot(s, s->legacy_unicast_reflect_slots[idx]);
 
     g_free(s->legacy_unicast_reflect_slots);
     s->legacy_unicast_reflect_slots = NULL;
 }
 
 static AvahiLegacyUnicastReflectSlot* find_slot(AvahiServer *s, guint16 id) {
-    guint index;
+    guint idx;
     
     g_assert(s);
 
     if (!s->legacy_unicast_reflect_slots)
         return NULL;
     
-    index = id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+    idx = id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
 
-    if (!s->legacy_unicast_reflect_slots[index] || s->legacy_unicast_reflect_slots[index]->id != id)
+    if (!s->legacy_unicast_reflect_slots[idx] || s->legacy_unicast_reflect_slots[idx]->id != id)
         return NULL;
 
-    return s->legacy_unicast_reflect_slots[index];
+    return s->legacy_unicast_reflect_slots[idx];
 }
 
 static void legacy_unicast_reflect_slot_timeout(AvahiTimeEvent *e, void *userdata) {
@@ -824,7 +825,7 @@ static gboolean originates_from_local_legacy_unicast_socket(AvahiServer *s, cons
         if (getsockname(s->fd_legacy_unicast_ipv4, &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
-            return lsa.sin_port == ((struct sockaddr_in*) sa)->sin_port;
+            return lsa.sin_port == ((const struct sockaddr_in*) sa)->sin_port;
 
     }
 
@@ -835,7 +836,7 @@ static gboolean originates_from_local_legacy_unicast_socket(AvahiServer *s, cons
         if (getsockname(s->fd_legacy_unicast_ipv6, &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
-            return lsa.sin6_port == ((struct sockaddr_in6*) sa)->sin6_port;
+            return lsa.sin6_port == ((const struct sockaddr_in6*) sa)->sin6_port;
     }
 
     return FALSE;
@@ -1546,7 +1547,7 @@ void avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, gpointer user
             continue;
         
         t = avahi_record_to_string(e->record);
-        snprintf(ln, sizeof(ln), "%s ; iface=%i proto=%i", t, e->interface, e->protocol);
+        g_snprintf(ln, sizeof(ln), "%s ; iface=%i proto=%i", t, e->interface, e->protocol);
         g_free(t);
 
         callback(ln, userdata);
@@ -1746,8 +1747,8 @@ gint avahi_server_add_service_strlst(
     d = avahi_normalize_name(domain);
     t = avahi_normalize_name(type);
     
-    snprintf(ptr_name, sizeof(ptr_name), "%s.%s", t, d);
-    snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, t, d);
+    g_snprintf(ptr_name, sizeof(ptr_name), "%s.%s", t, d);
+    g_snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, t, d);
 
     ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, ptr_name, svc_name);
 
@@ -1761,7 +1762,7 @@ gint avahi_server_add_service_strlst(
 
     ret |= avahi_server_add_txt_strlst(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
 
-    snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", d);
+    g_snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", d);
     ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
     g_free(d);
@@ -1898,7 +1899,7 @@ gint avahi_server_add_dns_server_name(
         domain = s->domain_name;
 
     d = avahi_normalize_name(domain);
-    snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", d);
+    g_snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", d);
     g_free(d);
     
     r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME);

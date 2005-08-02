@@ -28,6 +28,7 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "core.h"
 #include "util.h"
@@ -50,7 +51,7 @@ static gboolean dump_timeout(gpointer data) {
 
 static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata);
 
-static void create_service(gchar *t) {
+static void create_service(const gchar *t) {
     gchar *n;
 
     g_assert(t || name);

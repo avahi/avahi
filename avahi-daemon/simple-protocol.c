@@ -151,7 +151,7 @@ static void client_output(Client *c, const guint8*data, guint size) {
     c->poll_fd.events |= G_IO_OUT;
 }
 
-static void client_output_printf(Client *c, gchar *format, ...) {
+static void client_output_printf(Client *c, const gchar *format, ...) {
     gchar *t;
     va_list ap;
     

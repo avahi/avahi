@@ -80,7 +80,7 @@ static DaemonConfig config;
 
 #define MAX_NAME_SERVERS 10
 
-static gint load_resolv_conf(const DaemonConfig *config) {
+static gint load_resolv_conf(const DaemonConfig *c) {
     gint ret = -1;
     FILE *f;
     gint i = 0;
@@ -88,7 +88,7 @@ static gint load_resolv_conf(const DaemonConfig *config) {
     g_strfreev(resolv_conf);
     resolv_conf = NULL;
 
-    if (!config->publish_resolv_conf)
+    if (!c->publish_resolv_conf)
         return 0;
 
     if (!(f = fopen(RESOLV_CONF, "r"))) {
@@ -171,13 +171,13 @@ static void remove_dns_server_entry_groups(void) {
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
-    DaemonConfig *config = userdata;
+    DaemonConfig *c = userdata;
     
     g_assert(s);
-    g_assert(config);
+    g_assert(c);
 
 #ifdef ENABLE_DBUS
-    if (config->enable_dbus)
+    if (c->enable_dbus)
         dbus_protocol_server_state_changed(state);
 #endif
 
@@ -190,8 +190,8 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
         if (resolv_conf && resolv_conf[0])
             resolv_conf_entry_group = add_dns_servers(s, resolv_conf);
 
-        if (config->publish_dns_servers && config->publish_dns_servers[0])
-            dns_servers_entry_group = add_dns_servers(s, config->publish_dns_servers);
+        if (c->publish_dns_servers && c->publish_dns_servers[0])
+            dns_servers_entry_group = add_dns_servers(s, c->publish_dns_servers);
 
         simple_protocol_restart_queries();
         
@@ -225,8 +225,8 @@ static void help(FILE *f, const gchar *argv0) {
             argv0);
 }
 
-static gint parse_command_line(DaemonConfig *config, int argc, char *argv[]) {
-    gint c;
+static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
+    gint o;
     
     static const struct option const long_options[] = {
         { "help",      no_argument,       NULL, 'h' },
@@ -238,36 +238,36 @@ static gint parse_command_line(DaemonConfig *config, int argc, char *argv[]) {
         { "check",     no_argument,       NULL, 'c' },
     };
 
-    g_assert(config);
+    g_assert(c);
 
     opterr = 0;
-    while ((c = getopt_long(argc, argv, "hDkVf:rc", long_options, NULL)) >= 0) {
+    while ((o = getopt_long(argc, argv, "hDkVf:rc", long_options, NULL)) >= 0) {
 
-        switch(c) {
+        switch(o) {
             case 'h':
-                config->command = DAEMON_HELP;
+                c->command = DAEMON_HELP;
                 break;
             case 'D':
-                config->daemonize = TRUE;
+                c->daemonize = TRUE;
                 break;
             case 'k':
-                config->command = DAEMON_KILL;
+                c->command = DAEMON_KILL;
                 break;
             case 'V':
-                config->command = DAEMON_VERSION;
+                c->command = DAEMON_VERSION;
                 break;
             case 'f':
-                g_free(config->config_file);
-                config->config_file = g_strdup(optarg);
+                g_free(c->config_file);
+                c->config_file = g_strdup(optarg);
                 break;
             case 'r':
-                config->command = DAEMON_RELOAD;
+                c->command = DAEMON_RELOAD;
                 break;
             case 'c':
-                config->command = DAEMON_CHECK;
+                c->command = DAEMON_CHECK;
                 break;
             default:
-                fprintf(stderr, "Invalid command line argument: %c\n", c);
+                fprintf(stderr, "Invalid command line argument: %c\n", o);
                 return -1;
         }
     }
@@ -286,18 +286,18 @@ static gboolean is_yes(const gchar *s) {
     return *s == 'y' || *s == 'Y';
 }
 
-static gint load_config_file(DaemonConfig *config) {
+static gint load_config_file(DaemonConfig *c) {
     int r = -1;
     GKeyFile *f = NULL;
     GError *err = NULL;
     gchar **groups = NULL, **g, **keys = NULL, *v = NULL;
 
-    g_assert(config);
+    g_assert(c);
     
     f = g_key_file_new();
     g_key_file_set_list_separator(f, ',');
     
-    if (!g_key_file_load_from_file(f, config->config_file ? config->config_file : AVAHI_CONFIG_FILE, G_KEY_FILE_NONE, &err)) {
+    if (!g_key_file_load_from_file(f, c->config_file ? c->config_file : AVAHI_CONFIG_FILE, G_KEY_FILE_NONE, &err)) {
         fprintf(stderr, "Unable to read config file: %s\n", err->message);
         goto finish;
     }
@@ -315,25 +315,25 @@ static gint load_config_file(DaemonConfig *config) {
                 v = g_key_file_get_value(f, *g, *k, NULL);
                 
                 if (g_strcasecmp(*k, "host-name") == 0) {
-                    g_free(config->server_config.host_name);
-                    config->server_config.host_name = v;
+                    g_free(c->server_config.host_name);
+                    c->server_config.host_name = v;
                     v = NULL;
                 } else if (g_strcasecmp(*k, "domain-name") == 0) {
-                    g_free(config->server_config.domain_name);
-                    config->server_config.domain_name = v;
+                    g_free(c->server_config.domain_name);
+                    c->server_config.domain_name = v;
                     v = NULL;
                 } else if (g_strcasecmp(*k, "use-ipv4") == 0)
-                    config->server_config.use_ipv4 = is_yes(v);
+                    c->server_config.use_ipv4 = is_yes(v);
                 else if (g_strcasecmp(*k, "use-ipv6") == 0)
-                    config->server_config.use_ipv6 = is_yes(v);
+                    c->server_config.use_ipv6 = is_yes(v);
                 else if (g_strcasecmp(*k, "check-response-ttl") == 0)
-                    config->server_config.check_response_ttl = is_yes(v);
+                    c->server_config.check_response_ttl = is_yes(v);
                 else if (g_strcasecmp(*k, "use-iff-running") == 0)
-                    config->server_config.use_iff_running = is_yes(v);
+                    c->server_config.use_iff_running = is_yes(v);
                 else if (g_strcasecmp(*k, "enable-dbus") == 0)
-                    config->enable_dbus = is_yes(v);
+                    c->enable_dbus = is_yes(v);
                 else if (g_strcasecmp(*k, "drop-root") == 0)
-                    config->drop_root = is_yes(v);
+                    c->drop_root = is_yes(v);
                 else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
@@ -356,18 +356,18 @@ static gint load_config_file(DaemonConfig *config) {
                 v = g_key_file_get_string(f, *g, *k, NULL);
                 
                 if (g_strcasecmp(*k, "publish-addresses") == 0)
-                    config->server_config.publish_addresses = is_yes(v);
+                    c->server_config.publish_addresses = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-hinfo") == 0)
-                    config->server_config.publish_hinfo = is_yes(v);
+                    c->server_config.publish_hinfo = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-workstation") == 0)
-                    config->server_config.publish_workstation = is_yes(v);
+                    c->server_config.publish_workstation = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-domain") == 0)
-                    config->server_config.publish_domain = is_yes(v);
+                    c->server_config.publish_domain = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-resolv-conf-dns-servers") == 0)
-                    config->publish_resolv_conf = is_yes(v);
+                    c->publish_resolv_conf = is_yes(v);
                 else if (g_strcasecmp(*k, "publish-dns-servers") == 0) {
-                    g_strfreev(config->publish_dns_servers);
-                    config->publish_dns_servers = g_key_file_get_string_list(f, *g, *k, NULL, NULL);
+                    g_strfreev(c->publish_dns_servers);
+                    c->publish_dns_servers = g_key_file_get_string_list(f, *g, *k, NULL, NULL);
                 } else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
@@ -390,9 +390,9 @@ static gint load_config_file(DaemonConfig *config) {
                 v = g_key_file_get_string(f, *g, *k, NULL);
                 
                 if (g_strcasecmp(*k, "enable-reflector") == 0)
-                    config->server_config.enable_reflector = is_yes(v);
+                    c->server_config.enable_reflector = is_yes(v);
                 else if (g_strcasecmp(*k, "reflect-ipv") == 0)
-                    config->server_config.reflect_ipv = is_yes(v);
+                    c->server_config.reflect_ipv = is_yes(v);
                 else {
                     fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
                     goto finish;
@@ -501,13 +501,13 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
     return TRUE;
 }
 
-static gint run_server(DaemonConfig *config) {
+static gint run_server(DaemonConfig *c) {
     GMainLoop *loop = NULL;
     gint r = -1;
     GIOChannel *io = NULL;
     guint watch_id = (guint) -1;
 
-    g_assert(config);
+    g_assert(c);
     
     loop = g_main_loop_new(NULL, FALSE);
 
@@ -528,19 +528,19 @@ static gint run_server(DaemonConfig *config) {
         goto finish;
     
 #ifdef ENABLE_DBUS
-    if (config->enable_dbus)
+    if (c->enable_dbus)
         if (dbus_protocol_setup(loop) < 0)
             goto finish;
 #endif
     
-    if (!(avahi_server = avahi_server_new(NULL, &config->server_config, server_callback, config)))
+    if (!(avahi_server = avahi_server_new(NULL, &c->server_config, server_callback, c)))
         goto finish;
 
-    load_resolv_conf(config);
+    load_resolv_conf(c);
     
     static_service_load();
 
-    if (config->daemonize) {
+    if (c->daemonize) {
         daemon_retval_send(0);
         r = 0;
     }
@@ -556,7 +556,7 @@ finish:
     simple_protocol_shutdown();
 
 #ifdef ENABLE_DBUS
-    if (config->enable_dbus)
+    if (c->enable_dbus)
         dbus_protocol_shutdown();
 #endif
 
@@ -576,7 +576,7 @@ finish:
     if (loop)
         g_main_loop_unref(loop);
 
-    if (r != 0 && config->daemonize)
+    if (r != 0 && c->daemonize)
         daemon_retval_send(1);
     
     return r;
@@ -713,7 +713,8 @@ int main(int argc, char *argv[]) {
     else
         argv0 = argv[0];
 
-    daemon_pid_file_ident = daemon_log_ident = (char *) argv0;
+    daemon_pid_file_ident = (const char *) argv0;
+    daemon_log_ident = argv0;
     daemon_pid_file_proc = pid_file_proc;
     
     if (parse_command_line(&config, argc, argv) < 0)

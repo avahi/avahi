@@ -246,12 +246,12 @@ AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
 
 AvahiStringList *avahi_string_list_new_from_array(const gchar *array[], gint length) {
     AvahiStringList *r = NULL;
-    gint index;
+    gint i;
 
     g_assert(array);
 
-    for (index = 0; length >= 0 ? index < length : !!array[index]; index++)
-        r = avahi_string_list_add(r, array[index]);
+    for (i = 0; length >= 0 ? i < length : !!array[i]; i++)
+        r = avahi_string_list_add(r, array[i]);
 
     return r;
 }

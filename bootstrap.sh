@@ -28,7 +28,7 @@ run_versioned() {
 
 if [ "x$1" = "xam" ] ; then
     set -ex
-    run_versioned automake 1.7 -a -c --foreign
+    run_versioned automake 1.9 -a -c --foreign
     ./config.status
 else 
     set -ex
@@ -36,10 +36,10 @@ else
     rm -rf autom4te.cache
     rm -f config.cache
 
-    run_versioned aclocal 1.7
+    run_versioned aclocal 1.9
     libtoolize -c --force
     autoheader
-    run_versioned automake 1.7 -a -c --foreign
+    run_versioned automake 1.9 -a -c --foreign
     autoconf -Wall
 
     CFLAGS="$CFLAGS -g -O0" ./configure --sysconfdir=/etc --localstatedir=/var "$@"

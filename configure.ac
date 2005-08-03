@@ -216,7 +216,9 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
-AM_PATH_PYTHON(2.4)
+HAVE_PYTHON=fuck
+AM_PATH_PYTHON(2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
+AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
 
 AC_CONFIG_FILES([
 Makefile 
@@ -253,7 +255,8 @@ echo "
     compiler:               ${CC}
     cflags:                 ${CFLAGS}
     Enable Gtk:             ${ENABLE_GTK}
-    Enable Dbus:            ${ENABLE_DBUS}
+    Enable DBUS:            ${ENABLE_DBUS}
+    Have Python:            ${HAVE_PYTHON}
     Linux Distro:           ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}

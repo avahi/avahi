@@ -2073,6 +2073,11 @@ void avahi_entry_group_reset(AvahiEntryGroup *g) {
             e->dead = TRUE;
         }
     }
+
+    if (g->register_time_event) {
+        avahi_time_event_queue_remove(g->server->time_event_queue, g->register_time_event);
+        g->register_time_event = NULL;
+    }
     
     g->server->need_entry_cleanup = TRUE;
     g->n_probing = 0;

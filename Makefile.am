@@ -16,6 +16,7 @@
 # License along with avahi; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
+
 include aminclude.am
 
 EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG)

@@ -20,7 +20,9 @@ org.freedesktop.Avahi.Server
 org.freedesktop.Avahi.EntryGroup
         void Free()
         void Commit()
+        void Reset()
         int32 GetState()
+	boolean IsEmpty()
         void AddService(int32 interface, int32 protocol, string name, string type, string domain, string host, uint16 port, string txt[])
         void AddAddress(int32 interface, int32 protocol, string name, string address)
         SIGNAL StateChanged(int32 state)

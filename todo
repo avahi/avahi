@@ -1,9 +1,8 @@
 todo:
 * finish DBUS stuff:
     	- allow NUL bytes in TXT records
-* release!
 * add internal error codes
-* add entry_group::reset()
+* release!
 
 later:
 * support for special domain PTR records based on local IP subnet address
@@ -49,3 +48,4 @@ done:
 * sensible logging
 * c++ support
 * drop trailing dot on avahi_normalize_name()
+* add entry_group::reset()

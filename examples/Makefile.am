@@ -1,7 +1,7 @@
 # $Id$
-
-# This file is part of avahi.
 #
+# This file is part of avahi.
+# 
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -17,14 +17,20 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-include aminclude.am
+AM_CFLAGS=-I$(top_srcdir)
 
-EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG)
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon initscript avahi-dnsconfd avahi-utils examples
+# GLIB 2.0
+AM_CFLAGS+=$(GLIB20_CFLAGS)
+AM_LDADD=$(GLIB20_LIBS)
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = avahi-core.pc
+noinst_PROGRAMS = \
+	publish-service \
+	browse-services
 
-MOSTLYCLEANFILES = $(DX_CLEANFILES)
+publish_service_SOURCES = publish-service.c
+publish_service_CFLAGS = $(AM_CFLAGS)
+publish_service_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
-#.PHONY: distcleancheck
+browse_services_SOURCES = browse-services.c
+browse_services_CFLAGS = $(AM_CFLAGS)
+browse_services_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la

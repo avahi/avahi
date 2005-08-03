@@ -56,17 +56,15 @@ static void create_service(const gchar *t) {
 
     g_assert(t || name);
 
-    if (group)
-        avahi_entry_group_free(group);
-    
     n = t ? g_strdup(t) : avahi_alternative_service_name(name);
     g_free(name);
     name = n;
 
-    if (try > 10)
-        sleep(2); /* ugly ugly ugly hack */
+    if (group)
+        avahi_entry_group_reset(group);
+    else
+        group = avahi_entry_group_new(avahi, entry_group_callback, NULL);
     
-    group = avahi_entry_group_new(avahi, entry_group_callback, NULL);   
     avahi_server_add_service(avahi, group, 0, AF_UNSPEC, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);   
     avahi_entry_group_commit(group);
 
@@ -94,14 +92,17 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
     avahi_log_debug("server state: %i", state);
+
+    if (state == AVAHI_SERVER_RUNNING) {
+        create_service("gurke");
+        avahi_server_dump(avahi, dump_line, NULL);
+    }
 }
 
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
 
     avahi = avahi_server_new(NULL, NULL, server_callback, NULL);
-    create_service("gurke");
-    avahi_server_dump(avahi, dump_line, NULL);
     
     loop = g_main_loop_new(NULL, FALSE);
     g_timeout_add(1000*5, dump_timeout, avahi);
@@ -109,7 +110,8 @@ int main(int argc, char *argv[]) {
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 
-    avahi_entry_group_free(group);   
+    if (group)
+        avahi_entry_group_free(group);   
     avahi_server_free(avahi);
     
     return 0;

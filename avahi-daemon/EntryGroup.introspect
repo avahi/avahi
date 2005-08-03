@@ -13,6 +13,7 @@
   <interface name="org.freedesktop.Avahi.EntryGroup">
     <method name="Free"/>
     <method name="Commit"/>
+    <method name="Reset"/>
 
     <method name="GetState">
       <arg name="state" type="i" direction="out"/>
@@ -20,6 +21,10 @@
     <signal name="StateChanged">
       <arg name="state" type="i"/>
     </signal>
+
+    <method name="IsEmpty">
+      <arg name="empty" type="b" direction="out"/>
+    </method>
 
     <method name="AddService">
       <arg name="interface" type="i" direction="in"/>

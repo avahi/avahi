@@ -513,6 +513,35 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         avahi_entry_group_commit(i->entry_group);
         return respond_ok(c, m);
         
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Reset")) {
+        
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing EntryGroup::Reset message");
+            goto fail;
+        }
+
+        avahi_entry_group_reset(i->entry_group);
+        return respond_ok(c, m);
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty")) {
+        DBusMessage *reply;
+        gboolean b;
+        
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing EntryGroup::IsEmpty message");
+            goto fail;
+        }
+
+        b = avahi_entry_group_is_empty(i->entry_group);
+        
+        reply = dbus_message_new_method_return(m);
+        dbus_message_append_args(m, DBUS_TYPE_BOOLEAN, &b, DBUS_TYPE_INVALID);
+        dbus_connection_send(c, reply, NULL);
+        dbus_message_unref(reply);
+        
+        return DBUS_HANDLER_RESULT_HANDLED;
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "GetState")) {
         DBusMessage *reply;
         gint32 t;

@@ -50,24 +50,31 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
 
-        if (!a->entry_group) {
+        /* Fill the entry group */
+        if (!a->entry_group) 
             a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
+
+        if (avahi_entry_group_is_empty(a->entry_group)) {
+
             if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_address() failed.");
                 avahi_entry_group_free(a->entry_group);
                 a->entry_group = NULL;
-            } else
-                avahi_entry_group_commit(a->entry_group);
+                return;
+            }
+
+            avahi_entry_group_commit(a->entry_group);
         }
     } else {
 
-        if (a->entry_group) {
+        /* Clear the entry group */
+
+        if (a->entry_group && !avahi_entry_group_is_empty(a->entry_group)) {
 
             if (avahi_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
             
-            avahi_entry_group_free(a->entry_group);
-            a->entry_group = NULL;
+            avahi_entry_group_reset(a->entry_group);
         }
     } 
 }
@@ -96,13 +103,16 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
 
-        if (!hw->entry_group) {
+        if (!hw->entry_group)
+            hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
+
+        if (avahi_entry_group_is_empty(hw->entry_group)) {
             gchar *name;
             gchar *t = avahi_format_mac_address(hw->mac_address, hw->mac_address_size);
+            
             name = g_strdup_printf("%s [%s]", m->server->host_name, t);
             g_free(t);
             
-            hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
             if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed.");
                 avahi_entry_group_free(hw->entry_group);
@@ -115,13 +125,12 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
         
     } else {
 
-        if (hw->entry_group) {
+        if (hw->entry_group && !avahi_entry_group_is_empty(hw->entry_group)) {
 
             if (avahi_entry_group_get_state(hw->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
 
-            avahi_entry_group_free(hw->entry_group);
-            hw->entry_group = NULL;
+            avahi_entry_group_reset(hw->entry_group);
         }
     }
 }
@@ -133,6 +142,9 @@ static void free_address(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a) {
 
     update_address_rr(m, a, TRUE);
     AVAHI_LLIST_REMOVE(AvahiInterfaceAddress, address, a->interface->addresses, a);
+
+    if (a->entry_group)
+        avahi_entry_group_free(a->entry_group);
     
     g_free(a);
 }
@@ -171,6 +183,9 @@ static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gb
     while (hw->interfaces)
         free_interface(m, hw->interfaces, send_goodbye);
 
+    if (hw->entry_group)
+        avahi_entry_group_free(hw->entry_group);
+    
     AVAHI_LLIST_REMOVE(AvahiHwInterface, hardware, m->hw_interfaces, hw);
     g_hash_table_remove(m->hash_table, &hw->index);
 
@@ -305,7 +320,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
             hw->name = NULL;
             hw->flags = 0;
             hw->mtu = 1500;
-            hw->index = ifinfomsg->ifi_index;
+            hw->index = (AvahiIfIndex) ifinfomsg->ifi_index;
             hw->mac_address_size = 0;
             hw->entry_group = NULL;
 
@@ -363,7 +378,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
         
-        if (!(hw = avahi_interface_monitor_get_hw_interface(m, ifinfomsg->ifi_index)))
+        if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) ifinfomsg->ifi_index)))
             return;
 
         update_hw_interface_rr(m, hw, TRUE);
@@ -381,10 +396,10 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
         if (ifaddrmsg->ifa_family != AVAHI_PROTO_INET && ifaddrmsg->ifa_family != AVAHI_PROTO_INET6)
             return;
 
-        if (!(i = (AvahiInterface*) avahi_interface_monitor_get_interface(m, ifaddrmsg->ifa_index, ifaddrmsg->ifa_family)))
+        if (!(i = (AvahiInterface*) avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, (AvahiProtocol) ifaddrmsg->ifa_family)))
             return;
 
-        raddr.family = ifaddrmsg->ifa_family;
+        raddr.family = (AvahiProtocol) ifaddrmsg->ifa_family;
 
         l = NLMSG_PAYLOAD(n, sizeof(struct ifaddrmsg));
         a = IFA_RTA(ifaddrmsg);

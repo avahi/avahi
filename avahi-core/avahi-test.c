@@ -101,16 +101,18 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
 
 static void remove_entries(void) {
     if (group)
-        avahi_entry_group_free(group);
-
-    group = NULL;
+        avahi_entry_group_reset(group);
 }
 
 static void create_entries(gboolean new_name) {
     AvahiAddress a;
+
     remove_entries();
-    
-    group = avahi_entry_group_new(server, entry_group_callback, NULL);   
+
+    if (!group) 
+        group = avahi_entry_group_new(server, entry_group_callback, NULL);
+
+    g_assert(avahi_entry_group_is_empty(group));
     
     if (!service_name)
         service_name = g_strdup("Test Service");

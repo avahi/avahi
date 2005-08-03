@@ -70,16 +70,18 @@ n_rename = 0
 def remove_service():
     global group
 
-    if not (group is None):
-        group.Free()
-        group = None
+    if not group is None:
+        group.Reset()
 
 def add_service():
     global server, group, name, stype, domain, host, port, txt
-    assert group is None
+
+    if group is None:
+        group = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.EntryGroupNew()), avahi.DBUS_INTERFACE_ENTRY_GROUP)
+
+    assert group.IsEmpty()
 
     print "Adding service '%s' of type '%s' ..." % (name, stype)
-    group = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.EntryGroupNew()), avahi.DBUS_INTERFACE_ENTRY_GROUP)
     group.connect_to_signal('StateChanged', entry_group_state_changed)
     group.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, stype, domain, host, dbus.UInt16(port), txt)
     group.Commit()
@@ -120,4 +122,5 @@ try:
 except KeyboardInterrupt, k:
     pass
 
-remove_service()
+if not group is None:
+    group.Free()

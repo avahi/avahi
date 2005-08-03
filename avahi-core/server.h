@@ -75,6 +75,10 @@ struct AvahiEntryGroup {
 
     guint n_probing;
     
+    guint n_register_try;
+    GTimeVal register_time;
+    AvahiTimeEvent *register_time_event;
+    
     AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
 };
@@ -121,8 +125,6 @@ struct AvahiServer {
     AvahiEntryGroup *browse_domain_entry_group;
     guint n_host_rr_pending;
 
-    AvahiTimeEvent *register_time_event;
-    
     /* Used for assembling responses */
     AvahiRecordList *record_list;
 

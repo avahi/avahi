@@ -26,6 +26,13 @@
 
 /** \file core.h The Avahi Multicast DNS and DNS Service Discovery implmentation. */
 
+/** \example publish-service.c Example how to register a DNS-SD
+ * service using an embedded mDNS stack. It behaves like a network
+ * printer registering both an IPP and a BSD LPR service. */
+
+/** \example browse-services.c Example how to browse for DNS-SD
+ * services using an embedded mDNS stack. */
+
 #include <avahi-common/cdecl.h>
 
 AVAHI_C_DECL_BEGIN
@@ -47,13 +54,19 @@ AVAHI_C_DECL_END
 
 AVAHI_C_DECL_BEGIN
 
+/** Error codes used by avahi */
+enum { 
+    AVAHI_OK = 0,                      /**< OK */
+    AVAHI_ERR_FAILURE = -1,            /**< Generic error code */
+    AVAHI_ERR_BAD_STATE = -2           /**< Object was in a bad state */
+};
+
 /** States of a server object */
 typedef enum {
     AVAHI_SERVER_INVALID = -1,     /**< Invalid state (initial) */ 
     AVAHI_SERVER_REGISTERING = 0,  /**< Host RRs are being registered */
     AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
-    AVAHI_SERVER_COLLISION,        /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
-    AVAHI_SERVER_SLEEPING          /**< The host or domain name has changed and the server waits for old entries to be expired */
+    AVAHI_SERVER_COLLISION         /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
 } AvahiServerState;
 
 /** Flags for server entries */
@@ -70,7 +83,8 @@ typedef enum {
     AVAHI_ENTRY_GROUP_UNCOMMITED = -1,   /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
     AVAHI_ENTRY_GROUP_REGISTERING = 0,   /**< The entries of the group are currently being registered */
     AVAHI_ENTRY_GROUP_ESTABLISHED,       /**< The entries have successfully been established */
-    AVAHI_ENTRY_GROUP_COLLISION          /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */ 
+    AVAHI_ENTRY_GROUP_COLLISION,          /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */ 
+    AVAHI_ENTRY_GROUP_SLEEPING           /**< Rate limiting of probe packets is active */
 } AvahiEntryGroupState;
 
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */
@@ -188,6 +202,12 @@ void avahi_entry_group_free(AvahiEntryGroup *g);
 
 /** Commit an entry group. This starts the probing and registration process for all RRs in the group */
 gint avahi_entry_group_commit(AvahiEntryGroup *g);
+
+/** Remove all entries from the entry group and reset the state to AVAHI_ENTRY_GROUP_UNCOMMITED. */
+void avahi_entry_group_reset(AvahiEntryGroup *g);
+
+/** Return TRUE if the entry group is empty, i.e. has no records attached. */
+gboolean avahi_entry_group_is_empty(AvahiEntryGroup *g);
 
 /** Return the current state of the specified entry group */
 AvahiEntryGroupState avahi_entry_group_get_state(AvahiEntryGroup *g);

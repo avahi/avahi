@@ -102,9 +102,9 @@ DX_CHI_FEATURE(OFF)
 DX_MAN_FEATURE(OFF)
 DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
-DX_PDF_FEATURE(ON)
+DX_PDF_FEATURE(OFF)
 DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen-doc)
+DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 
 AC_ARG_ENABLE(dbus,
         AC_HELP_STRING([--enable-dbus],[use DBus (default=yes)]),
@@ -238,6 +238,7 @@ avahi-utils/avahi-dump-all
 avahi-utils/avahi-publish-service
 avahi-utils/avahi-publish-address
 avahi-utils/avahi-discover
+examples/Makefile
 ])
 AC_OUTPUT
 

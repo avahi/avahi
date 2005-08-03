@@ -131,14 +131,16 @@ finish:
     return ret;
 }
 
-static AvahiEntryGroup* add_dns_servers(AvahiServer *s, gchar **l) {
+static AvahiEntryGroup* add_dns_servers(AvahiServer *s, AvahiEntryGroup* g, gchar **l) {
     gchar **p;
-    AvahiEntryGroup *g;
 
     g_assert(s);
     g_assert(l);
 
-    g = avahi_entry_group_new(s, NULL, NULL);
+    if (!g) 
+        g = avahi_entry_group_new(s, NULL, NULL);
+
+    g_assert(avahi_entry_group_is_empty(g));
 
     for (p = l; *p; p++) {
         AvahiAddress a;
@@ -155,19 +157,15 @@ static AvahiEntryGroup* add_dns_servers(AvahiServer *s, gchar **l) {
     avahi_entry_group_commit(g);
 
     return g;
-    
 }
 
 static void remove_dns_server_entry_groups(void) {
-    if (resolv_conf_entry_group) {
-        avahi_entry_group_free(resolv_conf_entry_group);
-        resolv_conf_entry_group = NULL;
-    }
+
+    if (resolv_conf_entry_group)
+        avahi_entry_group_reset(resolv_conf_entry_group);
     
-    if (dns_servers_entry_group) {
-        avahi_entry_group_free(dns_servers_entry_group);
-        dns_servers_entry_group = NULL;
-    }
+    if (dns_servers_entry_group) 
+        avahi_entry_group_reset(dns_servers_entry_group);
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
@@ -188,10 +186,10 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
         remove_dns_server_entry_groups();
 
         if (resolv_conf && resolv_conf[0])
-            resolv_conf_entry_group = add_dns_servers(s, resolv_conf);
+            resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf);
 
         if (c->publish_dns_servers && c->publish_dns_servers[0])
-            dns_servers_entry_group = add_dns_servers(s, c->publish_dns_servers);
+            dns_servers_entry_group = add_dns_servers(s, dns_servers_entry_group, c->publish_dns_servers);
 
         simple_protocol_restart_queries();
         
@@ -207,8 +205,6 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
         avahi_server_set_host_name(s, n);
         g_free(n);
     }
-
-    
 }
 
 static void help(FILE *f, const gchar *argv0) {
@@ -476,15 +472,13 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
             static_service_load();
             static_service_add_to_server();
 
-            if (resolv_conf_entry_group) {
-                avahi_entry_group_free(resolv_conf_entry_group);
-                resolv_conf_entry_group = NULL;
-            }
+            if (resolv_conf_entry_group)
+                avahi_entry_group_reset(resolv_conf_entry_group);
 
             load_resolv_conf(&config);
             
             if (resolv_conf && resolv_conf[0])
-                resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf);
+                resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf);
 
             break;
 

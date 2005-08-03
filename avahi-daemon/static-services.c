@@ -152,7 +152,8 @@ static void static_service_free(StaticService *s) {
 static void static_service_group_free(StaticServiceGroup *g) {
     g_assert(g);
 
-    remove_static_service_group_from_server(g);
+    if (g->entry_group)
+        avahi_entry_group_free(g->entry_group);
 
     while (g->services)
         static_service_free(g->services);
@@ -202,8 +203,11 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         g->chosen_name = replacestr(g->name, "%h", avahi_server_get_host_name(avahi_server));
     else
         g->chosen_name = g_strdup(g->name);
-    
-    g->entry_group = avahi_entry_group_new(avahi_server, entry_group_callback, g);
+
+    if (!g->entry_group)
+        g->entry_group = avahi_entry_group_new(avahi_server, entry_group_callback, g);
+
+    g_assert(avahi_entry_group_is_empty(g->entry_group));
     
     for (s = g->services; s; s = s->services_next) {
 
@@ -226,10 +230,8 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
 static void remove_static_service_group_from_server(StaticServiceGroup *g) {
     g_assert(g);
 
-    if (g->entry_group) {
-        avahi_entry_group_free(g->entry_group);
-        g->entry_group = NULL;
-    }
+    if (g->entry_group)
+        avahi_entry_group_reset(g->entry_group);
 }
 
 typedef enum {

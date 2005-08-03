@@ -1947,10 +1947,8 @@ void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState sta
 
     g->state = state;
     
-    if (g->callback) {
+    if (g->callback)
         g->callback(g->server, g, state, g->userdata);
-        return;
-    }
 }
 
 AvahiEntryGroup *avahi_entry_group_new(AvahiServer *s, AvahiEntryGroupCallback callback, gpointer userdata) {
@@ -2002,18 +2000,21 @@ void avahi_entry_group_free(AvahiEntryGroup *g) {
 static void entry_group_commit_real(AvahiEntryGroup *g) {
     g_assert(g);
 
-    avahi_announce_group(g->server, g);
-    avahi_entry_group_check_probed(g, FALSE);
-
     g_get_current_time(&g->register_time);
+
     avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
+
+    if (!g->dead) {
+        avahi_announce_group(g->server, g);
+        avahi_entry_group_check_probed(g, FALSE);
+    }
 }
 
 static void entry_group_register_time_event_callback(AvahiTimeEvent *e, gpointer userdata) {
     AvahiEntryGroup *g = userdata;
     g_assert(g);
 
-/*     avahi_log_debug("Holdoff passed, waking up and going on."); */
+    avahi_log_debug("Holdoff passed, waking up and going on.");
 
     avahi_time_event_queue_remove(g->server->time_event_queue, g->register_time_event);
     g->register_time_event = NULL;
@@ -2042,13 +2043,13 @@ gint avahi_entry_group_commit(AvahiEntryGroup *g) {
 
     if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
         /* Holdoff time passed, so let's start probing */
-/*         avahi_log_debug("Holdoff passed, directly going on."); */
+        avahi_log_debug("Holdoff passed, directly going on."); 
 
         entry_group_commit_real(g);
     } else {
-/*         avahi_log_debug("Holdoff not passed, sleeping."); */
+         avahi_log_debug("Holdoff not passed, sleeping."); 
 
-        /* Holdoff time has not yet passed, so let's wait */
+         /* Holdoff time has not yet passed, so let's wait */
         g_assert(!g->register_time_event);
         g->register_time_event = avahi_time_event_queue_add(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);
         

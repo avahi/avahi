@@ -20,6 +20,9 @@
 SUBDIRS=avahi
 
 avahiscriptsdir = $(bindir)
-avahiscripts_SCRIPTS = avahi-publish-address avahi-publish-service avahi-dump-all
 
-EXTRA_DIST = $(avahiscripts_SCRIPTS)
+if HAVE_PYTHON
+avahiscripts_SCRIPTS = avahi-publish-address avahi-publish-service avahi-dump-all
+endif
+
+EXTRA_DITS = avahi-publish-address.in avahi-publish-service.in avahi-dump-all.in

@@ -1131,10 +1131,12 @@ void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, Avah
     if (state == AVAHI_ENTRY_GROUP_REGISTERING &&
         s->state == AVAHI_SERVER_REGISTERING)
         avahi_server_increase_host_rr_pending(s);
+    
     else if (state == AVAHI_ENTRY_GROUP_COLLISION &&
         (s->state == AVAHI_SERVER_REGISTERING || s->state == AVAHI_SERVER_RUNNING)) {
         withdraw_host_rrs(s);
         server_set_state(s, AVAHI_SERVER_COLLISION);
+        
     } else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED &&
                s->state == AVAHI_SERVER_REGISTERING)
         avahi_server_decrease_host_rr_pending(s);
@@ -2011,7 +2013,7 @@ static void entry_group_register_time_event_callback(AvahiTimeEvent *e, gpointer
     AvahiEntryGroup *g = userdata;
     g_assert(g);
 
-    avahi_log_debug("Holdoff passed, waking up and going on.");
+/*     avahi_log_debug("Holdoff passed, waking up and going on."); */
 
     avahi_time_event_queue_remove(g->server->time_event_queue, g->register_time_event);
     g->register_time_event = NULL;
@@ -2040,14 +2042,14 @@ gint avahi_entry_group_commit(AvahiEntryGroup *g) {
 
     if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
         /* Holdoff time passed, so let's start probing */
-        avahi_log_debug("Holdoff passed, directly going on.");
+/*         avahi_log_debug("Holdoff passed, directly going on."); */
 
         entry_group_commit_real(g);
     } else {
-        avahi_log_debug("Holdoff not passed, sleeping.");
+/*         avahi_log_debug("Holdoff not passed, sleeping."); */
 
         /* Holdoff time has not yet passed, so let's wait */
-        avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_SLEEPING);
+        avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
         
         g_assert(!g->register_time_event);
         g->register_time_event = avahi_time_event_queue_add(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);

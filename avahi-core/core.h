@@ -83,8 +83,7 @@ typedef enum {
     AVAHI_ENTRY_GROUP_UNCOMMITED = -1,   /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
     AVAHI_ENTRY_GROUP_REGISTERING = 0,   /**< The entries of the group are currently being registered */
     AVAHI_ENTRY_GROUP_ESTABLISHED,       /**< The entries have successfully been established */
-    AVAHI_ENTRY_GROUP_COLLISION,          /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */ 
-    AVAHI_ENTRY_GROUP_SLEEPING           /**< Rate limiting of probe packets is active */
+    AVAHI_ENTRY_GROUP_COLLISION          /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */ 
 } AvahiEntryGroupState;
 
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */

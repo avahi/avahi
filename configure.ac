@@ -216,7 +216,6 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
-HAVE_PYTHON=fuck
 AM_PATH_PYTHON(2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
 

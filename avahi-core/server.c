@@ -221,7 +221,8 @@ static void withdraw_rrset(AvahiServer *s, AvahiKey *key) {
     g_assert(key);
 
    for (e = g_hash_table_lookup(s->entries_by_key, key); e; e = e->by_key_next)
-        withdraw_entry(s, e);
+       if (!e->dead)
+           withdraw_entry(s, e);
 }
 
 static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i) {
@@ -2014,7 +2015,7 @@ static void entry_group_register_time_event_callback(AvahiTimeEvent *e, gpointer
     AvahiEntryGroup *g = userdata;
     g_assert(g);
 
-    avahi_log_debug("Holdoff passed, waking up and going on.");
+/*     avahi_log_debug("Holdoff passed, waking up and going on."); */
 
     avahi_time_event_queue_remove(g->server->time_event_queue, g->register_time_event);
     g->register_time_event = NULL;
@@ -2043,11 +2044,11 @@ gint avahi_entry_group_commit(AvahiEntryGroup *g) {
 
     if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
         /* Holdoff time passed, so let's start probing */
-        avahi_log_debug("Holdoff passed, directly going on."); 
+/*         avahi_log_debug("Holdoff passed, directly going on.");  */
 
         entry_group_commit_real(g);
     } else {
-         avahi_log_debug("Holdoff not passed, sleeping."); 
+/*          avahi_log_debug("Holdoff not passed, sleeping.");  */
 
          /* Holdoff time has not yet passed, so let's wait */
         g_assert(!g->register_time_event);

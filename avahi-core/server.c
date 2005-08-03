@@ -2002,11 +2002,11 @@ void avahi_entry_group_free(AvahiEntryGroup *g) {
 static void entry_group_commit_real(AvahiEntryGroup *g) {
     g_assert(g);
 
-    avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
     avahi_announce_group(g->server, g);
     avahi_entry_group_check_probed(g, FALSE);
 
     g_get_current_time(&g->register_time);
+    avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
 }
 
 static void entry_group_register_time_event_callback(AvahiTimeEvent *e, gpointer userdata) {
@@ -2049,10 +2049,10 @@ gint avahi_entry_group_commit(AvahiEntryGroup *g) {
 /*         avahi_log_debug("Holdoff not passed, sleeping."); */
 
         /* Holdoff time has not yet passed, so let's wait */
-        avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
-        
         g_assert(!g->register_time_event);
         g->register_time_event = avahi_time_event_queue_add(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);
+        
+        avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
     }
 
     return AVAHI_OK;

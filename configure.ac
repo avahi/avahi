@@ -216,7 +216,7 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
-AM_PATH_PYTHON(2.2)
+AM_PATH_PYTHON(2.4)
 
 AC_CONFIG_FILES([
 Makefile 

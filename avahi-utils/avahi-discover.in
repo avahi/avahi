@@ -1,4 +1,4 @@
-#!/usr/bin/env @PYTHON@
+#!@PYTHON@
 # -*-python-*-
 # $Id$
 
@@ -35,7 +35,7 @@ service_type_browsers = {}
 service_browsers = {}
 
 
-glade_dir = "@prefix@/share/@PACKAGE@/interfaces"
+glade_dir = "@interfacesdir@"
 
 class Main_window(SimpleGladeApp):
     def __init__(self, path="avahi-discover.glade", root="main_window", domain=None, **kwargs):

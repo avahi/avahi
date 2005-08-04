@@ -19,12 +19,37 @@
 
 SUBDIRS=avahi
 
+pythonscripts = \
+	avahi-publish-address \
+	avahi-publish-service \
+	avahi-dump-all \
+	avahi-discover 
+
+EXTRA_DIST = \
+	avahi-publish-address.in \
+	avahi-publish-service.in \
+	avahi-dump-all.in \
+	avahi-discover.in 
+
 if HAVE_PYTHON
-bin_SCRIPTS = 			\
-	avahi-publish-address 	\
-	avahi-publish-service 	\
-	avahi-dump-all 		\
-	avahi-discover
+bin_SCRIPTS = $(pythonscripts)
 endif
 
-CLEANFILES = $(bin_SCRIPTS)
+avahi-publish-address: avahi-publish-address.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+	chmod +x $@
+
+avahi-publish-service: avahi-publish-service.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+	chmod +x $@
+
+avahi-dump-all: avahi-dump-all.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+	chmod +x $@
+
+avahi-discover: avahi-discover.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' \
+		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
+	chmod +x $@
+
+CLEANFILES = $(pythonscripts)

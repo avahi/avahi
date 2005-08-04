@@ -238,39 +238,39 @@ AM_PYTHON_CHECK_VERSION("$PYTHON", 2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
 
 # check for pygtk
-PKG_CHECK_MODULES(PYGTK, pygtk-2.0 >= $PYGTK_REQ)
-PYGTK_DIR="`$PKG_CONFIG --variable=pyexecdir pygtk-2.0`"
-AC_SUBST(PYGTK_DIR)
-AC_MSG_NOTICE(Using pygtk installed in $PYGTK_DIR)
-PYGTK_VERSION="`$PKG_CONFIG --modversion pygtk-2.0`"
-if test "x$PYGTK_VERSION" = "x2.5.2"
-then
-  AC_MSG_ERROR([PyGTK 2.5.2 contains known bugs, please install other version])
-fi
-export PYTHONPATH=$PYGTK_DIR:$PYTHONPATH
+dnl PKG_CHECK_MODULES(PYGTK, pygtk-2.0 >= $PYGTK_REQ)
+dnl PYGTK_DIR="`$PKG_CONFIG --variable=pyexecdir pygtk-2.0`"
+dnl AC_SUBST(PYGTK_DIR)
+dnl AC_MSG_NOTICE(Using pygtk installed in $PYGTK_DIR)
+dnl PYGTK_VERSION="`$PKG_CONFIG --modversion pygtk-2.0`"
+dnl if test "x$PYGTK_VERSION" = "x2.5.2"
+dnl then
+dnl  AC_MSG_ERROR([PyGTK 2.5.2 contains known bugs, please install other version])
+dnl fi
+dnl export PYTHONPATH=$PYGTK_DIR:$PYTHONPATH
 
-# check for gtk.glade
-AC_MSG_CHECKING(for gtk.glade)
-prog="
-import sys
-try:
-  import gtk.glade
-except RuntimeError:
-  sys.exit(0)
-except ImportError:
-  sys.exit(1)
-sys.exit(0)
-"
+dnl check for gtk.glade
+dnl AC_MSG_CHECKING(for gtk.glade)
+dnl prog="
+dnl import sys
+dnl try:
+dnl  import gtk.glade
+dnl except RuntimeError:
+dnl   sys.exit(0)
+dnl except ImportError:
+dnl   sys.exit(1)
+dnl sys.exit(0)
+dnl "
 
-if $PYTHON -c "$prog" 1>&AC_FD_CC 2>&AC_FD_CC
-then
-  AC_MSG_RESULT(found)
-else
-  AC_MSG_RESULT(not found)
-  AC_MSG_ERROR([You need to have python libglade bindings installed])
-fi
+dnl if $PYTHON -c "$prog" 1>&AC_FD_CC 2>&AC_FD_CC
+dnl then
+dnl   AC_MSG_RESULT(found)
+dnl else
+dnl   AC_MSG_RESULT(not found)
+dnl   AC_MSG_ERROR([You need to have python libglade bindings installed])
+dnl fi
 
-dnl ==========================================================================
+# ==========================================================================
 AC_CONFIG_FILES([
 Makefile 
 avahi-core.pc 
@@ -287,16 +287,12 @@ initscript/SUSE/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-utils/avahi/Makefile
-avahi-utils/avahi-dump-all
-avahi-utils/avahi-publish-service
-avahi-utils/avahi-publish-address
-avahi-utils/avahi-discover
 examples/Makefile
 common/Makefile
 ])
 AC_OUTPUT
 
-dnl ==========================================================================
+# ==========================================================================
 echo "
  ---{ $PACKAGE_NAME $VERSION }---
 

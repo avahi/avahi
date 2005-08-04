@@ -278,7 +278,7 @@ avahi-common/Makefile
 avahi-core/Makefile 
 avahi-daemon/Makefile 
 avahi-daemon/avahi-dbus.conf
-avahi-discover/Makefile 
+avahi-discover-standalone/Makefile 
 avahi-client/Makefile 
 initscript/Makefile 
 initscript/Debian/Makefile

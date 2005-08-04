@@ -28,13 +28,13 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if ENABLE_GTK
 bin_PROGRAMS = \
-	avahi-discover
+	avahi-discover-standalone
 
-avahi_discover_SOURCES = \
+avahi_discover_standalone_SOURCES = \
 	main.c
 
-avahi_discover_CFLAGS = $(AM_CFLAGS)
-avahi_discover_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+avahi_discover_standalone_CFLAGS = $(AM_CFLAGS)
+avahi_discover_standalone_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
 interfaces = \
         avahi-discover.glade

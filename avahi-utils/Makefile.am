@@ -20,7 +20,11 @@
 SUBDIRS=avahi
 
 if HAVE_PYTHON
-bin_SCRIPTS = avahi-publish-address avahi-publish-service avahi-dump-all
+bin_SCRIPTS = 			\
+	avahi-publish-address 	\
+	avahi-publish-service 	\
+	avahi-dump-all 		\
+	avahi-discover
 endif
 
 CLEANFILES = $(bin_SCRIPTS)

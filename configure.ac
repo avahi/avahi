@@ -231,44 +231,8 @@ AC_SUBST(avahi_socket)
 #
 # Python stuff
 #
-AC_SUBST(PYGTK_REQ, 2.6.0)
-
-AM_PATH_PYTHON(2.4)
-AM_PYTHON_CHECK_VERSION("$PYTHON", 2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
+AM_PATH_PYTHON(2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
-
-# check for pygtk
-dnl PKG_CHECK_MODULES(PYGTK, pygtk-2.0 >= $PYGTK_REQ)
-dnl PYGTK_DIR="`$PKG_CONFIG --variable=pyexecdir pygtk-2.0`"
-dnl AC_SUBST(PYGTK_DIR)
-dnl AC_MSG_NOTICE(Using pygtk installed in $PYGTK_DIR)
-dnl PYGTK_VERSION="`$PKG_CONFIG --modversion pygtk-2.0`"
-dnl if test "x$PYGTK_VERSION" = "x2.5.2"
-dnl then
-dnl  AC_MSG_ERROR([PyGTK 2.5.2 contains known bugs, please install other version])
-dnl fi
-dnl export PYTHONPATH=$PYGTK_DIR:$PYTHONPATH
-
-dnl check for gtk.glade
-dnl AC_MSG_CHECKING(for gtk.glade)
-dnl prog="
-dnl import sys
-dnl try:
-dnl  import gtk.glade
-dnl except RuntimeError:
-dnl   sys.exit(0)
-dnl except ImportError:
-dnl   sys.exit(1)
-dnl sys.exit(0)
-dnl "
-
-dnl if $PYTHON -c "$prog" 1>&AC_FD_CC 2>&AC_FD_CC
-dnl then
-dnl   AC_MSG_RESULT(found)
-dnl else
-dnl   AC_MSG_RESULT(not found)
-dnl   AC_MSG_ERROR([You need to have python libglade bindings installed])
-dnl fi
 
 # ==========================================================================
 AC_CONFIG_FILES([

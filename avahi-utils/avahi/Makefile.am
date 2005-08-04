@@ -24,3 +24,6 @@ avahi_PYTHON = __init__.py SimpleGladeApp.py
 endif
 
 EXTRA_DIST = __init__.py SimpleGladeApp.py
+
+clean-local:
+	rm -rf *.pyc *.pyo

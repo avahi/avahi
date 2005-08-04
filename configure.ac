@@ -96,6 +96,9 @@ if test "x$ENABLE_GTK" = "xyes"; then
 fi
 AM_CONDITIONAL(ENABLE_GTK, test "x$ENABLE_GTK" = "xyes")
 
+#
+# Doxygen
+#
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
@@ -106,6 +109,9 @@ DX_PDF_FEATURE(OFF)
 DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 
+#
+# D-BUS
+#
 AC_ARG_ENABLE(dbus,
         AC_HELP_STRING([--enable-dbus],[use DBus (default=yes)]),
         [case "${enableval}" in
@@ -135,12 +141,18 @@ fi
 
 AM_CONDITIONAL(ENABLE_DBUS, test "x$ENABLE_DBUS" = "xyes")
 
+#
+# Expat
+#
 AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
 
 if ! $have_expat ; then
    AC_MSG_ERROR([*** libexpat not found ***])
 fi
 
+#
+# LibDaemon
+#
 PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.5 ])
 AC_SUBST(LIBDAEMON_CFLAGS)
 AC_SUBST(LIBDAEMON_LIBS)
@@ -216,9 +228,49 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
-AM_PATH_PYTHON(2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
+#
+# Python stuff
+#
+AC_SUBST(PYGTK_REQ, 2.6.0)
+
+AM_PATH_PYTHON(2.4)
+AM_PYTHON_CHECK_VERSION("$PYTHON", 2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
 
+# check for pygtk
+PKG_CHECK_MODULES(PYGTK, pygtk-2.0 >= $PYGTK_REQ)
+PYGTK_DIR="`$PKG_CONFIG --variable=pyexecdir pygtk-2.0`"
+AC_SUBST(PYGTK_DIR)
+AC_MSG_NOTICE(Using pygtk installed in $PYGTK_DIR)
+PYGTK_VERSION="`$PKG_CONFIG --modversion pygtk-2.0`"
+if test "x$PYGTK_VERSION" = "x2.5.2"
+then
+  AC_MSG_ERROR([PyGTK 2.5.2 contains known bugs, please install other version])
+fi
+export PYTHONPATH=$PYGTK_DIR:$PYTHONPATH
+
+# check for gtk.glade
+AC_MSG_CHECKING(for gtk.glade)
+prog="
+import sys
+try:
+  import gtk.glade
+except RuntimeError:
+  sys.exit(0)
+except ImportError:
+  sys.exit(1)
+sys.exit(0)
+"
+
+if $PYTHON -c "$prog" 1>&AC_FD_CC 2>&AC_FD_CC
+then
+  AC_MSG_RESULT(found)
+else
+  AC_MSG_RESULT(not found)
+  AC_MSG_ERROR([You need to have python libglade bindings installed])
+fi
+
+dnl ==========================================================================
 AC_CONFIG_FILES([
 Makefile 
 avahi-core.pc 
@@ -240,6 +292,7 @@ avahi-utils/avahi-publish-service
 avahi-utils/avahi-publish-address
 avahi-utils/avahi-discover
 examples/Makefile
+common/Makefile
 ])
 AC_OUTPUT
 

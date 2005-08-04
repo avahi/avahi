@@ -36,7 +36,7 @@ def usage(retval = 0):
 try:
     opts, args = getopt.getopt(sys.argv[1:], "d:H:", ["help", "domain=", "host="])
 except getopt.GetoptError:
-    usage(2)
+    pass
 
 domain = ""
 host = ""
@@ -52,8 +52,7 @@ for o, a in opts:
         host = a
 
 if len(args) < 3:
-    sys.stderr.write("Invalid number of arguments\n")
-    sys.exit(1)
+    usage(2)
 
 name = args[0]
 stype = args[1]

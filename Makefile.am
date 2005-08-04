@@ -17,10 +17,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-include aminclude.am
+ACLOCAL_AMFLAGS = -I common
+
+include $(srcdir)/common/doxygen.mk
 
 EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG)
-SUBDIRS = avahi-common avahi-core avahi-discover avahi-client avahi-daemon initscript avahi-dnsconfd avahi-utils examples
+SUBDIRS = common avahi-common avahi-core avahi-discover avahi-client avahi-daemon initscript avahi-dnsconfd avahi-utils examples
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc

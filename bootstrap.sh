@@ -36,7 +36,7 @@ else
     rm -rf autom4te.cache
     rm -f config.cache
 
-    run_versioned aclocal 1.9
+    run_versioned aclocal 1.9 -I common
     libtoolize -c --force
     autoheader
     run_versioned automake 1.9 -a -c --foreign

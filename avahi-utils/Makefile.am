@@ -19,10 +19,8 @@
 
 SUBDIRS=avahi
 
-avahiscriptsdir = $(bindir)
-
 if HAVE_PYTHON
-avahiscripts_SCRIPTS = avahi-publish-address avahi-publish-service avahi-dump-all
+bin_SCRIPTS = avahi-publish-address avahi-publish-service avahi-dump-all
 endif
 
-EXTRA_DITS = avahi-publish-address.in avahi-publish-service.in avahi-dump-all.in
+CLEANFILES = $(bin_SCRIPTS)

@@ -23,13 +23,15 @@ pythonscripts = \
 	avahi-publish-address \
 	avahi-publish-service \
 	avahi-dump-all \
-	avahi-discover 
+	avahi-discover \
+	avahi-bookmarks
 
 EXTRA_DIST = \
 	avahi-publish-address.in \
 	avahi-publish-service.in \
 	avahi-dump-all.in \
-	avahi-discover.in 
+	avahi-discover.in \
+	avahi-bookmarks.in
 
 if HAVE_PYTHON
 bin_SCRIPTS = $(pythonscripts)
@@ -50,6 +52,10 @@ avahi-dump-all: avahi-dump-all.in
 avahi-discover: avahi-discover.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
+	chmod +x $@
+
+avahi-bookmarks: avahi-bookmarks.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
 CLEANFILES = $(pythonscripts)

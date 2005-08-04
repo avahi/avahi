@@ -129,6 +129,7 @@ int main(int argc, char*argv[]) {
     /* Let's set the host name for this server. */
     avahi_server_config_init(&config);
     config.host_name = g_strdup("gurkiman");
+    config.publish_workstation = FALSE;
     
     /* Allocate a new server */
     server = avahi_server_new(NULL, &config, server_callback, NULL);

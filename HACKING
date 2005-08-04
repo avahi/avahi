@@ -56,7 +56,7 @@ Please comply with the following rules when hacking on Avahi:
  * Whenever you add a new Makefile.am, C (.c or .h) source file, shell or
    python script please add this legal blurb to its header:
 
-   For Makefile.am and python code:
+   For Makefile.am, python and shell code:
 
 <snip>
 # $Id$
@@ -105,3 +105,4 @@ Please comply with the following rules when hacking on Avahi:
 </snip>
 
 
+$Id$

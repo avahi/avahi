@@ -23,8 +23,12 @@
 #include <config.h>
 #endif
 
-#include <glib.h>
 #include <string.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <errno.h>
+#include <unistd.h>
+#include <glib.h>
 
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
@@ -336,6 +340,17 @@ static DBusHandlerResult respond_string(DBusConnection *c, DBusMessage *m, const
     return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static DBusHandlerResult respond_int32(DBusConnection *c, DBusMessage *m, gint32 i) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_method_return(m);
+    dbus_message_append_args(reply, DBUS_TYPE_INT32, &i, DBUS_TYPE_INVALID);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+    
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
 static DBusHandlerResult respond_ok(DBusConnection *c, DBusMessage *m) {
     DBusMessage *reply;
 
@@ -543,21 +558,13 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         return DBUS_HANDLER_RESULT_HANDLED;
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "GetState")) {
-        DBusMessage *reply;
-        gint32 t;
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing EntryGroup::GetState message");
             goto fail;
         }
 
-        t = (gint32) avahi_entry_group_get_state(i->entry_group);
-        reply = dbus_message_new_method_return(m);
-        dbus_message_append_args(reply, DBUS_TYPE_INT32, &t, DBUS_TYPE_INVALID);
-        dbus_connection_send(c, reply, NULL);
-        dbus_message_unref(reply);
-        
-        return DBUS_HANDLER_RESULT_HANDLED;
+        return respond_int32(c, m, (gint32) avahi_entry_group_get_state(i->entry_group));
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService")) {
         gint32 interface, protocol;
@@ -1064,22 +1071,73 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         return respond_string(c, m, PACKAGE_STRING);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetState")) {
-        DBusMessage *reply;
-        gint32 s;
-            
+
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetState message");
             goto fail;
         }
 
-        s = (gint32) avahi_server_get_state(avahi_server);
+        return respond_int32(c, m, (gint32) avahi_server_get_state(avahi_server));
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
+        gint32 idx;
+        int fd;
+        struct ifreq ifr;
         
-        reply = dbus_message_new_method_return(m);
-        dbus_message_append_args(reply, DBUS_TYPE_INT32, &s, DBUS_TYPE_INVALID);
-        dbus_connection_send(c, reply, NULL);
-        dbus_message_unref(reply);
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INT32, &idx, DBUS_TYPE_INVALID))) {
+            avahi_log_warn("Error parsing Server::GetNetworkInterfaceNameByIndex message");
+            goto fail;
+        }
+
+        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+            gchar txt[256];
+            g_snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
+            return respond_error(c, m, AVAHI_DBUS_ERROR_OS, txt);
+        }
+
+        memset(&ifr, 0, sizeof(ifr));
+        ifr.ifr_ifindex = idx;
+
+        if (ioctl(fd, SIOCGIFNAME, &ifr) < 0) {
+            gchar txt[256];
+            g_snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
+            close(fd);
+            return respond_error(c, m, AVAHI_DBUS_ERROR_OS, txt);
+        }
+
+        close(fd);
         
-        return DBUS_HANDLER_RESULT_HANDLED;
+        return respond_string(c, m, ifr.ifr_name);
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceIndexByName")) {
+        gchar *n;
+        int fd;
+        struct ifreq ifr;
+        
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &n, DBUS_TYPE_INVALID)) || !n || !*n) {
+            avahi_log_warn("Error parsing Server::GetNetworkInterfaceIndexByName message");
+            goto fail;
+        }
+
+        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+            gchar txt[256];
+            g_snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
+            return respond_error(c, m, AVAHI_DBUS_ERROR_OS, txt);
+        }
+
+        memset(&ifr, 0, sizeof(ifr));
+        g_snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", n);
+
+        if (ioctl(fd, SIOCGIFINDEX, &ifr) < 0) {
+            gchar txt[256];
+            g_snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
+            close(fd);
+            return respond_error(c, m, AVAHI_DBUS_ERROR_OS, txt);
+        }
+
+        close(fd);
+        
+        return respond_int32(c, m, ifr.ifr_ifindex);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAlternativeHostName")) {
         gchar *n, * t;

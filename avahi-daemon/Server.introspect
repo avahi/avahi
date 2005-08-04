@@ -42,6 +42,15 @@
       <arg name="name" type="s" direction="out"/>
     </method>
 
+    <method name="GetNetworkInterfaceNameByIndex">
+      <arg name="index" type="i" direction="in"/>
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="GetNetworkInterfaceIndexByName">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="index" type="i" direction="out"/>
+    </method>
+
     <method name="ResolveHostName">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>

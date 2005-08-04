@@ -1,12 +1,12 @@
 #!/usr/bin/python2.4
 
-import dbus
-import gobject
-try: import dbus.glib
-except ImportError, e: pass
+import dbus, gobject
+try:
+    import dbus.glib
+except ImportError, e:
+    pass
 
 bus = dbus.SystemBus()
-
 server = dbus.Interface(bus.get_object("org.freedesktop.Avahi", '/'), 'org.freedesktop.Avahi.Server')
 
 def server_state_changed_callback(t):
@@ -23,6 +23,9 @@ print "Host name: %s" % server.GetHostName()
 print "Domain name: %s" % server.GetDomainName()
 print "FQDN: %s" % server.GetHostNameFqdn()
 print "State: %i" % server.GetState()
+
+n = server.GetNetworkInterfaceNameByIndex(2)
+print "network: 2 -> %s -> %i" % (n, server.GetNetworkInterfaceIndexByName(n))
 
 print server.GetAlternativeHostName("gurkiman10")
 print server.GetAlternativeServiceName("Ahuga Service")

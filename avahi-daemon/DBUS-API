@@ -8,6 +8,8 @@ org.freedesktop.Avahi.Server
         int32 GetState()
         string GetAlternativeHostName(string name)
         string GetAlternativeServiceName(string name)
+        string GetNetworkInterfaceNameByIndex(int32 index)
+        int32 GetNetworkInterfaceIndexByName(string name)
         [int32 interface, int32 protocol, string name, int32 aprotocol, string address] ResolveHostName(int32 interface, int32 protocol, string name, int32 aprotocol)
         [int32 interface, int32 protocol, int32 aprotocol, string address, string name] ResolveAddress(int32 interface, int32 protocol, string address)
         [int32 interface, int32 protocol, string name, string type, string domain, string host, int32 aprotocol, string address, uint16 port, string txt[]] ResolveService(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol) 

@@ -38,6 +38,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERROR_TOO_MANY_CLIENTS "org.freedesktop.Avahi.TooManyClientsError"
 #define AVAHI_DBUS_ERROR_TOO_MANY_OBJECTS "org.freedesktop.Avahi.TooManyObjectsError"
 #define AVAHI_DBUS_ERROR_TOO_MANY_ENTRIES "org.freedesktop.Avahi.TooManyEntriesError"
+#define AVAHI_DBUS_ERROR_OS "org.freedesktop.Avahi.OSError"
 
 AVAHI_C_DECL_END
 

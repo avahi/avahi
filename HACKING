@@ -1,0 +1,107 @@
+Please comply with the following rules when hacking on Avahi:
+
+ * When you add a new textual file to the repository please enable SVN
+   keyword expansion for it:
+       
+       svn ps svn:keywords Id foo.c
+
+ * Before commiting check with "svn st" that all built files are ignored
+   by svn. To change the list of ignored files 	use 
+   
+       svn pe svn:ignore .
+
+   This is similar to the ".cvsignore" file in CVS times.
+
+ * Don't forget to add the autoconf config.h inclusion to all C source files:
+   
+   #ifdef HAVE_CONFIG_H
+   #include <config.h>
+   #endif
+
+   This needs to be placed in in .c files only. NOT IN HEADER FILES!
+
+ * Don't hardcode any paths in source files. Either use the -D option of gcc
+   for C sources or use "sed" to replace them based on a .in file.
+
+ * Never forget that Avahi should be buildable without DBUS, GTK or python!
+
+ * When you code in C, please compile with the following gcc options from time
+   to time:
+  
+   -Wextra
+   -Wfloat-equal 
+   -Wmissing-declarations
+   -Wmissing-prototypes
+   -Wstrict-prototypes
+   -Wredundant-decls
+   -Wold-style-definition
+   -Wmissing-noreturn
+   -Wdeclaration-after-statement
+   -Wshadow
+   -Wendif-labels
+   -Wlarger-than-4000
+   -Wpointer-arith
+   -Wbad-function-cast
+   -Wcast-qual
+   -Wcast-align
+   -Wwrite-strings
+   -Winline
+
+   This will show you a bunch of issues which might be problems in your source
+   code.  Not all options are available on all GCC versions. Just pass these
+   options in $CFLAGS when running bootstrap.sh:
+
+   CFLAGS="-Wextra ..." ./bootstrap.sh
+
+ * Whenever you add a new Makefile.am, C (.c or .h) source file, shell or
+   python script please add this legal blurb to its header:
+
+   For Makefile.am and python code:
+
+<snip>
+# $Id$
+
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+</snip>
+
+   For C source code:
+
+<snip>
+/* $Id$ */
+
+/***
+  This file is part of avahi.
+
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+***/
+</snip>
+
+

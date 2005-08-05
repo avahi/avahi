@@ -171,7 +171,7 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex i
 
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
-        client_output_printf(c, "- Query timed out\n");
+        client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
     else {
         gchar t[64];
         avahi_address_snprint(t, sizeof(t), a);
@@ -188,7 +188,7 @@ static void address_resolver_callback(AvahiAddressResolver *r, AvahiIfIndex ifac
     g_assert(c);
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
-        client_output_printf(c, "- Query timed out\n");
+        client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
     else 
         client_output_printf(c, "+ %i %u %s\n", iface, protocol, hostname);
 
@@ -219,7 +219,7 @@ static void handle_line(Client *c, const gchar *s) {
         return;
 
     if ((n_args = sscanf(s, "%63s %63s", cmd, arg)) < 1 ) {
-        client_output_printf(c, "- Failed to parse command, try \"HELP\".\n");
+        client_output_printf(c, "%+i Failed to parse command, try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION);
         c->state = CLIENT_DEAD;
         return;
     }
@@ -236,43 +236,56 @@ static void handle_line(Client *c, const gchar *s) {
                              "+      BROWSE-DNS-SERVERS-IPV6\n");
         c->state = CLIENT_DEAD; }
     else if (strcmp(cmd, "FUCK") == 0 && n_args == 1) {
-        client_output_printf(c, "FUCK: Go fuck yourself!\n");
+        client_output_printf(c, "+ FUCK: Go fuck yourself!\n");
         c->state = CLIENT_DEAD;
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV4") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_INET, host_name_resolver_callback, c);
+        if (!(c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_INET, host_name_resolver_callback, c)))
+            goto fail;
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_INET6, host_name_resolver_callback, c);
+        if (!(c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_INET6, host_name_resolver_callback, c)))
+            goto fail;
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_UNSPEC, host_name_resolver_callback, c);
+        if (!(c->host_name_resolver = avahi_host_name_resolver_new(avahi_server, -1, AF_UNSPEC, arg, c->afquery = AF_UNSPEC, host_name_resolver_callback, c)))
+            goto fail;
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
         
         if (!(avahi_address_parse(arg, AF_UNSPEC, &addr))) {
-            client_output_printf(c, "- Failed to parse address \"%s\".\n", arg);
+            client_output_printf(c, "%+i Failed to parse address \"%s\".\n", AVAHI_ERR_INVALID_ADDRESS, arg);
             c->state = CLIENT_DEAD;
         } else {
             c->state = CLIENT_RESOLVE_ADDRESS;
-            c->address_resolver = avahi_address_resolver_new(avahi_server, -1, AF_UNSPEC, &addr, address_resolver_callback, c);
+            if (!(c->address_resolver = avahi_address_resolver_new(avahi_server, -1, AF_UNSPEC, &addr, address_resolver_callback, c)))
+                goto fail;
         }
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_INET, dns_server_browser_callback, c);
+        if (!(c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_INET, dns_server_browser_callback, c)))
+            goto fail;
         client_output_printf(c, "+ Browsing ...\n");
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_INET6, dns_server_browser_callback, c);
+        if (!(c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_INET6, dns_server_browser_callback, c)))
+            goto fail;
         client_output_printf(c, "+ Browsing ...\n");
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_UNSPEC, dns_server_browser_callback, c);
+        if (!(c->dns_server_browser = avahi_dns_server_browser_new(avahi_server, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AF_UNSPEC, dns_server_browser_callback, c)))
+            goto fail;
         client_output_printf(c, "+ Browsing ...\n");
     } else {
-        client_output_printf(c, "- Invalid command \"%s\", try \"HELP\".\n", cmd);
+        client_output_printf(c, "%+i Invalid command \"%s\", try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION, cmd);
         c->state = CLIENT_DEAD;
     }
+
+    return;
+
+fail:
+    client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
+    c->state = CLIENT_DEAD;
 }
 
 static void handle_input(Client *c) {

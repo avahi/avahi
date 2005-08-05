@@ -51,6 +51,8 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_TOO_MANY_OBJECTS "org.freedesktop.Avahi.TooManyObjectsError"
 #define AVAHI_DBUS_ERR_TOO_MANY_ENTRIES "org.freedesktop.Avahi.TooManyEntriesError"
 #define AVAHI_DBUS_ERR_OS "org.freedesktop.Avahi.OSError"
+#define AVAHI_DBUS_ERR_ACCESS_DENIED DBUS_ERROR_ACCESS_DENIED
+#define AVAHI_DBUS_ERR_INVALID_OPERATION "org.freedesktop.Avahi.InvalidOperationError"
 
 AVAHI_C_DECL_END
 

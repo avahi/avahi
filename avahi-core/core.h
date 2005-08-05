@@ -83,7 +83,8 @@ enum {
     AVAHI_ERR_TOO_MANY_ENTRIES = -18,      /**< Too many entries */
     AVAHI_ERR_OS = -19,                    /**< OS error */
     AVAHI_ERR_ACCESS_DENIED = -20,         /**< Access denied */
-    AVAHI_ERR_MAX = -21
+    AVAHI_ERR_INVALID_OPERATION = -21,     /**< Invalid operation */
+    AVAHI_ERR_MAX = -22
 };
 
 /** States of a server object */

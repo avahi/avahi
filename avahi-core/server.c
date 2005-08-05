@@ -2318,7 +2318,8 @@ const gchar *avahi_strerror(gint error) {
         "Too many objects",
         "Too many entries",
         "OS Error",
-        "Access denied"
+        "Access denied",
+        "Invalid operation"
     };
 
     return msg[-error];

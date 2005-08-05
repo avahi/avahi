@@ -124,7 +124,15 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex i
     g_assert(key);
     g_assert(callback);
 
-    g_assert(!avahi_key_is_pattern(key));
+    if (avahi_key_is_pattern(key)) {
+        avahi_server_set_errno(server, AVAHI_ERR_IS_PATTERN);
+        return NULL;
+    }
+
+    if (!avahi_key_valid(key)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_KEY);
+        return NULL;
+    }
     
     b = g_new(AvahiRecordBrowser, 1);
     b->dead = FALSE;

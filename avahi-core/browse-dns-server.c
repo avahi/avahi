@@ -157,15 +157,21 @@ AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIf
     g_assert(callback);
     g_assert(type == AVAHI_DNS_SERVER_RESOLVE || type == AVAHI_DNS_SERVER_UPDATE);
 
+    if (domain && !avahi_valid_domain_name(domain)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
+        return NULL;
+    }
+    
     b = g_new(AvahiDNSServerBrowser, 1);
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain ? domain : "local.");
+    b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->callback = callback;
     b->userdata = userdata;
     b->aprotocol = aprotocol;
     b->n_info = 0;
 
     AVAHI_LLIST_HEAD_INIT(AvahiDNSServerInfo, b->info);
+    AVAHI_LLIST_PREPEND(AvahiDNSServerBrowser, browser, server->dns_server_browsers, b);
     
     n = g_strdup_printf("%s.%s",type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", b->domain_name);
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
@@ -174,7 +180,10 @@ AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIf
     b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
 
-    AVAHI_LLIST_PREPEND(AvahiDNSServerBrowser, browser, server->dns_server_browsers, b);
+    if (!b->record_browser) {
+        avahi_dns_server_browser_free(b);
+        return NULL;
+    }
     
     return b;
 }
@@ -187,7 +196,8 @@ void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b) {
     
     AVAHI_LLIST_REMOVE(AvahiDNSServerBrowser, browser, b->server->dns_server_browsers, b);
 
-    avahi_record_browser_free(b->record_browser);
+    if (b->record_browser)
+        avahi_record_browser_free(b->record_browser);
     g_free(b->domain_name);
     g_free(b);
 }

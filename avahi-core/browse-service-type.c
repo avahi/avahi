@@ -90,12 +90,18 @@ AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gin
     g_assert(server);
     g_assert(callback);
 
+    if (domain && !avahi_valid_domain_name(domain)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
+        return NULL;
+    }
+
     b = g_new(AvahiServiceTypeBrowser, 1);
     b->server = server;
     b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->callback = callback;
     b->userdata = userdata;
 
+    AVAHI_LLIST_PREPEND(AvahiServiceTypeBrowser, browser, server->service_type_browsers, b);
 
     n = g_strdup_printf("_services._dns-sd._udp.%s", b->domain_name);
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
@@ -104,7 +110,8 @@ AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gin
     b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
 
-    AVAHI_LLIST_PREPEND(AvahiServiceTypeBrowser, browser, server->service_type_browsers, b);
+    if (!b->record_browser)
+        return NULL;
     
     return b;
 }
@@ -114,7 +121,9 @@ void avahi_service_type_browser_free(AvahiServiceTypeBrowser *b) {
 
     AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, browser, b->server->service_type_browsers, b);
 
-    avahi_record_browser_free(b->record_browser);
+    if (b->record_browser)
+        avahi_record_browser_free(b->record_browser);
+    
     g_free(b->domain_name);
     g_free(b);
 }

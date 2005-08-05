@@ -193,9 +193,6 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
 
     g_assert(g);
     
-    if (g->entry_group)
-        return;
-    
     if (g->chosen_name)
         g_free(g->chosen_name);
     
@@ -218,7 +215,9 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                 g->chosen_name, s->type, 
                 s->domain_name, s->host_name, s->port,
                 s->txt_records) < 0) {
-            avahi_log_error("Failed to add service '%s' of type '%s', ignoring service group (%s)", g->chosen_name, s->type, g->filename);
+            avahi_log_error("Failed to add service '%s' of type '%s', ignoring service group (%s): %s",
+                            g->chosen_name, s->type, g->filename,
+                            avahi_strerror(avahi_server_errno(avahi_server)));
             remove_static_service_group_from_server(g);
             return;
         }

@@ -217,10 +217,11 @@ int main(int argc, char *argv[]) {
     AvahiServiceBrowser *sb;
     AvahiServiceResolver *sr;
     AvahiDNSServerBrowser *dsb;
+    gint error;
     
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */
-    server = avahi_server_new(NULL, &config, server_callback, NULL);
+    server = avahi_server_new(NULL, &config, server_callback, NULL, &error);
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);

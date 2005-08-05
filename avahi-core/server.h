@@ -131,6 +131,8 @@ struct AvahiServer {
     /* Used for reflection of legacy unicast packets */
     AvahiLegacyUnicastReflectSlot **legacy_unicast_reflect_slots;
     guint16 legacy_unicast_reflect_id;
+
+    gint error;
 };
 
 gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
@@ -151,5 +153,7 @@ void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, Avah
 
 void avahi_server_decrease_host_rr_pending(AvahiServer *s);
 void avahi_server_increase_host_rr_pending(AvahiServer *s);
+
+gint avahi_server_set_errno(AvahiServer *s, gint error);
 
 #endif

@@ -121,7 +121,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
 int main(int argc, char*argv[]) {
     AvahiServerConfig config;
     AvahiServer *server = NULL;
-
+    gint error;
+    int ret = 1;
+    
     srand(time(NULL));
     
     name = g_strdup("MegaPrinter");
@@ -132,15 +134,25 @@ int main(int argc, char*argv[]) {
     config.publish_workstation = FALSE;
     
     /* Allocate a new server */
-    server = avahi_server_new(NULL, &config, server_callback, NULL);
+    server = avahi_server_new(NULL, &config, server_callback, NULL, &error);
 
     /* Free the configuration data */
     avahi_server_config_free(&config);
+
+    /* Check wether creating the server object succeeded */
+    if (!server) {
+        g_message("Failed to create server: %s", avahi_strerror(error));
+        goto fail;
+    }
     
     /* Run the main loop */
     main_loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(main_loop);
 
+    ret = 0;
+    
+fail:
+    
     /* Cleanup things */
     if (group)
         avahi_entry_group_free(group);
@@ -153,5 +165,5 @@ int main(int argc, char*argv[]) {
 
     g_free(name);
     
-    return 0;
+    return ret;
 }

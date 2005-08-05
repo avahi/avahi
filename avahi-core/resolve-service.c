@@ -206,6 +206,21 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, AvahiIfInd
 
     g_assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
 
+    if (!avahi_valid_service_name(name)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_SERVICE_NAME);
+        return NULL;
+    }
+
+    if (!avahi_valid_service_type(type)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_SERVICE_TYPE);
+        return NULL;
+    }
+
+    if (!avahi_valid_domain_name(domain)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
+        return NULL;
+    }
+    
     r = g_new(AvahiServiceResolver, 1);
     r->server = server;
     r->service_name = g_strdup(name);
@@ -234,10 +249,20 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, AvahiIfInd
     r->record_browser_srv = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
     avahi_key_unref(k);
 
+    if (!r->record_browser_srv) {
+        avahi_service_resolver_free(r);
+        return NULL;
+    }
+    
     k = avahi_key_new(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
     r->record_browser_txt = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
     avahi_key_unref(k);
-    
+
+    if (!r->record_browser_txt) {
+        avahi_service_resolver_free(r);
+        return NULL;
+    }
+
     return r;
 }
 

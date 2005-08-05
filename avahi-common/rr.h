@@ -82,13 +82,11 @@ typedef struct  {
     guint32 ttl;     /**< DNS TTL of this record */
 
     union {
-
         
         struct {
             gpointer data;
             guint16 size;
         } generic; /**< Generic record data for unknown types */
-
         
         struct {
             guint16 priority;
@@ -199,6 +197,12 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
 
 /** Return TRUE if the specified record is an mDNS goodbye record. i.e. TTL is zero. */
 gboolean avahi_record_is_goodbye(AvahiRecord *r);
+
+/** Check whether the specified key is valid */
+gboolean avahi_key_valid(AvahiKey *k);
+
+/** Check whether the specified record is valid */
+gboolean avahi_record_valid(AvahiRecord *r);
 
 AVAHI_C_DECL_END
 

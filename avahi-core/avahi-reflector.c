@@ -34,6 +34,7 @@ int main(int argc, char*argv[]) {
     AvahiServer *server;
     AvahiServerConfig config;
     GMainLoop *loop;
+    gint error;
 
     avahi_server_config_init(&config);
     config.publish_hinfo = FALSE;
@@ -43,7 +44,7 @@ int main(int argc, char*argv[]) {
     config.use_ipv6 = FALSE;
     config.enable_reflector = TRUE;
     
-    server = avahi_server_new(NULL, &config, NULL, NULL);
+    server = avahi_server_new(NULL, &config, NULL, NULL, &error);
     avahi_server_config_free(&config);
 
     loop = g_main_loop_new(NULL, FALSE);

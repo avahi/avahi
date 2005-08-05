@@ -115,6 +115,11 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
 
     g_assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
 
+    if (!avahi_valid_domain_name(host_name)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_HOST_NAME);
+        return NULL;
+    }
+    
     r = g_new(AvahiHostNameResolver, 1);
     r->server = server;
     r->host_name = avahi_normalize_name(host_name);
@@ -127,20 +132,34 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
     r->time_event = avahi_time_event_queue_add(server->time_event_queue, &tv, time_event_callback, r);
 
     AVAHI_LLIST_PREPEND(AvahiHostNameResolver, resolver, server->host_name_resolvers, r);
+
+    r->record_browser_aaaa = r->record_browser_a = NULL;
     
     if (aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
         r->record_browser_a = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
+
+        if (!r->record_browser_a)
+            goto fail;
     } 
 
     if (aprotocol == AVAHI_PROTO_INET6 || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
         r->record_browser_aaaa = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
+
+        if (!r->record_browser_aaaa)
+            goto fail;
     }
-    
+
+    g_assert(r->record_browser_aaaa || r->record_browser_a);
+
     return r;
+
+fail:
+    avahi_host_name_resolver_free(r);
+    return NULL;
 }
 
 void avahi_host_name_resolver_free(AvahiHostNameResolver *r) {

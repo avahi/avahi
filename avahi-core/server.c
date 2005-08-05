@@ -259,6 +259,7 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         }
     }
 
+
     if (!ours) {
 
         if (won)
@@ -1221,6 +1222,9 @@ gint avahi_server_set_host_name(AvahiServer *s, const gchar *host_name) {
     g_assert(s);
     g_assert(host_name);
 
+    if (host_name && !avahi_valid_host_name(host_name))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
+
     withdraw_host_rrs(s);
 
     g_free(s->host_name);
@@ -1235,6 +1239,9 @@ gint avahi_server_set_host_name(AvahiServer *s, const gchar *host_name) {
 gint avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
     g_assert(s);
     g_assert(domain_name);
+
+    if (domain_name && !avahi_valid_domain_name(domain_name))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
     withdraw_host_rrs(s);
 
@@ -1257,8 +1264,20 @@ static void prepare_pollfd(AvahiServer *s, GPollFD *pollfd, gint fd) {
     g_source_add_poll(s->source, pollfd);
 }
 
-AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, AvahiServerCallback callback, gpointer userdata) {
+static gint valid_server_config(const AvahiServerConfig *sc) {
+
+    if (sc->host_name && !avahi_valid_host_name(sc->host_name))
+        return AVAHI_ERR_INVALID_HOST_NAME;
+    
+    if (sc->domain_name && !avahi_valid_domain_name(sc->domain_name))
+        return AVAHI_ERR_INVALID_DOMAIN_NAME;
+
+    return AVAHI_OK;
+}
+
+AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, AvahiServerCallback callback, gpointer userdata, gint *error) {
     AvahiServer *s;
+    gint e;
     
     static GSourceFuncs source_funcs = {
         prepare_func,
@@ -1269,6 +1288,12 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
         NULL
     };
 
+    if ((e = valid_server_config(sc)) < 0) {
+        if (error)
+            *error = e;
+        return NULL;
+    }
+    
     s = g_new(AvahiServer, 1);
     s->n_host_rr_pending = 0;
     s->need_entry_cleanup = s->need_group_cleanup = s->need_browser_cleanup = FALSE;
@@ -1282,9 +1307,12 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     s->fd_ipv6 = s->config.use_ipv6 ? avahi_open_socket_ipv6() : -1;
     
     if (s->fd_ipv6 < 0 && s->fd_ipv4 < 0) {
-        g_critical("Selected neither IPv6 nor IPv4 support, aborting.\n");
         avahi_server_config_free(&s->config);
         g_free(s);
+
+        if (error)
+            *error = AVAHI_ERR_NO_NETWORK;
+        
         return NULL;
     }
 
@@ -1354,6 +1382,8 @@ AvahiServer *avahi_server_new(GMainContext *c, const AvahiServerConfig *sc, Avah
     s->hinfo_entry_group = NULL;
     s->browse_domain_entry_group = NULL;
     register_stuff(s);
+
+    s->error = AVAHI_OK;
     
     return s;
 }
@@ -1461,13 +1491,16 @@ gint avahi_server_add(
     g_assert(r);
 
     if (r->ttl == 0)
-        return -1;
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_TTL);
 
     if (avahi_key_is_pattern(r->key))
-        return -1;
+        return avahi_server_set_errno(s, AVAHI_ERR_IS_PATTERN);
+
+    if (!avahi_record_valid(r))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_RECORD);
 
     if (check_record_conflict(s, interface, protocol, r, flags) < 0)
-        return -1;
+        return avahi_server_set_errno(s, AVAHI_ERR_LOCAL_COLLISION);
 
     e = g_new(AvahiEntry, 1);
     e->server = s;
@@ -1551,6 +1584,7 @@ gint avahi_server_add_ptr(
     AvahiRecord *r;
     gint ret;
 
+    g_assert(s);
     g_assert(dest);
 
     r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR, ttl);
@@ -1570,11 +1604,16 @@ gint avahi_server_add_address(
     AvahiAddress *a) {
 
     gchar *n = NULL;
-    gint ret = 0;
+    gint ret = AVAHI_OK;
     g_assert(s);
     g_assert(a);
 
     name = name ? (n = avahi_normalize_name(name)) : s->host_name_fqdn;
+
+    if (!avahi_valid_domain_name(name)) {
+        avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
+        goto fail;
+    }
     
     if (a->family == AVAHI_PROTO_INET) {
         gchar *reverse;
@@ -1584,11 +1623,14 @@ gint avahi_server_add_address(
         r->data.a.address = a->data.ipv4;
         ret = avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
         avahi_record_unref(r);
+
+        if (ret < 0)
+            goto fail;
         
         reverse = avahi_reverse_lookup_name_ipv4(&a->data.ipv4);
-        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
+        ret = avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
         g_free(reverse);
-        
+
     } else {
         gchar *reverse;
         AvahiRecord *r;
@@ -1598,14 +1640,22 @@ gint avahi_server_add_address(
         ret = avahi_server_add(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
         avahi_record_unref(r);
 
+        if (ret < 0)
+            goto fail;
+
         reverse = avahi_reverse_lookup_name_ipv6_arpa(&a->data.ipv6);
-        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
+        ret = avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
         g_free(reverse);
+
+        if (ret < 0)
+            goto fail;
     
         reverse = avahi_reverse_lookup_name_ipv6_int(&a->data.ipv6);
-        ret |= avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
+        ret = avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
         g_free(reverse);
     }
+
+fail:
     
     g_free(n);
 
@@ -1644,6 +1694,8 @@ gint avahi_server_add_txt_strlst(
     guint32 ttl,
     const gchar *name,
     AvahiStringList *strlst) {
+
+    g_assert(s);
 
     return server_add_txt_strlst_nocopy(s, g, interface, protocol, flags, ttl, name, avahi_string_list_copy(strlst));
 }
@@ -1721,19 +1773,31 @@ static gint server_add_service_strlst_nocopy(
 
     gchar ptr_name[256], svc_name[256], ename[64], enum_ptr[256];
     gchar *t, *d;
-    AvahiRecord *r;
+    AvahiRecord *r = NULL;
     gint ret = 0;
     
     g_assert(s);
     g_assert(type);
     g_assert(name);
 
+    if (!avahi_valid_service_name(name))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
+
+    if (!avahi_valid_service_type(type))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_TYPE);
+
+    if (domain && !avahi_valid_domain_name(domain))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+
+    if (host && !avahi_valid_domain_name(host))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
+
+    if (port == 0)
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PORT);
+    
     escape_service_name(ename, sizeof(ename), name);
 
-    if (domain) {
-        while (domain[0] == '.')
-            domain++;
-    } else
+    if (!domain)
         domain = s->domain_name;
 
     if (!host)
@@ -1745,23 +1809,35 @@ static gint server_add_service_strlst_nocopy(
     g_snprintf(ptr_name, sizeof(ptr_name), "%s.%s", t, d);
     g_snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, t, d);
 
-    ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, ptr_name, svc_name);
+    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
+        goto fail;
 
     r = avahi_record_new_full(svc_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME);
     r->data.srv.priority = 0;
     r->data.srv.weight = 0;
     r->data.srv.port = port;
     r->data.srv.name = avahi_normalize_name(host);
-    ret |= avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
+    ret = avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, r);
     avahi_record_unref(r);
 
-    ret |= server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    if (ret < 0)
+        goto fail;
+
+    ret = server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    strlst = NULL;
+
+    if (ret < 0)
+        goto fail;
 
     g_snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", d);
-    ret |=avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
+    ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_ENTRY_NULL, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
+fail:
+    
     g_free(d);
     g_free(t);
+
+    avahi_string_list_free(strlst);
     
     return ret;
 }
@@ -1777,6 +1853,10 @@ gint avahi_server_add_service_strlst(
     const gchar *host,
     guint16 port,
     AvahiStringList *strlst) {
+
+    g_assert(s);
+    g_assert(type);
+    g_assert(name);
 
     return server_add_service_strlst_nocopy(s, g, interface, protocol, name, type, domain, host, port, avahi_string_list_copy(strlst));
 }
@@ -1866,6 +1946,12 @@ gint avahi_server_add_dns_server_address(
     g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
     g_assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
 
+    if (domain && !avahi_valid_domain_name(domain))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+
+    if (port == 0)
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PORT);
+    
     if (address->family == AVAHI_PROTO_INET) {
         hexstring(n+3, sizeof(n)-3, &address->data, 4);
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);
@@ -1878,10 +1964,11 @@ gint avahi_server_add_dns_server_address(
     
     ret = avahi_server_add(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE | AVAHI_ENTRY_ALLOWMUTIPLE, r);
     avahi_record_unref(r);
-    
-    ret |= avahi_server_add_dns_server_name(s, g, interface, protocol, domain, type, n, port);
 
-    return ret;
+    if (ret < 0)
+        return ret;
+    
+    return avahi_server_add_dns_server_name(s, g, interface, protocol, domain, type, n, port);
 }
 
 gint avahi_server_add_dns_server_name(
@@ -1902,10 +1989,13 @@ gint avahi_server_add_dns_server_name(
     g_assert(name);
     g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
 
-    if (domain) {
-        while (domain[0] == '.')
-            domain++;
-    } else
+    if (domain && !avahi_valid_domain_name(domain))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+
+    if (port == 0)
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PORT);
+    
+    if (!domain)
         domain = s->domain_name;
 
     d = avahi_normalize_name(domain);
@@ -1945,6 +2035,8 @@ void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState sta
 
     if (g->state == state)
         return;
+
+    g_assert(state >= AVAHI_ENTRY_GROUP_UNCOMMITED && state <= AVAHI_ENTRY_GROUP_COLLISION);
 
     g->state = state;
     
@@ -2031,7 +2123,7 @@ gint avahi_entry_group_commit(AvahiEntryGroup *g) {
     g_assert(!g->dead);
 
     if (g->state != AVAHI_ENTRY_GROUP_UNCOMMITED && g->state != AVAHI_ENTRY_GROUP_COLLISION)
-        return AVAHI_ERR_BAD_STATE;
+        return avahi_server_set_errno(g->server, AVAHI_ERR_BAD_STATE);
 
     g->n_register_try++;
 
@@ -2201,3 +2293,47 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
 
     return ret;
 }
+
+const gchar *avahi_strerror(gint error) {
+    g_assert(-error >= 0 && -error < -AVAHI_ERR_MAX);
+
+    const gchar * const msg[- AVAHI_ERR_MAX] = {
+        "OK",
+        "Operation failed",
+        "Bad state",
+        "Invalid host name",
+        "Invalid domain name",
+        "No suitable network protocol available",
+        "Invalid DNS TTL",
+        "Resource record key is pattern",
+        "Local name collision",
+        "Invalid record",
+        "Invalid service name",
+        "Invalid service type",
+        "Invalid port number",
+        "Invalid record key",
+        "Invalid address",
+        "Timeout reached",
+        "Too many clients",
+        "Too many objects",
+        "Too many entries",
+        "OS Error",
+        "Access denied"
+    };
+
+    return msg[-error];
+}
+
+gint avahi_server_errno(AvahiServer *s) {
+    g_assert(s);
+    
+    return s->error;
+}
+
+/* Just for internal use */
+gint avahi_server_set_errno(AvahiServer *s, gint error) {
+    g_assert(s);
+
+    return s->error = error;
+}
+

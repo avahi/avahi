@@ -60,12 +60,20 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex i
     
     g_assert(server);
     g_assert(callback);
+    g_assert(type >= AVAHI_DOMAIN_BROWSER_BROWSE && type <= AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY);
+
+    if (domain && !avahi_valid_domain_name(domain)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
+        return NULL;
+    }
 
     b = g_new(AvahiDomainBrowser, 1);
     b->server = server;
     b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->callback = callback;
     b->userdata = userdata;
+
+    AVAHI_LLIST_PREPEND(AvahiDomainBrowser, browser, server->domain_browsers, b);
 
     switch (type) {
         case AVAHI_DOMAIN_BROWSER_BROWSE:
@@ -97,7 +105,10 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex i
     b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
 
-    AVAHI_LLIST_PREPEND(AvahiDomainBrowser, browser, server->domain_browsers, b);
+    if (!b->record_browser) {
+        avahi_domain_browser_free(b);
+        return NULL;
+    }
     
     return b;
 }
@@ -107,7 +118,9 @@ void avahi_domain_browser_free(AvahiDomainBrowser *b) {
 
     AVAHI_LLIST_REMOVE(AvahiDomainBrowser, browser, b->server->domain_browsers, b);
 
-    avahi_record_browser_free(b->record_browser);
+    if (b->record_browser)
+        avahi_record_browser_free(b->record_browser);
+    
     g_free(b->domain_name);
     g_free(b);
 }

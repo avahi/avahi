@@ -111,6 +111,11 @@ AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, AvahiIfInd
     
     r->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
     avahi_key_unref(k);
+
+    if (!r->record_browser) {
+        avahi_address_resolver_free(r);
+        return NULL;
+    }
     
     return r;
 }

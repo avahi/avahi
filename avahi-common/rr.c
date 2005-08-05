@@ -552,3 +552,49 @@ gboolean avahi_record_is_goodbye(AvahiRecord *r) {
 
     return r->ttl == 0;
 }
+
+gboolean avahi_key_valid(AvahiKey *k) {
+    g_assert(k);
+
+    if (!avahi_valid_domain_name(k->name))
+        return FALSE;
+    
+    return TRUE;
+}
+
+gboolean avahi_record_valid(AvahiRecord *r) {
+    g_assert(r);
+
+    if (!avahi_key_valid(r->key))
+        return FALSE;
+
+    switch (r->key->type) {
+
+        case AVAHI_DNS_TYPE_PTR:
+        case AVAHI_DNS_TYPE_CNAME:
+            return avahi_valid_domain_name(r->data.ptr.name);
+
+        case AVAHI_DNS_TYPE_SRV:
+            return avahi_valid_domain_name(r->data.srv.name);
+
+        case AVAHI_DNS_TYPE_HINFO:
+            return
+                strlen(r->data.hinfo.os) <= 255 &&
+                strlen(r->data.hinfo.cpu) <= 255;
+
+            
+        case AVAHI_DNS_TYPE_TXT: {
+
+            AvahiStringList *strlst;
+
+            for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next)
+                if (strlst->size > 255)
+                    return FALSE;
+
+            return TRUE;
+        }
+    }
+            
+
+    return TRUE;
+}

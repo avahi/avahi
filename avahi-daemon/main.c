@@ -150,6 +150,7 @@ static AvahiEntryGroup* add_dns_servers(AvahiServer *s, AvahiEntryGroup* g, gcha
         else
             if (avahi_server_add_dns_server_address(s, g, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
                 avahi_entry_group_free(g);
+                avahi_log_error("Failed to add DNS server address: %s", avahi_strerror(avahi_server_errno(s)));
                 return NULL;
             }
     }
@@ -500,6 +501,7 @@ static gint run_server(DaemonConfig *c) {
     gint r = -1;
     GIOChannel *io = NULL;
     guint watch_id = (guint) -1;
+    gint error;
 
     g_assert(c);
     
@@ -527,8 +529,10 @@ static gint run_server(DaemonConfig *c) {
             goto finish;
 #endif
     
-    if (!(avahi_server = avahi_server_new(NULL, &c->server_config, server_callback, c)))
+    if (!(avahi_server = avahi_server_new(NULL, &c->server_config, server_callback, c, &error))) {
+        avahi_log_error("Failed to create server: %s", avahi_strerror(error));
         goto finish;
+    }
 
     load_resolv_conf(c);
     

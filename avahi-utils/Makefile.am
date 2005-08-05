@@ -24,14 +24,18 @@ pythonscripts = \
 	avahi-publish-service \
 	avahi-dump-all \
 	avahi-discover \
-	avahi-bookmarks
+	avahi-bookmarks \
+	avahi-resolve-host-name \
+	avahi-resolve-address
 
 EXTRA_DIST = \
 	avahi-publish-address.in \
 	avahi-publish-service.in \
 	avahi-dump-all.in \
 	avahi-discover.in \
-	avahi-bookmarks.in
+	avahi-bookmarks.in \
+	avahi-resolve-host-name.in \
+	avahi-resolve-address.in
 
 if HAVE_PYTHON
 bin_SCRIPTS = $(pythonscripts)
@@ -55,6 +59,14 @@ avahi-discover: avahi-discover.in
 	chmod +x $@
 
 avahi-bookmarks: avahi-bookmarks.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+	chmod +x $@
+
+avahi-resolve-host-name: avahi-resolve-host-name.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+	chmod +x $@
+
+avahi-resolve-address: avahi-resolve-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 

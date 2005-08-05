@@ -267,6 +267,7 @@ int main(int argc, char *argv[]) {
     GladeXML *xml;
     AvahiServerConfig config;
     GtkTreeViewColumn *c;
+    gint error;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -293,8 +294,10 @@ int main(int argc, char *argv[]) {
     
     avahi_server_config_init(&config);
     config.publish_hinfo = config.publish_addresses = config.publish_domain = config.publish_workstation = FALSE;
-    server = avahi_server_new(NULL, &config, NULL, NULL);
+    server = avahi_server_new(NULL, &config, NULL, NULL, &error);
     avahi_server_config_free(&config);
+
+    g_assert(server);
 
     service_type_browser = avahi_service_type_browser_new(server, -1, AF_UNSPEC, argc >= 2 ? argv[1] : NULL, service_type_browser_callback, NULL);
 

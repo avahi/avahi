@@ -60,6 +60,11 @@ guint avahi_domain_hash(const gchar *s);
 
 gchar *avahi_format_mac_address(const guint8* mac, guint size);
 
+gboolean avahi_valid_service_type(const gchar *t);
+gboolean avahi_valid_domain_name(const gchar *t);
+gboolean avahi_valid_service_name(const gchar *t);
+gboolean avahi_valid_host_name(const gchar *t);
+
 AVAHI_C_DECL_END
 
 #endif

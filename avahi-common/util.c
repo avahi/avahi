@@ -414,3 +414,97 @@ gchar *avahi_format_mac_address(const guint8* mac, guint size) {
     *(--t) = 0;
     return r;
 }
+
+gboolean avahi_valid_service_type(const gchar *t) {
+    const gchar *p;
+    g_assert(t);
+
+    if (strlen(t) < 5)
+        return FALSE;
+    
+    if (*t != '_')
+        return FALSE;
+
+    if (!(p = strchr(t, '.')))
+        return FALSE;
+
+    if (p - t > 63 || p - t < 2)
+        return FALSE;
+
+    if (*(++p) != '_')
+        return FALSE;
+
+    if (strchr(p, '.'))
+        return FALSE;
+
+    if (strlen(p) > 63 || strlen(p) < 2)
+        return FALSE;
+    
+    return TRUE;
+}
+
+gboolean avahi_valid_domain_name(const gchar *t) {
+    const gchar *p, *dp;
+    gboolean dot = FALSE;
+        
+    g_assert(t);
+
+    if (*t == 0)
+        return FALSE;
+
+    /* Domains may not start with a dot */
+    if (*t == '.')
+        return FALSE;
+
+    dp = t; 
+
+    for (p = t; *p; p++) {
+
+        if (*p == '.') {
+            if (dot) /* Two subsequent dots */
+                return FALSE;
+
+            if (p - dp > 63)
+                return FALSE;
+
+            dot = TRUE;
+            dp = p + 1;
+        } else
+            dot = FALSE;
+
+    }
+
+    if (p - dp > 63)
+        return FALSE;
+
+    /* A trailing dot IS allowed */
+    
+    return TRUE;
+}
+
+gboolean avahi_valid_service_name(const gchar *t) {
+    g_assert(t);
+
+    if (*t == 0)
+        return FALSE;
+
+    if (strlen(t) > 63)
+        return FALSE;
+
+    return TRUE;
+}
+
+gboolean avahi_valid_host_name(const gchar *t) {
+    g_assert(t);
+
+    if (*t == 0)
+        return FALSE;
+
+    if (strlen(t) > 63)
+        return FALSE;
+
+    if (strchr(t, '.'))
+        return FALSE;
+
+    return TRUE;
+}

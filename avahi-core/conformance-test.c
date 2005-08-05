@@ -101,8 +101,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
 
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
+    gint error;
 
-    avahi = avahi_server_new(NULL, NULL, server_callback, NULL);
+    avahi = avahi_server_new(NULL, NULL, server_callback, NULL, &error);
     
     loop = g_main_loop_new(NULL, FALSE);
     g_timeout_add(1000*5, dump_timeout, avahi);

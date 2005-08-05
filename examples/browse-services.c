@@ -77,6 +77,8 @@ int main(int argc, char*argv[]) {
     AvahiServerConfig config;
     AvahiServer *server = NULL;
     AvahiServiceBrowser *sb;
+    gint error;
+    int ret = 1;
 
     /* Do not publish any local records */
     avahi_server_config_init(&config);
@@ -86,11 +88,17 @@ int main(int argc, char*argv[]) {
     config.publish_domain = FALSE;
     
     /* Allocate a new server */
-    server = avahi_server_new(NULL, &config, NULL, NULL);
+    server = avahi_server_new(NULL, &config, NULL, NULL, &error);
 
     /* Free the configuration data */
     avahi_server_config_free(&config);
 
+    /* Check wether creating the server object succeeded */
+    if (!server) {
+        g_message("Failed to create server: %s", avahi_strerror(error));
+        goto fail;
+    }
+    
     /* Create the service browser */
     sb = avahi_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, browse_callback, server);
     
@@ -98,6 +106,10 @@ int main(int argc, char*argv[]) {
     main_loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(main_loop);
 
+    ret = 0;
+    
+fail:
+    
     /* Cleanup things */
     if (sb)
         avahi_service_browser_free(sb);
@@ -108,5 +120,5 @@ int main(int argc, char*argv[]) {
     if (main_loop)
         g_main_loop_unref(main_loop);
 
-    return 0;
+    return ret;
 }

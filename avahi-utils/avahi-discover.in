@@ -79,6 +79,8 @@ class Main_window(SimpleGladeApp):
             self.zc_types[(interface,protocol,type,domain)] = self.insert_row(self.treemodel,self.zc_domains[(interface,protocol,domain)], type, name, interface,None,None,None)
         treeiter = self.insert_row(self.treemodel,self.zc_types[(interface,protocol,type,domain)], name, name, interface,protocol,type,domain)
         self.services_browsed[(interface, protocol, name, type, domain)] = treeiter
+        # expand the tree of this path
+        self.tree_view.expand_to_path(self.treemodel.get_path(treeiter))
 
 
     def remove_service(self, interface, protocol, name, type, domain):

@@ -19,18 +19,27 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import avahi, dbus, gobject, sys
+import sys
 
-from twisted.internet import gtk2reactor
-gtk2reactor.install()
-from twisted.internet import reactor
-from twisted.web import server, resource
+try:
+    import avahi, gobject, dbus
+except ImportError:
+    print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
+    sys.exit(1)
 
 try:
     import dbus.glib
-except ImportError, e:
+except ImportError:
     pass
 
+try:
+    from twisted.internet import gtk2reactor
+    gtk2reactor.install()
+    from twisted.internet import reactor
+    from twisted.web import server, resource
+except ImportError:
+    print "Sorry, to use this tool you need to install twisted."
+    sys.exit(1)
 
 class AvahiBookmarks(resource.Resource):
     isLeaf = True

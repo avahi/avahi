@@ -19,12 +19,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import os
-import gtk
-import gobject
+import os, sys
 
-import avahi, dbus, gobject, sys
-from avahi.SimpleGladeApp import SimpleGladeApp
+try:
+    import avahi, gtk, gobject, dbus
+    from avahi.SimpleGladeApp import SimpleGladeApp
+except ImportError:
+    print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
+    sys.exit(1)
 
 try:
     import dbus.glib
@@ -33,7 +35,6 @@ except ImportError, e:
 
 service_type_browsers = {}
 service_browsers = {}
-
 
 glade_dir = "@interfacesdir@"
 

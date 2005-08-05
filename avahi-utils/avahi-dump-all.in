@@ -19,7 +19,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import avahi, dbus, gobject, sys
+import sys
+
+try:
+    import avahi, gobject, dbus
+except ImportError:
+    print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
+    sys.exit(1)
 
 try:
     import dbus.glib

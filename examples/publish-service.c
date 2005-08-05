@@ -62,33 +62,45 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
 
 static void create_services(AvahiServer *s) {
     gchar r[128];
+    gint ret;
     g_assert(s);
 
     /* If this is the first time we're called, let's create a new entry group */
-    if (!group)
-        group = avahi_entry_group_new(s, entry_group_callback, NULL);
-
+    if (!group) {
+        if (!(group = avahi_entry_group_new(s, entry_group_callback, NULL))) {
+            g_message("avahi_entry_group_new() failed: %s", avahi_strerror(avahi_server_errno(s)));
+            goto fail;
+        }
+    }
+    
     g_message("Adding service '%s'", name);
 
     /* Create some random TXT data */
     snprintf(r, sizeof(r), "random=%i", rand());
 
     /* Add the service for IPP */
-    if (avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL) < 0) {
-        g_message("Failed to add _ipp._tcp service.");
-        g_main_loop_quit(main_loop);
-        return;
+    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
+        g_message("Failed to add _ipp._tcp service: %s", avahi_strerror(ret));
+        goto fail;
     }
 
     /* Add the same service for BSD LPR */
-    if (avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_printer._tcp", NULL, NULL, 515, NULL) < 0) {
-        g_message("Failed to add _printer._tcp service.");
-        g_main_loop_quit(main_loop);
-        return;
+    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
+        g_message("Failed to add _printer._tcp service: %s", avahi_strerror(ret));
+        goto fail;
     }
 
     /* Tell the server to register the service */
-    avahi_entry_group_commit(group);
+    if ((ret = avahi_entry_group_commit(group)) < 0) {
+        g_message("Failed to commit entry_group: %s", avahi_strerror(ret));
+        goto fail;
+    }
+
+    return;
+
+fail:
+    g_main_loop_quit(main_loop);
+    return;
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
@@ -103,12 +115,20 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
     
     else if (state == AVAHI_SERVER_COLLISION) {
         gchar *n;
+        gint r;
         
         /* A host name collision happened. Let's pick a new name for the server */
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
         g_message("Host name collision, retrying with '%s'", n);
-        avahi_server_set_host_name(s, n);
+        r = avahi_server_set_host_name(s, n);
         g_free(n);
+
+        if (r < 0) {
+            g_message("Failed to set new host name: %s", avahi_strerror(r));
+
+            g_main_loop_quit(main_loop);
+            return;
+        }
 
         /* Let's drop our registered services. When the server is back
          * in AVAHI_SERVER_RUNNING state we will register them

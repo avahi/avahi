@@ -70,7 +70,8 @@ static void browse_callback(AvahiServiceBrowser *b, AvahiIfIndex interface, Avah
         we free it. If the server is terminated before the callback
         function is called the server will free the resolver for us. */
 
-        avahi_service_resolver_new(s, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, resolve_callback, s);
+        if (!(avahi_service_resolver_new(s, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, resolve_callback, s)))
+            g_message("Failed to resolve service '%s': %s", name, avahi_strerror(avahi_server_errno(s)));
 }
 
 int main(int argc, char*argv[]) {
@@ -100,7 +101,10 @@ int main(int argc, char*argv[]) {
     }
     
     /* Create the service browser */
-    sb = avahi_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, browse_callback, server);
+    if (!(sb = avahi_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, browse_callback, server))) {
+        g_message("Failed to create service browser: %s", avahi_strerror(avahi_server_errno(server)));
+        goto fail;
+    }
     
     /* Run the main loop */
     main_loop = g_main_loop_new(NULL, FALSE);

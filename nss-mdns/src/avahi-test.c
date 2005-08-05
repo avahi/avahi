@@ -29,17 +29,17 @@ int main(int argc, char *argv[]) {
     char t[256];
     int r;
 
-    if ((r = avahi_resolve_name(AF_INET, argc >= 2 ? argv[1] : "whiskey.local", data)) == 0)
+    if ((r = avahi_resolve_name(AF_INET, argc >= 2 ? argv[1] : "cocaine.local", data)) == 0)
         printf("AF_INET: %s\n", inet_ntop(AF_INET, data, t, sizeof(t)));
     else
         printf("AF_INET: failed (%i).\n", r);
 
-    if ((r = avahi_resolve_name(AF_INET6, argc >= 2 ? argv[1] : "whiskey.local", data)) == 0)
-        printf("AF_INET6: %s\n", inet_ntop(AF_INET6, data, t, sizeof(t)));
-    else
-        printf("AF_INET6: failed (%i).\n", r);
+/*     if ((r = avahi_resolve_name(AF_INET6, argc >= 2 ? argv[1] : "cocaine.local", data)) == 0) */
+/*         printf("AF_INET6: %s\n", inet_ntop(AF_INET6, data, t, sizeof(t))); */
+/*     else */
+/*         printf("AF_INET6: failed (%i).\n", r); */
 
-    if ((r = avahi_resolve_address(AF_INET6, data, t, sizeof(t))) == 0)
+    if ((r = avahi_resolve_address(AF_INET, data, t, sizeof(t))) == 0)
         printf("REVERSE: %s\n", t);
     else
         printf("REVERSE: failed (%i).\n", r);

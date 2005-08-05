@@ -32,8 +32,8 @@ struct dns_packet {
 
 struct dns_packet* dns_packet_new(void);
 void dns_packet_free(struct dns_packet *p);
-void dns_packet_set_field(struct dns_packet *p, unsigned index, uint16_t v);
-uint16_t dns_packet_get_field(struct dns_packet *p, unsigned index);
+void dns_packet_set_field(struct dns_packet *p, unsigned idx, uint16_t v);
+uint16_t dns_packet_get_field(struct dns_packet *p, unsigned idx);
 
 uint8_t *dns_packet_append_uint16(struct dns_packet *p, uint16_t v);
 uint8_t *dns_packet_append_name(struct dns_packet *p, const char *name);

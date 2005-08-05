@@ -17,7 +17,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-D_GNU_SOURCE -DMDNS_ALLOW_FILE=\"$(sysconfdir)/mdns.allow\"
+AM_CFLAGS = \
+	-DMDNS_ALLOW_FILE=\"$(sysconfdir)/mdns.allow\" \
+	-DRESOLV_CONF_FILE=\"$(sysconfdir)/resolv.conf\" \
+	-DAVAHI_SOCKET=\"$(localstatedir)/run/avahi-daemon/socket\"
+
 #-DNDEBUG=1
 
 # This cool debug trap works on i386/gcc only

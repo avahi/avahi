@@ -19,6 +19,9 @@
   USA.
 ***/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <sys/socket.h>
 #include <string.h>
@@ -32,7 +35,7 @@
 #include "avahi.h"
 #include "util.h"
 
-#define AVAHI_SOCKET "/var/run/avahi/socket"
+#define WHITESPACE " \t"
 
 static FILE *open_socket(void) {
     int fd = -1;
@@ -67,7 +70,7 @@ fail:
 
 int avahi_resolve_name(int af, const char* name, void* data) {
     FILE *f;
-    char *e, *p;
+    char *p;
     int ret = -1;
     char ln[256];
 
@@ -88,9 +91,22 @@ int avahi_resolve_name(int af, const char* name, void* data) {
     }
 
     p = ln+1;
-    p += strspn(p, "\t ");
-    e = p + strcspn(p, "\n\r\t ");
-    *e = 0;
+    p += strspn(p, WHITESPACE);
+
+    /* Skip interface */
+    p += strcspn(p, WHITESPACE);
+    p += strspn(p, WHITESPACE);
+
+    /* Skip protocol */
+    p += strcspn(p, WHITESPACE);
+    p += strspn(p, WHITESPACE);
+
+    /* Skip host name */
+    p += strcspn(p, WHITESPACE);
+    p += strspn(p, WHITESPACE);
+
+    /* Cut off end of line */
+    *(p + strcspn(p, "\n\r\t ")) = 0;
 
     if (inet_pton(af, p, data) <= 0)
         goto finish;
@@ -107,7 +123,7 @@ finish:
 
 int avahi_resolve_address(int af, const void *data, char* name, size_t name_len) {
     FILE *f;
-    char *e, *p;
+    char *p;
     int ret = -1;
     char a[256], ln[256];
 
@@ -127,9 +143,18 @@ int avahi_resolve_address(int af, const void *data, char* name, size_t name_len)
     }
 
     p = ln+1;
-    p += strspn(p, "\t ");
-    e = p + strcspn(p, "\n\r\t ");
-    *e = 0;
+    p += strspn(p, WHITESPACE);
+
+    /* Skip interface */
+    p += strcspn(p, WHITESPACE);
+    p += strspn(p, WHITESPACE);
+
+    /* Skip protocol */
+    p += strcspn(p, WHITESPACE);
+    p += strspn(p, WHITESPACE);
+    
+    /* Cut off end of line */
+    *(p + strcspn(p, "\n\r\t ")) = 0;
 
     strncpy(name, p, name_len-1);
     name[name_len-1] = 0;

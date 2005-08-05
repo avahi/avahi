@@ -30,7 +30,7 @@
 #include "query.h"
 
 static void ipv4_func(const ipv4_address_t *ipv4, void *userdata) {
-    fprintf(stderr, "IPV4: %s\n", inet_ntoa(*(struct in_addr*) &ipv4->address));
+    fprintf(stderr, "IPV4: %s\n", inet_ntoa(*(const struct in_addr*) &ipv4->address));
 }
 
 static void ipv6_func(const ipv6_address_t *ipv6, void *userdata) {

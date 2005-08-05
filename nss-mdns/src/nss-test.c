@@ -32,7 +32,7 @@
 int main(int argc, char *argv[]) {
     struct hostent *he;
     in_addr_t **a;
-    char *arg= argc > 1 ? argv[1] : "whiskey.local";
+    const char *arg= argc > 1 ? argv[1] : "cocaine.local";
     uint8_t t[256];
     
     if (inet_pton(AF_INET, arg, &t) > 0) 
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
 
     fprintf(stderr, "addresses:");
     for (a = (in_addr_t**) he->h_addr_list; *a;  a++) {
-        char t[256];
-        fprintf(stderr, " %s", inet_ntop(he->h_addrtype, *a, t, sizeof(t)));
+        char txt[256];
+        fprintf(stderr, " %s", inet_ntop(he->h_addrtype, *a, txt, sizeof(txt)));
     }
     fprintf(stderr, "\n");
     

@@ -171,13 +171,13 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
     }
 
     for (i = 0, n = ifconf.ifc_len/sizeof(struct ifreq); i < n; i++) {
-        struct sockaddr_in *sa;
+        struct sockaddr_in *ifsa;
         u_int32_t s_addr;
 
         /* Check if this is the loopback device or any other invalid interface */
-        sa = (struct sockaddr_in*) &ifreq[i].ifr_addr;
-        s_addr = htonl(sa->sin_addr.s_addr);
-        if (sa->sin_family != AF_INET ||
+        ifsa = (struct sockaddr_in*) &ifreq[i].ifr_addr;
+        s_addr = htonl(ifsa->sin_addr.s_addr);
+        if (ifsa->sin_family != AF_INET ||
             s_addr == INADDR_LOOPBACK ||
             s_addr == INADDR_ANY ||
             s_addr == INADDR_BROADCAST)

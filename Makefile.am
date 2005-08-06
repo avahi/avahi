@@ -21,7 +21,7 @@ ACLOCAL_AMFLAGS = -I common
 
 include $(srcdir)/common/doxygen.mk
 
-EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG)
+EXTRA_DIST = bootstrap.sh LICENSE $(DX_CONFIG) docs/INSTALL docs/TODO docs/DBUS-API docs/README docs/HACKING docs/overview.dia
 SUBDIRS = common avahi-common avahi-core avahi-discover-standalone avahi-client avahi-daemon initscript avahi-dnsconfd avahi-utils examples
 
 pkgconfigdir = $(libdir)/pkgconfig

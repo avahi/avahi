@@ -23,44 +23,20 @@
   USA.
 -->
 
-  <manpage name="avahi-publish-service" section="1" desc="Register an mDNS/DNS-SD service using the Avahi daemon">
+  <manpage name="avahi-resolve-address" section="1" desc="Resolve one or more IP address(es) to mDNS host name(s) using the Avahi daemon">
 
 	<synopsis>
-      <cmd>avahi-publish-service [<arg>options</arg>] <arg>name</arg> <arg>service-type</arg> <arg>port</arg></cmd>
-      <cmd>avahi-publish-service <opt>-h</opt></cmd>
+      <cmd>avahi-resolve-address <arg>address ...</arg></cmd>
 	</synopsis>
 	
     <description>
-      <p>Register an mDNS/DNS-SD service using the Avahi daemon.</p>
+      <p>Resolve one or more IP address(es) to mDNS host name(s) using the Avahi daemon ("reverse name lookup").</p>
 	</description>
 	
 	<options>
 
-      <p>Specify a DNS-SD service name (e.g. "Lennart's Files"), a
-      service type (e.g. _http._tcp) and an IP port number for the
-      service on the command line.</p>
+      <p>Specify one or more IP address(es) (e.g. "192.168.50.1" or "2001:db8:0:1::1") for being resolved into host names on the command line.</p>
 	  
-	  <option>
-		<p><opt>-H | --host=</opt> <arg>HOSTNAME</arg></p>
-		<optdesc><p>Specify a host name for this service, in case it
-		doesn't reside on the local host. This host name needs to be
-		resolvable using mDNS, consider using <manref
-		name="avahi-publish-address" section="1"/> to register it
-		first.</p></optdesc>
-	  </option>
-
-	  <option>
-		<p><opt>-d | --domain=</opt> <arg>DOMAIN</arg></p>
-        <optdesc><p>Publish the service in the specified domain. If
-        omited the Avahi daemon will publish it in its default domain
-        (probably .local).</p></optdesc>
-	  </option>
-
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help</p></optdesc>
-	  </option>
-
 	</options>
 	
 	<section name="Authors">
@@ -71,7 +47,7 @@
 	<section name="See also">
 	  <p>
         <manref name="avahi-publish-address" section="1"/>, <manref
-        name="avahi-publish-service" section="1"/>, <manref
+        name="avahi-resolve-host-name" section="1"/>, <manref
         name="avahi-daemon" section="8"/>
 	  </p>
 	</section>

@@ -19,16 +19,25 @@
 
 man_MANS = \
 	avahi-browse.1 \
-	avahi-publish-service.1
+	avahi-publish-service.1 \
+	avahi-publish-address.1 \
+	avahi-resolve-address.1 \
+	avahi-resolve-host-name.1
 
 noinst_DATA = \
 	avahi-browse.1.xml \
-	avahi-publish-service.1.xml
+	avahi-publish-service.1.xml \
+	avahi-publish-address.1.xml \
+	avahi-resolve-address.1.xml \
+	avahi-resolve-host-name.1.xml
 
 EXTRA_DIST = \
 	$(man_MANS) \
 	avahi-browse.1.xml.in \
 	avahi-publish-service.1.xml.in \
+	avahi-publish-address.1.xml.in \
+	avahi-resolve-address.1.xml.in \
+	avahi-resolve-host-name.1.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd
@@ -48,6 +57,24 @@ avahi-publish-service.1.xml: avahi-publish-service.1.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+avahi-publish-address.1.xml: avahi-publish-address.1.xml.in Makefile
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' \
+	    -e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
+avahi-resolve-address.1.xml: avahi-resolve-address.1.xml.in Makefile
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' \
+	    -e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
+avahi-resolve-host-name.1.xml: avahi-resolve-host-name.1.xml.in Makefile
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' \
+	    -e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
 if USE_XMLTOMAN
 
 CLEANFILES += $(man_MANS)
@@ -58,5 +85,13 @@ avahi-browse.1: avahi-browse.1.xml Makefile
 avahi-publish-service.1: avahi-publish-service.1.xml Makefile
 	xmltoman $< > $@
 
+avahi-publish-address.1: avahi-publish-address.1.xml Makefile
+	xmltoman $< > $@
+
+avahi-resolve-address.1: avahi-resolve-address.1.xml Makefile
+	xmltoman $< > $@
+
+avahi-resolve-host-name.1: avahi-resolve-host-name.1.xml Makefile
+	xmltoman $< > $@
 
 endif

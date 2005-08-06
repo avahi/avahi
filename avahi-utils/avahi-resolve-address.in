@@ -34,7 +34,7 @@ except ImportError, e:
 
 
 if len(sys.argv) <= 1:
-    print "Please specify host name(s) to resolve."
+    print "Please specify (an) address(es) to resolve."
     sys.exit(1)
 
 bus = dbus.SystemBus()

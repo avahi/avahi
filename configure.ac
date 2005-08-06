@@ -110,6 +110,28 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 
 #
+# XMLTOMAN manpage generation
+#
+AC_ARG_ENABLE(xmltoman,
+        AS_HELP_STRING(--disable-xmltoman,Disable rebuilding of man pages with xmltoman),
+[case "${enableval}" in
+  yes) xmltoman=yes ;;
+  no)  xmltoman=no ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --disable-xmltoman]) ;;
+esac],[xmltoman=yes])
+
+if test x$xmltoman = xyes ; then
+   AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
+
+   if test x$have_xmltoman = xno ; then
+     AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
+     xmltoman=no
+   fi
+fi
+
+AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
+
+#
 # D-BUS
 #
 AC_ARG_ENABLE(dbus,

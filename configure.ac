@@ -24,7 +24,7 @@ AC_PREREQ(2.57)
 AC_INIT([avahi],[0.1],[mzninuv (at) 0pointer (dot) de])
 AC_CONFIG_SRCDIR([avahi-core])
 AC_CONFIG_HEADERS([config.h])
-AM_INIT_AUTOMAKE([foreign -Wall])
+AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
 
 AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Avahi])
 
@@ -71,7 +71,7 @@ AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
 AC_ARG_ENABLE(gtk,
-        AC_HELP_STRING([--enable-gtk],[use GTK+ (default=yes)]),
+        AS_HELP_STRING(--enable-gtk,use GTK+ (default=yes)),
         [case "${enableval}" in
                 yes) ENABLE_GTK=yes ;;
                 no)  ENABLE_GTK=no ;;
@@ -113,7 +113,7 @@ DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 # D-BUS
 #
 AC_ARG_ENABLE(dbus,
-        AC_HELP_STRING([--enable-dbus],[use DBus (default=yes)]),
+        AS_HELP_STRING(--enable-dbus,use DBus (default=yes)),
         [case "${enableval}" in
                 yes) ENABLE_DBUS=yes ;;
                 no)  ENABLE_DBUS=no ;;
@@ -169,7 +169,7 @@ fi
 #
 # Detecting the linux distro for specific things like initscripts.
 #
-AC_ARG_WITH(distro, AC_HELP_STRING([--with-distro=DISTRO], [Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, or slackware]))
+AC_ARG_WITH(distro, AS_HELP_STRING(--with-distro=DISTRO,Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, or slackware))
 if test "z$with_distro" = "z"; then
    AC_CHECK_FILE(/etc/redhat-release,with_distro="redhat")
    AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")

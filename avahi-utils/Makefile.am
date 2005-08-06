@@ -22,7 +22,7 @@ SUBDIRS=avahi
 pythonscripts = \
 	avahi-publish-address \
 	avahi-publish-service \
-	avahi-dump-all \
+	avahi-browse \
 	avahi-discover \
 	avahi-bookmarks \
 	avahi-resolve-host-name \
@@ -49,7 +49,7 @@ avahi-publish-service: avahi-publish-service.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
-avahi-dump-all: avahi-dump-all.in
+avahi-browse: avahi-browse.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 

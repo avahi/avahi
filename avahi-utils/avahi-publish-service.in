@@ -40,7 +40,7 @@ def usage(retval = 0):
     sys.exit(retval)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "d:H:", ["help", "domain=", "host="])
+    opts, args = getopt.getopt(sys.argv[1:], "hd:H:", ["help", "domain=", "host="])
 except getopt.GetoptError:
     usage(2)
 

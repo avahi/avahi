@@ -23,35 +23,37 @@
   USA.
 -->
 
-  <manpage name="avahi-browse" section="1" desc="Browse for mDNS/DNS-SD services using the Avahi daemon">
+  <manpage name="avahi-publish-service" section="1" desc="Register an mDNS/DNS-SD service using the Avahi daemon">
 
 	<synopsis>
-      <cmd>avahi-browse [<arg>options</arg>] <arg>service-type</arg></cmd>
-      <cmd>avahi-browse [<arg>options</arg>] <opt>-a</opt></cmd>
+      <cmd>avahi-browse [<arg>options</arg>] <arg>name</arg> <arg>service-type</arg> <arg>port</arg></cmd>
       <cmd>avahi-browse <opt>-h</opt></cmd>
 	</synopsis>
 	
     <description>
-      <p>Browse for mDNS/DNS-SD network services using the Avahi daemon.</p>
-      
+      <p>Register an mDNS/DNS-SD service using the Avahi daemon.</p>
 	</description>
 	
 	<options>
 
-      <p>Specify a DNS-SD service type (e.g. _http._tcp) to browse for
-      on the command line, or <opt>-a</opt> to browse for all
-      available service types.</p>
+      <p>Specify a DNS-SD service name (e.g. "Lennart's Files"), a
+      service type (e.g. _http._tcp) and an IP port number for the
+      service on the command line.</p>
 	  
 	  <option>
-		<p><opt>-a | --all</opt></p>
-		<optdesc><p>Browse for all service types registered on the LAN, not just the one specified on the command line.</p></optdesc>
+		<p><opt>-H | --host=</opt> <arg>HOSTNAME</arg></p>
+		<optdesc><p>Specify a host name for this service, in case it
+		doesn't reside on the local host. This host name needs to be
+		resolvable using mDNS, consider using <manref
+		name="avahi-publish-address" section="1"/> to register it
+		first.</p></optdesc>
 	  </option>
 
 	  <option>
 		<p><opt>-d | --domain=</opt> <arg>DOMAIN</arg></p>
-        <optdesc><p>Just browse in the specified domain. If omited
-        avahi-browse will browse in .local and all other browse
-        domains announced on the LAN.</p></optdesc>
+        <optdesc><p>Publish the service in the specified domain. If
+        omited the Avahi daemon will publish it in its default domain
+        (probably .local).</p></optdesc>
 	  </option>
 
 	  <option>
@@ -68,7 +70,9 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-publish-service" section="1"/>, <manref name="avahi-daemon" section="8"/>
+        <manref name="avahi-publish-address" section="1"/>, <manref
+        name="avahi-publish-service" section="1"/>, <manref
+        name="avahi-daemon" section="8"/>
 	  </p>
 	</section>
 	

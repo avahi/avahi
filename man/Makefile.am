@@ -17,14 +17,18 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-man_MANS = avahi-browse.1
+man_MANS = \
+	avahi-browse.1 \
+	avahi-publish-service.1
 
 noinst_DATA = \
-	avahi-browse.1.xml
+	avahi-browse.1.xml \
+	avahi-publish-service.1.xml
 
 EXTRA_DIST = \
 	$(man_MANS) \
 	avahi-browse.1.xml.in \
+	avahi-publish-service.1.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd
@@ -38,11 +42,21 @@ avahi-browse.1.xml: avahi-browse.1.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+avahi-publish-service.1.xml: avahi-publish-service.1.xml.in Makefile
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' \
+	    -e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
 if USE_XMLTOMAN
 
 CLEANFILES += $(man_MANS)
 
 avahi-browse.1: avahi-browse.1.xml Makefile
 	xmltoman $< > $@
+
+avahi-publish-service.1: avahi-publish-service.1.xml Makefile
+	xmltoman $< > $@
+
 
 endif

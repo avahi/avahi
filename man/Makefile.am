@@ -17,12 +17,16 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+if HAVE_PYTHON
+
 man_MANS = \
 	avahi-browse.1 \
 	avahi-publish-service.1 \
 	avahi-publish-address.1 \
 	avahi-resolve-address.1 \
 	avahi-resolve-host-name.1
+
+endif
 
 noinst_DATA = \
 	avahi-browse.1.xml \

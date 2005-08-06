@@ -34,7 +34,8 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 avahiincludedir=$(includedir)/avahi-core
 
 avahiinclude_HEADERS = \
-	core.h
+	core.h \
+	log.h
 
 lib_LTLIBRARIES = \
 	libavahi-core.la 

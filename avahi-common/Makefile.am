@@ -34,8 +34,11 @@ avahi_commoninclude_HEADERS = \
 	alternative.h \
 	rr.h \
 	util.h \
-	cdecl.h \
-	dbus.h
+	cdecl.h
+
+if ENABLE_DBUS
+avahi_commoninclude_HEADERS += dbus.h
+endif
 
 noinst_PROGRAMS = \
 	strlst-test \

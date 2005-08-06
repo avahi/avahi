@@ -42,7 +42,7 @@ def usage(retval = 0):
 try:
     opts, args = getopt.getopt(sys.argv[1:], "d:H:", ["help", "domain=", "host="])
 except getopt.GetoptError:
-    pass
+    usage(2)
 
 domain = ""
 host = ""

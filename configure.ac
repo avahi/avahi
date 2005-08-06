@@ -253,6 +253,7 @@ avahi-utils/Makefile
 avahi-utils/avahi/Makefile
 examples/Makefile
 common/Makefile
+man/Makefile
 ])
 AC_OUTPUT
 

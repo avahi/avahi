@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<!DOCTYPE manpage SYSTEM "xmltoman.dtd">
+<?xml-stylesheet type="text/xsl" href="xmltoman.xsl" ?>
+
+<!-- $Id: ifplugstatus.8.xml.in 110 2004-05-10 21:32:00Z lennart $ -->
+
+<!-- 
+  This file is part of ifplugd.
+
+  ifplugd is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 2 of the License, or (at your
+  option) any later version.
+
+  ifplugd is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+  for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with ifplugd; if not, write to the Free Software Foundation,
+  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA. 
+-->
+
+  <manpage name="ifplugstatus" section="8" desc="A link beat detection tool">
+
+	<synopsis>
+	  <cmd>ifplugstatus [<arg>options</arg>] [<arg>INTERFACE</arg>]</cmd>
+	</synopsis>
+	
+	<description>
+	  <p>ifplugstatus is an utility which may be used to detect the link
+	  status of a local Linux ethernet device, much in the same way
+	  mii-diag, mii-tool and ethtool work. In fact it supports all
+	  three different APIs these three tools use. In addition it supports
+	  link checking with the IFF_RUNNING interface flag, which most modern 
+	  drivers (not only ethernet) support, and association status checking 
+	  with the wireless extension API for WLAN devices.</p>
+	  
+	  <p>The APIs are tried in the following order:</p>
+	 
+	  <p>First the newest API: <arg>SIOCETHTOOL</arg> (aka ethtool API)</p>
+	  <p>Second the next older API: <arg>SIOCGMIIREG</arg> (aka mii-diag API)</p>
+	  <p>Than the WLAN API: <arg>wireless extension</arg> (aka iwconfig API)</p>
+	  <p>Followed by the cleanest API: <arg>IFF_RUNNING</arg> (aka ifconfig API)</p>
+	  
+      <p>The oldest API (<arg>SIOCPRIV</arg> aka mii-tool API) is not tested since it is obsolete.</p>
+	  
+	  <p>ifplugstatus may be used in shell script since it returns the
+	  current status as return value. It is especially useful to
+	  detect the available APIs on the used network driver. (Option 
+	  <opt>-v</opt>)</p>
+	</description>
+	
+	<options>
+
+	  <p>You may specify an ethernet device on the command
+	  line. Otherwise ifplugstatus will check all available network interfaces.</p>
+	  
+	  <option>
+		<p><opt>-a | --auto</opt></p>
+		<optdesc><p>
+			Enable interface automatically before querying (default: off)
+		  </p></optdesc>
+	  </option>
+	  
+
+	  <option>
+		<p><opt>-h | --help</opt></p>
+		<optdesc><p>
+			Show help
+		  </p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-q | --quiet</opt></p> <optdesc><p>Decrease verbosity
+		by one. If the verbosity is &lt; 0, no text will be shown,
+		only the return value is relevant; if the verbosity is = 0, a
+		terse status will be shown; If the verbosity is &gt; 0,
+		detailed information about the used API is returned. (By
+		default the verbosity is 0)</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-v | --verbose</opt></p>
+		<optdesc><p>
+			Increase verbosity by one. See option <opt>-q</opt>.
+		  </p></optdesc>
+	  </option>
+	  
+	  <option>
+		<p><opt>-V | --version</opt></p>
+		<optdesc><p>
+			Show version
+		  </p></optdesc>
+	  </option>
+	  
+	</options>
+	
+	<section name="Return values">
+	  <p><arg>0</arg> Success</p>
+	  <p><arg>1</arg> Failure</p>
+	  <p><arg>2</arg> Link beat detected (only available when an interface is specified)</p>
+	  <p><arg>3</arg> Unplugged (same here)</p>
+	</section>
+	
+	<section name="Author">
+	  <p>ifplugd was written by Lennart Poettering
+		&lt;@PACKAGE_BUGREPORT@&gt;.  ifplugd is available
+		at <url
+		href="@PACKAGE_URL@"/>
+	  </p>
+	</section>
+	
+	<section name="See also">
+	  <p>
+		<manref name="mii-diag" section="8"/>, <manref name="mii-tool"
+		  section="8"/>, <manref name="ethtool" section="8"/>, <manref name="ifplugd" section="8"/>
+	  </p>
+	</section>
+	
+	<section name="Comments">
+	  <p>This man page was written using <manref name="xml2man" section="1"
+		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+	</section>
+	
+  </manpage>

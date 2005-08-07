@@ -60,7 +60,7 @@ fi
 #set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DESC="Avahi ZeroConf daemon"
+DESC="Avahi mDNS/DNS-SD daemon"
 NAME="avahi-daemon"
 DAEMON="@sbindir@/$NAME"
 
@@ -101,7 +101,7 @@ case "$1" in
         log_end_msg $?
         ;;
     reload)
-        log_begin_msg "Reloading config file for $DESC: $NAME"
+        log_begin_msg "Reloading services for $DESC: $NAME"
 	d_reload
         log_end_msg $?
         ;;

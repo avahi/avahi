@@ -65,7 +65,7 @@
 
 
       <option>
-        <p><opt>&lt;type&gt;</opt> Contains the DNS-SD service type for this service. i.e. "_http._tcp".</p>
+        <p><opt>&lt;type&gt;</opt> Contains the DNS-SD service type for this service. e.g. "_http._tcp".</p>
       </option>
 
       <option>

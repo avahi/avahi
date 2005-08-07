@@ -28,7 +28,7 @@
 <!ATTLIST section name CDATA #REQUIRED>
 <!ELEMENT option (#PCDATA | p | optdesc)*>
 <!ELEMENT optdesc (#PCDATA | p )*>
-<!ELEMENT cmd (#PCDATA | arg)*>
+<!ELEMENT cmd (#PCDATA | arg | opt)*>
 <!ELEMENT options (p | option)*>
 <!ELEMENT seealso (p)*>
 <!ELEMENT opt (#PCDATA)>

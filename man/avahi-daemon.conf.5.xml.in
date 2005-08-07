@@ -1,0 +1,192 @@
+<?xml version="1.0"?><!--*-nxml-*-->
+<!DOCTYPE manpage SYSTEM "xmltoman.dtd">
+<?xml-stylesheet type="text/xsl" href="xmltoman.xsl" ?>
+
+<!-- $Id$ -->
+
+<!-- 
+  This file is part of avahi.
+ 
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+ 
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+-->
+
+  <manpage name="avahi-daemon.conf" section="5" desc="avahi-daemon configuration file">
+
+	<synopsis>
+      <cmd>@pkgsysconfdir@/avahi-daemon.conf</cmd>
+	</synopsis>
+	
+    <description>
+      <p><file>avahi-daemon.conf</file> is the configuration file for avahi-daemon.</p>
+	</description>
+	
+	<section name="Section [Server]">
+
+      <option>
+        <p><opt>host-name=</opt> Set the host name avahi-daemon tries
+        to register on the LAN. If omited defaults to the system host
+        name as set with the sethostname() system call.</p>
+      </option>
+
+      <option>
+        <p><opt>domain-name=</opt> Set the domain name avahi-domain
+        tries to register its host name and services on the LAN in. If
+        omited defaults to ".local".</p>
+      </option>
+
+      <option>
+        <p><opt>use-ipv4=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "no" avahi-daemon will not use IPv4
+        sockets. Default is "yes".</p>
+      </option>
+
+      <option>
+        <p><opt>use-ipv6=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "no" avahi-daemon will not use IPv6
+        sockets. Default is "yes".</p>
+      </option>
+
+      <option>
+        <p><opt>check-response-ttl=</opt> Takes a boolean value ("yes"
+        or "no"). If set to "yes", an additional security check is
+        activated: incoming IP packets will be ignored unless the IP
+        TTL is 255. Earlier mDNS specifications required this
+        check. Since this feature may be incompatible with newer
+        implementations of mDNS it defaults to "no". On the other hand
+        it provides extra security.</p>
+      </option>
+
+      <option>
+        <p><opt>use-iff-running=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "yes" avahi-daemon monitors the IFF_RUNNING
+        flag bit which is used by some (modern) network drivers to
+        tell user space if a network cable is plugged in (in case of
+        copper ethernet), or the network card is associated with some
+        kind of network (in case of WLAN). If IFF_RUNNING is set
+        avahi-daemon will automatically announce its services on that
+        network. Unfortunately far too many network drivers do not
+        support this flag or support it in a broken way. Therefore
+        this option defaults to "no".</p>
+      </option>
+
+      <option>
+        <p><opt>enable-dbus=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "yes" avahi-daemon connects to DBUS, to offer
+        an object oriented client API. Only available if avahi has
+        been compiled with <opt>--enable-dbus</opt> in which case it
+        defaults to "yes".</p>
+      </option>
+
+	</section>
+
+	<section name="Section [publish]">
+      <option>
+        <p><opt>publish-addresses=</opt> Takes a boolean value ("yes"
+        or "no"). If set to "yes" avahi-daemon will register mDNS
+        address records for all local IP addresses. Unless you want to
+        use avahi-daemon exclusively for browsing it's recommended to
+        enable this. If you plan to register local services you need
+        to enable this option. Defaults to "yes".</p>
+      </option>
+
+      <option>
+        <p><opt>publish-hinfo=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "yes" avahi-daemon will register an mDNS
+        HINFO record on all interfaces which contains information
+        about the local operating system and CPU, which might be
+        useful for administrative purposes. This is recommended by the
+        mDNS specification but not required. For the sake of privacy
+        you might choose to disable this feature. Defaults to
+        "yes."</p>
+      </option>
+
+      <option>
+        <p><opt>publish-workstation=</opt> Takes a boolean value
+        ("yes" or "no"). If set to "yes" avahi-daemon will register a
+        service of type "_workstation._tcp" on the local LAN. This
+        might be useful for administrative purposes (i.e. browse for
+        all PCs on the LAN), but is not required or recommended by any
+        specification. Newer MacOS X releases register a service of
+        this type. Defaults to "yes".</p>
+      </option>
+
+      <option>
+        <p><opt>publish-domain=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "yes" avahi-daemon will announce the locally
+        used domain name (see above) for browsing by other
+        hosts. Defaults to "yes".</p>
+      </option>
+
+      <option>
+        <p><opt>publish-dns-servers=</opt> Takes a comma seperated
+        list of IP addresses for unicast DNS servers. You can use this
+        to announce unicast DNS servers via mDNS. When used in
+        conjunction with avahi-dnsconfd on the client
+        side this allows DHCP-like configuration of unicast DNS
+        servers.</p>
+      </option>
+
+      <option>
+        <p><opt>publish-resolv-conf-dns-servers=</opt> Takes a boolean
+        value ("yes" or "no"). If set to "yes" avahi-daemon will
+        publish the unicast DNS servers specified in
+        <file>/etc/resolv.conf</file> in addition to those specified
+        with <opt>publish-dns-servers</opt>. Send avahi-daemon a
+        SIGHUP to have it reload this file. Defaults to "no".</p>
+      </option>
+
+    </section>
+
+	<section name="Section [reflector]">
+      <option>
+        <p><opt>enable-reflector=</opt> Takes a boolean value ("yes"
+        or "no"). If set to "yes" avahi-daemon will reflect incoming
+        mDNS requests to all local network interfaces, effectively
+        allowing clients to browse mDNS/DNS-SD services on all
+        networks connected to the gateway. The gateway is somewhat
+        intelligent and should work with all kinds of mDNS traffic,
+        though some functionality is lost (specifically the unicast
+        reply bit, which is used rarely anyway). Make sure to not run
+        multiple reflectors between the same networks, this might
+        cause them to play Ping Pong with mDNS packets. Defaults to
+        "no".</p>
+      </option>
+
+      <option>
+        <p><opt>reflect-ipv=</opt> Takes a boolean value ("yes" or
+        "no"). If set to "yes" and <opt>enable-reflector</opt> is
+        enabled, avahi-daemon will forward mDNS traffic between IPv4
+        and IPv6, which is usually not recommended. Defaults to "no".</p>
+      </option>
+    </section>
+
+	<section name="Authors">
+	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
+	  available from <url href="@PACKAGE_URL@"/></p>
+	</section>
+	
+	<section name="See also">
+	  <p>
+        <manref name="avahi-daemon" section="8"/>, <manref name="avahi-dnsconfd" section="8"/>
+	  </p>
+	</section>
+	
+	<section name="Comments">
+	  <p>This man page was written using <manref name="xml2man" section="1"
+		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+	</section>
+	
+  </manpage>

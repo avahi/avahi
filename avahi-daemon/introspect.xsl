@@ -18,7 +18,7 @@
           .keyword { font-style: italic }
           .type { font-weight: bold }
           .symbol { font-family: monospace }
-          .interface { background: #efefef; padding: 10px; margin: 10px }
+          .interface { padding: 10px; margin: 10px }
         </style>
       </head>
       <body>

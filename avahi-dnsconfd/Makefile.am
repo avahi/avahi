@@ -45,6 +45,6 @@ avahi_dnsconfd_SOURCES = \
 avahi_dnsconfd_CFLAGS = $(AM_CFLAGS)
 avahi_dnsconfd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 
-pkgsysconf_DATA=avahi-dnsconfd.action
+pkgsysconf_SCRIPTS=avahi-dnsconfd.action
 
 EXTRA_DIST=avahi-dnsconfd.action

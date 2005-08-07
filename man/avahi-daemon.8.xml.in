@@ -47,9 +47,9 @@
       there is the DBUS interface which provides a rich object
       oriented interface to DBUS enabled applications.</p>
       
-      <p>Upon startup avahi-daemon interpretes its configuration file
-      @pkgsysconfdir@/avahi-daemon.conf and reads XML fragments from
-      @servicedir@/*.service which may define static DNS-SD
+      <p>Upon startup avahi-daemon interprets its configuration file
+      <file>@pkgsysconfdir@/avahi-daemon.conf</file> and reads XML fragments from
+      <file>@servicedir@/*.service</file> which may define static DNS-SD
       services.</p>
 	</description>
 	
@@ -62,7 +62,7 @@
 
 	  <option>
 		<p><opt>-D | --daemonize</opt></p>
-		<optdesc><p>Daemonize avahi-daemon after startup and redirect log messages to syslog.</p></optdesc>
+		<optdesc><p>Daemonize after startup and redirect log messages to syslog.</p></optdesc>
 	  </option>
 
 	  <option>
@@ -72,7 +72,7 @@
 
 	  <option>
 		<p><opt>-r | --reload</opt></p>
-		<optdesc><p>Tell an already running avahi-daemon to reread the files from @servicedir@/. (equivalent to sending a SIGHUP)</p></optdesc>
+		<optdesc><p>Tell an already running avahi-daemon to reread the files from <file>@servicedir@/</file>. Please note that this will not reload the <file>@pkgsysconfdir@/avahi-daemon.conf</file>(equivalent to sending a SIGHUP)</p></optdesc>
 	  </option>
 
 	  <option>
@@ -103,7 +103,7 @@
 
     <section name="Signals">
       <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-daemon will shutdown. This is issued by passing --kill to avahi-daemon.</p>
-      <p><arg>SIGHUP</arg>: avahi-daemon will reload the static service definitions from @servicedir@/.</p>
+      <p><arg>SIGHUP</arg>: avahi-daemon will reload the static service definitions from <file>@servicedir@/</file>.</p>
       <p><arg>SIGUSR1</arg>: avahi-daemon will dump local and remote cached resource record data to syslog.</p>
     </section>
 

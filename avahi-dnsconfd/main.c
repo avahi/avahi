@@ -60,7 +60,7 @@ static gboolean quit = FALSE;
 static enum {
     DAEMON_RUN,
     DAEMON_KILL,
-    DAEMON_RELOAD,
+    DAEMON_REFRESH,
     DAEMON_VERSION,
     DAEMON_HELP,
     DAEMON_CHECK
@@ -343,7 +343,7 @@ static void help(FILE *f, const gchar *argv0) {
             "    -h --help        Show this help\n"
             "    -D --daemonize   Daemonize after startup\n"
             "    -k --kill        Kill a running daemon\n"
-            "    -r --reload      Request a running daemon to reload static services\n"
+            "    -r --refresh     Request a running daemon to refresh DNS server data\n"
             "    -c --check       Return 0 if a daemon is already running\n"
             "    -V --version     Show version\n",
             argv0);
@@ -357,7 +357,7 @@ static gint parse_command_line(int argc, char *argv[]) {
         { "daemonize", no_argument,       NULL, 'D' },
         { "kill",      no_argument,       NULL, 'k' },
         { "version",   no_argument,       NULL, 'V' },
-        { "reload",    no_argument,       NULL, 'r' },
+        { "refresh",   no_argument,       NULL, 'r' },
         { "check",     no_argument,       NULL, 'c' },
     };
 
@@ -378,7 +378,7 @@ static gint parse_command_line(int argc, char *argv[]) {
                 command = DAEMON_VERSION;
                 break;
             case 'r':
-                command = DAEMON_RELOAD;
+                command = DAEMON_REFRESH;
                 break;
             case 'c':
                 command = DAEMON_CHECK;
@@ -454,7 +454,7 @@ static int run_daemon(void) {
                     break;
                     
                 case SIGHUP:
-                    daemon_log(LOG_INFO, "Rrefreshing DNS Server list");
+                    daemon_log(LOG_INFO, "Refreshing DNS Server list");
                     
                     close(fd);
                     free_dns_server_info_list();
@@ -597,7 +597,7 @@ gint main(gint argc, gchar *argv[]) {
         }
         
         r = 0;
-    } else if (command == DAEMON_RELOAD) {
+    } else if (command == DAEMON_REFRESH) {
         if (daemon_pid_file_kill(SIGHUP) < 0) {
             daemon_log(LOG_WARNING, "Failed to kill daemon: %s", strerror(errno));
             goto finish;

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Avahi Zeroconf Browser
+Comment=Browse for Zeroconf services available on your network
+Exec=avahi-discover
+Terminal=false
+Type=Application
+Icon=gnome-nettool.png
+Categories=GNOME;Application;System;Utility
+StartupNotify=false

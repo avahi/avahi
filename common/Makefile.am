@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-EXTRA_DIST = 			\
-        doxygen.m4		\
-	doxygen.mk
-
+EXTRA_DIST = \
+        doxygen.m4 \
+	doxygen.mk \
+	python.m4

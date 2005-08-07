@@ -17,8 +17,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-SUBDIRS=avahi
-
 pythonscripts = \
 	avahi-publish-address \
 	avahi-publish-service \
@@ -35,9 +33,15 @@ EXTRA_DIST = \
 	avahi-discover.in \
 	avahi-bookmarks.in \
 	avahi-resolve-host-name.in \
-	avahi-resolve-address.in
+	avahi-resolve-address.in \
+	avahi-discover.desktop
 
 if HAVE_PYTHON
+SUBDIRS=avahi
+
+desktopdir = $(datadir)/applications
+desktop_DATA = avahi-discover.desktop
+
 bin_SCRIPTS = $(pythonscripts)
 endif
 

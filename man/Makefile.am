@@ -24,7 +24,8 @@ man_MANS = \
 	avahi-daemon.8 \
 	avahi-dnsconfd.8 \
 	avahi-daemon.conf.5 \
-	avahi-dnsconfd.action.8
+	avahi-dnsconfd.action.8 \
+	avahi.service.5
 
 if HAVE_PYTHON
 
@@ -50,7 +51,8 @@ noinst_DATA = \
 	avahi-bookmarks.1.xml \
 	avahi-dnsconfd.8.xml \
 	avahi-daemon.conf.5.xml \
-	avahi-dnsconfd.action.8.xml
+	avahi-dnsconfd.action.8.xml \
+	avahi.service.5.xml
 
 EXTRA_DIST = \
 	$(man_MANS) \
@@ -65,6 +67,7 @@ EXTRA_DIST = \
 	avahi-dnsconfd.8.xml.in \
 	avahi-daemon.conf.5.xml.in \
 	avahi-dnsconfd.action.8.xml.in \
+	avahi.service.5.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd
@@ -121,6 +124,12 @@ avahi-dnsconfd.action.8.xml: avahi-dnsconfd.action.8.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+avahi.service.5.xml: avahi.service.5.xml.in Makefile
+	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+		-e 's,@servicedir\@,$(servicedir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
 
 if USE_XMLTOMAN
 
@@ -158,6 +167,10 @@ avahi-daemon.conf.5: avahi-daemon.conf.5.xml Makefile
 
 avahi-dnsconfd.action.8: avahi-dnsconfd.action.8.xml Makefile
 	xmltoman $< > $@
+
+avahi.service.5: avahi.service.5.xml Makefile
+	xmltoman $< > $@
+
 
 xmllint: $(noinst_DATA)
 	for f in $(noinst_DATA) ; do \

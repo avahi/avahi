@@ -253,23 +253,23 @@ AC_SUBST(avahi_socket)
 #
 # Python stuff
 #
-dnl AC_ARG_ENABLE(python,
-dnl        AS_HELP_STRING(--disable-python, Disable scripts that depends on python),
-dnl [case "${enableval}" in
-dnl   yes) use_python=yes ;;
-dnl   no)  use_python=no ;;
-dnl   *) AC_MSG_ERROR([bad value ${enableval} for --disable-python]) ;;
-dnl esac],[use_python=yes])
+AC_ARG_ENABLE(python,
+	AS_HELP_STRING(--disable-python, Disable scripts that depends on python),
+	[case "${enableval}" in
+	      yes) use_python=yes ;;
+	      no)  use_python=no ;;
+	      *) AC_MSG_ERROR([bad value ${enableval} for --disable-python]) ;;
+	esac],[use_python=yes])
 
-dnl HAVE_PYTHON=no
-dnl if test "x$use_python" = xyes ; then
+HAVE_PYTHON=no
+if test "x$use_python" = xyes ; then
    AM_PATH_PYTHON(2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
 
    if  test "x$HAVE_PYTHON" = xyes ; then
        AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(could not find pygtk module)])
        AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(could not find python dbus module)])
    fi
-dnl fi
+fi
 
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
 

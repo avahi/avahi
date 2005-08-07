@@ -30,7 +30,9 @@ man_MANS += \
 	avahi-publish-service.1 \
 	avahi-publish-address.1 \
 	avahi-resolve-address.1 \
-	avahi-resolve-host-name.1
+	avahi-resolve-host-name.1 \
+	avahi-discover.1 \
+	avahi-bookmarks.1
 
 endif
 
@@ -40,7 +42,9 @@ noinst_DATA = \
 	avahi-publish-address.1.xml \
 	avahi-resolve-address.1.xml \
 	avahi-resolve-host-name.1.xml \
-	avahi-daemon.8.xml
+	avahi-daemon.8.xml \
+	avahi-discover.1.xml \
+	avahi-bookmarks.1.xml
 
 EXTRA_DIST = \
 	$(man_MANS) \
@@ -50,6 +54,8 @@ EXTRA_DIST = \
 	avahi-resolve-address.1.xml.in \
 	avahi-resolve-host-name.1.xml.in \
 	avahi-daemon.8.xml.in \
+	avahi-discover.1.xml.in \
+	avahi-bookmarks.1.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd
@@ -83,6 +89,14 @@ avahi-daemon.8.xml: avahi-daemon.8.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+avahi-discover.1.xml: avahi-discover.1.xml.in Makefile
+	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
+avahi-bookmarks.1.xml: avahi-bookmarks.1.xml.in Makefile
+	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
 if USE_XMLTOMAN
 
 CLEANFILES += $(man_MANS)
@@ -103,6 +117,12 @@ avahi-resolve-host-name.1: avahi-resolve-host-name.1.xml Makefile
 	xmltoman $< > $@
 
 avahi-daemon.8: avahi-daemon.8.xml Makefile
+	xmltoman $< > $@
+
+avahi-discover.1: avahi-discover.1.xml Makefile
+	xmltoman $< > $@
+
+avahi-bookmarks.1: avahi-bookmarks.1.xml Makefile
 	xmltoman $< > $@
 
 endif

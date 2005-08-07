@@ -23,7 +23,7 @@ AM_CFLAGS= \
 	-I$(top_srcdir) \
 	-DAVAHI_RUNTIME_DIR=\"$(avahi_runtime_dir)/\" \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
-	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/dnsconf.action\"
+	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-dnsconfd.action\"
 
 # GLIB 2.0
 AM_CFLAGS+=$(GLIB20_CFLAGS)
@@ -45,6 +45,6 @@ avahi_dnsconfd_SOURCES = \
 avahi_dnsconfd_CFLAGS = $(AM_CFLAGS)
 avahi_dnsconfd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 
-pkgsysconf_DATA=dnsconf.action
+pkgsysconf_DATA=avahi-dnsconfd.action
 
-EXTRA_DIST=dnsconf.action
+EXTRA_DIST=avahi-dnsconfd.action

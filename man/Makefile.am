@@ -61,7 +61,7 @@ EXTRA_DIST = \
 	avahi-discover.1.xml.in \
 	avahi-bookmarks.1.xml.in \
 	avahi-dnsconfd.8.xml.in \
-	avahi-daemon.5.conf.xml.in \
+	avahi-daemon.conf.5.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd

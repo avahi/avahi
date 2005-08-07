@@ -1,0 +1,126 @@
+<?xml version="1.0"?><!--*-nxml-*-->
+<!DOCTYPE manpage SYSTEM "xmltoman.dtd">
+<?xml-stylesheet type="text/xsl" href="xmltoman.xsl" ?>
+
+<!-- $Id$ -->
+
+<!-- 
+  This file is part of avahi.
+ 
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+ 
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+-->
+
+  <manpage name="avahi-daemon" section="8" desc="The Avahi mDNS/DNS-SD daemon">
+
+	<synopsis>
+      <cmd>avahi-daemon [<arg>options</arg>]</cmd>
+      <cmd>avahi-daemon <opt>--kill</opt></cmd>
+      <cmd>avahi-daemon <opt>--reload</opt></cmd>
+      <cmd>avahi-daemon <opt>--check</opt></cmd>
+      <cmd>avahi-daemon <opt>--version</opt></cmd>
+      <cmd>avahi-daemon <opt>--help</opt></cmd>
+	</synopsis>
+	
+    <description>
+      <p>The Avahi mDNS/DNS-SD daemon implementing Apple's ZeroConf
+      architecture (also known as "Rendezvous" or "Bonjour"). The daemon
+      registers local IP addresses and static services using
+      mDNS/DNS-SD and provides two IPC APIs for local programs to make
+      use of the mDNS record cache the avahi-daemon maintains. First
+      there is the so called "simple protocol" which is used
+      exclusively by avahi-dnsconfd (a daemon which configures unicast
+      DNS servers using server info published via mDNS) and nss-mdns
+      (a libc NSS plugin, providing name resolution via mDNS). Finally
+      there is the DBUS interface which provides a rich object
+      oriented interface to DBUS enabled applications.</p>
+      
+      <p>Upon startup avahi-daemon interpretes its configuration file
+      @pkgsysconfdir@/avahi-daemon.conf and reads XML fragments from
+      @servicedir@/*.service which may define static DNS-SD
+      services.</p>
+	</description>
+	
+	<options>
+
+	  <option>
+		<p><opt>-f | --file=</opt> <arg>FILE</arg></p>
+		<optdesc><p>Specify the configuration file to read. (default: @pkgsysconfdir@/avahi-daemon.conf)</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-D | --daemonize</opt></p>
+		<optdesc><p>Daemonize avahi-daemon after startup and redirect log messages to syslog.</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-k | --kill</opt></p>
+		<optdesc><p>Kill an already running avahi-daemon. (equivalent to sending a SIGTERM)</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-r | --reload</opt></p>
+		<optdesc><p>Tell an already running avahi-daemon to reread the files from @servicedir@/. (equivalent to sending a SIGHUP)</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-c | --check</opt></p>
+		<optdesc><p>Return 0 as return code when avahi-daemon is already running.</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-h | --help</opt></p>
+		<optdesc><p>Show help</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-v | --version</opt></p>
+		<optdesc><p>Show version information </p></optdesc>
+	  </option>
+
+	</options>
+
+
+    <section name="Files">
+      
+      <p><file>@pkgsysconfdir@/avahi-daemon.conf</file>: the default configuration file for avahi-daemon.</p>
+
+      <p><file>@servicedir@/*.service</file>: static service definitions.</p>
+    
+    </section>
+
+    <section name="Signals">
+      <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-daemon will shutdown. This is issued by passing --kill to avahi-daemon.</p>
+      <p><arg>SIGHUP</arg>: avahi-daemon will reload the static service definitions from @servicedir@/.</p>
+      <p><arg>SIGUSR1</arg>: avahi-daemon will dump local and remote cached resource record data to syslog.</p>
+    </section>
+
+	<section name="Authors">
+	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
+	  available from <url href="@PACKAGE_URL@"/></p>
+	</section>
+	
+	<section name="See also">
+	  <p>
+        <manref name="avahi-dnsconfd" section="8"/>, <manref name="avahi-daemon.conf" section="5"/>
+	  </p>
+	</section>
+	
+	<section name="Comments">
+	  <p>This man page was written using <manref name="xml2man" section="1"
+		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+	</section>
+	
+  </manpage>

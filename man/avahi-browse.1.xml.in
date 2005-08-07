@@ -27,8 +27,8 @@
 
 	<synopsis>
       <cmd>avahi-browse [<arg>options</arg>] <arg>service-type</arg></cmd>
-      <cmd>avahi-browse [<arg>options</arg>] <opt>-a</opt></cmd>
-      <cmd>avahi-browse <opt>-h</opt></cmd>
+      <cmd>avahi-browse [<arg>options</arg>] <opt>--all</opt></cmd>
+      <cmd>avahi-browse <opt>--help</opt></cmd>
 	</synopsis>
 	
     <description>

@@ -69,7 +69,6 @@ libavahi_core_la_SOURCES = \
 	resolve-service.c \
 	dns.c dns.h \
 	core.h \
-	llist.h \
 	log.c log.h \
 	browse-dns-server.c
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)

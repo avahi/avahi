@@ -71,7 +71,7 @@ AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
 AC_ARG_ENABLE(gtk,
-        AS_HELP_STRING(--enable-gtk,use GTK+ (default=yes)),
+        AS_HELP_STRING(--disable-gtk,Use GTK+ (default=yes)),
         [case "${enableval}" in
                 yes) ENABLE_GTK=yes ;;
                 no)  ENABLE_GTK=no ;;
@@ -135,7 +135,7 @@ AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
 # D-BUS
 #
 AC_ARG_ENABLE(dbus,
-        AS_HELP_STRING(--enable-dbus,use DBus (default=yes)),
+        AS_HELP_STRING(--disable-dbus,Enable DBUS support (default=no)),
         [case "${enableval}" in
                 yes) ENABLE_DBUS=yes ;;
                 no)  ENABLE_DBUS=no ;;

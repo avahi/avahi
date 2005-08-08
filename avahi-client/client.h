@@ -1,7 +1,7 @@
 #ifndef fooclienthfoo
 #define fooclienthfoo
 
-/* $Id: core.h 98 2005-06-04 18:56:52Z lathiat $ */
+/* $Id$ */
 
 /***
   This file is part of avahi.
@@ -28,12 +28,9 @@
 
 AVAHI_C_DECL_BEGIN
 
-typedef struct _AvahiClientPriv AvahiClientPriv;
+typedef struct _AvahiClient AvahiClient;
 
-typedef struct _AvahiClient {
-	int serverid;
-    AvahiClientPriv *priv;
-} AvahiClient;
+typedef struct _AvahiEntryGroup AvahiEntryGroup;
 
 /** Creates a new client instance */
 AvahiClient* avahi_client_new ();
@@ -49,12 +46,6 @@ char* avahi_client_get_domain_name (AvahiClient*);
 
 /** Get FQDN domain name */
 char* avahi_client_get_host_name_fqdn (AvahiClient*);
-
-/** Get alternative host name for a host name that is taken */
-char* avahi_client_get_alternative_host_name (AvahiClient*, char*);
-
-/** Get alternative service name for a service name that is taken */
-char* avahi_client_get_alternative_service_name (AvahiClient*, char*);
 
 AVAHI_C_DECL_END
 

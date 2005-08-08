@@ -19,8 +19,8 @@
   USA.
 ***/
 
+#include <avahi-common/llist.h>
 #include "rrlist.h"
-#include "llist.h"
 
 typedef struct AvahiRecordListItem AvahiRecordListItem;
 

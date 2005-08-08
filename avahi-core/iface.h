@@ -29,11 +29,11 @@ typedef struct AvahiInterfaceAddress AvahiInterfaceAddress;
 typedef struct AvahiInterface AvahiInterface;
 typedef struct AvahiHwInterface AvahiHwInterface;
 
+#include <avahi-common/llist.h>
 #include "address.h"
 #include "server.h"
 #include "netlink.h"
 #include "cache.h"
-#include "llist.h"
 #include "response-sched.h"
 #include "query-sched.h"
 #include "probe-sched.h"

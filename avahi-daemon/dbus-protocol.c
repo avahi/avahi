@@ -34,7 +34,7 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include <avahi-core/llist.h>
+#include <avahi-common/llist.h>
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
 #include <avahi-common/dbus.h>

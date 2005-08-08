@@ -34,7 +34,7 @@
 #include <glib.h>
 #include <expat.h>
 
-#include <avahi-core/llist.h>
+#include <avahi-common/llist.h>
 #include <avahi-core/log.h>
 
 #include "main.h"

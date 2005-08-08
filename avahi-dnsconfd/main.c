@@ -40,7 +40,7 @@
 #include <glib.h>
 
 #include <avahi-common/util.h>
-#include <avahi-core/llist.h>
+#include <avahi-common/llist.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>

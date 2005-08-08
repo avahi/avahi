@@ -26,7 +26,7 @@
 
 typedef struct AvahiAnnouncement AvahiAnnouncement;
 
-#include "llist.h"
+#include <avahi-common/llist.h>
 #include "iface.h"
 #include "server.h"
 #include "timeeventq.h"

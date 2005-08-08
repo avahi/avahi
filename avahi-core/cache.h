@@ -26,9 +26,9 @@
 
 typedef struct AvahiCache AvahiCache;
 
+#include <avahi-common/llist.h>
 #include "prioq.h"
 #include "server.h"
-#include "llist.h"
 #include "timeeventq.h"
 
 typedef enum {

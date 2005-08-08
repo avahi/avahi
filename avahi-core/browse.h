@@ -22,7 +22,7 @@
   USA.
 ***/
 
-#include "llist.h"
+#include <avahi-common/llist.h>
 #include "core.h"
 #include "timeeventq.h"
 #include "server.h"

@@ -22,10 +22,10 @@
   USA.
 ***/
 
+#include <avahi-common/llist.h>
 #include "core.h"
 #include "iface.h"
 #include "prioq.h"
-#include "llist.h"
 #include "timeeventq.h"
 #include "announce.h"
 #include "browse.h"

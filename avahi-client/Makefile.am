@@ -19,13 +19,9 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
-
 # DBUS
 AM_CFLAGS+=$(DBUS_CFLAGS)
-AM_LDADD+=$(DBUS_LIBS)
+AM_LDADD=$(DBUS_LIBS)
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'

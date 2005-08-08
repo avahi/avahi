@@ -40,6 +40,8 @@ if ENABLE_DBUS
 avahi_commoninclude_HEADERS += dbus.h
 endif
 
+noinst_HEADERS = llist.h
+
 noinst_PROGRAMS = \
 	strlst-test \
 	domain-test \

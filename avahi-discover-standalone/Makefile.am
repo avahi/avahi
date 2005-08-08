@@ -42,5 +42,6 @@ interfaces = \
 interfaces_DATA = $(interfaces)
 
 EXTRA_DIST = \
-	$(interfaces)
+	$(interfaces) \
+	avahi-discover.gladep
 endif

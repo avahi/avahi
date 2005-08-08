@@ -78,7 +78,9 @@ EXTRA_DIST = \
 	ServiceTypeBrowser.introspect \
 	ServiceBrowser.introspect \
 	ssh.service \
-	example.service
+	example.service \
+	introspect.dtd \
+	introspect.xsl
 
 if ENABLE_DBUS
 avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h

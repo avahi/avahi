@@ -29,7 +29,7 @@ pythonscripts = \
 EXTRA_DIST = \
 	avahi-publish-address.in \
 	avahi-publish-service.in \
-	avahi-dump-all.in \
+	avahi-browse.in \
 	avahi-discover.in \
 	avahi-bookmarks.in \
 	avahi-resolve-host-name.in \

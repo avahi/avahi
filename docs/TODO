@@ -1,7 +1,6 @@
 todo:
 * finish DBUS stuff:
     	- allow NUL bytes in TXT records
-* add internal error codes
 * release!
 
 later:
@@ -49,3 +48,4 @@ done:
 * c++ support
 * drop trailing dot on avahi_normalize_name()
 * add entry_group::reset()
+* add internal error codes

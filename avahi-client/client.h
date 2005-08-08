@@ -26,7 +26,9 @@
 
 /** \file client.h Definitions and functions for the client API over D-Bus */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
 typedef struct _AvahiClient AvahiClient;
 
@@ -47,6 +49,8 @@ char* avahi_client_get_domain_name (AvahiClient*);
 /** Get FQDN domain name */
 char* avahi_client_get_host_name_fqdn (AvahiClient*);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

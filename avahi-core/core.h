@@ -34,6 +34,7 @@
  * services using an embedded mDNS stack. */
 
 #include <avahi-common/cdecl.h>
+#include <avahi-common/defs.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
@@ -87,14 +88,6 @@ enum {
     AVAHI_ERR_MAX = -22
 };
 
-/** States of a server object */
-typedef enum {
-    AVAHI_SERVER_INVALID = -1,     /**< Invalid state (initial) */ 
-    AVAHI_SERVER_REGISTERING = 0,  /**< Host RRs are being registered */
-    AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
-    AVAHI_SERVER_COLLISION         /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
-} AvahiServerState;
-
 /** Flags for server entries */
 typedef enum {
     AVAHI_ENTRY_NULL = 0,          /**< No special flags */
@@ -103,14 +96,6 @@ typedef enum {
     AVAHI_ENTRY_NOANNOUNCE = 4,    /**< Do not announce this RR to other hosts */
     AVAHI_ENTRY_ALLOWMUTIPLE = 8   /**< Allow multiple local records of this type, even if they are intended to be unique */
 } AvahiEntryFlags;
-
-/** States of an entry group object */
-typedef enum {
-    AVAHI_ENTRY_GROUP_UNCOMMITED = -1,   /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
-    AVAHI_ENTRY_GROUP_REGISTERING = 0,   /**< The entries of the group are currently being registered */
-    AVAHI_ENTRY_GROUP_ESTABLISHED,       /**< The entries have successfully been established */
-    AVAHI_ENTRY_GROUP_COLLISION          /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */ 
-} AvahiEntryGroupState;
 
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */
 typedef void (*AvahiServerCallback) (AvahiServer *s, AvahiServerState state, gpointer userdata);
@@ -393,18 +378,6 @@ gint avahi_server_add_dns_server_name(
     const gchar *name,
     guint16 port /** should be 53 */);
 
-/** Type of callback event when browsing */
-typedef enum {
-    AVAHI_BROWSER_NEW = 0,            /**< The object is new on the network */
-    AVAHI_BROWSER_REMOVE = -1         /**< The object has been removed from the network */
-} AvahiBrowserEvent;
-
-/** Type of callback event when resolving */
-typedef enum {
-    AVAHI_RESOLVER_FOUND = 0,         /**< RR found, resolving successful */
-    AVAHI_RESOLVER_TIMEOUT = -1       /**< Noone responded within the timeout, resolving failed */
-} AvahiResolverEvent;
-
 /** A browsing object for arbitrary RRs */
 typedef struct AvahiRecordBrowser AvahiRecordBrowser;
 
@@ -479,16 +452,6 @@ AvahiAddressResolver *avahi_address_resolver_new(
 
 /** Free an AvahiAddressResolver object */
 void avahi_address_resolver_free(AvahiAddressResolver *r);
-
-/** The type of domain to browse for */
-typedef enum {
-    AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
-    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
-    AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
-    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT,    /**< Browse for the default browsing domain */
-    AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY,     /**< Legacy browse domain - see DNS-SD spec for more information */
-    AVAHI_DOMAIN_BROWSER_MAX
-} AvahiDomainBrowserType;
 
 /** A local domain browsing object. May be used to enumerate domains used on the local LAN */
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;

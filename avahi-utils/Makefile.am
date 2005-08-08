@@ -34,7 +34,7 @@ EXTRA_DIST = \
 	avahi-bookmarks.in \
 	avahi-resolve-host-name.in \
 	avahi-resolve-address.in \
-	avahi-discover.desktop
+	avahi-discover.desktop.in
 
 if HAVE_PYTHON
 SUBDIRS=avahi
@@ -44,6 +44,10 @@ desktop_DATA = avahi-discover.desktop
 
 bin_SCRIPTS = $(pythonscripts)
 endif
+
+avahi-discover.desktop: avahi-discover.desktop.in
+	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+	chmod +x $@
 
 avahi-publish-address: avahi-publish-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@

@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=Avahi Zeroconf Browser
 Comment=Browse for Zeroconf services available on your network
-Exec=avahi-discover
+Exec=@bindir@/avahi-discover
 Terminal=false
 Type=Application
 Icon=gnome-nettool.png

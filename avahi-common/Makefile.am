@@ -49,9 +49,6 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = \
 	libavahi-common.la 
 
-noinst_LIBRARIES = \
-	libavahi-common-static.a
-
 libavahi_common_la_SOURCES = \
 	address.c address.h \
 	strlst.c strlst.h \
@@ -61,19 +58,15 @@ libavahi_common_la_SOURCES = \
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LIBADD = $(AM_LDADD)
 
-libavahi_common_static_a_SOURCES = $(libavahi_common_la_SOURCES)
-libavahi_common_static_a_CFLAGS = $(AM_CFLAGS)
-libavahi_common_static_a_LIBADD =
-
 strlst_test_SOURCES = \
 	strlst.c strlst.h \
-        strlst-test.c
+	strlst-test.c
 strlst_test_CFLAGS = $(AM_CFLAGS)
 strlst_test_LDADD = $(AM_LDADD)
 
 alternative_test_SOURCES = \
 	alternative.c alternative.h \
-        alternative-test.c
+	alternative-test.c
 alternative_test_CFLAGS = $(AM_CFLAGS)
 alternative_test_LDADD = $(AM_LDADD)
 

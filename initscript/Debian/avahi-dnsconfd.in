@@ -80,7 +80,7 @@ fi
 #set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DESC="Avahi Dns Config daemon"
+DESC="Avahi Unicast DNS Configuration Daemon"
 NAME="avahi-dnsconfd"
 DAEMON="@sbindir@/$NAME"
 

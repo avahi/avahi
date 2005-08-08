@@ -411,7 +411,9 @@ static int run_daemon(void) {
 
     if (daemonize)
         daemon_retval_send(0);
-    
+
+    ret = 0;
+
     while (!quit) {
         fd_set rfds, wfds;
 
@@ -498,8 +500,6 @@ static int run_daemon(void) {
             }
         }
     }
-
-    ret = 0;
     
 finish:
 
@@ -510,6 +510,9 @@ finish:
     
     daemon_signal_done();
 
+    if (ret != 0 && daemonize)
+        daemon_retval_send(1);
+    
     return ret;
 }
 

@@ -538,10 +538,10 @@ static gint run_server(DaemonConfig *c) {
     
     static_service_load();
 
-    if (c->daemonize) {
+    if (c->daemonize)
         daemon_retval_send(0);
-        r = 0;
-    }
+
+    r = 0;
 
     g_main_loop_run(loop);
 
@@ -557,7 +557,6 @@ finish:
     if (c->enable_dbus)
         dbus_protocol_shutdown();
 #endif
-
 
     if (avahi_server)
         avahi_server_free(avahi_server);

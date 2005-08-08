@@ -80,7 +80,7 @@ fi
 #set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DESC="Avahi mDNS/DNS-SD daemon"
+DESC="Avahi mDNS/DNS-SD Daemon"
 NAME="avahi-daemon"
 DAEMON="@sbindir@/$NAME"
 

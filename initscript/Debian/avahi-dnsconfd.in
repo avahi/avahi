@@ -1,4 +1,24 @@
-#! /bin/sh
+#!/bin/sh
+
+# $Id$
+
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
 #
 # avahi-dnsconfd     avahi dns configuration daemon
 #                               Daemon for ZeroConf
@@ -84,7 +104,7 @@ d_stop() {
 #
 #       Function that reload the config file for the daemon/service.
 #
-d_reload() {
+d_refresh() {
     $DAEMON -r
 }
 
@@ -100,12 +120,12 @@ case "$1" in
         d_stop
         log_end_msg $?
         ;;
-    reload)
-        log_begin_msg "Reloading config file for $DESC: $NAME"
-	d_reload
+    refresh)
+        log_begin_msg "Refreshing $DESC: $NAME"
+        d_refresh
         log_end_msg $?
         ;;
-    restart|force-reload)
+    reload|restart|force-reload)
         log_begin_msg "Restarting $DESC: $NAME"
         d_stop
         sleep 1

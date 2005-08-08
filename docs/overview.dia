@@ -169,9 +169,6 @@
       <dia:attribute name="elem_height">
         <dia:real val="2"/>
       </dia:attribute>
-      <dia:attribute name="inner_color">
-        <dia:color val="#ff0000"/>
-      </dia:attribute>
       <dia:attribute name="show_background">
         <dia:boolean val="true"/>
       </dia:attribute>
@@ -251,13 +248,13 @@
         <dia:point val="30,12"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.95,11.95;37.05,14.05"/>
+        <dia:rectangle val="29.95,11.95;39.3,14.05"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="30,12"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="7"/>
+        <dia:real val="9.25"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="2"/>
@@ -271,7 +268,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#avahi-discover#</dia:string>
+            <dia:string>#avahi-discover-standalone#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -280,7 +277,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="33.5,13.2"/>
+            <dia:point val="34.625,13.2"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -524,16 +521,16 @@
     </dia:object>
     <dia:object type="Flowchart - Box" version="0" id="O10">
       <dia:attribute name="obj_pos">
-        <dia:point val="-7,33"/>
+        <dia:point val="0,33"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="-7.05,32.95;11.35,34.95"/>
+        <dia:rectangle val="-0.05,32.95;11.25,34.95"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
-        <dia:point val="-7,33"/>
+        <dia:point val="0,33"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="18.300000000000001"/>
+        <dia:real val="11.199999999999999"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="1.9000000000000001"/>
@@ -550,7 +547,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#C based tools: avahi-publish, avahi-browse, nautilus, ...#</dia:string>
+            <dia:string>#C based tools: gaim, nautilus, ...#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -559,7 +556,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="2.15,34.15"/>
+            <dia:point val="5.6,34.15"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -743,11 +740,11 @@
         <dia:point val="11,26"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="1.8006,25.9298;11.0702,33.4232"/>
+        <dia:rectangle val="5.17357,25.9299;11.0701,33.345"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="11,26"/>
-        <dia:point val="2.15,33"/>
+        <dia:point val="5.6,33"/>
       </dia:attribute>
       <dia:attribute name="numcp">
         <dia:int val="1"/>
@@ -771,11 +768,11 @@
         <dia:point val="10,3.9"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="-4.0404,3.83438;10.0656,33.2423"/>
+        <dia:rectangle val="-0.551187,3.83945;10.0605,33.1686"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="10,3.9"/>
-        <dia:point val="-2.425,33"/>
+        <dia:point val="2.8,33"/>
       </dia:attribute>
       <dia:attribute name="curve_distance">
         <dia:real val="6.4894808215996544"/>
@@ -927,16 +924,16 @@
         <dia:point val="12,33"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="11.95,32.95;22,34.95"/>
+        <dia:rectangle val="11.95,32.95;30.05,36.05"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="12,33"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="9.9500000000000011"/>
+        <dia:real val="18"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="1.9000000000000001"/>
+        <dia:real val="3"/>
       </dia:attribute>
       <dia:attribute name="inner_color">
         <dia:color val="#e5e5e5"/>
@@ -950,7 +947,8 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#Python/other PL based tools#</dia:string>
+            <dia:string>#Python/other PL based tools:
+avahi-browse, avahi-discover, avahi-publish-service, ...#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -959,7 +957,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="16.975,34.15"/>
+            <dia:point val="21,34.3"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -975,11 +973,11 @@
         <dia:point val="14.5,22"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="14.4402,21.9402;17.4738,33.1585"/>
+        <dia:rectangle val="14.4419,21.9419;17.0009,33.1386"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="14.5,22"/>
-        <dia:point val="16.975,33"/>
+        <dia:point val="16.5,33"/>
       </dia:attribute>
       <dia:attribute name="numcp">
         <dia:int val="1"/>
@@ -995,7 +993,7 @@
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O7" connection="14"/>
-        <dia:connection handle="1" to="O23" connection="2"/>
+        <dia:connection handle="1" to="O23" connection="1"/>
       </dia:connections>
     </dia:object>
     <dia:object type="Standard - Arc" version="0" id="O25">
@@ -1003,11 +1001,11 @@
         <dia:point val="19.75,3.9"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="19.6806,3.83058;32.0712,12.4424"/>
+        <dia:rectangle val="19.6809,3.83088;32.6255,12.4473"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="19.75,3.9"/>
-        <dia:point val="31.75,12"/>
+        <dia:point val="32.3125,12"/>
       </dia:attribute>
       <dia:attribute name="curve_distance">
         <dia:real val="1.2898957490302274"/>

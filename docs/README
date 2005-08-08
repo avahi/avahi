@@ -1,11 +1,46 @@
-* Quick start guide:
-0) make sure you read the INSTALL file.
-1) start the deamon in background as root: avahi-daemon -D
-Or (You shouldn't start avahi-daemon and avahi-discover at the same time.) 
-1) start the Gui to browse zeroconf network as your user: avahi-discover
+Avahi is a free, LGPL mDNS/DNS-SD implementation.
+
+Copyright 2004, 2005 by the Avahi developers.
+
+	http://www.freedesktop.org/Software/Avahi
+
+Avahi has a mailing list:
+
+	http://lists.freedesktop.org/mailman/listinfo/avahi
+
+You have a chance to meet the developers on
+
+	#avahi on irc.freenode.org
+
+Please report bugs to the freedesktop.org bugzilla:
+
+	http://bugs.freedesktop.org/
+
+Avahi's SVN repository is freely accessible:
+
+	svn checkout svn://svn.0pointer.de/flexmdns/trunk avahi
+
+	http://0pointer.de/cgi-bin/viewcvs.cgi/?root=flexmdns
+
+Avahi has the following requirements:
+	- glib2
+	- expat
+	- libdaemon (http://0pointer.de/lennart/projects/libdaemon/)
+	- Linux 2.4 or 2.6
+	- DBUS 0.3x (optional, if you disable this, the daemon is not
+	  accessible over IPC to other applications!)
+	- gtk2 + glade (optional, needed for avahi-discover-standalone)
+	- doxygen (optional, needed for he API documentaton)
+	- Python 2.4, pygtk2 (optional, needed by all client tools)
+	- python-twisted (optional, needed by avahi-bookmarks)
+
+Please make sure to read the currently available documentation for avahi before
+asking for support on the mailing list:
+
+	- INSTALL
+	- Man pages
+	- Homepage http://www.freedesktop.org/Software/Avahi
+	- Mailing list archive http://lists.freedesktop.org/archives/avahi/
 
 
-* Basic instructions to control the avahi deamon (as root):
-- starting it:			avahi-daemon
-- starting it in background:	avahi-daemon -D
-- stopping it:			avahi-daemon -k
+$Id$

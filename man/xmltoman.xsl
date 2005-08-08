@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="iso-8859-15"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml">
 
 <!-- 
@@ -19,24 +19,33 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA. 
 -->
 
+<!-- $Id$ -->
+
+<xsl:output method="xml" version="1.0" encoding="iso-8859-15" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" indent="yes"/>
+
 <xsl:template match="/manpage">
-    <xsl:text disable-output-escaping="yes">
-    &lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-    </xsl:text>
+  
     <html>
 
     <head>
-      <title>
-        <xsl:value-of select="@name"/>(<xsl:value-of select="@section"/>) 
-      </title>
-      <link rel="stylesheet" type="text/css" href="xmltoman.css"/>
+      <title><xsl:value-of select="@name"/>(<xsl:value-of select="@section"/>)</title>
+      <style type="text/css">
+        body { color: black; background-color: white; } 
+        a:link, a:visited { color: #900000; }       
+        h1 { text-transform:uppercase; font-size: 18pt; } 
+        p { margin-left:1cm; margin-right:1cm; } 
+        .cmd { font-family:monospace; }
+        .file { font-family:monospace; }
+        .arg { text-transform:uppercase; font-family:monospace; font-style: italic; }
+        .opt { font-family:monospace; font-weight: bold;  }
+        .manref { font-family:monospace; }
+        .option .optdesc { margin-left:2cm; }
+      </style>
     </head>
     <body>
       <h1>Name</h1>
       <p><xsl:value-of select="@name"/>
-        <xsl:if test="string-length(@desc) &gt; 0">
-          - <xsl:value-of select="@desc"/>
-        </xsl:if>
+        <xsl:if test="string-length(@desc) &gt; 0"> - <xsl:value-of select="@desc"/></xsl:if>
       </p>
       <xsl:apply-templates />
     </body>

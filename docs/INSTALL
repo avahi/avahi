@@ -1,36 +1,46 @@
-*** Quick install instructions (tested on debian/ubuntu only!) ***
+*** Quick install instructions (tested on Debian/Ubuntu only!) ***
 
-While "make" and "boostrap.sh" may be run as normal users all other commands
-need to be run is root.
+While "configure" and "make" may be run as normal user all other commands
+need to be run as root.
 
-$ ./bootstrap.sh
-	(this will run autoconf/automake)
+Configure the build system:
+	$ ./configure --sysconfdir=/etc --localstatedir=/var
 
-$ ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+Some configure options available:
 
-Extra configure options available:
-
-    --enable-gtk             use GTK+    (default=yes)
-    --enable-dbus            use DBus    (default=yes)
+    --disable-gtk            disable GTK+ tools                (default: enabled)
+    --disable-dbus           disable DBUS support              (default: enabled)
+    --disable-python         disable building python modules   (default: enabled)
     --with-dbus-sys=<dir>    where D-BUS system.d directory is
     --with-distro=<distro>   the target Linux distribution (one of redhat,
                                     suse, gentoo, debian or slackware)
     --with-avahi-user=<user> User for running the Avahi daemon (avahi)
     --with-avahi-group=<grp> Group for Avahi (avahi)
 
-$ make
-# make install
+    Please note that by disabling DBUS you lose the ability to publish and browse
+    services from local applications.
 
-# addgroup --system avahi
-# adduser --system --no-create-home --ingroup avahi avahi
-	(These commands are Debian specific and may be different on other
-	distributions)
+    Please note that only the Debian init script is currently up-to-date. 
+    YMMV on other distributions. Patches welcome!
 
-# kill -HUP `cat /var/run/dbus/pid`
-	(This will ask DBUS to re-read its policies)
-# /etc/dbus-1/event.d/75avahi-daemon start
+	$ make
+	# make install
 
-- To automatically start avahi-dnsconfd on Debian based distro:
-# update-rc.d avahi-dnsconfd defaults 25 15
+Add a user an a group for avahi. (Debian specific)
+	# addgroup --system avahi
+	# adduser --system --no-create-home --ingroup avahi avahi
+
+Ask DBUS to re-read its policies:
+	# kill -HUP `cat /var/run/dbus/pid`
+
+Now start the Avahi daemon:
+	# /etc/init.d/avahi-daemon start
+
+Optionally start the unicast DNS configuration daemon:
+	# /etc/init.d/avahi-dnsconfd start
+
+To start the two daemons on Debian based distributions automatically:
+	# update-rc.d avahi-daemon defaults 25 15
+	# update-rc.d avahi-dnsconfd defaults 26 14
 
 $Id$

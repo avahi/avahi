@@ -27,8 +27,9 @@ EXTRA_DIST = \
 	$(DX_CONFIG) \
 	docs/INSTALL \
 	docs/TODO \
-	docs/DBUS-API \
 	docs/README \
+	docs/DBUS-API \
+	docs/AUTHORS \
 	docs/HACKING \
 	docs/overview.dia
 
@@ -50,4 +51,8 @@ pkgconfig_DATA = avahi-core.pc
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-#.PHONY: distcleancheck
+homepage:
+	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
+	    man/*.xml man/xmltoman.dtd man/xmltoman.xsl \
+	    fdo:public_html/
+	    

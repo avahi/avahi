@@ -62,9 +62,16 @@ void avahi_string_list_free(AvahiStringList *l);
  * start. */
 AvahiStringList *avahi_string_list_add(AvahiStringList *l, const gchar *text);
 
-/** Append am arbitrary length byte string to the list. Returns the
+/** Append an arbitrary length byte string to the list. Returns the
  * new list start. */
 AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint8 *text, guint size);
+
+/** Append a new entry to the string list. The string is not filled
+with data. The caller should fill in string data afterwards by writing
+it to l->text, where l is the pointer returned by this function. This
+function exists solely to optimize a few operations where otherwise
+superfluous string copying would be necessary. */
+AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, guint size);
 
 /** Same as avahi_string_list_add(), but takes a variable number of
  * NUL terminated strings. The argument list must be terminated by a
@@ -98,6 +105,7 @@ AvahiStringList* avahi_string_list_reverse(AvahiStringList *l);
 
 /** Return the number of elements in the string list */
 guint avahi_string_list_length(const AvahiStringList *l);
+
 
 AVAHI_C_DECL_END
 

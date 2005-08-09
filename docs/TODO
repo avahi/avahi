@@ -1,6 +1,4 @@
 todo:
-* finish DBUS stuff:
-    	- allow NUL bytes in TXT records
 * release!
 
 later:
@@ -49,3 +47,4 @@ done:
 * drop trailing dot on avahi_normalize_name()
 * add entry_group::reset()
 * add internal error codes
+* finish DBUS stuff: allow NUL bytes in TXT records

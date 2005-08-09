@@ -94,7 +94,7 @@
       <arg name="aprotocol" type="i" direction="out"/>
       <arg name="address" type="s" direction="out"/>
       <arg name="port" type="q" direction="out"/>
-      <arg name="txt" type="as" direction="out"/>
+      <arg name="txt" type="aay" direction="out"/>
     </method>
 
     <method name="EntryGroupNew">

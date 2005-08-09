@@ -88,7 +88,8 @@ def add_service():
 
     print "Adding service '%s' of type '%s' ..." % (name, stype)
     group.connect_to_signal('StateChanged', entry_group_state_changed)
-    group.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, stype, domain, host, dbus.UInt16(port), txt)
+
+    group.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, stype, domain, host, dbus.UInt16(port), avahi.string_array_to_txt_array(txt))
     group.Commit()
 
 def entry_group_state_changed(state):

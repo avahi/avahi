@@ -25,6 +25,17 @@ Please comply with the following rules when hacking on Avahi:
 
  * Never forget that Avahi should be buildable without DBUS, GTK or python!
 
+ * Before commiting, test your code! In case of C consider running it
+   a few times through valgrind, to make sure that you got everything
+   right.  You have to call libtool explicitly when running valgrind
+   on binaries that depend on shared objects. e.g:
+
+       libtool --mode=execute valgrind ./avahi-daemon
+
+   Please note that valgrind can't find you all bugs. Please check
+   your code thrice with your brain before committing. Valgrind is
+   only a final check.
+
  * When you code in C, please compile with the following gcc options from time
    to time:
   

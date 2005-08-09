@@ -41,6 +41,8 @@ except ImportError:
     print "Sorry, to use this tool you need to install twisted."
     sys.exit(1)
 
+urlproto = { "_http._tcp" : "http",  "_https._tcp" : "https", "_ftp._tcp" : "ftp" }
+
 class AvahiBookmarks(resource.Resource):
     isLeaf = True
 
@@ -49,20 +51,28 @@ class AvahiBookmarks(resource.Resource):
     def __init__(self):
         resource.Resource.__init__(self)
 
-
         self.bus = dbus.SystemBus()
         self.server = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
 
         self.version_string = self.server.GetVersionString()
 
-        self.browser = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "_http._tcp", "local")), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+        self.browse_service_type("_http._tcp")
 
-        self.browser.connect_to_signal('ItemNew', self.new_service)
-        self.browser.connect_to_signal('ItemRemove', self.remove_service)
+        # Hurrah! if I enable one of the following lines, python segfaults.
+        #self.browse_service_type("_shttp._tcp")
+        #self.browse_service_type("_ftp._tcp")
+
+    def browse_service_type(self, stype):
+
+        browser = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, stype, "local")), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+        browser.connect_to_signal('ItemNew', self.new_service)
+        browser.connect_to_signal('ItemRemove', self.remove_service)
 
     def find_path(self, txt):
 
-        for k in txt:
+        l = avahi.txt_array_to_string_array(txt)
+
+        for k in l:
             if k[:5] == "path=":
                 return k[5:]
 
@@ -86,8 +96,7 @@ class AvahiBookmarks(resource.Resource):
 
                 path = self.find_path(v[4])
 
-
-                t += '<li><a href="http://%s%s%s">%s</a></li>' % (v[2], port, path, k[2])
+                t += '<li><a href="%s://%s%s%s">%s</a></li>' % (urlproto[k[3]], v[2], port, path, k[2])
                 
             t += '</ul>'
         
@@ -110,7 +119,7 @@ port = 8080
 
 if __name__ == '__main__':
     site = server.Site(AvahiBookmarks())
-    reactor.listenTCP(port, site)
+    reactor.listenTCP(port, site, interface="127.0.0.1")
 
     print "Now point your web browser to http://localhost:%u/!" % port
 

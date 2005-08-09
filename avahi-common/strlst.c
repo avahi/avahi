@@ -28,14 +28,25 @@
 
 #include "strlst.h"
 
+AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, guint size) {
+    AvahiStringList *n;
+
+    n = g_malloc(sizeof(AvahiStringList) + size);
+    n->next = l;
+    n->size = size;
+    
+    return n;
+}
+
 AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint8*text, guint size) {
     AvahiStringList *n;
 
     g_assert(text);
 
-    n = g_malloc(sizeof(AvahiStringList) + size);
-    n->next = l;
-    memcpy(n->text, text, n->size = size);
+    n = avahi_string_list_add_anonymous(l, size);
+
+    if (size > 0)
+        memcpy(n->text, text, size);
     
     return n;
 }

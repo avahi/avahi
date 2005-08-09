@@ -56,6 +56,8 @@ typedef struct ServiceResolverInfo ServiceResolverInfo;
 #define MAX_OBJECTS_PER_CLIENT 50
 #define MAX_ENTRIES_PER_ENTRY_GROUP 20
 
+#define VALGRIND_WORKAROUND
+
 struct EntryGroupInfo {
     guint id;
     Client *client;
@@ -600,6 +602,8 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         gchar **txt = NULL;
         gint txt_len;
         AvahiStringList *strlst;
+        DBusMessageIter iter, sub;
+        int j;
         
         if (!dbus_message_get_args(
                 m, &error,
@@ -610,20 +614,52 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
                 DBUS_TYPE_STRING, &domain,
                 DBUS_TYPE_STRING, &host,
                 DBUS_TYPE_UINT16, &port, 
-                DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &txt, &txt_len,
                 DBUS_TYPE_INVALID) || !type || !name) {
             avahi_log_warn("Error parsing EntryGroup::AddService message");
             goto fail;
         }
 
-        if (i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
-            avahi_log_warn("Too many entries per entry group, client request failed.");
-            dbus_free_string_array(txt);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
+        dbus_message_iter_init(m, &iter);
+
+        for (j = 0; j < 7; j++)
+            dbus_message_iter_next(&iter);
+        
+        if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
+            dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_ARRAY) {
+            avahi_log_warn("Error parsing EntryGroup::AddService message 2");
+            goto fail;
         }
 
-        strlst = avahi_string_list_new_from_array((const gchar**) txt, txt_len);
-        dbus_free_string_array(txt);
+        strlst = NULL;
+        dbus_message_iter_recurse(&iter, &sub);
+        
+        for (;;) {
+            DBusMessageIter sub2;
+            int at, n;
+            guint8 *k;
+
+            if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
+                break;
+
+            g_assert(at == DBUS_TYPE_ARRAY);
+            
+            if (dbus_message_iter_get_element_type(&sub) != DBUS_TYPE_BYTE) {
+                avahi_log_warn("Error parsing EntryGroup::AddService message");
+                goto fail;
+            }
+
+            dbus_message_iter_recurse(&sub, &sub2);
+            dbus_message_iter_get_fixed_array(&sub2, &k, &n);
+            strlst = avahi_string_list_add_arbitrary(strlst, k, n);
+            
+            dbus_message_iter_next(&sub);
+        }
+
+        if (i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
+            avahi_string_list_free(strlst);
+            avahi_log_warn("Too many entries per entry group, client request failed.");
+            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
+        }
 
         if (domain && !*domain)
             domain = NULL;
@@ -994,10 +1030,10 @@ static void service_resolver_callback(
     if (event == AVAHI_RESOLVER_FOUND) {
         char t[256], *pt = t;
         gint32 i_interface, i_protocol, i_aprotocol;
-        gchar **array;
         guint n, j;
         AvahiStringList *p;
         DBusMessage *reply;
+        DBusMessageIter iter, sub;
 
         g_assert(host_name);
         
@@ -1008,12 +1044,6 @@ static void service_resolver_callback(
         i_protocol = (gint32) protocol;
         i_aprotocol = (gint32) a->family;
 
-        array = g_new(gchar*, (n = avahi_string_list_length(txt)));
-
-        /** FIXME: DBUS doesn't support strings that include NUL bytes (?) */
-        for (p = txt, j = n-1; p; p = p->next, j--)
-            array[j] = g_strndup((gchar*) p->text, p->size);
-        
         reply = dbus_message_new_method_return(i->message);
         dbus_message_append_args(
             reply,
@@ -1026,12 +1056,22 @@ static void service_resolver_callback(
             DBUS_TYPE_INT32, &i_aprotocol,
             DBUS_TYPE_STRING, &pt,
             DBUS_TYPE_UINT16, &port,
-            DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, n,
             DBUS_TYPE_INVALID);
 
-        for (j = 0; j < n; j++)
-            g_free(array[j]);
+        dbus_message_iter_init_append(reply, &iter);
+        dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY, "ay", &sub);
 
+        for (p = txt, j = n-1; p; p = p->next, j--) {
+            DBusMessageIter sub2;
+            const guint8 *data = p->text;
+            
+            dbus_message_iter_open_container(&sub, DBUS_TYPE_ARRAY, "y", &sub2);
+            dbus_message_iter_append_fixed_array(&sub2, DBUS_TYPE_BYTE, &data, p->size); 
+            dbus_message_iter_close_container(&sub, &sub2);
+
+        }
+        dbus_message_iter_close_container(&iter, &sub);
+                
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);
     } else {
@@ -1111,6 +1151,10 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             goto fail;
         }
 
+#ifdef VALGRIND_WORKAROUND
+        return respond_string(c, m, "blah");
+#else
+        
         if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             gchar txt[256];
             g_snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
@@ -1130,7 +1174,8 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         close(fd);
         
         return respond_string(c, m, ifr.ifr_name);
-
+#endif
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceIndexByName")) {
         gchar *n;
         int fd;
@@ -1141,6 +1186,9 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             goto fail;
         }
 
+#ifdef VALGRIND_WORKAROUND
+        return respond_int32(c, m, 1);
+#else
         if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             gchar txt[256];
             g_snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
@@ -1160,6 +1208,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         close(fd);
         
         return respond_int32(c, m, ifr.ifr_ifindex);
+#endif
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAlternativeHostName")) {
         gchar *n, * t;

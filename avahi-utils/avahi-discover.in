@@ -68,8 +68,8 @@ class Main_window(SimpleGladeApp):
                         
     def service_resolved(self, interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
         print "Service data for service '%s' of type '%s' in domain '%s' on %i.%i:" % (name, type, domain, interface, protocol)
-        print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, str(txt))
-        self.update_label(interface, protocol, name, type, domain, host, aprotocol, address, port, str(txt))
+        print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, str(avahi.txt_array_to_string_array(txt)))
+        self.update_label(interface, protocol, name, type, domain, host, aprotocol, address, port, str(avahi.txt_array_to_string_array(txt)))
         
     def print_error(err):
         print "Error:", str(err)

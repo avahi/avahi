@@ -32,7 +32,6 @@ avahi_commoninclude_HEADERS = \
 	strlst.h \
 	address.h \
 	alternative.h \
-	rr.h \
 	util.h \
 	cdecl.h \
 	defs.h
@@ -56,7 +55,6 @@ libavahi_common_la_SOURCES = \
 	address.c address.h \
 	strlst.c strlst.h \
 	alternative.c alternative.h \
-	rr.c rr.h \
 	util.c util.h \
 	error.c error.h
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)

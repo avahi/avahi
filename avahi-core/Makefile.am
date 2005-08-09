@@ -34,7 +34,8 @@ avahiincludedir=$(includedir)/avahi-core
 
 avahiinclude_HEADERS = \
 	core.h \
-	log.h
+	log.h \
+	rr.h
 
 lib_LTLIBRARIES = \
 	libavahi-core.la 
@@ -68,6 +69,7 @@ libavahi_core_la_SOURCES = \
 	browse-service.c \
 	resolve-service.c \
 	dns.c dns.h \
+	rr.c rr.h \
 	core.h \
 	log.c log.h \
 	browse-dns-server.c
@@ -98,7 +100,8 @@ avahi_reflector_LDADD = $(AM_LDADD) $(COMMON_LDADD) libavahi-core.la
 dns_test_SOURCES = \
 	dns.c dns.h \
 	dns-test.c \
-	log.c log.h
+	log.c log.h \
+	rr.c rr.h
 dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
 

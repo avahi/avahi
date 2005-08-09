@@ -34,7 +34,6 @@
  * services using an embedded mDNS stack. */
 
 #include <avahi-common/cdecl.h>
-#include <avahi-common/defs.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
@@ -53,10 +52,11 @@ typedef struct AvahiEntryGroup AvahiEntryGroup;
 AVAHI_C_DECL_END
 #endif
 
+#include <avahi-core/rr.h>
 #include <avahi-common/address.h>
-#include <avahi-common/rr.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/error.h>
+#include <avahi-common/defs.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN

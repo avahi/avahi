@@ -57,7 +57,8 @@ libavahi_common_la_SOURCES = \
 	strlst.c strlst.h \
 	alternative.c alternative.h \
 	rr.c rr.h \
-	util.c util.h
+	util.c util.h \
+	error.c error.h
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LIBADD = $(AM_LDADD)
 

@@ -56,37 +56,11 @@ AVAHI_C_DECL_END
 #include <avahi-common/address.h>
 #include <avahi-common/rr.h>
 #include <avahi-common/alternative.h>
+#include <avahi-common/error.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
 #endif
-
-/** Error codes used by avahi */
-enum { 
-    AVAHI_OK = 0,                          /**< OK */
-    AVAHI_ERR_FAILURE = -1,                /**< Generic error code */
-    AVAHI_ERR_BAD_STATE = -2,              /**< Object was in a bad state */
-    AVAHI_ERR_INVALID_HOST_NAME = -3,      /**< Invalid host name */
-    AVAHI_ERR_INVALID_DOMAIN_NAME = -4,    /**< Invalid domain name */
-    AVAHI_ERR_NO_NETWORK = -5,             /**< No suitable network protocol available */
-    AVAHI_ERR_INVALID_TTL = -6,            /**< Invalid DNS TTL */
-    AVAHI_ERR_IS_PATTERN = -7,             /**< RR key is pattern */
-    AVAHI_ERR_LOCAL_COLLISION = -8,        /**< Local name collision */
-    AVAHI_ERR_INVALID_RECORD = -9,         /**< Invalid RR */
-    AVAHI_ERR_INVALID_SERVICE_NAME = -10,  /**< Invalid service name */
-    AVAHI_ERR_INVALID_SERVICE_TYPE = -11,  /**< Invalid service type */
-    AVAHI_ERR_INVALID_PORT = -12,          /**< Invalid port number */
-    AVAHI_ERR_INVALID_KEY = -13,           /**< Invalid key */
-    AVAHI_ERR_INVALID_ADDRESS = -14,       /**< Invalid address */
-    AVAHI_ERR_TIMEOUT = -15,               /**< Timeout reached */
-    AVAHI_ERR_TOO_MANY_CLIENTS = -16,      /**< Too many clients */
-    AVAHI_ERR_TOO_MANY_OBJECTS = -17,      /**< Too many objects */
-    AVAHI_ERR_TOO_MANY_ENTRIES = -18,      /**< Too many entries */
-    AVAHI_ERR_OS = -19,                    /**< OS error */
-    AVAHI_ERR_ACCESS_DENIED = -20,         /**< Access denied */
-    AVAHI_ERR_INVALID_OPERATION = -21,     /**< Invalid operation */
-    AVAHI_ERR_MAX = -22
-};
 
 /** Flags for server entries */
 typedef enum {
@@ -592,9 +566,6 @@ AvahiDNSServerBrowser *avahi_dns_server_browser_new(
 
 /** Free an AvahiDNSServerBrowser object */
 void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b);
-
-/** Return a human readable error string for the specified error code */
-const gchar *avahi_strerror(gint error);
 
 /** Return the last error code */
 gint avahi_server_errno(AvahiServer *s);

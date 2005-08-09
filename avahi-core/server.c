@@ -2294,37 +2294,6 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
     return ret;
 }
 
-const gchar *avahi_strerror(gint error) {
-    g_assert(-error >= 0 && -error < -AVAHI_ERR_MAX);
-
-    const gchar * const msg[- AVAHI_ERR_MAX] = {
-        "OK",
-        "Operation failed",
-        "Bad state",
-        "Invalid host name",
-        "Invalid domain name",
-        "No suitable network protocol available",
-        "Invalid DNS TTL",
-        "Resource record key is pattern",
-        "Local name collision",
-        "Invalid record",
-        "Invalid service name",
-        "Invalid service type",
-        "Invalid port number",
-        "Invalid record key",
-        "Invalid address",
-        "Timeout reached",
-        "Too many clients",
-        "Too many objects",
-        "Too many entries",
-        "OS Error",
-        "Access denied",
-        "Invalid operation"
-    };
-
-    return msg[-error];
-}
-
 gint avahi_server_errno(AvahiServer *s) {
     g_assert(s);
     

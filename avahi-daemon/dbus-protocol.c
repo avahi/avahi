@@ -56,7 +56,7 @@ typedef struct ServiceResolverInfo ServiceResolverInfo;
 #define MAX_OBJECTS_PER_CLIENT 50
 #define MAX_ENTRIES_PER_ENTRY_GROUP 20
 
-#define VALGRIND_WORKAROUND
+/* #define VALGRIND_WORKAROUND */
 
 struct EntryGroupInfo {
     guint id;

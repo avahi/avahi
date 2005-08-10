@@ -71,7 +71,7 @@ AC_SUBST(GLIB20_CFLAGS)
 AC_SUBST(GLIB20_LIBS)
 
 AC_ARG_ENABLE(gtk,
-        AS_HELP_STRING(--disable-gtk,Use GTK+ (default=yes)),
+        AS_HELP_STRING([--disable-gtk],[Use GTK+ (default=yes)]),
         [case "${enableval}" in
                 yes) ENABLE_GTK=yes ;;
                 no)  ENABLE_GTK=no ;;
@@ -113,7 +113,7 @@ DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 # XMLTOMAN manpage generation
 #
 AC_ARG_ENABLE(xmltoman,
-        AS_HELP_STRING(--disable-xmltoman,Disable rebuilding of man pages with xmltoman),
+        AS_HELP_STRING([--disable-xmltoman],[Disable rebuilding of man pages with xmltoman]),
 [case "${enableval}" in
   yes) xmltoman=yes ;;
   no)  xmltoman=no ;;
@@ -135,7 +135,7 @@ AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
 # D-BUS
 #
 AC_ARG_ENABLE(dbus,
-        AS_HELP_STRING(--disable-dbus,Enable DBUS support (default=no)),
+        AS_HELP_STRING([--disable-dbus],[Enable DBUS support (default=no)]),
         [case "${enableval}" in
                 yes) ENABLE_DBUS=yes ;;
                 no)  ENABLE_DBUS=no ;;
@@ -148,7 +148,7 @@ if test "x$ENABLE_DBUS" = "xyes"; then
 	AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
         PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.30])
 
-	AC_ARG_WITH(dbus-sys, [  --with-dbus-sys=<dir>   where D-BUS system.d directory is])
+	AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
 
 	if ! test -z "$with_dbus_sys" ; then
     	   DBUS_SYS_DIR="$with_dbus_sys"
@@ -191,7 +191,7 @@ fi
 #
 # Detecting the linux distro for specific things like initscripts.
 #
-AC_ARG_WITH(distro, AS_HELP_STRING(--with-distro=DISTRO,Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, or slackware))
+AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, or slackware]))
 if test "z$with_distro" = "z"; then
    AC_CHECK_FILE(/etc/redhat-release,with_distro="redhat")
    AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
@@ -224,7 +224,7 @@ AM_CONDITIONAL(TARGET_SLACKWARE, test x"$with_distro" = xslackware)
 #
 # Defining Avahi User and Group.
 #
-AC_ARG_WITH(avahi_user,[  --with-avahi-user=<user>  User for running the Avahi daemon (avahi)])
+AC_ARG_WITH(avahi_user, AS_HELP_STRING([--with-avahi-user=<user>],[User for running the Avahi daemon (avahi)]))
 if test -z "$with_avahi_user" ; then
     AVAHI_USER=avahi
 else
@@ -233,7 +233,7 @@ fi
 AC_SUBST(AVAHI_USER)
 AC_DEFINE_UNQUOTED(AVAHI_USER,"$AVAHI_USER", [User for running the Avahi daemon])
 
-AC_ARG_WITH(avahi_group,[  --with-avahi-group=<grp>  Group for Avahi (avahi)])
+AC_ARG_WITH(avahi_group,AS_HELP_STRING([--with-avahi-group=<group>],[Group for Avahi (avahi)]))
 if test -z "$with_avahi_group" ; then
     AVAHI_GROUP=avahi
 else
@@ -254,7 +254,7 @@ AC_SUBST(avahi_socket)
 # Python stuff
 #
 AC_ARG_ENABLE(python,
-	AS_HELP_STRING(--disable-python, Disable scripts that depends on python),
+	AS_HELP_STRING([--disable-python], [Disable scripts that depends on python]),
 	[case "${enableval}" in
 	      yes) use_python=yes ;;
 	      no)  use_python=no ;;

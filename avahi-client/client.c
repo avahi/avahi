@@ -197,27 +197,23 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     AvahiClient *tmp = NULL;
     DBusError error;
 
-    tmp = g_new (AvahiClient, 1);
+    dbus_error_init (&error);
 
-    if (tmp == NULL)
+    if (!(tmp = malloc(sizeof(AvahiClient))))
         goto fail;
 
     AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, tmp->groups);
     AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, tmp->domain_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServieTypeBrowser, tmp->service_type_browsers);
-
-    dbus_error_init (&error);
-
+    
     tmp->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
-
-    dbus_connection_setup_with_g_main (tmp->bus, NULL);
 
     if (dbus_error_is_set (&error)) {
         fprintf(stderr, "Error getting system d-bus: %s\n", error.message);
-        dbus_error_free (&error);
         goto fail;
     }
 
+    dbus_connection_setup_with_g_main (tmp->bus, NULL);
     dbus_connection_set_exit_on_disconnect (tmp->bus, FALSE);
 
     if (!dbus_connection_add_filter (tmp->bus, filter_func, tmp, NULL))
@@ -236,7 +232,6 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     if (dbus_error_is_set (&error))
     {
         fprintf (stderr, "Error adding filter match: %s\n", error.message);
-        dbus_error_free (&error);
         goto fail;
 
     }   
@@ -251,7 +246,6 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     if (dbus_error_is_set (&error))
     {
         fprintf (stderr, "Error adding filter match: %s\n", error.message);
-        dbus_error_free (&error);
         goto fail;
     }
 
@@ -265,6 +259,10 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
 
 fail:
     free (tmp);
+
+    if (dbus_error_is_set(&error))
+        dbus_error_free(&error);
+        
     return NULL;
 }
 

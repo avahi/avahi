@@ -204,7 +204,7 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
                                const char *type,
                                const char *domain,
                                const char *host,
-                               int port,
+                               uint16_t port,
                                AvahiStringList *txt)
 {
     DBusMessage *message;

@@ -22,6 +22,8 @@
   USA.
 ***/
 
+#include <inttypes.h>
+
 #include <avahi-common/cdecl.h>
 #include <avahi-common/address.h>
 #include <avahi-common/strlst.h>
@@ -104,7 +106,7 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
                                const char *type,
                                const char *domain,
                                const char *host,
-                               int port,
+                               uint16_t port,
                                AvahiStringList *txt);
 
 /** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */

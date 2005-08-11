@@ -71,7 +71,7 @@
 	<section name="See also">
 	  <p>
         <manref name="avahi-publish-address" section="1"/>, <manref
-        name="avahi-publish-service" section="1"/>, <manref
+        name="avahi-browse" section="1"/>, <manref
         name="avahi-daemon" section="8"/>
 	  </p>
 	</section>

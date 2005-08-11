@@ -34,7 +34,8 @@ avahi_commoninclude_HEADERS = \
 	alternative.h \
 	util.h \
 	cdecl.h \
-	defs.h
+	defs.h \
+	malloc.h
 
 if ENABLE_DBUS
 avahi_commoninclude_HEADERS += dbus.h
@@ -52,34 +53,40 @@ lib_LTLIBRARIES = \
 	libavahi-common.la 
 
 libavahi_common_la_SOURCES = \
+	malloc.c malloc.h \
 	address.c address.h \
-	strlst.c strlst.h \
 	alternative.c alternative.h \
-	util.c util.h \
-	error.c error.h
+	error.c error.h \
+	strlst.c strlst.h \
+	util.c util.h
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LIBADD = $(AM_LDADD)
 
 strlst_test_SOURCES = \
 	strlst.c strlst.h \
+	malloc.c malloc.h \
 	strlst-test.c
 strlst_test_CFLAGS = $(AM_CFLAGS)
 strlst_test_LDADD = $(AM_LDADD)
 
 alternative_test_SOURCES = \
 	alternative.c alternative.h \
+	malloc.c malloc.h \
+	util.c util.h \
 	alternative-test.c
 alternative_test_CFLAGS = $(AM_CFLAGS)
 alternative_test_LDADD = $(AM_LDADD)
 
 domain_test_SOURCES = \
 	util.c util.h \
+	malloc.c malloc.h \
 	domain-test.c
 domain_test_CFLAGS = $(AM_CFLAGS)
 domain_test_LDADD = $(AM_LDADD)
 
 timeval_test_SOURCES = \
 	util.c util.h \
+	malloc.c malloc.h \
 	timeval-test.c
 timeval_test_CFLAGS = $(AM_CFLAGS)
 timeval_test_LDADD = $(AM_LDADD)

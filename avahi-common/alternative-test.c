@@ -26,23 +26,24 @@
 #include <stdio.h>
 
 #include "alternative.h"
+#include "malloc.h"
 
 int main(int argc, char *argv[]) {
-    gchar *r = NULL;
-    gint i, k;
+    char *r = NULL;
+    int i, k;
 
     for (k = 0; k < 2; k++) {
         
         for (i = 0; i < 20; i++) {
-            gchar *n;
+            char *n;
             
-            n = i == 0 ? g_strdup("gurke") : (k ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
-            g_free(r);
+            n = i == 0 ? avahi_strdup("gurke") : (k ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
+            avahi_free(r);
             r = n;
             
             printf("%s\n", r);
         }
     }
 
-    g_free(r);
+    avahi_free(r);
 }

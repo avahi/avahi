@@ -1,0 +1,75 @@
+#ifndef foomallochfoo
+#define foomallochfoo
+
+/* $Id$ */
+
+/***
+  This file is part of avahi.
+ 
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+ 
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+***/
+
+#include <sys/types.h>
+#include <stdarg.h>
+
+/** Allocate some memory, just like the libc malloc() */
+void *avahi_malloc(size_t size);
+
+/** Similar to avahi_malloc() but set the memory to zero */
+void *avahi_malloc0(size_t size);
+
+/** Free some memory */
+void avahi_free(void *p);
+
+/** Similar to libc's realloc() */
+void *avahi_realloc(void *p, size_t size);
+
+/** Allocate n new structures of the specified type. */
+#define avahi_new(type, n) (type*) avahi_malloc(n*sizeof(type))
+
+/** Same as avahi_new() but set the memory to zero */
+#define avahi_new0(type, n) (type*) avahi_malloc0(n*sizeof(type))
+
+/* Just like libc's strdup() */
+char *avahi_strdup(const char *s);
+
+/* Just like libc's strndup() */
+char *avahi_strndup(const char *s, size_t l); 
+
+/** Wraps allocator functions */
+typedef struct AvahiAllocator AvahiAllocator;
+struct AvahiAllocator {
+    void* (*malloc)(size_t size);     
+    void (*free)(void *p);           
+    void* (*realloc)(void *p, size_t size);
+    void* (*calloc)(size_t nmemb, size_t size);   /**< May be NULL */
+};
+
+/* Change the allocator. May be NULL to return to default (libc)
+ * allocators. The structure is not copied! */
+void avahi_set_allocator(const AvahiAllocator *a);
+
+
+char *avahi_strdup_vprintf(const char *fmt, va_list ap);
+
+#ifdef __GNUC__
+char *avahi_strdup_printf(const char *fmt, ... )  __attribute__ ((format(printf, 1, 2)));
+#else
+char *avahi_strdup_printf(const char *fmt, ... );
+#endif
+
+
+#endif

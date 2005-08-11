@@ -22,7 +22,10 @@
   USA.
 ***/
 
-#include <glib.h>
+#include <sys/types.h>
+#include <inttypes.h>
+#include <stdarg.h>
+
 #include <avahi-common/cdecl.h>
 
 /** \file strlst.h Implementation of a data type to store lists of strings */
@@ -37,14 +40,14 @@ AVAHI_C_DECL_BEGIN
  * primarily for storing DNS TXT record data. */
 typedef struct AvahiStringList {
     struct AvahiStringList *next; /**< Pointe to the next linked list element */
-    guint size;  /**< Size of text[] */
-    guint8 text[1]; /**< Character data */
+    size_t size;  /**< Size of text[] */
+    uint8_t text[1]; /**< Character data */
 } AvahiStringList;
 
 /** Create a new string list by taking a variable list of NUL
  * terminated strings. The strings are copied using g_strdup(). The
  * argument list must be terminated by a NULL pointer. */
-AvahiStringList *avahi_string_list_new(const gchar *txt, ...);
+AvahiStringList *avahi_string_list_new(const char *txt, ...);
 
 /** Same as avahi_string_list_new() but pass a va_list structure */
 AvahiStringList *avahi_string_list_new_va(va_list va);
@@ -52,7 +55,7 @@ AvahiStringList *avahi_string_list_new_va(va_list va);
 /** Create a new string list from a string array. The strings are
  * copied using g_strdup(). length should contain the length of the
  * array, or -1 if the array is NULL terminated*/
-AvahiStringList *avahi_string_list_new_from_array(const gchar **array, gint length);
+AvahiStringList *avahi_string_list_new_from_array(const char **array, int length);
 
 /** Free a string list */
 void avahi_string_list_free(AvahiStringList *l);
@@ -60,18 +63,18 @@ void avahi_string_list_free(AvahiStringList *l);
 /** Append a NUL terminated string to the specified string list. The
  * passed string is copied using g_strdup(). Returns the new list
  * start. */
-AvahiStringList *avahi_string_list_add(AvahiStringList *l, const gchar *text);
+AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text);
 
 /** Append an arbitrary length byte string to the list. Returns the
  * new list start. */
-AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint8 *text, guint size);
+AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const uint8_t *text, size_t size);
 
 /** Append a new entry to the string list. The string is not filled
 with data. The caller should fill in string data afterwards by writing
 it to l->text, where l is the pointer returned by this function. This
 function exists solely to optimize a few operations where otherwise
 superfluous string copying would be necessary. */
-AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, guint size);
+AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size);
 
 /** Same as avahi_string_list_add(), but takes a variable number of
  * NUL terminated strings. The argument list must be terminated by a
@@ -85,17 +88,17 @@ AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
 /** Convert the string list object to a single character string,
  * seperated by spaces and enclosed in "". g_free() the result! This
  * function doesn't work well with string that contain NUL bytes. */
-gchar* avahi_string_list_to_string(AvahiStringList *l);
+char* avahi_string_list_to_string(AvahiStringList *l);
 
 /** Serialize the string list object in a way that is compatible with
  * the storing of DNS TXT records. Strings longer than 255 bytes are truncated. */
-guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size);
+size_t avahi_string_list_serialize(AvahiStringList *l, void * data, size_t size);
 
 /** Inverse of avahi_string_list_serialize() */
-AvahiStringList *avahi_string_list_parse(gconstpointer data, guint size);
+AvahiStringList *avahi_string_list_parse(const void *data, size_t size);
 
 /** Compare to string lists */
-gboolean avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b);
+int avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b);
 
 /** Copy a string list */
 AvahiStringList *avahi_string_list_copy(const AvahiStringList *l);
@@ -104,8 +107,7 @@ AvahiStringList *avahi_string_list_copy(const AvahiStringList *l);
 AvahiStringList* avahi_string_list_reverse(AvahiStringList *l);
 
 /** Return the number of elements in the string list */
-guint avahi_string_list_length(const AvahiStringList *l);
-
+unsigned avahi_string_list_length(const AvahiStringList *l);
 
 AVAHI_C_DECL_END
 

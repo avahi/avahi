@@ -43,7 +43,7 @@ struct AvahiLegacyUnicastReflectSlot {
     AvahiAddress address;
     guint16 port;
     gint interface;
-    GTimeVal elapse_time;
+    struct timeval elapse_time;
     AvahiTimeEvent *time_event;
 };
 
@@ -76,7 +76,7 @@ struct AvahiEntryGroup {
     guint n_probing;
     
     guint n_register_try;
-    GTimeVal register_time;
+    struct timeval register_time;
     AvahiTimeEvent *register_time_event;
     
     AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);

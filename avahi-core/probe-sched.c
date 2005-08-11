@@ -38,7 +38,7 @@ struct AvahiProbeJob {
     
     gboolean chosen; /* Use for packet assembling */
     gboolean done;
-    GTimeVal delivery;
+    struct timeval delivery;
 
     AvahiRecord *record;
     
@@ -91,7 +91,7 @@ static void job_free(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
 static void elapse_callback(AvahiTimeEvent *e, gpointer data);
 
 static void job_set_elapse_time(AvahiProbeScheduler *s, AvahiProbeJob *pj, guint msec, guint jitter) {
-    GTimeVal tv;
+    struct timeval tv;
 
     g_assert(s);
     g_assert(pj);
@@ -116,7 +116,7 @@ static void job_mark_done(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
     pj->done = TRUE;
 
     job_set_elapse_time(s, pj, AVAHI_PROBE_HISTORY_MSEC, 0);
-    g_get_current_time(&pj->delivery);
+    gettimeofday(&pj->delivery, NULL);
 }
 
 AvahiProbeScheduler *avahi_probe_scheduler_new(AvahiInterface *i) {
@@ -344,7 +344,7 @@ static AvahiProbeJob* find_history_job(AvahiProbeScheduler *s, AvahiRecord *reco
 
 gboolean avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record, gboolean immediately) {
     AvahiProbeJob *pj;
-    GTimeVal tv;
+    struct timeval tv;
     
     g_assert(s);
     g_assert(record);

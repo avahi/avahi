@@ -48,7 +48,7 @@ struct AvahiRecordBrowser {
 
 static void elapse(AvahiTimeEvent *e, void *userdata) {
     AvahiRecordBrowser *s = userdata;
-    GTimeVal tv;
+    struct timeval tv;
 /*     gchar *t;  */
     
     g_assert(s);
@@ -118,7 +118,7 @@ static gboolean scan_idle_callback(gpointer data) {
 
 AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, gpointer userdata) {
     AvahiRecordBrowser *b, *t;
-    GTimeVal tv;
+    struct timeval tv;
 
     g_assert(server);
     g_assert(key);

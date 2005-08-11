@@ -22,8 +22,6 @@
   USA.
 ***/
 
-#include <glib.h>
-
 #include <avahi-common/cdecl.h>
 
 /** \file alternative.h Functions to find alternative names for hosts and services in the case of name collision */
@@ -34,13 +32,13 @@ AVAHI_C_DECL_BEGIN
  * original host name, "2" is appended, Afterwards the number is
  * increased on each call. (i.e. "foo" becomes "foo2" becomes "foo3"
  * and so on.) g_free() the result. */
-gchar *avahi_alternative_host_name(const gchar *s);
+char *avahi_alternative_host_name(const char *s);
 
 /** Find an alternative for the specified service name. If called with
     an original service name, " #2" is appended. Afterwards the number
     is increased on each call (i.e. "foo" becomes "foo #2" becomes
     "foo #3" and so on.) g_free() the result. */
-gchar *avahi_alternative_service_name(const gchar *s);
+char *avahi_alternative_service_name(const char *s);
 
 AVAHI_C_DECL_END
 

@@ -241,7 +241,7 @@ static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
     g_assert(e);
     
     e->state = AVAHI_CACHE_FINAL;
-    g_get_current_time(&e->expiry);
+    gettimeofday(&e->expiry, NULL);
     avahi_timeval_add(&e->expiry, 1000000); /* 1s */
     update_time_event(c, e);
 }
@@ -264,9 +264,9 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
 
     } else {
         AvahiCacheEntry *e = NULL, *first;
-        GTimeVal now;
+        struct timeval now;
 
-        g_get_current_time(&now);
+        gettimeofday(&now, NULL);
 
         /* This is an update request */
 
@@ -378,13 +378,13 @@ void avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, gpointer userda
 }
 
 gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
-    GTimeVal now;
+    struct timeval now;
     AvahiUsec age;
     
     g_assert(c);
     g_assert(e);
 
-    g_get_current_time(&now);
+    gettimeofday(&now, NULL);
 
     age = avahi_timeval_diff(&now, &e->timestamp)/1000000;
 

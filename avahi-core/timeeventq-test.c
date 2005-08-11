@@ -31,7 +31,7 @@
 static AvahiTimeEventQueue *q = NULL;
 
 static void callback(AvahiTimeEvent*e, gpointer userdata) {
-    GTimeVal tv = {0, 0};
+    struct timeval tv = {0, 0};
     g_assert(e);
     g_message("callback(%i)", GPOINTER_TO_INT(userdata));
     avahi_elapse_time(&tv, 1000, 100);
@@ -40,7 +40,7 @@ static void callback(AvahiTimeEvent*e, gpointer userdata) {
 
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
-    GTimeVal tv;
+    struct timeval tv;
     
     q = avahi_time_event_queue_new(NULL, 0);
 

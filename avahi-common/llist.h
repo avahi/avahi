@@ -22,9 +22,9 @@
   USA.
 ***/
 
-#include <glib.h>
-
 /* Some macros for maintaining doubly linked lists */
+
+#include <assert.h>
 
 /* The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
@@ -39,14 +39,14 @@
 /* Initialize a list item */
 #define AVAHI_LLIST_INIT(t,name,item) do { \
                                t *_item = (item); \
-                               g_assert(_item); \
+                               assert(_item); \
                                _item->name##_prev = _item->name##_next = NULL; \
                                } while(0)
 
 /* Prepend an item to the list */
 #define AVAHI_LLIST_PREPEND(t,name,head,item) do { \
                                         t **_head = &(head), *_item = (item); \
-                                        g_assert(_item); \
+                                        assert(_item); \
                                         if ((_item->name##_next = *_head)) \
                                            _item->name##_next->name##_prev = _item; \
                                         _item->name##_prev = NULL; \
@@ -56,13 +56,13 @@
 /* Remove an item from the list */
 #define AVAHI_LLIST_REMOVE(t,name,head,item) do { \
                                     t **_head = &(head), *_item = (item); \
-                                    g_assert(_item); \
+                                    assert(_item); \
                                     if (_item->name##_next) \
                                        _item->name##_next->name##_prev = _item->name##_prev; \
                                     if (_item->name##_prev) \
                                        _item->name##_prev->name##_next = _item->name##_next; \
                                     else {\
-                                       g_assert(*_head == _item); \
+                                       assert(*_head == _item); \
                                        *_head = _item->name##_next; \
                                     } \
                                     _item->name##_next = _item->name##_prev = NULL; \

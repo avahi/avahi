@@ -82,7 +82,7 @@ AvahiAddressResolver *avahi_address_resolver_new(AvahiServer *server, AvahiIfInd
     AvahiAddressResolver *r;
     AvahiKey *k;
     gchar *n;
-    GTimeVal tv;
+    struct timeval tv;
 
     g_assert(server);
     g_assert(address);

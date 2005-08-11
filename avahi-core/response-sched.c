@@ -45,7 +45,7 @@ struct AvahiResponseJob {
     AvahiTimeEvent *time_event;
     
     AvahiResponseJobState state;
-    GTimeVal delivery;
+    struct timeval delivery;
 
     AvahiRecord *record;
     gboolean flush_cache;
@@ -108,7 +108,7 @@ static void job_free(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 static void elapse_callback(AvahiTimeEvent *e, gpointer data);
 
 static void job_set_elapse_time(AvahiResponseScheduler *s, AvahiResponseJob *rj, guint msec, guint jitter) {
-    GTimeVal tv;
+    struct timeval tv;
 
     g_assert(s);
     g_assert(rj);
@@ -134,7 +134,7 @@ static void job_mark_done(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
 
-    g_get_current_time(&rj->delivery);
+    gettimeofday(&rj->delivery, NULL);
 }
 
 AvahiResponseScheduler *avahi_response_scheduler_new(AvahiInterface *i) {
@@ -329,7 +329,7 @@ static AvahiResponseJob* find_suppressed_job(AvahiResponseScheduler *s, AvahiRec
 
 gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately) {
     AvahiResponseJob *rj;
-    GTimeVal tv;
+    struct timeval tv;
 /*     gchar *t; */
     
     g_assert(s);
@@ -440,7 +440,7 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
     rj->flush_cache = flush_cache;
     rj->querier_valid = FALSE;
     
-    g_get_current_time(&rj->delivery);
+    gettimeofday(&rj->delivery, NULL);
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
 }
 
@@ -477,7 +477,7 @@ void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *r
         rj->querier = *querier;
     }
 
-    g_get_current_time(&rj->delivery);
+    gettimeofday(&rj->delivery, NULL);
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_SUPPRESS_MSEC, 0);
 }
 

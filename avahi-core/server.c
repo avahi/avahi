@@ -2036,7 +2036,7 @@ void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState sta
     if (g->state == state)
         return;
 
-    g_assert(state >= AVAHI_ENTRY_GROUP_UNCOMMITED && state <= AVAHI_ENTRY_GROUP_COLLISION);
+    g_assert(state <= AVAHI_ENTRY_GROUP_COLLISION);
 
     g->state = state;
     
@@ -2093,7 +2093,7 @@ void avahi_entry_group_free(AvahiEntryGroup *g) {
 static void entry_group_commit_real(AvahiEntryGroup *g) {
     g_assert(g);
 
-    g_get_current_time(&g->register_time);
+    gettimeofday(&g->register_time, NULL);
 
     avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
 
@@ -2117,7 +2117,7 @@ static void entry_group_register_time_event_callback(AvahiTimeEvent *e, gpointer
 }
 
 gint avahi_entry_group_commit(AvahiEntryGroup *g) {
-    GTimeVal now;
+    struct timeval now;
     
     g_assert(g);
     g_assert(!g->dead);
@@ -2132,7 +2132,7 @@ gint avahi_entry_group_commit(AvahiEntryGroup *g) {
                             AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT :
                             AVAHI_RR_HOLDOFF_MSEC));
 
-    g_get_current_time(&now);
+    gettimeofday(&now, NULL);
 
     if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
         /* Holdoff time passed, so let's start probing */

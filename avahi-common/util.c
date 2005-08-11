@@ -31,10 +31,12 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "util.h"
+#include "malloc.h"
 
-gchar *avahi_get_host_name(void) {
+char *avahi_get_host_name(void) {
 #ifdef HOST_NAME_MAX
     char t[HOST_NAME_MAX];
 #else
@@ -45,29 +47,29 @@ gchar *avahi_get_host_name(void) {
     return avahi_normalize_name(t);
 }
 
-static gchar *unescape_uneeded(const gchar *src, gchar *ret_dest, size_t size) {
-    gboolean escaped = FALSE;
+static char *unescape_uneeded(const char *src, char *ret_dest, size_t size) {
+    int escaped = 0;
     
-    g_assert(src);
-    g_assert(ret_dest);
-    g_assert(size > 0);
+    assert(src);
+    assert(ret_dest);
+    assert(size > 0);
     
     for (; *src; src++) {
 
         if (!escaped && *src == '\\')
-            escaped = TRUE;
+            escaped = 1;
         else if (escaped && (*src == '.' || *src == '\\')) {
 
             if ((size -= 2) <= 1) break;
             
             *(ret_dest++) = '\\';
             *(ret_dest++) = *src;
-            escaped = FALSE;
+            escaped = 0;
         } else {
             if (--size <= 1) break;
 
             *(ret_dest++) = *src;
-            escaped = FALSE;
+            escaped = 0;
         }
 
     }
@@ -77,10 +79,11 @@ static gchar *unescape_uneeded(const gchar *src, gchar *ret_dest, size_t size) {
     return ret_dest;
 }
 
-gchar *avahi_normalize_name(const gchar *s) {
-    gchar tmp[256];
-    guint l;
-    g_assert(s);
+char *avahi_normalize_name(const char *s) {
+    char tmp[256];
+    size_t l;
+    
+    assert(s);
 
     unescape_uneeded(s, tmp, sizeof(tmp));
 
@@ -89,12 +92,12 @@ gchar *avahi_normalize_name(const gchar *s) {
     while (l > 0 && tmp[l-1] == '.')
         tmp[--l] = 0;
 
-    return g_strdup(tmp);
+    return avahi_strdup(tmp);
 }
 
-gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
-    g_assert(a);
-    g_assert(b);
+int avahi_timeval_compare(const struct timeval *a, const struct timeval *b) {
+    assert(a);
+    assert(b);
 
     if (a->tv_sec < b->tv_sec)
         return -1;
@@ -111,9 +114,9 @@ gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b) {
     return 0;
 }
 
-AvahiUsec avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
-    g_assert(a);
-    g_assert(b);
+AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b) {
+    assert(a);
+    assert(b);
 
     if (avahi_timeval_compare(a, b) < 0)
         return - avahi_timeval_diff(b, a);
@@ -121,51 +124,52 @@ AvahiUsec avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b) {
     return ((AvahiUsec) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
 }
 
-GTimeVal* avahi_timeval_add(GTimeVal *a, AvahiUsec usec) {
+struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec) {
     AvahiUsec u;
-    g_assert(a);
+    assert(a);
 
     u = usec + a->tv_usec;
 
     if (u < 0) {
-        a->tv_usec = (glong) (1000000 + (u % 1000000));
-        a->tv_sec += (glong) (-1 + (u / 1000000));
+        a->tv_usec = (long) (1000000 + (u % 1000000));
+        a->tv_sec += (long) (-1 + (u / 1000000));
     } else {
-        a->tv_usec = (glong) (u % 1000000);
-        a->tv_sec += (glong) (u / 1000000);
+        a->tv_usec = (long) (u % 1000000);
+        a->tv_sec += (long) (u / 1000000);
     }
 
     return a;
 }
 
-AvahiUsec avahi_age(const GTimeVal *a) {
-    GTimeVal now;
+AvahiUsec avahi_age(const struct timeval *a) {
+    struct timeval now;
     
-    g_assert(a);
+    assert(a);
 
-    g_get_current_time(&now);
+    gettimeofday(&now, NULL);
 
     return avahi_timeval_diff(&now, a);
 }
 
-GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter) {
-    g_assert(tv);
 
-    g_get_current_time(tv);
+struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
+    assert(tv);
+
+    gettimeofday(tv, NULL);
 
     if (msec)
         avahi_timeval_add(tv, (AvahiUsec) msec*1000);
 
     if (jitter)
-        avahi_timeval_add(tv, (AvahiUsec) g_random_int_range(0, jitter) * 1000);
+        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*rand()/(RAND_MAX+1.0)));
         
     return tv;
 }
 
-gint avahi_set_cloexec(gint fd) {
-    gint n;
+int avahi_set_cloexec(int fd) {
+    int n;
 
-    g_assert(fd >= 0);
+    assert(fd >= 0);
     
     if ((n = fcntl(fd, F_GETFD)) < 0)
         return -1;
@@ -176,10 +180,10 @@ gint avahi_set_cloexec(gint fd) {
     return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
 }
 
-gint avahi_set_nonblock(gint fd) {
-    gint n;
-
-    g_assert(fd >= 0);
+int avahi_set_nonblock(int fd) {
+    int n;
+    
+    assert(fd >= 0);
 
     if ((n = fcntl(fd, F_GETFL)) < 0)
         return -1;
@@ -190,32 +194,29 @@ gint avahi_set_nonblock(gint fd) {
     return fcntl(fd, F_SETFL, n|O_NONBLOCK);
 }
 
-gint avahi_wait_for_write(gint fd) {
+int avahi_wait_for_write(int fd) {
     fd_set fds;
-    gint r;
+    int r;
     
     FD_ZERO(&fds);
     FD_SET(fd, &fds);
     
-    if ((r = select(fd+1, NULL, &fds, NULL, NULL)) < 0) {
-        g_message("select() failed: %s", strerror(errno));
-
+    if ((r = select(fd+1, NULL, &fds, NULL, NULL)) < 0)
         return -1;
-    }
     
-    g_assert(r > 0);
+    assert(r > 0);
 
     return 0;
 }
 
 /* Read the first label from string *name, unescape "\" and write it to dest */
-gchar *avahi_unescape_label(const gchar **name, gchar *dest, guint size) {
-    guint i = 0;
-    gchar *d;
+char *avahi_unescape_label(const char **name, char *dest, size_t size) {
+    unsigned i = 0;
+    char *d;
     
-    g_assert(dest);
-    g_assert(size > 0);
-    g_assert(name);
+    assert(dest);
+    assert(size > 0);
+    assert(name);
 
     if (!**name)
         return NULL;
@@ -245,7 +246,7 @@ gchar *avahi_unescape_label(const gchar **name, gchar *dest, guint size) {
         i++;
     }
 
-    g_assert(i < size);
+    assert(i < size);
 
     *d = 0;
 
@@ -253,14 +254,14 @@ gchar *avahi_unescape_label(const gchar **name, gchar *dest, guint size) {
 }
 
 /* Escape "\" and ".", append \0 */
-gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name, guint *ret_size) {
-    gchar *r;
+char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name, size_t *ret_size) {
+    char *r;
 
-    g_assert(src);
-    g_assert(ret_name);
-    g_assert(*ret_name);
-    g_assert(ret_size);
-    g_assert(*ret_size > 0);
+    assert(src);
+    assert(ret_name);
+    assert(*ret_name);
+    assert(ret_size);
+    assert(*ret_size > 0);
 
     r = *ret_name;
 
@@ -288,41 +289,41 @@ gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name,
     return r;
 }
 
-gboolean avahi_domain_equal(const gchar *a, const gchar *b) {
-    g_assert(a);
-    g_assert(b);
+int avahi_domain_equal(const char *a, const char *b) {
+    assert(a);
+    assert(b);
 
     if (a == b)
-        return TRUE;
+        return 1;
     
     for (;;) {
-        gchar ca[65], cb[65], *pa, *pb;
+        char ca[65], cb[65], *pa, *pb;
 
         pa = avahi_unescape_label(&a, ca, sizeof(ca));
         pb = avahi_unescape_label(&b, cb, sizeof(cb));
 
         if (!pa && !pb)
-            return TRUE;
+            return 1;
         else if ((pa && !pb) || (!pa && pb))
-            return FALSE;
+            return 0;
 
-        if (g_ascii_strcasecmp(pa, pb))
-            return FALSE;
+        if (strcasecmp(pa, pb))
+            return 0;
     }
 
-    return TRUE;
+    return 1;
 }
 
-gint avahi_binary_domain_cmp(const gchar *a, const gchar *b) {
-    g_assert(a);
-    g_assert(b);
+int avahi_binary_domain_cmp(const char *a, const char *b) {
+    assert(a);
+    assert(b);
 
     if (a == b)
         return 0;
 
     for (;;) {
-        gchar ca[65], cb[65], *pa, *pb;
-        gint r;
+        char ca[65], cb[65], *pa, *pb;
+        int r;
 
         pa = avahi_unescape_label(&a, ca, sizeof(ca));
         pb = avahi_unescape_label(&b, cb, sizeof(cb));
@@ -339,14 +340,14 @@ gint avahi_binary_domain_cmp(const gchar *a, const gchar *b) {
     }
 }
 
-void avahi_hexdump(gconstpointer p, guint size) {
-    const guint8 *c = p;
-    g_assert(p);
+void avahi_hexdump(const void* p, size_t size) {
+    const uint8_t *c = p;
+    assert(p);
 
     printf("Dumping %u bytes from %p:\n", size, p);
     
     while (size > 0) {
-        guint i;
+        unsigned i;
 
         for (i = 0; i < 16; i++) { 
             if (i < size)
@@ -373,11 +374,20 @@ void avahi_hexdump(gconstpointer p, guint size) {
     }
 }
 
-guint avahi_domain_hash(const gchar *s) {
-    guint hash = 0;
+unsigned avahi_strhash(const char *p) {
+    unsigned hash = 0;
+
+    for (; *p; p++)
+        hash = 31 * hash + *p;
+
+    return hash;
+}
+
+unsigned avahi_domain_hash(const char *s) {
+    unsigned hash = 0;
     
     for (;;) {
-        gchar c[65], *m;
+        char c[65];
 
         if (!avahi_unescape_label(&s, c, sizeof(c)))
             return hash;
@@ -385,18 +395,16 @@ guint avahi_domain_hash(const gchar *s) {
         if (!c[0])
             continue;
         
-        m = g_ascii_strdown(c, -1);
-        hash += g_str_hash(m);
-        g_free(m);
+        hash += avahi_strhash(avahi_strdown(c));
     }
 }
 
-gchar *avahi_format_mac_address(const guint8* mac, guint size) {
-    gchar *r, *t;
-    guint i;
-    static const gchar hex[] = "0123456789abcdef";
+char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
+    char *r, *t;
+    unsigned i;
+    static const char hex[] = "0123456789abcdef";
 
-    t = r = g_new(gchar, size > 0 ? size*3 : 1);
+    t = r = avahi_new(char, size > 0 ? size*3 : 1);
 
     if (size <= 0) {
         *r = 0;
@@ -415,46 +423,46 @@ gchar *avahi_format_mac_address(const guint8* mac, guint size) {
     return r;
 }
 
-gboolean avahi_valid_service_type(const gchar *t) {
-    const gchar *p;
-    g_assert(t);
+int avahi_valid_service_type(const char *t) {
+    const char *p;
+    assert(t);
 
     if (strlen(t) < 5)
-        return FALSE;
+        return 0;
     
     if (*t != '_')
-        return FALSE;
+        return 0;
 
     if (!(p = strchr(t, '.')))
-        return FALSE;
+        return 0;
 
     if (p - t > 63 || p - t < 2)
-        return FALSE;
+        return 0;
 
     if (*(++p) != '_')
-        return FALSE;
+        return 0;
 
     if (strchr(p, '.'))
-        return FALSE;
+        return 0;
 
     if (strlen(p) > 63 || strlen(p) < 2)
-        return FALSE;
+        return 0;
     
-    return TRUE;
+    return 1;
 }
 
-gboolean avahi_valid_domain_name(const gchar *t) {
-    const gchar *p, *dp;
-    gboolean dot = FALSE;
+int avahi_valid_domain_name(const char *t) {
+    const char *p, *dp;
+    int dot = 0;
         
-    g_assert(t);
+    assert(t);
 
     if (*t == 0)
-        return FALSE;
+        return 0;
 
     /* Domains may not start with a dot */
     if (*t == '.')
-        return FALSE;
+        return 0;
 
     dp = t; 
 
@@ -462,49 +470,71 @@ gboolean avahi_valid_domain_name(const gchar *t) {
 
         if (*p == '.') {
             if (dot) /* Two subsequent dots */
-                return FALSE;
+                return 0;
 
             if (p - dp > 63)
-                return FALSE;
+                return 0;
 
-            dot = TRUE;
+            dot = 1;
             dp = p + 1;
         } else
-            dot = FALSE;
+            dot = 0;
 
     }
 
     if (p - dp > 63)
-        return FALSE;
+        return 0;
 
     /* A trailing dot IS allowed */
     
-    return TRUE;
+    return 1;
 }
 
-gboolean avahi_valid_service_name(const gchar *t) {
-    g_assert(t);
+int avahi_valid_service_name(const char *t) {
+    assert(t);
 
     if (*t == 0)
-        return FALSE;
+        return 0;
 
     if (strlen(t) > 63)
-        return FALSE;
+        return 0;
 
-    return TRUE;
+    return 1;
 }
 
-gboolean avahi_valid_host_name(const gchar *t) {
-    g_assert(t);
+int avahi_valid_host_name(const char *t) {
+    assert(t);
 
     if (*t == 0)
-        return FALSE;
+        return 0;
 
     if (strlen(t) > 63)
-        return FALSE;
+        return 0;
 
     if (strchr(t, '.'))
-        return FALSE;
+        return 0;
 
-    return TRUE;
+    return 1;
 }
+
+char *avahi_strdown(char *s) {
+    char *c;
+    
+    assert(s);
+
+    for (c = s; *c; c++)
+        *c = (char) tolower(*c);
+
+    return s;
+}
+
+char *avahi_strup(char *s) {
+    char *c;
+    assert(s);
+
+    for (c = s; *c; c++)
+        *c = (char) toupper(*c);
+
+    return s;
+}
+

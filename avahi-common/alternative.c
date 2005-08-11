@@ -26,38 +26,47 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "alternative.h"
+#include "malloc.h"
+#include "util.h"
 
-gchar * avahi_alternative_host_name(const gchar *s) {
-    const gchar *p, *e = NULL;
-    gchar *c, *r;
-    gint n;
+char * avahi_alternative_host_name(const char *s) {
+    const char *p, *e;
+    char *r;
 
-    g_assert(s);
+    assert(s);
+
+    e = s;
     
     for (p = s; *p; p++)
         if (!isdigit(*p))
             e = p+1;
 
-    if (e && *e)
-        n = atoi(e)+1;
-    else
-        n = 2;
+    if (*e) {
+        char *c;
 
-    c = e ? g_strndup(s, e-s) : g_strdup(s);
-    r = g_strdup_printf("%s%i", c, n);
-    g_free(c);
+        if (!(c = avahi_strndup(s, e-s)))
+            return NULL;
+
+        r = avahi_strdup_printf("%s%i", c, atoi(e)+1);
+        avahi_free(c);
+        
+    } else
+        r = avahi_strdup_printf("%s2", s);
     
     return r;
 }
 
-gchar *avahi_alternative_service_name(const gchar *s) {
-    const gchar *e;
-    g_assert(s);
+char *avahi_alternative_service_name(const char *s) {
+    const char *e;
+    char *r;
+    
+    assert(s);
 
     if ((e = strstr(s, " #"))) {
-        const gchar *n, *p;
+        const char *n, *p;
         e += 2;
     
         while ((n = strstr(e, " #")))
@@ -71,10 +80,15 @@ gchar *avahi_alternative_service_name(const gchar *s) {
     }
     
     if (e) {
-        gchar *r, *c = g_strndup(s, e-s);
-        r = g_strdup_printf("%s%i", c, atoi(e)+1);
-        g_free(c);
-        return r;
+        char *c;
+
+        if (!(c = avahi_strndup(s, e-s)))
+            return NULL;
+        
+        r = avahi_strdup_printf("%s%i", c, atoi(e)+1);
+        avahi_free(c);
     } else
-        return g_strdup_printf("%s #2", s);
+        r = avahi_strdup_printf("%s #2", s);
+
+    return r;
 }

@@ -38,10 +38,21 @@ static gint compare(gconstpointer _a, gconstpointer _b) {
     return avahi_timeval_compare(&a->last_run, &b->last_run);
 }
 
+static void source_get_timeval(GSource *source, struct timeval *tv) {
+    GTimeVal gtv;
+    
+    g_assert(source);
+    g_assert(tv);
+
+    g_source_get_current_time(source, &gtv);
+    tv->tv_sec = gtv.tv_sec;
+    tv->tv_usec = gtv.tv_usec;
+}
+
 static gboolean prepare_func(GSource *source, gint *timeout) {
     AvahiTimeEventQueue *q = (AvahiTimeEventQueue*) source;
     AvahiTimeEvent *e;
-    GTimeVal now;
+    struct timeval now;
 
     g_assert(source);
     g_assert(timeout);
@@ -54,7 +65,7 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
     e = q->prioq->root->data;
     g_assert(e);
 
-    g_source_get_current_time(source, &now);
+    source_get_timeval(source, &now);
 
     if (avahi_timeval_compare(&now, &e->expiry) >= 0 &&  /* Time elapsed */
         avahi_timeval_compare(&now, &e->last_run) != 0   /* Not yet run */) {
@@ -74,7 +85,7 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
 static gboolean check_func(GSource *source) {
     AvahiTimeEventQueue *q = (AvahiTimeEventQueue*) source;
     AvahiTimeEvent *e;
-    GTimeVal now;
+    struct timeval now;
 
     g_assert(source);
 
@@ -84,7 +95,7 @@ static gboolean check_func(GSource *source) {
     e = q->prioq->root->data;
     g_assert(e);
 
-    g_source_get_current_time(source, &now);
+    source_get_timeval(source, &now);
     
     return
         avahi_timeval_compare(&now, &e->expiry) >= 0 && /* Time elapsed */
@@ -93,11 +104,11 @@ static gboolean check_func(GSource *source) {
 
 static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
     AvahiTimeEventQueue *q = (AvahiTimeEventQueue*) source;
-    GTimeVal now;
+    struct timeval now;
 
     g_assert(source);
 
-    g_source_get_current_time(source, &now);
+    source_get_timeval(source, &now);
 
     while (q->prioq->root) {
         AvahiTimeEvent *e = q->prioq->root->data;
@@ -123,10 +134,10 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
 }
 
 static void fix_expiry_time(AvahiTimeEvent *e) {
-    GTimeVal now;
+    struct timeval now;
     g_assert(e);
 
-    g_source_get_current_time(&e->queue->source, &now);
+    source_get_timeval(&e->queue->source, &now);
 
     if (avahi_timeval_compare(&now, &e->expiry) > 0)
         e->expiry = now;
@@ -166,7 +177,7 @@ void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
     g_source_unref(&q->source);
 }
 
-AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const GTimeVal *timeval, AvahiTimeEventCallback callback, gpointer userdata) {
+AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const struct timeval *timeval, AvahiTimeEventCallback callback, gpointer userdata) {
     AvahiTimeEvent *e;
     
     g_assert(q);
@@ -199,7 +210,7 @@ void avahi_time_event_queue_remove(AvahiTimeEventQueue *q, AvahiTimeEvent *e) {
     g_free(e);
 }
 
-void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, const GTimeVal *timeval) {
+void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, const struct timeval *timeval) {
     g_assert(q);
     g_assert(e);
     g_assert(e->queue == q);

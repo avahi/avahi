@@ -44,8 +44,8 @@ typedef struct AvahiCacheEntry AvahiCacheEntry;
 struct AvahiCacheEntry {
     AvahiCache *cache;
     AvahiRecord *record;
-    GTimeVal timestamp;
-    GTimeVal expiry;
+    struct timeval timestamp;
+    struct timeval expiry;
     gboolean cache_flush;
     
     AvahiAddress origin;

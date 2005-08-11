@@ -37,7 +37,7 @@ struct AvahiQueryJob {
     AvahiTimeEvent *time_event;
     
     gboolean done;
-    GTimeVal delivery;
+    struct timeval delivery;
 
     AvahiKey *key;
 
@@ -98,7 +98,7 @@ static void job_free(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
 static void elapse_callback(AvahiTimeEvent *e, gpointer data);
 
 static void job_set_elapse_time(AvahiQueryScheduler *s, AvahiQueryJob *qj, guint msec, guint jitter) {
-    GTimeVal tv;
+    struct timeval tv;
 
     g_assert(s);
     g_assert(qj);
@@ -123,7 +123,7 @@ static void job_mark_done(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
     qj->done = TRUE;
 
     job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
-    g_get_current_time(&qj->delivery);
+    gettimeofday(&qj->delivery, NULL);
 }
 
 AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i) {
@@ -319,7 +319,7 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
 }
 
 gboolean avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, gboolean immediately) {
-    GTimeVal tv;
+    struct timeval tv;
     AvahiQueryJob *qj;
     
     g_assert(s);
@@ -373,7 +373,7 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
     }
     
     qj = job_new(s, key, TRUE);
-    g_get_current_time(&qj->delivery);
+    gettimeofday(&qj->delivery, NULL);
     job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
 }
 

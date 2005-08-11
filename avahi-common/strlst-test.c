@@ -23,16 +23,17 @@
 #include <config.h>
 #endif
 
-#include <glib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "strlst.h"
+#include "malloc.h"
 
 int main(int argc, char *argv[]) {
-    gchar *t;
-    guint8 data[1024];
+    char *t;
+    uint8_t data[1024];
     AvahiStringList *a = NULL, *b;
-    guint size, n;
+    size_t size, n;
 
     a = avahi_string_list_new("prefix", "a", "b", NULL);
     
@@ -40,18 +41,18 @@ int main(int argc, char *argv[]) {
     a = avahi_string_list_add(a, "foo");
     a = avahi_string_list_add(a, "bar");
     a = avahi_string_list_add(a, "quux");
-    a = avahi_string_list_add_arbitrary(a, (const guint8*) "null\0null", 9);
+    a = avahi_string_list_add_arbitrary(a, (const uint8_t*) "null\0null", 9);
     a = avahi_string_list_add(a, "end");
 
     t = avahi_string_list_to_string(a);
     printf("--%s--\n", t);
-    g_free(t);
+    avahi_free(t);
 
     size = avahi_string_list_serialize(a, data, sizeof(data));
 
     printf("%u\n", size);
 
-    for (t = (gchar*) data, n = 0; n < size; n++, t++) {
+    for (t = (char*) data, n = 0; n < size; n++, t++) {
         if (*t <= 32)
             printf("(%u)", *t);
         else
@@ -62,21 +63,21 @@ int main(int argc, char *argv[]) {
     
     b = avahi_string_list_parse(data, size);
 
-    g_assert(avahi_string_list_equal(a, b));
+    assert(avahi_string_list_equal(a, b));
     
     t = avahi_string_list_to_string(b);
     printf("--%s--\n", t);
-    g_free(t);
+    avahi_free(t);
 
     avahi_string_list_free(b);
 
     b = avahi_string_list_copy(a);
 
-    g_assert(avahi_string_list_equal(a, b));
+    assert(avahi_string_list_equal(a, b));
 
     t = avahi_string_list_to_string(b);
     printf("--%s--\n", t);
-    g_free(t);
+    avahi_free(t);
     
     avahi_string_list_free(a);
     avahi_string_list_free(b);

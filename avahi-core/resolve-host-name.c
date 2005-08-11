@@ -107,7 +107,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
 AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *host_name, guchar aprotocol, AvahiHostNameResolverCallback callback, gpointer userdata) {
     AvahiHostNameResolver *r;
     AvahiKey *k;
-    GTimeVal tv;
+    struct timeval tv;
     
     g_assert(server);
     g_assert(host_name);

@@ -22,48 +22,54 @@
   USA.
 ***/
 
-#include <glib.h>
+#include <inttypes.h>
+#include <stdarg.h>
+#include <sys/time.h>
 
 #include <avahi-common/cdecl.h>
 
 AVAHI_C_DECL_BEGIN
 
-typedef gint64 AvahiUsec;
+typedef int64_t AvahiUsec;
 
-gchar *avahi_normalize_name(const gchar *s); /* g_free() the result! */
-gchar *avahi_get_host_name(void); /* g_free() the result! */
+char *avahi_normalize_name(const char *s); /* avahi_free() the result! */
+char *avahi_get_host_name(void); /* avahi_free() the result! */
 
-gint avahi_timeval_compare(const GTimeVal *a, const GTimeVal *b);
-AvahiUsec avahi_timeval_diff(const GTimeVal *a, const GTimeVal *b);
-GTimeVal* avahi_timeval_add(GTimeVal *a, AvahiUsec usec);
+int avahi_timeval_compare(const struct timeval *a, const struct timeval *b);
+AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b);
+struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec);
 
-AvahiUsec avahi_age(const GTimeVal *a);
-GTimeVal *avahi_elapse_time(GTimeVal *tv, guint msec, guint jitter);
+AvahiUsec avahi_age(const struct timeval *a);
+struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter);
 
-gint avahi_set_cloexec(gint fd);
-gint avahi_set_nonblock(gint fd);
-gint avahi_wait_for_write(gint fd);
+int avahi_set_cloexec(int fd);
+int avahi_set_nonblock(int fd);
+int avahi_wait_for_write(int fd);
 
-gboolean avahi_domain_equal(const gchar *a, const gchar *b);
-gint avahi_binary_domain_cmp(const gchar *a, const gchar *b);
+int avahi_domain_equal(const char *a, const char *b);
+int avahi_binary_domain_cmp(const char *a, const char *b);
 
-void avahi_hexdump(gconstpointer p, guint size);
+void avahi_hexdump(const void *p, size_t size);
 
 /* Read the first label from the textual domain name *name, unescape
  * it and write it to dest, *name is changed to point to the next label*/
-gchar *avahi_unescape_label(const gchar **name, gchar *dest, guint size);
+char *avahi_unescape_label(const char **name, char *dest, size_t size);
 
 /* Escape the domain name in *src and write it to *ret_name */
-gchar *avahi_escape_label(const guint8* src, guint src_length, gchar **ret_name, guint *ret_size);
+char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name, size_t *ret_size);
 
-guint avahi_domain_hash(const gchar *s);
+unsigned avahi_strhash(const char *p);
+unsigned avahi_domain_hash(const char *s);
 
-gchar *avahi_format_mac_address(const guint8* mac, guint size);
+char *avahi_format_mac_address(const uint8_t* mac, size_t size);
 
-gboolean avahi_valid_service_type(const gchar *t);
-gboolean avahi_valid_domain_name(const gchar *t);
-gboolean avahi_valid_service_name(const gchar *t);
-gboolean avahi_valid_host_name(const gchar *t);
+int avahi_valid_service_type(const char *t);
+int avahi_valid_domain_name(const char *t);
+int avahi_valid_service_name(const char *t);
+int avahi_valid_host_name(const char *t);
+
+char *avahi_strdown(char *s);
+char *avahi_strup(char *s);
 
 AVAHI_C_DECL_END
 

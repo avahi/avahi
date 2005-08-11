@@ -25,25 +25,30 @@
 
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "strlst.h"
+#include "malloc.h"
 
-AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, guint size) {
+AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size) {
     AvahiStringList *n;
 
-    n = g_malloc(sizeof(AvahiStringList) + size);
+    if (!(n = avahi_malloc(sizeof(AvahiStringList) + size)))
+        return NULL;
+    
     n->next = l;
     n->size = size;
     
     return n;
 }
 
-AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint8*text, guint size) {
+AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const uint8_t*text, size_t size) {
     AvahiStringList *n;
 
-    g_assert(text);
+    assert(text);
 
-    n = avahi_string_list_add_anonymous(l, size);
+    if (!(n = avahi_string_list_add_anonymous(l, size)))
+        return NULL;
 
     if (size > 0)
         memcpy(n->text, text, size);
@@ -51,20 +56,21 @@ AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const guint
     return n;
 }
 
-AvahiStringList *avahi_string_list_add(AvahiStringList *l, const gchar *text) {
-    g_assert(text);
+AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text) {
+    assert(text);
 
-    return avahi_string_list_add_arbitrary(l, (const guint8*) text, strlen(text));
+    return avahi_string_list_add_arbitrary(l, (const uint8_t*) text, strlen(text));
 }
 
-AvahiStringList *avahi_string_list_parse(gconstpointer data, guint size) {
+AvahiStringList *avahi_string_list_parse(const void* data, size_t size) {
     AvahiStringList *r = NULL;
-    const guint8 *c;
-    g_assert(data);
+    const uint8_t *c;
+    
+    assert(data);
 
     c = data;
     for (;;) {
-        guint k;
+        size_t k;
         
         if (size < 1)
             break;
@@ -84,7 +90,7 @@ void avahi_string_list_free(AvahiStringList *l) {
 
     while (l) {
         n = l->next;
-        g_free(l);
+        avahi_free(l);
         l = n;
     }
 }
@@ -102,10 +108,10 @@ AvahiStringList* avahi_string_list_reverse(AvahiStringList *l) {
     return r;
 }
 
-gchar* avahi_string_list_to_string(AvahiStringList *l) {
+char* avahi_string_list_to_string(AvahiStringList *l) {
     AvahiStringList *n;
-    guint s = 0;
-    gchar *t, *e;
+    size_t s = 0;
+    char *t, *e;
 
     l = avahi_string_list_reverse(l);
     
@@ -116,19 +122,22 @@ gchar* avahi_string_list_to_string(AvahiStringList *l) {
         s += n->size+2;
     }
 
-    t = e = g_new(gchar, s+1);
+    if (!(t = e = avahi_new(char, s+1))) {
+        l = avahi_string_list_reverse(l);
+        return NULL;
+    }
 
     for (n = l; n; n = n->next) {
         if (n != l)
             *(e++) = ' ';
 
         *(e++) = '"';
-        strncpy(e, (gchar*) n->text, n->size);
+        strncpy(e, (char*) n->text, n->size);
         e[n->size] = 0;
         e = strchr(e, 0);
         *(e++) = '"';
 
-        g_assert(e);
+        assert(e);
     }
 
     l = avahi_string_list_reverse(l);
@@ -138,20 +147,20 @@ gchar* avahi_string_list_to_string(AvahiStringList *l) {
     return t;
 }
 
-guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size) {
-    guint used = 0;
+size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) {
+    size_t used = 0;
 
     if (data) {
-        guint8 *c;
+        uint8_t *c;
         AvahiStringList *n;
     
-        g_assert(data);
+        assert(data);
         
         l = avahi_string_list_reverse(l);
         c = data;
         
         for (n = l; n; n = n->next) {
-            guint k;
+            size_t k;
             if (size < 1)
                 break;
             
@@ -174,7 +183,7 @@ guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size)
         AvahiStringList *n;
 
         for (n = l; n; n = n->next) {
-            guint k;
+            size_t k;
         
             k = n->size;
             if (k > 255)
@@ -187,20 +196,20 @@ guint avahi_string_list_serialize(AvahiStringList *l, gpointer data, guint size)
     return used;
 }
 
-gboolean avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b) {
+int avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b) {
 
     for (;;) {
         if (!a && !b)
-            return TRUE;
+            return 1;
 
         if (!a || !b)
-            return FALSE;
+            return 0;
 
         if (a->size != b->size)
-            return FALSE;
+            return 0;
 
         if (a->size != 0 && memcmp(a->text, b->text, a->size) != 0)
-            return FALSE;
+            return 0;
 
         a = a->next;
         b = b->next;
@@ -218,16 +227,15 @@ AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) {
 }
 
 AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va) {
-    const gchar *txt;
+    const char *txt;
 
-    while ((txt = va_arg(va, const gchar*)))
+    while ((txt = va_arg(va, const char*)))
         r = avahi_string_list_add(r, txt);
 
     return r;
 }
 
-
-AvahiStringList *avahi_string_list_new(const gchar *txt, ...) {
+AvahiStringList *avahi_string_list_new(const char *txt, ...) {
     va_list va;
     AvahiStringList *r = NULL;
 
@@ -255,11 +263,11 @@ AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
     return avahi_string_list_reverse(r);
 }
 
-AvahiStringList *avahi_string_list_new_from_array(const gchar *array[], gint length) {
+AvahiStringList *avahi_string_list_new_from_array(const char *array[], int length) {
     AvahiStringList *r = NULL;
-    gint i;
+    int i;
 
-    g_assert(array);
+    assert(array);
 
     for (i = 0; length >= 0 ? i < length : !!array[i]; i++)
         r = avahi_string_list_add(r, array[i]);
@@ -267,8 +275,8 @@ AvahiStringList *avahi_string_list_new_from_array(const gchar *array[], gint len
     return r;
 }
 
-guint avahi_string_list_length(const AvahiStringList *l) {
-    guint n = 0;
+unsigned avahi_string_list_length(const AvahiStringList *l) {
+    unsigned n = 0;
 
     for (; l; l = l->next)
         n++;

@@ -195,7 +195,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
 AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const gchar *name, const gchar *type, const gchar *domain, AvahiProtocol aprotocol, AvahiServiceResolverCallback callback, gpointer userdata) {
     AvahiServiceResolver *r;
     AvahiKey *k;
-    GTimeVal tv;
+    struct timeval tv;
     gchar t[256], *n;
     size_t l;
     

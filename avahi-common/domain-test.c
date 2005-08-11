@@ -23,26 +23,29 @@
 #include <config.h>
 #endif
 
+#include <stdio.h>
+
 #include "util.h"
+#include "malloc.h"
 
 int main(int argc, char *argv[]) {
-    gchar *s;
+    char *s;
     
-    g_message("host name: %s", s = avahi_get_host_name());
-    g_free(s);
+    printf("host name: %s\n", s = avahi_get_host_name());
+    avahi_free(s);
 
-    g_message("%s", s = avahi_normalize_name("foo.foo."));
-    g_free(s);
+    printf("%s\n", s = avahi_normalize_name("foo.foo."));
+    avahi_free(s);
     
-    g_message("%s", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
-    g_free(s);
+    printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
+    avahi_free(s);
 
-    g_message("%i", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
-    g_message("%i", avahi_domain_equal("\\A", "a"));
+    printf("%i\n", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
+    printf("%i\n", avahi_domain_equal("\\A", "a"));
 
-    g_message("%i", avahi_domain_equal("a", "aaa"));
+    printf("%i\n", avahi_domain_equal("a", "aaa"));
 
-    g_message("%u = %u", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
+    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
     
     return 0;
 }

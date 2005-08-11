@@ -37,15 +37,22 @@ typedef struct _AvahiClient AvahiClient;
 
 typedef struct _AvahiEntryGroup AvahiEntryGroup;
 
+typedef struct _AvahiDomainBrowser AvahiDomainBrowser;
+
 /** States of a client object, note that AvahiServerStates are also emitted */
 typedef enum {
     AVAHI_CLIENT_DISCONNECTED = 100, /**< Lost DBUS connection to the Avahi daemon */
     AVAHI_CLIENT_RECONNECTED  = 101  /**< Regained connection to the daemon, all records need to be re-added */
 } AvahiClientState;
 
+/** The function prototype for the callback of an AvahiClient */
 typedef void (*AvahiClientCallback) (AvahiClient *s, AvahiClientState state, void* userdata);
 
-typedef void (*AvahiEntryGroupCallback) (AvahiClient *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
+/** The function prototype for the callback of an AvahiEntryGroup */
+typedef void (*AvahiEntryGroupCallback) (AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
+
+/** The function prototype for the callback of an AvahiDomainBrowser */
+typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data);
 
 /** Creates a new client instance */
 AvahiClient* avahi_client_new (AvahiClientCallback callback, void *user_data);
@@ -96,7 +103,19 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
                                AvahiStringList *txt);
 
 /** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */
-char* avahi_entry_group_get_path (AvahiEntryGroup *);
+char* avahi_entry_group_path (AvahiEntryGroup *);
+
+/** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
+char* avahi_domain_browser_path (AvahiDomainBrowser *);
+
+/** Browse for domains on the local network */
+AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
+                                              AvahiIfIndex interface,
+                                              AvahiProtocol protocol,
+                                              char *domain,
+                                              AvahiDomainBrowserType btype,
+                                              AvahiDomainBrowserCallback callback,
+                                              void *user_data);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

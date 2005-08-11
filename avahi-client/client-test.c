@@ -31,9 +31,15 @@ avahi_client_callback (AvahiClient *c, AvahiClientState state, void *user_data)
 }
 
 void
-avahi_entry_group_callback (AvahiClient *c, AvahiEntryGroup *g, AvahiEntryGroupState state, void *user_data)
+avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *user_data)
 {
-    printf ("Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_get_path (g), state, (char*)user_data);
+    printf ("XXX: Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_path (g), state, (char*)user_data);
+}
+
+void
+avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data)
+{
+    printf ("XXX: Callback on %s, event -> %d, domain -> %s, data -> %s\n", avahi_domain_browser_path (b), event, domain, (char*)user_data);
 }
 
 int
@@ -43,6 +49,7 @@ main (int argc, char *argv[])
     AvahiClient *avahi;
     AvahiEntryGroup *group;
     AvahiStringList *txt;
+    AvahiDomainBrowser *domain;
     char *ret;
 
     loop = g_main_loop_new (NULL, FALSE);
@@ -74,13 +81,19 @@ main (int argc, char *argv[])
     if (group == NULL)
         printf ("Failed to create entry group object\n");
     else
-        printf ("Sucessfully created entry group, path %s\n", avahi_entry_group_get_path (group));
+        printf ("Sucessfully created entry group, path %s\n", avahi_entry_group_path (group));
 
     txt = avahi_string_list_new ("foo=bar", NULL);
 
     avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AF_UNSPEC, "Lathiat's Site", "_http._tcp", "", "", 80, txt);
 
     avahi_entry_group_commit (group);
+
+    domain = avahi_domain_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "", AVAHI_DOMAIN_BROWSER_BROWSE, avahi_domain_browser_callback, "omghai3u");
+    if (domain == NULL)
+        printf ("Failed to create domain browser object\n");
+    else
+        printf ("Sucessfully created browser, path %s\n", avahi_domain_browser_path (domain));
 
     g_main_loop_run (loop);
 

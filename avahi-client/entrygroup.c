@@ -45,7 +45,7 @@ void avahi_entry_group_state_change (AvahiEntryGroup *group, int state)
     if (group == NULL || group->callback == NULL)
         return;
 
-    group->callback (group->client, group, state, group->user_data);
+    group->callback (group, state, group->user_data);
 }
 
 AvahiEntryGroup*
@@ -249,7 +249,7 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
 }
 
 /* XXX: debug function */
-char* avahi_entry_group_get_path (AvahiEntryGroup *group)
+char* avahi_entry_group_path (AvahiEntryGroup *group)
 {
     if (group != NULL) return group->path;
     else return NULL;

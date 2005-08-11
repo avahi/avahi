@@ -158,28 +158,27 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
                 break;
             }
         }
-
+        
         if (group == NULL)
         {
             fprintf (stderr, "Received state change for unknown EntryGroup object (%s)\n", path);
         } else {
             int state;
             DBusError error;
-
             dbus_error_init (&error);
-
             dbus_message_get_args (message, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID);
-
             if (dbus_error_is_set (&error))
             {
                 fprintf (stderr, "internal error parsing entrygroup statechange for %s\n", group->path);
                 goto out;
             }
-
             printf ("statechange (%s) to %d\n", group->path, state);
-            
             avahi_entry_group_state_change (group, state);
         }
+    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemNew")) {
+        return avahi_entry_group_event (client, AVAHI_BROWSER_NEW, message);
+    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemRemove")) {
+        return avahi_entry_group_event (client, AVAHI_BROWSER_REMOVE, message);
     }
 
     return DBUS_HANDLER_RESULT_HANDLED;
@@ -200,6 +199,7 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
         goto fail;
 
     AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, tmp->groups);
+    AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, tmp->domain_browsers);
 
     dbus_error_init (&error);
 

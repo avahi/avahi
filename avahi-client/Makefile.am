@@ -44,7 +44,8 @@ lib_LTLIBRARIES = \
 
 libavahi_client_la_SOURCES = \
 	client.c client.h \
-	entrygroup.c
+	entrygroup.c \
+	browser.c
 
 client_test_SOURCES = \
 	client-test.c

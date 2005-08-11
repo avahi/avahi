@@ -33,6 +33,7 @@ struct _AvahiClient
     AvahiClientCallback callback;
     void *user_data;
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
+    AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
 };
 
 struct _AvahiEntryGroup {
@@ -41,6 +42,14 @@ struct _AvahiEntryGroup {
     AvahiEntryGroupCallback callback;
     void *user_data;
     AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
+};
+
+struct _AvahiDomainBrowser {
+    char *path;
+    AvahiClient *client;
+    AvahiDomainBrowserCallback callback;
+    void *user_data;
+    AVAHI_LLIST_FIELDS(AvahiDomainBrowser, domain_browsers);
 };
 
 int avahi_client_set_errno (AvahiClient *client, int errno);

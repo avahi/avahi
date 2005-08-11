@@ -264,7 +264,7 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     return tmp;
 
 fail:
-    if (tmp) free (tmp);
+    free (tmp);
     return NULL;
 }
 

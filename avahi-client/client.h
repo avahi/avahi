@@ -84,7 +84,7 @@ int avahi_entry_group_commit (AvahiEntryGroup*);
 int avahi_entry_group_reset (AvahiEntryGroup*);
 
 /** Get an AvahiEntryGroup's state */
-int avahi_entry_group_state (AvahiEntryGroup*);
+int avahi_entry_group_get_state (AvahiEntryGroup*);
 
 /** Check if an AvahiEntryGroup is empty */
 int avahi_entry_group_is_empty (AvahiEntryGroup*);

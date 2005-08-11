@@ -143,7 +143,7 @@ avahi_entry_group_reset (AvahiEntryGroup *group)
 }
 
 int
-avahi_entry_group_state (AvahiEntryGroup *group)
+avahi_entry_group_get_state (AvahiEntryGroup *group)
 {
     DBusMessage *message, *reply;
     DBusError error;

@@ -33,6 +33,9 @@ avahi_clientincludedir=$(includedir)/avahi-client
 avahi_clientinclude_HEADERS = \
 	client.h
 
+noinst_HEADERS = \
+	internal.h
+
 noinst_PROGRAMS = \
 	client-test
 
@@ -40,11 +43,12 @@ lib_LTLIBRARIES = \
 	libavahi-client.la 
 
 libavahi_client_la_SOURCES = \
-	client.c client.h
+	client.c client.h \
+	entrygroup.c
 
 client_test_SOURCES = \
 	client-test.c
 client_test_CFLAGS = $(AM_CFLAGS)
-client_test_LDADD = $(AM_LDADD) libavahi-client.la
+client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la
 
 endif

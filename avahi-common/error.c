@@ -45,7 +45,9 @@ const char *avahi_strerror(int error) {
         "Too many entries",
         "OS Error",
         "Access denied",
-        "Invalid operation"
+        "Invalid operation",
+        "An unexpected DBUS error occured",
+        "Could not get a connection to the daemon"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

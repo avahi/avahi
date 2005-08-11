@@ -78,4 +78,4 @@ avahi-resolve-address: avahi-resolve-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
-CLEANFILES = $(pythonscripts)
+CLEANFILES = $(pythonscripts) $(desktop_DATA)

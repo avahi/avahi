@@ -39,9 +39,14 @@ avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void
 void
 avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data)
 {
-    printf ("XXX: Callback on %s, event -> %d, domain -> %s, data -> %s\n", avahi_domain_browser_path (b), event, domain, (char*)user_data);
+    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_path (b), interface, protocol, event, domain, (char*)user_data);
 }
 
+void
+avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data)
+{
+    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
+}
 int
 main (int argc, char *argv[])
 {
@@ -50,6 +55,7 @@ main (int argc, char *argv[])
     AvahiEntryGroup *group;
     AvahiStringList *txt;
     AvahiDomainBrowser *domain;
+    AvahiServiceTypeBrowser *st;
     char *ret;
 
     loop = g_main_loop_new (NULL, FALSE);
@@ -93,7 +99,14 @@ main (int argc, char *argv[])
     if (domain == NULL)
         printf ("Failed to create domain browser object\n");
     else
-        printf ("Sucessfully created browser, path %s\n", avahi_domain_browser_path (domain));
+        printf ("Sucessfully created domain browser, path %s\n", avahi_domain_browser_path (domain));
+
+    st = avahi_service_type_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "", avahi_service_type_browser_callback, "omghai3u");
+    if (st == NULL)
+        printf ("Failed to create service type browser object\n");
+    else
+        printf ("Sucessfully created service type browser, path %s\n", avahi_service_type_browser_path (st));
+
 
     g_main_loop_run (loop);
 

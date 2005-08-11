@@ -27,7 +27,7 @@
 struct _AvahiClient
 {
     DBusConnection *bus;
-    int errno;
+    int error;
     AvahiClientCallback callback;
     void *user_data;
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
@@ -59,7 +59,7 @@ struct _AvahiServiceTypeBrowser {
     AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, service_type_browsers);
 };
 
-int avahi_client_set_errno (AvahiClient *client, int errno);
+int avahi_client_set_errno (AvahiClient *client, int error);
 
 void avahi_entry_group_state_change (AvahiEntryGroup *group, int state);
 

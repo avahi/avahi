@@ -181,7 +181,7 @@ avahi_entry_group_state (AvahiEntryGroup *group)
 int
 avahi_client_errno (AvahiClient *client)
 {
-    return client->errno;
+    return client->error;
 }
 
 AvahiClient*

@@ -41,13 +41,13 @@
 #include "internal.h"
 
 int
-avahi_client_set_errno (AvahiClient *client, int errno)
+avahi_client_set_errno (AvahiClient *client, int error)
 {
-    if (client == NULL) return errno;
+    if (client == NULL) return error;
 
-    client->errno = errno;
+    client->error = error;
 
-    return errno;
+    return error;
 }
     
 static

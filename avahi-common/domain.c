@@ -227,32 +227,7 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
     }
 }
 
-unsigned avahi_strhash(const char *p) {
-    unsigned hash = 0;
-
-    for (; *p; p++)
-        hash = 31 * hash + *p;
-
-    return hash;
-}
-
-unsigned avahi_domain_hash(const char *s) {
-    unsigned hash = 0;
-    
-    for (;;) {
-        char c[65];
-
-        if (!avahi_unescape_label(&s, c, sizeof(c)))
-            return hash;
-
-        if (!c[0])
-            continue;
-        
-        hash += avahi_strhash(avahi_strdown(c));
-    }
-}
-
-int avahi_valid_service_type(const char *t) {
+int avahi_is_valid_service_type(const char *t) {
     const char *p;
     assert(t);
 
@@ -280,7 +255,7 @@ int avahi_valid_service_type(const char *t) {
     return 1;
 }
 
-int avahi_valid_domain_name(const char *t) {
+int avahi_is_valid_domain_name(const char *t) {
     const char *p, *dp;
     int dot = 0;
         
@@ -319,7 +294,7 @@ int avahi_valid_domain_name(const char *t) {
     return 1;
 }
 
-int avahi_valid_service_name(const char *t) {
+int avahi_is_valid_service_name(const char *t) {
     assert(t);
 
     if (*t == 0)
@@ -331,7 +306,7 @@ int avahi_valid_service_name(const char *t) {
     return 1;
 }
 
-int avahi_valid_host_name(const char *t) {
+int avahi_is_valid_host_name(const char *t) {
     assert(t);
 
     if (*t == 0)
@@ -345,25 +320,3 @@ int avahi_valid_host_name(const char *t) {
 
     return 1;
 }
-
-char *avahi_strdown(char *s) {
-    char *c;
-    
-    assert(s);
-
-    for (c = s; *c; c++)
-        *c = (char) tolower(*c);
-
-    return s;
-}
-
-char *avahi_strup(char *s) {
-    char *c;
-    assert(s);
-
-    for (c = s; *c; c++)
-        *c = (char) toupper(*c);
-
-    return s;
-}
-

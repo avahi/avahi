@@ -161,6 +161,8 @@ char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
 char *avahi_strdup_printf(const char *fmt, ... ) {
     char *s;
     va_list ap;
+
+    assert(fmt);
     
     va_start(ap, fmt);
     s = avahi_strdup_vprintf(fmt, ap);
@@ -169,3 +171,13 @@ char *avahi_strdup_printf(const char *fmt, ... ) {
     return s;
 }
 
+void *avahi_memdup(const void *s, size_t l) {
+    void *p;
+    assert(s);
+
+    if (!(p = avahi_malloc(l)))
+        return NULL;
+
+    memcpy(p, s, l);
+    return p;
+}

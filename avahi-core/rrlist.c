@@ -19,17 +19,22 @@
   USA.
 ***/
 
+#include <assert.h>
+
 #include <avahi-common/llist.h>
+#include <avahi-common/malloc.h>
+
 #include "rrlist.h"
+#include "log.h"
 
 typedef struct AvahiRecordListItem AvahiRecordListItem;
 
 struct AvahiRecordListItem {
-    gboolean read;
+    int read;
     AvahiRecord *record;
-    gboolean unicast_response;
-    gboolean flush_cache;
-    gboolean auxiliary;
+    int unicast_response;
+    int flush_cache;
+    int auxiliary;
     AVAHI_LLIST_FIELDS(AvahiRecordListItem, items);
 };
 
@@ -40,22 +45,28 @@ struct AvahiRecordList {
 };
 
 AvahiRecordList *avahi_record_list_new(void) {
-    AvahiRecordList *l = g_new(AvahiRecordList, 1);
+    AvahiRecordList *l;
+
+    if (!(l = avahi_new(AvahiRecordList, 1))) {
+        avahi_log_error("avahi_new() failed.");
+        return NULL;
+    }
+    
     AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->read);
     AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->unread);
     return l;
 }
 
 void avahi_record_list_free(AvahiRecordList *l) {
-    g_assert(l);
+    assert(l);
 
     avahi_record_list_flush(l);
-    g_free(l);
+    avahi_free(l);
 }
 
 static void item_free(AvahiRecordList *l, AvahiRecordListItem *i) {
-    g_assert(l);
-    g_assert(i);
+    assert(l);
+    assert(i);
 
     if (i->read) 
         AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->read, i);
@@ -63,11 +74,11 @@ static void item_free(AvahiRecordList *l, AvahiRecordListItem *i) {
         AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->unread, i);
     
     avahi_record_unref(i->record);
-    g_free(i);
+    avahi_free(i);
 }
 
 void avahi_record_list_flush(AvahiRecordList *l) {
-    g_assert(l);
+    assert(l);
     
     while (l->read)
         item_free(l, l->read);
@@ -75,14 +86,14 @@ void avahi_record_list_flush(AvahiRecordList *l) {
         item_free(l, l->unread);
 }
 
-AvahiRecord* avahi_record_list_next(AvahiRecordList *l, gboolean *flush_cache, gboolean *unicast_response, gboolean *auxiliary) {
+AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *flush_cache, int *unicast_response, int *auxiliary) {
     AvahiRecord *r;
     AvahiRecordListItem *i;
 
     if (!(i = l->unread))
         return NULL;
 
-    g_assert(!i->read);
+    assert(!i->read);
     
     r = avahi_record_ref(i->record);
     if (unicast_response)
@@ -103,8 +114,8 @@ AvahiRecord* avahi_record_list_next(AvahiRecordList *l, gboolean *flush_cache, g
 static AvahiRecordListItem *get(AvahiRecordList *l, AvahiRecord *r) {
     AvahiRecordListItem *i;
 
-    g_assert(l);
-    g_assert(r);
+    assert(l);
+    assert(r);
     
     for (i = l->read; i; i = i->items_next)
         if (avahi_record_equal_no_ttl(i->record, r))
@@ -117,16 +128,20 @@ static AvahiRecordListItem *get(AvahiRecordList *l, AvahiRecord *r) {
     return NULL;
 }
 
-void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, gboolean flush_cache, gboolean unicast_response, gboolean auxiliary) {
+void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, int flush_cache, int unicast_response, int auxiliary) {
     AvahiRecordListItem *i;
         
-    g_assert(l);
-    g_assert(r);
+    assert(l);
+    assert(r);
 
     if (get(l, r))
         return;
 
-    i = g_new(AvahiRecordListItem, 1);
+    if (!(i = avahi_new(AvahiRecordListItem, 1))) {
+        avahi_log_error("avahi_new() failed.");
+        return;
+    }
+    
     i->unicast_response = unicast_response;
     i->flush_cache = flush_cache;
     i->auxiliary = auxiliary;
@@ -139,8 +154,8 @@ void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, gboolean flush_c
 void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r) {
     AvahiRecordListItem *i;
 
-    g_assert(l);
-    g_assert(r);
+    assert(l);
+    assert(r);
 
     if (!(i = get(l, r)))
         return;
@@ -148,8 +163,8 @@ void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r) {
     item_free(l, i);
 }
 
-gboolean avahi_record_list_empty(AvahiRecordList *l) {
-    g_assert(l);
+int avahi_record_list_is_empty(AvahiRecordList *l) {
+    assert(l);
     
     return !l->unread && !l->read;
 }

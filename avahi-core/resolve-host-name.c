@@ -116,7 +116,7 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
 
     g_assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
 
-    if (!avahi_valid_domain_name(host_name)) {
+    if (!avahi_is_valid_domain_name(host_name)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_HOST_NAME);
         return NULL;
     }

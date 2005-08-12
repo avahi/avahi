@@ -45,7 +45,8 @@ noinst_PROGRAMS = \
 	conformance-test \
 	avahi-reflector \
 	dns-test \
-	timeeventq-test
+	timeeventq-test \
+	hashmap-test
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -73,7 +74,8 @@ libavahi_core_la_SOURCES = \
 	log.c log.h \
 	browse-dns-server.c \
 	fdutil.h fdutil.c \
-	util.c util.h
+	util.c util.h \
+	hashmap.c hashmap.h
 
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)
 libavahi_core_la_LIBADD = $(AM_LDADD) $(COMMON_LDADD)
@@ -104,7 +106,8 @@ dns_test_SOURCES = \
 	dns-test.c \
 	log.c log.h \
 	util.c util.h \
-	rr.c rr.h
+	rr.c rr.h \
+	hashmap.c hashmap.h
 dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
 
@@ -114,6 +117,13 @@ timeeventq_test_SOURCES = \
 	prioq.h prioq.c
 timeeventq_test_CFLAGS = $(AM_CFLAGS)
 timeeventq_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
+
+hashmap_test_SOURCES = \
+	hashmap-test.c \
+	hashmap.h hashmap.c \
+	util.h util.c
+hashmap_test_CFLAGS = $(AM_CFLAGS)
+hashmap_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
 
 valgrind: avahi-test
 	libtool --mode=execute valgrind ./avahi-test

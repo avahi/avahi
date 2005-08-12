@@ -90,7 +90,7 @@ AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gin
     g_assert(server);
     g_assert(callback);
 
-    if (domain && !avahi_valid_domain_name(domain)) {
+    if (domain && !avahi_is_valid_domain_name(domain)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
         return NULL;
     }

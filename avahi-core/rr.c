@@ -28,104 +28,125 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <assert.h>
 
 #include <avahi-common/domain.h>
+#include <avahi-common/malloc.h>
+
 #include "rr.h"
+#include "log.h"
+#include "util.h"
 
-AvahiKey *avahi_key_new(const gchar *name, guint16 class, guint16 type) {
+AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
     AvahiKey *k;
-    g_assert(name);
+    assert(name);
 
-    k = g_new(AvahiKey, 1);
+    if (!(k = avahi_new(AvahiKey, 1))) {
+        avahi_log_error("avahi_new() failed.");
+        return NULL;
+    }
+    
+    if (!(k->name = avahi_normalize_name(name))) {
+        avahi_log_error("avahi_normalize_name() failed.");
+        avahi_free(k);
+        return NULL;
+    }
+    
     k->ref = 1;
-    k->name = avahi_normalize_name(name);    
     k->clazz = class;
     k->type = type;
 
-/*     g_message("%p %% ref=1", k); */
-    
     return k;
 }
 
 AvahiKey *avahi_key_ref(AvahiKey *k) {
-    g_assert(k);
-    g_assert(k->ref >= 1);
+    assert(k);
+    assert(k->ref >= 1);
 
     k->ref++;
-
-/*     g_message("%p ++ ref=%i", k, k->ref); */
 
     return k;
 }
 
 void avahi_key_unref(AvahiKey *k) {
-    g_assert(k);
-    g_assert(k->ref >= 1);
-
-/*     g_message("%p -- ref=%i", k, k->ref-1); */
+    assert(k);
+    assert(k->ref >= 1);
     
     if ((--k->ref) <= 0) {
-        g_free(k->name);
-        g_free(k);
+        avahi_free(k->name);
+        avahi_free(k);
     }
 }
 
-AvahiRecord *avahi_record_new(AvahiKey *k, guint32 ttl) {
+AvahiRecord *avahi_record_new(AvahiKey *k, uint32_t ttl) {
     AvahiRecord *r;
     
-    g_assert(k);
+    assert(k);
     
-    r = g_new(AvahiRecord, 1);
+    if (!(r = avahi_new(AvahiRecord, 1))) {
+        avahi_log_error("avahi_new() failed.");
+        return NULL;
+    }
+        
     r->ref = 1;
     r->key = avahi_key_ref(k);
 
     memset(&r->data, 0, sizeof(r->data));
 
-    r->ttl = ttl != (guint32) -1 ? ttl : AVAHI_DEFAULT_TTL;
+    r->ttl = ttl != (uint32_t) -1 ? ttl : AVAHI_DEFAULT_TTL;
 
     return r;
 }
 
-AvahiRecord *avahi_record_new_full(const gchar *name, guint16 class, guint16 type, guint32 ttl) {
+AvahiRecord *avahi_record_new_full(const char *name, uint16_t class, uint16_t type, uint32_t ttl) {
     AvahiRecord *r;
     AvahiKey *k;
 
-    g_assert(name);
+    assert(name);
     
-    k = avahi_key_new(name, class, type);
+    if (!(k = avahi_key_new(name, class, type))) {
+        avahi_log_error("avahi_key_new() failed.");
+        return NULL;
+    }
+
     r = avahi_record_new(k, ttl);
     avahi_key_unref(k);
+
+    if (!r) {
+        avahi_log_error("avahi_record_new() failed.");
+        return NULL;
+    }
 
     return r;
 }
 
 AvahiRecord *avahi_record_ref(AvahiRecord *r) {
-    g_assert(r);
-    g_assert(r->ref >= 1);
+    assert(r);
+    assert(r->ref >= 1);
 
     r->ref++;
     return r;
 }
 
 void avahi_record_unref(AvahiRecord *r) {
-    g_assert(r);
-    g_assert(r->ref >= 1);
+    assert(r);
+    assert(r->ref >= 1);
 
     if ((--r->ref) <= 0) {
         switch (r->key->type) {
 
             case AVAHI_DNS_TYPE_SRV:
-                g_free(r->data.srv.name);
+                avahi_free(r->data.srv.name);
                 break;
 
             case AVAHI_DNS_TYPE_PTR:
             case AVAHI_DNS_TYPE_CNAME:
-                g_free(r->data.ptr.name);
+                avahi_free(r->data.ptr.name);
                 break;
 
             case AVAHI_DNS_TYPE_HINFO:
-                g_free(r->data.hinfo.cpu);
-                g_free(r->data.hinfo.os);
+                avahi_free(r->data.hinfo.cpu);
+                avahi_free(r->data.hinfo.os);
                 break;
 
             case AVAHI_DNS_TYPE_TXT:
@@ -137,15 +158,15 @@ void avahi_record_unref(AvahiRecord *r) {
                 break;
             
             default:
-                g_free(r->data.generic.data);
+                avahi_free(r->data.generic.data);
         }
         
         avahi_key_unref(r->key);
-        g_free(r);
+        avahi_free(r);
     }
 }
 
-const gchar *avahi_dns_class_to_string(guint16 class) {
+const char *avahi_dns_class_to_string(uint16_t class) {
     if (class & AVAHI_DNS_CACHE_FLUSH) 
         return "FLUSH";
 
@@ -159,7 +180,7 @@ const gchar *avahi_dns_class_to_string(guint16 class) {
     }
 }
 
-const gchar *avahi_dns_type_to_string(guint16 type) {
+const char *avahi_dns_type_to_string(uint16_t type) {
     switch (type) {
         case AVAHI_DNS_TYPE_CNAME:
             return "CNAME";
@@ -182,22 +203,22 @@ const gchar *avahi_dns_type_to_string(guint16 type) {
     }
 }
 
-gchar *avahi_key_to_string(const AvahiKey *k) {
-    g_assert(k);
-    g_assert(k->ref >= 1);
+char *avahi_key_to_string(const AvahiKey *k) {
+    assert(k);
+    assert(k->ref >= 1);
     
-    return g_strdup_printf("%s\t%s\t%s",
-                           k->name,
-                           avahi_dns_class_to_string(k->clazz),
-                           avahi_dns_type_to_string(k->type));
+    return avahi_strdup_printf("%s\t%s\t%s",
+                               k->name,
+                               avahi_dns_class_to_string(k->clazz),
+                               avahi_dns_type_to_string(k->type));
 }
 
-gchar *avahi_record_to_string(const AvahiRecord *r) {
-    gchar *p, *s;
+char *avahi_record_to_string(const AvahiRecord *r) {
+    char *p, *s;
     char buf[257], *t = NULL, *d = NULL;
 
-    g_assert(r);
-    g_assert(r->ref >= 1);
+    assert(r);
+    assert(r->ref >= 1);
     
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_A:
@@ -235,16 +256,16 @@ gchar *avahi_record_to_string(const AvahiRecord *r) {
     }
 
     p = avahi_key_to_string(r->key);
-    s = g_strdup_printf("%s %s ; ttl=%u", p, t ? t : "<unparsable>", r->ttl);
-    g_free(p);
-    g_free(d);
+    s = avahi_strdup_printf("%s %s ; ttl=%u", p, t ? t : "<unparsable>", r->ttl);
+    avahi_free(p);
+    avahi_free(d);
     
     return s;
 }
 
 gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
-    g_assert(a);
-    g_assert(b);
+    assert(a);
+    assert(b);
 
     if (a == b)
         return TRUE;
@@ -257,12 +278,12 @@ gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
 }
 
 gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
-    g_assert(pattern);
-    g_assert(k);
+    assert(pattern);
+    assert(k);
 
 /*     g_message("equal: %p %p", a, b); */
 
-    g_assert(!avahi_key_is_pattern(k));
+    assert(!avahi_key_is_pattern(k));
 
     if (pattern == k)
         return TRUE;
@@ -273,7 +294,7 @@ gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
 }
 
 gboolean avahi_key_is_pattern(const AvahiKey *k) {
-    g_assert(k);
+    assert(k);
 
     return
         k->type == AVAHI_DNS_TYPE_ANY ||
@@ -281,7 +302,7 @@ gboolean avahi_key_is_pattern(const AvahiKey *k) {
 }
 
 guint avahi_key_hash(const AvahiKey *k) {
-    g_assert(k);
+    assert(k);
 
     return
         avahi_domain_hash(k->name) + 
@@ -290,17 +311,17 @@ guint avahi_key_hash(const AvahiKey *k) {
 }
 
 static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
-    g_assert(a);
-    g_assert(b);
-    g_assert(a->key->type == b->key->type);
+    assert(a);
+    assert(b);
+    assert(a->key->type == b->key->type);
 
 /*     t = avahi_record_to_string(a); */
 /*     g_message("comparing %s", t); */
-/*     g_free(t); */
+/*     avahi_free(t); */
 
 /*     t = avahi_record_to_string(b); */
 /*     g_message("and %s", t); */
-/*     g_free(t); */
+/*     avahi_free(t); */
 
     
     switch (a->key->type) {
@@ -337,8 +358,8 @@ static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
 }
 
 gboolean avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
-    g_assert(a);
-    g_assert(b);
+    assert(a);
+    assert(b);
 
     if (a == b)
         return TRUE;
@@ -352,7 +373,11 @@ gboolean avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
 AvahiRecord *avahi_record_copy(AvahiRecord *r) {
     AvahiRecord *copy;
 
-    copy = g_new(AvahiRecord, 1);
+    if (!(copy = avahi_new(AvahiRecord, 1))) {
+        avahi_log_error("avahi_new() failed.");
+        return NULL;
+    }
+    
     copy->ref = 1;
     copy->key = avahi_key_ref(r->key);
     copy->ttl = r->ttl;
@@ -360,19 +385,26 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
-            copy->data.ptr.name = g_strdup(r->data.ptr.name);
+            if (!(copy->data.ptr.name = avahi_strdup(r->data.ptr.name)))
+                goto fail;
             break;
 
         case AVAHI_DNS_TYPE_SRV:
             copy->data.srv.priority = r->data.srv.priority;
             copy->data.srv.weight = r->data.srv.weight;
             copy->data.srv.port = r->data.srv.port;
-            copy->data.srv.name = g_strdup(r->data.srv.name);
+            if (!(copy->data.srv.name = avahi_strdup(r->data.srv.name)))
+                goto fail;
             break;
 
         case AVAHI_DNS_TYPE_HINFO:
-            copy->data.hinfo.os = g_strdup(r->data.hinfo.os);
-            copy->data.hinfo.cpu = g_strdup(r->data.hinfo.cpu);
+            if (!(copy->data.hinfo.os = avahi_strdup(r->data.hinfo.os)))
+                goto fail;
+
+            if (!(copy->data.hinfo.cpu = avahi_strdup(r->data.hinfo.cpu))) {
+                avahi_free(r->data.hinfo.os);
+                goto fail;
+            }
             break;
 
         case AVAHI_DNS_TYPE_TXT:
@@ -388,25 +420,34 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
             break;
 
         default:
-            copy->data.generic.data = g_memdup(r->data.generic.data, r->data.generic.size);
+            if (!(copy->data.generic.data = avahi_memdup(r->data.generic.data, r->data.generic.size)))
+                goto fail;
             copy->data.generic.size = r->data.generic.size;
             break;
                 
     }
 
     return copy;
+
+fail:
+    avahi_log_error("Failed to allocate memory");
+
+    avahi_key_unref(copy->key);
+    avahi_free(copy);
+    
+    return NULL;
 }
 
 
-guint avahi_key_get_estimate_size(AvahiKey *k) {
-    g_assert(k);
+size_t avahi_key_get_estimate_size(AvahiKey *k) {
+    assert(k);
 
     return strlen(k->name)+1+4;
 }
 
-guint avahi_record_get_estimate_size(AvahiRecord *r) {
+size_t avahi_record_get_estimate_size(AvahiRecord *r) {
     guint n;
-    g_assert(r);
+    assert(r);
 
     n = avahi_key_get_estimate_size(r->key) + 4 + 2;
 
@@ -443,12 +484,12 @@ guint avahi_record_get_estimate_size(AvahiRecord *r) {
     return n;
 }
 
-static gint lexicographical_memcmp(gconstpointer a, size_t al, gconstpointer b, size_t bl) {
+static int lexicographical_memcmp(const void* a, size_t al, const void* b, size_t bl) {
     size_t c;
-    gint ret;
+    int ret;
     
-    g_assert(a);
-    g_assert(b);
+    assert(a);
+    assert(b);
 
     c = al < bl ? al : bl;
     if ((ret = memcmp(a, b, c)))
@@ -460,22 +501,22 @@ static gint lexicographical_memcmp(gconstpointer a, size_t al, gconstpointer b, 
         return al == c ? 1 : -1;
 }
 
-static gint uint16_cmp(guint16 a, guint16 b) {
+static int uint16_cmp(uint16_t a, uint16_t b) {
     return a == b ? 0 : (a < b ? -1 : 1);
 }
 
-gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
-    gint r;
-/*      gchar *t1, *t2; */
+int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
+    int r;
+/*      char *t1, *t2; */
 
-    g_assert(a);
-    g_assert(b);
+    assert(a);
+    assert(b);
 
 /*     t1 = avahi_record_to_string(a); */
 /*     t2 = avahi_record_to_string(b); */
 /*     g_message("lexicocmp: %s %s", t1, t2); */
-/*     g_free(t1); */
-/*     g_free(t2); */
+/*     avahi_free(t1); */
+/*     avahi_free(t2); */
 
     if (a == b)
         return 0;
@@ -514,8 +555,13 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
             guint8 *ma, *mb;
             guint asize, bsize;
 
-            ma = g_new(guint8, asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0));
-            mb = g_new(guint8, bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0));
+            if (!(ma = avahi_new(guint8, asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0))))
+                goto fail;
+            if (!(mb = g_new(guint8, bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0)))) {
+                avahi_free(ma);
+                goto fail;
+            }
+            
             avahi_string_list_serialize(a->data.txt.string_list, ma, asize);
             avahi_string_list_serialize(b->data.txt.string_list, mb, bsize);
 
@@ -528,8 +574,8 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
             else
                 r = 0;
             
-            g_free(ma);
-            g_free(mb);
+            avahi_free(ma);
+            avahi_free(mb);
 
             return r;
         }
@@ -544,38 +590,42 @@ gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
             return lexicographical_memcmp(a->data.generic.data, a->data.generic.size,
                                           b->data.generic.data, b->data.generic.size);
     }
+
     
+fail:
+    avahi_log_error("Out of memory");
+    return -1; /* or whatever ... */
 }
 
-gboolean avahi_record_is_goodbye(AvahiRecord *r) {
-    g_assert(r);
+int avahi_record_is_goodbye(AvahiRecord *r) {
+    assert(r);
 
     return r->ttl == 0;
 }
 
-gboolean avahi_key_valid(AvahiKey *k) {
-    g_assert(k);
+int avahi_key_is_valid(AvahiKey *k) {
+    assert(k);
 
-    if (!avahi_valid_domain_name(k->name))
+    if (!avahi_is_valid_domain_name(k->name))
         return FALSE;
     
     return TRUE;
 }
 
-gboolean avahi_record_valid(AvahiRecord *r) {
-    g_assert(r);
+int avahi_record_is_valid(AvahiRecord *r) {
+    assert(r);
 
-    if (!avahi_key_valid(r->key))
-        return FALSE;
+    if (!avahi_key_is_valid(r->key))
+        return 0;
 
     switch (r->key->type) {
 
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
-            return avahi_valid_domain_name(r->data.ptr.name);
+            return avahi_is_valid_domain_name(r->data.ptr.name);
 
         case AVAHI_DNS_TYPE_SRV:
-            return avahi_valid_domain_name(r->data.srv.name);
+            return avahi_is_valid_domain_name(r->data.srv.name);
 
         case AVAHI_DNS_TYPE_HINFO:
             return
@@ -589,12 +639,12 @@ gboolean avahi_record_valid(AvahiRecord *r) {
 
             for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next)
                 if (strlst->size > 255)
-                    return FALSE;
+                    return 0;
 
-            return TRUE;
+            return 1;
         }
     }
             
 
-    return TRUE;
+    return 1;
 }

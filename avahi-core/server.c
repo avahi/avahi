@@ -565,7 +565,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
 
 /*     avahi_log_debug("query"); */
 
-    g_assert(avahi_record_list_empty(s->record_list));
+    g_assert(avahi_record_list_is_empty(s->record_list));
 
     is_probe = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) > 0;
     
@@ -628,7 +628,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
         avahi_record_unref(record);
     }
 
-    if (!avahi_record_list_empty(s->record_list))
+    if (!avahi_record_list_is_empty(s->record_list))
         avahi_server_generate_response(s, i, p, a, port, legacy_unicast, is_probe);
 
     return;
@@ -676,7 +676,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
     /* If the incoming response contained a conflicting record, some
        records have been scheduling for sending. We need to flush them
        here. */
-    if (!avahi_record_list_empty(s->record_list))
+    if (!avahi_record_list_is_empty(s->record_list))
         avahi_server_generate_response(s, i, NULL, NULL, 0, FALSE, TRUE);
 }
 
@@ -1224,7 +1224,7 @@ gint avahi_server_set_host_name(AvahiServer *s, const gchar *host_name) {
     g_assert(s);
     g_assert(host_name);
 
-    if (host_name && !avahi_valid_host_name(host_name))
+    if (host_name && !avahi_is_valid_host_name(host_name))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
 
     withdraw_host_rrs(s);
@@ -1242,7 +1242,7 @@ gint avahi_server_set_domain_name(AvahiServer *s, const gchar *domain_name) {
     g_assert(s);
     g_assert(domain_name);
 
-    if (domain_name && !avahi_valid_domain_name(domain_name))
+    if (domain_name && !avahi_is_valid_domain_name(domain_name))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
     withdraw_host_rrs(s);
@@ -1268,10 +1268,10 @@ static void prepare_pollfd(AvahiServer *s, GPollFD *pollfd, gint fd) {
 
 static gint valid_server_config(const AvahiServerConfig *sc) {
 
-    if (sc->host_name && !avahi_valid_host_name(sc->host_name))
+    if (sc->host_name && !avahi_is_valid_host_name(sc->host_name))
         return AVAHI_ERR_INVALID_HOST_NAME;
     
-    if (sc->domain_name && !avahi_valid_domain_name(sc->domain_name))
+    if (sc->domain_name && !avahi_is_valid_domain_name(sc->domain_name))
         return AVAHI_ERR_INVALID_DOMAIN_NAME;
 
     return AVAHI_OK;
@@ -1498,7 +1498,7 @@ gint avahi_server_add(
     if (avahi_key_is_pattern(r->key))
         return avahi_server_set_errno(s, AVAHI_ERR_IS_PATTERN);
 
-    if (!avahi_record_valid(r))
+    if (!avahi_record_is_valid(r))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_RECORD);
 
     if (check_record_conflict(s, interface, protocol, r, flags) < 0)
@@ -1612,7 +1612,7 @@ gint avahi_server_add_address(
 
     name = name ? (n = avahi_normalize_name(name)) : s->host_name_fqdn;
 
-    if (!avahi_valid_domain_name(name)) {
+    if (!avahi_is_valid_domain_name(name)) {
         avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
         goto fail;
     }
@@ -1782,16 +1782,16 @@ static gint server_add_service_strlst_nocopy(
     g_assert(type);
     g_assert(name);
 
-    if (!avahi_valid_service_name(name))
+    if (!avahi_is_valid_service_name(name))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
 
-    if (!avahi_valid_service_type(type))
+    if (!avahi_is_valid_service_type(type))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_TYPE);
 
-    if (domain && !avahi_valid_domain_name(domain))
+    if (domain && !avahi_is_valid_domain_name(domain))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    if (host && !avahi_valid_domain_name(host))
+    if (host && !avahi_is_valid_domain_name(host))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
 
     if (port == 0)
@@ -1948,7 +1948,7 @@ gint avahi_server_add_dns_server_address(
     g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
     g_assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
 
-    if (domain && !avahi_valid_domain_name(domain))
+    if (domain && !avahi_is_valid_domain_name(domain))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
     if (port == 0)
@@ -1991,7 +1991,7 @@ gint avahi_server_add_dns_server_name(
     g_assert(name);
     g_assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
 
-    if (domain && !avahi_valid_domain_name(domain))
+    if (domain && !avahi_is_valid_domain_name(domain))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
     if (port == 0)

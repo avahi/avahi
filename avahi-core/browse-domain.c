@@ -62,7 +62,7 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex i
     g_assert(callback);
     g_assert(type >= AVAHI_DOMAIN_BROWSER_BROWSE && type <= AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY);
 
-    if (domain && !avahi_valid_domain_name(domain)) {
+    if (domain && !avahi_is_valid_domain_name(domain)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
         return NULL;
     }

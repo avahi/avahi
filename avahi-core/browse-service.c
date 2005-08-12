@@ -93,12 +93,12 @@ AvahiServiceBrowser *avahi_service_browser_new(AvahiServer *server, AvahiIfIndex
     g_assert(callback);
     g_assert(service_type);
 
-    if (!avahi_valid_service_type(service_type)) {
+    if (!avahi_is_valid_service_type(service_type)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_SERVICE_TYPE);
         return NULL;
     }
 
-    if (domain && !avahi_valid_domain_name(domain)) {
+    if (domain && !avahi_is_valid_domain_name(domain)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
         return NULL;
     }

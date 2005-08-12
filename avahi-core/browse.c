@@ -129,7 +129,7 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex i
         return NULL;
     }
 
-    if (!avahi_key_valid(key)) {
+    if (!avahi_key_is_valid(key)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_KEY);
         return NULL;
     }

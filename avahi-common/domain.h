@@ -53,29 +53,17 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size);
 /** Escape the domain name in *src and write it to *ret_name */
 char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name, size_t *ret_size);
 
-/** Return some kind of hash value for a string */
-unsigned avahi_strhash(const char *p);
-
-/** Return some kind of hash value for a domain */
-unsigned avahi_domain_hash(const char *s);
-
 /** Return 1 when the specified string contains a valid service type, 0 otherwise */
-int avahi_valid_service_type(const char *t);
+int avahi_is_valid_service_type(const char *t);
 
 /** Return 1 when the specified string contains a valid domain name, 0 otherwise */
-int avahi_valid_domain_name(const char *t);
+int avahi_is_valid_domain_name(const char *t);
 
 /** Return 1 when the specified string contains a valid service name, 0 otherwise */
-int avahi_valid_service_name(const char *t);
+int avahi_is_valid_service_name(const char *t);
 
 /** Return 1 when the specified string contains a valid non-FQDN host name (i.e. without dots), 0 otherwise */
-int avahi_valid_host_name(const char *t);
-
-/** Change every character in the string to upper case (ASCII), return a pointer to the string */
-char *avahi_strup(char *s);
-
-/** Change every character in the string to lower case (ASCII), return a pointer to the string */
-char *avahi_strdown(char *s);
+int avahi_is_valid_host_name(const char *t);
 
 AVAHI_C_DECL_END
 

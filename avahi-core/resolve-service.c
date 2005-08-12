@@ -207,17 +207,17 @@ AvahiServiceResolver *avahi_service_resolver_new(AvahiServer *server, AvahiIfInd
 
     g_assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
 
-    if (!avahi_valid_service_name(name)) {
+    if (!avahi_is_valid_service_name(name)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_SERVICE_NAME);
         return NULL;
     }
 
-    if (!avahi_valid_service_type(type)) {
+    if (!avahi_is_valid_service_type(type)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_SERVICE_TYPE);
         return NULL;
     }
 
-    if (!avahi_valid_domain_name(domain)) {
+    if (!avahi_is_valid_domain_name(domain)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
         return NULL;
     }

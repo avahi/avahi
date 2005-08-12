@@ -53,7 +53,10 @@ void *avahi_realloc(void *p, size_t size);
 char *avahi_strdup(const char *s);
 
 /** Just like libc's strndup() */
-char *avahi_strndup(const char *s, size_t l); 
+char *avahi_strndup(const char *s, size_t l);
+
+/** Duplicate the given memory block into a new one allocated with avahi_malloc() */
+void *avahi_memdup(const void *s, size_t l);
 
 /** Wraps allocator functions */
 typedef struct AvahiAllocator AvahiAllocator;

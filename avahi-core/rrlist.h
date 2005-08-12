@@ -31,10 +31,10 @@ AvahiRecordList *avahi_record_list_new(void);
 void avahi_record_list_free(AvahiRecordList *l);
 void avahi_record_list_flush(AvahiRecordList *l);
 
-AvahiRecord* avahi_record_list_next(AvahiRecordList *l, gboolean *flush_cache, gboolean *unicast_response, gboolean *auxiliary);
-void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, gboolean flush_cache, gboolean unicast_response, gboolean auxiliary);
+AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *flush_cache, int *unicast_response, int *auxiliary);
+void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, int flush_cache, int unicast_response, int auxiliary);
 void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r);
 
-gboolean avahi_record_list_empty(AvahiRecordList *l);
+int avahi_record_list_is_empty(AvahiRecordList *l);
 
 #endif

@@ -22,13 +22,14 @@
   USA.
 ***/
 
-#include <glib.h>
+/** \file rr.h Functions and definitions for manipulating DNS resource record (RR) data. */
 
 #include <avahi-common/strlst.h>
 #include <avahi-common/address.h>
 #include <avahi-common/cdecl.h>
 
-/** \file rr.h Functions and definitions for manipulating DNS resource record (RR) data. */
+#include <inttypes.h>
+#include <sys/types.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -66,42 +67,42 @@ enum {
     reference counter. The structure is intended to be treated as "immutable", no
     changes should be imposed after creation */
 typedef struct {
-    guint ref;         /**< Reference counter */
-    gchar *name;       /**< Record name */
-    guint16 clazz;     /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
-    guint16 type;      /**< Record type, one of the AVAHI_DNS_TYPE_xxx constants */
+    int ref;           /**< Reference counter */
+    char *name;        /**< Record name */
+    uint16_t clazz;    /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
+    uint16_t type;     /**< Record type, one of the AVAHI_DNS_TYPE_xxx constants */
 } AvahiKey;
 
 /** Encapsulates a DNS resource record. The structure is intended to
  * be treated as "immutable", no changes should be imposed after
  * creation. */
 typedef struct  {
-    guint ref;       /**< Reference counter */
+    int ref;         /**< Reference counter */
     AvahiKey *key;   /**< Reference to the query key of thsi record */
     
-    guint32 ttl;     /**< DNS TTL of this record */
+    uint32_t ttl;     /**< DNS TTL of this record */
 
     union {
         
         struct {
-            gpointer data;
-            guint16 size;
+            void* data;
+            uint16_t size;
         } generic; /**< Generic record data for unknown types */
         
         struct {
-            guint16 priority;
-            guint16 weight;
-            guint16 port;
-            gchar *name;
+            uint16_t priority;
+            uint16_t weight;
+            uint16_t port;
+            char *name;
         } srv; /**< Data for SRV records */
 
         struct {
-            gchar *name;
+            char *name;
         } ptr; /**< Data for PTR an CNAME records */
 
         struct {
-            gchar *cpu;
-            gchar *os;
+            char *cpu;
+            char *os;
         } hinfo; /**< Data for HINFO records */
 
         struct {
@@ -121,7 +122,7 @@ typedef struct  {
 } AvahiRecord;
 
 /** Create a new AvahiKey object. The reference counter will be set to 1. */
-AvahiKey *avahi_key_new(const gchar *name, guint16 clazz, guint16 type);
+AvahiKey *avahi_key_new(const char *name, uint16_t clazz, uint16_t type);
 
 /** Increase the reference counter of an AvahiKey object by one */
 AvahiKey *avahi_key_ref(AvahiKey *k);
@@ -132,27 +133,27 @@ void avahi_key_unref(AvahiKey *k);
 /** Check whether two AvahiKey object contain the same
  * data. AVAHI_DNS_CLASS_ANY/AVAHI_DNS_TYPE_ANY are treated like any
  * other class/type. */
-gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b); 
+int avahi_key_equal(const AvahiKey *a, const AvahiKey *b); 
 
 /** Match a key to a key pattern. The pattern has a type of
 AVAHI_DNS_CLASS_ANY, the classes are taken to be equal. Same for the
 type. If the pattern has neither class nor type with ANY constants,
 this function is identical to avahi_key_equal(). In contrast to
 avahi_equal() this function is not commutative. */
-gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k);
+int avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k);
 
 /** Check whether a key is a pattern key, i.e. the class/type has a
  * value of AVAHI_DNS_CLASS_ANY/AVAHI_DNS_TYPE_ANY */
-gboolean avahi_key_is_pattern(const AvahiKey *k);
+int avahi_key_is_pattern(const AvahiKey *k);
 
 /** Return a numeric hash value for a key for usage in hash tables. */
-guint avahi_key_hash(const AvahiKey *k);
+unsigned avahi_key_hash(const AvahiKey *k);
 
 /** Create a new record object. Record data should be filled in right after creation. The reference counter is set to 1. */
-AvahiRecord *avahi_record_new(AvahiKey *k, guint32 ttl);
+AvahiRecord *avahi_record_new(AvahiKey *k, uint32_t ttl);
 
 /** Create a new record object. Record data should be filled in right after creation. The reference counter is set to 1. */
-AvahiRecord *avahi_record_new_full(const gchar *name, guint16 clazz, guint16 type, guint32 ttl);
+AvahiRecord *avahi_record_new_full(const char *name, uint16_t clazz, uint16_t type, uint32_t ttl);
 
 /** Increase the reference counter of an AvahiRecord by one. */
 AvahiRecord *avahi_record_ref(AvahiRecord *r);
@@ -162,47 +163,47 @@ void avahi_record_unref(AvahiRecord *r);
 
 /** Return a textual representation of the specified DNS class. The
  * returned pointer points to a read only internal string. */
-const gchar *avahi_dns_class_to_string(guint16 clazz);
+const char *avahi_dns_class_to_string(uint16_t clazz);
 
 /** Return a textual representation of the specified DNS class. The
  * returned pointer points to a read only internal string. */
-const gchar *avahi_dns_type_to_string(guint16 type);
+const char *avahi_dns_type_to_string(uint16_t type);
 
 /** Create a textual representation of the specified key. g_free() the
  * result! */
-gchar *avahi_key_to_string(const AvahiKey *k);
+char *avahi_key_to_string(const AvahiKey *k);
 
 /** Create a textual representation of the specified record, similar
  * in style to BIND zone file data. g_free() the result! */
-gchar *avahi_record_to_string(const AvahiRecord *r); 
+char *avahi_record_to_string(const AvahiRecord *r); 
 
 /** Check whether two records are equal (regardless of the TTL */
-gboolean avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b);
+int avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b);
 
 /** Make a deep copy of an AvahiRecord object */
 AvahiRecord *avahi_record_copy(AvahiRecord *r);
 
 /** Returns a maximum estimate for the space that is needed to store
  * this key in a DNS packet. */
-guint avahi_key_get_estimate_size(AvahiKey *k);
+size_t avahi_key_get_estimate_size(AvahiKey *k);
 
 /** Returns a maximum estimate for the space that is needed to store
  * the record in a DNS packet. */
-guint avahi_record_get_estimate_size(AvahiRecord *r);
+size_t avahi_record_get_estimate_size(AvahiRecord *r);
 
 /** Do a mDNS spec conforming lexicographical comparison of the two
  * records. Return a negative value if a < b, a positive if a > b,
  * zero if equal. */
-gint avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
+int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
 
 /** Return TRUE if the specified record is an mDNS goodbye record. i.e. TTL is zero. */
-gboolean avahi_record_is_goodbye(AvahiRecord *r);
+int avahi_record_is_goodbye(AvahiRecord *r);
 
 /** Check whether the specified key is valid */
-gboolean avahi_key_valid(AvahiKey *k);
+int avahi_key_is_valid(AvahiKey *k);
 
 /** Check whether the specified record is valid */
-gboolean avahi_record_valid(AvahiRecord *r);
+int avahi_record_is_valid(AvahiRecord *r);
 
 AVAHI_C_DECL_END
 

@@ -22,12 +22,12 @@
   USA.
 ***/
 
+/** \file address.h Definitions and functions to manipulate IP addresses. */
+
 #include <sys/socket.h>
 #include <inttypes.h>
 
 #include <avahi-common/cdecl.h>
-
-/** \file address.h Defintions and functions to manipulate IP addresses. */
 
 AVAHI_C_DECL_BEGIN
 

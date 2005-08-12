@@ -37,11 +37,12 @@ avahi_commoninclude_HEADERS = \
 	defs.h \
 	malloc.h
 
+noinst_HEADERS = llist.h
+
 if ENABLE_DBUS
-avahi_commoninclude_HEADERS += dbus.h
+noinst_HEADERS += dbus.h
 endif
 
-noinst_HEADERS = llist.h
 
 noinst_PROGRAMS = \
 	strlst-test \

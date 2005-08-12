@@ -22,6 +22,12 @@
   USA.
 ***/
 
+/** \file error.h Error codes and auxiliary functions */
+
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
+
 /** Error codes used by avahi */
 enum { 
     AVAHI_OK = 0,                          /**< OK */
@@ -53,5 +59,7 @@ enum {
 
 /** Return a human readable error string for the specified error code */
 const char *avahi_strerror(int error);
+
+AVAHI_C_DECL_END
 
 #endif

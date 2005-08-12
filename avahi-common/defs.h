@@ -22,6 +22,8 @@
   USA.
 ***/
 
+/** \file defs.h Some common definitions */
+
 #include <avahi-common/cdecl.h>
 
 AVAHI_C_DECL_BEGIN

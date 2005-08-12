@@ -22,13 +22,13 @@
   USA.
 ***/
 
+/** \file strlst.h Implementation of a data type to store lists of strings */
+
 #include <sys/types.h>
 #include <inttypes.h>
 #include <stdarg.h>
 
 #include <avahi-common/cdecl.h>
-
-/** \file strlst.h Implementation of a data type to store lists of strings */
 
 AVAHI_C_DECL_BEGIN
 

@@ -22,6 +22,10 @@
   USA.
 ***/
 
+/** \file dbus.h Some definitions for the DBUS interface */
+
+#include <avahi-common/cdecl.h>
+
 AVAHI_C_DECL_BEGIN
 
 #define AVAHI_DBUS_NAME "org.freedesktop.Avahi"

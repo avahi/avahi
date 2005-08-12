@@ -22,8 +22,14 @@
   USA.
 ***/
 
+/** \file malloc.h Memory allocation */
+
 #include <sys/types.h>
 #include <stdarg.h>
+
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
 
 /** Allocate some memory, just like the libc malloc() */
 void *avahi_malloc(size_t size);
@@ -43,14 +49,16 @@ void *avahi_realloc(void *p, size_t size);
 /** Same as avahi_new() but set the memory to zero */
 #define avahi_new0(type, n) (type*) avahi_malloc0(n*sizeof(type))
 
-/* Just like libc's strdup() */
+/** Just like libc's strdup() */
 char *avahi_strdup(const char *s);
 
-/* Just like libc's strndup() */
+/** Just like libc's strndup() */
 char *avahi_strndup(const char *s, size_t l); 
 
 /** Wraps allocator functions */
 typedef struct AvahiAllocator AvahiAllocator;
+
+/** Wraps allocator functions */
 struct AvahiAllocator {
     void* (*malloc)(size_t size);     
     void (*free)(void *p);           
@@ -58,18 +66,20 @@ struct AvahiAllocator {
     void* (*calloc)(size_t nmemb, size_t size);   /**< May be NULL */
 };
 
-/* Change the allocator. May be NULL to return to default (libc)
+/** Change the allocator. May be NULL to return to default (libc)
  * allocators. The structure is not copied! */
 void avahi_set_allocator(const AvahiAllocator *a);
-
-
-char *avahi_strdup_vprintf(const char *fmt, va_list ap);
 
 #ifdef __GNUC__
 char *avahi_strdup_printf(const char *fmt, ... )  __attribute__ ((format(printf, 1, 2)));
 #else
+/** Like sprintf() but store the result in a freshly allocated buffer. Free this with avahi_free() */
 char *avahi_strdup_printf(const char *fmt, ... );
 #endif
 
+/** Same as avahi_strdup_printf() but take a va_list instead of varargs */
+char *avahi_strdup_vprintf(const char *fmt, va_list ap);
+
+AVAHI_C_DECL_END
 
 #endif

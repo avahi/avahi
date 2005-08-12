@@ -22,7 +22,6 @@
   USA.
 ***/
 
-
 /** \file cdecl.h C++ compatibility */
 
 #ifdef __cplusplus

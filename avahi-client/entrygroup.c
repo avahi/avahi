@@ -40,7 +40,7 @@
 #include "client.h"
 #include "internal.h"
 
-void avahi_entry_group_state_change (AvahiEntryGroup *group, int state)
+void avahi_entry_group_state_change (AvahiClientEntryGroup *group, int state)
 {
     if (group == NULL || group->callback == NULL)
         return;
@@ -48,10 +48,10 @@ void avahi_entry_group_state_change (AvahiEntryGroup *group, int state)
     group->callback (group, state, group->user_data);
 }
 
-AvahiEntryGroup*
-avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, void *user_data)
+AvahiClientEntryGroup*
+avahi_entry_group_new (AvahiClient *client, AvahiClientEntryGroupCallback callback, void *user_data)
 {
-    AvahiEntryGroup *tmp = NULL;
+    AvahiClientEntryGroup *tmp = NULL;
     DBusMessage *message = NULL, *reply;
     DBusError error;
     char *path;
@@ -92,7 +92,7 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
         goto fail;
     }
 
-    tmp = malloc (sizeof (AvahiEntryGroup));
+    tmp = malloc (sizeof (AvahiClientEntryGroup));
 
     tmp->client = client;
 
@@ -100,7 +100,7 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
     tmp->callback = callback;
     tmp->user_data = user_data;
 
-    AVAHI_LLIST_PREPEND(AvahiEntryGroup, groups, client->groups, tmp);
+    AVAHI_LLIST_PREPEND(AvahiClientEntryGroup, groups, client->groups, tmp);
 
     dbus_message_unref (message);
 
@@ -114,7 +114,7 @@ fail:
 }
 
 int
-avahi_entry_group_commit (AvahiEntryGroup *group)
+avahi_entry_group_commit (AvahiClientEntryGroup *group)
 {
     DBusMessage *message;
     DBusError error;
@@ -130,7 +130,7 @@ avahi_entry_group_commit (AvahiEntryGroup *group)
 }
 
 int
-avahi_entry_group_reset (AvahiEntryGroup *group)
+avahi_entry_group_reset (AvahiClientEntryGroup *group)
 {
     DBusMessage *message;
 
@@ -143,7 +143,7 @@ avahi_entry_group_reset (AvahiEntryGroup *group)
 }
 
 int
-avahi_entry_group_get_state (AvahiEntryGroup *group)
+avahi_entry_group_get_state (AvahiClientEntryGroup *group)
 {
     DBusMessage *message, *reply;
     DBusError error;
@@ -185,19 +185,19 @@ avahi_client_errno (AvahiClient *client)
 }
 
 AvahiClient*
-avahi_entry_group_get_client (AvahiEntryGroup *group)
+avahi_entry_group_get_client (AvahiClientEntryGroup *group)
 {
     return group->client;
 }
 
 int
-avahi_entry_group_is_empty (AvahiEntryGroup *group)
+avahi_entry_group_is_empty (AvahiClientEntryGroup *group)
 {
     return AVAHI_OK;
 }
 
 int
-avahi_entry_group_add_service (AvahiEntryGroup *group,
+avahi_entry_group_add_service (AvahiClientEntryGroup *group,
                                AvahiIfIndex interface,
                                AvahiProtocol protocol,
                                const char *name,
@@ -249,7 +249,7 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
 }
 
 /* XXX: debug function */
-char* avahi_entry_group_path (AvahiEntryGroup *group)
+char* avahi_entry_group_path (AvahiClientEntryGroup *group)
 {
     if (group != NULL) return group->path;
     else return NULL;

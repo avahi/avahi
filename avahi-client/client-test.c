@@ -35,19 +35,19 @@ avahi_client_callback (AvahiClient *c, AvahiClientState state, void *user_data)
 }
 
 void
-avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *user_data)
+avahi_entry_group_callback (AvahiClientEntryGroup *g, AvahiEntryGroupState state, void *user_data)
 {
     printf ("XXX: Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_path (g), state, (char*)user_data);
 }
 
 void
-avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data)
+avahi_domain_browser_callback (AvahiClientDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_path (b), interface, protocol, event, domain, (char*)user_data);
 }
 
 void
-avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data)
+avahi_service_type_browser_callback (AvahiClientServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
 }
@@ -56,10 +56,10 @@ main (int argc, char *argv[])
 {
     GMainLoop *loop;
     AvahiClient *avahi;
-    AvahiEntryGroup *group;
+    AvahiClientEntryGroup *group;
     AvahiStringList *txt;
-    AvahiDomainBrowser *domain;
-    AvahiServiceTypeBrowser *st;
+    AvahiClientDomainBrowser *domain;
+    AvahiClientServiceTypeBrowser *st;
     char *ret;
 
     loop = g_main_loop_new (NULL, FALSE);

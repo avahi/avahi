@@ -30,38 +30,38 @@ struct _AvahiClient
     int error;
     AvahiClientCallback callback;
     void *user_data;
-    AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
-    AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
-    AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
+    AVAHI_LLIST_HEAD(AvahiClientEntryGroup, groups);
+    AVAHI_LLIST_HEAD(AvahiClientDomainBrowser, domain_browsers);
+    AVAHI_LLIST_HEAD(AvahiClientServiceTypeBrowser, service_type_browsers);
 };
 
-struct _AvahiEntryGroup {
+struct _AvahiClientEntryGroup {
     char *path;
     AvahiClient *client;
-    AvahiEntryGroupCallback callback;
+    AvahiClientEntryGroupCallback callback;
     void *user_data;
-    AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
+    AVAHI_LLIST_FIELDS(AvahiClientEntryGroup, groups);
 };
 
-struct _AvahiDomainBrowser {
+struct _AvahiClientDomainBrowser {
     char *path;
     AvahiClient *client;
-    AvahiDomainBrowserCallback callback;
+    AvahiClientDomainBrowserCallback callback;
     void *user_data;
-    AVAHI_LLIST_FIELDS(AvahiDomainBrowser, domain_browsers);
+    AVAHI_LLIST_FIELDS(AvahiClientDomainBrowser, domain_browsers);
 };
 
-struct _AvahiServiceTypeBrowser {
+struct _AvahiClientServiceTypeBrowser {
     char *path;
     AvahiClient *client;
-    AvahiServiceTypeBrowserCallback callback;
+    AvahiClientServiceTypeBrowserCallback callback;
     void *user_data;
-    AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, service_type_browsers);
+    AVAHI_LLIST_FIELDS(AvahiClientServiceTypeBrowser, service_type_browsers);
 };
 
 int avahi_client_set_errno (AvahiClient *client, int error);
 
-void avahi_entry_group_state_change (AvahiEntryGroup *group, int state);
+void avahi_entry_group_state_change (AvahiClientEntryGroup *group, int state);
 
 DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 

@@ -147,7 +147,7 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         printf ("server statehcange\n");
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged")) {
         const char *path;
-        AvahiEntryGroup *n, *group = NULL;
+        AvahiClientEntryGroup *n, *group = NULL;
         path = dbus_message_get_path (message);
 
         for (n = client->groups; n != NULL; n = n->groups_next)
@@ -202,9 +202,9 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     if (!(tmp = malloc(sizeof(AvahiClient))))
         goto fail;
 
-    AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, tmp->groups);
-    AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, tmp->domain_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServieTypeBrowser, tmp->service_type_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiClientEntryGroup, tmp->groups);
+    AVAHI_LLIST_HEAD_INIT(AvahiClientDomainBrowser, tmp->domain_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiClientServiceTypeBrowser, tmp->service_type_browsers);
     
     tmp->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 

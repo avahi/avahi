@@ -43,7 +43,7 @@ char *avahi_get_host_name(void);
 /** Return 1 when the specified domain names are equal, 0 otherwise */
 int avahi_domain_equal(const char *a, const char *b);
 
-/** Do a binary comparison of to specified domain names, returnen -1, 0, or 1, depending on the error. */
+/** Do a binary comparison of to specified domain names, return -1, 0, or 1, depending on the order. */
 int avahi_binary_domain_cmp(const char *a, const char *b);
 
 /** Read the first label from the textual domain name *name, unescape

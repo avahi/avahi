@@ -29,8 +29,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <avahi-common/domain.h>
 #include "dns.h"
-#include "util.h"
 
 AvahiDnsPacket* avahi_dns_packet_new(guint mtu) {
     AvahiDnsPacket *p;

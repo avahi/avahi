@@ -23,9 +23,10 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/domain.h>
 #include "dns.h"
-#include "util.h"
 #include "log.h"
+#include "util.h"
 
 int main(int argc, char *argv[]) {
     gchar t[256];

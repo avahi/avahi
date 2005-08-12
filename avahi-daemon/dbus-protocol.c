@@ -599,8 +599,6 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         gint32 interface, protocol;
         gchar *type, *name, *domain, *host;
         guint16 port;
-        gchar **txt = NULL;
-        gint txt_len;
         AvahiStringList *strlst;
         DBusMessageIter iter, sub;
         int j;

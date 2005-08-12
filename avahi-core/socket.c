@@ -37,7 +37,7 @@
 #include <sys/ioctl.h>
 
 #include "dns.h"
-#include "util.h"
+#include "fdutil.h"
 #include "socket.h"
 #include "log.h"
 

@@ -23,8 +23,10 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/domain.h>
+
 #include "probe-sched.h"
-#include "util.h"
+#include "timeval.h"
 #include "log.h"
 
 #define AVAHI_PROBE_HISTORY_MSEC 150

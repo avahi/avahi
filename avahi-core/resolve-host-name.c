@@ -23,8 +23,9 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/domain.h>
+#include "timeval.h"
 #include "browse.h"
-#include "util.h"
 
 struct AvahiHostNameResolver {
     AvahiServer *server;

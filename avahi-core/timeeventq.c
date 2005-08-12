@@ -24,7 +24,7 @@
 #endif
 
 #include "timeeventq.h"
-#include "util.h"
+#include "timeval.h"
 
 static gint compare(gconstpointer _a, gconstpointer _b) {
     const AvahiTimeEvent *a = _a,  *b = _b;

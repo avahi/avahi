@@ -30,7 +30,6 @@
 #include <assert.h>
 
 #include "address.h"
-#include "util.h"
 #include "malloc.h"
 
 size_t avahi_address_get_size(const AvahiAddress *a) {

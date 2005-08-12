@@ -25,8 +25,8 @@
 
 #include <string.h>
 
+#include <avahi-common/domain.h>
 #include "browse.h"
-#include "util.h"
 #include "log.h"
 #include "rr.h"
 

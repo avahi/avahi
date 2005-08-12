@@ -31,8 +31,10 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include <avahi-common/domain.h>
+
 #include "server.h"
-#include "util.h"
+#include "timeval.h"
 #include "iface.h"
 #include "socket.h"
 #include "browse.h"

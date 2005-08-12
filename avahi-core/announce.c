@@ -24,7 +24,7 @@
 #endif
 
 #include "announce.h"
-#include "util.h"
+#include "timeval.h"
 
 #define AVAHI_ANNOUNCEMENT_JITTER_MSEC 250
 #define AVAHI_PROBE_JITTER_MSEC 250

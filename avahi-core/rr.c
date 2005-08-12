@@ -29,7 +29,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include "util.h"
+#include <avahi-common/domain.h>
 #include "rr.h"
 
 AvahiKey *avahi_key_new(const gchar *name, guint16 class, guint16 type) {

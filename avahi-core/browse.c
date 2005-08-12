@@ -24,7 +24,7 @@
 #endif
 
 #include "browse.h"
-#include "util.h"
+#include "timeval.h"
 #include "log.h"
 
 struct AvahiRecordBrowser {

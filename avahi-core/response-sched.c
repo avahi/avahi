@@ -24,7 +24,7 @@
 #endif
 
 #include "response-sched.h"
-#include "util.h"
+#include "timeval.h"
 #include "log.h"
 
 #define AVAHI_RESPONSE_HISTORY_MSEC 500

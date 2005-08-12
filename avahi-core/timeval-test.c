@@ -24,28 +24,18 @@
 #endif
 
 #include <stdio.h>
-
-#include "domain.h"
-#include "malloc.h"
+#include "timeval.h"
 
 int main(int argc, char *argv[]) {
-    char *s;
-    
-    printf("host name: %s\n", s = avahi_get_host_name());
-    avahi_free(s);
 
-    printf("%s\n", s = avahi_normalize_name("foo.foo."));
-    avahi_free(s);
-    
-    printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
-    avahi_free(s);
+    struct timeval a = { 5, 5 }, b;
 
-    printf("%i\n", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
-    printf("%i\n", avahi_domain_equal("\\A", "a"));
+    b = a;
 
-    printf("%i\n", avahi_domain_equal("a", "aaa"));
+    printf("%li.%li\n", a.tv_sec, a.tv_usec);
+    avahi_timeval_add(&a, -50);
 
-    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
-    
-    return 0;
+    printf("%li.%li\n", a.tv_sec, a.tv_usec);
+
+    printf("%lli\n", avahi_timeval_diff(&a, &b));
 }

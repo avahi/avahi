@@ -31,7 +31,6 @@
 #include <stdio.h>
 
 #include "core.h"
-#include "util.h"
 #include "alternative.h"
 #include "log.h"
 

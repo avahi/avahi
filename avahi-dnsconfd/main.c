@@ -39,7 +39,6 @@
 
 #include <glib.h>
 
-#include <avahi-common/util.h>
 #include <avahi-common/llist.h>
 
 #include <libdaemon/dfork.h>

@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "util.h"
+#include "domain.h"
 #include "malloc.h"
 
 char *avahi_get_host_name(void) {
@@ -95,119 +95,6 @@ char *avahi_normalize_name(const char *s) {
     return avahi_strdup(tmp);
 }
 
-int avahi_timeval_compare(const struct timeval *a, const struct timeval *b) {
-    assert(a);
-    assert(b);
-
-    if (a->tv_sec < b->tv_sec)
-        return -1;
-
-    if (a->tv_sec > b->tv_sec)
-        return 1;
-
-    if (a->tv_usec < b->tv_usec)
-        return -1;
-
-    if (a->tv_usec > b->tv_usec)
-        return 1;
-
-    return 0;
-}
-
-AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b) {
-    assert(a);
-    assert(b);
-
-    if (avahi_timeval_compare(a, b) < 0)
-        return - avahi_timeval_diff(b, a);
-
-    return ((AvahiUsec) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
-}
-
-struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec) {
-    AvahiUsec u;
-    assert(a);
-
-    u = usec + a->tv_usec;
-
-    if (u < 0) {
-        a->tv_usec = (long) (1000000 + (u % 1000000));
-        a->tv_sec += (long) (-1 + (u / 1000000));
-    } else {
-        a->tv_usec = (long) (u % 1000000);
-        a->tv_sec += (long) (u / 1000000);
-    }
-
-    return a;
-}
-
-AvahiUsec avahi_age(const struct timeval *a) {
-    struct timeval now;
-    
-    assert(a);
-
-    gettimeofday(&now, NULL);
-
-    return avahi_timeval_diff(&now, a);
-}
-
-
-struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
-    assert(tv);
-
-    gettimeofday(tv, NULL);
-
-    if (msec)
-        avahi_timeval_add(tv, (AvahiUsec) msec*1000);
-
-    if (jitter)
-        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*rand()/(RAND_MAX+1.0)));
-        
-    return tv;
-}
-
-int avahi_set_cloexec(int fd) {
-    int n;
-
-    assert(fd >= 0);
-    
-    if ((n = fcntl(fd, F_GETFD)) < 0)
-        return -1;
-
-    if (n & FD_CLOEXEC)
-        return 0;
-
-    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
-}
-
-int avahi_set_nonblock(int fd) {
-    int n;
-    
-    assert(fd >= 0);
-
-    if ((n = fcntl(fd, F_GETFL)) < 0)
-        return -1;
-
-    if (n & O_NONBLOCK)
-        return 0;
-
-    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
-}
-
-int avahi_wait_for_write(int fd) {
-    fd_set fds;
-    int r;
-    
-    FD_ZERO(&fds);
-    FD_SET(fd, &fds);
-    
-    if ((r = select(fd+1, NULL, &fds, NULL, NULL)) < 0)
-        return -1;
-    
-    assert(r > 0);
-
-    return 0;
-}
 
 /* Read the first label from string *name, unescape "\" and write it to dest */
 char *avahi_unescape_label(const char **name, char *dest, size_t size) {
@@ -340,40 +227,6 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
     }
 }
 
-void avahi_hexdump(const void* p, size_t size) {
-    const uint8_t *c = p;
-    assert(p);
-
-    printf("Dumping %u bytes from %p:\n", size, p);
-    
-    while (size > 0) {
-        unsigned i;
-
-        for (i = 0; i < 16; i++) { 
-            if (i < size)
-                printf("%02x ", c[i]);
-            else
-                printf("   ");
-        }
-
-        for (i = 0; i < 16; i++) {
-            if (i < size)
-                printf("%c", c[i] >= 32 && c[i] < 127 ? c[i] : '.');
-            else
-                printf(" ");
-        }
-        
-        printf("\n");
-
-        c += 16;
-
-        if (size <= 16)
-            break;
-        
-        size -= 16;
-    }
-}
-
 unsigned avahi_strhash(const char *p) {
     unsigned hash = 0;
 
@@ -397,30 +250,6 @@ unsigned avahi_domain_hash(const char *s) {
         
         hash += avahi_strhash(avahi_strdown(c));
     }
-}
-
-char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
-    char *r, *t;
-    unsigned i;
-    static const char hex[] = "0123456789abcdef";
-
-    t = r = avahi_new(char, size > 0 ? size*3 : 1);
-
-    if (size <= 0) {
-        *r = 0;
-        return r;
-    }
-    
-    for (i = 0; i < size; i++) {
-        *(t++) = hex[*mac >> 4];
-        *(t++) = hex[*mac & 0xF];
-        *(t++) = ':';
-
-        mac++;
-    }
-
-    *(--t) = 0;
-    return r;
 }
 
 int avahi_valid_service_type(const char *t) {

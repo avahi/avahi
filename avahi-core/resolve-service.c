@@ -25,8 +25,9 @@
 
 #include <string.h>
 
+#include <avahi-common/domain.h>
 #include "browse.h"
-#include "util.h"
+#include "timeval.h"
 
 struct AvahiServiceResolver {
     AvahiServer *server;

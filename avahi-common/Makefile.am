@@ -32,7 +32,7 @@ avahi_commoninclude_HEADERS = \
 	strlst.h \
 	address.h \
 	alternative.h \
-	util.h \
+	domain.h \
 	cdecl.h \
 	defs.h \
 	malloc.h
@@ -46,8 +46,7 @@ noinst_HEADERS = llist.h
 noinst_PROGRAMS = \
 	strlst-test \
 	domain-test \
-	alternative-test \
-	timeval-test
+	alternative-test
 
 lib_LTLIBRARIES = \
 	libavahi-common.la 
@@ -58,7 +57,7 @@ libavahi_common_la_SOURCES = \
 	alternative.c alternative.h \
 	error.c error.h \
 	strlst.c strlst.h \
-	util.c util.h
+	domain.c domain.h
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LIBADD = $(AM_LDADD)
 
@@ -72,22 +71,15 @@ strlst_test_LDADD = $(AM_LDADD)
 alternative_test_SOURCES = \
 	alternative.c alternative.h \
 	malloc.c malloc.h \
-	util.c util.h \
+	domain.c domain.h \
 	alternative-test.c
 alternative_test_CFLAGS = $(AM_CFLAGS)
 alternative_test_LDADD = $(AM_LDADD)
 
 domain_test_SOURCES = \
-	util.c util.h \
+	domain.c domain.h \
 	malloc.c malloc.h \
 	domain-test.c
 domain_test_CFLAGS = $(AM_CFLAGS)
 domain_test_LDADD = $(AM_LDADD)
-
-timeval_test_SOURCES = \
-	util.c util.h \
-	malloc.c malloc.h \
-	timeval-test.c
-timeval_test_CFLAGS = $(AM_CFLAGS)
-timeval_test_LDADD = $(AM_LDADD)
 

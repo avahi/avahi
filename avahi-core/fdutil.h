@@ -1,3 +1,6 @@
+#ifndef foofdutilhfoo
+#define foofdutilhfoo
+
 /* $Id$ */
 
 /***
@@ -19,23 +22,14 @@
   USA.
 ***/
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
+
+int avahi_set_cloexec(int fd);
+int avahi_set_nonblock(int fd);
+int avahi_wait_for_write(int fd);
+
+AVAHI_C_DECL_END
+
 #endif
-
-#include <stdio.h>
-#include "util.h"
-
-int main(int argc, char *argv[]) {
-
-    struct timeval a = { 5, 5 }, b;
-
-    b = a;
-
-    printf("%li.%li\n", a.tv_sec, a.tv_usec);
-    avahi_timeval_add(&a, -50);
-
-    printf("%li.%li\n", a.tv_sec, a.tv_usec);
-
-    printf("%lli\n", avahi_timeval_diff(&a, &b));
-}

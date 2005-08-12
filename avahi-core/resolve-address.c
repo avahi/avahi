@@ -24,7 +24,7 @@
 #endif
 
 #include "browse.h"
-#include "util.h"
+#include "timeval.h"
 
 struct AvahiAddressResolver {
     AvahiServer *server;

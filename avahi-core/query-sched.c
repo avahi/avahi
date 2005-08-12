@@ -24,7 +24,7 @@
 #endif
 
 #include "query-sched.h"
-#include "util.h"
+#include "timeval.h"
 
 #define AVAHI_QUERY_HISTORY_MSEC 100
 #define AVAHI_QUERY_DEFER_MSEC 100

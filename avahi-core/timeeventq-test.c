@@ -25,8 +25,8 @@
 
 #include <glib.h>
 
-#include "util.h"
 #include "timeeventq.h"
+#include "timeval.h"
 
 static AvahiTimeEventQueue *q = NULL;
 

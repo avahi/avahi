@@ -23,29 +23,51 @@
 #include <config.h>
 #endif
 
-#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <assert.h>
 
-#include "domain.h"
-#include "malloc.h"
+#include "fdutil.h"
 
-int main(int argc, char *argv[]) {
-    char *s;
+int avahi_set_cloexec(int fd) {
+    int n;
+
+    assert(fd >= 0);
     
-    printf("host name: %s\n", s = avahi_get_host_name());
-    avahi_free(s);
+    if ((n = fcntl(fd, F_GETFD)) < 0)
+        return -1;
 
-    printf("%s\n", s = avahi_normalize_name("foo.foo."));
-    avahi_free(s);
+    if (n & FD_CLOEXEC)
+        return 0;
+
+    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
+}
+
+int avahi_set_nonblock(int fd) {
+    int n;
     
-    printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
-    avahi_free(s);
+    assert(fd >= 0);
 
-    printf("%i\n", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
-    printf("%i\n", avahi_domain_equal("\\A", "a"));
+    if ((n = fcntl(fd, F_GETFL)) < 0)
+        return -1;
 
-    printf("%i\n", avahi_domain_equal("a", "aaa"));
+    if (n & O_NONBLOCK)
+        return 0;
 
-    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
+    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
+}
+
+int avahi_wait_for_write(int fd) {
+    fd_set fds;
+    int r;
     
+    FD_ZERO(&fds);
+    FD_SET(fd, &fds);
+    
+    if ((r = select(fd+1, NULL, &fds, NULL, NULL)) < 0)
+        return -1;
+    
+    assert(r > 0);
+
     return 0;
 }

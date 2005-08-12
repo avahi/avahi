@@ -30,7 +30,6 @@
 
 #include "alternative.h"
 #include "malloc.h"
-#include "util.h"
 
 char * avahi_alternative_host_name(const char *s) {
     const char *p, *e;

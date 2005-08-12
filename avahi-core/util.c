@@ -1,0 +1,93 @@
+/* $Id$ */
+
+/***
+  This file is part of avahi.
+ 
+  avahi is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of the
+  License, or (at your option) any later version.
+ 
+  avahi is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  Public License for more details.
+ 
+  You should have received a copy of the GNU Lesser General Public
+  License along with avahi; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA.
+***/
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include <glib.h>
+
+#include "util.h"
+
+void avahi_hexdump(const void* p, size_t size) {
+    const uint8_t *c = p;
+    assert(p);
+
+    printf("Dumping %u bytes from %p:\n", size, p);
+    
+    while (size > 0) {
+        unsigned i;
+
+        for (i = 0; i < 16; i++) { 
+            if (i < size)
+                printf("%02x ", c[i]);
+            else
+                printf("   ");
+        }
+
+        for (i = 0; i < 16; i++) {
+            if (i < size)
+                printf("%c", c[i] >= 32 && c[i] < 127 ? c[i] : '.');
+            else
+                printf(" ");
+        }
+        
+        printf("\n");
+
+        c += 16;
+
+        if (size <= 16)
+            break;
+        
+        size -= 16;
+    }
+}
+
+
+char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
+    char *r, *t;
+    unsigned i;
+    static const char hex[] = "0123456789abcdef";
+
+    t = r = g_new(char, size > 0 ? size*3 : 1);
+
+    if (size <= 0) {
+        *r = 0;
+        return r;
+    }
+    
+    for (i = 0; i < size; i++) {
+        *(t++) = hex[*mac >> 4];
+        *(t++) = hex[*mac & 0xF];
+        *(t++) = ':';
+
+        mac++;
+    }
+
+    *(--t) = 0;
+    return r;
+}
+

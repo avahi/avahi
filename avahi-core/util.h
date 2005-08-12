@@ -1,3 +1,6 @@
+#ifndef fooutilhfoo
+#define fooutilhfoo
+
 /* $Id$ */
 
 /***
@@ -19,33 +22,16 @@
   USA.
 ***/
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
+#include <inttypes.h>
+
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
+
+void avahi_hexdump(const void *p, size_t size);
+
+char *avahi_format_mac_address(const uint8_t* mac, size_t size);
+
+AVAHI_C_DECL_END
+
 #endif
-
-#include <stdio.h>
-
-#include "domain.h"
-#include "malloc.h"
-
-int main(int argc, char *argv[]) {
-    char *s;
-    
-    printf("host name: %s\n", s = avahi_get_host_name());
-    avahi_free(s);
-
-    printf("%s\n", s = avahi_normalize_name("foo.foo."));
-    avahi_free(s);
-    
-    printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
-    avahi_free(s);
-
-    printf("%i\n", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
-    printf("%i\n", avahi_domain_equal("\\A", "a"));
-
-    printf("%i\n", avahi_domain_equal("a", "aaa"));
-
-    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
-    
-    return 0;
-}

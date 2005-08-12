@@ -25,7 +25,7 @@
 
 #include <string.h>
 
-#include "util.h"
+#include "timeval.h"
 #include "cache.h"
 #include "log.h"
 

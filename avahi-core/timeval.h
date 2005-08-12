@@ -1,3 +1,6 @@
+#ifndef footimevalhfoo
+#define footimevalhfoo
+
 /* $Id$ */
 
 /***
@@ -19,33 +22,22 @@
   USA.
 ***/
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
+#include <inttypes.h>
+#include <sys/time.h>
+
+#include <avahi-common/cdecl.h>
+
+AVAHI_C_DECL_BEGIN
+
+typedef int64_t AvahiUsec;
+
+int avahi_timeval_compare(const struct timeval *a, const struct timeval *b);
+AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b);
+struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec);
+
+AvahiUsec avahi_age(const struct timeval *a);
+struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter);
+
+AVAHI_C_DECL_END
+
 #endif
-
-#include <stdio.h>
-
-#include "domain.h"
-#include "malloc.h"
-
-int main(int argc, char *argv[]) {
-    char *s;
-    
-    printf("host name: %s\n", s = avahi_get_host_name());
-    avahi_free(s);
-
-    printf("%s\n", s = avahi_normalize_name("foo.foo."));
-    avahi_free(s);
-    
-    printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
-    avahi_free(s);
-
-    printf("%i\n", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
-    printf("%i\n", avahi_domain_equal("\\A", "a"));
-
-    printf("%i\n", avahi_domain_equal("a", "aaa"));
-
-    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\"));
-    
-    return 0;
-}

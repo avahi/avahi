@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/domain.h>
 #include "browse.h"
-#include "util.h"
 
 struct AvahiDomainBrowser {
     AvahiServer *server;

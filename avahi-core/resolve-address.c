@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/timeval.h>
 #include "browse.h"
-#include "timeval.h"
 
 struct AvahiAddressResolver {
     AvahiServer *server;

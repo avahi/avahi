@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/timeval.h>
 #include "response-sched.h"
-#include "timeval.h"
 #include "log.h"
 
 #define AVAHI_RESPONSE_HISTORY_MSEC 500

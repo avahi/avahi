@@ -43,6 +43,7 @@ SUBDIRS = \
 	initscript \
 	avahi-dnsconfd \
 	avahi-utils \
+	avahi-glib \
 	examples \
 	man
 
@@ -55,4 +56,3 @@ homepage:
 	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
 	    man/*.xml man/xmltoman.dtd man/xmltoman.xsl \
 	    fdo:public_html/
-	    

@@ -24,8 +24,8 @@
 
 typedef struct AvahiResponseScheduler AvahiResponseScheduler;
 
+#include <avahi-common/address.h>
 #include "iface.h"
-#include "address.h"
 
 AvahiResponseScheduler *avahi_response_scheduler_new(AvahiInterface *i);
 void avahi_response_scheduler_free(AvahiResponseScheduler *s);

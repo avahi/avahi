@@ -24,9 +24,9 @@
 #endif
 
 #include <avahi-common/domain.h>
+#include <avahi-common/timeval.h>
 
 #include "probe-sched.h"
-#include "timeval.h"
 #include "log.h"
 
 #define AVAHI_PROBE_HISTORY_MSEC 150

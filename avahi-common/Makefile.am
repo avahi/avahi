@@ -19,10 +19,6 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
-
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
@@ -36,6 +32,9 @@ avahi_commoninclude_HEADERS = \
 	cdecl.h \
 	defs.h \
 	malloc.h
+	watch.h \
+	timeval.h \
+	simple-watch.h
 
 noinst_HEADERS = llist.h
 
@@ -43,11 +42,12 @@ if ENABLE_DBUS
 noinst_HEADERS += dbus.h
 endif
 
-
 noinst_PROGRAMS = \
 	strlst-test \
 	domain-test \
-	alternative-test
+	alternative-test \
+	timeval-test \
+	watch-test
 
 lib_LTLIBRARIES = \
 	libavahi-common.la 
@@ -58,7 +58,10 @@ libavahi_common_la_SOURCES = \
 	alternative.c alternative.h \
 	error.c error.h \
 	strlst.c strlst.h \
-	domain.c domain.h
+	domain.c domain.h \
+	timeval.c timeval.h \
+	simple-watch.c simple-watch.h \
+	watch.h
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LIBADD = $(AM_LDADD)
 
@@ -83,4 +86,20 @@ domain_test_SOURCES = \
 	domain-test.c
 domain_test_CFLAGS = $(AM_CFLAGS)
 domain_test_LDADD = $(AM_LDADD)
+
+watch_test_SOURCES = \
+	timeval.c timeval.h \
+	simple-watch.c simple-watch.h \
+	watch.h \
+	malloc.c malloc.h \
+	watch-test.c
+watch_test_CFLAGS = $(AM_CFLAGS)
+watch_test_LDADD = $(AM_LDADD)
+
+timeval_test_SOURCES = \
+	timeval.c timeval.h \
+	timeval-test.c
+timeval_test_CFLAGS = $(AM_CFLAGS)
+timeval_test_LDADD = $(AM_LDADD)
+
 

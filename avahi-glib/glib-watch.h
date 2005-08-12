@@ -1,5 +1,5 @@
-#ifndef fooqueryschedhfoo
-#define fooqueryschedhfoo
+#ifndef fooglibwatchhfoo
+#define fooglibwatchhfoo
 
 /* $Id$ */
 
@@ -22,16 +22,22 @@
   USA.
 ***/
 
-typedef struct AvahiQueryScheduler AvahiQueryScheduler;
+#include <avahi-common/cdecl.h>
 
-#include <avahi-common/address.h>
-#include "iface.h"
+#include <glib.h>
+#include <avahi-common/watch.h>
 
-AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i);
-void avahi_query_scheduler_free(AvahiQueryScheduler *s);
-void avahi_query_scheduler_clear(AvahiQueryScheduler *s);
+AVAHI_C_DECL_BEGIN
 
-gboolean avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, gboolean immediately);
-void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key);
+typedef struct AvahiGLibPoll AvahiGLibPoll;
+
+typedef void (*AvahiGLibProcessCallback)(AvahiGLibPoll *g, void *userdata);
+
+AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, AvahiGLibProcessCallback callback, void *userdata);
+void avahi_glib_poll_free(AvahiGLibPoll *g);
+
+AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g);
+
+AVAHI_C_DECL_END
 
 #endif

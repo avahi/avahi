@@ -30,8 +30,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#include <avahi-common/alternative.h>
 #include "core.h"
-#include "alternative.h"
 #include "log.h"
 
 static gchar *name = NULL;

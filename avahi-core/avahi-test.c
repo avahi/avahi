@@ -152,7 +152,7 @@ fail:
     group = NULL;
 }
 
-static void hnr_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
+static void hnr_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
     gchar t[64];
 
     if (a)
@@ -161,7 +161,7 @@ static void hnr_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProt
     avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
-static void ar_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
+static void ar_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
     gchar t[64];
 
     avahi_address_snprint(t, sizeof(t), a);
@@ -183,7 +183,7 @@ static void sb_callback(AvahiServiceBrowser *b, AvahiIfIndex iface, AvahiProtoco
    avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void sr_callback(AvahiServiceResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
+static void sr_callback(AvahiServiceResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *name, const gchar*service_type, const gchar*domain_name, const gchar*hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt, gpointer userdata) {
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, name, service_type, domain_name);

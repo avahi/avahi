@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/timeval.h>
 #include "timeeventq.h"
-#include "timeval.h"
 
 static gint compare(gconstpointer _a, gconstpointer _b) {
     const AvahiTimeEvent *a = _a,  *b = _b;

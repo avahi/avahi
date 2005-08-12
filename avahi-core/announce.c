@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/timeval.h>
 #include "announce.h"
-#include "timeval.h"
 
 #define AVAHI_ANNOUNCEMENT_JITTER_MSEC 250
 #define AVAHI_PROBE_JITTER_MSEC 250

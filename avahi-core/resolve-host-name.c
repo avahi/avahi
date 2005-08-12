@@ -24,7 +24,7 @@
 #endif
 
 #include <avahi-common/domain.h>
-#include "timeval.h"
+#include <avahi-common/timeval.h>
 #include "browse.h"
 
 struct AvahiHostNameResolver {

@@ -279,6 +279,7 @@ Makefile
 avahi-core.pc 
 avahi-common/Makefile 
 avahi-core/Makefile 
+avahi-glib/Makefile 
 avahi-daemon/Makefile 
 avahi-daemon/avahi-dbus.conf
 avahi-discover-standalone/Makefile 

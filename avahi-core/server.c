@@ -32,9 +32,9 @@
 #include <stdio.h>
 
 #include <avahi-common/domain.h>
+#include <avahi-common/timeval.h>
 
 #include "server.h"
-#include "timeval.h"
 #include "iface.h"
 #include "socket.h"
 #include "browse.h"
@@ -459,9 +459,9 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                         reply = avahi_dns_packet_new_reply(p, size, FALSE, TRUE);
 
                         if (!avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
+                            gchar *t;
                             avahi_dns_packet_free(reply);
-                            
-                            gchar *t = avahi_record_to_string(r);
+                            t = avahi_record_to_string(r);
                             avahi_log_warn("Record [%s] too large, doesn't fit in any packet!", t);
                             g_free(t);
                             break;

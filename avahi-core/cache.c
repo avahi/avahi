@@ -25,7 +25,7 @@
 
 #include <string.h>
 
-#include "timeval.h"
+#include <avahi-common/timeval.h>
 #include "cache.h"
 #include "log.h"
 
@@ -215,10 +215,10 @@ static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
 }
 
 static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
+    AvahiUsec usec;
     g_assert(c);
     g_assert(e);
     g_assert(percent > 0 && percent <= 100);
-    AvahiUsec usec;
 /*     gchar *txt; */
 
     usec = ((AvahiUsec) e->record->ttl) * 10000;

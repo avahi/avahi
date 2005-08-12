@@ -1,4 +1,7 @@
 todo:
+* drop glib
+* allow srv port == 0
+* deal with no local interface
 * release!
 
 later:

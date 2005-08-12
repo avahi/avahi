@@ -115,6 +115,20 @@ static DNSServerInfo* new_server_info(gint interface, guchar protocol, const gch
     return i;
 }
 
+static int set_cloexec(int fd) {
+    int n;
+
+    assert(fd >= 0);
+    
+    if ((n = fcntl(fd, F_GETFD)) < 0)
+        return -1;
+
+    if (n & FD_CLOEXEC)
+        return 0;
+
+    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
+}
+
 static int open_socket(void) {
     int fd = -1;
     struct sockaddr_un sa;
@@ -124,7 +138,7 @@ static int open_socket(void) {
         goto fail;
     }
 
-    if (avahi_set_cloexec(fd) < 0) {
+    if (set_cloexec(fd) < 0) {
         daemon_log(LOG_ERR, "fcntl(): %s", strerror(errno));
         goto fail;
     }

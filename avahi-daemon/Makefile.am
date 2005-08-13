@@ -97,7 +97,7 @@ introspection_DATA = \
 endif
 
 avahi_daemon_CFLAGS = $(AM_CFLAGS)
-avahi_daemon_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la ../avahi-core/libavahi-core.la 
 
 xmllint:
 	xmllint --noout --valid example.service

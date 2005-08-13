@@ -33,6 +33,7 @@ avahiincludedir=$(includedir)/avahi-glib
 
 avahiinclude_HEADERS = \
 	glib-watch.h
+	glib-malloc.h
 
 lib_LTLIBRARIES = \
 	libavahi-glib.la 
@@ -41,7 +42,8 @@ noinst_PROGRAMS = \
 	glib-watch-test
 
 libavahi_glib_la_SOURCES = \
-	glib-watch.c glib-watch.h
+	glib-watch.c glib-watch.h \
+	glib-malloc.h glib-malloc.c
 libavahi_glib_la_CFLAGS = $(AM_CFLAGS)
 libavahi_glib_la_LIBADD = $(AM_LDADD) $(COMMON_LDADD)
 

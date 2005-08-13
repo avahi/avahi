@@ -22,20 +22,17 @@
   USA.
 ***/
 
-#include <avahi-common/cdecl.h>
-
 #include <glib.h>
+
+#include <avahi-common/cdecl.h>
 #include <avahi-common/watch.h>
 
 AVAHI_C_DECL_BEGIN
 
 typedef struct AvahiGLibPoll AvahiGLibPoll;
 
-typedef void (*AvahiGLibProcessCallback)(AvahiGLibPoll *g, void *userdata);
-
-AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, AvahiGLibProcessCallback callback, void *userdata);
+AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context);
 void avahi_glib_poll_free(AvahiGLibPoll *g);
-
 AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g);
 
 AVAHI_C_DECL_END

@@ -65,6 +65,11 @@ int avahi_is_valid_service_name(const char *t);
 /** Return 1 when the specified string contains a valid non-FQDN host name (i.e. without dots), 0 otherwise */
 int avahi_is_valid_host_name(const char *t);
 
+/** Return some kind of hash value for the domain, useful for using domains as hash table keys. */
+unsigned avahi_domain_hash(const char *name);
+
+
+
 AVAHI_C_DECL_END
 
 #endif

@@ -23,37 +23,47 @@
 #include <config.h>
 #endif
 
-#include <glib.h>
+#include <assert.h>
+#include <stdlib.h>
 
 #include <avahi-common/timeval.h>
+#include <avahi-common/simple-watch.h>
+
 #include "timeeventq.h"
+#include "log.h"
+
+#define POINTER_TO_INT(p) ((int) (p))
+#define INT_TO_POINTER(i) ((void*) (i))
 
 static AvahiTimeEventQueue *q = NULL;
 
-static void callback(AvahiTimeEvent*e, gpointer userdata) {
+static void callback(AvahiTimeEvent*e, void* userdata) {
     struct timeval tv = {0, 0};
-    g_assert(e);
-    g_message("callback(%i)", GPOINTER_TO_INT(userdata));
+    assert(e);
+    avahi_log_info("callback(%i)", POINTER_TO_INT(userdata));
     avahi_elapse_time(&tv, 1000, 100);
-    avahi_time_event_queue_update(q, e, &tv);
+    avahi_time_event_update(e, &tv);
 }
 
 int main(int argc, char *argv[]) {
-    GMainLoop *loop = NULL;
     struct timeval tv;
-    
-    q = avahi_time_event_queue_new(NULL, 0);
+    AvahiSimplePoll *s;
 
-    avahi_time_event_queue_add(q, avahi_elapse_time(&tv, 5000, 100), callback, GINT_TO_POINTER(1));
-    avahi_time_event_queue_add(q, avahi_elapse_time(&tv, 5000, 100), callback, GINT_TO_POINTER(2));
+    s = avahi_simple_poll_new();
 
-    g_message("starting");
-    
-    loop = g_main_loop_new(NULL, FALSE);
-    g_main_loop_run(loop);
-    g_main_loop_unref(loop);
+    q = avahi_time_event_queue_new(avahi_simple_poll_get(s));
+
+    avahi_time_event_new(q, avahi_elapse_time(&tv, 5000, 100), callback, INT_TO_POINTER(1));
+    avahi_time_event_new(q, avahi_elapse_time(&tv, 5000, 100), callback, INT_TO_POINTER(2));
+
+    avahi_log_info("starting");
+
+    for (;;)
+        if (avahi_simple_poll_iterate(s, -1) != 0)
+            break;
 
     avahi_time_event_queue_free(q);
+    avahi_simple_poll_free(s);
 
     return 0;
 }

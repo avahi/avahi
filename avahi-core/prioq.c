@@ -23,39 +23,47 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+#include <stdlib.h>
+
+#include <avahi-common/malloc.h>
+
 #include "prioq.h"
 
-AvahiPrioQueue* avahi_prio_queue_new(gint (*compare) (gconstpointer a, gconstpointer b)) {
+AvahiPrioQueue* avahi_prio_queue_new(AvahiPQCompareFunc compare) {
     AvahiPrioQueue *q;
-    g_assert(compare);
+    assert(compare);
 
-    q = g_new(AvahiPrioQueue, 1);
+    if (!(q = avahi_new(AvahiPrioQueue, 1)))
+        return NULL; /* OOM */
+    
     q->root = q->last = NULL;
     q->n_nodes = 0;
     q->compare = compare;
+    
     return q;
 }
 
 void avahi_prio_queue_free(AvahiPrioQueue *q) {
-    g_assert(q);
+    assert(q);
 
     while (q->last)
         avahi_prio_queue_remove(q, q->last);
 
-    g_assert(!q->n_nodes);
-    g_free(q);
+    assert(!q->n_nodes);
+    avahi_free(q);
 }
 
-static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, guint x, guint y) {
-    guint r;
+static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, unsigned x, unsigned y) {
+    unsigned r;
     AvahiPrioQueueNode *n;
-    g_assert(q);
+    assert(q);
 
     n = q->root;
-    g_assert(n);
+    assert(n);
 
     for (r = 0; r < y; r++) {
-        g_assert(n);
+        assert(n);
         
         if ((x >> (y-r-1)) & 1)
             n = n->right;
@@ -63,19 +71,19 @@ static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, guint x, guint y) {
             n = n->left;
     }
 
-    g_assert(n->x == x);
-    g_assert(n->y == y);
+    assert(n->x == x);
+    assert(n->y == y);
 
     return n;
 }
 
 static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQueueNode *b) {
     AvahiPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn;
-    gint t;
-    g_assert(q);
-    g_assert(a);
-    g_assert(b);
-    g_assert(a != b);
+    unsigned t;
+    assert(q);
+    assert(a);
+    assert(b);
+    assert(a != b);
 
     /* Swap positions */
     t = a->x; a->x = b->x; b->x = t;
@@ -250,8 +258,9 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
 
 /* Move a node to the correct position */
 void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
-    g_assert(q);
-    g_assert(n);
+    assert(q);
+    assert(n);
+    assert(n->queue == q);
 
     /* Move up until the position is OK */
     while (n->parent && q->compare(n->parent->data, n->data) > 0)
@@ -263,7 +272,7 @@ void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
 
         if (!(min = n->left)) {
             /* No children */
-            g_assert(!n->right);
+            assert(!n->right);
             break;
         }
 
@@ -280,22 +289,24 @@ void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     }
 }
 
-AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, gpointer data) {
+AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
     AvahiPrioQueueNode *n;
-    g_assert(q);
+    assert(q);
 
-    n = g_new(AvahiPrioQueueNode, 1);
+    if (!(n = avahi_new(AvahiPrioQueueNode, 1)))
+        return NULL; /* OOM */
+    
     n->queue = q;
     n->data = data;
 
     if (q->last) {
-        g_assert(q->root);
-        g_assert(q->n_nodes);
+        assert(q->root);
+        assert(q->n_nodes);
          
         n->y = q->last->y;
         n->x = q->last->x+1;
 
-        if (n->x >= ((guint) 1 << n->y)) {
+        if (n->x >= ((unsigned) 1 << n->y)) {
             n->x = 0;
             n->y++;
         }
@@ -303,7 +314,7 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, gpointer data) {
         q->last->next = n;
         n->prev = q->last;
         
-        g_assert(n->y > 0);
+        assert(n->y > 0);
         n->parent = get_node_at_xy(q, n->x/2, n->y-1);
 
         if (n->x & 1)
@@ -311,8 +322,8 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, gpointer data) {
         else
             n->parent->left = n;
     } else {
-        g_assert(!q->root);
-        g_assert(!q->n_nodes);
+        assert(!q->root);
+        assert(!q->n_nodes);
         
         n->y = n->x = 0;
         q->root = n;
@@ -329,8 +340,9 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, gpointer data) {
 }
 
 void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
-    g_assert(q);
-    g_assert(n);
+    assert(q);
+    assert(n);
+    assert(q == n->queue);
 
     if (n != q->last) {
         AvahiPrioQueueNode *replacement = q->last;
@@ -340,39 +352,39 @@ void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
         return;
     }
 
-    g_assert(n == q->last);
-    g_assert(!n->next);
-    g_assert(!n->left);
-    g_assert(!n->right);
+    assert(n == q->last);
+    assert(!n->next);
+    assert(!n->left);
+    assert(!n->right);
 
     q->last = n->prev;
     
     if (n->prev) {
         n->prev->next = NULL;
-        g_assert(n->parent);
+        assert(n->parent);
     } else
-        g_assert(!n->parent);
+        assert(!n->parent);
 
     if (n->parent) {
-        g_assert(n->prev);
+        assert(n->prev);
         if (n->parent->left == n) {
-            g_assert(n->parent->right == NULL);
+            assert(n->parent->right == NULL);
             n->parent->left = NULL;
         } else {
-            g_assert(n->parent->right == n);
-            g_assert(n->parent->left != NULL);
+            assert(n->parent->right == n);
+            assert(n->parent->left != NULL);
             n->parent->right = NULL;
         }
     } else {
-        g_assert(q->root == n);
-        g_assert(!n->prev);
-        g_assert(q->n_nodes == 1);
+        assert(q->root == n);
+        assert(!n->prev);
+        assert(q->n_nodes == 1);
         q->root = NULL;
     }
 
-    g_free(n);
+    avahi_free(n);
 
-    g_assert(q->n_nodes > 0);
+    assert(q->n_nodes > 0);
     q->n_nodes--;
 }
 

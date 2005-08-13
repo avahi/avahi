@@ -34,7 +34,7 @@ void avahi_set_log_function(AvahiLogFunction function) {
     log_function = function;
 }
 
-void avahi_log_ap(AvahiLogLevel level, const gchar*format, va_list ap) {
+void avahi_log_ap(AvahiLogLevel level, const char*format, va_list ap) {
     char txt[256];
     
     vsnprintf(txt, sizeof(txt), format, ap);
@@ -45,42 +45,42 @@ void avahi_log_ap(AvahiLogLevel level, const gchar*format, va_list ap) {
         fprintf(stderr, "%s\n", txt);
 }
 
-void avahi_log(AvahiLogLevel level, const gchar*format, ...) {
+void avahi_log(AvahiLogLevel level, const char*format, ...) {
     va_list ap;
     va_start(ap, format);
     avahi_log_ap(level, format, ap);
     va_end(ap);
 }
 
-void avahi_log_error(const gchar*format, ...) {
+void avahi_log_error(const char*format, ...) {
     va_list ap;
     va_start(ap, format);
     avahi_log_ap(AVAHI_LOG_ERROR, format, ap);
     va_end(ap);
 }
 
-void avahi_log_warn(const gchar*format, ...) {
+void avahi_log_warn(const char*format, ...) {
     va_list ap;
     va_start(ap, format);
     avahi_log_ap(AVAHI_LOG_WARN, format, ap);
     va_end(ap);
 }
 
-void avahi_log_notice(const gchar*format, ...) {
+void avahi_log_notice(const char*format, ...) {
     va_list ap;
     va_start(ap, format);
     avahi_log_ap(AVAHI_LOG_NOTICE, format, ap);
     va_end(ap);
 }
 
-void avahi_log_info(const gchar*format, ...) {
+void avahi_log_info(const char*format, ...) {
     va_list ap;
     va_start(ap, format);
     avahi_log_ap(AVAHI_LOG_INFO, format, ap);
     va_end(ap);
 }
 
-void avahi_log_debug(const gchar*format, ...) {
+void avahi_log_debug(const char*format, ...) {
     va_list ap;
     va_start(ap, format);
     avahi_log_ap(AVAHI_LOG_DEBUG, format, ap);

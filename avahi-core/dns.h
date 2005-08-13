@@ -22,59 +22,58 @@
   USA.
 ***/
 
-#include <glib.h>
-
 #include "rr.h"
+#include "hashmap.h"
 
 #define AVAHI_DNS_PACKET_MAX_SIZE 9000
 #define AVAHI_DNS_PACKET_HEADER_SIZE 12
 #define AVAHI_DNS_PACKET_EXTRA_SIZE 48
 
 typedef struct AvahiDnsPacket {
-    guint size, rindex, max_size;
-    GHashTable *name_table; /* for name compression */
+    size_t size, rindex, max_size;
+    AvahiHashmap *name_table; /* for name compression */
 } AvahiDnsPacket;
 
-#define AVAHI_DNS_PACKET_DATA(p) (((guint8*) p) + sizeof(AvahiDnsPacket))
+#define AVAHI_DNS_PACKET_DATA(p) (((uint8_t*) p) + sizeof(AvahiDnsPacket))
 
-AvahiDnsPacket* avahi_dns_packet_new(guint mtu);
-AvahiDnsPacket* avahi_dns_packet_new_query(guint mtu);
-AvahiDnsPacket* avahi_dns_packet_new_response(guint mtu, gboolean aa);
+AvahiDnsPacket* avahi_dns_packet_new(unsigned mtu);
+AvahiDnsPacket* avahi_dns_packet_new_query(unsigned mtu);
+AvahiDnsPacket* avahi_dns_packet_new_response(unsigned mtu, int aa);
 
-AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, guint mtu, gboolean copy_queries, gboolean aa);
+AvahiDnsPacket* avahi_dns_packet_new_reply(AvahiDnsPacket* p, unsigned mtu, int copy_queries, int aa);
 
 void avahi_dns_packet_free(AvahiDnsPacket *p);
-void avahi_dns_packet_set_field(AvahiDnsPacket *p, guint idx, guint16 v);
-guint16 avahi_dns_packet_get_field(AvahiDnsPacket *p, guint idx);
-void avahi_dns_packet_inc_field(AvahiDnsPacket *p, guint idx);
+void avahi_dns_packet_set_field(AvahiDnsPacket *p, unsigned idx, uint16_t v);
+uint16_t avahi_dns_packet_get_field(AvahiDnsPacket *p, unsigned idx);
+void avahi_dns_packet_inc_field(AvahiDnsPacket *p, unsigned idx);
 
-guint8 *avahi_dns_packet_extend(AvahiDnsPacket *p, guint l);
+uint8_t *avahi_dns_packet_extend(AvahiDnsPacket *p, unsigned l);
 
-guint8 *avahi_dns_packet_append_uint16(AvahiDnsPacket *p, guint16 v);
-guint8 *avahi_dns_packet_append_uint32(AvahiDnsPacket *p, guint32 v);
-guint8 *avahi_dns_packet_append_name(AvahiDnsPacket *p, const gchar *name);
-guint8 *avahi_dns_packet_append_bytes(AvahiDnsPacket  *p, gconstpointer, guint l);
-guint8* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, gboolean unicast_response);
-guint8* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, gboolean cache_flush, guint max_ttl);
-guint8* avahi_dns_packet_append_string(AvahiDnsPacket *p, const gchar *s);
+uint8_t *avahi_dns_packet_append_uint16(AvahiDnsPacket *p, uint16_t v);
+uint8_t *avahi_dns_packet_append_uint32(AvahiDnsPacket *p, uint32_t v);
+uint8_t *avahi_dns_packet_append_name(AvahiDnsPacket *p, const char *name);
+uint8_t *avahi_dns_packet_append_bytes(AvahiDnsPacket  *p, const void *d, size_t l);
+uint8_t* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, int unicast_response);
+uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int cache_flush, unsigned max_ttl);
+uint8_t* avahi_dns_packet_append_string(AvahiDnsPacket *p, const char *s);
 
-gint avahi_dns_packet_is_query(AvahiDnsPacket *p);
-gint avahi_dns_packet_check_valid(AvahiDnsPacket *p);
+int avahi_dns_packet_is_query(AvahiDnsPacket *p);
+int avahi_dns_packet_is_valid(AvahiDnsPacket *p);
 
-gint avahi_dns_packet_consume_uint16(AvahiDnsPacket *p, guint16 *ret_v);
-gint avahi_dns_packet_consume_uint32(AvahiDnsPacket *p, guint32 *ret_v);
-gint avahi_dns_packet_consume_name(AvahiDnsPacket *p, gchar *ret_name, guint l);
-gint avahi_dns_packet_consume_bytes(AvahiDnsPacket *p, gpointer ret_data, guint l);
-AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, gboolean *ret_unicast_response);
-AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, gboolean *ret_cache_flush);
-gint avahi_dns_packet_consume_string(AvahiDnsPacket *p, gchar *ret_string, guint l);
+int avahi_dns_packet_consume_uint16(AvahiDnsPacket *p, uint16_t *ret_v);
+int avahi_dns_packet_consume_uint32(AvahiDnsPacket *p, uint32_t *ret_v);
+int avahi_dns_packet_consume_name(AvahiDnsPacket *p, char *ret_name, size_t l);
+int avahi_dns_packet_consume_bytes(AvahiDnsPacket *p, void* ret_data, size_t l);
+AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, int *ret_unicast_response);
+AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, int *ret_cache_flush);
+int avahi_dns_packet_consume_string(AvahiDnsPacket *p, char *ret_string, size_t l);
 
-gconstpointer avahi_dns_packet_get_rptr(AvahiDnsPacket *p);
+const void* avahi_dns_packet_get_rptr(AvahiDnsPacket *p);
 
-gint avahi_dns_packet_skip(AvahiDnsPacket *p, guint length);
+int avahi_dns_packet_skip(AvahiDnsPacket *p, size_t length);
 
-gboolean avahi_dns_packet_is_empty(AvahiDnsPacket *p);
-guint avahi_dns_packet_space(AvahiDnsPacket *p);
+int avahi_dns_packet_is_empty(AvahiDnsPacket *p);
+size_t avahi_dns_packet_space(AvahiDnsPacket *p);
 
 #define AVAHI_DNS_FIELD_ID 0
 #define AVAHI_DNS_FIELD_FLAGS 1
@@ -90,15 +89,15 @@ guint avahi_dns_packet_space(AvahiDnsPacket *p);
 #define AVAHI_DNS_FLAG_AA (1 << 10)
 
 #define AVAHI_DNS_FLAGS(qr, opcode, aa, tc, rd, ra, z, ad, cd, rcode) \
-        (((guint16) !!qr << 15) |  \
-         ((guint16) (opcode & 15) << 11) | \
-         ((guint16) !!aa << 10) | \
-         ((guint16) !!tc << 9) | \
-         ((guint16) !!rd << 8) | \
-         ((guint16) !!ra << 7) | \
-         ((guint16) !!ad << 5) | \
-         ((guint16) !!cd << 4) | \
-         ((guint16) (rd & 15)))
+        (((uint16_t) !!qr << 15) |  \
+         ((uint16_t) (opcode & 15) << 11) | \
+         ((uint16_t) !!aa << 10) | \
+         ((uint16_t) !!tc << 9) | \
+         ((uint16_t) !!rd << 8) | \
+         ((uint16_t) !!ra << 7) | \
+         ((uint16_t) !!ad << 5) | \
+         ((uint16_t) !!cd << 4) | \
+         ((uint16_t) (rd & 15)))
          
 
 #endif

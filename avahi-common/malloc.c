@@ -27,10 +27,70 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "malloc.h"
 
 static const AvahiAllocator *allocator = NULL;
+
+static void oom(void) AVAHI_GCC_NORETURN;
+
+static void oom(void) {
+    
+    static const char msg[] = "Out of memory, aborting ...\n";
+    const char *n = msg;
+
+    while (strlen(n) > 0) {
+        ssize_t r;
+        
+        if ((r = write(2, n, strlen(n))) < 0)
+            break;
+
+        n += r;
+    }
+
+    abort();
+}
+
+/* Default implementation for avahi_malloc() */
+static void* xmalloc(size_t size) {
+    void *p;
+
+    if (size == 0)
+        return NULL;
+
+    if (!(p = malloc(size)))
+        oom();
+
+    return p;
+}
+
+/* Default implementation for avahi_realloc() */
+static void *xrealloc(void *p, size_t size) {
+
+    if (size == 0) {
+        free(p);
+        return NULL;
+    }
+
+    if (!(p = realloc(p, size)))
+        oom();
+
+    return p;
+}
+
+/* Default implementation for avahi_calloc() */
+static void *xcalloc(size_t nmemb, size_t size) {
+    void *p;
+    
+    if (size == 0 || nmemb == 0)
+        return NULL;
+
+    if (!(p = calloc(nmemb, size)))
+        oom();
+
+    return p;
+}
 
 void *avahi_malloc(size_t size) {
 
@@ -38,7 +98,7 @@ void *avahi_malloc(size_t size) {
         return NULL;
     
     if (!allocator)
-        return malloc(size);
+        return xmalloc(size);
 
     assert(allocator->malloc);
     return allocator->malloc(size);
@@ -51,7 +111,7 @@ void *avahi_malloc0(size_t size) {
         return NULL;
 
     if (!allocator)
-        return calloc(1, size);
+        return xcalloc(1, size);
 
     if (allocator->calloc)
         return allocator->calloc(1, size);
@@ -79,8 +139,13 @@ void avahi_free(void *p) {
 
 void *avahi_realloc(void *p, size_t size) {
 
+    if (size == 0) {
+        avahi_free(p);
+        return NULL;
+    }
+
     if (!allocator)
-        return realloc(p, size);
+        return xrealloc(p, size);
 
     assert(allocator->realloc);
     return allocator->realloc(p, size);

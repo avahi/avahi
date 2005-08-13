@@ -32,6 +32,8 @@
 #include <net/if.h>
 #include <stdio.h>
 
+#include <avahi-common/malloc.h>
+
 #include "iface.h"
 #include "netlink.h"
 #include "dns.h"
@@ -40,9 +42,9 @@
 #include "util.h"
 #include "log.h"
 
-static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, gboolean remove_rrs) {
-    g_assert(m);
-    g_assert(a);
+static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, int remove_rrs) {
+    assert(m);
+    assert(a);
 
     if (avahi_interface_address_relevant(a) &&
         !remove_rrs &&
@@ -54,10 +56,13 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
         if (!a->entry_group) 
             a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
 
+        if (!a->entry_group) /* OOM */
+            return;
+        
         if (avahi_entry_group_is_empty(a->entry_group)) {
 
             if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
-                avahi_log_warn(__FILE__": avahi_server_add_address() failed.");
+                avahi_log_warn(__FILE__": avahi_server_add_address() failed: %s", avahi_strerror(m->server->error));
                 avahi_entry_group_free(a->entry_group);
                 a->entry_group = NULL;
                 return;
@@ -79,21 +84,21 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
     } 
 }
 
-static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean remove_rrs) {
+static void update_interface_rr(AvahiInterfaceMonitor *m, AvahiInterface *i, int remove_rrs) {
     AvahiInterfaceAddress *a;
     
-    g_assert(m);
-    g_assert(i);
+    assert(m);
+    assert(i);
 
     for (a = i->addresses; a; a = a->address_next)
         update_address_rr(m, a, remove_rrs);
 }
 
-static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gboolean remove_rrs) {
+static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, int remove_rrs) {
     AvahiInterface *i;
 
-    g_assert(m);
-    g_assert(hw);
+    assert(m);
+    assert(hw);
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
         update_interface_rr(m, i, remove_rrs);
@@ -106,12 +111,21 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
         if (!hw->entry_group)
             hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
 
+        if (!hw->entry_group)
+            return; /* OOM */
+        
         if (avahi_entry_group_is_empty(hw->entry_group)) {
-            gchar *name;
-            gchar *t = avahi_format_mac_address(hw->mac_address, hw->mac_address_size);
-            
-            name = g_strdup_printf("%s [%s]", m->server->host_name, t);
-            g_free(t);
+            char *name;
+            char *t;
+
+            if (!(t = avahi_format_mac_address(hw->mac_address, hw->mac_address_size)))
+                return; /* OOM */
+
+            name = avahi_strdup_printf("%s [%s]", m->server->host_name, t);
+            avahi_free(t);
+
+            if (!name)
+                return; /* OOM */
             
             if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed.");
@@ -120,7 +134,7 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
             } else
                 avahi_entry_group_commit(hw->entry_group);
 
-            g_free(name);
+            avahi_free(name);
         }
         
     } else {
@@ -136,29 +150,29 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
 }
 
 static void free_address(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a) {
-    g_assert(m);
-    g_assert(a);
-    g_assert(a->interface);
+    assert(m);
+    assert(a);
+    assert(a->interface);
 
-    update_address_rr(m, a, TRUE);
+    update_address_rr(m, a, 1);
     AVAHI_LLIST_REMOVE(AvahiInterfaceAddress, address, a->interface->addresses, a);
 
     if (a->entry_group)
         avahi_entry_group_free(a->entry_group);
     
-    g_free(a);
+    avahi_free(a);
 }
 
-static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean send_goodbye) {
-    g_assert(m);
-    g_assert(i);
+static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, int send_goodbye) {
+    assert(m);
+    assert(i);
 
     avahi_goodbye_interface(m->server, i, send_goodbye);
     avahi_response_scheduler_force(i->response_scheduler);
     
-    g_assert(!i->announcements);
+    assert(!i->announcements);
 
-    update_interface_rr(m, i, TRUE);
+    update_interface_rr(m, i, 1);
     
     while (i->addresses)
         free_address(m, i->addresses);
@@ -171,14 +185,14 @@ static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, gboolean
     AVAHI_LLIST_REMOVE(AvahiInterface, interface, m->interfaces, i);
     AVAHI_LLIST_REMOVE(AvahiInterface, by_hardware, i->hardware->interfaces, i);
     
-    g_free(i);
+    avahi_free(i);
 }
 
-static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gboolean send_goodbye) {
-    g_assert(m);
-    g_assert(hw);
+static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, int send_goodbye) {
+    assert(m);
+    assert(hw);
 
-    update_hw_interface_rr(m, hw, TRUE);
+    update_hw_interface_rr(m, hw, 1);
     
     while (hw->interfaces)
         free_interface(m, hw->interfaces, send_goodbye);
@@ -187,18 +201,18 @@ static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, gb
         avahi_entry_group_free(hw->entry_group);
     
     AVAHI_LLIST_REMOVE(AvahiHwInterface, hardware, m->hw_interfaces, hw);
-    g_hash_table_remove(m->hash_table, &hw->index);
+    avahi_hashmap_remove(m->hashmap, &hw->index);
 
-    g_free(hw->name);
-    g_free(hw);
+    avahi_free(hw->name);
+    avahi_free(hw);
 }
 
 static AvahiInterfaceAddress* get_address(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr) {
     AvahiInterfaceAddress *ia;
     
-    g_assert(m);
-    g_assert(i);
-    g_assert(raddr);
+    assert(m);
+    assert(i);
+    assert(raddr);
 
     for (ia = i->addresses; ia; ia = ia->address_next)
         if (avahi_address_cmp(&ia->address, raddr) == 0)
@@ -207,10 +221,10 @@ static AvahiInterfaceAddress* get_address(AvahiInterfaceMonitor *m, AvahiInterfa
     return NULL;
 }
 
-static int netlink_list_items(AvahiNetlink *nl, guint16 type, guint *ret_seq) {
+static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq) {
     struct nlmsghdr *n;
     struct rtgenmsg *gen;
-    guint8 req[1024];
+    uint8_t req[1024];
     
     memset(&req, 0, sizeof(req));
     n = (struct nlmsghdr*) req;
@@ -229,15 +243,17 @@ static int netlink_list_items(AvahiNetlink *nl, guint16 type, guint *ret_seq) {
 static void new_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, AvahiProtocol protocol) {
     AvahiInterface *i;
     
-    g_assert(m);
-    g_assert(hw);
-    g_assert(protocol != AVAHI_PROTO_UNSPEC);
+    assert(m);
+    assert(hw);
+    assert(protocol != AVAHI_PROTO_UNSPEC);
 
-    i = g_new(AvahiInterface, 1);
+    if (!(i = avahi_new(AvahiInterface, 1)))
+        goto fail; /* OOM */
+        
     i->monitor = m;
     i->hardware = hw;
     i->protocol = protocol;
-    i->announcing = FALSE;
+    i->announcing = 0;
 
     AVAHI_LLIST_HEAD_INIT(AvahiInterfaceAddress, i->addresses);
     AVAHI_LLIST_HEAD_INIT(AvahiAnnouncement, i->announcements);
@@ -247,15 +263,33 @@ static void new_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, AvahiP
     i->query_scheduler = avahi_query_scheduler_new(i);
     i->probe_scheduler = avahi_probe_scheduler_new(i);
 
+    if (!i->cache || !i->response_scheduler || !i->query_scheduler || !i->probe_scheduler)
+        goto fail; /* OOM */
+
     AVAHI_LLIST_PREPEND(AvahiInterface, by_hardware, hw->interfaces, i);
     AVAHI_LLIST_PREPEND(AvahiInterface, interface, m->interfaces, i);
+
+    return;
+fail:
+
+    if (i) {
+        if (i->cache)
+            avahi_cache_free(i->cache);
+        if (i->response_scheduler)
+            avahi_response_scheduler_free(i->response_scheduler);
+        if (i->query_scheduler)
+            avahi_query_scheduler_free(i->query_scheduler);
+        if (i->probe_scheduler)
+            avahi_probe_scheduler_free(i->probe_scheduler);
+    }
+        
 }
 
 static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i) {
-    gboolean b;
+    int b;
 
-    g_assert(m);
-    g_assert(i);
+    assert(m);
+    assert(i);
 
     b = avahi_interface_relevant(i);
 
@@ -267,7 +301,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         if (i->protocol == AVAHI_PROTO_INET6)
             avahi_mdns_mcast_join_ipv6(m->server->fd_ipv6, i->hardware->index);
 
-        i->announcing = TRUE;
+        i->announcing = 1;
         avahi_announce_interface(m->server, i);
         avahi_browser_new_interface(m->server, i);
     } else if (!b && i->announcing) {
@@ -278,32 +312,32 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         if (i->protocol == AVAHI_PROTO_INET6)
             avahi_mdns_mcast_leave_ipv6(m->server->fd_ipv6, i->hardware->index);
 
-        avahi_goodbye_interface(m->server, i, FALSE);
+        avahi_goodbye_interface(m->server, i, 0);
         avahi_response_scheduler_clear(i->response_scheduler);
         avahi_query_scheduler_clear(i->query_scheduler);
         avahi_probe_scheduler_clear(i->probe_scheduler);
         avahi_cache_flush(i->cache);
 
-        i->announcing = FALSE;
+        i->announcing = 0;
     }
 }
 
 static void check_hw_interface_relevant(AvahiInterfaceMonitor *m, AvahiHwInterface *hw) {
     AvahiInterface *i;
     
-    g_assert(m);
-    g_assert(hw);
+    assert(m);
+    assert(hw);
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
         check_interface_relevant(m, i);
 }
 
-static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata) {
+static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdata) {
     AvahiInterfaceMonitor *m = userdata;
     
-    g_assert(m);
-    g_assert(n);
-    g_assert(m->netlink == nl);
+    assert(m);
+    assert(n);
+    assert(m->netlink == nl);
 
     if (n->nlmsg_type == RTM_NEWLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
@@ -314,8 +348,11 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
 
-        if (!(hw = g_hash_table_lookup(m->hash_table, &ifinfomsg->ifi_index))) {
-            hw = g_new(AvahiHwInterface, 1);
+        if (!(hw = avahi_hashmap_lookup(m->hashmap, &ifinfomsg->ifi_index))) {
+
+            if (!(hw = avahi_new(AvahiHwInterface, 1)))
+                return; /* OOM */
+            
             hw->monitor = m;
             hw->name = NULL;
             hw->flags = 0;
@@ -327,7 +364,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
             AVAHI_LLIST_HEAD_INIT(AvahiInterface, hw->interfaces);
             AVAHI_LLIST_PREPEND(AvahiHwInterface, hardware, m->hw_interfaces, hw);
             
-            g_hash_table_insert(m->hash_table, &hw->index, hw);
+            avahi_hashmap_insert(m->hashmap, &hw->index, hw);
 
             if (m->server->fd_ipv4 >= 0)
                 new_interface(m, hw, AVAHI_PROTO_INET);
@@ -343,12 +380,12 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
         while (RTA_OK(a, l)) {
             switch(a->rta_type) {
                 case IFLA_IFNAME:
-                    g_free(hw->name);
-                    hw->name = g_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
+                    avahi_free(hw->name);
+                    hw->name = avahi_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
                     break;
 
                 case IFLA_MTU:
-                    g_assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
+                    assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
                     hw->mtu = *((unsigned int*) RTA_DATA(a));
                     break;
 
@@ -368,7 +405,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
             a = RTA_NEXT(a, l);
         }
 
-        update_hw_interface_rr(m, hw, FALSE);
+        update_hw_interface_rr(m, hw, 0);
         check_hw_interface_relevant(m, hw);
         
     } else if (n->nlmsg_type == RTM_DELLINK) {
@@ -381,8 +418,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
         if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) ifinfomsg->ifi_index)))
             return;
 
-        update_hw_interface_rr(m, hw, TRUE);
-        free_hw_interface(m, hw, FALSE);
+        update_hw_interface_rr(m, hw, 1);
+        free_hw_interface(m, hw, 0);
         
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
@@ -391,7 +428,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
         struct rtattr *a = NULL;
         size_t l;
         AvahiAddress raddr;
-        gboolean raddr_valid = FALSE;
+        int raddr_valid = 0;
 
         if (ifaddrmsg->ifa_family != AVAHI_PROTO_INET && ifaddrmsg->ifa_family != AVAHI_PROTO_INET6)
             return;
@@ -413,7 +450,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
                         return;
 
                     memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
-                    raddr_valid = TRUE;
+                    raddr_valid = 1;
 
                     break;
 
@@ -431,7 +468,9 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
             AvahiInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr))) {
-                addr = g_new(AvahiInterfaceAddress, 1);
+                if (!(addr = avahi_new(AvahiInterfaceAddress, 1)))
+                    return; /* OOM */
+                
                 addr->monitor = m;
                 addr->address = raddr;
                 addr->interface = i;
@@ -444,14 +483,14 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
             addr->scope = ifaddrmsg->ifa_scope;
             addr->prefix_len = ifaddrmsg->ifa_prefixlen;
 
-            update_address_rr(m, addr, FALSE);
+            update_address_rr(m, addr, 0);
         } else {
             AvahiInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr)))
                 return;
 
-            update_address_rr(m, addr, TRUE);
+            update_address_rr(m, addr, 1);
             free_address(m, addr);
         }
 
@@ -482,12 +521,14 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, gpointer user
 AvahiInterfaceMonitor *avahi_interface_monitor_new(AvahiServer *s) {
     AvahiInterfaceMonitor *m = NULL;
 
-    m = g_new0(AvahiInterfaceMonitor, 1);
+    if (!(m = avahi_new0(AvahiInterfaceMonitor, 1)))
+        return NULL; /* OOM */
+        
     m->server = s;
-    if (!(m->netlink = avahi_netlink_new(s->context, G_PRIORITY_DEFAULT-10, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, netlink_callback, m)))
+    if (!(m->netlink = avahi_netlink_new(s->poll_api, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, netlink_callback, m)))
         goto fail;
 
-    m->hash_table = g_hash_table_new(g_int_hash, g_int_equal);
+    m->hashmap = avahi_hashmap_new(avahi_int_hash, avahi_int_equal, NULL, NULL);
 
     AVAHI_LLIST_HEAD_INIT(AvahiInterface, m->interfaces);
     AVAHI_LLIST_HEAD_INIT(AvahiHwInterface, m->hw_interfaces);
@@ -505,30 +546,30 @@ fail:
 }
 
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
-    g_assert(m);
+    assert(m);
     
     while (m->list != LIST_DONE) {
-        if (!avahi_netlink_work(m->netlink, TRUE))
+        if (!avahi_netlink_work(m->netlink, 1))
             break;
     } 
 }
 
 void avahi_interface_monitor_free(AvahiInterfaceMonitor *m) {
-    g_assert(m);
+    assert(m);
 
     while (m->hw_interfaces)
-        free_hw_interface(m, m->hw_interfaces, TRUE);
+        free_hw_interface(m, m->hw_interfaces, 1);
 
-    g_assert(!m->interfaces);
+    assert(!m->interfaces);
 
     
     if (m->netlink)
         avahi_netlink_free(m->netlink);
     
-    if (m->hash_table)
-        g_hash_table_destroy(m->hash_table);
+    if (m->hashmap)
+        avahi_hashmap_free(m->hashmap);
 
-    g_free(m);
+    avahi_free(m);
 }
 
 
@@ -536,9 +577,9 @@ AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, 
     AvahiHwInterface *hw;
     AvahiInterface *i;
     
-    g_assert(m);
-    g_assert(idx > 0);
-    g_assert(protocol != AVAHI_PROTO_UNSPEC);
+    assert(m);
+    assert(idx > 0);
+    assert(protocol != AVAHI_PROTO_UNSPEC);
 
     if (!(hw = avahi_interface_monitor_get_hw_interface(m, idx)))
         return NULL;
@@ -551,22 +592,21 @@ AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, 
 }
 
 AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx) {
-    g_assert(m);
-    g_assert(idx > 0);
+    assert(m);
+    assert(idx > 0);
 
-    return g_hash_table_lookup(m->hash_table, &idx);
+    return avahi_hashmap_lookup(m->hashmap, &idx);
 }
 
-
-void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port) {
-    g_assert(i);
-    g_assert(p);
+void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port) {
+    assert(i);
+    assert(p);
 /*     char t[64]; */
 
     if (!avahi_interface_relevant(i))
         return;
     
-    g_assert(!a || a->family == i->protocol);
+    assert(!a || a->family == i->protocol);
 
 /*     if (a) */
 /*         avahi_log_debug("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port); */
@@ -580,67 +620,70 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
 }
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p) {
-    g_assert(i);
-    g_assert(p);
+    assert(i);
+    assert(p);
 
     avahi_interface_send_packet_unicast(i, p, NULL, 0);
 }
 
-gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, gboolean immediately) {
-    g_assert(i);
-    g_assert(key);
+int avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, int immediately) {
+    assert(i);
+    assert(key);
 
     if (avahi_interface_relevant(i))
         return avahi_query_scheduler_post(i->query_scheduler, key, immediately);
 
-    return FALSE;
+    return 0;
 }
 
-gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately) {
-    g_assert(i);
-    g_assert(record);
+int avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately) {
+    assert(i);
+    assert(record);
 
     if (avahi_interface_relevant(i))
         return avahi_response_scheduler_post(i->response_scheduler, record, flush_cache, querier, immediately);
 
-    return FALSE;
+    return 0;
 }
 
-gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, gboolean immediately) {
-    g_assert(i);
-    g_assert(record);
+int avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, int immediately) {
+    assert(i);
+    assert(record);
     
     if (avahi_interface_relevant(i))
         return avahi_probe_scheduler_post(i->probe_scheduler, record, immediately);
 
-    return FALSE;
+    return 0;
 }
 
-void avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, gpointer userdata) {
+int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata) {
     AvahiInterface *i;
-    g_assert(m);
+    assert(m);
 
     for (i = m->interfaces; i; i = i->interface_next) {
         if (avahi_interface_relevant(i)) {
             char ln[256];
             snprintf(ln, sizeof(ln), ";;; INTERFACE %s.%i ;;;", i->hardware->name, i->protocol);
             callback(ln, userdata);
-            avahi_cache_dump(i->cache, callback, userdata);
+            if (avahi_cache_dump(i->cache, callback, userdata) < 0)
+                return -1;
         }
     }
+
+    return 0;
 }
 
-gboolean avahi_interface_relevant(AvahiInterface *i) {
+int avahi_interface_relevant(AvahiInterface *i) {
     AvahiInterfaceAddress *a;
-    gboolean relevant_address;
+    int relevant_address;
     
-    g_assert(i);
+    assert(i);
 
-    relevant_address = FALSE;
+    relevant_address = 0;
     
     for (a = i->addresses; a; a = a->address_next)
         if (avahi_interface_address_relevant(a)) {
-            relevant_address = TRUE;
+            relevant_address = 1;
             break;
         }
 
@@ -660,28 +703,28 @@ gboolean avahi_interface_relevant(AvahiInterface *i) {
         relevant_address;
 }
 
-gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a) { 
-    g_assert(a);
+int avahi_interface_address_relevant(AvahiInterfaceAddress *a) { 
+    assert(a);
 
     return a->scope == RT_SCOPE_UNIVERSE;
 }
 
 
-gboolean avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol) {
-    g_assert(i);
+int avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol) {
+    assert(i);
     
     if (idx > 0 && idx != i->hardware->index)
-        return FALSE;
+        return 0;
 
     if (protocol != AVAHI_PROTO_UNSPEC && protocol != i->protocol)
-        return FALSE;
+        return 0;
 
-    return TRUE;
+    return 1;
 }
 
-void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex interface, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata) {
-    g_assert(m);
-    g_assert(callback);
+void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex interface, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, void* userdata) {
+    assert(m);
+    assert(callback);
     
     if (interface > 0) {
         if (protocol != AVAHI_PROTO_UNSPEC) {
@@ -709,59 +752,59 @@ void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex interfa
     }
 }
 
-void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove_rrs) {
+void avahi_update_host_rrs(AvahiInterfaceMonitor *m, int remove_rrs) {
     AvahiHwInterface *hw;
 
-    g_assert(m);
+    assert(m);
 
     for (hw = m->hw_interfaces; hw; hw = hw->hardware_next)
         update_hw_interface_rr(m, hw, remove_rrs);
 }
 
-gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a) {
+int avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a) {
     AvahiInterface *i;
     AvahiInterfaceAddress *ia;
-    g_assert(m);
-    g_assert(a);
+    assert(m);
+    assert(a);
 
     for (i = m->interfaces; i; i = i->interface_next)
         for (ia = i->addresses; ia; ia = ia->address_next)
             if (avahi_address_cmp(a, &ia->address) == 0)
-                return TRUE;
+                return 1;
 
-    return FALSE;
+    return 0;
 }
 
-gboolean avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
+int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
     AvahiInterfaceAddress *ia;
     
-    g_assert(i);
-    g_assert(a);
+    assert(i);
+    assert(a);
 
     if (a->family != i->protocol)
-        return FALSE;
+        return 0;
 
     for (ia = i->addresses; ia; ia = ia->address_next) {
 
         if (a->family == AVAHI_PROTO_INET) {
-            guint32 m;
+            uint32_t m;
             
-            m = ~(((guint32) -1) >> ia->prefix_len);
+            m = ~(((uint32_t) -1) >> ia->prefix_len);
             
-            if ((g_ntohl(a->data.ipv4.address) & m) == (g_ntohl(ia->address.data.ipv4.address) & m))
-                return TRUE;
+            if ((ntohl(a->data.ipv4.address) & m) == (ntohl(ia->address.data.ipv4.address) & m))
+                return 1;
         } else {
-            guint j;
-            guchar pl;
-            g_assert(a->family == AVAHI_PROTO_INET6);
+            unsigned j;
+            unsigned char pl;
+            assert(a->family == AVAHI_PROTO_INET6);
 
             pl = ia->prefix_len;
             
             for (j = 0; j < 16; j++) {
-                guint8 m;
+                uint8_t m;
 
                 if (pl == 0)
-                    return TRUE;
+                    return 1;
                 
                 if (pl >= 8) {
                     m = 0xFF;
@@ -777,5 +820,5 @@ gboolean avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *
         }
     }
 
-    return FALSE;
+    return 0;
 }

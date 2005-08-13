@@ -34,7 +34,7 @@ avahi_discover_standalone_SOURCES = \
 	main.c
 
 avahi_discover_standalone_CFLAGS = $(AM_CFLAGS)
-avahi_discover_standalone_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+avahi_discover_standalone_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la ../avahi-core/libavahi-core.la 
 
 interfaces = \
         avahi-discover.glade

@@ -24,6 +24,8 @@
 #endif
 
 #include <avahi-common/timeval.h>
+#include <avahi-common/malloc.h>
+
 #include "response-sched.h"
 #include "log.h"
 
@@ -48,9 +50,9 @@ struct AvahiResponseJob {
     struct timeval delivery;
 
     AvahiRecord *record;
-    gboolean flush_cache;
+    int flush_cache;
     AvahiAddress querier;
-    gboolean querier_valid;
+    int querier_valid;
     
     AVAHI_LLIST_FIELDS(AvahiResponseJob, jobs);
 };
@@ -67,15 +69,19 @@ struct AvahiResponseScheduler {
 static AvahiResponseJob* job_new(AvahiResponseScheduler *s, AvahiRecord *record, AvahiResponseJobState state) {
     AvahiResponseJob *rj;
     
-    g_assert(s);
-    g_assert(record);
+    assert(s);
+    assert(record);
 
-    rj = g_new(AvahiResponseJob, 1);
+    if (!(rj = avahi_new(AvahiResponseJob, 1))) {
+        avahi_log_error(__FILE__": Out of memory");
+        return NULL;
+    }
+    
     rj->scheduler = s;
     rj->record = avahi_record_ref(record);
     rj->time_event = NULL;
-    rj->flush_cache = FALSE;
-    rj->querier_valid = FALSE;
+    rj->flush_cache = 0;
+    rj->querier_valid = 0;
     
     if ((rj->state = state) == AVAHI_SCHEDULED) 
         AVAHI_LLIST_PREPEND(AvahiResponseJob, jobs, s->jobs, rj);
@@ -88,11 +94,11 @@ static AvahiResponseJob* job_new(AvahiResponseScheduler *s, AvahiRecord *record,
 }
 
 static void job_free(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
-    g_assert(s);
-    g_assert(rj);
+    assert(s);
+    assert(rj);
 
     if (rj->time_event)
-        avahi_time_event_queue_remove(s->time_event_queue, rj->time_event);
+        avahi_time_event_free(rj->time_event);
 
     if (rj->state == AVAHI_SCHEDULED)
         AVAHI_LLIST_REMOVE(AvahiResponseJob, jobs, s->jobs, rj);
@@ -102,30 +108,30 @@ static void job_free(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
         AVAHI_LLIST_REMOVE(AvahiResponseJob, jobs, s->suppressed, rj);
 
     avahi_record_unref(rj->record);
-    g_free(rj);
+    avahi_free(rj);
 }
 
-static void elapse_callback(AvahiTimeEvent *e, gpointer data);
+static void elapse_callback(AvahiTimeEvent *e, void* data);
 
-static void job_set_elapse_time(AvahiResponseScheduler *s, AvahiResponseJob *rj, guint msec, guint jitter) {
+static void job_set_elapse_time(AvahiResponseScheduler *s, AvahiResponseJob *rj, unsigned msec, unsigned jitter) {
     struct timeval tv;
 
-    g_assert(s);
-    g_assert(rj);
+    assert(s);
+    assert(rj);
 
     avahi_elapse_time(&tv, msec, jitter);
 
     if (rj->time_event)
-        avahi_time_event_queue_update(s->time_event_queue, rj->time_event, &tv);
+        avahi_time_event_update(rj->time_event, &tv);
     else
-        rj->time_event = avahi_time_event_queue_add(s->time_event_queue, &tv, elapse_callback, rj);
+        rj->time_event = avahi_time_event_new(s->time_event_queue, &tv, elapse_callback, rj);
 }
 
 static void job_mark_done(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
-    g_assert(s);
-    g_assert(rj);
+    assert(s);
+    assert(rj);
 
-    g_assert(rj->state == AVAHI_SCHEDULED);
+    assert(rj->state == AVAHI_SCHEDULED);
 
     AVAHI_LLIST_REMOVE(AvahiResponseJob, jobs, s->jobs, rj);
     AVAHI_LLIST_PREPEND(AvahiResponseJob, jobs, s->history, rj);
@@ -139,9 +145,13 @@ static void job_mark_done(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 
 AvahiResponseScheduler *avahi_response_scheduler_new(AvahiInterface *i) {
     AvahiResponseScheduler *s;
-    g_assert(i);
+    assert(i);
 
-    s = g_new(AvahiResponseScheduler, 1);
+    if (!(s = avahi_new(AvahiResponseScheduler, 1))) {
+        avahi_log_error(__FILE__": Out of memory");
+        return NULL;
+    }
+        
     s->interface = i;
     s->time_event_queue = i->monitor->server->time_event_queue;
     
@@ -153,14 +163,14 @@ AvahiResponseScheduler *avahi_response_scheduler_new(AvahiInterface *i) {
 }
 
 void avahi_response_scheduler_free(AvahiResponseScheduler *s) {
-    g_assert(s);
+    assert(s);
 
     avahi_response_scheduler_clear(s);
-    g_free(s);
+    avahi_free(s);
 }
 
 void avahi_response_scheduler_clear(AvahiResponseScheduler *s) {
-    g_assert(s);
+    assert(s);
     
     while (s->jobs)
         job_free(s, s->jobs);
@@ -170,40 +180,41 @@ void avahi_response_scheduler_clear(AvahiResponseScheduler *s) {
         job_free(s, s->suppressed);
 }
 
-static void enumerate_aux_records_callback(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata) {
+static void enumerate_aux_records_callback(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata) {
     AvahiResponseJob *rj = userdata;
     
-    g_assert(r);
-    g_assert(rj);
+    assert(r);
+    assert(rj);
 
-    avahi_response_scheduler_post(rj->scheduler, r, flush_cache, rj->querier_valid ? &rj->querier : NULL, FALSE);
+    avahi_response_scheduler_post(rj->scheduler, r, flush_cache, rj->querier_valid ? &rj->querier : NULL, 0);
 }
 
-static gboolean packet_add_response_job(AvahiResponseScheduler *s, AvahiDnsPacket *p, AvahiResponseJob *rj) {
-    g_assert(s);
-    g_assert(p);
-    g_assert(rj);
+static int packet_add_response_job(AvahiResponseScheduler *s, AvahiDnsPacket *p, AvahiResponseJob *rj) {
+    assert(s);
+    assert(p);
+    assert(rj);
 
     /* Try to add this record to the packet */
     if (!avahi_dns_packet_append_record(p, rj->record, rj->flush_cache, 0))
-        return FALSE;
+        return 0;
 
     /* Ok, this record will definitely be sent, so schedule the
      * auxilliary packets, too */
     avahi_server_enumerate_aux_records(s->interface->monitor->server, s->interface, rj->record, enumerate_aux_records_callback, rj);
     job_mark_done(s, rj);
     
-    return TRUE;
+    return 1;
 }
 
 static void send_response_packet(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
     AvahiDnsPacket *p;
-    guint n;
+    unsigned n;
 
-    g_assert(s);
-    g_assert(rj);
+    assert(s);
+    assert(rj);
 
-    p = avahi_dns_packet_new_response(s->interface->hardware->mtu, TRUE);
+    if (!(p = avahi_dns_packet_new_response(s->interface->hardware->mtu, 1)))
+        return; /* OOM */
     n = 1;
 
     /* Put it in the packet. */
@@ -219,7 +230,7 @@ static void send_response_packet(AvahiResponseScheduler *s, AvahiResponseJob *rj
         }
         
     } else {
-        guint size;
+        size_t size;
         
         avahi_dns_packet_free(p);
 
@@ -229,7 +240,8 @@ static void send_response_packet(AvahiResponseScheduler *s, AvahiResponseJob *rj
         if (size > AVAHI_DNS_PACKET_MAX_SIZE)
             size = AVAHI_DNS_PACKET_MAX_SIZE;
         
-        p = avahi_dns_packet_new_response(size, TRUE);
+        if (!(p = avahi_dns_packet_new_response(size, 1)))
+            return; /* OOM */
 
         if (!packet_add_response_job(s, p, rj)) {
             avahi_dns_packet_free(p);
@@ -245,10 +257,10 @@ static void send_response_packet(AvahiResponseScheduler *s, AvahiResponseJob *rj
     avahi_dns_packet_free(p);
 }
 
-static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
+static void elapse_callback(AvahiTimeEvent *e, void* data) {
     AvahiResponseJob *rj = data;
 
-    g_assert(rj);
+    assert(rj);
 
     if (rj->state == AVAHI_DONE || rj->state == AVAHI_SUPPRESSED) 
         job_free(rj->scheduler, rj);         /* Lets drop this entry */
@@ -259,11 +271,11 @@ static void elapse_callback(AvahiTimeEvent *e, gpointer data) {
 static AvahiResponseJob* find_scheduled_job(AvahiResponseScheduler *s, AvahiRecord *record) {
     AvahiResponseJob *rj;
 
-    g_assert(s);
-    g_assert(record);
+    assert(s);
+    assert(record);
 
     for (rj = s->jobs; rj; rj = rj->jobs_next) {
-        g_assert(rj->state == AVAHI_SCHEDULED);
+        assert(rj->state == AVAHI_SCHEDULED);
     
         if (avahi_record_equal_no_ttl(rj->record, record))
             return rj;
@@ -275,11 +287,11 @@ static AvahiResponseJob* find_scheduled_job(AvahiResponseScheduler *s, AvahiReco
 static AvahiResponseJob* find_history_job(AvahiResponseScheduler *s, AvahiRecord *record) {
     AvahiResponseJob *rj;
     
-    g_assert(s);
-    g_assert(record);
+    assert(s);
+    assert(record);
 
     for (rj = s->history; rj; rj = rj->jobs_next) {
-        g_assert(rj->state == AVAHI_DONE);
+        assert(rj->state == AVAHI_DONE);
 
         if (avahi_record_equal_no_ttl(rj->record, record)) {
             /* Check whether this entry is outdated */
@@ -302,13 +314,13 @@ static AvahiResponseJob* find_history_job(AvahiResponseScheduler *s, AvahiRecord
 static AvahiResponseJob* find_suppressed_job(AvahiResponseScheduler *s, AvahiRecord *record, const AvahiAddress *querier) {
     AvahiResponseJob *rj;
     
-    g_assert(s);
-    g_assert(record);
-    g_assert(querier);
+    assert(s);
+    assert(record);
+    assert(querier);
 
     for (rj = s->suppressed; rj; rj = rj->jobs_next) {
-        g_assert(rj->state == AVAHI_SUPPRESSED);
-        g_assert(rj->querier_valid);
+        assert(rj->state == AVAHI_SUPPRESSED);
+        assert(rj->querier_valid);
         
         if (avahi_record_equal_no_ttl(rj->record, record) &&
             avahi_address_cmp(&rj->querier, querier) == 0) {
@@ -327,19 +339,19 @@ static AvahiResponseJob* find_suppressed_job(AvahiResponseScheduler *s, AvahiRec
     return NULL;
 }
 
-gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately) {
+int avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately) {
     AvahiResponseJob *rj;
     struct timeval tv;
-/*     gchar *t; */
+/*     char *t; */
     
-    g_assert(s);
-    g_assert(record);
+    assert(s);
+    assert(record);
 
-    g_assert(!avahi_key_is_pattern(record->key));
+    assert(!avahi_key_is_pattern(record->key));
 
 /*     t = avahi_record_to_string(record); */
 /*     avahi_log_debug("post %i %s", immediately, t); */
-/*     g_free(t); */
+/*     avahi_free(t); */
 
     /* Check whether this response is suppressed */
     if (querier &&
@@ -348,7 +360,7 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
         rj->record->ttl >= record->ttl/2) {
 
 /*         avahi_log_debug("Response suppressed by known answer suppression.");  */
-        return FALSE;
+        return 0;
     }
 
     /* Check if we already sent this response recently */
@@ -358,7 +370,7 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
             rj->record->ttl >= record->ttl/2 &&
             (rj->flush_cache || !flush_cache)) {
 /*             avahi_log_debug("Response suppressed by local duplicate suppression (history)");  */
-            return FALSE;
+            return 0;
         }
 
         /* Outdated ... */
@@ -375,41 +387,43 @@ gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *r
         /* Update the time if the new is prior to the old */
         if (avahi_timeval_compare(&tv, &rj->delivery) < 0) {
             rj->delivery = tv;
-            avahi_time_event_queue_update(s->time_event_queue, rj->time_event, &rj->delivery);
+            avahi_time_event_update(rj->time_event, &rj->delivery);
         }
 
         /* Update the flush cache bit */
         if (flush_cache)
-            rj->flush_cache = TRUE;
+            rj->flush_cache = 1;
 
         /* Update the querier field */
         if (!querier || (rj->querier_valid && avahi_address_cmp(querier, &rj->querier) != 0))
-            rj->querier_valid = FALSE;
+            rj->querier_valid = 0;
 
         /* Update record data (just for the TTL) */
         avahi_record_unref(rj->record);
         rj->record = avahi_record_ref(record);
 
-        return TRUE;
+        return 1;
     } else {
 /*         avahi_log_debug("Accepted new response job.");  */
 
         /* Create a new job and schedule it */
-        rj = job_new(s, record, AVAHI_SCHEDULED);
+        if (!(rj = job_new(s, record, AVAHI_SCHEDULED)))
+            return 0; /* OOM */
+        
         rj->delivery = tv;
-        rj->time_event = avahi_time_event_queue_add(s->time_event_queue, &rj->delivery, elapse_callback, rj);
+        rj->time_event = avahi_time_event_new(s->time_event_queue, &rj->delivery, elapse_callback, rj);
         rj->flush_cache = flush_cache;
 
         if ((rj->querier_valid = !!querier))
             rj->querier = *querier;
 
-        return TRUE;
+        return 1;
     }
 }
 
-void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *record, gboolean flush_cache) {
+void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache) {
     AvahiResponseJob *rj;
-    g_assert(s);
+    assert(s);
 
     /* This function is called whenever an incoming response was
      * receieved. We drop scheduled responses which match here. The
@@ -435,10 +449,11 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
         rj->record = avahi_record_ref(record);
     } else
         /* Found no existing history job, so let's create a new one */
-        rj = job_new(s, record, AVAHI_DONE);
+        if (!(rj = job_new(s, record, AVAHI_DONE)))
+            return; /* OOM */
 
     rj->flush_cache = flush_cache;
-    rj->querier_valid = FALSE;
+    rj->querier_valid = 0;
     
     gettimeofday(&rj->delivery, NULL);
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
@@ -447,9 +462,9 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
 void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *record, const AvahiAddress *querier) {
     AvahiResponseJob *rj;
     
-    g_assert(s);
-    g_assert(record);
-    g_assert(querier);
+    assert(s);
+    assert(record);
+    assert(querier);
 
     if ((rj = find_scheduled_job(s, record))) {
         
@@ -472,8 +487,9 @@ void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *r
     } else {
 
         /* Create a new entry */
-        rj = job_new(s, record, AVAHI_SUPPRESSED);
-        rj->querier_valid = TRUE;
+        if (!(rj = job_new(s, record, AVAHI_SUPPRESSED)))
+            return; /* OOM */
+        rj->querier_valid = 1;
         rj->querier = *querier;
     }
 
@@ -482,7 +498,7 @@ void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *r
 }
 
 void avahi_response_scheduler_force(AvahiResponseScheduler *s) {
-    g_assert(s);
+    assert(s);
 
     /* Send all scheduled responses immediately */
     while (s->jobs)

@@ -23,12 +23,32 @@
 #include <config.h>
 #endif
 
-#include <avahi-common/timeval.h>
-#include "timeeventq.h"
+#include <assert.h>
+#include <stdlib.h>
 
-static gint compare(gconstpointer _a, gconstpointer _b) {
+#include <avahi-common/timeval.h>
+#include <avahi-common/malloc.h>
+
+#include "timeeventq.h"
+#include "log.h"
+
+struct AvahiTimeEvent {
+    AvahiTimeEventQueue *queue;
+    AvahiPrioQueueNode *node;
+    struct timeval expiry;
+    struct timeval last_run;
+    AvahiTimeEventCallback callback;
+    void* userdata;
+};
+
+struct AvahiTimeEventQueue {
+    AvahiPoll *poll_api;
+    AvahiPrioQueue *prioq;
+};
+
+static int compare(const void* _a, const void* _b) {
     const AvahiTimeEvent *a = _a,  *b = _b;
-    gint ret;
+    int ret;
 
     if ((ret = avahi_timeval_compare(&a->expiry, &b->expiry)) != 0)
         return ret;
@@ -38,198 +58,158 @@ static gint compare(gconstpointer _a, gconstpointer _b) {
     return avahi_timeval_compare(&a->last_run, &b->last_run);
 }
 
-static void source_get_timeval(GSource *source, struct timeval *tv) {
-    GTimeVal gtv;
-    
-    g_assert(source);
-    g_assert(tv);
+static void expiration_event(AvahiPoll *poll_api, void *userdata);
 
-    g_source_get_current_time(source, &gtv);
-    tv->tv_sec = gtv.tv_sec;
-    tv->tv_usec = gtv.tv_usec;
-}
+static void update_wakeup(AvahiTimeEventQueue *q) {
+    assert(q);
 
-static gboolean prepare_func(GSource *source, gint *timeout) {
-    AvahiTimeEventQueue *q = (AvahiTimeEventQueue*) source;
-    AvahiTimeEvent *e;
-    struct timeval now;
-
-    g_assert(source);
-    g_assert(timeout);
-
-    if (!q->prioq->root) {
-        *timeout = -1;
-        return FALSE;
-    }
-    
-    e = q->prioq->root->data;
-    g_assert(e);
-
-    source_get_timeval(source, &now);
-
-    if (avahi_timeval_compare(&now, &e->expiry) >= 0 &&  /* Time elapsed */
-        avahi_timeval_compare(&now, &e->last_run) != 0   /* Not yet run */) {
-        *timeout = -1;
-        return TRUE;
-    }
-
-    *timeout = (gint) (avahi_timeval_diff(&e->expiry, &now)/1000);
-
-    /* Wait at least 1 msec */
-    if (*timeout <= 0)
-        *timeout = 1;
-    
-    return FALSE;
-}
-
-static gboolean check_func(GSource *source) {
-    AvahiTimeEventQueue *q = (AvahiTimeEventQueue*) source;
-    AvahiTimeEvent *e;
-    struct timeval now;
-
-    g_assert(source);
-
-    if (!q->prioq->root)
-        return FALSE;
-
-    e = q->prioq->root->data;
-    g_assert(e);
-
-    source_get_timeval(source, &now);
-    
-    return
-        avahi_timeval_compare(&now, &e->expiry) >= 0 && /* Time elapsed */
-        avahi_timeval_compare(&now, &e->last_run) != 0;  /* Not yet run */
-}
-
-static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
-    AvahiTimeEventQueue *q = (AvahiTimeEventQueue*) source;
-    struct timeval now;
-
-    g_assert(source);
-
-    source_get_timeval(source, &now);
-
-    while (q->prioq->root) {
+    if (q->prioq->root) {
         AvahiTimeEvent *e = q->prioq->root->data;
+        q->poll_api->set_wakeup(q->poll_api, &e->expiry, expiration_event, q);
+    } else
+        q->poll_api->set_wakeup(q->poll_api, NULL, NULL, NULL);
+}
 
-        /* Not yet expired */
-        if (avahi_timeval_compare(&now, &e->expiry) < 0)
-            break;
+void expiration_event(AvahiPoll *poll_api, void *userdata) {
+    struct timeval now;
+    AvahiTimeEventQueue *q = userdata;
+    AvahiTimeEvent *e;
 
-        /* Already ran */
-        if (avahi_timeval_compare(&now, &e->last_run) == 0)
-            break;
+    gettimeofday(&now, NULL);
+    
+    if ((e = avahi_time_event_queue_root(q))) {
 
-        /* Make sure to move the entry away from the front */
-        e->last_run = now;
-        avahi_prio_queue_shuffle(q->prioq, e->node);
+        /* Check if expired */
+        if (avahi_timeval_compare(&now, &e->expiry) >= 0) {
 
-        /* Run it */
-        g_assert(e->callback);
-        e->callback(e, e->userdata);
+            /* Make sure to move the entry away from the front */
+            e->last_run = now;
+            avahi_prio_queue_shuffle(q->prioq, e->node);
+
+            /* Run it */
+            assert(e->callback);
+            e->callback(e, e->userdata);
+        }
     }
 
-    return TRUE;
+    update_wakeup(q);
 }
 
 static void fix_expiry_time(AvahiTimeEvent *e) {
     struct timeval now;
-    g_assert(e);
+    assert(e);
 
-    source_get_timeval(&e->queue->source, &now);
+    gettimeofday(&now, NULL);
 
     if (avahi_timeval_compare(&now, &e->expiry) > 0)
         e->expiry = now;
-    
 }
 
-AvahiTimeEventQueue* avahi_time_event_queue_new(GMainContext *context, gint priority) {
+AvahiTimeEventQueue* avahi_time_event_queue_new(AvahiPoll *poll_api) {
     AvahiTimeEventQueue *q;
 
-    static GSourceFuncs source_funcs = {
-        prepare_func,
-        check_func,
-        dispatch_func,
-        NULL,
-        NULL,
-        NULL
-    };
+    if (!(q = avahi_new(AvahiTimeEventQueue, 1))) {
+        avahi_log_error(__FILE__": Out of memory");
+        goto oom;
+    }
 
-    q = (AvahiTimeEventQueue*) g_source_new(&source_funcs, sizeof(AvahiTimeEventQueue));
-    q->prioq = avahi_prio_queue_new(compare);
+    if (!(q->prioq = avahi_prio_queue_new(compare)))
+        goto oom;
 
-    g_source_set_priority((GSource*) q, priority);
-    
-    g_source_attach(&q->source, context);
-    
+    q->poll_api = poll_api;
     return q;
+
+oom:
+
+    if (q)
+        avahi_free(q);
+    
+    return NULL;
 }
 
 void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
-    g_assert(q);
+    assert(q);
 
     while (q->prioq->root)
-        avahi_time_event_queue_remove(q, q->prioq->root->data);
+        avahi_time_event_free(q->prioq->root->data);
     avahi_prio_queue_free(q->prioq);
 
-    g_source_destroy(&q->source);
-    g_source_unref(&q->source);
+    avahi_free(q);
 }
 
-AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const struct timeval *timeval, AvahiTimeEventCallback callback, gpointer userdata) {
+AvahiTimeEvent* avahi_time_event_new(
+    AvahiTimeEventQueue *q,
+    const struct timeval *timeval,
+    AvahiTimeEventCallback callback,
+    void* userdata) {
+    
     AvahiTimeEvent *e;
     
-    g_assert(q);
-    g_assert(timeval);
-    g_assert(callback);
-    g_assert(userdata);
+    assert(q);
+    assert(callback);
+    assert(userdata);
 
-    e = g_new(AvahiTimeEvent, 1);
+    if (!(e = avahi_new(AvahiTimeEvent, 1))) {
+        avahi_log_error(__FILE__": Out of memory");
+        return NULL; /* OOM */
+    }
+    
     e->queue = q;
     e->callback = callback;
     e->userdata = userdata;
 
-    e->expiry = *timeval;
+    if (timeval)
+        e->expiry = *timeval;
+    else {
+        e->expiry.tv_sec = 0;
+        e->expiry.tv_usec = 0;
+    }
+    
     fix_expiry_time(e);
     
     e->last_run.tv_sec = 0;
     e->last_run.tv_usec = 0;
 
-    e->node = avahi_prio_queue_put(q->prioq, e);
-    
+    if (!(e->node = avahi_prio_queue_put(q->prioq, e))) {
+        avahi_free(e);
+        return NULL;
+    }
+
+    update_wakeup(q);
     return e;
 }
 
-void avahi_time_event_queue_remove(AvahiTimeEventQueue *q, AvahiTimeEvent *e) {
-    g_assert(q);
-    g_assert(e);
-    g_assert(e->queue == q);
+void avahi_time_event_free(AvahiTimeEvent *e) {
+    AvahiTimeEventQueue *q;
+    assert(e);
+
+    q = e->queue;
 
     avahi_prio_queue_remove(q->prioq, e->node);
-    g_free(e);
+    avahi_free(e);
+
+    update_wakeup(q);
 }
 
-void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, const struct timeval *timeval) {
-    g_assert(q);
-    g_assert(e);
-    g_assert(e->queue == q);
-    g_assert(timeval);
+void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval) {
+    assert(e);
+    assert(timeval);
 
     e->expiry = *timeval;
     fix_expiry_time(e);
-
-    avahi_prio_queue_shuffle(q->prioq, e->node);
+    avahi_prio_queue_shuffle(e->queue->prioq, e->node);
+    
+    update_wakeup(e->queue);
 }
 
 AvahiTimeEvent* avahi_time_event_queue_root(AvahiTimeEventQueue *q) {
-    g_assert(q);
+    assert(q);
 
     return q->prioq->root ? q->prioq->root->data : NULL;
 }
 
 AvahiTimeEvent* avahi_time_event_next(AvahiTimeEvent *e) {
-    g_assert(e);
+    assert(e);
 
     return e->node->next->data;
 }

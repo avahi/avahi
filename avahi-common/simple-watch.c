@@ -51,7 +51,8 @@ struct AvahiSimplePoll {
     int n_pollfds, max_pollfds, rebuild_pollfds;
 
     struct timeval wakeup;
-    int use_wakeup;
+    AvahiWakeupCallback wakeup_callback;
+    void *wakeup_userdata;
 
     int req_cleanup;
     
@@ -141,17 +142,24 @@ static void watch_free(AvahiWatch *w) {
     w->simple_poll->req_cleanup = 1;
 }
 
-static void set_wakeup_time(AvahiPoll *api, const struct timeval *tv) {
+static void set_wakeup(AvahiPoll *api, const struct timeval *tv, AvahiWakeupCallback callback, void *userdata) {
     AvahiSimplePoll *s;
 
     assert(api);
     s = api->userdata;
 
-    if (tv) {
-        s->wakeup = *tv;
-        s->use_wakeup = 1;
+    if (callback) {
+        if (tv)
+            s->wakeup = *tv;
+        else {
+            s->wakeup.tv_sec = 0;
+            s->wakeup.tv_usec = 0;
+        }
+        
+        s->wakeup_callback = callback;
+        s->wakeup_userdata = userdata;
     } else
-        s->use_wakeup = 0;
+        s->wakeup_callback = NULL;
 }
 
 static void destroy_watch(AvahiWatch *w) {
@@ -190,10 +198,10 @@ AvahiSimplePoll *avahi_simple_poll_new(void) {
     s->api.watch_new = watch_new;
     s->api.watch_free = watch_free;
     s->api.watch_update = watch_update;
-    s->api.set_wakeup_time = set_wakeup_time;
+    s->api.set_wakeup = set_wakeup;
     s->pollfds = NULL;
     s->max_pollfds = s->n_pollfds = 0;
-    s->use_wakeup = 0;
+    s->wakeup_callback = NULL;
     s->rebuild_pollfds = 0;
     s->quit = 0;
     s->n_watches = 0;
@@ -248,40 +256,83 @@ static int rebuild(AvahiSimplePoll *s) {
     return 0;
 }
 
-int avahi_simple_poll_iterate(AvahiSimplePoll *s, int block) {
-    int timeout, r, ret = 0;
+static int start_wakeup_callback(AvahiSimplePoll *s) {
+    AvahiWakeupCallback callback;
+    void *userdata;
+
     assert(s);
 
+    /* Reset the wakeup functions, but allow changing of the two
+       values from the callback function */
+
+    callback = s->wakeup_callback;
+    userdata = s->wakeup_userdata;
+    s->wakeup_callback = NULL;
+    s->wakeup_userdata = NULL;
+
+    assert(callback);
+    
+    callback(&s->api, userdata);
+    return 0;
+}
+
+int avahi_simple_poll_iterate(AvahiSimplePoll *s, int timeout) {
+    int r;
+    assert(s);
+
+    /* Cleanup things first */
+    if (s->req_cleanup)
+        cleanup(s, 0);
+
+    /* Check whether a quit was requested */
     if (s->quit)
         return 1;
 
-    if (s->req_cleanup)
-        cleanup(s, 0);
-    
+    /* Do we need to rebuild our array of pollfds? */
     if (s->rebuild_pollfds)
         if (rebuild(s) < 0)
             return -1;
 
-    if (block) {
-        if (s->use_wakeup) {
-            struct timeval now;
-            AvahiUsec usec;
+    /* Calculate the wakeup time */
+    if (s->wakeup_callback) {
+        struct timeval now;
+        int t;
+        AvahiUsec usec;
 
-            gettimeofday(&now, NULL);
+        gettimeofday(&now, NULL);
+        usec = avahi_timeval_diff(&s->wakeup, &now);
 
-            usec = avahi_timeval_diff(&s->wakeup, &now);
-            
-            timeout = usec <= 0 ? 0 : (int) (usec / 1000);
-        } else
-            timeout = -1;
-    } else
-        timeout = 0;
+        if (usec <= 0)
+            /* Timeout elapsed */
+
+            return start_wakeup_callback(s);
+
+        /* Calculate sleep time. We add 1ms because otherwise we'd
+         * wake up too early most of the time */
+        t = (int) (usec / 1000) + 1;
+
+        if (timeout < 0 || timeout > t)
+            timeout = t;
+    }
 
     if ((r = poll(s->pollfds, s->n_pollfds, timeout)) < 0)
         return -1;
 
-    else if (r > 0) {
+    /* Check whether the wakeup time has been reached now */
+    if (s->wakeup_callback) {
+        struct timeval now;
+        
+        gettimeofday(&now, NULL);
+
+        if (avahi_timeval_compare(&s->wakeup, &now) <= 0)
+            /* Time elapsed */
+            return start_wakeup_callback(s);
+    }
+    
+    if (r > 0) {
         AvahiWatch *w;
+
+        /* Look for some kind of I/O event */
 
         for (w = s->watches; w; w = w->watches_next) {
 
@@ -291,24 +342,15 @@ int avahi_simple_poll_iterate(AvahiSimplePoll *s, int block) {
             assert(w->idx >= 0);
             assert(w->idx < s->n_pollfds);
 
-            if (s->pollfds[w->idx].revents > 0)
+            if (s->pollfds[w->idx].revents > 0) {
+                /* We execute only on callback in every iteration */
                 w->callback(w, w->pollfd.fd, s->pollfds[w->idx].revents, w->userdata);
-
-            if (s->quit) {
-                ret = 1;
-                goto finish;
+                return 0;
             }
         }
     }
 
-    ret = 0;
-
-finish:
-
-    if (s->req_cleanup)
-        cleanup(s, 0);
-    
-    return ret;
+    return 0;
 }
 
 void avahi_simple_poll_quit(AvahiSimplePoll *w) {

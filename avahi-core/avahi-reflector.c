@@ -28,29 +28,32 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
+#include <avahi-common/simple-watch.h>
 #include <avahi-core/core.h>
 
 int main(int argc, char*argv[]) {
     AvahiServer *server;
     AvahiServerConfig config;
-    GMainLoop *loop;
-    gint error;
+    int error;
+    AvahiSimplePoll *simple_poll;
 
-    avahi_server_config_init(&config);
-    config.publish_hinfo = FALSE;
-    config.publish_addresses = FALSE;
-    config.publish_workstation = FALSE;
-    config.publish_domain = FALSE;
-    config.use_ipv6 = FALSE;
-    config.enable_reflector = TRUE;
+    simple_poll = avahi_simple_poll_new();
     
-    server = avahi_server_new(NULL, &config, NULL, NULL, &error);
+    avahi_server_config_init(&config);
+    config.publish_hinfo = 0;
+    config.publish_addresses = 0;
+    config.publish_workstation = 0;
+    config.publish_domain = 0;
+    config.use_ipv6 = 0;
+    config.enable_reflector = 1;
+    
+    server = avahi_server_new(avahi_simple_poll_get(simple_poll), &config, NULL, NULL, &error);
     avahi_server_config_free(&config);
 
-    loop = g_main_loop_new(NULL, FALSE);
-    
-    g_main_loop_run(loop);
-    g_main_loop_unref(loop);
+    for (;;)
+        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
+            break;
 
     avahi_server_free(server);
+    avahi_simple_poll_free(simple_poll);
 }

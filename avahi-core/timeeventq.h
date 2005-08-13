@@ -27,31 +27,23 @@
 typedef struct AvahiTimeEventQueue AvahiTimeEventQueue;
 typedef struct AvahiTimeEvent AvahiTimeEvent;
 
+#include <avahi-common/watch.h>
+
 #include "prioq.h"
 
-typedef void (*AvahiTimeEventCallback)(AvahiTimeEvent *e, gpointer userdata);
+typedef void (*AvahiTimeEventCallback)(AvahiTimeEvent *e, void* userdata);
 
-struct AvahiTimeEvent {
-    AvahiTimeEventQueue *queue;
-    AvahiPrioQueueNode *node;
-    struct timeval expiry;
-    struct timeval last_run;
-    AvahiTimeEventCallback callback;
-    gpointer userdata;
-};
-
-struct AvahiTimeEventQueue {
-    GSource source;
-    AvahiPrioQueue *prioq;
-};
-
-AvahiTimeEventQueue* avahi_time_event_queue_new(GMainContext *context, gint priority);
+AvahiTimeEventQueue* avahi_time_event_queue_new(AvahiPoll *poll_api);
 void avahi_time_event_queue_free(AvahiTimeEventQueue *q);
 
-AvahiTimeEvent* avahi_time_event_queue_add(AvahiTimeEventQueue *q, const struct timeval *timeval, AvahiTimeEventCallback callback, gpointer userdata);
-void avahi_time_event_queue_remove(AvahiTimeEventQueue *q, AvahiTimeEvent *e);
+AvahiTimeEvent* avahi_time_event_new(
+    AvahiTimeEventQueue *q,
+    const struct timeval *timeval,
+    AvahiTimeEventCallback callback,
+    void* userdata);
 
-void avahi_time_event_queue_update(AvahiTimeEventQueue *q, AvahiTimeEvent *e, const struct timeval *timeval);
+void avahi_time_event_free(AvahiTimeEvent *e);
+void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval);
 
 AvahiTimeEvent* avahi_time_event_queue_root(AvahiTimeEventQueue *q);
 AvahiTimeEvent* avahi_time_event_next(AvahiTimeEvent *e);

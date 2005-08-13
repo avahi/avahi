@@ -1,5 +1,5 @@
-#ifndef foosimplewatchhfoo
-#define foosimplewatchhfoo
+#ifndef foogccmacrohfoo
+#define foogccmacrohfoo
 
 /* $Id$ */
 
@@ -22,23 +22,26 @@
   USA.
 ***/
 
-#include <avahi-common/cdecl.h>
+#ifdef __GNUC__
+#define AVAHI_GCC_SENTINEL __attribute__ ((sentinel))
+#else
+#define AVAHI_GCC_SENTINEL
+#endif
 
-#include "watch.h"
+#ifdef __GNUC__
+#define AVAHI_GCC_PRINTF_ATTR(a,b) __attribute__ ((format (printf, a, b)))
+#else
+/** Macro for usage of GCC's printf compilation warnings */
+#define AVAHI_GCC_PRINTF_ATTR(a,b)
+#endif
 
-AVAHI_C_DECL_BEGIN
+#define AVAHI_GCC_PRINTF_ATTR12 AVAHI_GCC_PRINTF_ATTR(1,2)
+#define AVAHI_GCC_PRINTF_ATTR23 AVAHI_GCC_PRINTF_ATTR(2,3)
 
-typedef struct AvahiSimplePoll AvahiSimplePoll;
-
-AvahiSimplePoll *avahi_simple_poll_new(void);
-void avahi_simple_poll_free(AvahiSimplePoll *s);
-
-AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s);
-
-int avahi_simple_poll_iterate(AvahiSimplePoll *s, int sleep_time);
-
-void avahi_simple_poll_quit(AvahiSimplePoll *s);
-
-AVAHI_C_DECL_END
+#ifdef __GNUC__
+#define AVAHI_GCC_NORETURN __attribute__((noreturn))
+#else
+#define AVAHI_GCC_NORETURN
+#endif
 
 #endif

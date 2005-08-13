@@ -26,16 +26,20 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "prioq.h"
 
-static gint compare_int(gconstpointer a, gconstpointer b) {
-    gint i = GPOINTER_TO_INT(a), j = GPOINTER_TO_INT(b);
+#define POINTER_TO_INT(p) ((int) (p))
+#define INT_TO_POINTER(i) ((void*) (i))
+
+static int compare_int(const void* a, const void* b) {
+    int i = POINTER_TO_INT(a), j = POINTER_TO_INT(b);
 
     return i < j ? -1 : (i > j ? 1 : 0);
 }
 
-static int compare_ptr(gconstpointer a, gconstpointer b) {
+static int compare_ptr(const void* a, const void* b) {
     return a < b ? -1 : (a > b ? 1 : 0);
 }
 
@@ -44,28 +48,28 @@ static void rec(AvahiPrioQueueNode *n) {
         return;
 
     if (n->left)
-        g_assert(n->left->parent == n);
+        assert(n->left->parent == n);
 
     if (n->right)
-        g_assert(n->right->parent == n);
+        assert(n->right->parent == n);
 
     if (n->parent) {
-        g_assert(n->parent->left == n || n->parent->right == n);
+        assert(n->parent->left == n || n->parent->right == n);
 
         if (n->parent->left == n)
-            g_assert(n->next == n->parent->right);
+            assert(n->next == n->parent->right);
     }
 
     if (!n->next) {
-        g_assert(n->queue->last == n);
+        assert(n->queue->last == n);
 
         if (n->parent && n->parent->left == n)
-            g_assert(n->parent->right == NULL);
+            assert(n->parent->right == NULL);
     }
 
     
     if (n->parent) {
-        int a = GPOINTER_TO_INT(n->parent->data), b = GPOINTER_TO_INT(n->data);
+        int a = POINTER_TO_INT(n->parent->data), b = POINTER_TO_INT(n->data);
         if (a > b) {
             printf("%i <= %i: NO\n", a, b);
             abort();
@@ -78,7 +82,7 @@ static void rec(AvahiPrioQueueNode *n) {
 
 int main(int argc, char *argv[]) {
     AvahiPrioQueue *q, *q2;
-    gint i;
+    int i;
 
     q = avahi_prio_queue_new(compare_int);
     q2 = avahi_prio_queue_new(compare_ptr);
@@ -86,15 +90,15 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
 
     for (i = 0; i < 10000; i++)
-        avahi_prio_queue_put(q2, avahi_prio_queue_put(q, GINT_TO_POINTER(random() & 0xFFFF)));
+        avahi_prio_queue_put(q2, avahi_prio_queue_put(q, INT_TO_POINTER(random() & 0xFFFF)));
 
     while (q2->root) {
         rec(q->root);
         rec(q2->root);
 
-        g_assert(q->n_nodes == q2->n_nodes);
+        assert(q->n_nodes == q2->n_nodes);
 
-        printf("%i\n", GPOINTER_TO_INT(((AvahiPrioQueueNode*)q2->root->data)->data));
+        printf("%i\n", POINTER_TO_INT(((AvahiPrioQueueNode*)q2->root->data)->data));
         
         avahi_prio_queue_remove(q, q2->root->data);
         avahi_prio_queue_remove(q2, q2->root);
@@ -103,11 +107,11 @@ int main(int argc, char *argv[]) {
         
 /*     prev = 0; */
 /*     while (q->root) { */
-/*         gint v = GPOINTER_TO_INT(q->root->data); */
+/*         int v = GPOINTER_TO_INT(q->root->data); */
 /*         rec(q->root); */
 /*         printf("%i\n", v); */
 /*         avahi_prio_queue_remove(q, q->root); */
-/*         g_assert(v >= prev); */
+/*         assert(v >= prev); */
 /*         prev = v; */
 /*     } */
 

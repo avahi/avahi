@@ -164,11 +164,18 @@ static void client_output_printf(Client *c, const gchar *format, ...) {
 }
 
 
-static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *hostname, const AvahiAddress *a, gpointer userdata) {
+static void host_name_resolver_callback(
+    AvahiHostNameResolver *r,
+    AvahiIfIndex iface,
+    AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const char *hostname,
+    const AvahiAddress *a,
+    void* userdata) {
+
     Client *c = userdata;
     
     g_assert(c);
-
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
@@ -181,9 +188,16 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex i
     c->state = CLIENT_DEAD;
 }
 
-static void address_resolver_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const AvahiAddress *a, const gchar *hostname, gpointer userdata) {
-    Client *c = userdata;
+static void address_resolver_callback(
+    AvahiAddressResolver *r,
+    AvahiIfIndex iface,
+    AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const AvahiAddress *a,
+    const char *hostname,
+    void* userdata) {
     
+    Client *c = userdata;
     
     g_assert(c);
 
@@ -195,7 +209,7 @@ static void address_resolver_callback(AvahiAddressResolver *r, AvahiIfIndex ifac
     c->state = CLIENT_DEAD;
 }
 
-static void dns_server_browser_callback(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *host_name, const AvahiAddress *a, guint16 port, gpointer userdata) {
+static void dns_server_browser_callback(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *host_name, const AvahiAddress *a, uint16_t port, void* userdata) {
     Client *c = userdata;
     gchar t[64];
     

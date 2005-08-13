@@ -587,13 +587,15 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         return DBUS_HANDLER_RESULT_HANDLED;
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "GetState")) {
-
+        AvahiEntryGroupState state;
+        
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing EntryGroup::GetState message");
             goto fail;
         }
 
-        return respond_int32(c, m, (gint32) avahi_entry_group_get_state(i->entry_group));
+        state = avahi_entry_group_get_state(i->entry_group);
+        return respond_int32(c, m, (gint32) state);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService")) {
         gint32 interface, protocol;
@@ -1131,13 +1133,15 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         return respond_string(c, m, PACKAGE_STRING);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetState")) {
-
+        AvahiServerState state;
+        
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetState message");
             goto fail;
         }
-
-        return respond_int32(c, m, (gint32) avahi_server_get_state(avahi_server));
+        
+        state = avahi_server_get_state(avahi_server);
+        return respond_int32(c, m, (gint32) state);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         gint32 idx;
@@ -1618,7 +1622,7 @@ int dbus_protocol_setup(GMainLoop *loop) {
     }
 
     dbus_connection_setup_with_g_main(server->bus, NULL);
-    dbus_connection_set_exit_on_disconnect(server->bus, FALSE);
+    dbus_connection_set_exit_on_disconnect(server->bus, TRUE);
 
     dbus_bus_request_name(server->bus, AVAHI_DBUS_NAME, 0, &error);
     if (dbus_error_is_set(&error)) {

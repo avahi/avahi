@@ -52,24 +52,24 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdat
     }
 }
 
-static void iteration(AvahiGLibPoll *p, void *userdata) {
+static void wakeup(AvahiPoll *_api, void *userdata) {
     struct timeval tv;
     static int i = 0;
 
-    printf("Iteration %i\n", i++);
+    printf("Wakeup #%i\n", i++);
 
-    if (i > 100)
+    if (i > 10)
         g_main_loop_quit(loop);
 
     avahi_elapse_time(&tv, 1000, 0);
-    api->set_wakeup_time(api, &tv);
+    api->set_wakeup(api, &tv, wakeup, NULL);
 }
 
 int main(int argc, char *argv[]) {
     AvahiGLibPoll *s;
     struct timeval tv;
     
-    s = avahi_glib_poll_new(NULL, iteration, NULL);
+    s = avahi_glib_poll_new(NULL);
     assert(s);
 
     api = avahi_glib_poll_get(s);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);
 
     avahi_elapse_time(&tv, 1000, 0);
-    api->set_wakeup_time(api, &tv);
+    api->set_wakeup(api, &tv, wakeup, NULL);
 
     loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(loop);

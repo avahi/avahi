@@ -320,3 +320,20 @@ int avahi_is_valid_host_name(const char *t) {
 
     return 1;
 }
+
+unsigned avahi_domain_hash(const char *s) {
+    unsigned hash = 0;
+    
+    for (;;) {
+        char c[65], *p;
+
+        if (!avahi_unescape_label(&s, c, sizeof(c)))
+            return hash;
+
+        if (!c[0])
+            continue;
+
+        for (p = c; *p; p++)
+            hash = 31 * hash + tolower(*p);
+    }
+}

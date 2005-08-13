@@ -203,7 +203,6 @@ int avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value) {
     return 0;
 }
 
-
 void avahi_hashmap_remove(AvahiHashmap *m, const void *key) {
     Entry *e;
     
@@ -213,6 +212,18 @@ void avahi_hashmap_remove(AvahiHashmap *m, const void *key) {
         return;
 
     entry_free(m, e, 0);
+}
+
+void avahi_hashmap_foreach(AvahiHashmap *m, AvahiHashmapForeachCallback callback, void *userdata) {
+    Entry *e, *next;
+    assert(m);
+    assert(callback);
+
+    for (e = m->entries_list; e; e = next) {
+        next = e->entries_next;
+
+        callback(e->key, e->value, userdata);
+    }
 }
 
 unsigned avahi_string_hash(const void *data) {
@@ -231,19 +242,14 @@ int avahi_string_equal(const void *a, const void *b) {
     return strcmp(p, q) == 0;
 }
 
-unsigned avahi_domain_hash(const void *data) {
-    unsigned hash = 0;
-    const char *s;
-    
-    for (;;) {
-        char c[65];
+unsigned avahi_int_hash(const void *data) {
+    const int *i = data;
 
-        if (!avahi_unescape_label(&s, c, sizeof(c)))
-            return hash;
+    return (unsigned) *i;
+}
 
-        if (!c[0])
-            continue;
-        
-        hash += avahi_string_hash(avahi_strdown(c));
-    }
+int avahi_int_equal(const void *a, const void *b) {
+    const int *_a = a, *_b = b;
+
+    return *_a == *_b;
 }

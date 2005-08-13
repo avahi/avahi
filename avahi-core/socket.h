@@ -23,6 +23,7 @@
 ***/
 
 #include <netinet/in.h>
+#include <inttypes.h>
 
 #include "dns.h"
 
@@ -30,22 +31,22 @@
 #define AVAHI_IPV4_MCAST_GROUP "224.0.0.251"
 #define AVAHI_IPV6_MCAST_GROUP "ff02::fb"
 
-gint avahi_open_socket_ipv4(void);
-gint avahi_open_socket_ipv6(void);
+int avahi_open_socket_ipv4(void);
+int avahi_open_socket_ipv6(void);
 
-gint avahi_open_legacy_unicast_socket_ipv4(void);
-gint avahi_open_legacy_unicast_socket_ipv6(void);
+int avahi_open_legacy_unicast_socket_ipv4(void);
+int avahi_open_legacy_unicast_socket_ipv6(void);
 
-gint avahi_send_dns_packet_ipv4(gint fd, gint iface, AvahiDnsPacket *p, const AvahiIPv4Address *a, guint16 port);
-gint avahi_send_dns_packet_ipv6(gint fd, gint iface, AvahiDnsPacket *p, const AvahiIPv6Address *a, guint16 port);
+int avahi_send_dns_packet_ipv4(int fd, int iface, AvahiDnsPacket *p, const AvahiIPv4Address *a, uint16_t port);
+int avahi_send_dns_packet_ipv6(int fd, int iface, AvahiDnsPacket *p, const AvahiIPv6Address *a, uint16_t port);
 
-AvahiDnsPacket *avahi_recv_dns_packet_ipv4(gint fd, struct sockaddr_in*ret_sa, AvahiIPv4Address *ret_dest_address, gint *ret_iface, guint8 *ret_ttl);
-AvahiDnsPacket *avahi_recv_dns_packet_ipv6(gint fd, struct sockaddr_in6*ret_sa, AvahiIPv6Address *ret_dest_address, gint *ret_iface, guint8 *ret_ttl);
+AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in*ret_sa, AvahiIPv4Address *ret_dest_address, int *ret_iface, uint8_t *ret_ttl);
+AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6*ret_sa, AvahiIPv6Address *ret_dest_address, int *ret_iface, uint8_t *ret_ttl);
 
-int avahi_mdns_mcast_join_ipv4(gint fd, gint idx);
-int avahi_mdns_mcast_join_ipv6(gint fd, gint idx);
+int avahi_mdns_mcast_join_ipv4(int fd, int idx);
+int avahi_mdns_mcast_join_ipv6(int fd, int idx);
 
-int avahi_mdns_mcast_leave_ipv4(gint fd, gint idx);
-int avahi_mdns_mcast_leave_ipv6(gint fd, gint idx);
+int avahi_mdns_mcast_leave_ipv4(int fd, int idx);
+int avahi_mdns_mcast_leave_ipv6(int fd, int idx);
 
 #endif

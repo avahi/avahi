@@ -23,6 +23,8 @@
 ***/
 
 #include <avahi-common/llist.h>
+#include <avahi-common/watch.h>
+
 #include "core.h"
 #include "iface.h"
 #include "prioq.h"
@@ -31,6 +33,7 @@
 #include "browse.h"
 #include "dns.h"
 #include "rrlist.h"
+#include "hashmap.h"
 
 #define AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS 100
 
@@ -39,10 +42,10 @@ typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;
 struct AvahiLegacyUnicastReflectSlot {
     AvahiServer *server;
     
-    guint16 id, original_id;
+    uint16_t id, original_id;
     AvahiAddress address;
-    guint16 port;
-    gint interface;
+    uint16_t port;
+    int interface;
     struct timeval elapse_time;
     AvahiTimeEvent *time_event;
 };
@@ -51,7 +54,7 @@ struct AvahiEntry {
     AvahiServer *server;
     AvahiEntryGroup *group;
 
-    gboolean dead;
+    int dead;
     
     AvahiEntryFlags flags;
     AvahiRecord *record;
@@ -67,15 +70,15 @@ struct AvahiEntry {
 
 struct AvahiEntryGroup {
     AvahiServer *server;
-    gboolean dead;
+    int dead;
 
     AvahiEntryGroupState state;
-    gpointer userdata;
+    void* userdata;
     AvahiEntryGroupCallback callback;
 
-    guint n_probing;
+    unsigned n_probing;
     
-    guint n_register_try;
+    unsigned n_register_try;
     struct timeval register_time;
     AvahiTimeEvent *register_time_event;
     
@@ -84,18 +87,18 @@ struct AvahiEntryGroup {
 };
 
 struct AvahiServer {
-    GMainContext *context;
+    AvahiPoll *poll_api;
+    
     AvahiInterfaceMonitor *monitor;
-
     AvahiServerConfig config;
 
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
-    GHashTable *entries_by_key;
+    AvahiHashmap *entries_by_key;
 
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
     
     AVAHI_LLIST_HEAD(AvahiRecordBrowser, record_browsers);
-    GHashTable *record_browser_hashtable;
+    AvahiHashmap *record_browser_hashmap;
     AVAHI_LLIST_HEAD(AvahiHostNameResolver, host_name_resolvers);
     AVAHI_LLIST_HEAD(AvahiAddressResolver, address_resolvers);
     AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
@@ -104,56 +107,56 @@ struct AvahiServer {
     AVAHI_LLIST_HEAD(AvahiServiceResolver, service_resolvers);
     AVAHI_LLIST_HEAD(AvahiDNSServerBrowser, dns_server_browsers);
 
-    gboolean need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
+    int need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
     
     AvahiTimeEventQueue *time_event_queue;
     
-    gchar *host_name, *host_name_fqdn, *domain_name;
+    char *host_name, *host_name_fqdn, *domain_name;
 
-    gint fd_ipv4, fd_ipv6,
+    int fd_ipv4, fd_ipv6,
         /* The following two sockets two are used for reflection only */
         fd_legacy_unicast_ipv4, fd_legacy_unicast_ipv6;
 
-    GPollFD pollfd_ipv4, pollfd_ipv6, pollfd_legacy_unicast_ipv4, pollfd_legacy_unicast_ipv6;
-    GSource *source;
+    AvahiWatch *watch_ipv4, *watch_ipv6,
+        *watch_legacy_unicast_ipv4, *watch_legacy_unicast_ipv6;
 
     AvahiServerState state;
     AvahiServerCallback callback;
-    gpointer userdata;
+    void* userdata;
 
     AvahiEntryGroup *hinfo_entry_group;
     AvahiEntryGroup *browse_domain_entry_group;
-    guint n_host_rr_pending;
+    unsigned n_host_rr_pending;
 
     /* Used for assembling responses */
     AvahiRecordList *record_list;
 
     /* Used for reflection of legacy unicast packets */
     AvahiLegacyUnicastReflectSlot **legacy_unicast_reflect_slots;
-    guint16 legacy_unicast_reflect_id;
+    uint16_t legacy_unicast_reflect_id;
 
-    gint error;
+    int error;
 };
 
-gboolean avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
+int avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
 
 void avahi_server_post_query(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key);
 
-void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, gboolean unicast_response, gboolean auxiliary);
-void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, gboolean unicast_response);
-void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port, gboolean legacy_unicast, gboolean is_probe);
+void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, int unicast_response, int auxiliary);
+void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, int unicast_response);
+void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port, int legacy_unicast, int is_probe);
 
 void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state);
 
-gboolean avahi_entry_commited(AvahiEntry *e);
+int avahi_entry_is_commited(AvahiEntry *e);
 
-void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, gboolean flush_cache, gpointer userdata), gpointer userdata);
+void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata);
 
 void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata);
 
 void avahi_server_decrease_host_rr_pending(AvahiServer *s);
 void avahi_server_increase_host_rr_pending(AvahiServer *s);
 
-gint avahi_server_set_errno(AvahiServer *s, gint error);
+int avahi_server_set_errno(AvahiServer *s, int error);
 
 #endif

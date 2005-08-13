@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     printf("%i\n", avahi_domain_equal("a", "aaa"));
 
-/*     printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\")); */
+    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\")); 
     
     return 0;
 }

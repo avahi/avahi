@@ -29,8 +29,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include <glib.h>
-
+#include <avahi-common/malloc.h>
 #include "util.h"
 
 void avahi_hexdump(const void* p, size_t size) {
@@ -73,7 +72,8 @@ char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
     unsigned i;
     static const char hex[] = "0123456789abcdef";
 
-    t = r = g_new(char, size > 0 ? size*3 : 1);
+    if (!(t = r = avahi_new(char, size > 0 ? size*3 : 1)))
+        return NULL;
 
     if (size <= 0) {
         *r = 0;
@@ -91,8 +91,6 @@ char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
     *(--t) = 0;
     return r;
 }
-
-
 
 char *avahi_strdown(char *s) {
     char *c;
@@ -114,4 +112,3 @@ char *avahi_strup(char *s) {
 
     return s;
 }
-

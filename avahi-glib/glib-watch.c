@@ -45,13 +45,12 @@ struct AvahiGLibPoll {
     GMainContext *context;
 
     struct timeval wakeup;
-    gboolean use_wakeup;
+    AvahiWakeupCallback wakeup_callback;
+    void *wakeup_userdata;
+    
     int req_cleanup;
     
-    AvahiGLibProcessCallback process_callback;
-    void *userdata;
-    
-    AVAHI_LLIST_HEAD(AvahiWatch, watches);
+     AVAHI_LLIST_HEAD(AvahiWatch, watches);
 };
 
 static void destroy_watch(AvahiWatch *w) {
@@ -133,17 +132,43 @@ static void watch_free(AvahiWatch *w) {
     w->glib_poll->req_cleanup = 1;
 }
 
-static void set_wakeup_time(AvahiPoll *api, const struct timeval *tv) {
+static void set_wakeup(AvahiPoll *api, const struct timeval *tv, AvahiWakeupCallback callback, void *userdata) {
     AvahiGLibPoll *g;
 
     assert(api);
     g = api->userdata;
 
-    if (tv) {
-        g->wakeup = *tv;
-        g->use_wakeup = 1;
+    if (callback) {
+        if (tv) 
+            g->wakeup = *tv;
+        else {
+            g->wakeup.tv_sec = 0;
+            g->wakeup.tv_usec = 0;
+        }
+            
+        g->wakeup_callback = callback;
+        g->wakeup_userdata = userdata;
     } else
-        g->use_wakeup = 0;
+        g->wakeup_callback = NULL;
+}
+
+static void start_wakeup_callback(AvahiGLibPoll *g) {
+    AvahiWakeupCallback callback;
+    void *userdata;
+
+    assert(g);
+
+    /* Reset the wakeup functions, but allow changing of the two
+       values from the callback function */
+
+    callback = g->wakeup_callback;
+    userdata = g->wakeup_userdata;
+    g->wakeup_callback = NULL;
+    g->wakeup_userdata = NULL;
+
+    assert(callback);
+    
+    callback(&g->api, userdata);
 }
 
 static gboolean prepare_func(GSource *source, gint *timeout) {
@@ -152,7 +177,10 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
     g_assert(g);
     g_assert(timeout);
 
-    if (g->use_wakeup) {
+    if (g->req_cleanup)
+        cleanup(g, 0);
+    
+    if (g->wakeup_callback) {
         GTimeVal now;
         struct timeval tvnow;
         AvahiUsec usec;
@@ -178,6 +206,17 @@ static gboolean check_func(GSource *source) {
 
     g_assert(g);
 
+    if (g->wakeup_callback) {
+        GTimeVal now;
+        struct timeval tvnow;
+        g_source_get_current_time(source, &now);
+        tvnow.tv_sec = now.tv_sec;
+        tvnow.tv_usec = now.tv_usec;
+        
+        if (avahi_timeval_compare(&g->wakeup, &tvnow) < 0)
+            return TRUE;
+    }
+
     for (w = g->watches; w; w = w->watches_next)
         if (w->pollfd.revents > 0)
             return TRUE;
@@ -191,26 +230,31 @@ static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer us
     
     g_assert(g);
 
-    if (g->req_cleanup)
-        cleanup(g, 0);
-    
-    if (g->process_callback)
-        g->process_callback(g, g->userdata);
+    if (g->wakeup_callback) {
+        GTimeVal now;
+        struct timeval tvnow;
+        g_source_get_current_time(source, &now);
+        tvnow.tv_sec = now.tv_sec;
+        tvnow.tv_usec = now.tv_usec;
+        
+        if (avahi_timeval_compare(&g->wakeup, &tvnow) < 0) {
+            start_wakeup_callback(g);
+            return TRUE;
+        }
+    }
     
     for (w = g->watches; w; w = w->watches_next)
         if (w->pollfd.revents > 0) {
             assert(w->callback);
             w->callback(w, w->pollfd.fd, w->pollfd.revents, w->userdata);
             w->pollfd.revents = 0;
+            return TRUE;
         }
 
-    if (g->req_cleanup)
-        cleanup(g, 0);
-    
     return TRUE;
 }
 
-AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, AvahiGLibProcessCallback callback, void *userdata) {
+AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context) {
     AvahiGLibPoll *g;
     
     static GSourceFuncs source_funcs = {
@@ -229,11 +273,9 @@ AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, AvahiGLibProcessCallba
     g->api.watch_new = watch_new;
     g->api.watch_free = watch_free;
     g->api.watch_update = watch_update;
-    g->api.set_wakeup_time = set_wakeup_time;
+    g->api.set_wakeup = set_wakeup;
 
-    g->use_wakeup = 0;
-    g->process_callback = callback;
-    g->userdata = userdata;
+    g->wakeup_callback = NULL;
     g->req_cleanup = 0;
     
     AVAHI_LLIST_HEAD_INIT(AvahiWatch, g->watches);
@@ -247,11 +289,14 @@ void avahi_glib_poll_free(AvahiGLibPoll *g) {
     GSource *s = &g->source;
     assert(g);
 
+/*     g_message("BEFORE"); */
     cleanup(g, 1);
-    
+
+/*     g_message("MIDDLE"); */
     g_main_context_unref(g->context);
     g_source_destroy(s);
     g_source_unref(s);
+/*     g_message("AFTER"); */
 }
 
 AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g) {

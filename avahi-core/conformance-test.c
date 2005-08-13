@@ -29,34 +29,38 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include <avahi-common/alternative.h>
+#include <avahi-glib/glib-watch.h>
+#include <avahi-glib/glib-malloc.h>
+
 #include "core.h"
 #include "log.h"
 
-static gchar *name = NULL;
+static char *name = NULL;
 static AvahiEntryGroup *group = NULL;
 static int try = 0;
 static AvahiServer *avahi = NULL;
 
-static void dump_line(const gchar *text, gpointer userdata) {
+static void dump_line(const char *text, void* userdata) {
     printf("%s\n", text);
 }
 
-static gboolean dump_timeout(gpointer data) {
+static int dump_timeout(void* data) {
     avahi_server_dump(avahi, dump_line, NULL);
-    return TRUE;
+    return 1;
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata);
+static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
 
-static void create_service(const gchar *t) {
-    gchar *n;
+static void create_service(const char *t) {
+    char *n;
 
-    g_assert(t || name);
+    assert(t || name);
 
     n = t ? g_strdup(t) : avahi_alternative_service_name(name);
-    g_free(name);
+    avahi_free(name);
     name = n;
 
     if (group)
@@ -70,17 +74,17 @@ static void create_service(const gchar *t) {
     try++;
 }
 
-static gboolean rename_timeout(gpointer data) {
+static int rename_timeout(void* data) {
     
     if (access("flag", F_OK) == 0) { 
         create_service("New - Bonjour Service Name");
-        return FALSE;
+        return 0;
     }
 
-    return TRUE;
+    return 1;
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
     if (state == AVAHI_ENTRY_GROUP_COLLISION)
         create_service(NULL);
     else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
@@ -89,7 +93,7 @@ static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryG
     }
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, void* userdata) {
     avahi_log_debug("server state: %i", state);
 
     if (state == AVAHI_SERVER_RUNNING) {
@@ -101,10 +105,15 @@ static void server_callback(AvahiServer *s, AvahiServerState state, gpointer use
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     gint error;
+    AvahiGLibPoll *glib_poll;
 
-    avahi = avahi_server_new(NULL, NULL, server_callback, NULL, &error);
+    avahi_set_allocator(avahi_glib_allocator());
+
+    glib_poll = avahi_glib_poll_new(NULL);
     
-    loop = g_main_loop_new(NULL, FALSE);
+    avahi = avahi_server_new(avahi_glib_poll_get(glib_poll), NULL, server_callback, NULL, &error);
+    
+    loop = g_main_loop_new(NULL, 0);
     g_timeout_add(1000*5, dump_timeout, avahi);
     g_timeout_add(1000*5, rename_timeout, avahi); 
     g_main_loop_run(loop);
@@ -113,6 +122,8 @@ int main(int argc, char *argv[]) {
     if (group)
         avahi_entry_group_free(group);   
     avahi_server_free(avahi);
+
+    avahi_glib_poll_free(glib_poll);
     
     return 0;
 }

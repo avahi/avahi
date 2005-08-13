@@ -106,7 +106,7 @@ AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *flush_cache, int *u
     AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->unread, i);
     AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->read, i);
 
-    i->read = TRUE;
+    i->read = 1;
     
     return r;
 }
@@ -146,7 +146,7 @@ void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, int flush_cache,
     i->flush_cache = flush_cache;
     i->auxiliary = auxiliary;
     i->record = avahi_record_ref(r);
-    i->read = FALSE;
+    i->read = 0;
 
     AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->unread, i);
 }

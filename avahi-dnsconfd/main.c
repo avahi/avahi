@@ -237,10 +237,11 @@ finish:
 
 static void run_script(gboolean new, gint interface, guchar protocol, const gchar *address) {
     gchar *p;
-    g_assert(interface > 0);
     gint ret;
     gchar ia[16], pa[16];
     gchar name[IFNAMSIZ+1];
+
+    g_assert(interface > 0);
 
     if (!getifname(interface, name, sizeof(name))) 
         return;

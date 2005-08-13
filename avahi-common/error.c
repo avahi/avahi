@@ -47,7 +47,8 @@ const char *avahi_strerror(int error) {
         "Access denied",
         "Invalid operation",
         "An unexpected DBUS error occured",
-        "Could not get a connection to the daemon"
+        "Could not get a connection to the daemon",
+        "Memory exhausted"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

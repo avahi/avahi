@@ -32,8 +32,8 @@ void avahi_response_scheduler_free(AvahiResponseScheduler *s);
 void avahi_response_scheduler_clear(AvahiResponseScheduler *s);
 void avahi_response_scheduler_force(AvahiResponseScheduler *s);
 
-gboolean avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately);
-void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *record, gboolean flush_cache);
+int avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately);
+void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache);
 void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *record, const AvahiAddress *querier);
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef foosimplewatchhfoo
-#define foosimplewatchhfoo
+#ifndef fooglibmallochfoo
+#define fooglibmallochfoo
 
 /* $Id$ */
 
@@ -22,23 +22,24 @@
   USA.
 ***/
 
+/** \file glib-malloc.h GLib's memory allocator for Avahi */
+
+#include <glib.h>
+
 #include <avahi-common/cdecl.h>
+#include <avahi-common/malloc.h>
 
-#include "watch.h"
-
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
-typedef struct AvahiSimplePoll AvahiSimplePoll;
+/** Return a pointer to a memory allocator that uses GLib's g_malloc()
+ and frinds. Th returned structure is statically allocated, and needs
+ not to be copied or freed. Pass this directly to avahi_set_allocator(). */
+const AvahiAllocator * avahi_glib_allocator(void);
 
-AvahiSimplePoll *avahi_simple_poll_new(void);
-void avahi_simple_poll_free(AvahiSimplePoll *s);
-
-AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s);
-
-int avahi_simple_poll_iterate(AvahiSimplePoll *s, int sleep_time);
-
-void avahi_simple_poll_quit(AvahiSimplePoll *s);
-
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

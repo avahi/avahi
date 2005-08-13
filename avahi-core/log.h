@@ -23,22 +23,13 @@
 ***/
 
 #include <stdarg.h>
-#include <glib.h>
+
 #include <avahi-common/cdecl.h>
+#include <avahi-common/gccmacro.h>
 
 /** \file log.h Extensible logging subsystem */
 
 AVAHI_C_DECL_BEGIN
-
-#ifdef __GNUC__
-#define AVAHI_GCC_PRINTF_ATTR(a,b) __attribute__ ((format (printf, a, b)))
-#else
-/** Macro for usage of GCC's printf compilation warnings */
-#define AVAHI_GCC_PRINTF_ATTR(a,b)
-#endif
-
-#define AVAHI_GCC_PRINTF_ATTR12 AVAHI_GCC_PRINTF_ATTR(1,2)
-#define AVAHI_GCC_PRINTF_ATTR23 AVAHI_GCC_PRINTF_ATTR(2,3)
 
 /** Log level for avahi_log_xxx() */
 typedef enum {
@@ -51,7 +42,7 @@ typedef enum {
 } AvahiLogLevel;
 
 /** Prototype for a user supplied log function */
-typedef void (*AvahiLogFunction)(AvahiLogLevel level, const gchar *txt);
+typedef void (*AvahiLogFunction)(AvahiLogLevel level, const char *txt);
 
 /** Set a user supplied log function, replacing the default which
  * prints to log messages unconditionally to STDERR. Pass NULL for
@@ -59,25 +50,26 @@ typedef void (*AvahiLogFunction)(AvahiLogLevel level, const gchar *txt);
 void avahi_set_log_function(AvahiLogFunction function);
 
 /** Issue a log message using a va_list object */
-void avahi_log_ap(AvahiLogLevel level, const gchar *format, va_list ap);
+void avahi_log_ap(AvahiLogLevel level, const char *format, va_list ap);
 
 /** Issue a log message by passing a log level and a format string */
-void avahi_log(AvahiLogLevel level, const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR23;
+void avahi_log(AvahiLogLevel level, const char*format, ...) AVAHI_GCC_PRINTF_ATTR23;
 
 /** Shortcut for avahi_log(AVAHI_LOG_ERROR, ...) */
-void avahi_log_error(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_error(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_WARN, ...) */
-void avahi_log_warn(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_warn(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_NOTICE, ...) */
-void avahi_log_notice(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_notice(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_INFO, ...) */
-void avahi_log_info(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_info(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_DEBUG, ...) */
-void avahi_log_debug(const gchar*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_debug(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+
 
 AVAHI_C_DECL_END
 

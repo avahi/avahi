@@ -22,8 +22,6 @@
   USA.
 ***/
 
-#include <glib.h>
-
 typedef struct AvahiAnnouncement AvahiAnnouncement;
 
 #include <avahi-common/llist.h>
@@ -46,8 +44,8 @@ struct AvahiAnnouncement {
     AvahiTimeEvent *time_event;
 
     AvahiAnnouncementState state;
-    guint n_iteration;
-    guint sec_delay;
+    unsigned n_iteration;
+    unsigned sec_delay;
 
     AVAHI_LLIST_FIELDS(AvahiAnnouncement, by_interface);
     AVAHI_LLIST_FIELDS(AvahiAnnouncement, by_entry);
@@ -59,15 +57,15 @@ void avahi_announce_group(AvahiServer *s, AvahiEntryGroup *g);
 
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
-void avahi_entry_group_check_probed(AvahiEntryGroup *g, gboolean immediately);
+void avahi_entry_group_check_probed(AvahiEntryGroup *g, int immediately);
 
-gboolean avahi_entry_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
-gboolean avahi_entry_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
-void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, gboolean send_goodbye);
-void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, gboolean send_goodbye);
+void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye);
+void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye);
 
-void avahi_goodbye_all(AvahiServer *s, gboolean send_goodbye);
+void avahi_goodbye_all(AvahiServer *s, int send_goodbye);
 
 AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 

@@ -34,7 +34,8 @@ avahi_commoninclude_HEADERS = \
 	malloc.h
 	watch.h \
 	timeval.h \
-	simple-watch.h
+	simple-watch.h \
+	gccmacro.h
 
 noinst_HEADERS = llist.h
 

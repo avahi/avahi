@@ -22,8 +22,6 @@
   USA.
 ***/
 
-#include <glib.h>
-
 typedef struct AvahiInterfaceMonitor AvahiInterfaceMonitor;
 typedef struct AvahiInterfaceAddress AvahiInterfaceAddress;
 typedef struct AvahiInterface AvahiInterface;
@@ -31,6 +29,7 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 
 #include <avahi-common/llist.h>
 #include <avahi-common/address.h>
+
 #include "server.h"
 #include "netlink.h"
 #include "cache.h"
@@ -45,12 +44,12 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 struct AvahiInterfaceMonitor {
     AvahiServer *server;
     AvahiNetlink *netlink;
-    GHashTable *hash_table;
+    AvahiHashmap *hashmap;
 
     AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
     AVAHI_LLIST_HEAD(AvahiHwInterface, hw_interfaces);
     
-    guint query_addr_seq, query_link_seq;
+    unsigned query_addr_seq, query_link_seq;
     
     enum {
         LIST_IFACE,
@@ -63,13 +62,13 @@ struct AvahiHwInterface {
     AVAHI_LLIST_FIELDS(AvahiHwInterface, hardware);
     AvahiInterfaceMonitor *monitor;
 
-    gchar *name;
+    char *name;
     AvahiIfIndex index;
-    guint flags;
-    guint mtu;
+    unsigned flags;
+    unsigned mtu;
 
-    guint8 mac_address[AVAHI_MAX_MAC_ADDRESS];
-    guint mac_address_size;
+    uint8_t mac_address[AVAHI_MAX_MAC_ADDRESS];
+    size_t mac_address_size;
 
     AvahiEntryGroup *entry_group;
 
@@ -83,7 +82,7 @@ struct AvahiInterface {
     
     AvahiHwInterface *hardware;
     AvahiProtocol protocol;
-    gboolean announcing;
+    int announcing;
 
     AvahiCache *cache;
     AvahiQueryScheduler *query_scheduler;
@@ -98,9 +97,9 @@ struct AvahiInterfaceAddress {
     AVAHI_LLIST_FIELDS(AvahiInterfaceAddress, address);
     AvahiInterfaceMonitor *monitor;
     
-    guchar flags;
-    guchar scope;
-    guchar prefix_len;
+    unsigned char flags;
+    unsigned char scope;
+    unsigned char prefix_len;
     AvahiAddress address;
     
     AvahiEntryGroup *entry_group;
@@ -113,31 +112,30 @@ void avahi_interface_monitor_free(AvahiInterfaceMonitor *m);
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m);
 
 AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol);
-AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, gint idx);
+AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, int idx);
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
-void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, guint16 port);
+void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port);
 
-gboolean avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, gboolean immediately);
-gboolean avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, gboolean flush_cache, const AvahiAddress *querier, gboolean immediately);
-gboolean avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, gboolean immediately);
+int avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, int immediately);
+int avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately);
+int avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, int immediately);
 
-void avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, gpointer userdata);
+int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata);
 
-gboolean avahi_interface_relevant(AvahiInterface *i);
-gboolean avahi_interface_address_relevant(AvahiInterfaceAddress *a);
+int avahi_interface_relevant(AvahiInterface *i);
+int avahi_interface_address_relevant(AvahiInterfaceAddress *a);
 
-gboolean avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol);
+int avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol);
 
-typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, gpointer userdata);
+typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata);
     
-void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, gpointer userdata);
+void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, void* userdata);
 
-void avahi_update_host_rrs(AvahiInterfaceMonitor *m, gboolean remove_rrs);
+void avahi_update_host_rrs(AvahiInterfaceMonitor *m, int remove_rrs);
 
-gboolean avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
+int avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
 
-gboolean avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a);
-
+int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a);
 
 #endif

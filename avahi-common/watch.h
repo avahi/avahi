@@ -40,6 +40,7 @@ typedef enum {
 } AvahiWatchEvent;
 
 typedef void (*AvahiWatchCallback)(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata);
+typedef void (*AvahiWakeupCallback)(AvahiPoll *api, void *userdata);
 
 struct AvahiPoll {
     void* userdata;
@@ -48,7 +49,7 @@ struct AvahiPoll {
     void (*watch_update)(AvahiWatch *w, AvahiWatchEvent event);
     void (*watch_free)(AvahiWatch *w);
     
-    void (*set_wakeup_time)(AvahiPoll *api, const struct timeval *tv);
+    void (*set_wakeup)(AvahiPoll *api, const struct timeval *tv, AvahiWakeupCallback callback, void *userdata);
 };
 
 AVAHI_C_DECL_END

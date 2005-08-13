@@ -23,14 +23,17 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
 #include <avahi-common/domain.h>
+
 #include "dns.h"
 #include "log.h"
 #include "util.h"
 
 int main(int argc, char *argv[]) {
-    gchar t[256];
-    const gchar *a, *b, *c, *d;
+    char t[256];
+    const char *a, *b, *c, *d;
     AvahiDnsPacket *p;
 
     p = avahi_dns_packet_new(0);
@@ -44,19 +47,19 @@ int main(int argc, char *argv[]) {
 
     avahi_dns_packet_consume_name(p, t, sizeof(t));
     avahi_log_debug(">%s<", t);
-    g_assert(avahi_domain_equal(a, t));
+    assert(avahi_domain_equal(a, t));
     
     avahi_dns_packet_consume_name(p, t, sizeof(t));
     avahi_log_debug(">%s<", t);
-    g_assert(avahi_domain_equal(b, t));
+    assert(avahi_domain_equal(b, t));
 
     avahi_dns_packet_consume_name(p, t, sizeof(t));
     avahi_log_debug(">%s<", t);
-    g_assert(avahi_domain_equal(c, t));
+    assert(avahi_domain_equal(c, t));
 
     avahi_dns_packet_consume_name(p, t, sizeof(t));
     avahi_log_debug(">%s<", t);
-    g_assert(avahi_domain_equal(d, t));
+    assert(avahi_domain_equal(d, t));
     
     avahi_dns_packet_free(p);
     return 0;

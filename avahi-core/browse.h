@@ -30,7 +30,7 @@
 void avahi_browser_cleanup(AvahiServer *server);
 void avahi_browser_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event);
 
-gboolean avahi_is_subscribed(AvahiServer *s, AvahiInterface *i, AvahiKey *k);
+int avahi_is_subscribed(AvahiServer *s, AvahiInterface *i, AvahiKey *k);
 
 void avahi_record_browser_destroy(AvahiRecordBrowser *b);
 

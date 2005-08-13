@@ -19,12 +19,11 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
-
 # Import stuff from avahi-common
 COMMON_LDADD=../avahi-common/libavahi-common.la
+
+# Import stuff from avahi-glib
+GLIB_LDADD=../avahi-glib/libavahi-glib.la
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
@@ -88,13 +87,13 @@ prioq_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
 
 avahi_test_SOURCES = \
 	avahi-test.c
-avahi_test_CFLAGS = $(AM_CFLAGS)
-avahi_test_LDADD = $(AM_LDADD) $(COMMON_LDADD) libavahi-core.la
+avahi_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+avahi_test_LDADD = $(AM_LDADD) $(COMMON_LDADD) libavahi-core.la $(GLIB_LDADD) $(GLIB20_LIBS)
 
 conformance_test_SOURCES = \
 	conformance-test.c
-conformance_test_CFLAGS = $(AM_CFLAGS)
-conformance_test_LDADD = $(AM_LDADD) $(COMMON_LDADD) libavahi-core.la
+conformance_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+conformance_test_LDADD = $(AM_LDADD) $(COMMON_LDADD) libavahi-core.la $(GLIB_LDADD) $(GLIB20_LIBS)
 
 avahi_reflector_SOURCES = \
 	avahi-reflector.c
@@ -114,7 +113,8 @@ dns_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
 timeeventq_test_SOURCES = \
 	timeeventq-test.c \
 	timeeventq.h timeeventq.c \
-	prioq.h prioq.c
+	prioq.h prioq.c \
+	log.c log.h
 timeeventq_test_CFLAGS = $(AM_CFLAGS)
 timeeventq_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
 

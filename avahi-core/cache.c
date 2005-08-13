@@ -24,8 +24,11 @@
 #endif
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <avahi-common/timeval.h>
+#include <avahi-common/malloc.h>
+
 #include "cache.h"
 #include "log.h"
 
@@ -34,42 +37,51 @@
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
 
-    g_assert(c);
-    g_assert(e);
+    assert(c);
+    assert(e);
 
 /*     avahi_log_debug("removing from cache: %p %p", c, e); */
 
     /* Remove from hash table */
-    t = g_hash_table_lookup(c->hash_table, e->record->key);
+    t = avahi_hashmap_lookup(c->hashmap, e->record->key);
     AVAHI_LLIST_REMOVE(AvahiCacheEntry, by_key, t, e);
     if (t)
-        g_hash_table_replace(c->hash_table, t->record->key, t);
+        avahi_hashmap_replace(c->hashmap, t->record->key, t);
     else
-        g_hash_table_remove(c->hash_table, e->record->key);
+        avahi_hashmap_remove(c->hashmap, e->record->key);
 
     /* Remove from linked list */
     AVAHI_LLIST_REMOVE(AvahiCacheEntry, entry, c->entries, e);
         
     if (e->time_event)
-        avahi_time_event_queue_remove(c->server->time_event_queue, e->time_event);
+        avahi_time_event_free(e->time_event);
 
     avahi_browser_notify(c->server, c->interface, e->record, AVAHI_BROWSER_REMOVE);
 
     avahi_record_unref(e->record);
     
-    g_free(e);
+    avahi_free(e);
 
-    g_assert(c->n_entries-- >= 1);
+    assert(c->n_entries-- >= 1);
 }
 
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {
     AvahiCache *c;
-    g_assert(server);
+    assert(server);
 
-    c = g_new(AvahiCache, 1);
+    if (!(c = avahi_new(AvahiCache, 1))) {
+        avahi_log_error(__FILE__": Out of memory.");
+        return NULL; /* OOM */
+    }
+    
     c->server = server;
     c->interface = iface;
-    c->hash_table = g_hash_table_new((GHashFunc) avahi_key_hash, (GEqualFunc) avahi_key_equal);
+
+    if (!(c->hashmap = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, NULL, NULL))) {
+        avahi_log_error(__FILE__": Out of memory.");
+        avahi_free(c);
+        return NULL; /* OOM */
+    }
 
     AVAHI_LLIST_HEAD_INIT(AvahiCacheEntry, c->entries);
     c->n_entries = 0;
@@ -78,32 +90,32 @@ AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {
 }
 
 void avahi_cache_free(AvahiCache *c) {
-    g_assert(c);
+    assert(c);
 
     while (c->entries)
         remove_entry(c, c->entries);
-    g_assert(c->n_entries == 0);
+    assert(c->n_entries == 0);
     
-    g_hash_table_destroy(c->hash_table);
+    avahi_hashmap_free(c->hashmap);
     
-    g_free(c);
+    avahi_free(c);
 }
 
 AvahiCacheEntry *avahi_cache_lookup_key(AvahiCache *c, AvahiKey *k) {
-    g_assert(c);
-    g_assert(k);
+    assert(c);
+    assert(k);
 
-    g_assert(!avahi_key_is_pattern(k));
+    assert(!avahi_key_is_pattern(k));
     
-    return g_hash_table_lookup(c->hash_table, k);
+    return avahi_hashmap_lookup(c->hashmap, k);
 }
 
-gpointer avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, gpointer userdata) {
-    gpointer ret;
+void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void* userdata) {
+    void* ret;
     
-    g_assert(c);
-    g_assert(pattern);
-    g_assert(cb);
+    assert(c);
+    assert(pattern);
+    assert(cb);
     
     if (avahi_key_is_pattern(pattern)) {
         AvahiCacheEntry *e, *n;
@@ -130,10 +142,10 @@ gpointer avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallba
     return NULL;
 }
 
-static gpointer lookup_record_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
-    g_assert(c);
-    g_assert(pattern);
-    g_assert(e);
+static void* lookup_record_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
+    assert(c);
+    assert(pattern);
+    assert(e);
 
     if (avahi_record_equal_no_ttl(e->record, userdata))
         return e;
@@ -142,20 +154,20 @@ static gpointer lookup_record_callback(AvahiCache *c, AvahiKey *pattern, AvahiCa
 }
 
 AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r) {
-    g_assert(c);
-    g_assert(r);
+    assert(c);
+    assert(r);
 
     return avahi_cache_walk(c, r->key, lookup_record_callback, r);
 }
 
-static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent);
+static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent);
 
 static void elapse_func(AvahiTimeEvent *t, void *userdata) {
     AvahiCacheEntry *e = userdata;
-/*     gchar *txt; */
+/*     char *txt; */
     
-    g_assert(t);
-    g_assert(e);
+    assert(t);
+    assert(e);
 
 /*     txt = avahi_record_to_string(e->record); */
 
@@ -163,7 +175,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         remove_entry(e->cache, e);
 /*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
     } else {
-        guint percent = 0;
+        unsigned percent = 0;
     
         switch (e->state) {
             case AVAHI_CACHE_VALID:
@@ -189,44 +201,44 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
                 ;
         }
 
-        g_assert(percent > 0);
+        assert(percent > 0);
 
         /* Request a cache update, if we are subscribed to this entry */
         if (avahi_is_subscribed(e->cache->server, e->cache->interface, e->record->key)) {
 /*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);   */
-            avahi_interface_post_query(e->cache->interface, e->record->key, TRUE);
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1);
         }
 
         /* Check again later */
         next_expiry(e->cache, e, percent);
     }
 
-/*     g_free(txt); */
+/*     avahi_free(txt); */
 }
 
 static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
-    g_assert(c);
-    g_assert(e);
+    assert(c);
+    assert(e);
     
     if (e->time_event)
-        avahi_time_event_queue_update(c->server->time_event_queue, e->time_event, &e->expiry);
+        avahi_time_event_update(e->time_event, &e->expiry);
     else
-        e->time_event = avahi_time_event_queue_add(c->server->time_event_queue, &e->expiry, elapse_func, e);
+        e->time_event = avahi_time_event_new(c->server->time_event_queue, &e->expiry, elapse_func, e);
 }
 
-static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
-    AvahiUsec usec;
-    g_assert(c);
-    g_assert(e);
-    g_assert(percent > 0 && percent <= 100);
-/*     gchar *txt; */
+static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
+    AvahiUsec usec, left, right;
+    
+    assert(c);
+    assert(e);
+    assert(percent > 0 && percent <= 100);
+    
+    usec = (AvahiUsec) e->record->ttl * 10000;
 
-    usec = ((AvahiUsec) e->record->ttl) * 10000;
+    left = usec * percent;
+    right = usec * (percent+2); /* 2% jitter */
 
-    /* 2% jitter */
-    usec = (AvahiUsec) g_random_double_range((gdouble) (usec*percent), (gdouble) (usec*(percent+2)));
-/*     g_message("next expiry: %lli (%s)", usec / 1000000, txt = avahi_record_to_string(e->record)); */
-/*     g_free(txt); */
+    usec = left + (AvahiUsec) ((double) (right-left) * rand() / (RAND_MAX+1.0));
     
     e->expiry = e->timestamp;
     avahi_timeval_add(&e->expiry, usec);
@@ -237,8 +249,8 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, guint percent) {
 }
 
 static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
-    g_assert(c);
-    g_assert(e);
+    assert(c);
+    assert(e);
     
     e->state = AVAHI_CACHE_FINAL;
     gettimeofday(&e->expiry, NULL);
@@ -246,11 +258,11 @@ static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
     update_time_event(c, e);
 }
 
-void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, const AvahiAddress *a) {
-/*     gchar *txt; */
+void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const AvahiAddress *a) {
+/*     char *txt; */
     
-    g_assert(c);
-    g_assert(r && r->ref >= 1);
+    assert(c);
+    assert(r && r->ref >= 1);
 
 /*     txt = avahi_record_to_string(r); */
 
@@ -298,7 +310,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
             /* We need to update the hash table key if we replace the
              * record */
             if (e->by_key_prev == NULL)
-                g_hash_table_replace(c->hash_table, r->key, e);
+                avahi_hashmap_replace(c->hashmap, r->key, e);
             
             /* Update the record */
             avahi_record_unref(e->record);
@@ -314,19 +326,23 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
             if (c->n_entries >= AVAHI_MAX_CACHE_ENTRIES)
                 return;
 
-            c->n_entries++;
-            
-            e = g_new(AvahiCacheEntry, 1);
+            if (!(e = avahi_new(AvahiCacheEntry, 1))) {
+                avahi_log_error(__FILE__": Out of memory");
+                return;
+            }
+
             e->cache = c;
             e->time_event = NULL;
             e->record = avahi_record_ref(r);
 
             /* Append to hash table */
             AVAHI_LLIST_PREPEND(AvahiCacheEntry, by_key, first, e);
-            g_hash_table_replace(c->hash_table, e->record->key, first);
+            avahi_hashmap_replace(c->hashmap, e->record->key, first);
 
             /* Append to linked list */
             AVAHI_LLIST_PREPEND(AvahiCacheEntry, entry, c->entries, e);
+
+            c->n_entries++;
 
             /* Notify subscribers */
             avahi_browser_notify(c->server, c->interface, e->record, AVAHI_BROWSER_NEW);
@@ -339,54 +355,60 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, gboolean cache_flush, con
         e->cache_flush = cache_flush;
     }
 
-/*     g_free(txt);  */
+/*     avahi_free(txt);  */
 }
 
 struct dump_data {
     AvahiDumpCallback callback;
-    gpointer userdata;
+    void* userdata;
 };
 
-static void dump_callback(gpointer key, gpointer data, gpointer userdata) {
+static void dump_callback(void* key, void* data, void* userdata) {
     AvahiCacheEntry *e = data;
     AvahiKey *k = key;
     struct dump_data *dump_data = userdata;
 
-    g_assert(k);
-    g_assert(e);
-    g_assert(data);
+    assert(k);
+    assert(e);
+    assert(data);
 
     for (; e; e = e->by_key_next) {
-        gchar *t = avahi_record_to_string(e->record);
+        char *t;
+
+        if (!(t = avahi_record_to_string(e->record)))
+            continue; /* OOM */
+        
         dump_data->callback(t, dump_data->userdata);
-        g_free(t);
+        avahi_free(t);
     }
 }
 
-void avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, gpointer userdata) {
+int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void* userdata) {
     struct dump_data data;
 
-    g_assert(c);
-    g_assert(callback);
+    assert(c);
+    assert(callback);
 
     callback(";;; CACHE DUMP FOLLOWS ;;;", userdata);
 
     data.callback = callback;
     data.userdata = userdata;
 
-    g_hash_table_foreach(c->hash_table, dump_callback, &data);
+    avahi_hashmap_foreach(c->hashmap, dump_callback, &data);
+
+    return 0;
 }
 
-gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
+int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
     struct timeval now;
-    AvahiUsec age;
+    unsigned age;
     
-    g_assert(c);
-    g_assert(e);
+    assert(c);
+    assert(e);
 
     gettimeofday(&now, NULL);
 
-    age = avahi_timeval_diff(&now, &e->timestamp)/1000000;
+    age = (unsigned) (avahi_timeval_diff(&now, &e->timestamp)/1000000);
 
 /*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
     
@@ -394,7 +416,7 @@ gboolean avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 }
 
 void avahi_cache_flush(AvahiCache *c) {
-    g_assert(c);
+    assert(c);
 
     while (c->entries)
         remove_entry(c, c->entries);

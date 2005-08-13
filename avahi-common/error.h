@@ -54,7 +54,8 @@ enum {
     AVAHI_ERR_INVALID_OPERATION = -21,     /**< Invalid operation */
     AVAHI_ERR_DBUS_ERROR = -22,            /**< An unexpected DBUS error occured */
     AVAHI_ERR_NOT_CONNECTED = -23,         /**< Could not get a connection to the daemon */
-    AVAHI_ERR_MAX = -24
+    AVAHI_ERR_NO_MEMORY = -24,             /**< Memory exhausted */ 
+    AVAHI_ERR_MAX = -25
 };
 
 /** Return a human readable error string for the specified error code */

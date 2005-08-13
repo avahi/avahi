@@ -36,6 +36,7 @@ EXTRA_DIST = \
 SUBDIRS = \
 	common \
 	avahi-common \
+	avahi-glib \
 	avahi-core \
 	avahi-discover-standalone \
 	avahi-client \
@@ -43,7 +44,6 @@ SUBDIRS = \
 	initscript \
 	avahi-dnsconfd \
 	avahi-utils \
-	avahi-glib \
 	examples \
 	man
 

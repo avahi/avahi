@@ -31,7 +31,7 @@ AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i);
 void avahi_query_scheduler_free(AvahiQueryScheduler *s);
 void avahi_query_scheduler_clear(AvahiQueryScheduler *s);
 
-gboolean avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, gboolean immediately);
+int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately);
 void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key);
 
 #endif

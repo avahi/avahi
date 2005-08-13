@@ -29,6 +29,7 @@
 #include <stdarg.h>
 
 #include <avahi-common/cdecl.h>
+#include <avahi-common/gccmacro.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -47,7 +48,7 @@ typedef struct AvahiStringList {
 /** Create a new string list by taking a variable list of NUL
  * terminated strings. The strings are copied using g_strdup(). The
  * argument list must be terminated by a NULL pointer. */
-AvahiStringList *avahi_string_list_new(const char *txt, ...);
+AvahiStringList *avahi_string_list_new(const char *txt, ...) AVAHI_GCC_SENTINEL;
 
 /** Same as avahi_string_list_new() but pass a va_list structure */
 AvahiStringList *avahi_string_list_new_va(va_list va);
@@ -79,7 +80,7 @@ AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size)
 /** Same as avahi_string_list_add(), but takes a variable number of
  * NUL terminated strings. The argument list must be terminated by a
  * NULL pointer. Returns the new list start. */
-AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...);
+AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) AVAHI_GCC_SENTINEL;
 
 /** Same as avahi_string_list_add_many(), but use a va_list
  * structure. Returns the new list start. */

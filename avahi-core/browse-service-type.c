@@ -26,30 +26,32 @@
 #include <string.h>
 
 #include <avahi-common/domain.h>
+#include <avahi-common/malloc.h>
+
 #include "browse.h"
 #include "log.h"
 
 struct AvahiServiceTypeBrowser {
     AvahiServer *server;
-    gchar *domain_name;
+    char *domain_name;
     
     AvahiRecordBrowser *record_browser;
 
     AvahiServiceTypeBrowserCallback callback;
-    gpointer userdata;
+    void* userdata;
 
     AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, browser);
 };
 
-static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, gpointer userdata) {
+static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
     AvahiServiceTypeBrowser *b = userdata;
-    gchar *n, *e, *c;
+    char *n, *e, *c;
 
-    g_assert(rr);
-    g_assert(record);
-    g_assert(b);
+    assert(rr);
+    assert(record);
+    assert(b);
 
-    g_assert(record->key->type == AVAHI_DNS_TYPE_PTR);
+    assert(record->key->type == AVAHI_DNS_TYPE_PTR);
 
     n = avahi_normalize_name(record->data.ptr.name);
 
@@ -62,7 +64,7 @@ static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interfac
         if (*c == 0)
             goto fail;
 
-        g_assert(*c == '.');
+        assert(*c == '.');
         e = c;
         c++;
     }
@@ -73,29 +75,33 @@ static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interfac
         goto fail;
     
     b->callback(b, interface, protocol, event, n, c, b->userdata);
-    g_free(n);
+    avahi_free(n);
 
     return;
 
 fail:
     avahi_log_warn("Invalid service type '%s'", n);
-    g_free(n);
+    avahi_free(n);
 }
 
-AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gint interface, AvahiProtocol protocol, const gchar *domain, AvahiServiceTypeBrowserCallback callback, gpointer userdata) {
+AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiServiceTypeBrowserCallback callback, void* userdata) {
     AvahiServiceTypeBrowser *b;
     AvahiKey *k;
-    gchar *n = NULL;
+    char *n = NULL;
     
-    g_assert(server);
-    g_assert(callback);
+    assert(server);
+    assert(callback);
 
     if (domain && !avahi_is_valid_domain_name(domain)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
         return NULL;
     }
 
-    b = g_new(AvahiServiceTypeBrowser, 1);
+    if (!(b = avahi_new(AvahiServiceTypeBrowser, 1))) {
+        avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
+        return NULL;
+    }
+    
     b->server = server;
     b->domain_name = avahi_normalize_name(domain ? domain : "local");
     b->callback = callback;
@@ -103,9 +109,9 @@ AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gin
 
     AVAHI_LLIST_PREPEND(AvahiServiceTypeBrowser, browser, server->service_type_browsers, b);
 
-    n = g_strdup_printf("_services._dns-sd._udp.%s", b->domain_name);
+    n = avahi_strdup_printf("_services._dns-sd._udp.%s", b->domain_name);
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    g_free(n);
+    avahi_free(n);
     
     b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
@@ -117,15 +123,15 @@ AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiServer *server, gin
 }
 
 void avahi_service_type_browser_free(AvahiServiceTypeBrowser *b) {
-    g_assert(b);
+    assert(b);
 
     AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, browser, b->server->service_type_browsers, b);
 
     if (b->record_browser)
         avahi_record_browser_free(b->record_browser);
     
-    g_free(b->domain_name);
-    g_free(b);
+    avahi_free(b->domain_name);
+    avahi_free(b);
 }
 
 

@@ -169,12 +169,12 @@ const char *avahi_dns_class_to_string(uint16_t clazz);
  * returned pointer points to a read only internal string. */
 const char *avahi_dns_type_to_string(uint16_t type);
 
-/** Create a textual representation of the specified key. g_free() the
+/** Create a textual representation of the specified key. avahi_free() the
  * result! */
 char *avahi_key_to_string(const AvahiKey *k);
 
 /** Create a textual representation of the specified record, similar
- * in style to BIND zone file data. g_free() the result! */
+ * in style to BIND zone file data. avahi_free() the result! */
 char *avahi_record_to_string(const AvahiRecord *r); 
 
 /** Check whether two records are equal (regardless of the TTL */
@@ -196,7 +196,7 @@ size_t avahi_record_get_estimate_size(AvahiRecord *r);
  * zero if equal. */
 int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b);
 
-/** Return TRUE if the specified record is an mDNS goodbye record. i.e. TTL is zero. */
+/** Return 1 if the specified record is an mDNS goodbye record. i.e. TTL is zero. */
 int avahi_record_is_goodbye(AvahiRecord *r);
 
 /** Check whether the specified key is valid */

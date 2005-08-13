@@ -36,6 +36,7 @@
 #include "rr.h"
 #include "log.h"
 #include "util.h"
+#include "hashmap.h"
 
 AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
     AvahiKey *k;
@@ -263,12 +264,12 @@ char *avahi_record_to_string(const AvahiRecord *r) {
     return s;
 }
 
-gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
+int avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
     assert(a);
     assert(b);
 
     if (a == b)
-        return TRUE;
+        return 1;
     
 /*     g_message("equal: %p %p", a, b); */
     
@@ -277,7 +278,7 @@ gboolean avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
         a->clazz == b->clazz;
 }
 
-gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
+int avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
     assert(pattern);
     assert(k);
 
@@ -286,14 +287,14 @@ gboolean avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
     assert(!avahi_key_is_pattern(k));
 
     if (pattern == k)
-        return TRUE;
+        return 1;
     
     return avahi_domain_equal(pattern->name, k->name) &&
         (pattern->type == k->type || pattern->type == AVAHI_DNS_TYPE_ANY) &&
         (pattern->clazz == k->clazz || pattern->clazz == AVAHI_DNS_CLASS_ANY);
 }
 
-gboolean avahi_key_is_pattern(const AvahiKey *k) {
+int avahi_key_is_pattern(const AvahiKey *k) {
     assert(k);
 
     return
@@ -301,7 +302,7 @@ gboolean avahi_key_is_pattern(const AvahiKey *k) {
         k->clazz == AVAHI_DNS_CLASS_ANY;
 }
 
-guint avahi_key_hash(const AvahiKey *k) {
+unsigned avahi_key_hash(const AvahiKey *k) {
     assert(k);
 
     return
@@ -310,7 +311,7 @@ guint avahi_key_hash(const AvahiKey *k) {
         k->clazz;
 }
 
-static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
+static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
     assert(a);
     assert(b);
     assert(a->key->type == b->key->type);
@@ -357,12 +358,12 @@ static gboolean rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
     
 }
 
-gboolean avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
+int avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
     assert(a);
     assert(b);
 
     if (a == b)
-        return TRUE;
+        return 1;
 
     return
         avahi_key_equal(a->key, b->key) &&
@@ -446,7 +447,7 @@ size_t avahi_key_get_estimate_size(AvahiKey *k) {
 }
 
 size_t avahi_record_get_estimate_size(AvahiRecord *r) {
-    guint n;
+    size_t n;
     assert(r);
 
     n = avahi_key_get_estimate_size(r->key) + 4 + 2;
@@ -552,12 +553,16 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
 
         case AVAHI_DNS_TYPE_TXT: {
 
-            guint8 *ma, *mb;
-            guint asize, bsize;
+            uint8_t *ma = NULL, *mb = NULL;
+            size_t asize, bsize;
 
-            if (!(ma = avahi_new(guint8, asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0))))
+            asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0);
+            bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0);
+            
+            if (asize > 0 && !(ma = avahi_new(uint8_t, asize)))
                 goto fail;
-            if (!(mb = g_new(guint8, bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0)))) {
+            
+            if (bsize > 0 && !(mb = avahi_new(uint8_t, bsize))) {
                 avahi_free(ma);
                 goto fail;
             }
@@ -593,7 +598,7 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
 
     
 fail:
-    avahi_log_error("Out of memory");
+    avahi_log_error(__FILE__": Out of memory");
     return -1; /* or whatever ... */
 }
 
@@ -607,9 +612,9 @@ int avahi_key_is_valid(AvahiKey *k) {
     assert(k);
 
     if (!avahi_is_valid_domain_name(k->name))
-        return FALSE;
+        return 0;
     
-    return TRUE;
+    return 1;
 }
 
 int avahi_record_is_valid(AvahiRecord *r) {

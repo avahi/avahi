@@ -26,15 +26,15 @@
 #include <asm/types.h>
 #include <linux/netlink.h>
 
-#include <glib.h>
+#include <avahi-common/watch.h>
 
 typedef struct AvahiNetlink AvahiNetlink;
 
-AvahiNetlink *avahi_netlink_new(GMainContext *c, gint priority, guint32 groups, void (*cb) (AvahiNetlink *n, struct nlmsghdr *m, gpointer userdata), gpointer userdata);
+typedef void (*AvahiNetlinkCallback)(AvahiNetlink *n, struct nlmsghdr *m, void* userdata);
+
+AvahiNetlink *avahi_netlink_new(AvahiPoll *poll_api, uint32_t groups, AvahiNetlinkCallback callback, void* userdata);
 void avahi_netlink_free(AvahiNetlink *n);
-
-int avahi_netlink_send(AvahiNetlink *n, struct nlmsghdr *m, guint *ret_seq);
-
-gboolean avahi_netlink_work(AvahiNetlink *n, gboolean block);
+int avahi_netlink_send(AvahiNetlink *n, struct nlmsghdr *m, unsigned *ret_seq);
+int avahi_netlink_work(AvahiNetlink *n, int block);
 
 #endif

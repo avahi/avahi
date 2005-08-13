@@ -27,24 +27,26 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <assert.h>
 
+#include <avahi-common/malloc.h>
 #include "netlink.h"
 #include "log.h"
 
 struct AvahiNetlink {
-    GMainContext *context;
-    gint fd;
-    guint seq;
-    GPollFD poll_fd;
-    GSource *source;
-    void (*callback) (AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata);
-    gpointer userdata;
-    guint8* buffer;
-    guint buffer_length;
+    int fd;
+    unsigned seq;
+    AvahiNetlinkCallback callback;
+    void* userdata;
+    uint8_t* buffer;
+    size_t buffer_length;
+
+    AvahiPoll *poll_api;
+    AvahiWatch *watch;
 };
 
-gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
-    g_assert(nl);
+int avahi_netlink_work(AvahiNetlink *nl, int block) {
+    assert(nl);
 
     for (;;) {
         ssize_t bytes;
@@ -54,10 +56,10 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
             if ((bytes = recv(nl->fd, nl->buffer, nl->buffer_length, block ? 0 : MSG_DONTWAIT)) < 0) {
 
                 if (errno == EAGAIN || errno == EINTR)
-                    return TRUE;
+                    return 1;
                 
-                avahi_log_warn("NETLINK: recv() failed: %s", strerror(errno));
-                return FALSE;
+                avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
+                return 0;
             }
 
             break;
@@ -68,8 +70,8 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
         if (nl->callback) {
             for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
                 if (!NLMSG_OK(p, (size_t) bytes)) {
-                    avahi_log_warn("NETLINK: packet truncated");
-                    return FALSE;
+                    avahi_log_warn(__FILE__": packet truncated");
+                    return 0;
                 }
 
                 nl->callback(nl, p, nl->userdata);
@@ -77,56 +79,30 @@ gboolean avahi_netlink_work(AvahiNetlink *nl, gboolean block) {
         }
 
         if (block)
-            return TRUE;
+            return 1;
     }
 }
 
-static gboolean prepare_func(GSource *source, gint *timeout) {
-    g_assert(source);
-    g_assert(timeout);
-    
-    *timeout = -1;
-    return FALSE;
+static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {
+    AvahiNetlink *nl = userdata;
+
+    assert(w);
+    assert(nl);
+    assert(fd == nl->fd);
+
+    avahi_netlink_work(nl, 0);
 }
 
-static gboolean check_func(GSource *source) {
-    AvahiNetlink* nl;
-    g_assert(source);
-
-    nl = *((AvahiNetlink**) (((guint8*) source) + sizeof(GSource)));
-    g_assert(nl);
-    
-    return nl->poll_fd.revents & (G_IO_IN|G_IO_HUP|G_IO_ERR);
-}
-
-static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
-    AvahiNetlink* nl;
-    g_assert(source);
-
-    nl = *((AvahiNetlink**) (((guint8*) source) + sizeof(GSource)));
-    g_assert(nl);
-    
-    return avahi_netlink_work(nl, FALSE);
-}
-
-AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, gpointer userdata), gpointer userdata) {
-    int fd;
+AvahiNetlink *avahi_netlink_new(AvahiPoll *poll_api, uint32_t groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, void* userdata), void* userdata) {
+    int fd = -1;
     struct sockaddr_nl addr;
-    AvahiNetlink *nl;
+    AvahiNetlink *nl = NULL;
 
-    static GSourceFuncs source_funcs = {
-        prepare_func,
-        check_func,
-        dispatch_func,
-        NULL,
-        NULL,
-        NULL
-    };
-    
-    g_assert(cb);
+    assert(poll_api);
+    assert(cb);
 
     if ((fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
-        g_critical("NETLINK: socket(PF_NETLINK): %s", strerror(errno));
+        avahi_log_error(__FILE__": socket(PF_NETLINK): %s", strerror(errno));
         return NULL;
     }
     
@@ -136,54 +112,70 @@ AvahiNetlink *avahi_netlink_new(GMainContext *context, gint priority, guint32 gr
     addr.nl_pid = getpid();
 
     if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-        close(fd);
-        g_critical("bind(): %s", strerror(errno));
-        return NULL;
+        avahi_log_error(__FILE__": bind(): %s", strerror(errno));
+        goto fail;
     }
 
-    nl = g_new(AvahiNetlink, 1);
-    g_main_context_ref(nl->context = context ? context : g_main_context_default());
+    if (!(nl = avahi_new(AvahiNetlink, 1))) {
+        avahi_log_error(__FILE__": avahi_new() failed.");
+        goto fail;
+    }
+
+    nl->poll_api = poll_api;
     nl->fd = fd;
     nl->seq = 0;
     nl->callback = cb;
     nl->userdata = userdata;
-    nl->buffer = g_new(guint8, nl->buffer_length = 64*1024);
 
-    nl->source = g_source_new(&source_funcs, sizeof(GSource) + sizeof(AvahiNetlink*));
-    *((AvahiNetlink**) (((guint8*) nl->source) + sizeof(GSource))) = nl;
+    if (!(nl->buffer = avahi_new(uint8_t, nl->buffer_length = 64*1024))) {
+        avahi_log_error(__FILE__": avahi_new() failed.");
+        goto fail;
+    }
 
-    g_source_set_priority(nl->source, priority);
-    
-    memset(&nl->poll_fd, 0, sizeof(GPollFD));
-    nl->poll_fd.fd = fd;
-    nl->poll_fd.events = G_IO_IN|G_IO_ERR|G_IO_HUP;
-    g_source_add_poll(nl->source, &nl->poll_fd);
-    
-    g_source_attach(nl->source, nl->context);
+    if (!(nl->watch = poll_api->watch_new(poll_api, fd, AVAHI_WATCH_IN, socket_event, nl))) {
+        avahi_log_error(__FILE__": Failed to create watch.");
+        goto fail;
+    }
     
     return nl;
+
+fail:
+
+    if (fd >= 0)
+        close(fd);
+
+    if (nl) {
+        if (nl->buffer)
+            avahi_free(nl);
+        
+        avahi_free(nl);
+    }
+
+    return NULL;
 }
 
 void avahi_netlink_free(AvahiNetlink *nl) {
-    g_assert(nl);
+    assert(nl);
 
-    g_source_destroy(nl->source);
-    g_source_unref(nl->source);
-    g_main_context_unref(nl->context);
-    close(nl->fd);
-    g_free(nl->buffer);
-    g_free(nl);
+    if (nl->watch)
+        nl->poll_api->watch_free(nl->watch);
+
+    if (nl->fd >= 0)
+        close(nl->fd);
+    
+    avahi_free(nl->buffer);
+    avahi_free(nl);
 }
 
-int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, guint *ret_seq) {
-    g_assert(nl);
-    g_assert(m);
+int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, unsigned *ret_seq) {
+    assert(nl);
+    assert(m);
     
     m->nlmsg_seq = nl->seq++;
     m->nlmsg_flags |= NLM_F_ACK;
 
     if (send(nl->fd, m, m->nlmsg_len, 0) < 0) {
-        avahi_log_warn("NETLINK: send(): %s\n", strerror(errno));
+        avahi_log_error(__FILE__": send(): %s\n", strerror(errno));
         return -1;
     }
 

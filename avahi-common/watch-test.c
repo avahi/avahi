@@ -34,6 +34,7 @@
 #include "timeval.h"
 
 static AvahiPoll *api = NULL;
+static AvahiSimplePoll *simple_poll = NULL;
 
 static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {
 
@@ -51,31 +52,35 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdat
     }
 }
 
+static void wakeup(AvahiPoll *_api, void *userdata) {
+    static int i = 0;
+    struct timeval tv;
+
+    printf("Wakeup #%i\n", i++);
+
+    if (i > 10)
+        avahi_simple_poll_quit(simple_poll);
+    else {
+        avahi_elapse_time(&tv, 1000, 0);
+        api->set_wakeup(api, &tv, wakeup, NULL);
+    }
+}
+
 int main(int argc, char *argv[]) {
-    int i = 0;
-    AvahiSimplePoll *s;
+    struct timeval tv;
     
-    s = avahi_simple_poll_new();
-    assert(s);
+    simple_poll = avahi_simple_poll_new();
 
-    api = avahi_simple_poll_get(s);
-
+    api = avahi_simple_poll_get(simple_poll);
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);
 
-    for (;;) {
-        struct timeval tv;
-        printf("Iteration %i\n", i++);
+    avahi_elapse_time(&tv, 1000, 0);
+    api->set_wakeup(api, &tv, wakeup, NULL);
 
-        if (i > 100)
-            avahi_simple_poll_quit(s);
-
-        avahi_elapse_time(&tv, 1000, 0);
-        
-        api->set_wakeup_time(api, &tv);
-        
-        if (avahi_simple_poll_iterate(s, 1) != 0)
+    /* Our main loop */
+    for (;;)
+        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
             break;
-    }
     
     return 0;
 }

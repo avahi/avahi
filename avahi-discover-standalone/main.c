@@ -29,7 +29,9 @@
 #include <glade/glade.h>
 #include <avahi-core/core.h>
 #include <avahi-common/strlst.h>
-#include <avahi-common/util.h>
+#include <avahi-common/domain.h>
+#include <avahi-glib/glib-watch.h>
+#include <avahi-glib/glib-malloc.h>
 
 struct ServiceType;
 
@@ -268,9 +270,14 @@ int main(int argc, char *argv[]) {
     AvahiServerConfig config;
     GtkTreeViewColumn *c;
     gint error;
+    AvahiGLibPoll *poll_api;
 
     gtk_init(&argc, &argv);
     glade_init();
+
+    avahi_set_allocator(avahi_glib_allocator());
+
+    poll_api = avahi_glib_poll_new(NULL);
 
     xml = glade_xml_new(AVAHI_INTERFACES_DIR"avahi-discover.glade", NULL, NULL);
     main_window = glade_xml_get_widget(xml, "main_window");
@@ -294,7 +301,7 @@ int main(int argc, char *argv[]) {
     
     avahi_server_config_init(&config);
     config.publish_hinfo = config.publish_addresses = config.publish_domain = config.publish_workstation = FALSE;
-    server = avahi_server_new(NULL, &config, NULL, NULL, &error);
+    server = avahi_server_new(avahi_glib_poll_get(poll_api), &config, NULL, NULL, &error);
     avahi_server_config_free(&config);
 
     g_assert(server);
@@ -304,6 +311,7 @@ int main(int argc, char *argv[]) {
     gtk_main();
 
     avahi_server_free(server);
+    avahi_glib_poll_free(poll_api);
 
     return 0;
 }

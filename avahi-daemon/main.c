@@ -33,6 +33,9 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -41,6 +44,8 @@
 
 #include <avahi-core/core.h>
 #include <avahi-core/log.h>
+#include <avahi-glib/glib-malloc.h>
+#include <avahi-glib/glib-watch.h>
 
 #include "main.h"
 #include "simple-protocol.h"
@@ -169,7 +174,7 @@ static void remove_dns_server_entry_groups(void) {
         avahi_entry_group_reset(dns_servers_entry_group);
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, gpointer userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
     DaemonConfig *c = userdata;
     
     g_assert(s);
@@ -502,9 +507,11 @@ static gint run_server(DaemonConfig *c) {
     GIOChannel *io = NULL;
     guint watch_id = (guint) -1;
     gint error;
+    AvahiGLibPoll *poll_api;
 
     g_assert(c);
-    
+
+    poll_api = avahi_glib_poll_new(NULL);
     loop = g_main_loop_new(NULL, FALSE);
 
     if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, SIGUSR1, 0) < 0) {
@@ -518,7 +525,7 @@ static gint run_server(DaemonConfig *c) {
     }
 
     g_io_channel_set_close_on_unref(io, FALSE);
-    g_io_add_watch(io, G_IO_IN, signal_callback, loop);
+    watch_id = g_io_add_watch(io, G_IO_IN, signal_callback, loop);
     
     if (simple_protocol_setup(NULL) < 0)
         goto finish;
@@ -529,7 +536,7 @@ static gint run_server(DaemonConfig *c) {
             goto finish;
 #endif
     
-    if (!(avahi_server = avahi_server_new(NULL, &c->server_config, server_callback, c, &error))) {
+    if (!(avahi_server = avahi_server_new(avahi_glib_poll_get(poll_api), &c->server_config, server_callback, c, &error))) {
         avahi_log_error("Failed to create server: %s", avahi_strerror(error));
         goto finish;
     }
@@ -569,10 +576,12 @@ finish:
     if (io)
         g_io_channel_unref(io);
 
-        
+    if (poll_api)
+        avahi_glib_poll_free(poll_api);
+
     if (loop)
         g_main_loop_unref(loop);
-
+    
     if (r != 0 && c->daemonize)
         daemon_retval_send(1);
     
@@ -689,12 +698,35 @@ fail:
 
 }
 
+#define RANDOM_DEVICE "/dev/urandom"
+
+static void init_rand_seed(void) {
+    int fd;
+    unsigned seed = 0;
+
+    /* Try to initialize seed from /dev/urandom, to make it a little
+     * less predictable, and to make sure that multiple machines
+     * booted at the same time choose different random seeds.  */
+    if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
+        read(fd, &seed, sizeof(seed));
+        close(fd);
+    }
+
+    /* If the initialization failed by some reason, we add the time to the seed*/
+    seed |= (unsigned) time(NULL);
+
+    srand(seed);
+}
+
 int main(int argc, char *argv[]) {
     gint r = 255;
     const gchar *argv0;
     gboolean wrote_pid_file = FALSE;
 
     avahi_set_log_function(log_function);
+    avahi_set_allocator(avahi_glib_allocator());
+
+    init_rand_seed();
     
     avahi_server_config_init(&config.server_config);
     config.command = DAEMON_RUN;

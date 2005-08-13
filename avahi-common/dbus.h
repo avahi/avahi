@@ -57,6 +57,9 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_OS "org.freedesktop.Avahi.OSError"
 #define AVAHI_DBUS_ERR_ACCESS_DENIED DBUS_ERROR_ACCESS_DENIED
 #define AVAHI_DBUS_ERR_INVALID_OPERATION "org.freedesktop.Avahi.InvalidOperationError"
+#define AVAHI_DBUS_ERR_DBUS_ERROR "org.freedesktop.Avahi.DBusError"
+#define AVAHI_DBUS_ERR_NOT_CONNECTED "org.freedesktop.Avahi.NotConnectedError"
+#define AVAHI_DBUS_ERR_NO_MEMORY "org.freedesktop.Avahi.NoMemoryError"
 
 AVAHI_C_DECL_END
 

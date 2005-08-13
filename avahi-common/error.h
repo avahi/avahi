@@ -54,7 +54,15 @@ enum {
     AVAHI_ERR_INVALID_OPERATION = -21,     /**< Invalid operation */
     AVAHI_ERR_DBUS_ERROR = -22,            /**< An unexpected DBUS error occured */
     AVAHI_ERR_NOT_CONNECTED = -23,         /**< Could not get a connection to the daemon */
-    AVAHI_ERR_NO_MEMORY = -24,             /**< Memory exhausted */ 
+    AVAHI_ERR_NO_MEMORY = -24,             /**< Memory exhausted */
+
+    /****
+     ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
+     ****    IT TO THE STRING ARRAY IN avahi_strerror() AND TO THE ARRAY
+     ****    IN respond_error() IN dbus-protocol.c AND FINALLY TO
+     ****    dbus.h!
+     ****/
+    
     AVAHI_ERR_MAX = -25
 };
 

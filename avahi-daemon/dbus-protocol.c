@@ -346,7 +346,10 @@ static DBusHandlerResult respond_error(DBusConnection *c, DBusMessage *m, gint e
         AVAHI_DBUS_ERR_TOO_MANY_ENTRIES,
         AVAHI_DBUS_ERR_OS,
         AVAHI_DBUS_ERR_ACCESS_DENIED,
-        AVAHI_DBUS_ERR_INVALID_OPERATION
+        AVAHI_DBUS_ERR_INVALID_OPERATION,
+        AVAHI_DBUS_ERR_DBUS_ERROR,
+        AVAHI_DBUS_ERR_NOT_CONNECTED,
+        AVAHI_DBUS_ERR_NO_MEMORY
     };
 
     g_assert(-error > -AVAHI_OK);

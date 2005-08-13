@@ -67,7 +67,7 @@ static void set_timeout(AvahiAnnouncement *a, const struct timeval *tv) {
 
 static void next_state(AvahiAnnouncement *a);
 
-void avahi_entry_group_check_probed(AvahiEntryGroup *g, int immediately) {
+void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
     AvahiEntry *e;
     assert(g);
     assert(!g->dead);
@@ -77,7 +77,7 @@ void avahi_entry_group_check_probed(AvahiEntryGroup *g, int immediately) {
     if (g->state != AVAHI_ENTRY_GROUP_REGISTERING || g->n_probing > 0) 
         return;
 
-    avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_ESTABLISHED);
+    avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_ESTABLISHED);
 
     if (g->dead)
         return;
@@ -116,7 +116,7 @@ static void next_state(AvahiAnnouncement *a) {
 
         assert(a->entry->group);
 
-        avahi_entry_group_check_probed(a->entry->group, 1);
+        avahi_s_entry_group_check_probed(a->entry->group, 1);
         
     } else if (a->state == AVAHI_PROBING) {
 
@@ -311,7 +311,7 @@ void avahi_announce_entry(AvahiServer *s, AvahiEntry *e) {
     avahi_interface_monitor_walk(s->monitor, e->interface, e->protocol, announce_walk_callback, e);
 }
 
-void avahi_announce_group(AvahiServer *s, AvahiEntryGroup *g) {
+void avahi_announce_group(AvahiServer *s, AvahiSEntryGroup *g) {
     AvahiEntry *e;
     
     assert(s);

@@ -53,11 +53,11 @@ struct AvahiAnnouncement {
 
 void avahi_announce_interface(AvahiServer *s, AvahiInterface *i);
 void avahi_announce_entry(AvahiServer *s, AvahiEntry *e);
-void avahi_announce_group(AvahiServer *s, AvahiEntryGroup *g);
+void avahi_announce_group(AvahiServer *s, AvahiSEntryGroup *g);
 
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
-void avahi_entry_group_check_probed(AvahiEntryGroup *g, int immediately);
+void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately);
 
 int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);

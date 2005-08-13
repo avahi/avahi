@@ -76,8 +76,8 @@ typedef struct {
 
 #define RESOLV_CONF "/etc/resolv.conf"
 
-static AvahiEntryGroup *dns_servers_entry_group = NULL;
-static AvahiEntryGroup *resolv_conf_entry_group = NULL;
+static AvahiSEntryGroup *dns_servers_entry_group = NULL;
+static AvahiSEntryGroup *resolv_conf_entry_group = NULL;
 
 static gchar **resolv_conf = NULL;
 
@@ -136,16 +136,16 @@ finish:
     return ret;
 }
 
-static AvahiEntryGroup* add_dns_servers(AvahiServer *s, AvahiEntryGroup* g, gchar **l) {
+static AvahiSEntryGroup* add_dns_servers(AvahiServer *s, AvahiSEntryGroup* g, gchar **l) {
     gchar **p;
 
     g_assert(s);
     g_assert(l);
 
     if (!g) 
-        g = avahi_entry_group_new(s, NULL, NULL);
+        g = avahi_s_entry_group_new(s, NULL, NULL);
 
-    g_assert(avahi_entry_group_is_empty(g));
+    g_assert(avahi_s_entry_group_is_empty(g));
 
     for (p = l; *p; p++) {
         AvahiAddress a;
@@ -154,13 +154,13 @@ static AvahiEntryGroup* add_dns_servers(AvahiServer *s, AvahiEntryGroup* g, gcha
             avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
         else
             if (avahi_server_add_dns_server_address(s, g, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
-                avahi_entry_group_free(g);
+                avahi_s_entry_group_free(g);
                 avahi_log_error("Failed to add DNS server address: %s", avahi_strerror(avahi_server_errno(s)));
                 return NULL;
             }
     }
 
-    avahi_entry_group_commit(g);
+    avahi_s_entry_group_commit(g);
 
     return g;
 }
@@ -168,10 +168,10 @@ static AvahiEntryGroup* add_dns_servers(AvahiServer *s, AvahiEntryGroup* g, gcha
 static void remove_dns_server_entry_groups(void) {
 
     if (resolv_conf_entry_group)
-        avahi_entry_group_reset(resolv_conf_entry_group);
+        avahi_s_entry_group_reset(resolv_conf_entry_group);
     
     if (dns_servers_entry_group) 
-        avahi_entry_group_reset(dns_servers_entry_group);
+        avahi_s_entry_group_reset(dns_servers_entry_group);
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
@@ -479,7 +479,7 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
             static_service_add_to_server();
 
             if (resolv_conf_entry_group)
-                avahi_entry_group_reset(resolv_conf_entry_group);
+                avahi_s_entry_group_reset(resolv_conf_entry_group);
 
             load_resolv_conf(&config);
             

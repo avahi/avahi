@@ -37,7 +37,7 @@
 #include <avahi-core/log.h>
 
 
-static AvahiEntryGroup *group = NULL;
+static AvahiSEntryGroup *group = NULL;
 static AvahiServer *server = NULL;
 static char *service_name = NULL;
 
@@ -56,7 +56,7 @@ static int dump_timeout(void* data) {
     return 1;
 }
 
-static void record_browser_callback(AvahiRecordBrowser *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
+static void record_browser_callback(AvahiSRecordBrowser *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
     char *t;
     
     assert(r);
@@ -73,7 +73,7 @@ static void record_browser_callback(AvahiRecordBrowser *r, AvahiIfIndex interfac
 static void remove_entries(void);
 static void create_entries(int new_name);
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
     avahi_log_debug("entry group state: %i", state); 
 
     if (state == AVAHI_ENTRY_GROUP_COLLISION) {
@@ -106,7 +106,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void* userda
 
 static void remove_entries(void) {
     if (group)
-        avahi_entry_group_reset(group);
+        avahi_s_entry_group_reset(group);
 }
 
 static void create_entries(int new_name) {
@@ -115,9 +115,9 @@ static void create_entries(int new_name) {
     remove_entries();
 
     if (!group) 
-        group = avahi_entry_group_new(server, entry_group_callback, NULL);
+        group = avahi_s_entry_group_new(server, entry_group_callback, NULL);
 
-    assert(avahi_entry_group_is_empty(group));
+    assert(avahi_s_entry_group_is_empty(group));
     
     if (!service_name)
         service_name = g_strdup("Test Service");
@@ -147,17 +147,17 @@ static void create_entries(int new_name) {
         goto fail;
     }
 
-    avahi_entry_group_commit(group);
+    avahi_s_entry_group_commit(group);
     return;
 
 fail:
     if (group)
-        avahi_entry_group_free(group);
+        avahi_s_entry_group_free(group);
 
     group = NULL;
 }
 
-static void hnr_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const char *hostname, const AvahiAddress *a, void* userdata) {
+static void hnr_callback(AvahiSHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const char *hostname, const AvahiAddress *a, void* userdata) {
     char t[64];
 
     if (a)
@@ -166,7 +166,7 @@ static void hnr_callback(AvahiHostNameResolver *r, AvahiIfIndex iface, AvahiProt
     avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
-static void ar_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *a, const char *hostname, void* userdata) {
+static void ar_callback(AvahiSAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *a, const char *hostname, void* userdata) {
     char t[64];
 
     avahi_address_snprint(t, sizeof(t), a);
@@ -174,21 +174,21 @@ static void ar_callback(AvahiAddressResolver *r, AvahiIfIndex iface, AvahiProtoc
     avahi_log_debug("AR: (%i.%i) %s -> <%s> [%s]", iface, protocol, t, hostname ? hostname : "n/a", event == AVAHI_RESOLVER_FOUND ? "found" : "timeout");
 }
 
-static void db_callback(AvahiDomainBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void* userdata) {
+static void db_callback(AvahiSDomainBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void* userdata) {
 
     avahi_log_debug("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void stb_callback(AvahiServiceTypeBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *service_type, const char *domain, void* userdata) {
+static void stb_callback(AvahiSServiceTypeBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *service_type, const char *domain, void* userdata) {
 
     avahi_log_debug("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void sb_callback(AvahiServiceBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *service_type, const char *domain, void* userdata) {
+static void sb_callback(AvahiSServiceBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *service_type, const char *domain, void* userdata) {
    avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, event == AVAHI_BROWSER_NEW ? "new" : "remove");
 }
 
-static void sr_callback(AvahiServiceResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const char *name, const char*service_type, const char*domain_name, const char*hostname, const AvahiAddress *a, uint16_t port, AvahiStringList *txt, void* userdata) {
+static void sr_callback(AvahiSServiceResolver *r, AvahiIfIndex iface, AvahiProtocol protocol, AvahiResolverEvent event, const char *name, const char*service_type, const char*domain_name, const char*hostname, const AvahiAddress *a, uint16_t port, AvahiStringList *txt, void* userdata) {
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [timeout]", iface, protocol, name, service_type, domain_name);
@@ -203,7 +203,7 @@ static void sr_callback(AvahiServiceResolver *r, AvahiIfIndex iface, AvahiProtoc
     }
 }
 
-static void dsb_callback(AvahiDNSServerBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char*hostname, const AvahiAddress *a, uint16_t port, void* userdata) {
+static void dsb_callback(AvahiSDNSServerBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event, const char*hostname, const AvahiAddress *a, uint16_t port, void* userdata) {
     char t[64];
     avahi_address_snprint(t, sizeof(t), a);
     avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname, t, port, event == AVAHI_BROWSER_NEW ? "new" : "remove");
@@ -211,17 +211,17 @@ static void dsb_callback(AvahiDNSServerBrowser *b, AvahiIfIndex iface, AvahiProt
 
 int main(int argc, char *argv[]) {
     GMainLoop *loop = NULL;
-    AvahiRecordBrowser *r;
-    AvahiHostNameResolver *hnr;
-    AvahiAddressResolver *ar;
+    AvahiSRecordBrowser *r;
+    AvahiSHostNameResolver *hnr;
+    AvahiSAddressResolver *ar;
     AvahiKey *k;
     AvahiServerConfig config;
     AvahiAddress a;
-    AvahiDomainBrowser *db;
-    AvahiServiceTypeBrowser *stb;
-    AvahiServiceBrowser *sb;
-    AvahiServiceResolver *sr;
-    AvahiDNSServerBrowser *dsb;
+    AvahiSDomainBrowser *db;
+    AvahiSServiceTypeBrowser *stb;
+    AvahiSServiceBrowser *sb;
+    AvahiSServiceResolver *sr;
+    AvahiSDNSServerBrowser *dsb;
     AvahiGLibPoll *glib_poll;
     int error;
 
@@ -234,22 +234,22 @@ int main(int argc, char *argv[]) {
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    r = avahi_record_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, k, record_browser_callback, NULL);
+    r = avahi_s_record_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, k, record_browser_callback, NULL);
     avahi_key_unref(k);
 
-    hnr = avahi_host_name_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "codes-CompUTER.local", AVAHI_PROTO_UNSPEC, hnr_callback, NULL);
+    hnr = avahi_s_host_name_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "codes-CompUTER.local", AVAHI_PROTO_UNSPEC, hnr_callback, NULL);
 
-    ar = avahi_address_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, avahi_address_parse("192.168.50.15", AVAHI_PROTO_INET, &a), ar_callback, NULL);
+    ar = avahi_s_address_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, avahi_address_parse("192.168.50.15", AVAHI_PROTO_INET, &a), ar_callback, NULL);
 
-    db = avahi_domain_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
+    db = avahi_s_domain_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, db_callback, NULL);
 
-    stb = avahi_service_type_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, stb_callback, NULL);
+    stb = avahi_s_service_type_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, stb_callback, NULL);
 
-    sb = avahi_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, sb_callback, NULL);
+    sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, sb_callback, NULL);
 
-    sr = avahi_service_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Ecstasy HTTP", "_http._tcp", "local", AVAHI_PROTO_UNSPEC, sr_callback, NULL);
+    sr = avahi_s_service_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Ecstasy HTTP", "_http._tcp", "local", AVAHI_PROTO_UNSPEC, sr_callback, NULL);
 
-    dsb = avahi_dns_server_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AVAHI_PROTO_UNSPEC, dsb_callback, NULL);
+    dsb = avahi_s_dns_server_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AVAHI_PROTO_UNSPEC, dsb_callback, NULL);
 
     
     g_timeout_add(1000*5, dump_timeout, server);
@@ -259,16 +259,16 @@ int main(int argc, char *argv[]) {
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
 
-    avahi_record_browser_free(r);
-    avahi_host_name_resolver_free(hnr);
-    avahi_address_resolver_free(ar);
-    avahi_service_type_browser_free(stb);
-    avahi_service_browser_free(sb);
-    avahi_service_resolver_free(sr);
-    avahi_dns_server_browser_free(dsb);
+    avahi_s_record_browser_free(r);
+    avahi_s_host_name_resolver_free(hnr);
+    avahi_s_address_resolver_free(ar);
+    avahi_s_service_type_browser_free(stb);
+    avahi_s_service_browser_free(sb);
+    avahi_s_service_resolver_free(sr);
+    avahi_s_dns_server_browser_free(dsb);
 
     if (group)
-        avahi_entry_group_free(group);   
+        avahi_s_entry_group_free(group);   
 
     if (server)
         avahi_server_free(server);

@@ -30,33 +30,33 @@
 #include "browse.h"
 #include "log.h"
 
-struct AvahiHostNameResolver {
+struct AvahiSHostNameResolver {
     AvahiServer *server;
     char *host_name;
     
-    AvahiRecordBrowser *record_browser_a;
-    AvahiRecordBrowser *record_browser_aaaa;
+    AvahiSRecordBrowser *record_browser_a;
+    AvahiSRecordBrowser *record_browser_aaaa;
 
-    AvahiHostNameResolverCallback callback;
+    AvahiSHostNameResolverCallback callback;
     void* userdata;
 
     AvahiTimeEvent *time_event;
 
-    AVAHI_LLIST_FIELDS(AvahiHostNameResolver, resolver);
+    AVAHI_LLIST_FIELDS(AvahiSHostNameResolver, resolver);
 };
 
-static void finish(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiRecord *record) {
+static void finish(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiRecord *record) {
     AvahiAddress a;
     
     assert(r);
 
     if (r->record_browser_a) {
-        avahi_record_browser_free(r->record_browser_a);
+        avahi_s_record_browser_free(r->record_browser_a);
         r->record_browser_a = NULL;
     }
 
     if (r->record_browser_aaaa) {
-        avahi_record_browser_free(r->record_browser_aaaa);
+        avahi_s_record_browser_free(r->record_browser_aaaa);
         r->record_browser_aaaa = NULL;
     }
 
@@ -85,8 +85,8 @@ static void finish(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtoc
     r->callback(r, interface, protocol, event, record ? record->key->name : r->host_name, record ? &a : NULL, r->userdata);
 }
 
-static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
-    AvahiHostNameResolver *r = userdata;
+static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
+    AvahiSHostNameResolver *r = userdata;
 
     assert(rr);
     assert(record);
@@ -100,7 +100,7 @@ static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interfac
 }
 
 static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
-    AvahiHostNameResolver *r = userdata;
+    AvahiSHostNameResolver *r = userdata;
     
     assert(e);
     assert(r);
@@ -108,8 +108,8 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     finish(r, -1, AVAHI_PROTO_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
 }
 
-AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *host_name, AvahiProtocol aprotocol, AvahiHostNameResolverCallback callback, void* userdata) {
-    AvahiHostNameResolver *r;
+AvahiSHostNameResolver *avahi_s_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *host_name, AvahiProtocol aprotocol, AvahiSHostNameResolverCallback callback, void* userdata) {
+    AvahiSHostNameResolver *r;
     AvahiKey *k;
     struct timeval tv;
     
@@ -124,7 +124,7 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
         return NULL;
     }
     
-    if (!(r = avahi_new(AvahiHostNameResolver, 1))) {
+    if (!(r = avahi_new(AvahiSHostNameResolver, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
@@ -139,13 +139,13 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
     avahi_elapse_time(&tv, 1000, 0);
     r->time_event = avahi_time_event_new(server->time_event_queue, &tv, time_event_callback, r);
 
-    AVAHI_LLIST_PREPEND(AvahiHostNameResolver, resolver, server->host_name_resolvers, r);
+    AVAHI_LLIST_PREPEND(AvahiSHostNameResolver, resolver, server->host_name_resolvers, r);
 
     r->record_browser_aaaa = r->record_browser_a = NULL;
     
     if (aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
-        r->record_browser_a = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
+        r->record_browser_a = avahi_s_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
 
         if (!r->record_browser_a)
@@ -154,7 +154,7 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
 
     if (aprotocol == AVAHI_PROTO_INET6 || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
-        r->record_browser_aaaa = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
+        r->record_browser_aaaa = avahi_s_record_browser_new(server, interface, protocol, k, record_browser_callback, r);
         avahi_key_unref(k);
 
         if (!r->record_browser_aaaa)
@@ -166,20 +166,20 @@ AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiServer *server, AvahiIf
     return r;
 
 fail:
-    avahi_host_name_resolver_free(r);
+    avahi_s_host_name_resolver_free(r);
     return NULL;
 }
 
-void avahi_host_name_resolver_free(AvahiHostNameResolver *r) {
+void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r) {
     assert(r);
 
-    AVAHI_LLIST_REMOVE(AvahiHostNameResolver, resolver, r->server->host_name_resolvers, r);
+    AVAHI_LLIST_REMOVE(AvahiSHostNameResolver, resolver, r->server->host_name_resolvers, r);
 
     if (r->record_browser_a)
-        avahi_record_browser_free(r->record_browser_a);
+        avahi_s_record_browser_free(r->record_browser_a);
 
     if (r->record_browser_aaaa)
-        avahi_record_browser_free(r->record_browser_aaaa);
+        avahi_s_record_browser_free(r->record_browser_aaaa);
 
     if (r->time_event)
         avahi_time_event_free(r->time_event);

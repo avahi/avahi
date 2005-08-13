@@ -74,7 +74,7 @@ static void free_entry(AvahiServer*s, AvahiEntry *e) {
     avahi_free(e);
 }
 
-static void free_group(AvahiServer *s, AvahiEntryGroup *g) {
+static void free_group(AvahiServer *s, AvahiSEntryGroup *g) {
     assert(s);
     assert(g);
 
@@ -84,7 +84,7 @@ static void free_group(AvahiServer *s, AvahiEntryGroup *g) {
     if (g->register_time_event)
         avahi_time_event_free(g->register_time_event);
     
-    AVAHI_LLIST_REMOVE(AvahiEntryGroup, groups, s->groups, g);
+    AVAHI_LLIST_REMOVE(AvahiSEntryGroup, groups, s->groups, g);
     avahi_free(g);
 }
 
@@ -92,7 +92,7 @@ static void cleanup_dead(AvahiServer *s) {
     assert(s);
 
     if (s->need_group_cleanup) {
-        AvahiEntryGroup *g, *next;
+        AvahiSEntryGroup *g, *next;
         
         for (g = s->groups; g; g = next) {
             next = g->groups_next;
@@ -212,7 +212,7 @@ static void withdraw_entry(AvahiServer *s, AvahiEntry *e) {
 
         e->group->n_probing = 0;
 
-        avahi_entry_group_change_state(e->group, AVAHI_ENTRY_GROUP_COLLISION);
+        avahi_s_entry_group_change_state(e->group, AVAHI_ENTRY_GROUP_COLLISION);
     } else {
         avahi_goodbye_entry(s, e, 0);
         e->dead = 1;
@@ -1081,10 +1081,10 @@ static void withdraw_host_rrs(AvahiServer *s) {
     assert(s);
 
     if (s->hinfo_entry_group)
-        avahi_entry_group_reset(s->hinfo_entry_group);
+        avahi_s_entry_group_reset(s->hinfo_entry_group);
 
     if (s->browse_domain_entry_group)
-        avahi_entry_group_reset(s->browse_domain_entry_group);
+        avahi_s_entry_group_reset(s->browse_domain_entry_group);
 
     avahi_update_host_rrs(s->monitor, 1);
     s->n_host_rr_pending = 0;
@@ -1105,7 +1105,7 @@ void avahi_server_increase_host_rr_pending(AvahiServer *s) {
     s->n_host_rr_pending ++;
 }
 
-void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
     assert(s);
     assert(g);
 
@@ -1133,9 +1133,9 @@ static void register_hinfo(AvahiServer *s) {
         return;
 
     if (s->hinfo_entry_group)
-        assert(avahi_entry_group_is_empty(s->hinfo_entry_group));
+        assert(avahi_s_entry_group_is_empty(s->hinfo_entry_group));
     else
-        s->hinfo_entry_group = avahi_entry_group_new(s, avahi_host_rr_entry_group_callback, NULL);
+        s->hinfo_entry_group = avahi_s_entry_group_new(s, avahi_host_rr_entry_group_callback, NULL);
 
     if (!s->hinfo_entry_group) {
         avahi_log_warn("Failed to create HINFO entry group: %s", avahi_strerror(s->error));
@@ -1156,7 +1156,7 @@ static void register_hinfo(AvahiServer *s) {
         avahi_record_unref(r);
     }
 
-    if (avahi_entry_group_commit(s->hinfo_entry_group) < 0)
+    if (avahi_s_entry_group_commit(s->hinfo_entry_group) < 0)
         avahi_log_warn("Failed to commit HINFO entry group: %s", avahi_strerror(s->error));
 
 }
@@ -1180,9 +1180,9 @@ static void register_browse_domain(AvahiServer *s) {
         return;
 
     if (s->browse_domain_entry_group)
-        assert(avahi_entry_group_is_empty(s->browse_domain_entry_group));
+        assert(avahi_s_entry_group_is_empty(s->browse_domain_entry_group));
     else
-        s->browse_domain_entry_group = avahi_entry_group_new(s, NULL, NULL);
+        s->browse_domain_entry_group = avahi_s_entry_group_new(s, NULL, NULL);
 
     if (!s->browse_domain_entry_group) {
         avahi_log_warn("Failed to create browse domain entry group: %s", avahi_strerror(s->error));
@@ -1194,7 +1194,7 @@ static void register_browse_domain(AvahiServer *s) {
         return;
     }
 
-    if (avahi_entry_group_commit(s->browse_domain_entry_group) < 0)
+    if (avahi_s_entry_group_commit(s->browse_domain_entry_group) < 0)
         avahi_log_warn("Failed to commit browse domain entry group: %s", avahi_strerror(s->error));
 }
 
@@ -1350,14 +1350,14 @@ AvahiServer *avahi_server_new(AvahiPoll *poll_api, const AvahiServerConfig *sc, 
     AVAHI_LLIST_HEAD_INIT(AvahiGroup, s->groups);
 
     s->record_browser_hashmap = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, NULL, NULL);
-    AVAHI_LLIST_HEAD_INIT(AvahiRecordBrowser, s->record_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiHostNameResolver, s->host_name_resolvers);
-    AVAHI_LLIST_HEAD_INIT(AvahiAddressResolver, s->address_resolvers);
-    AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, s->domain_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, s->service_type_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, s->service_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, s->service_resolvers);
-    AVAHI_LLIST_HEAD_INIT(AvahiDNSServerBrowser, s->dns_server_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSRecordBrowser, s->record_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSHostNameResolver, s->host_name_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSAddressResolver, s->address_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSDomainBrowser, s->domain_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSServiceTypeBrowser, s->service_type_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSServiceBrowser, s->service_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSServiceResolver, s->service_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiSDNSServerBrowser, s->dns_server_browsers);
 
     s->legacy_unicast_reflect_slots = NULL;
     s->legacy_unicast_reflect_id = 0;
@@ -1401,21 +1401,21 @@ void avahi_server_free(AvahiServer* s) {
     free_slots(s);
 
     while (s->dns_server_browsers)
-        avahi_dns_server_browser_free(s->dns_server_browsers);
+        avahi_s_dns_server_browser_free(s->dns_server_browsers);
     while (s->host_name_resolvers)
-        avahi_host_name_resolver_free(s->host_name_resolvers);
+        avahi_s_host_name_resolver_free(s->host_name_resolvers);
     while (s->address_resolvers)
-        avahi_address_resolver_free(s->address_resolvers);
+        avahi_s_address_resolver_free(s->address_resolvers);
     while (s->domain_browsers)
-        avahi_domain_browser_free(s->domain_browsers);
+        avahi_s_domain_browser_free(s->domain_browsers);
     while (s->service_type_browsers)
-        avahi_service_type_browser_free(s->service_type_browsers);
+        avahi_s_service_type_browser_free(s->service_type_browsers);
     while (s->service_browsers)
-        avahi_service_browser_free(s->service_browsers);
+        avahi_s_service_browser_free(s->service_browsers);
     while (s->service_resolvers)
-        avahi_service_resolver_free(s->service_resolvers);
+        avahi_s_service_resolver_free(s->service_resolvers);
     while (s->record_browsers)
-        avahi_record_browser_destroy(s->record_browsers);
+        avahi_s_record_browser_destroy(s->record_browsers);
     
     avahi_hashmap_free(s->record_browser_hashmap);
     avahi_hashmap_free(s->entries_by_key);
@@ -1483,7 +1483,7 @@ static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiPr
 
 int avahi_server_add(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1535,7 +1535,7 @@ int avahi_server_add(
     return 0;
 }
 
-const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state) {
+const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiSEntryGroup *g, void **state) {
     AvahiEntry **e = (AvahiEntry**) state;
     assert(s);
     assert(e);
@@ -1582,7 +1582,7 @@ int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata
 
 int avahi_server_add_ptr(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1607,7 +1607,7 @@ int avahi_server_add_ptr(
 
 int avahi_server_add_address(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1703,7 +1703,7 @@ fail:
 
 static int server_add_txt_strlst_nocopy(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1728,7 +1728,7 @@ static int server_add_txt_strlst_nocopy(
 
 int avahi_server_add_txt_strlst(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1743,7 +1743,7 @@ int avahi_server_add_txt_strlst(
 
 int avahi_server_add_txt_va(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1758,7 +1758,7 @@ int avahi_server_add_txt_va(
 
 int avahi_server_add_txt(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -1802,7 +1802,7 @@ static void escape_service_name(char *d, size_t size, const char *s) {
 
 static int server_add_service_strlst_nocopy(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,
@@ -1895,7 +1895,7 @@ fail:
 
 int avahi_server_add_service_strlst(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,
@@ -1914,7 +1914,7 @@ int avahi_server_add_service_strlst(
 
 int avahi_server_add_service_va(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,
@@ -1933,7 +1933,7 @@ int avahi_server_add_service_va(
 
 int avahi_server_add_service(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,
@@ -1980,7 +1980,7 @@ static void hexstring(char *s, size_t sl, const void *p, size_t pl) {
 
 int avahi_server_add_dns_server_address(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
@@ -2027,7 +2027,7 @@ int avahi_server_add_dns_server_address(
 
 int avahi_server_add_dns_server_name(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
@@ -2098,7 +2098,7 @@ void avahi_server_post_query(AvahiServer *s, AvahiIfIndex interface, AvahiProtoc
     avahi_interface_monitor_walk(s->monitor, interface, protocol, post_query_callback, key);
 }
 
-void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state) {
+void avahi_s_entry_group_change_state(AvahiSEntryGroup *g, AvahiEntryGroupState state) {
     assert(g);
 
     if (g->state == state)
@@ -2112,12 +2112,12 @@ void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState sta
         g->callback(g->server, g, state, g->userdata);
 }
 
-AvahiEntryGroup *avahi_entry_group_new(AvahiServer *s, AvahiEntryGroupCallback callback, void* userdata) {
-    AvahiEntryGroup *g;
+AvahiSEntryGroup *avahi_s_entry_group_new(AvahiServer *s, AvahiSEntryGroupCallback callback, void* userdata) {
+    AvahiSEntryGroup *g;
     
     assert(s);
 
-    if (!(g = avahi_new(AvahiEntryGroup, 1))) {
+    if (!(g = avahi_new(AvahiSEntryGroup, 1))) {
         avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
@@ -2134,11 +2134,11 @@ AvahiEntryGroup *avahi_entry_group_new(AvahiServer *s, AvahiEntryGroupCallback c
     g->register_time.tv_usec = 0;
     AVAHI_LLIST_HEAD_INIT(AvahiEntry, g->entries);
 
-    AVAHI_LLIST_PREPEND(AvahiEntryGroup, groups, s->groups, g);
+    AVAHI_LLIST_PREPEND(AvahiSEntryGroup, groups, s->groups, g);
     return g;
 }
 
-void avahi_entry_group_free(AvahiEntryGroup *g) {
+void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
     AvahiEntry *e;
     
     assert(g);
@@ -2162,21 +2162,21 @@ void avahi_entry_group_free(AvahiEntryGroup *g) {
     g->server->need_entry_cleanup = 1;
 }
 
-static void entry_group_commit_real(AvahiEntryGroup *g) {
+static void entry_group_commit_real(AvahiSEntryGroup *g) {
     assert(g);
 
     gettimeofday(&g->register_time, NULL);
 
-    avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
+    avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
 
     if (!g->dead) {
         avahi_announce_group(g->server, g);
-        avahi_entry_group_check_probed(g, 0);
+        avahi_s_entry_group_check_probed(g, 0);
     }
 }
 
 static void entry_group_register_time_event_callback(AvahiTimeEvent *e, void* userdata) {
-    AvahiEntryGroup *g = userdata;
+    AvahiSEntryGroup *g = userdata;
     assert(g);
 
 /*     avahi_log_debug("Holdoff passed, waking up and going on."); */
@@ -2188,7 +2188,7 @@ static void entry_group_register_time_event_callback(AvahiTimeEvent *e, void* us
     entry_group_commit_real(g);
 }
 
-int avahi_entry_group_commit(AvahiEntryGroup *g) {
+int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
     struct timeval now;
     
     assert(g);
@@ -2218,13 +2218,13 @@ int avahi_entry_group_commit(AvahiEntryGroup *g) {
         assert(!g->register_time_event);
         g->register_time_event = avahi_time_event_new(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);
         
-        avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
+        avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
     }
 
     return AVAHI_OK;
 }
 
-void avahi_entry_group_reset(AvahiEntryGroup *g) {
+void avahi_s_entry_group_reset(AvahiSEntryGroup *g) {
     AvahiEntry *e;
     assert(g);
     
@@ -2248,7 +2248,7 @@ void avahi_entry_group_reset(AvahiEntryGroup *g) {
     g->server->need_entry_cleanup = 1;
     g->n_probing = 0;
 
-    avahi_entry_group_change_state(g, AVAHI_ENTRY_GROUP_UNCOMMITED);
+    avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_UNCOMMITED);
 }
 
 int avahi_entry_is_commited(AvahiEntry *e) {
@@ -2260,26 +2260,26 @@ int avahi_entry_is_commited(AvahiEntry *e) {
         e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED;
 }
 
-AvahiEntryGroupState avahi_entry_group_get_state(AvahiEntryGroup *g) {
+AvahiEntryGroupState avahi_s_entry_group_get_state(AvahiSEntryGroup *g) {
     assert(g);
     assert(!g->dead);
 
     return g->state;
 }
 
-void avahi_entry_group_set_data(AvahiEntryGroup *g, void* userdata) {
+void avahi_s_entry_group_set_data(AvahiSEntryGroup *g, void* userdata) {
     assert(g);
 
     g->userdata = userdata;
 }
 
-void* avahi_entry_group_get_data(AvahiEntryGroup *g) {
+void* avahi_s_entry_group_get_data(AvahiSEntryGroup *g) {
     assert(g);
 
     return g->userdata;
 }
 
-int avahi_entry_group_is_empty(AvahiEntryGroup *g) {
+int avahi_s_entry_group_is_empty(AvahiSEntryGroup *g) {
     AvahiEntry *e;
     assert(g);
 

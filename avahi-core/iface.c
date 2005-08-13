@@ -54,32 +54,32 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
 
         /* Fill the entry group */
         if (!a->entry_group) 
-            a->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
+            a->entry_group = avahi_s_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
 
         if (!a->entry_group) /* OOM */
             return;
         
-        if (avahi_entry_group_is_empty(a->entry_group)) {
+        if (avahi_s_entry_group_is_empty(a->entry_group)) {
 
             if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_address() failed: %s", avahi_strerror(m->server->error));
-                avahi_entry_group_free(a->entry_group);
+                avahi_s_entry_group_free(a->entry_group);
                 a->entry_group = NULL;
                 return;
             }
 
-            avahi_entry_group_commit(a->entry_group);
+            avahi_s_entry_group_commit(a->entry_group);
         }
     } else {
 
         /* Clear the entry group */
 
-        if (a->entry_group && !avahi_entry_group_is_empty(a->entry_group)) {
+        if (a->entry_group && !avahi_s_entry_group_is_empty(a->entry_group)) {
 
-            if (avahi_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
+            if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
             
-            avahi_entry_group_reset(a->entry_group);
+            avahi_s_entry_group_reset(a->entry_group);
         }
     } 
 }
@@ -109,12 +109,12 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
         m->server->state == AVAHI_SERVER_REGISTERING)) {
 
         if (!hw->entry_group)
-            hw->entry_group = avahi_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
+            hw->entry_group = avahi_s_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
 
         if (!hw->entry_group)
             return; /* OOM */
         
-        if (avahi_entry_group_is_empty(hw->entry_group)) {
+        if (avahi_s_entry_group_is_empty(hw->entry_group)) {
             char *name;
             char *t;
 
@@ -129,22 +129,22 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
             
             if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed.");
-                avahi_entry_group_free(hw->entry_group);
+                avahi_s_entry_group_free(hw->entry_group);
                 hw->entry_group = NULL;
             } else
-                avahi_entry_group_commit(hw->entry_group);
+                avahi_s_entry_group_commit(hw->entry_group);
 
             avahi_free(name);
         }
         
     } else {
 
-        if (hw->entry_group && !avahi_entry_group_is_empty(hw->entry_group)) {
+        if (hw->entry_group && !avahi_s_entry_group_is_empty(hw->entry_group)) {
 
-            if (avahi_entry_group_get_state(hw->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
+            if (avahi_s_entry_group_get_state(hw->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
 
-            avahi_entry_group_reset(hw->entry_group);
+            avahi_s_entry_group_reset(hw->entry_group);
         }
     }
 }
@@ -158,7 +158,7 @@ static void free_address(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a) {
     AVAHI_LLIST_REMOVE(AvahiInterfaceAddress, address, a->interface->addresses, a);
 
     if (a->entry_group)
-        avahi_entry_group_free(a->entry_group);
+        avahi_s_entry_group_free(a->entry_group);
     
     avahi_free(a);
 }
@@ -198,7 +198,7 @@ static void free_hw_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, in
         free_interface(m, hw->interfaces, send_goodbye);
 
     if (hw->entry_group)
-        avahi_entry_group_free(hw->entry_group);
+        avahi_s_entry_group_free(hw->entry_group);
     
     AVAHI_LLIST_REMOVE(AvahiHwInterface, hardware, m->hw_interfaces, hw);
     avahi_hashmap_remove(m->hashmap, &hw->index);

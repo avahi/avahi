@@ -40,11 +40,8 @@ AVAHI_C_DECL_BEGIN
 /** An mDNS responder object */
 typedef struct AvahiServer AvahiServer;
 
-/** A locally registered DNS resource record */
-typedef struct AvahiEntry AvahiEntry;
-
 /** A group of locally registered DNS RRs */
-typedef struct AvahiEntryGroup AvahiEntryGroup;
+typedef struct AvahiSEntryGroup AvahiSEntryGroup;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
@@ -73,8 +70,8 @@ typedef enum {
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */
 typedef void (*AvahiServerCallback) (AvahiServer *s, AvahiServerState state, void* userdata);
 
-/** Prototype for callback functions which are called whenever the state of an AvahiEntryGroup object changes */
-typedef void (*AvahiEntryGroupCallback) (AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
+/** Prototype for callback functions which are called whenever the state of an AvahiSEntryGroup object changes */
+typedef void (*AvahiSEntryGroupCallback) (AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata);
 
 /** Stores configuration options for a server instance */
 typedef struct AvahiServerConfig {
@@ -166,7 +163,7 @@ AvahiServerState avahi_server_get_state(AvahiServer *s);
  * the current iteration. It is not safe to call any other
  * avahi_server_xxx() function during the iteration. If the last entry
  * has been read, NULL is returned. */
-const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiEntryGroup *g, void **state);
+const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiSEntryGroup *g, void **state);
 
 /** Callback prototype for avahi_server_dump() */
 typedef void (*AvahiDumpCallback)(const char *text, void* userdata);
@@ -177,35 +174,35 @@ int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata
 /** Create a new entry group. The specified callback function is
  * called whenever the state of the group changes. Use entry group
  * objects to keep track of you RRs. Add new RRs to a group using
- * avahi_server_add_xxx(). Make sure to call avahi_entry_group_commit()
+ * avahi_server_add_xxx(). Make sure to call avahi_s_entry_group_commit()
  * to start the registration process for your RRs */
-AvahiEntryGroup *avahi_entry_group_new(AvahiServer *s, AvahiEntryGroupCallback callback, void* userdata);
+AvahiSEntryGroup *avahi_s_entry_group_new(AvahiServer *s, AvahiSEntryGroupCallback callback, void* userdata);
 
 /** Free an entry group. All RRs assigned to the group are removed from the server */
-void avahi_entry_group_free(AvahiEntryGroup *g);
+void avahi_s_entry_group_free(AvahiSEntryGroup *g);
 
 /** Commit an entry group. This starts the probing and registration process for all RRs in the group */
-int avahi_entry_group_commit(AvahiEntryGroup *g);
+int avahi_s_entry_group_commit(AvahiSEntryGroup *g);
 
 /** Remove all entries from the entry group and reset the state to AVAHI_ENTRY_GROUP_UNCOMMITED. */
-void avahi_entry_group_reset(AvahiEntryGroup *g);
+void avahi_s_entry_group_reset(AvahiSEntryGroup *g);
 
 /** Return 1 if the entry group is empty, i.e. has no records attached. */
-int avahi_entry_group_is_empty(AvahiEntryGroup *g);
+int avahi_s_entry_group_is_empty(AvahiSEntryGroup *g);
 
 /** Return the current state of the specified entry group */
-AvahiEntryGroupState avahi_entry_group_get_state(AvahiEntryGroup *g);
+AvahiEntryGroupState avahi_s_entry_group_get_state(AvahiSEntryGroup *g);
 
 /** Change the opaque user data pointer attached to an entry group object */
-void avahi_entry_group_set_data(AvahiEntryGroup *g, void* userdata);
+void avahi_s_entry_group_set_data(AvahiSEntryGroup *g, void* userdata);
 
 /** Return the opaque user data pointer currently set for the entry group object */
-void* avahi_entry_group_get_data(AvahiEntryGroup *g);
+void* avahi_s_entry_group_get_data(AvahiSEntryGroup *g);
 
 /** Add a new resource record to the server. Returns 0 on success, negative otherwise. */
 int avahi_server_add(
     AvahiServer *s,           /**< The server object to add this record to */
-    AvahiEntryGroup *g,       /**< An entry group object if this new record shall be attached to one, or NULL. If you plan to remove the record sometime later you a required to pass an entry group object here. */
+    AvahiSEntryGroup *g,       /**< An entry group object if this new record shall be attached to one, or NULL. If you plan to remove the record sometime later you a required to pass an entry group object here. */
     AvahiIfIndex interface,   /**< A numeric index of a network interface to attach this record to, or AVAHI_IF_UNSPEC to attach this record to all interfaces */
     AvahiProtocol protocol,   /**< A protocol family to attach this record to. One of the AVAHI_PROTO_xxx constants. Use AVAHI_PROTO_UNSPEC to make this record available on all protocols (wich means on both IPv4 and IPv6). */
     AvahiEntryFlags flags,    /**< Special flags for this record */
@@ -214,7 +211,7 @@ int avahi_server_add(
 /** Add a PTR RR to the server. See avahi_server_add() for more information. */
 int avahi_server_add_ptr(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -225,7 +222,7 @@ int avahi_server_add_ptr(
 /** Add a PTR RR to the server. See avahi_server_add() for more information. */
 int avahi_server_add_txt(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -238,7 +235,7 @@ int avahi_server_add_txt(
  * number of arguments */
 int avahi_server_add_txt_va(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -251,7 +248,7 @@ int avahi_server_add_txt_va(
  * number of arguments. */
 int avahi_server_add_txt_strlst(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -264,11 +261,11 @@ int avahi_server_add_txt_strlst(
  * avahi_server_add() for more information. If adding one of the RRs
  * fails, the function returns with an error, but it is not defined if
  * the other RR is deleted from the server or not. Therefore, you have
- * to free the AvahiEntryGroup and create a new one before
+ * to free the AvahiSEntryGroup and create a new one before
  * proceeding. */
 int avahi_server_add_address(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiEntryFlags flags,
@@ -279,11 +276,11 @@ int avahi_server_add_address(
  * RRs to the server. See avahi_server_add() for more information.  If
  * adding one of the RRs fails, the function returns with an error,
  * but it is not defined if the other RR is deleted from the server or
- * not. Therefore, you have to free the AvahiEntryGroup and create a
+ * not. Therefore, you have to free the AvahiSEntryGroup and create a
  * new one before proceeding. */
 int avahi_server_add_service(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,         /**< Service name, e.g. "Lennart's Files" */
@@ -296,7 +293,7 @@ int avahi_server_add_service(
 /** Mostly identical to avahi_server_add_service(), but takes an va_list for the TXT records. */
 int avahi_server_add_service_va(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,
@@ -309,7 +306,7 @@ int avahi_server_add_service_va(
 /** Mostly identical to avahi_server_add_service(), but takes an AvahiStringList object for the TXT records.  The AvahiStringList object is copied. */
 int avahi_server_add_service_strlst(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *name,
@@ -327,10 +324,10 @@ typedef enum {
 
 /** Publish the specified unicast DNS server address via mDNS. You may
  * browse for records create this way wit
- * avahi_dns_server_browser_new(). */
+ * avahi_s_dns_server_browser_new(). */
 int avahi_server_add_dns_server_address(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
@@ -343,7 +340,7 @@ host name instead of an address. The specified host name should be
 resolvable via mDNS */
 int avahi_server_add_dns_server_name(
     AvahiServer *s,
-    AvahiEntryGroup *g,
+    AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
@@ -352,35 +349,35 @@ int avahi_server_add_dns_server_name(
     uint16_t port /** should be 53 */);
 
 /** A browsing object for arbitrary RRs */
-typedef struct AvahiRecordBrowser AvahiRecordBrowser;
+typedef struct AvahiSRecordBrowser AvahiSRecordBrowser;
 
-/** Callback prototype for AvahiRecordBrowser events */
-typedef void (*AvahiRecordBrowserCallback)(
-    AvahiRecordBrowser *b,       /**< The AvahiRecordBrowser object that is emitting this callback */
+/** Callback prototype for AvahiSRecordBrowser events */
+typedef void (*AvahiSRecordBrowserCallback)(
+    AvahiSRecordBrowser *b,       /**< The AvahiSRecordBrowser object that is emitting this callback */
     AvahiIfIndex interface,      /**< Logical OS network interface number the record was found on */
     AvahiProtocol protocol,      /**< Protocol number the record was found. */
     AvahiBrowserEvent event,     /**< Browsing event, either AVAHI_BROWSER_NEW or AVAHI_BROWSER_REMOVE */
     AvahiRecord *record,         /**< The record that was found */
-    void* userdata            /**< Arbitrary user data passed to avahi_record_browser_new() */ );
+    void* userdata            /**< Arbitrary user data passed to avahi_s_record_browser_new() */ );
 
 /** Create a new browsing object for arbitrary RRs */
-AvahiRecordBrowser *avahi_record_browser_new(
+AvahiSRecordBrowser *avahi_s_record_browser_new(
     AvahiServer *server,                  /**< The server object to which attach this query */
     AvahiIfIndex interface,               /**< Logical OS interface number where to look for the records, or AVAHI_IF_UNSPEC to look on interfaces */
     AvahiProtocol protocol,               /**< Protocol number to use when looking for the record, or AVAHI_PROTO_UNSPEC to look on all protocols */
     AvahiKey *key,                        /**< The search key */
-    AvahiRecordBrowserCallback callback,  /**< The callback to call on browsing events */
+    AvahiSRecordBrowserCallback callback,  /**< The callback to call on browsing events */
     void* userdata                     /**< Arbitrary use suppliable data which is passed to the callback */);
 
-/** Free an AvahiRecordBrowser object */
-void avahi_record_browser_free(AvahiRecordBrowser *b);
+/** Free an AvahiSRecordBrowser object */
+void avahi_s_record_browser_free(AvahiSRecordBrowser *b);
 
 /** A host name to IP adddress resolver object */
-typedef struct AvahiHostNameResolver AvahiHostNameResolver;
+typedef struct AvahiSHostNameResolver AvahiSHostNameResolver;
 
-/** Callback prototype for AvahiHostNameResolver events */
-typedef void (*AvahiHostNameResolverCallback)(
-    AvahiHostNameResolver *r,
+/** Callback prototype for AvahiSHostNameResolver events */
+typedef void (*AvahiSHostNameResolverCallback)(
+    AvahiSHostNameResolver *r,
     AvahiIfIndex interface,  
     AvahiProtocol protocol,
     AvahiResolverEvent event, /**< Resolving event */
@@ -388,25 +385,25 @@ typedef void (*AvahiHostNameResolverCallback)(
     const AvahiAddress *a,    /**< The address, or NULL if the host name couldn't be resolved. */
     void* userdata);
 
-/** Create an AvahiHostNameResolver object for resolving a host name to an adddress. See AvahiRecordBrowser for more info on the paramters. */
-AvahiHostNameResolver *avahi_host_name_resolver_new(
+/** Create an AvahiSHostNameResolver object for resolving a host name to an adddress. See AvahiSRecordBrowser for more info on the paramters. */
+AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *host_name,    /**< The host name to look for */
     AvahiProtocol aprotocol,   /**< The address family of the desired address or AVAHI_PROTO_UNSPEC if doesn't matter. */
-    AvahiHostNameResolverCallback calback,
+    AvahiSHostNameResolverCallback calback,
     void* userdata);
 
-/** Free a AvahiHostNameResolver object */
-void avahi_host_name_resolver_free(AvahiHostNameResolver *r);
+/** Free a AvahiSHostNameResolver object */
+void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r);
 
 /** An IP address to host name resolver object ("reverse lookup") */
-typedef struct AvahiAddressResolver AvahiAddressResolver;
+typedef struct AvahiSAddressResolver AvahiSAddressResolver;
 
-/** Callback prototype for AvahiAddressResolver events */
-typedef void (*AvahiAddressResolverCallback)(
-    AvahiAddressResolver *r,
+/** Callback prototype for AvahiSAddressResolver events */
+typedef void (*AvahiSAddressResolverCallback)(
+    AvahiSAddressResolver *r,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
@@ -414,49 +411,49 @@ typedef void (*AvahiAddressResolverCallback)(
     const char *host_name,   /**< A host name for the specified address, if one was found, i.e. event == AVAHI_RESOLVER_FOUND */
     void* userdata);
 
-/** Create an AvahiAddressResolver object. See AvahiRecordBrowser for more info on the paramters. */
-AvahiAddressResolver *avahi_address_resolver_new(
+/** Create an AvahiSAddressResolver object. See AvahiSRecordBrowser for more info on the paramters. */
+AvahiSAddressResolver *avahi_s_address_resolver_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const AvahiAddress *address,
-    AvahiAddressResolverCallback calback,
+    AvahiSAddressResolverCallback calback,
     void* userdata);
 
-/** Free an AvahiAddressResolver object */
-void avahi_address_resolver_free(AvahiAddressResolver *r);
+/** Free an AvahiSAddressResolver object */
+void avahi_s_address_resolver_free(AvahiSAddressResolver *r);
 
 /** A local domain browsing object. May be used to enumerate domains used on the local LAN */
-typedef struct AvahiDomainBrowser AvahiDomainBrowser;
+typedef struct AvahiSDomainBrowser AvahiSDomainBrowser;
 
-/** Callback prototype for AvahiDomainBrowser events */
-typedef void (*AvahiDomainBrowserCallback)(
-    AvahiDomainBrowser *b,
+/** Callback prototype for AvahiSDomainBrowser events */
+typedef void (*AvahiSDomainBrowserCallback)(
+    AvahiSDomainBrowser *b,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *domain,
     void* userdata);
 
-/** Create a new AvahiDomainBrowser object */
-AvahiDomainBrowser *avahi_domain_browser_new(
+/** Create a new AvahiSDomainBrowser object */
+AvahiSDomainBrowser *avahi_s_domain_browser_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
     AvahiDomainBrowserType type,
-    AvahiDomainBrowserCallback callback,
+    AvahiSDomainBrowserCallback callback,
     void* userdata);
 
-/** Free an AvahiDomainBrowser object */
-void avahi_domain_browser_free(AvahiDomainBrowser *b);
+/** Free an AvahiSDomainBrowser object */
+void avahi_s_domain_browser_free(AvahiSDomainBrowser *b);
 
 /** A DNS-SD service type browsing object. May be used to enumerate the service types of all available services on the local LAN */
-typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
+typedef struct AvahiSServiceTypeBrowser AvahiSServiceTypeBrowser;
 
-/** Callback prototype for AvahiServiceTypeBrowser events */
-typedef void (*AvahiServiceTypeBrowserCallback)(
-    AvahiServiceTypeBrowser *b,
+/** Callback prototype for AvahiSServiceTypeBrowser events */
+typedef void (*AvahiSServiceTypeBrowserCallback)(
+    AvahiSServiceTypeBrowser *b,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
@@ -464,24 +461,24 @@ typedef void (*AvahiServiceTypeBrowserCallback)(
     const char *domain,
     void* userdata);
 
-/** Create a new AvahiServiceTypeBrowser object. */
-AvahiServiceTypeBrowser *avahi_service_type_browser_new(
+/** Create a new AvahiSServiceTypeBrowser object. */
+AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
-    AvahiServiceTypeBrowserCallback callback,
+    AvahiSServiceTypeBrowserCallback callback,
     void* userdata);
 
-/** Free an AvahiServiceTypeBrowser object */
-void avahi_service_type_browser_free(AvahiServiceTypeBrowser *b);
+/** Free an AvahiSServiceTypeBrowser object */
+void avahi_s_service_type_browser_free(AvahiSServiceTypeBrowser *b);
 
-/** A DNS-SD service browser. Use this to enumerate available services of a certain kind on the local LAN. Use AvahiServiceResolver to get specific service data like address and port for a service. */
-typedef struct AvahiServiceBrowser AvahiServiceBrowser;
+/** A DNS-SD service browser. Use this to enumerate available services of a certain kind on the local LAN. Use AvahiSServiceResolver to get specific service data like address and port for a service. */
+typedef struct AvahiSServiceBrowser AvahiSServiceBrowser;
 
-/** Callback prototype for AvahiServiceBrowser events */
-typedef void (*AvahiServiceBrowserCallback)(
-    AvahiServiceBrowser *b,
+/** Callback prototype for AvahiSServiceBrowser events */
+typedef void (*AvahiSServiceBrowserCallback)(
+    AvahiSServiceBrowser *b,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
@@ -490,25 +487,25 @@ typedef void (*AvahiServiceBrowserCallback)(
     const char *domain   /**< Domain of this service, e.g. "local" */,
     void* userdata);
 
-/** Create a new AvahiServiceBrowser object. */
-AvahiServiceBrowser *avahi_service_browser_new(
+/** Create a new AvahiSServiceBrowser object. */
+AvahiSServiceBrowser *avahi_s_service_browser_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *service_type /** DNS-SD service type, e.g. "_http._tcp" */,
     const char *domain,
-    AvahiServiceBrowserCallback callback,
+    AvahiSServiceBrowserCallback callback,
     void* userdata);
 
-/** Free an AvahiServiceBrowser object */
-void avahi_service_browser_free(AvahiServiceBrowser *b);
+/** Free an AvahiSServiceBrowser object */
+void avahi_s_service_browser_free(AvahiSServiceBrowser *b);
 
 /** A DNS-SD service resolver.  Use this to retrieve addres, port and TXT data for a DNS-SD service */
-typedef struct AvahiServiceResolver AvahiServiceResolver;
+typedef struct AvahiSServiceResolver AvahiSServiceResolver;
 
-/** Callback prototype for AvahiServiceResolver events */
-typedef void (*AvahiServiceResolverCallback)(
-    AvahiServiceResolver *r,
+/** Callback prototype for AvahiSServiceResolver events */
+typedef void (*AvahiSServiceResolverCallback)(
+    AvahiSServiceResolver *r,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
@@ -521,8 +518,8 @@ typedef void (*AvahiServiceResolverCallback)(
     AvahiStringList *txt,    /**< TXT record data */
     void* userdata);
 
-/** Create a new AvahiServiceResolver object */
-AvahiServiceResolver *avahi_service_resolver_new(
+/** Create a new AvahiSServiceResolver object */
+AvahiSServiceResolver *avahi_s_service_resolver_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
@@ -530,20 +527,20 @@ AvahiServiceResolver *avahi_service_resolver_new(
     const char *type,
     const char *domain,
     AvahiProtocol aprotocol,    /**< Address family of the desired service address. Use AVAHI_PROTO_UNSPEC if you don't care */
-    AvahiServiceResolverCallback calback,
+    AvahiSServiceResolverCallback calback,
     void* userdata);
 
-/** Free an AvahiServiceResolver object */
-void avahi_service_resolver_free(AvahiServiceResolver *r);
+/** Free an AvahiSServiceResolver object */
+void avahi_s_service_resolver_free(AvahiSServiceResolver *r);
 
 /** A domain service browser object. Use this to browse for
  * conventional unicast DNS servers which may be used to resolve
  * conventional domain names */
-typedef struct AvahiDNSServerBrowser AvahiDNSServerBrowser;
+typedef struct AvahiSDNSServerBrowser AvahiSDNSServerBrowser;
 
-/** Callback prototype for AvahiDNSServerBrowser events */
-typedef void (*AvahiDNSServerBrowserCallback)(
-    AvahiDNSServerBrowser *b,
+/** Callback prototype for AvahiSDNSServerBrowser events */
+typedef void (*AvahiSDNSServerBrowserCallback)(
+    AvahiSDNSServerBrowser *b,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
@@ -552,19 +549,19 @@ typedef void (*AvahiDNSServerBrowserCallback)(
     uint16_t port,                 /**< Port number of the DNS servers, probably 53 */
     void* userdata);
 
-/** Create a new AvahiDNSServerBrowser object */
-AvahiDNSServerBrowser *avahi_dns_server_browser_new(
+/** Create a new AvahiSDNSServerBrowser object */
+AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
     AvahiDNSServerType type,
     AvahiProtocol aprotocol,  /**< Address protocol for the DNS server */ 
-    AvahiDNSServerBrowserCallback callback,
+    AvahiSDNSServerBrowserCallback callback,
     void* userdata);
 
-/** Free an AvahiDNSServerBrowser object */
-void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b);
+/** Free an AvahiSDNSServerBrowser object */
+void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b);
 
 /** Return the last error code */
 int avahi_server_errno(AvahiServer *s);

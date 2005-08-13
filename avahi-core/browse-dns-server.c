@@ -35,33 +35,33 @@
 typedef struct AvahiDNSServerInfo AvahiDNSServerInfo;
 
 struct AvahiDNSServerInfo {
-    AvahiDNSServerBrowser *browser;
+    AvahiSDNSServerBrowser *browser;
 
     AvahiIfIndex interface;
     AvahiProtocol protocol;
     AvahiRecord *srv_record;
-    AvahiHostNameResolver *host_name_resolver;
+    AvahiSHostNameResolver *host_name_resolver;
     AvahiAddress address;
     
     AVAHI_LLIST_FIELDS(AvahiDNSServerInfo, info);
 };
 
-struct AvahiDNSServerBrowser {
+struct AvahiSDNSServerBrowser {
     AvahiServer *server;
     char *domain_name;
     
-    AvahiRecordBrowser *record_browser;
-    AvahiDNSServerBrowserCallback callback;
+    AvahiSRecordBrowser *record_browser;
+    AvahiSDNSServerBrowserCallback callback;
     void* userdata;
     AvahiProtocol aprotocol;
 
     unsigned n_info;
     
-    AVAHI_LLIST_FIELDS(AvahiDNSServerBrowser, browser);
+    AVAHI_LLIST_FIELDS(AvahiSDNSServerBrowser, browser);
     AVAHI_LLIST_HEAD(AvahiDNSServerInfo, info);
 };
 
-static AvahiDNSServerInfo* get_server_info(AvahiDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r) {
+static AvahiDNSServerInfo* get_server_info(AvahiSDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r) {
     AvahiDNSServerInfo *i;
     
     assert(b);
@@ -76,13 +76,13 @@ static AvahiDNSServerInfo* get_server_info(AvahiDNSServerBrowser *b, AvahiIfInde
     return NULL;
 }
 
-static void server_info_free(AvahiDNSServerBrowser *b, AvahiDNSServerInfo *i) {
+static void server_info_free(AvahiSDNSServerBrowser *b, AvahiDNSServerInfo *i) {
     assert(b);
     assert(i);
 
     avahi_record_unref(i->srv_record);
     if (i->host_name_resolver)
-        avahi_host_name_resolver_free(i->host_name_resolver);
+        avahi_s_host_name_resolver_free(i->host_name_resolver);
     
     AVAHI_LLIST_REMOVE(AvahiDNSServerInfo, info, b->info, i);
 
@@ -92,7 +92,7 @@ static void server_info_free(AvahiDNSServerBrowser *b, AvahiDNSServerInfo *i) {
     avahi_free(i);
 }
 
-static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, void* userdata) {
+static void host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, void* userdata) {
     AvahiDNSServerInfo *i = userdata;
     
     assert(r);
@@ -105,12 +105,12 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex i
         i->browser->callback(i->browser, i->interface, i->protocol, AVAHI_BROWSER_NEW, i->srv_record->data.srv.name, &i->address, i->srv_record->data.srv.port, i->browser->userdata);
     }
 
-    avahi_host_name_resolver_free(i->host_name_resolver);
+    avahi_s_host_name_resolver_free(i->host_name_resolver);
     i->host_name_resolver = NULL;
 }
 
-static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
-    AvahiDNSServerBrowser *b = userdata;
+static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
+    AvahiSDNSServerBrowser *b = userdata;
 
     assert(rr);
     assert(record);
@@ -134,7 +134,7 @@ static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interfac
         i->interface = interface;
         i->protocol = protocol;
         i->srv_record = avahi_record_ref(record);
-        i->host_name_resolver = avahi_host_name_resolver_new(b->server, interface, protocol, record->data.srv.name, b->aprotocol, host_name_resolver_callback, i);
+        i->host_name_resolver = avahi_s_host_name_resolver_new(b->server, interface, protocol, record->data.srv.name, b->aprotocol, host_name_resolver_callback, i);
         
         AVAHI_LLIST_PREPEND(AvahiDNSServerInfo, info, b->info, i);
 
@@ -152,8 +152,8 @@ static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interfac
     }
 }
 
-AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDNSServerType type, AvahiProtocol aprotocol, AvahiDNSServerBrowserCallback callback, void* userdata) {
-    AvahiDNSServerBrowser *b;
+AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDNSServerType type, AvahiProtocol aprotocol, AvahiSDNSServerBrowserCallback callback, void* userdata) {
+    AvahiSDNSServerBrowser *b;
     AvahiKey *k;
     char *n = NULL;
     
@@ -166,7 +166,7 @@ AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIf
         return NULL;
     }
     
-    if (!(b = avahi_new(AvahiDNSServerBrowser, 1))) {
+    if (!(b = avahi_new(AvahiSDNSServerBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
@@ -179,33 +179,33 @@ AvahiDNSServerBrowser *avahi_dns_server_browser_new(AvahiServer *server, AvahiIf
     b->n_info = 0;
 
     AVAHI_LLIST_HEAD_INIT(AvahiDNSServerInfo, b->info);
-    AVAHI_LLIST_PREPEND(AvahiDNSServerBrowser, browser, server->dns_server_browsers, b);
+    AVAHI_LLIST_PREPEND(AvahiSDNSServerBrowser, browser, server->dns_server_browsers, b);
     
     n = avahi_strdup_printf("%s.%s",type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", b->domain_name);
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
     avahi_free(n);
     
-    b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
+    b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
 
     if (!b->record_browser) {
-        avahi_dns_server_browser_free(b);
+        avahi_s_dns_server_browser_free(b);
         return NULL;
     }
     
     return b;
 }
 
-void avahi_dns_server_browser_free(AvahiDNSServerBrowser *b) {
+void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b) {
     assert(b);
 
     while (b->info)
         server_info_free(b, b->info);
     
-    AVAHI_LLIST_REMOVE(AvahiDNSServerBrowser, browser, b->server->dns_server_browsers, b);
+    AVAHI_LLIST_REMOVE(AvahiSDNSServerBrowser, browser, b->server->dns_server_browsers, b);
 
     if (b->record_browser)
-        avahi_record_browser_free(b->record_browser);
+        avahi_s_record_browser_free(b->record_browser);
     avahi_free(b->domain_name);
     avahi_free(b);
 }

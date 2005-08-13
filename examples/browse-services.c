@@ -35,7 +35,7 @@
 static AvahiSimplePoll *simple_poll = NULL;
 
 static void resolve_callback(
-    AvahiServiceResolver *r,
+    AvahiSServiceResolver *r,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
@@ -67,11 +67,11 @@ static void resolve_callback(
         avahi_free(t);
     }
 
-    avahi_service_resolver_free(r);
+    avahi_s_service_resolver_free(r);
 }
 
 static void browse_callback(
-    AvahiServiceBrowser *b,
+    AvahiSServiceBrowser *b,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
@@ -98,14 +98,14 @@ static void browse_callback(
         we free it. If the server is terminated before the callback
         function is called the server will free the resolver for us. */
 
-        if (!(avahi_service_resolver_new(s, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, resolve_callback, s)))
+        if (!(avahi_s_service_resolver_new(s, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, resolve_callback, s)))
             fprintf(stderr, "Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_server_errno(s)));
 }
 
 int main(int argc, char*argv[]) {
     AvahiServerConfig config;
     AvahiServer *server = NULL;
-    AvahiServiceBrowser *sb;
+    AvahiSServiceBrowser *sb;
     int error;
     int ret = 1;
 
@@ -138,7 +138,7 @@ int main(int argc, char*argv[]) {
     }
     
     /* Create the service browser */
-    if (!(sb = avahi_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, browse_callback, server))) {
+    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, browse_callback, server))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(server)));
         goto fail;
     }
@@ -154,7 +154,7 @@ fail:
     
     /* Cleanup things */
     if (sb)
-        avahi_service_browser_free(sb);
+        avahi_s_service_browser_free(sb);
     
     if (server)
         avahi_server_free(server);

@@ -63,7 +63,7 @@ struct StaticServiceGroup {
     gchar *name, *chosen_name;
     gboolean replace_wildcards;
 
-    AvahiEntryGroup *entry_group;
+    AvahiSEntryGroup *entry_group;
     AVAHI_LLIST_HEAD(StaticService, services);
     AVAHI_LLIST_FIELDS(StaticServiceGroup, groups);
 };
@@ -153,7 +153,7 @@ static void static_service_group_free(StaticServiceGroup *g) {
     g_assert(g);
 
     if (g->entry_group)
-        avahi_entry_group_free(g->entry_group);
+        avahi_s_entry_group_free(g->entry_group);
 
     while (g->services)
         static_service_free(g->services);
@@ -166,7 +166,7 @@ static void static_service_group_free(StaticServiceGroup *g) {
     g_free(g);
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *eg, AvahiEntryGroupState state, gpointer userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *eg, AvahiEntryGroupState state, gpointer userdata) {
     StaticServiceGroup *g = userdata;
     
     g_assert(s);
@@ -202,9 +202,9 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         g->chosen_name = g_strdup(g->name);
 
     if (!g->entry_group)
-        g->entry_group = avahi_entry_group_new(avahi_server, entry_group_callback, g);
+        g->entry_group = avahi_s_entry_group_new(avahi_server, entry_group_callback, g);
 
-    g_assert(avahi_entry_group_is_empty(g->entry_group));
+    g_assert(avahi_s_entry_group_is_empty(g->entry_group));
     
     for (s = g->services; s; s = s->services_next) {
 
@@ -223,14 +223,14 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         }
     }
 
-    avahi_entry_group_commit(g->entry_group);
+    avahi_s_entry_group_commit(g->entry_group);
 }
 
 static void remove_static_service_group_from_server(StaticServiceGroup *g) {
     g_assert(g);
 
     if (g->entry_group)
-        avahi_entry_group_reset(g->entry_group);
+        avahi_s_entry_group_reset(g->entry_group);
 }
 
 typedef enum {

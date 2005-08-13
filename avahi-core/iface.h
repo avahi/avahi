@@ -70,7 +70,7 @@ struct AvahiHwInterface {
     uint8_t mac_address[AVAHI_MAX_MAC_ADDRESS];
     size_t mac_address_size;
 
-    AvahiEntryGroup *entry_group;
+    AvahiSEntryGroup *entry_group;
 
     AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
 };
@@ -102,7 +102,7 @@ struct AvahiInterfaceAddress {
     unsigned char prefix_len;
     AvahiAddress address;
     
-    AvahiEntryGroup *entry_group;
+    AvahiSEntryGroup *entry_group;
     AvahiInterface *interface;
 };
 

@@ -32,7 +32,7 @@ void avahi_browser_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record
 
 int avahi_is_subscribed(AvahiServer *s, AvahiInterface *i, AvahiKey *k);
 
-void avahi_record_browser_destroy(AvahiRecordBrowser *b);
+void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b);
 
 void avahi_browser_new_interface(AvahiServer*s, AvahiInterface *i);
 

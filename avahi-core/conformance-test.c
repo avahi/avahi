@@ -39,7 +39,7 @@
 #include "log.h"
 
 static char *name = NULL;
-static AvahiEntryGroup *group = NULL;
+static AvahiSEntryGroup *group = NULL;
 static int try = 0;
 static AvahiServer *avahi = NULL;
 
@@ -52,7 +52,7 @@ static int dump_timeout(void* data) {
     return 1;
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata);
 
 static void create_service(const char *t) {
     char *n;
@@ -64,12 +64,12 @@ static void create_service(const char *t) {
     name = n;
 
     if (group)
-        avahi_entry_group_reset(group);
+        avahi_s_entry_group_reset(group);
     else
-        group = avahi_entry_group_new(avahi, entry_group_callback, NULL);
+        group = avahi_s_entry_group_new(avahi, entry_group_callback, NULL);
     
     avahi_server_add_service(avahi, group, 0, AF_UNSPEC, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);   
-    avahi_entry_group_commit(group);
+    avahi_s_entry_group_commit(group);
 
     try++;
 }
@@ -84,7 +84,7 @@ static int rename_timeout(void* data) {
     return 1;
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
     if (state == AVAHI_ENTRY_GROUP_COLLISION)
         create_service(NULL);
     else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
     g_main_loop_unref(loop);
 
     if (group)
-        avahi_entry_group_free(group);   
+        avahi_s_entry_group_free(group);   
     avahi_server_free(avahi);
 
     avahi_glib_poll_free(glib_poll);

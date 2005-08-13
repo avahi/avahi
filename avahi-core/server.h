@@ -25,6 +25,9 @@
 #include <avahi-common/llist.h>
 #include <avahi-common/watch.h>
 
+/** A locally registered DNS resource record */
+typedef struct AvahiEntry AvahiEntry;
+
 #include "core.h"
 #include "iface.h"
 #include "prioq.h"
@@ -52,7 +55,7 @@ struct AvahiLegacyUnicastReflectSlot {
 
 struct AvahiEntry {
     AvahiServer *server;
-    AvahiEntryGroup *group;
+    AvahiSEntryGroup *group;
 
     int dead;
     
@@ -68,13 +71,13 @@ struct AvahiEntry {
     AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
 };
 
-struct AvahiEntryGroup {
+struct AvahiSEntryGroup {
     AvahiServer *server;
     int dead;
 
     AvahiEntryGroupState state;
     void* userdata;
-    AvahiEntryGroupCallback callback;
+    AvahiSEntryGroupCallback callback;
 
     unsigned n_probing;
     
@@ -82,7 +85,7 @@ struct AvahiEntryGroup {
     struct timeval register_time;
     AvahiTimeEvent *register_time_event;
     
-    AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
+    AVAHI_LLIST_FIELDS(AvahiSEntryGroup, groups);
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
 };
 
@@ -95,17 +98,17 @@ struct AvahiServer {
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
     AvahiHashmap *entries_by_key;
 
-    AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
+    AVAHI_LLIST_HEAD(AvahiSEntryGroup, groups);
     
-    AVAHI_LLIST_HEAD(AvahiRecordBrowser, record_browsers);
+    AVAHI_LLIST_HEAD(AvahiSRecordBrowser, record_browsers);
     AvahiHashmap *record_browser_hashmap;
-    AVAHI_LLIST_HEAD(AvahiHostNameResolver, host_name_resolvers);
-    AVAHI_LLIST_HEAD(AvahiAddressResolver, address_resolvers);
-    AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
-    AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
-    AVAHI_LLIST_HEAD(AvahiServiceBrowser, service_browsers);
-    AVAHI_LLIST_HEAD(AvahiServiceResolver, service_resolvers);
-    AVAHI_LLIST_HEAD(AvahiDNSServerBrowser, dns_server_browsers);
+    AVAHI_LLIST_HEAD(AvahiSHostNameResolver, host_name_resolvers);
+    AVAHI_LLIST_HEAD(AvahiSAddressResolver, address_resolvers);
+    AVAHI_LLIST_HEAD(AvahiSDomainBrowser, domain_browsers);
+    AVAHI_LLIST_HEAD(AvahiSServiceTypeBrowser, service_type_browsers);
+    AVAHI_LLIST_HEAD(AvahiSServiceBrowser, service_browsers);
+    AVAHI_LLIST_HEAD(AvahiSServiceResolver, service_resolvers);
+    AVAHI_LLIST_HEAD(AvahiSDNSServerBrowser, dns_server_browsers);
 
     int need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
     
@@ -124,8 +127,8 @@ struct AvahiServer {
     AvahiServerCallback callback;
     void* userdata;
 
-    AvahiEntryGroup *hinfo_entry_group;
-    AvahiEntryGroup *browse_domain_entry_group;
+    AvahiSEntryGroup *hinfo_entry_group;
+    AvahiSEntryGroup *browse_domain_entry_group;
     unsigned n_host_rr_pending;
 
     /* Used for assembling responses */
@@ -146,13 +149,13 @@ void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, int unicast_response);
 void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port, int legacy_unicast, int is_probe);
 
-void avahi_entry_group_change_state(AvahiEntryGroup *g, AvahiEntryGroupState state);
+void avahi_s_entry_group_change_state(AvahiSEntryGroup *g, AvahiEntryGroupState state);
 
 int avahi_entry_is_commited(AvahiEntry *e);
 
 void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata);
 
-void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata);
+void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata);
 
 void avahi_server_decrease_host_rr_pending(AvahiServer *s);
 void avahi_server_increase_host_rr_pending(AvahiServer *s);

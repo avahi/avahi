@@ -29,7 +29,7 @@
 #include "browse.h"
 #include "log.h"
 
-struct AvahiRecordBrowser {
+struct AvahiSRecordBrowser {
     int dead;
     
     AvahiServer *server;
@@ -41,15 +41,15 @@ struct AvahiRecordBrowser {
     AvahiTimeEvent *query_time_event;
     AvahiTimeEvent *scan_time_event;
 
-    AvahiRecordBrowserCallback callback;
+    AvahiSRecordBrowserCallback callback;
     void* userdata;
 
-    AVAHI_LLIST_FIELDS(AvahiRecordBrowser, browser);
-    AVAHI_LLIST_FIELDS(AvahiRecordBrowser, by_key);
+    AVAHI_LLIST_FIELDS(AvahiSRecordBrowser, browser);
+    AVAHI_LLIST_FIELDS(AvahiSRecordBrowser, by_key);
 };
 
 static void elapse_callback(AvahiTimeEvent *e, void *userdata) {
-    AvahiRecordBrowser *s = userdata;
+    AvahiSRecordBrowser *s = userdata;
     struct timeval tv;
 /*     char *t;  */
     
@@ -70,7 +70,7 @@ static void elapse_callback(AvahiTimeEvent *e, void *userdata) {
 }
 
 struct cbdata {
-    AvahiRecordBrowser *record_browser;
+    AvahiSRecordBrowser *record_browser;
     AvahiInterface *interface;
 };
 
@@ -97,7 +97,7 @@ static void* scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
 }
 
 static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
-    AvahiRecordBrowser *b = userdata;
+    AvahiSRecordBrowser *b = userdata;
     struct cbdata cbdata = { b, i };
 
     assert(m);
@@ -109,7 +109,7 @@ static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
 }
 
 static void scan_callback(AvahiTimeEvent *e, void *userdata) {
-    AvahiRecordBrowser *b = userdata;
+    AvahiSRecordBrowser *b = userdata;
     assert(b);
 
     /* Scan the caches */
@@ -122,8 +122,8 @@ static void scan_callback(AvahiTimeEvent *e, void *userdata) {
     }
 }
 
-AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key, AvahiRecordBrowserCallback callback, void* userdata) {
-    AvahiRecordBrowser *b, *t;
+AvahiSRecordBrowser *avahi_s_record_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key, AvahiSRecordBrowserCallback callback, void* userdata) {
+    AvahiSRecordBrowser *b, *t;
     struct timeval tv;
 
     assert(server);
@@ -140,7 +140,7 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex i
         return NULL;
     }
     
-    if (!(b = avahi_new(AvahiRecordBrowser, 1))) {
+    if (!(b = avahi_new(AvahiSRecordBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
@@ -159,11 +159,11 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex i
     avahi_elapse_time(&tv, b->sec_delay*1000, 0);
     b->query_time_event = avahi_time_event_new(server->time_event_queue, &tv, elapse_callback, b);
 
-    AVAHI_LLIST_PREPEND(AvahiRecordBrowser, browser, server->record_browsers, b);
+    AVAHI_LLIST_PREPEND(AvahiSRecordBrowser, browser, server->record_browsers, b);
 
     /* Add the new entry to the record_browser hash table */
     t = avahi_hashmap_lookup(server->record_browser_hashmap, key);
-    AVAHI_LLIST_PREPEND(AvahiRecordBrowser, by_key, t, b);
+    AVAHI_LLIST_PREPEND(AvahiSRecordBrowser, by_key, t, b);
     avahi_hashmap_replace(server->record_browser_hashmap, key, t);
 
     /* The currenlty cached entries are scanned a bit later */
@@ -172,7 +172,7 @@ AvahiRecordBrowser *avahi_record_browser_new(AvahiServer *server, AvahiIfIndex i
     return b;
 }
 
-void avahi_record_browser_free(AvahiRecordBrowser *b) {
+void avahi_s_record_browser_free(AvahiSRecordBrowser *b) {
     assert(b);
     assert(!b->dead);
 
@@ -190,15 +190,15 @@ void avahi_record_browser_free(AvahiRecordBrowser *b) {
     }
 }
 
-void avahi_record_browser_destroy(AvahiRecordBrowser *b) {
-    AvahiRecordBrowser *t;
+void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b) {
+    AvahiSRecordBrowser *t;
     
     assert(b);
     
-    AVAHI_LLIST_REMOVE(AvahiRecordBrowser, browser, b->server->record_browsers, b);
+    AVAHI_LLIST_REMOVE(AvahiSRecordBrowser, browser, b->server->record_browsers, b);
 
     t = avahi_hashmap_lookup(b->server->record_browser_hashmap, b->key);
-    AVAHI_LLIST_REMOVE(AvahiRecordBrowser, by_key, t, b);
+    AVAHI_LLIST_REMOVE(AvahiSRecordBrowser, by_key, t, b);
     if (t)
         avahi_hashmap_replace(b->server->record_browser_hashmap, t->key, t);
     else
@@ -215,8 +215,8 @@ void avahi_record_browser_destroy(AvahiRecordBrowser *b) {
 }
 
 void avahi_browser_cleanup(AvahiServer *server) {
-    AvahiRecordBrowser *b;
-    AvahiRecordBrowser *n;
+    AvahiSRecordBrowser *b;
+    AvahiSRecordBrowser *n;
     
     assert(server);
 
@@ -224,14 +224,14 @@ void avahi_browser_cleanup(AvahiServer *server) {
         n = b->browser_next;
         
         if (b->dead)
-            avahi_record_browser_destroy(b);
+            avahi_s_record_browser_destroy(b);
     }
 
     server->need_browser_cleanup = 0;
 }
 
 void avahi_browser_notify(AvahiServer *server, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event) {
-    AvahiRecordBrowser *b;
+    AvahiSRecordBrowser *b;
     
     assert(server);
     assert(record);
@@ -242,7 +242,7 @@ void avahi_browser_notify(AvahiServer *server, AvahiInterface *i, AvahiRecord *r
 }
 
 int avahi_is_subscribed(AvahiServer *server, AvahiInterface *i, AvahiKey *k) {
-    AvahiRecordBrowser *b;
+    AvahiSRecordBrowser *b;
     assert(server);
     assert(k);
 
@@ -254,7 +254,7 @@ int avahi_is_subscribed(AvahiServer *server, AvahiInterface *i, AvahiKey *k) {
 }
 
 void avahi_browser_new_interface(AvahiServer*s, AvahiInterface *i) {
-    AvahiRecordBrowser *b;
+    AvahiSRecordBrowser *b;
     
     assert(s);
     assert(i);

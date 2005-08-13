@@ -28,20 +28,20 @@
 
 #include "browse.h"
 
-struct AvahiDomainBrowser {
+struct AvahiSDomainBrowser {
     AvahiServer *server;
     char *domain_name;
     
-    AvahiRecordBrowser *record_browser;
+    AvahiSRecordBrowser *record_browser;
 
-    AvahiDomainBrowserCallback callback;
+    AvahiSDomainBrowserCallback callback;
     void* userdata;
 
-    AVAHI_LLIST_FIELDS(AvahiDomainBrowser, browser);
+    AVAHI_LLIST_FIELDS(AvahiSDomainBrowser, browser);
 };
 
-static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
-    AvahiDomainBrowser *b = userdata;
+static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
+    AvahiSDomainBrowser *b = userdata;
     char *n;
 
     assert(rr);
@@ -55,8 +55,8 @@ static void record_browser_callback(AvahiRecordBrowser*rr, AvahiIfIndex interfac
     avahi_free(n);
 }
 
-AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDomainBrowserType type, AvahiDomainBrowserCallback callback, void* userdata) {
-    AvahiDomainBrowser *b;
+AvahiSDomainBrowser *avahi_s_domain_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDomainBrowserType type, AvahiSDomainBrowserCallback callback, void* userdata) {
+    AvahiSDomainBrowser *b;
     AvahiKey *k;
     char *n = NULL;
     
@@ -69,7 +69,7 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex i
         return NULL;
     }
 
-    if (!(b = avahi_new(AvahiDomainBrowser, 1))) {
+    if (!(b = avahi_new(AvahiSDomainBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
@@ -79,7 +79,7 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex i
     b->callback = callback;
     b->userdata = userdata;
 
-    AVAHI_LLIST_PREPEND(AvahiDomainBrowser, browser, server->domain_browsers, b);
+    AVAHI_LLIST_PREPEND(AvahiSDomainBrowser, browser, server->domain_browsers, b);
 
     switch (type) {
         case AVAHI_DOMAIN_BROWSER_BROWSE:
@@ -108,24 +108,24 @@ AvahiDomainBrowser *avahi_domain_browser_new(AvahiServer *server, AvahiIfIndex i
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     avahi_free(n);
     
-    b->record_browser = avahi_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
+    b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
     avahi_key_unref(k);
 
     if (!b->record_browser) {
-        avahi_domain_browser_free(b);
+        avahi_s_domain_browser_free(b);
         return NULL;
     }
     
     return b;
 }
 
-void avahi_domain_browser_free(AvahiDomainBrowser *b) {
+void avahi_s_domain_browser_free(AvahiSDomainBrowser *b) {
     assert(b);
 
-    AVAHI_LLIST_REMOVE(AvahiDomainBrowser, browser, b->server->domain_browsers, b);
+    AVAHI_LLIST_REMOVE(AvahiSDomainBrowser, browser, b->server->domain_browsers, b);
 
     if (b->record_browser)
-        avahi_record_browser_free(b->record_browser);
+        avahi_s_record_browser_free(b->record_browser);
     
     avahi_free(b->domain_name);
     avahi_free(b);

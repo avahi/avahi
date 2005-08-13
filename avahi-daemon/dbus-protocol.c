@@ -61,7 +61,7 @@ typedef struct ServiceResolverInfo ServiceResolverInfo;
 struct EntryGroupInfo {
     guint id;
     Client *client;
-    AvahiEntryGroup *entry_group;
+    AvahiSEntryGroup *entry_group;
     gchar *path;
 
     gint n_entries;
@@ -71,7 +71,7 @@ struct EntryGroupInfo {
 
 struct HostNameResolverInfo {
     Client *client;
-    AvahiHostNameResolver *host_name_resolver;
+    AvahiSHostNameResolver *host_name_resolver;
     DBusMessage *message;
 
     AVAHI_LLIST_FIELDS(HostNameResolverInfo, host_name_resolvers);
@@ -79,7 +79,7 @@ struct HostNameResolverInfo {
 
 struct AddressResolverInfo {
     Client *client;
-    AvahiAddressResolver *address_resolver;
+    AvahiSAddressResolver *address_resolver;
     DBusMessage *message;
 
     AVAHI_LLIST_FIELDS(AddressResolverInfo, address_resolvers);
@@ -88,7 +88,7 @@ struct AddressResolverInfo {
 struct DomainBrowserInfo {
     guint id;
     Client *client;
-    AvahiDomainBrowser *domain_browser;
+    AvahiSDomainBrowser *domain_browser;
     gchar *path;
 
     AVAHI_LLIST_FIELDS(DomainBrowserInfo, domain_browsers);
@@ -97,7 +97,7 @@ struct DomainBrowserInfo {
 struct ServiceTypeBrowserInfo {
     guint id;
     Client *client;
-    AvahiServiceTypeBrowser *service_type_browser;
+    AvahiSServiceTypeBrowser *service_type_browser;
     gchar *path;
 
     AVAHI_LLIST_FIELDS(ServiceTypeBrowserInfo, service_type_browsers);
@@ -106,7 +106,7 @@ struct ServiceTypeBrowserInfo {
 struct ServiceBrowserInfo {
     guint id;
     Client *client;
-    AvahiServiceBrowser *service_browser;
+    AvahiSServiceBrowser *service_browser;
     gchar *path;
 
     AVAHI_LLIST_FIELDS(ServiceBrowserInfo, service_browsers);
@@ -114,7 +114,7 @@ struct ServiceBrowserInfo {
 
 struct ServiceResolverInfo {
     Client *client;
-    AvahiServiceResolver *service_resolver;
+    AvahiSServiceResolver *service_resolver;
     DBusMessage *message;
 
     AVAHI_LLIST_FIELDS(ServiceResolverInfo, service_resolvers);
@@ -149,7 +149,7 @@ static void entry_group_free(EntryGroupInfo *i) {
     g_assert(i);
 
     if (i->entry_group)
-        avahi_entry_group_free(i->entry_group);
+        avahi_s_entry_group_free(i->entry_group);
     dbus_connection_unregister_object_path(server->bus, i->path);
     g_free(i->path);
     AVAHI_LLIST_REMOVE(EntryGroupInfo, entry_groups, i->client->entry_groups, i);
@@ -164,7 +164,7 @@ static void host_name_resolver_free(HostNameResolverInfo *i) {
     g_assert(i);
 
     if (i->host_name_resolver)
-        avahi_host_name_resolver_free(i->host_name_resolver);
+        avahi_s_host_name_resolver_free(i->host_name_resolver);
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(HostNameResolverInfo, host_name_resolvers, i->client->host_name_resolvers, i);
 
@@ -178,7 +178,7 @@ static void address_resolver_free(AddressResolverInfo *i) {
     g_assert(i);
 
     if (i->address_resolver)
-        avahi_address_resolver_free(i->address_resolver);
+        avahi_s_address_resolver_free(i->address_resolver);
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(AddressResolverInfo, address_resolvers, i->client->address_resolvers, i);
 
@@ -192,7 +192,7 @@ static void domain_browser_free(DomainBrowserInfo *i) {
     g_assert(i);
 
     if (i->domain_browser)
-        avahi_domain_browser_free(i->domain_browser);
+        avahi_s_domain_browser_free(i->domain_browser);
     dbus_connection_unregister_object_path(server->bus, i->path);
     g_free(i->path);
     AVAHI_LLIST_REMOVE(DomainBrowserInfo, domain_browsers, i->client->domain_browsers, i);
@@ -207,7 +207,7 @@ static void service_type_browser_free(ServiceTypeBrowserInfo *i) {
     g_assert(i);
 
     if (i->service_type_browser)
-        avahi_service_type_browser_free(i->service_type_browser);
+        avahi_s_service_type_browser_free(i->service_type_browser);
     dbus_connection_unregister_object_path(server->bus, i->path);
     g_free(i->path);
     AVAHI_LLIST_REMOVE(ServiceTypeBrowserInfo, service_type_browsers, i->client->service_type_browsers, i);
@@ -222,7 +222,7 @@ static void service_browser_free(ServiceBrowserInfo *i) {
     g_assert(i);
 
     if (i->service_browser)
-        avahi_service_browser_free(i->service_browser);
+        avahi_s_service_browser_free(i->service_browser);
     dbus_connection_unregister_object_path(server->bus, i->path);
     g_free(i->path);
     AVAHI_LLIST_REMOVE(ServiceBrowserInfo, service_browsers, i->client->service_browsers, i);
@@ -237,7 +237,7 @@ static void service_resolver_free(ServiceResolverInfo *i) {
     g_assert(i);
 
     if (i->service_resolver)
-        avahi_service_resolver_free(i->service_resolver);
+        avahi_s_service_resolver_free(i->service_resolver);
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(ServiceResolverInfo, service_resolvers, i->client->service_resolvers, i);
 
@@ -500,7 +500,7 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, gpointer userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, gpointer userdata) {
     EntryGroupInfo *i = userdata;
     DBusMessage *m;
     gint32 t;
@@ -557,7 +557,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        avahi_entry_group_commit(i->entry_group);
+        avahi_s_entry_group_commit(i->entry_group);
         return respond_ok(c, m);
         
         
@@ -568,7 +568,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        avahi_entry_group_reset(i->entry_group);
+        avahi_s_entry_group_reset(i->entry_group);
         return respond_ok(c, m);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty")) {
@@ -580,7 +580,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        b = !!avahi_entry_group_is_empty(i->entry_group);
+        b = !!avahi_s_entry_group_is_empty(i->entry_group);
 
         reply = dbus_message_new_method_return(m);
         dbus_message_append_args(reply, DBUS_TYPE_BOOLEAN, &b, DBUS_TYPE_INVALID);
@@ -597,7 +597,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        state = avahi_entry_group_get_state(i->entry_group);
+        state = avahi_s_entry_group_get_state(i->entry_group);
         return respond_int32(c, m, (gint32) state);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService")) {
@@ -722,7 +722,7 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata) {
+static void host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const gchar *host_name, const AvahiAddress *a, gpointer userdata) {
     HostNameResolverInfo *i = userdata;
     
     g_assert(r);
@@ -762,7 +762,7 @@ static void host_name_resolver_callback(AvahiHostNameResolver *r, AvahiIfIndex i
     host_name_resolver_free(i);
 }
 
-static void address_resolver_callback(AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const gchar *host_name, gpointer userdata) {
+static void address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const gchar *host_name, gpointer userdata) {
     AddressResolverInfo *i = userdata;
     
     g_assert(r);
@@ -845,7 +845,7 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static void domain_browser_callback(AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
+static void domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *domain, gpointer userdata) {
     DomainBrowserInfo *i = userdata;
     DBusMessage *m;
     gint32 i_interface, i_protocol;
@@ -913,7 +913,7 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static void service_type_browser_callback(AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *type, const gchar *domain, gpointer userdata) {
+static void service_type_browser_callback(AvahiSServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *type, const gchar *domain, gpointer userdata) {
     ServiceTypeBrowserInfo *i = userdata;
     DBusMessage *m;
     gint32 i_interface, i_protocol;
@@ -983,7 +983,7 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static void service_browser_callback(AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *name, const gchar *type, const gchar *domain, gpointer userdata) {
+static void service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const gchar *name, const gchar *type, const gchar *domain, gpointer userdata) {
     ServiceBrowserInfo *i = userdata;
     DBusMessage *m;
     gint32 i_interface, i_protocol;
@@ -1012,7 +1012,7 @@ static void service_browser_callback(AvahiServiceBrowser *b, AvahiIfIndex interf
 }
 
 static void service_resolver_callback(
-    AvahiServiceResolver *r,
+    AvahiSServiceResolver *r,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
@@ -1278,7 +1278,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(EntryGroupInfo, entry_groups, client->entry_groups, i);
         client->n_objects++;
         
-        if (!(i->entry_group = avahi_entry_group_new(avahi_server, entry_group_callback, i))) {
+        if (!(i->entry_group = avahi_s_entry_group_new(avahi_server, entry_group_callback, i))) {
             entry_group_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -1319,7 +1319,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(HostNameResolverInfo, host_name_resolvers, client->host_name_resolvers, i);
         client->n_objects++;
 
-        if (!(i->host_name_resolver = avahi_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, host_name_resolver_callback, i))) {
+        if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, host_name_resolver_callback, i))) {
             host_name_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -1362,7 +1362,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(AddressResolverInfo, address_resolvers, client->address_resolvers, i);
         client->n_objects++;
 
-        if (!(i->address_resolver = avahi_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, address_resolver_callback, i))) {
+        if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, address_resolver_callback, i))) {
             address_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -1415,7 +1415,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(DomainBrowserInfo, domain_browsers, client->domain_browsers, i);
         client->n_objects++;
 
-        if (!(i->domain_browser = avahi_domain_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, (AvahiDomainBrowserType) type, domain_browser_callback, i))) {
+        if (!(i->domain_browser = avahi_s_domain_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, (AvahiDomainBrowserType) type, domain_browser_callback, i))) {
             domain_browser_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -1468,7 +1468,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(ServiceTypeBrowserInfo, service_type_browsers, client->service_type_browsers, i);
         client->n_objects++;
 
-        if (!(i->service_type_browser = avahi_service_type_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, service_type_browser_callback, i))) {
+        if (!(i->service_type_browser = avahi_s_service_type_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, service_type_browser_callback, i))) {
             service_type_browser_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -1522,7 +1522,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(ServiceBrowserInfo, service_browsers, client->service_browsers, i);
         client->n_objects++;
 
-        if (!(i->service_browser = avahi_service_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, type, domain, service_browser_callback, i))) {
+        if (!(i->service_browser = avahi_s_service_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, type, domain, service_browser_callback, i))) {
             service_browser_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -1568,7 +1568,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         AVAHI_LLIST_PREPEND(ServiceResolverInfo, service_resolvers, client->service_resolvers, i);
         client->n_objects++;
 
-        if (!(i->service_resolver = avahi_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, service_resolver_callback, i))) {
+        if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, service_resolver_callback, i))) {
             service_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }

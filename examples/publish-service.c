@@ -32,13 +32,13 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 
-static AvahiEntryGroup *group = NULL;
+static AvahiSEntryGroup *group = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 static char *name = NULL;
 
 static void create_services(AvahiServer *s);
 
-static void entry_group_callback(AvahiServer *s, AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
     assert(s);
     assert(g == group);
 
@@ -70,7 +70,7 @@ static void create_services(AvahiServer *s) {
 
     /* If this is the first time we're called, let's create a new entry group */
     if (!group) {
-        if (!(group = avahi_entry_group_new(s, entry_group_callback, NULL))) {
+        if (!(group = avahi_s_entry_group_new(s, entry_group_callback, NULL))) {
             fprintf(stderr, "avahi_entry_group_new() failed: %s\n", avahi_strerror(avahi_server_errno(s)));
             goto fail;
         }
@@ -94,7 +94,7 @@ static void create_services(AvahiServer *s) {
     }
 
     /* Tell the server to register the service */
-    if ((ret = avahi_entry_group_commit(group)) < 0) {
+    if ((ret = avahi_s_entry_group_commit(group)) < 0) {
         fprintf(stderr, "Failed to commit entry_group: %s\n", avahi_strerror(ret));
         goto fail;
     }
@@ -137,7 +137,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void * userd
          * in AVAHI_SERVER_RUNNING state we will register them
          * again with the new host name. */
         if (group)
-            avahi_entry_group_reset(group);
+            avahi_s_entry_group_reset(group);
     }
 }
 
@@ -186,7 +186,7 @@ fail:
     
     /* Cleanup things */
     if (group)
-        avahi_entry_group_free(group);
+        avahi_s_entry_group_free(group);
 
     if (server)
         avahi_server_free(server);

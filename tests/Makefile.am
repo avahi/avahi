@@ -30,7 +30,7 @@ noinst_PROGRAMS = \
 c_plus_plus_test_SOURCES = \
 	c-plus-plus-test.cc
 
-c_plus_plus_CFLAGS = $(AM_CFLAGS)
+c_plus_plus_test_CXXFLAGS = $(AM_CFLAGS)
 c_plus_plus_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la
 
 EXTRA_DIST=c-plus-plus-test-gen.py

@@ -1,6 +1,4 @@
 todo:
-* deal with no local interface ?
-* doxygen updates
 * release!
 
 later:
@@ -11,6 +9,8 @@ later:
   * Defer unicast responses the same way as multicast responses 
 
 done:
+* doxygen updates
+* deal with no local interface
 * Probing/Conflict resolution
 * uniqueness
 * respect escaping in name serialization

@@ -37,15 +37,11 @@ AVAHI_C_DECL_BEGIN
 
 typedef struct _AvahiClient AvahiClient;
 
-typedef struct _AvahiClientEntryGroup AvahiClientEntryGroup;
+typedef struct _AvahiEntryGroup AvahiEntryGroup;
 
-typedef struct _AvahiClientDomainBrowser AvahiClientDomainBrowser;
+typedef struct _AvahiDomainBrowser AvahiDomainBrowser;
 
-typedef struct _AvahiClientServiceTypeBrowser AvahiClientServiceTypeBrowser;
-
-/* Convenience typedefs for slight name differences */
-typedef AvahiDomainBrowserType AvahiClientDomainBrowserType;
-typedef AvahiEntryGroupState AvahiClientEntryGroupState;
+typedef struct _AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 
 /** States of a client object, note that AvahiServerStates are also emitted */
 typedef enum {
@@ -54,34 +50,16 @@ typedef enum {
 } AvahiClientState;
 
 /** The function prototype for the callback of an AvahiClient */
-typedef void (*AvahiClientCallback) (AvahiClient *s,
-                                     AvahiClientState state,
-                                     void* userdata);
+typedef void (*AvahiClientCallback) (AvahiClient *s, AvahiClientState state, void* userdata);
 
-/** The function prototype for the callback of an AvahiClientEntryGroup */
-typedef void (*AvahiClientEntryGroupCallback)
-                    (AvahiClientEntryGroup *g,
-                     AvahiEntryGroupState state,
-                     void* userdata);
+/** The function prototype for the callback of an AvahiEntryGroup */
+typedef void (*AvahiEntryGroupCallback) (AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
 
-/** The function prototype for the callback of an AvahiClientDomainBrowser */
-typedef void (*AvahiClientDomainBrowserCallback)
-                    (AvahiClientDomainBrowser *b,
-                     AvahiIfIndex interface,
-                     AvahiProtocol protocol,
-                     AvahiBrowserEvent event,
-                     char *domain,
-                     void *user_data);
+/** The function prototype for the callback of an AvahiDomainBrowser */
+typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data);
 
-/** The function prototype for the callback of an AvahiClientServiceTypeBrowser */
-typedef void (*AvahiClientServiceTypeBrowserCallback)
-                    (AvahiClientServiceTypeBrowser *b, 
-                     AvahiIfIndex interface,
-                     AvahiProtocol protocol,
-                     AvahiBrowserEvent event,
-                     char *type,
-                     char *domain,
-                     void *user_data);
+/** The function prototype for the callback of an AvahiServiceTypeBrowser */
+typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data);
 
 /** Creates a new client instance */
 AvahiClient* avahi_client_new (AvahiClientCallback callback, void *user_data);
@@ -98,33 +76,30 @@ char* avahi_client_get_domain_name (AvahiClient*);
 /** Get FQDN domain name */
 char* avahi_client_get_host_name_fqdn (AvahiClient*);
 
-/** Create a new AvahiClientEntryGroup object */
-AvahiClientEntryGroup* avahi_entry_group_new
-                    (AvahiClient*,
-                     AvahiClientEntryGroupCallback callback,
-                     void *user_data);
+/** Create a new AvahiEntryGroup object */
+AvahiEntryGroup* avahi_entry_group_new (AvahiClient*, AvahiEntryGroupCallback callback, void *user_data);
 
-/** Commit an AvahiClientEntryGroup */
-int avahi_entry_group_commit (AvahiClientEntryGroup*);
+/** Commit an AvahiEntryGroup */
+int avahi_entry_group_commit (AvahiEntryGroup*);
 
-/** Reset an AvahiClientEntryGroup */
-int avahi_entry_group_reset (AvahiClientEntryGroup*);
+/** Reset an AvahiEntryGroup */
+int avahi_entry_group_reset (AvahiEntryGroup*);
 
-/** Get an AvahiClientEntryGroup's state */
-int avahi_entry_group_get_state (AvahiClientEntryGroup*);
+/** Get an AvahiEntryGroup's state */
+int avahi_entry_group_get_state (AvahiEntryGroup*);
 
-/** Check if an AvahiClientEntryGroup is empty */
-int avahi_entry_group_is_empty (AvahiClientEntryGroup*);
+/** Check if an AvahiEntryGroup is empty */
+int avahi_entry_group_is_empty (AvahiEntryGroup*);
 
 /** Get the last error number */
 int avahi_client_errno (AvahiClient*);
 
-/** Get an AvahiClientEntryGroup's owning client instance */
-AvahiClient* avahi_entry_group_get_client (AvahiClientEntryGroup*);
+/** Get an AvahiEntryGroup's owning client instance */
+AvahiClient* avahi_entry_group_get_client (AvahiEntryGroup*);
 
 /** Add a service, takes an AvahiStringList for text records */
 int
-avahi_entry_group_add_service (AvahiClientEntryGroup *group,
+avahi_entry_group_add_service (AvahiEntryGroup *group,
                                AvahiIfIndex interface,
                                AvahiProtocol protocol,
                                const char *name,
@@ -134,32 +109,31 @@ avahi_entry_group_add_service (AvahiClientEntryGroup *group,
                                uint16_t port,
                                AvahiStringList *txt);
 
-/** Get the D-Bus path of an AvahiClientEntryGroup object, for debugging purposes only. */
-char* avahi_entry_group_path (AvahiClientEntryGroup *);
+/** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */
+char* avahi_entry_group_path (AvahiEntryGroup *);
 
-/** Get the D-Bus path of an AvahiClientDomainBrowser object, for debugging purposes only. */
-char* avahi_domain_browser_path (AvahiClientDomainBrowser *);
+/** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
+char* avahi_domain_browser_path (AvahiDomainBrowser *);
 
 /** Browse for domains on the local network */
-AvahiClientDomainBrowser* avahi_domain_browser_new
-                                (AvahiClient *client,
-                                AvahiIfIndex interface,
-                                AvahiProtocol protocol,
-                                char *domain,
-                                AvahiDomainBrowserType btype,
-                                AvahiClientDomainBrowserCallback callback,
-                                void *user_data);
+AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
+                                              AvahiIfIndex interface,
+                                              AvahiProtocol protocol,
+                                              char *domain,
+                                              AvahiDomainBrowserType btype,
+                                              AvahiDomainBrowserCallback callback,
+                                              void *user_data);
 
-/** Get the D-Bus path of an AvahiClientServiceTypeBrowser object, for debugging purposes only. */
-char* avahi_service_type_browser_path (AvahiClientServiceTypeBrowser *);
+/** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
+char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
 
 /** Browse for service types on the local network */
-AvahiClientServiceTypeBrowser* avahi_service_type_browser_new (
+AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 AvahiClient *client,
                 AvahiIfIndex interface,
                 AvahiProtocol protocol,
                 char *domain,
-                AvahiClientServiceTypeBrowserCallback callback,
+                AvahiServiceTypeBrowserCallback callback,
                 void *user_data);
 
 

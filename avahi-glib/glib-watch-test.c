@@ -52,7 +52,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdat
     }
 }
 
-static void wakeup(AvahiPoll *_api, void *userdata) {
+static void wakeup(AvahiTimeout *t, void *userdata) {
     struct timeval tv;
     static int i = 0;
 
@@ -62,26 +62,28 @@ static void wakeup(AvahiPoll *_api, void *userdata) {
         g_main_loop_quit(loop);
 
     avahi_elapse_time(&tv, 1000, 0);
-    api->set_wakeup(api, &tv, wakeup, NULL);
+    api->timeout_update(t, &tv);
 }
 
 int main(int argc, char *argv[]) {
-    AvahiGLibPoll *s;
+    AvahiGLibPoll *g;
     struct timeval tv;
     
-    s = avahi_glib_poll_new(NULL);
-    assert(s);
+    g = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
+    assert(g);
 
-    api = avahi_glib_poll_get(s);
+    api = avahi_glib_poll_get(g);
 
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);
 
     avahi_elapse_time(&tv, 1000, 0);
-    api->set_wakeup(api, &tv, wakeup, NULL);
+    api->timeout_new(api, &tv, wakeup, NULL);
 
     loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
+
+    avahi_glib_poll_free(g);
     
     return 0;
 }

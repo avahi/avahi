@@ -36,6 +36,9 @@ AVAHI_C_DECL_BEGIN
 /** An I/O watch object */
 typedef struct AvahiWatch AvahiWatch;
 
+/** An I/O watch object */
+typedef struct AvahiTimeout AvahiTimeout;
+
 /** An event polling abstraction object */
 typedef struct AvahiPoll AvahiPoll;
 
@@ -50,8 +53,8 @@ typedef enum {
 /** Called whenever an I/O event happens  on an I/O watch */
 typedef void (*AvahiWatchCallback)(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata);
 
-/** Called when the wakeup time is reached */
-typedef void (*AvahiWakeupCallback)(AvahiPoll *api, void *userdata);
+/** Called when the timeout is reached */
+typedef void (*AvahiTimeoutCallback)(AvahiTimeout *t, void *userdata);
 
 /** Defines an abstracted event polling API. This may be used to
  connect Avahi to other main loops. This is losely based on Unix
@@ -60,7 +63,7 @@ typedef void (*AvahiWakeupCallback)(AvahiPoll *api, void *userdata);
  to define a single wakeup time.*/
 struct AvahiPoll {
 
-    /** Some abstract user data usable by the implementor of the API */
+    /** Some abstract user data usable by the provider of the API */
     void* userdata; 
 
     /** Create a new watch for the specified file descriptor and for
@@ -68,17 +71,28 @@ struct AvahiPoll {
      * whenever any of the events happens. */
     AvahiWatch* (*watch_new)(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata);
 
-    /** Update the events to wait for. */
+    /** Update the events to wait for. It is safe to call this function from an AvahiWatchCallback */
     void (*watch_update)(AvahiWatch *w, AvahiWatchEvent event);
 
-    /** Free a watch */
+    /** Return the events that happened. It is safe to call this function from an AvahiWatchCallback  */
+    AvahiWatchEvent (*watch_get_events)(AvahiWatch *w);
+
+    /** Free a watch. It is safe to call this function from an AvahiWatchCallback */
     void (*watch_free)(AvahiWatch *w);
 
     /** Set a wakeup time for the polling loop. The API will call the
-    callback function when the absolute time *tv is reached. If *tv is
-    NULL, the callback will be called in the next main loop
-    iteration. If callback is NULL the wakeup time is disabled. */
-    void (*set_wakeup)(const AvahiPoll *api, const struct timeval *tv, AvahiWakeupCallback callback, void *userdata);
+    callback function when the absolute time *tv is reached. If tv is
+    NULL, the timeout is disabled. After the timeout expired the
+    callback function will be called and the timeout is disabled. You
+    can reenable it by calling timeout_update()  */
+    AvahiTimeout* (*timeout_new)(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata);
+
+    /** Update the absolute expiration time for a timeout, If tv is
+     * null, the timeout is disabled. It is safe to call this function from an AvahiTimeoutCallback */
+    void (*timeout_update)(AvahiTimeout *, const struct timeval *tv);
+    
+    /** Free a timeout. It is safe to call this function from an AvahiTimeoutCallback */
+    void (*timeout_free)(AvahiTimeout *t);
 };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

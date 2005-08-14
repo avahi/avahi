@@ -28,6 +28,7 @@
 #include <avahi-common/address.h>
 #include <avahi-common/strlst.h>
 #include <avahi-common/defs.h>
+#include <avahi-common/watch.h>
 
 /** \file client.h Definitions and functions for the client API over D-Bus */
 
@@ -58,16 +59,16 @@ typedef void (*AvahiClientCallback) (AvahiClient *s, AvahiClientState state, voi
 typedef void (*AvahiEntryGroupCallback) (AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
 
 /** The function prototype for the callback of an AvahiDomainBrowser */
-typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data);
+typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void *user_data);
 
 /** The function prototype for the callback of an AvahiServiceBrowser */
-typedef void (*AvahiServiceBrowserCallback) (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *name, char *type, char *domain, void *user_data);
+typedef void (*AvahiServiceBrowserCallback) (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, void *user_data);
 
 /** The function prototype for the callback of an AvahiServiceTypeBrowser */
-typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data);
+typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *user_data);
 
 /** Creates a new client instance */
-AvahiClient* avahi_client_new (AvahiClientCallback callback, void *user_data);
+AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *user_data);
 
 /** Get the version of the server */
 char* avahi_client_get_version_string (AvahiClient*);
@@ -118,19 +119,19 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
                                AvahiStringList *txt);
 
 /** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */
-char* avahi_entry_group_path (AvahiEntryGroup *);
+const char* avahi_entry_group_path (AvahiEntryGroup *);
 
 /** Browse for domains on the local network */
 AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               AvahiIfIndex interface,
                                               AvahiProtocol protocol,
-                                              char *domain,
+                                              const char *domain,
                                               AvahiDomainBrowserType btype,
                                               AvahiDomainBrowserCallback callback,
                                               void *user_data);
 
 /** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
-char* avahi_domain_browser_path (AvahiDomainBrowser *);
+const char* avahi_domain_browser_path (AvahiDomainBrowser *);
 
 /** Cleans up and frees an AvahiDomainBrowser object */
 int avahi_domain_browser_free (AvahiDomainBrowser *);
@@ -140,12 +141,12 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 AvahiClient *client,
                 AvahiIfIndex interface,
                 AvahiProtocol protocol,
-                char *domain,
+                const char *domain,
                 AvahiServiceTypeBrowserCallback callback,
                 void *user_data);
 
 /** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
-char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
+const char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
 
 /** Cleans up and frees an AvahiServiceTypeBrowser object */
 int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
@@ -155,13 +156,13 @@ AvahiServiceBrowser* avahi_service_browser_new (
                 AvahiClient *client,
                 AvahiIfIndex interface,
                 AvahiProtocol protocol,
-                char *type,
-                char *domain,
+                const char *type,
+                const char *domain,
                 AvahiServiceBrowserCallback callback,
                 void *user_data);
 
 /** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
-char* avahi_service_browser_path (AvahiServiceBrowser *);
+const char* avahi_service_browser_path (AvahiServiceBrowser *);
 
 /* Cleans up and frees an AvahiServiceBrowser object */
 int avahi_service_browser_free (AvahiServiceBrowser *);

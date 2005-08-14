@@ -27,15 +27,16 @@
 #include <avahi-common/dbus.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/error.h>
+#include <avahi-common/malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <dbus/dbus.h>
-#include <dbus/dbus-glib-lowlevel.h>
 
 #include <stdlib.h>
 
+#include "dbus-watch-glue.h"
 #include "client.h"
 #include "internal.h"
 
@@ -58,7 +59,7 @@ void avahi_client_state_change (AvahiClient *client, int state)
     client->callback (client, state, client->user_data);
 }
 
-void
+static void
 avahi_client_state_request_callback (DBusPendingCall *call, void *data)
 {
     AvahiClient *client = data;
@@ -87,7 +88,7 @@ avahi_client_state_request_callback (DBusPendingCall *call, void *data)
     dbus_pending_call_unref (call);
 }
 
-void
+static void
 avahi_client_schedule_state_request (AvahiClient *client)
 {
     DBusMessage *message;
@@ -116,7 +117,7 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
     dbus_error_init (&error);
 
     if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
-        gchar *name, *old, *new;
+        char *name, *old, *new;
         dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, &old, DBUS_TYPE_STRING, &new, DBUS_TYPE_INVALID);
         
         if (dbus_error_is_set (&error)) {
@@ -181,14 +182,14 @@ out:
 }
 
 AvahiClient *
-avahi_client_new (AvahiClientCallback callback, void *user_data)
+avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *user_data)
 {
     AvahiClient *tmp = NULL;
     DBusError error;
 
     dbus_error_init (&error);
 
-    if (!(tmp = malloc(sizeof(AvahiClient))))
+    if (!(tmp = avahi_new(AvahiClient, 1)))
         goto fail;
 
     AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, tmp->groups);
@@ -196,14 +197,18 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, tmp->service_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, tmp->service_type_browsers);
     
+    tmp->poll_api = poll_api;
     tmp->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 
     if (dbus_error_is_set (&error)) {
         goto fail;
     }
 
-    dbus_connection_setup_with_g_main (tmp->bus, NULL);
-    dbus_connection_set_exit_on_disconnect (tmp->bus, FALSE);
+/*     dbus_connection_setup_with_g_main (tmp->bus, NULL); */
+/*     dbus_connection_set_exit_on_disconnect (tmp->bus, FALSE); */
+
+    if (avahi_dbus_connection_glue(tmp->bus, poll_api) < 0)
+        goto fail;
 
     if (!dbus_connection_add_filter (tmp->bus, filter_func, tmp, NULL))
     {
@@ -243,7 +248,7 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     return tmp;
 
 fail:
-    free (tmp);
+    avahi_free (tmp);
 
     if (dbus_error_is_set(&error))
         dbus_error_free(&error);
@@ -252,7 +257,7 @@ fail:
 }
 
 static char*
-avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char *param)
+avahi_client_get_string_reply_and_block (AvahiClient *client, const char *method, const char *param)
 {
     DBusMessage *message;
     DBusMessage *reply;
@@ -303,7 +308,7 @@ avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char
         return NULL;
     }
 
-    new = strdup (ret);
+    new = avahi_strdup (ret);
 
     avahi_client_set_errno (client, AVAHI_OK);
     return new;

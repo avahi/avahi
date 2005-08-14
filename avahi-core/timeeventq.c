@@ -44,6 +44,7 @@ struct AvahiTimeEvent {
 struct AvahiTimeEventQueue {
     const AvahiPoll *poll_api;
     AvahiPrioQueue *prioq;
+    AvahiTimeout *timeout;
 };
 
 static int compare(const void* _a, const void* _b) {
@@ -58,19 +59,17 @@ static int compare(const void* _a, const void* _b) {
     return avahi_timeval_compare(&a->last_run, &b->last_run);
 }
 
-static void expiration_event(AvahiPoll *poll_api, void *userdata);
-
-static void update_wakeup(AvahiTimeEventQueue *q) {
+static void update_timeout(AvahiTimeEventQueue *q) {
+    AvahiTimeEvent *e;
     assert(q);
 
-    if (q->prioq->root) {
-        AvahiTimeEvent *e = q->prioq->root->data;
-        q->poll_api->set_wakeup(q->poll_api, &e->expiry, expiration_event, q);
-    } else
-        q->poll_api->set_wakeup(q->poll_api, NULL, NULL, NULL);
+    if ((e = avahi_time_event_queue_root(q)))
+        q->poll_api->timeout_update(q->timeout, &e->expiry);
+    else
+        q->poll_api->timeout_update(q->timeout, NULL);
 }
 
-void expiration_event(AvahiPoll *poll_api, void *userdata) {
+static void expiration_event(AvahiTimeout *timeout, void *userdata) {
     struct timeval now;
     AvahiTimeEventQueue *q = userdata;
     AvahiTimeEvent *e;
@@ -92,7 +91,7 @@ void expiration_event(AvahiPoll *poll_api, void *userdata) {
         }
     }
 
-    update_wakeup(q);
+    update_timeout(q);
 }
 
 static void fix_expiry_time(AvahiTimeEvent *e) {
@@ -113,27 +112,39 @@ AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api) {
         goto oom;
     }
 
+    q->poll_api = poll_api;
+
     if (!(q->prioq = avahi_prio_queue_new(compare)))
         goto oom;
 
-    q->poll_api = poll_api;
+    if (!(q->timeout = poll_api->timeout_new(poll_api, NULL, expiration_event, q))) 
+        goto oom;
+    
     return q;
 
 oom:
 
-    if (q)
+    if (q) {
         avahi_free(q);
+
+        if (q->prioq)
+            avahi_prio_queue_free(q->prioq);
+    }
     
     return NULL;
 }
 
 void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
+    AvahiTimeEvent *e;
+    
     assert(q);
 
-    while (q->prioq->root)
-        avahi_time_event_free(q->prioq->root->data);
+    while ((e = avahi_time_event_queue_root(q)))
+        avahi_time_event_free(e);
     avahi_prio_queue_free(q->prioq);
 
+    q->poll_api->timeout_free(q->timeout);
+    
     avahi_free(q);
 }
 
@@ -175,7 +186,7 @@ AvahiTimeEvent* avahi_time_event_new(
         return NULL;
     }
 
-    update_wakeup(q);
+    update_timeout(q);
     return e;
 }
 
@@ -188,7 +199,7 @@ void avahi_time_event_free(AvahiTimeEvent *e) {
     avahi_prio_queue_remove(q->prioq, e->node);
     avahi_free(e);
 
-    update_wakeup(q);
+    update_timeout(q);
 }
 
 void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval) {
@@ -199,7 +210,7 @@ void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval) {
     fix_expiry_time(e);
     avahi_prio_queue_shuffle(e->queue->prioq, e->node);
     
-    update_wakeup(e->queue);
+    update_timeout(e->queue);
 }
 
 AvahiTimeEvent* avahi_time_event_queue_root(AvahiTimeEventQueue *q) {

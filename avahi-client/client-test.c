@@ -25,53 +25,55 @@
 
 #include <avahi-client/client.h>
 #include <avahi-common/error.h>
+#include <avahi-glib/glib-watch.h>
+#include <avahi-glib/glib-malloc.h>
 #include <stdio.h>
 #include <glib.h>
 
-void
+static void
 avahi_client_callback (AvahiClient *c, AvahiClientState state, void *user_data)
 {
     printf ("XXX: Callback on client, state -> %d, data -> %s\n", state, (char*)user_data);
 }
 
-void
+static void
 avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *user_data)
 {
     printf ("XXX: Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_path (g), state, (char*)user_data);
 }
 
-void
-avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data)
+static void
+avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_path (b), interface, protocol, event, domain, (char*)user_data);
 }
 
-void
-avahi_service_browser_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *name, char *type, char *domain, void *user_data)
+static void
+avahi_service_browser_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
 }
 
-void
-avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data)
+static void
+avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
 }
 
-gboolean
+static gboolean
 test_free_domain_browser (gpointer data)
 {
-    printf ("XXX: freeing domain browser\n");
     AvahiServiceBrowser *b = data;
+    printf ("XXX: freeing domain browser\n");
     avahi_service_browser_free (b);
     return FALSE;
 }
 
-gboolean
+static gboolean
 test_free_entry_group (gpointer data)
 {
-    printf ("XXX: freeing entry group\n");
     AvahiEntryGroup *g = data;
+    printf ("XXX: freeing entry group\n");
     avahi_entry_group_free (g);
     return FALSE;
 }
@@ -85,11 +87,15 @@ main (int argc, char *argv[])
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
+    AvahiGLibPoll *glib_poll;
     char *ret;
 
+    avahi_set_allocator(avahi_glib_allocator());
+
+    glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
     loop = g_main_loop_new (NULL, FALSE);
     
-    avahi = avahi_client_new (avahi_client_callback, "omghai2u");
+    avahi = avahi_client_new (avahi_glib_poll_get(glib_poll), avahi_client_callback, "omghai2u");
 
     g_assert (avahi != NULL);
 

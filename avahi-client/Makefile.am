@@ -35,6 +35,7 @@ avahi_clientinclude_HEADERS = \
 
 noinst_HEADERS = \
 	internal.h
+	dbus-watch-glue.h
 
 noinst_PROGRAMS = \
 	client-test
@@ -45,11 +46,15 @@ lib_LTLIBRARIES = \
 libavahi_client_la_SOURCES = \
 	client.c client.h \
 	entrygroup.c \
-	browser.c
+	browser.c \
+	dbus-watch-glue.c
+
+libavahi_client_la_CFLAGS = $(AM_CFLAGS)
+libavahi_client_la_LIBADD = $(AM_LDADD)
 
 client_test_SOURCES = \
 	client-test.c
 client_test_CFLAGS = $(AM_CFLAGS)
-client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la
+client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la
 
 endif

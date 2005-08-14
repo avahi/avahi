@@ -52,7 +52,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdat
     }
 }
 
-static void wakeup(AvahiPoll *_api, void *userdata) {
+static void wakeup(AvahiTimeout *t, void *userdata) {
     static int i = 0;
     struct timeval tv;
 
@@ -62,7 +62,7 @@ static void wakeup(AvahiPoll *_api, void *userdata) {
         avahi_simple_poll_quit(simple_poll);
     else {
         avahi_elapse_time(&tv, 1000, 0);
-        api->set_wakeup(api, &tv, wakeup, NULL);
+        api->timeout_update(t, &tv);
     }
 }
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);
 
     avahi_elapse_time(&tv, 1000, 0);
-    api->set_wakeup(api, &tv, wakeup, NULL);
+    api->timeout_new(api, &tv, wakeup, NULL);
 
     /* Our main loop */
     for (;;)

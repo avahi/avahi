@@ -604,7 +604,7 @@ static gint run_server(DaemonConfig *c) {
 
     g_assert(c);
 
-    poll_api = avahi_glib_poll_new(NULL);
+    poll_api = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
     loop = g_main_loop_new(NULL, FALSE);
 
     if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, SIGUSR1, 0) < 0) {

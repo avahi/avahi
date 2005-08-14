@@ -33,14 +33,14 @@
 AVAHI_C_DECL_BEGIN
 #endif
 
-/** GLib main loop adapter */
+/** GLib main loop adapter. You can safely cast this into a GSource */
 typedef struct AvahiGLibPoll AvahiGLibPoll;
 
 /** Create a new GLib main loop adapter attached to the specified
  context. If context is NULL, the default main loop context is
  used. You can attach as many AvahiGLibPoll objects to the same context
- as you want. */
-AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context);
+ as you want. priority takes on of GLib's G_PRIORITY constants. */
+AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, gint priority);
 
 /** Free  GLib main loop adapter */
 void avahi_glib_poll_free(AvahiGLibPoll *g);

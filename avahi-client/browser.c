@@ -23,10 +23,6 @@
 #include <config.h>
 #endif
 
-#include <avahi-client/client.h>
-#include <avahi-common/dbus.h>
-#include <avahi-common/llist.h>
-#include <avahi-common/error.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,14 +30,18 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include <stdlib.h>
+#include <avahi-client/client.h>
+#include <avahi-common/dbus.h>
+#include <avahi-common/llist.h>
+#include <avahi-common/error.h>
+#include <avahi-common/malloc.h>
 
 #include "client.h"
 #include "internal.h"
 
 /* AvahiDomainBrowser */
 
-AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, char *domain, AvahiDomainBrowserType btype, AvahiDomainBrowserCallback callback, void *user_data)
+AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDomainBrowserType btype, AvahiDomainBrowserCallback callback, void *user_data)
 {
     AvahiDomainBrowser *tmp = NULL;
     DBusMessage *message = NULL, *reply;
@@ -70,7 +70,7 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client, AvahiIfIndex 
     if (dbus_error_is_set (&error) || path == NULL)
         goto dbus_error;
 
-    tmp = malloc (sizeof (AvahiDomainBrowser));
+    tmp = avahi_new (AvahiDomainBrowser, 1);
     tmp->client = client;
     tmp->callback = callback;
     tmp->user_data = user_data;
@@ -107,12 +107,12 @@ avahi_domain_browser_free (AvahiDomainBrowser *b)
 
     AVAHI_LLIST_REMOVE(AvahiDomainBrowser, domain_browsers, client->domain_browsers, b);
 
-    free (b);
+    avahi_free (b);
 
     return avahi_client_set_errno (client, AVAHI_OK);
 }
 
-char*
+const char*
 avahi_domain_browser_path (AvahiDomainBrowser *b)
 {
     return b->path;
@@ -161,7 +161,7 @@ out:
 }
 
 /* AvahiServiceTypeBrowser */
-AvahiServiceTypeBrowser* avahi_service_type_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, char *domain, AvahiServiceTypeBrowserCallback callback, void *user_data)
+AvahiServiceTypeBrowser* avahi_service_type_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiServiceTypeBrowserCallback callback, void *user_data)
 {
     AvahiServiceTypeBrowser *tmp = NULL;
     DBusMessage *message = NULL, *reply;
@@ -192,7 +192,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (AvahiClient *client, Av
     if (dbus_error_is_set (&error) || path == NULL)
         goto dbus_error;
 
-    tmp = malloc (sizeof (AvahiServiceTypeBrowser));
+    tmp = avahi_new(AvahiServiceTypeBrowser, 1);
     tmp->client = client;
     tmp->callback = callback;
     tmp->user_data = user_data;
@@ -229,12 +229,12 @@ avahi_service_type_browser_free (AvahiServiceTypeBrowser *b)
 
     AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, service_type_browsers, b->client->service_type_browsers, b);
 
-    free (b);
+    avahi_free (b);
 
     return avahi_client_set_errno (client, AVAHI_OK);
 }
 
-char*
+const char*
 avahi_service_type_browser_path (AvahiServiceTypeBrowser *b)
 {
     return b->path;
@@ -288,7 +288,7 @@ out:
 
 /* AvahiServiceBrowser */
 
-AvahiServiceBrowser* avahi_service_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, char *type, char *domain, AvahiServiceBrowserCallback callback, void *user_data)
+AvahiServiceBrowser* avahi_service_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *type, const char *domain, AvahiServiceBrowserCallback callback, void *user_data)
 {
     AvahiServiceBrowser *tmp = NULL;
     DBusMessage *message = NULL, *reply;
@@ -322,7 +322,7 @@ AvahiServiceBrowser* avahi_service_browser_new (AvahiClient *client, AvahiIfInde
     if (dbus_error_is_set (&error) || path == NULL)
         goto dbus_error;
 
-    tmp = malloc (sizeof (AvahiServiceBrowser));
+    tmp = avahi_new(AvahiServiceBrowser, 1);
     tmp->client = client;
     tmp->callback = callback;
     tmp->user_data = user_data;
@@ -359,12 +359,12 @@ avahi_service_browser_free (AvahiServiceBrowser *b)
 
     AVAHI_LLIST_REMOVE(AvahiServiceBrowser, service_browsers, b->client->service_browsers, b);
 
-    free (b);
+    avahi_free (b);
 
     return avahi_client_set_errno (client, AVAHI_OK);
 }
 
-char*
+const char*
 avahi_service_browser_path (AvahiServiceBrowser *b)
 {
     return b->path;

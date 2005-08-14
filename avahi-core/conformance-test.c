@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     avahi_set_allocator(avahi_glib_allocator());
 
-    glib_poll = avahi_glib_poll_new(NULL);
+    glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
     
     avahi = avahi_server_new(avahi_glib_poll_get(glib_poll), NULL, server_callback, NULL, &error);
     

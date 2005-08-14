@@ -23,18 +23,17 @@
 #include <config.h>
 #endif
 
-#include <avahi-client/client.h>
-#include <avahi-common/dbus.h>
-#include <avahi-common/llist.h>
-#include <avahi-common/error.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <dbus/dbus.h>
-#include <dbus/dbus-glib-lowlevel.h>
 
-#include <stdlib.h>
+#include <avahi-client/client.h>
+#include <avahi-common/dbus.h>
+#include <avahi-common/llist.h>
+#include <avahi-common/error.h>
+#include <avahi-common/malloc.h>
 
 #include "client.h"
 #include "internal.h"
@@ -88,11 +87,11 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
         goto fail;
     }
 
-    tmp = malloc (sizeof (AvahiEntryGroup));
+    tmp = avahi_new(AvahiEntryGroup, 1);
 
     tmp->client = client;
 
-    tmp->path = strdup (path);
+    tmp->path = avahi_strdup (path);
     tmp->callback = callback;
     tmp->user_data = user_data;
 
@@ -104,7 +103,7 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
     return tmp;
 
 fail:
-    if (tmp) free (tmp);
+    if (tmp) avahi_free (tmp);
     if (message) dbus_message_unref (message);
     return NULL;
 }
@@ -128,7 +127,7 @@ avahi_entry_group_free (AvahiEntryGroup *group)
     
     AVAHI_LLIST_REMOVE(AvahiEntryGroup, groups, client->groups, group);
 
-    free (group);
+    avahi_free (group);
 
     return avahi_client_set_errno (client, AVAHI_OK);
 }
@@ -252,7 +251,7 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
     /* Assemble the AvahiStringList into an Array of Array of Bytes to send over dbus */
     for (p = txt; p != NULL; p = p->next) {
         DBusMessageIter sub2;
-        const guint8 *data = p->text;
+        const uint8_t *data = p->text;
 
         dbus_message_iter_open_container(&sub, DBUS_TYPE_ARRAY, "y", &sub2);
         dbus_message_iter_append_fixed_array(&sub2, DBUS_TYPE_BYTE, &data, p->size);
@@ -267,7 +266,7 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
 }
 
 /* XXX: debug function */
-char* avahi_entry_group_path (AvahiEntryGroup *group)
+const char* avahi_entry_group_path (AvahiEntryGroup *group)
 {
     if (group != NULL) return group->path;
     else return NULL;

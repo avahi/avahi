@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
     int error;
 
     avahi_set_allocator(avahi_glib_allocator());
-    glib_poll = avahi_glib_poll_new(NULL);
+    glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
     
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */

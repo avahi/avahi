@@ -27,6 +27,7 @@
 
 struct _AvahiClient
 {
+    const AvahiPoll *poll_api;
     DBusConnection *bus;
     int error;
     AvahiClientCallback callback;

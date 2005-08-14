@@ -91,7 +91,7 @@ typedef struct AvahiServerConfig {
 
 /** Allocate a new mDNS responder object. */
 AvahiServer *avahi_server_new(
-    AvahiPoll *api,                /**< The main loop adapter */
+    const AvahiPoll *api,          /**< The main loop adapter */
     const AvahiServerConfig *sc,   /**< If non-NULL a pointer to a configuration structure for the server. The server makes an internal deep copy of this structure, so you may free it using avahi_server_config_done() immediately after calling this function. */
     AvahiServerCallback callback,  /**< A callback which is called whenever the state of the server changes */
     void* userdata,                /**< An opaque pointer which is passed to the callback function */

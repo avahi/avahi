@@ -78,7 +78,7 @@ static void cleanup(AvahiGLibPoll *g, int all) {
     g->req_cleanup = 0;
 }
 
-static AvahiWatch* watch_new(AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata) {
+static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata) {
     AvahiWatch *w;
     AvahiGLibPoll *g;
     
@@ -132,7 +132,7 @@ static void watch_free(AvahiWatch *w) {
     w->glib_poll->req_cleanup = 1;
 }
 
-static void set_wakeup(AvahiPoll *api, const struct timeval *tv, AvahiWakeupCallback callback, void *userdata) {
+static void set_wakeup(const AvahiPoll *api, const struct timeval *tv, AvahiWakeupCallback callback, void *userdata) {
     AvahiGLibPoll *g;
 
     assert(api);
@@ -299,7 +299,7 @@ void avahi_glib_poll_free(AvahiGLibPoll *g) {
 /*     g_message("AFTER"); */
 }
 
-AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g) {
+const AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g) {
     assert(g);
 
     return &g->api;

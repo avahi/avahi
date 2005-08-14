@@ -41,7 +41,7 @@ struct AvahiNetlink {
     uint8_t* buffer;
     size_t buffer_length;
 
-    AvahiPoll *poll_api;
+    const AvahiPoll *poll_api;
     AvahiWatch *watch;
 };
 
@@ -93,7 +93,7 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event, void *use
     avahi_netlink_work(nl, 0);
 }
 
-AvahiNetlink *avahi_netlink_new(AvahiPoll *poll_api, uint32_t groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, void* userdata), void* userdata) {
+AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, void* userdata), void* userdata) {
     int fd = -1;
     struct sockaddr_nl addr;
     AvahiNetlink *nl = NULL;

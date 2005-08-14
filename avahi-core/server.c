@@ -1301,7 +1301,7 @@ static int setup_sockets(AvahiServer *s) {
     return 0;
 }
 
-AvahiServer *avahi_server_new(AvahiPoll *poll_api, const AvahiServerConfig *sc, AvahiServerCallback callback, void* userdata, int *error) {
+AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig *sc, AvahiServerCallback callback, void* userdata, int *error) {
     AvahiServer *s;
     int e;
     

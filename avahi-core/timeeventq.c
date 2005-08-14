@@ -42,7 +42,7 @@ struct AvahiTimeEvent {
 };
 
 struct AvahiTimeEventQueue {
-    AvahiPoll *poll_api;
+    const AvahiPoll *poll_api;
     AvahiPrioQueue *prioq;
 };
 
@@ -105,7 +105,7 @@ static void fix_expiry_time(AvahiTimeEvent *e) {
         e->expiry = now;
 }
 
-AvahiTimeEventQueue* avahi_time_event_queue_new(AvahiPoll *poll_api) {
+AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api) {
     AvahiTimeEventQueue *q;
 
     if (!(q = avahi_new(AvahiTimeEventQueue, 1))) {

@@ -22,23 +22,56 @@
   USA.
 ***/
 
+/** \file simple-watch.h Simple poll() based main loop implementation */
+
+#include <sys/poll.h>
 #include <avahi-common/cdecl.h>
 
 #include "watch.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
+/** A main loop object. Main loops of this type aren't very flexible
+ * since they only support a single wakeup type. Nevertheless it
+ * should suffice for small test and example applications.  */
 typedef struct AvahiSimplePoll AvahiSimplePoll;
 
+/** Create a new main loop object */
 AvahiSimplePoll *avahi_simple_poll_new(void);
+
+/** Free a main loop object */
 void avahi_simple_poll_free(AvahiSimplePoll *s);
 
-AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s);
+/** Return the abstracted poll API object for this main loop
+ * object. The is will return the same pointer each time it is
+ * called. */
+const AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s);
 
+/** Run a single main loop iteration of this main loop. If sleep_time
+is < 0 this will block until any of the registered events happens,
+then it will execute the attached callback function. If sleep_time is
+0 the routine just checks if any event is pending. If yes the attached
+callback function is called, otherwise the function returns
+immediately. If sleep_time > 0 the function will block for at most the
+specified time in msecs. Returns -1 on error, 0 on success and 1 if a
+quit request has been scheduled. Usually this function should be called
+in a loop until it returns a non-zero value*/
 int avahi_simple_poll_iterate(AvahiSimplePoll *s, int sleep_time);
 
+/** Request that the main loop quits. If this is called the next
+ call to avahi_simple_poll_iterate() will return 1 */
 void avahi_simple_poll_quit(AvahiSimplePoll *s);
 
+/** Prototype for a poll() type function */
+typedef int (*AvahiPollFunc)(struct pollfd *ufds, unsigned int nfds, int timeout);
+
+/** Replace the internally used poll() function. By default the system's poll() will be used */
+void avahi_simple_poll_set_func(AvahiSimplePoll *s, AvahiPollFunc func);
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

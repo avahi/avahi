@@ -22,19 +22,36 @@
   USA.
 ***/
 
+/** \file glib-watch.h GLib's memory allocator for Avahi */
+
 #include <glib.h>
 
 #include <avahi-common/cdecl.h>
 #include <avahi-common/watch.h>
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
+/** GLib main loop adapter */
 typedef struct AvahiGLibPoll AvahiGLibPoll;
 
+/** Create a new GLib main loop adapter attached to the specified
+ context. If context is NULL, the default main loop context is
+ used. You can attach as many AvahiGLibPoll objects to the same context
+ as you want. */
 AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context);
-void avahi_glib_poll_free(AvahiGLibPoll *g);
-AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g);
 
+/** Free  GLib main loop adapter */
+void avahi_glib_poll_free(AvahiGLibPoll *g);
+
+/** Return the abstract poll API structure for this object. This will
+ * return the same pointer to a internally allocated structure on each
+ * call */
+const AvahiPoll *avahi_glib_poll_get(AvahiGLibPoll *g);
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

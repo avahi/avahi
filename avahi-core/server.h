@@ -90,7 +90,7 @@ struct AvahiSEntryGroup {
 };
 
 struct AvahiServer {
-    AvahiPoll *poll_api;
+    const AvahiPoll *poll_api;
     
     AvahiInterfaceMonitor *monitor;
     AvahiServerConfig config;

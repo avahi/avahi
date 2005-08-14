@@ -22,24 +22,28 @@
   USA.
 ***/
 
-#include <avahi-common/cdecl.h>
-
 /** \file alternative.h Functions to find alternative names for hosts and services in the case of name collision */
 
+#include <avahi-common/cdecl.h>
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
 /** Find an alternative for the specified host name. If called with an
  * original host name, "2" is appended, Afterwards the number is
  * increased on each call. (i.e. "foo" becomes "foo2" becomes "foo3"
- * and so on.) g_free() the result. */
+ * and so on.) avahi_free() the result. */
 char *avahi_alternative_host_name(const char *s);
 
 /** Find an alternative for the specified service name. If called with
     an original service name, " #2" is appended. Afterwards the number
     is increased on each call (i.e. "foo" becomes "foo #2" becomes
-    "foo #3" and so on.) g_free() the result. */
+    "foo #3" and so on.) avahi_free() the result. */
 char *avahi_alternative_service_name(const char *s);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

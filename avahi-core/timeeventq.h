@@ -33,7 +33,7 @@ typedef struct AvahiTimeEvent AvahiTimeEvent;
 
 typedef void (*AvahiTimeEventCallback)(AvahiTimeEvent *e, void* userdata);
 
-AvahiTimeEventQueue* avahi_time_event_queue_new(AvahiPoll *poll_api);
+AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api);
 void avahi_time_event_queue_free(AvahiTimeEventQueue *q);
 
 AvahiTimeEvent* avahi_time_event_new(

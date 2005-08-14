@@ -33,7 +33,7 @@
 #include <avahi-common/timeval.h>
 #include "glib-watch.h"
 
-static AvahiPoll *api = NULL;
+static const AvahiPoll *api = NULL;
 static GMainLoop *loop = NULL;
 
 static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {

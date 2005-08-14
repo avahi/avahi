@@ -33,7 +33,7 @@
 #include "simple-watch.h"
 #include "timeval.h"
 
-static AvahiPoll *api = NULL;
+static const AvahiPoll *api = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 
 static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {

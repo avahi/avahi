@@ -22,9 +22,12 @@
   USA.
 ***/
 
+/** \file gccmacro.h Defines some macros for GCC extensions */
+
 #ifdef __GNUC__
 #define AVAHI_GCC_SENTINEL __attribute__ ((sentinel))
 #else
+/** Macro for usage of GCC's sentinel compilation warnings */
 #define AVAHI_GCC_SENTINEL
 #endif
 
@@ -35,12 +38,16 @@
 #define AVAHI_GCC_PRINTF_ATTR(a,b)
 #endif
 
+/** Same as AVAHI_GCC_PRINTF_ATTR but hard coded to arguments 1 and 2 */
 #define AVAHI_GCC_PRINTF_ATTR12 AVAHI_GCC_PRINTF_ATTR(1,2)
+
+/** Same as AVAHI_GCC_PRINTF_ATTR but hard coded to arguments 2 and 3 */
 #define AVAHI_GCC_PRINTF_ATTR23 AVAHI_GCC_PRINTF_ATTR(2,3)
 
 #ifdef __GNUC__
 #define AVAHI_GCC_NORETURN __attribute__((noreturn))
 #else
+/** Macro for no-return functions */
 #define AVAHI_GCC_NORETURN
 #endif
 

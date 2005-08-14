@@ -57,6 +57,16 @@ avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex in
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
 }
+
+gboolean
+test_free (gpointer data)
+{
+    printf ("XXX: freeing\n");
+    AvahiServiceBrowser *b = data;
+    avahi_service_browser_free (b);
+    return FALSE;
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -123,6 +133,8 @@ main (int argc, char *argv[])
         printf ("Failed to create service browser object\n");
     else
         printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_path (sb));
+
+    g_timeout_add (2000, test_free, sb);
 
     g_main_loop_run (loop);
 

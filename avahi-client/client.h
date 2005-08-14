@@ -117,9 +117,6 @@ avahi_entry_group_add_service (AvahiEntryGroup *group,
 /** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */
 char* avahi_entry_group_path (AvahiEntryGroup *);
 
-/** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
-char* avahi_domain_browser_path (AvahiDomainBrowser *);
-
 /** Browse for domains on the local network */
 AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               AvahiIfIndex interface,
@@ -129,8 +126,11 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               AvahiDomainBrowserCallback callback,
                                               void *user_data);
 
-/** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
-char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
+/** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
+char* avahi_domain_browser_path (AvahiDomainBrowser *);
+
+/** Cleans up and frees an AvahiDomainBrowser object */
+void avahi_domain_browser_free (AvahiDomainBrowser *);
 
 /** Browse for service types on the local network */
 AvahiServiceTypeBrowser* avahi_service_type_browser_new (
@@ -141,8 +141,11 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 AvahiServiceTypeBrowserCallback callback,
                 void *user_data);
 
-/** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
-char* avahi_service_browser_path (AvahiServiceBrowser *);
+/** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
+char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
+
+/** Cleans up and frees an AvahiServiceTypeBrowser object */
+void avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
 
 /** Browse for services of a type on the local network */
 AvahiServiceBrowser* avahi_service_browser_new (
@@ -153,6 +156,12 @@ AvahiServiceBrowser* avahi_service_browser_new (
                 char *domain,
                 AvahiServiceBrowserCallback callback,
                 void *user_data);
+
+/** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
+char* avahi_service_browser_path (AvahiServiceBrowser *);
+
+/* Cleans up and frees an AvahiServiceBrowser object */
+void avahi_service_browser_free (AvahiServiceBrowser *);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

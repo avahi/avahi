@@ -60,6 +60,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_DBUS_ERROR "org.freedesktop.Avahi.DBusError"
 #define AVAHI_DBUS_ERR_NOT_CONNECTED "org.freedesktop.Avahi.NotConnectedError"
 #define AVAHI_DBUS_ERR_NO_MEMORY "org.freedesktop.Avahi.NoMemoryError"
+#define AVAHI_DBUS_ERR_INVALID_OBJECT "org.freedesktop.Avahi.InvalidObject"
 
 AVAHI_C_DECL_END
 

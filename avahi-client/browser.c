@@ -88,25 +88,29 @@ dbus_error:
     return NULL;
 }
 
-void
+int
 avahi_domain_browser_free (AvahiDomainBrowser *b)
 {
+    AvahiClient *client = b->client;
     DBusMessage *message = NULL;
 
     if (b == NULL || b->path == NULL)
-        return;
+        return avahi_client_set_errno (client, AVAHI_ERR_INVALID_OBJECT);
 
     message = dbus_message_new_method_call (AVAHI_DBUS_NAME,
             b->path,
             AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Free");
 
-    dbus_connection_send (b->client->bus, message, NULL);
+    if (message == NULL)
+        return avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
 
-    AVAHI_LLIST_REMOVE(AvahiDomainBrowser, domain_browsers, b->client->domain_browsers, b);
+    dbus_connection_send (client->bus, message, NULL);
+
+    AVAHI_LLIST_REMOVE(AvahiDomainBrowser, domain_browsers, client->domain_browsers, b);
 
     free (b);
 
-    return;
+    return avahi_client_set_errno (client, AVAHI_OK);
 }
 
 char*
@@ -207,17 +211,21 @@ dbus_error:
     return NULL;
 }
 
-void
+int
 avahi_service_type_browser_free (AvahiServiceTypeBrowser *b)
 {
+    AvahiClient *client = b->client;
     DBusMessage *message = NULL;
 
     if (b == NULL || b->path == NULL)
-        return;
+        return avahi_client_set_errno (client, AVAHI_ERR_INVALID_OBJECT);
 
     message = dbus_message_new_method_call (AVAHI_DBUS_NAME,
             b->path,
             AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Free");
+
+    if (message == NULL)
+        return avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
 
     dbus_connection_send (b->client->bus, message, NULL);
 
@@ -225,7 +233,7 @@ avahi_service_type_browser_free (AvahiServiceTypeBrowser *b)
 
     free (b);
 
-    return;
+    return avahi_client_set_errno (client, AVAHI_OK);
 }
 
 char*
@@ -334,19 +342,21 @@ dbus_error:
     return NULL;
 }
     
-void
+int
 avahi_service_browser_free (AvahiServiceBrowser *b)
 {
+    AvahiClient *client = b->client;
     DBusMessage *message = NULL;
-
+    
     if (b == NULL || b->path == NULL)
-        return;
-
-    printf ("Freeing %s\n", b->path);
+        return avahi_client_set_errno (client, AVAHI_ERR_INVALID_OBJECT);
 
     message = dbus_message_new_method_call (AVAHI_DBUS_NAME,
             b->path,
             AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Free");
+
+    if (message == NULL)
+        return avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
 
     dbus_connection_send (b->client->bus, message, NULL);
 
@@ -354,7 +364,7 @@ avahi_service_browser_free (AvahiServiceBrowser *b)
 
     free (b);
 
-    return;
+    return avahi_client_set_errno (client, AVAHI_OK);
 }
 
 char*

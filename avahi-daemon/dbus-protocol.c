@@ -349,7 +349,8 @@ static DBusHandlerResult respond_error(DBusConnection *c, DBusMessage *m, gint e
         AVAHI_DBUS_ERR_INVALID_OPERATION,
         AVAHI_DBUS_ERR_DBUS_ERROR,
         AVAHI_DBUS_ERR_NOT_CONNECTED,
-        AVAHI_DBUS_ERR_NO_MEMORY
+        AVAHI_DBUS_ERR_NO_MEMORY,
+        AVAHI_DBUS_ERR_INVALID_OBJECT
     };
 
     g_assert(-error > -AVAHI_OK);

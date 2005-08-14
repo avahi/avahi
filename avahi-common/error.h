@@ -55,15 +55,18 @@ enum {
     AVAHI_ERR_DBUS_ERROR = -22,            /**< An unexpected DBUS error occured */
     AVAHI_ERR_NOT_CONNECTED = -23,         /**< Could not get a connection to the daemon */
     AVAHI_ERR_NO_MEMORY = -24,             /**< Memory exhausted */
+    AVAHI_ERR_INVALID_OBJECT = -25,        /**< The object passed to this function was invalid */
 
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
-     ****    IT TO THE STRING ARRAY IN avahi_strerror() AND TO THE ARRAY
-     ****    IN respond_error() IN dbus-protocol.c AND FINALLY TO
-     ****    dbus.h!
+     ****    IT TO THE STRING ARRAY IN avahi_strerror() IN error.c AND
+     ****    TO THE ARRAY IN respond_error() IN dbus-protocol.c
+     ****    AND FINALLY TO dbus.h!
+     ****
+     ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -25
+    AVAHI_ERR_MAX = -26
 };
 
 /** Return a human readable error string for the specified error code */

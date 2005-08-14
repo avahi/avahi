@@ -114,6 +114,28 @@ fail:
 }
 
 int
+avahi_entry_group_free (AvahiEntryGroup *group)
+{
+    AvahiClient *client = group->client;
+    DBusMessage *message;
+
+    if (group == NULL || group->path == NULL)
+        return avahi_client_set_errno (client, AVAHI_ERR_INVALID_OBJECT);
+
+    message = dbus_message_new_method_call (AVAHI_DBUS_NAME,
+            group->path, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Free");
+
+    if (message == NULL)
+        return avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
+
+    dbus_connection_send (client->bus, message, NULL);
+
+    free (group);
+
+    return avahi_client_set_errno (client, AVAHI_OK);
+}
+
+int
 avahi_entry_group_commit (AvahiEntryGroup *group)
 {
     DBusMessage *message;

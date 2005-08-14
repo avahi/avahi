@@ -84,6 +84,9 @@ char* avahi_client_get_host_name_fqdn (AvahiClient*);
 /** Create a new AvahiEntryGroup object */
 AvahiEntryGroup* avahi_entry_group_new (AvahiClient*, AvahiEntryGroupCallback callback, void *user_data);
 
+/** Clean up and free an AvahiEntryGroup object */
+int avahi_entry_group_free (AvahiEntryGroup *);
+
 /** Commit an AvahiEntryGroup */
 int avahi_entry_group_commit (AvahiEntryGroup*);
 
@@ -130,7 +133,7 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
 char* avahi_domain_browser_path (AvahiDomainBrowser *);
 
 /** Cleans up and frees an AvahiDomainBrowser object */
-void avahi_domain_browser_free (AvahiDomainBrowser *);
+int avahi_domain_browser_free (AvahiDomainBrowser *);
 
 /** Browse for service types on the local network */
 AvahiServiceTypeBrowser* avahi_service_type_browser_new (
@@ -145,7 +148,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
 char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
 
 /** Cleans up and frees an AvahiServiceTypeBrowser object */
-void avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
+int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
 
 /** Browse for services of a type on the local network */
 AvahiServiceBrowser* avahi_service_browser_new (
@@ -161,7 +164,7 @@ AvahiServiceBrowser* avahi_service_browser_new (
 char* avahi_service_browser_path (AvahiServiceBrowser *);
 
 /* Cleans up and frees an AvahiServiceBrowser object */
-void avahi_service_browser_free (AvahiServiceBrowser *);
+int avahi_service_browser_free (AvahiServiceBrowser *);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

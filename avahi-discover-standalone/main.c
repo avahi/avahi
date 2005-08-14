@@ -277,7 +277,7 @@ int main(int argc, char *argv[]) {
 
     avahi_set_allocator(avahi_glib_allocator());
 
-    poll_api = avahi_glib_poll_new(NULL);
+    poll_api = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
 
     xml = glade_xml_new(AVAHI_INTERFACES_DIR"avahi-discover.glade", NULL, NULL);
     main_window = glade_xml_get_widget(xml, "main_window");

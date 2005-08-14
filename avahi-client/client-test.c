@@ -59,14 +59,22 @@ avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex in
 }
 
 gboolean
-test_free (gpointer data)
+test_free_domain_browser (gpointer data)
 {
-    printf ("XXX: freeing\n");
+    printf ("XXX: freeing domain browser\n");
     AvahiServiceBrowser *b = data;
     avahi_service_browser_free (b);
     return FALSE;
 }
 
+gboolean
+test_free_entry_group (gpointer data)
+{
+    printf ("XXX: freeing entry group\n");
+    AvahiEntryGroup *g = data;
+    avahi_entry_group_free (g);
+    return FALSE;
+}
 int
 main (int argc, char *argv[])
 {
@@ -134,7 +142,8 @@ main (int argc, char *argv[])
     else
         printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_path (sb));
 
-    g_timeout_add (2000, test_free, sb);
+    g_timeout_add (2000, test_free_entry_group, group);
+    g_timeout_add (5000, test_free_domain_browser, sb);
 
     g_main_loop_run (loop);
 

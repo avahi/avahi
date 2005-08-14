@@ -126,6 +126,8 @@ avahi_entry_group_free (AvahiEntryGroup *group)
         return avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
 
     dbus_connection_send (client->bus, message, NULL);
+    
+    AVAHI_LLIST_REMOVE(AvahiEntryGroup, groups, client->groups, group);
 
     free (group);
 

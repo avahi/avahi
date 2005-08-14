@@ -137,7 +137,6 @@ avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMe
 
     for (n = client->domain_browsers; n != NULL; n = n->domain_browsers_next)
     {
-        printf ("cmp: %s, %s\n", n->path, path);
         if (strcmp (n->path, path) == 0) {
             db = n;
             break;
@@ -260,7 +259,6 @@ avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, 
 
     for (n = client->service_type_browsers; n != NULL; n = n->service_type_browsers_next)
     {
-        printf ("cmp: %s, %s\n", n->path, path);
         if (strcmp (n->path, path) == 0) {
             db = n;
             break;
@@ -391,7 +389,6 @@ avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusM
 
     for (n = client->service_browsers; n != NULL; n = n->service_browsers_next)
     {
-        printf ("cmp: %s, %s\n", n->path, path);
         if (strcmp (n->path, path) == 0) {
             db = n;
             break;

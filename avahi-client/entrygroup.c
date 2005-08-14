@@ -68,7 +68,6 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Error sending EntryGroupNew message: %s\n", error.message);
         dbus_error_free (&error);
 
         avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
@@ -77,7 +76,6 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
 
     if (reply == NULL)
     {
-        fprintf (stderr, "Got NULL reply from EntryGroupNew\n");
 
         avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
         goto fail;
@@ -87,7 +85,6 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Failure parsing EntryGroupNew reply: %s\n", error.message);
         avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
         goto fail;
     }
@@ -180,7 +177,6 @@ avahi_entry_group_get_state (AvahiEntryGroup *group)
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Error sending GetState message for %s EntryGroup: %s\n", group->path, error.message);
         dbus_error_free (&error);
 
         return avahi_client_set_errno (group->client, AVAHI_ERR_DBUS_ERROR);
@@ -190,7 +186,6 @@ avahi_entry_group_get_state (AvahiEntryGroup *group)
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Error parsing GetState reply for %s EntryGroup: %s\n", group->path, error.message);
         dbus_error_free (&error);
 
         return avahi_client_set_errno (group->client, AVAHI_ERR_DBUS_ERROR);

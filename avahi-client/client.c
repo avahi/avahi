@@ -78,17 +78,11 @@ avahi_client_state_request_callback (DBusPendingCall *call, void *data)
         dbus_message_get_args (reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID);
         
         if (dbus_error_is_set (&error))
-        {
-            fprintf (stderr, "internal error parsing client state change for client\n");
             return;
-        }
-        
-        printf ("statechange (client) to %d\n", state);
         
         avahi_client_state_change (client, state);
     } else if (type == DBUS_MESSAGE_TYPE_ERROR) {
         dbus_set_error_from_message (&error, reply);
-        fprintf (stderr, "Error from reply: %s\n", error.message);
     }
 
     dbus_pending_call_unref (call);
@@ -127,7 +121,6 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, &old, DBUS_TYPE_STRING, &new, DBUS_TYPE_INVALID);
         
         if (dbus_error_is_set (&error)) {
-            fprintf(stderr, "Failed to parse NameOwnerChanged message: %s", error.message);
             dbus_error_free (&error);
             goto out;
         }
@@ -135,16 +128,15 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         if (strcmp (name, AVAHI_DBUS_NAME) == 0) {
 
             if (old == NULL && new != NULL) {
-                fprintf(stderr, "Avahi Daemon connected\n");
                 avahi_client_state_change (client, AVAHI_CLIENT_RECONNECTED);
             } else if (old != NULL && new == NULL) {
-                fprintf(stderr, "Avahi Daemon disconnected\n");
                 avahi_client_state_change (client, AVAHI_CLIENT_DISCONNECTED);
                 /* XXX: we really need to expire all entry groups */
             }
         }
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_NAME, "StateChanged")) {
-        printf ("server statehcange\n");
+        /* XXX: todo */
+        printf ("server statechange\n");
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged")) {
         const char *path;
         AvahiEntryGroup *n, *group = NULL;
@@ -159,20 +151,14 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
             }
         }
         
-        if (group == NULL)
-        {
-            fprintf (stderr, "Received state change for unknown EntryGroup object (%s)\n", path);
-        } else {
+        if (group != NULL) {
             int state;
             DBusError error;
             dbus_error_init (&error);
             dbus_message_get_args (message, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID);
             if (dbus_error_is_set (&error))
-            {
-                fprintf (stderr, "internal error parsing entrygroup statechange for %s\n", group->path);
                 goto out;
-            }
-            printf ("statechange (%s) to %d\n", group->path, state);
+            
             avahi_entry_group_state_change (group, state);
         }
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemNew")) {
@@ -214,7 +200,6 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
     tmp->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 
     if (dbus_error_is_set (&error)) {
-        fprintf(stderr, "Error getting system d-bus: %s\n", error.message);
         goto fail;
     }
 
@@ -223,7 +208,6 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
 
     if (!dbus_connection_add_filter (tmp->bus, filter_func, tmp, NULL))
     {
-        fprintf (stderr, "Failed to add d-bus filter\n");
         goto fail;
     }
 
@@ -236,9 +220,7 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Error adding filter match: %s\n", error.message);
         goto fail;
-
     }   
 
     dbus_bus_add_match (tmp->bus,
@@ -250,7 +232,6 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Error adding filter match: %s\n", error.message);
         goto fail;
     }
 
@@ -290,7 +271,6 @@ avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char
         if (!dbus_message_append_args (message, DBUS_TYPE_STRING, &param, DBUS_TYPE_INVALID))
         {
             avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
-            fprintf (stderr, "Failed to append string argument to %s message\n", method);
             return NULL;
         }
     }
@@ -299,7 +279,6 @@ avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Error sending %s message: %s\n", method, error.message);
         dbus_error_free (&error);
         dbus_message_unref (message);
 
@@ -310,7 +289,6 @@ avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char
     if (reply == NULL)
     {
         dbus_message_unref (message);
-        fprintf (stderr, "Could not connect to Avahi daemon\n");
 
         avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
         return NULL;
@@ -320,7 +298,6 @@ avahi_client_get_string_reply_and_block (AvahiClient *client, char *method, char
 
     if (dbus_error_is_set (&error))
     {
-        fprintf (stderr, "Failed to parse %s reply: %s\n", method, error.message);
         dbus_error_free (&error);
 
         avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);

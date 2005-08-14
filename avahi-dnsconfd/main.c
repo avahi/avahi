@@ -625,7 +625,6 @@ gint main(gint argc, gchar *argv[]) {
         r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
 
 
-    
 finish:
 
     if (daemonize)

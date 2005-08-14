@@ -45,7 +45,8 @@ SUBDIRS = \
 	avahi-dnsconfd \
 	avahi-utils \
 	examples \
-	man
+	man \
+	tests
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc

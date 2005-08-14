@@ -32,6 +32,7 @@ struct _AvahiClient
     void *user_data;
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
     AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
+    AVAHI_LLIST_HEAD(AvahiServiceBrowser, service_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
 };
 
@@ -51,6 +52,14 @@ struct _AvahiDomainBrowser {
     AVAHI_LLIST_FIELDS(AvahiDomainBrowser, domain_browsers);
 };
 
+struct _AvahiServiceBrowser {
+    char *path;
+    AvahiClient *client;
+    AvahiServiceBrowserCallback callback;
+    void *user_data;
+    AVAHI_LLIST_FIELDS(AvahiServiceBrowser, service_browsers);
+};
+
 struct _AvahiServiceTypeBrowser {
     char *path;
     AvahiClient *client;
@@ -67,4 +76,5 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
 
 DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 
+DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 #endif

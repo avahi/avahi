@@ -41,6 +41,8 @@ typedef struct _AvahiEntryGroup AvahiEntryGroup;
 
 typedef struct _AvahiDomainBrowser AvahiDomainBrowser;
 
+typedef struct _AvahiServiceBrowser AvahiServiceBrowser;
+
 typedef struct _AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 
 /** States of a client object, note that AvahiServerStates are also emitted */
@@ -57,6 +59,9 @@ typedef void (*AvahiEntryGroupCallback) (AvahiEntryGroup *g, AvahiEntryGroupStat
 
 /** The function prototype for the callback of an AvahiDomainBrowser */
 typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *domain, void *user_data);
+
+/** The function prototype for the callback of an AvahiServiceBrowser */
+typedef void (*AvahiServiceBrowserCallback) (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *name, char *type, char *domain, void *user_data);
 
 /** The function prototype for the callback of an AvahiServiceTypeBrowser */
 typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data);
@@ -136,6 +141,18 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 AvahiServiceTypeBrowserCallback callback,
                 void *user_data);
 
+/** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
+char* avahi_service_browser_path (AvahiServiceBrowser *);
+
+/** Browse for services of a type on the local network */
+AvahiServiceBrowser* avahi_service_browser_new (
+                AvahiClient *client,
+                AvahiIfIndex interface,
+                AvahiProtocol protocol,
+                char *type,
+                char *domain,
+                AvahiServiceBrowserCallback callback,
+                void *user_data);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

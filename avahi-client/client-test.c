@@ -47,6 +47,12 @@ avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, Av
 }
 
 void
+avahi_service_browser_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *name, char *type, char *domain, void *user_data)
+{
+    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
+}
+
+void
 avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, char *type, char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
@@ -59,6 +65,7 @@ main (int argc, char *argv[])
     AvahiEntryGroup *group;
     AvahiStringList *txt;
     AvahiDomainBrowser *domain;
+    AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
     char *ret;
 
@@ -111,6 +118,11 @@ main (int argc, char *argv[])
     else
         printf ("Sucessfully created service type browser, path %s\n", avahi_service_type_browser_path (st));
 
+    sb = avahi_service_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "_http._tcp", "", avahi_service_browser_callback, "omghai3u");
+    if (sb == NULL)
+        printf ("Failed to create service browser object\n");
+    else
+        printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_path (sb));
 
     g_main_loop_run (loop);
 

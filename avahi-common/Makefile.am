@@ -62,7 +62,8 @@ libavahi_common_la_SOURCES = \
 	domain.c domain.h \
 	timeval.c timeval.h \
 	simple-watch.c simple-watch.h \
-	watch.h
+	watch.h gccmacro.h
+
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LIBADD = $(AM_LDADD)
 

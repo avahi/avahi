@@ -183,6 +183,10 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_NEW, message);
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "ItemRemove")) {
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_REMOVE, message);
+    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemNew")) {
+        return avahi_service_browser_event (client, AVAHI_BROWSER_NEW, message);
+    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemRemove")) {
+        return avahi_service_browser_event (client, AVAHI_BROWSER_REMOVE, message);
     }
 
     return DBUS_HANDLER_RESULT_HANDLED;
@@ -204,7 +208,8 @@ avahi_client_new (AvahiClientCallback callback, void *user_data)
 
     AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, tmp->groups);
     AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, tmp->domain_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServieTypeBrowser, tmp->service_type_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, tmp->service_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, tmp->service_type_browsers);
     
     tmp->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 

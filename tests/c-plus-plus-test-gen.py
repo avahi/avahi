@@ -54,6 +54,7 @@ print """/* $Id$ */
 
 print_includes("avahi-common")
 print_includes("avahi-core")
+print_includes("avahi-client")
 
 print """
 int main(int argc, char*argv[]) {

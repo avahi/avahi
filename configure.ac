@@ -159,8 +159,9 @@ if test "x$ENABLE_DBUS" = "xyes"; then
 	   DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
 	fi
 	AC_SUBST(DBUS_SYS_DIR)
-
-        AC_SUBST(DBUS_CFLAGS)
+    
+    DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
+    AC_SUBST(DBUS_CFLAGS)
 	AC_SUBST(DBUS_LIBS)
 fi
 

@@ -23,6 +23,7 @@
 ***/
 
 #include <dbus/dbus.h>
+#include "client.h"
 
 struct _AvahiClient
 {

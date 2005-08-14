@@ -41,8 +41,8 @@ Optionally start the unicast DNS configuration daemon:
 
 To start the two daemons at boot time on Debian based distributions:
 	with DBUS support:
-	# ln -s /etc/init.d/avahi-daemon /etc/dbus/event.d/75avahi-daemon
-	# ln -s /etc/init.d/avahi-dnsconfd /etc/dbus/event.d/76avahi-dnsconfd
+	# ln -s /etc/init.d/avahi-daemon /etc/dbus-1/event.d/75avahi-daemon
+	# ln -s /etc/init.d/avahi-dnsconfd /etc/dbus-1/event.d/76avahi-dnsconfd
 
 	without DBUS support:
 	# update-rc.d avahi-daemon defaults 25 15

@@ -19,40 +19,42 @@
   USA.
 ***/
 
-#include <avahi-common/alternative.h>
-#include <avahi-common/defs.h>
+#include <avahi-common/error.h>
+#include <avahi-common/strlst.h>
+#include <avahi-common/simple-watch.h>
+#include <avahi-common/dbus.h>
 #include <avahi-common/timeval.h>
 #include <avahi-common/watch.h>
 #include <avahi-common/malloc.h>
-#include <avahi-common/address.h>
-#include <avahi-common/simple-watch.h>
-#include <avahi-common/llist.h>
-#include <avahi-common/error.h>
 #include <avahi-common/domain.h>
-#include <avahi-common/gccmacro.h>
-#include <avahi-common/dbus.h>
 #include <avahi-common/cdecl.h>
-#include <avahi-common/strlst.h>
-#include <avahi-core/prioq.h>
-#include <avahi-core/cache.h>
-#include <avahi-core/rr.h>
-#include <avahi-core/hashmap.h>
-#include <avahi-core/util.h>
-#include <avahi-core/socket.h>
-#include <avahi-core/response-sched.h>
-#include <avahi-core/browse.h>
-#include <avahi-core/rrlist.h>
+#include <avahi-common/alternative.h>
+#include <avahi-common/gccmacro.h>
+#include <avahi-common/defs.h>
+#include <avahi-common/address.h>
+#include <avahi-common/llist.h>
 #include <avahi-core/query-sched.h>
-#include <avahi-core/core.h>
 #include <avahi-core/probe-sched.h>
-#include <avahi-core/server.h>
-#include <avahi-core/dns.h>
-#include <avahi-core/timeeventq.h>
-#include <avahi-core/iface.h>
 #include <avahi-core/announce.h>
-#include <avahi-core/netlink.h>
-#include <avahi-core/log.h>
+#include <avahi-core/util.h>
+#include <avahi-core/rrlist.h>
+#include <avahi-core/dns.h>
 #include <avahi-core/fdutil.h>
+#include <avahi-core/core.h>
+#include <avahi-core/prioq.h>
+#include <avahi-core/browse.h>
+#include <avahi-core/netlink.h>
+#include <avahi-core/cache.h>
+#include <avahi-core/server.h>
+#include <avahi-core/socket.h>
+#include <avahi-core/rr.h>
+#include <avahi-core/iface.h>
+#include <avahi-core/hashmap.h>
+#include <avahi-core/log.h>
+#include <avahi-core/timeeventq.h>
+#include <avahi-core/response-sched.h>
+#include <avahi-client/internal.h>
+#include <avahi-client/client.h>
 
 int main(int argc, char*argv[]) {
     return 0;

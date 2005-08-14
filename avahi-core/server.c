@@ -1833,9 +1833,6 @@ static int server_add_service_strlst_nocopy(
     if (host && !avahi_is_valid_domain_name(host))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
 
-    if (port == 0)
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PORT);
-    
     escape_service_name(ename, sizeof(ename), name);
 
     if (!domain)
@@ -1997,12 +1994,12 @@ int avahi_server_add_dns_server_address(
     assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
     assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
 
-    if (domain && !avahi_is_valid_domain_name(domain))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
-
     if (port == 0)
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PORT);
     
+    if (domain && !avahi_is_valid_domain_name(domain))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+
     if (address->family == AVAHI_PROTO_INET) {
         hexstring(n+3, sizeof(n)-3, &address->data, 4);
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);

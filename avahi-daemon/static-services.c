@@ -349,7 +349,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
 
         case XML_TAG_SERVICE:
 
-            if (u->service->port == 0 || !u->service->type) {
+            if (!u->service->type) {
                 avahi_log_error("%s: parse failure: service incomplete.", u->group->filename);
                 u->failed = TRUE;
                 return;
@@ -369,7 +369,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
             
             p = u->buf ? atoi(u->buf) : 0;
 
-            if (p <= 0 || p > 0xFFFF) {
+            if (p < 0 || p > 0xFFFF) {
                 avahi_log_error("%s: parse failure: invalid port specification \"%s\".", u->group->filename, u->buf);
                 u->failed = TRUE;
                 return;

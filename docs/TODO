@@ -1,10 +1,10 @@
 todo:
-* drop glib from avahi-daemon
-* allow srv port == 0
 * deal with no local interface ?
+* doxygen updates
 * release!
 
 later:
+* drop glib from avahi-daemon
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec
@@ -51,3 +51,4 @@ done:
 * add entry_group::reset()
 * add internal error codes
 * finish DBUS stuff: allow NUL bytes in TXT records
+* allow srv port == 0

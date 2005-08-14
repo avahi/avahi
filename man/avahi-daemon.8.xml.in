@@ -65,8 +65,28 @@
 
 	  <option>
 		<p><opt>-D | --daemonize</opt></p>
-		<optdesc><p>Daemonize after startup and redirect log messages to syslog.</p></optdesc>
+		<optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt></p></optdesc>
 	  </option>
+
+      <option>
+        <p><opt>-s | --syslog</opt></p>
+        <optdesc><p>Log to syslog instead of STDERR. Implied by <opt>--daemonize</opt></p></optdesc>
+      </option>
+
+      <option>
+        <p><opt>--debug</opt></p>
+        <optdesc><p>Increase verbosity to debug level</p></optdesc>
+      </option>
+
+      <option>
+        <p><opt>--no-rlimits</opt></p>
+        <optdesc><p>Don't enforce resource limits as specified in the configuration file. (See <manref section="2" name="setrlimit"/> for more information)</p></optdesc>
+      </option>
+
+      <option>
+        <p><opt>--no-drop-root</opt></p>
+        <optdesc><p>Don't drop root priviliges after startup and don't require daemon to be started as root. We recommend not to use this option.</p></optdesc>
+      </option>
 
 	  <option>
 		<p><opt>-k | --kill</opt></p>
@@ -99,6 +119,7 @@
 		<p><opt>-v | --version</opt></p>
 		<optdesc><p>Show version information </p></optdesc>
 	  </option>
+
 
 	</options>
 

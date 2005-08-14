@@ -173,6 +173,44 @@
       </option>
     </section>
 
+    <section name="Section [rlimits]">
+      <p>This section is used to define system resource limits for the
+      daemon. See <manref section="2" name="setrlimit"/> for more
+      information. If any of the options is not specified in the configuration
+      file, avahi-daemon does not change it from the system
+      defaults.</p>
+
+
+      <option>
+        <p><opt>rlimit-as=</opt> Value in bytes for RLIMIT_AS (maximum size of the process's virtual memory). Sensible values are heavily system dependent.</p>
+      </option>
+
+      <option>
+        <p><opt>rlimit-core=</opt> Value in bytes for RLIMIT_CORE (maximum core file size). Unless you want to debug avahi-daemon, it is safe to set this to 0.</p>
+      </option>
+
+      <option>
+        <p><opt>rlimit-data=</opt> Value in bytes for RLIMIT_DATA (maximum size of the process's data segment). Sensible values are heavily system dependent.</p>
+      </option>
+
+      <option>
+        <p><opt>rlimit-fsize=</opt> Value for RLIMIT_FSIZE (maximum size of files the process may create). Since avahi-daemon shouldn't write any files to disk, it is safe to set this to 0.</p>
+      </option>
+
+      <option>
+        <p><opt>rlimit-nofile=</opt> Value for RLIMIT_NOFILE (open file descriptors). avahi-daemon shouldn't need more than 15 to 20 open file descriptors concurrently.</p>
+      </option>
+
+      <option>
+        <p><opt>rlimit-stack=</opt> Value in bytes for RLIMIT_STACK (maximum size of the process stack). Sensible values are heavily system dependent.</p>
+      </option>
+
+      <option>
+        <p><opt>rlimit-nproc=</opt> Value for RLIMIT_NPROC (number of process of user). Since only a single avahi-daemon process is usually running you can set this safely to 1.</p>
+      </option>
+
+    </section>
+
 	<section name="Authors">
 	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>

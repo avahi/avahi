@@ -344,7 +344,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         AvahiHwInterface *hw;
         struct rtattr *a = NULL;
         size_t l;
-
+        
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
 
@@ -507,7 +507,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
                 m->list = LIST_ADDR;
         } else {
             m->list = LIST_DONE;
-            avahi_log_debug("Enumeration complete");
+            avahi_log_debug("Networ interface enumeration completed");
         }
         
     } else if (n->nlmsg_type == NLMSG_ERROR && (n->nlmsg_seq == m->query_link_seq || n->nlmsg_seq == m->query_addr_seq)) {

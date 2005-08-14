@@ -36,6 +36,8 @@
 #include <fcntl.h>
 #include <time.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -67,11 +69,22 @@ typedef struct {
     AvahiServerConfig server_config;
     DaemonCommand command;
     gboolean daemonize;
+    gboolean use_syslog;
     gchar *config_file;
     gboolean enable_dbus;
     gboolean drop_root;
     gboolean publish_resolv_conf;
     gchar ** publish_dns_servers;
+    gboolean no_rlimits;
+    gboolean debug;
+
+    gboolean rlimit_as_set, rlimit_core_set, rlimit_data_set, rlimit_fsize_set, rlimit_nofile_set, rlimit_stack_set;
+    rlim_t rlimit_as, rlimit_core, rlimit_data, rlimit_fsize, rlimit_nofile, rlimit_stack;
+
+#ifdef RLIMIT_NPROC
+    gboolean rlimit_nproc_set;
+    rlim_t rlimit_nproc;
+#endif
 } DaemonConfig;
 
 #define RESOLV_CONF "/etc/resolv.conf"
@@ -216,36 +229,55 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
 static void help(FILE *f, const gchar *argv0) {
     fprintf(f,
             "%s [options]\n"
-            "    -h --help        Show this help\n"
-            "    -D --daemonize   Daemonize after startup\n"
-            "    -k --kill        Kill a running daemon\n"
-            "    -r --reload      Request a running daemon to reload static services\n"
-            "    -c --check       Return 0 if a daemon is already running\n"
-            "    -V --version     Show version\n"
-            "    -f --file=FILE   Load the specified configuration file instead of\n"
-            "                     "AVAHI_CONFIG_FILE"\n",
+            "    -h --help          Show this help\n"
+            "    -D --daemonize     Daemonize after startup (implies -s)\n"
+            "    -s --syslog        Write log messages to syslog(3) instead of STDERR\n"
+            "    -k --kill          Kill a running daemon\n"
+            "    -r --reload        Request a running daemon to reload static services\n"
+            "    -c --check         Return 0 if a daemon is already running\n"
+            "    -V --version       Show version\n"
+            "    -f --file=FILE     Load the specified configuration file instead of\n"
+            "                       "AVAHI_CONFIG_FILE"\n"
+            "       --no-rlimits    Don't enforce resource limits\n"
+            "       --no-drop-root  Don't drop priviliges\n"
+            "       --debug         Increase verbosity\n",
             argv0);
 }
 
+
 static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
     gint o;
+
+    enum {
+        OPTION_NO_RLIMITS = 256,
+        OPTION_NO_DROP_ROOT,
+        OPTION_DEBUG
+    };
     
     static const struct option const long_options[] = {
-        { "help",      no_argument,       NULL, 'h' },
-        { "daemonize", no_argument,       NULL, 'D' },
-        { "kill",      no_argument,       NULL, 'k' },
-        { "version",   no_argument,       NULL, 'V' },
-        { "file",      required_argument, NULL, 'f' },
-        { "reload",    no_argument,       NULL, 'r' },
-        { "check",     no_argument,       NULL, 'c' },
+        { "help",         no_argument,       NULL, 'h' },
+        { "daemonize",    no_argument,       NULL, 'D' },
+        { "kill",         no_argument,       NULL, 'k' },
+        { "version",      no_argument,       NULL, 'V' },
+        { "file",         required_argument, NULL, 'f' },
+        { "reload",       no_argument,       NULL, 'r' },
+        { "check",        no_argument,       NULL, 'c' },
+        { "syslog",       no_argument,       NULL, 's' },
+        { "no-rlimits",   no_argument,       NULL, OPTION_NO_RLIMITS },
+        { "no-drop-root", no_argument,       NULL, OPTION_NO_DROP_ROOT },
+        { "debug",        no_argument,       NULL, OPTION_DEBUG },
+        { NULL, 0, NULL, 0 }
     };
 
     g_assert(c);
 
     opterr = 0;
-    while ((o = getopt_long(argc, argv, "hDkVf:rc", long_options, NULL)) >= 0) {
+    while ((o = getopt_long(argc, argv, "hDkVf:rcs", long_options, NULL)) >= 0) {
 
         switch(o) {
+            case 's':
+                c->use_syslog = TRUE;
+                break;
             case 'h':
                 c->command = DAEMON_HELP;
                 break;
@@ -267,6 +299,15 @@ static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
                 break;
             case 'c':
                 c->command = DAEMON_CHECK;
+                break;
+            case OPTION_NO_RLIMITS:
+                c->no_rlimits = TRUE;
+                break;
+            case OPTION_NO_DROP_ROOT:
+                c->drop_root = FALSE;
+                break;
+            case OPTION_DEBUG:
+                c->debug = TRUE;
                 break;
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", o);
@@ -407,6 +448,50 @@ static gint load_config_file(DaemonConfig *c) {
             g_strfreev(keys);
             keys = NULL;
             
+        } else if (g_strcasecmp(*g, "rlimits") == 0) {
+            gchar **k;
+            
+            keys = g_key_file_get_keys(f, *g, NULL, NULL);
+
+            for (k = keys; *k; k++) {
+
+                v = g_key_file_get_string(f, *g, *k, NULL);
+                
+                if (g_strcasecmp(*k, "rlimit-as") == 0) {
+                    c->rlimit_as_set = TRUE;
+                    c->rlimit_as = atoi(v);
+                } else if (g_strcasecmp(*k, "rlimit-core") == 0) {
+                    c->rlimit_core_set = TRUE;
+                    c->rlimit_core = atoi(v);
+                } else if (g_strcasecmp(*k, "rlimit-data") == 0) {
+                    c->rlimit_data_set = TRUE;
+                    c->rlimit_data = atoi(v);
+                } else if (g_strcasecmp(*k, "rlimit-fsize") == 0) {
+                    c->rlimit_fsize_set = TRUE;
+                    c->rlimit_fsize = atoi(v);
+                } else if (g_strcasecmp(*k, "rlimit-nofile") == 0) {
+                    c->rlimit_nofile_set = TRUE;
+                    c->rlimit_nofile = atoi(v);
+                } else if (g_strcasecmp(*k, "rlimit-stack") == 0) {
+                    c->rlimit_stack_set = TRUE;
+                    c->rlimit_stack = atoi(v);
+#ifdef RLIMIT_NPROC
+                } else if (g_strcasecmp(*k, "rlimit-nproc") == 0) {
+                    c->rlimit_nproc_set = TRUE;
+                    c->rlimit_nproc = atoi(v);
+#endif
+                } else {
+                    fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
+                    goto finish;
+                }
+
+                g_free(v);
+                v = NULL;
+            }
+    
+            g_strfreev(keys);
+            keys = NULL;
+            
         } else {
             fprintf(stderr, "Invalid configuration file group \"%s\".\n", *g);
             goto finish;
@@ -442,6 +527,9 @@ static void log_function(AvahiLogLevel level, const gchar *txt) {
     
     g_assert(level < AVAHI_LOG_LEVEL_MAX);
     g_assert(txt);
+
+    if (!config.debug && level == AVAHI_LOG_DEBUG)
+        return;
 
     daemon_log(log_level_map[level], "%s", txt);
 }
@@ -695,7 +783,39 @@ fail:
     if (reset_umask)
         umask(u);
     return r;
+}
 
+static void set_one_rlimit(int resource, rlim_t limit, const gchar *name) {
+    struct rlimit rl;
+    rl.rlim_cur = rl.rlim_max = limit;
+
+    if (setrlimit(resource, &rl) < 0)
+        avahi_log_warn("setrlimit(%s, {%u, %u}) failed: %s", name, (unsigned) limit, (unsigned) limit, strerror(errno));
+}
+
+static void enforce_rlimits(void) {
+
+    if (config.rlimit_as_set)
+        set_one_rlimit(RLIMIT_AS, config.rlimit_as, "RLIMIT_AS");
+    if (config.rlimit_core_set)
+        set_one_rlimit(RLIMIT_CORE, config.rlimit_core, "RLIMIT_CORE");
+    if (config.rlimit_data_set)
+        set_one_rlimit(RLIMIT_DATA, config.rlimit_data, "RLIMIT_DATA");
+    if (config.rlimit_fsize_set)
+        set_one_rlimit(RLIMIT_FSIZE, config.rlimit_fsize, "RLIMIT_FSIZE");
+    if (config.rlimit_nofile_set)
+        set_one_rlimit(RLIMIT_NOFILE, config.rlimit_nofile, "RLIMIT_NOFILE");
+    if (config.rlimit_stack_set)
+        set_one_rlimit(RLIMIT_STACK, config.rlimit_stack, "RLIMIT_STACK");
+#ifdef RLIMIT_NPROC
+    if (config.rlimit_nproc_set)
+        set_one_rlimit(RLIMIT_NPROC, config.rlimit_nproc, "RLIMIT_NPROC");
+#endif
+
+#ifdef RLIMIT_MEMLOCK
+    /* We don't need locked memory */
+    set_one_rlimit(RLIMIT_MEMLOCK, 0, "RLIMIT_MEMLOCK");
+#endif
 }
 
 #define RANDOM_DEVICE "/dev/urandom"
@@ -736,7 +856,20 @@ int main(int argc, char *argv[]) {
     config.drop_root = TRUE;
     config.publish_dns_servers = NULL;
     config.publish_resolv_conf = FALSE;
-
+    config.use_syslog = FALSE;
+    config.no_rlimits = FALSE;
+    config.debug = FALSE;
+    
+    config.rlimit_as_set = FALSE;
+    config.rlimit_core_set = FALSE;
+    config.rlimit_data_set = FALSE;
+    config.rlimit_fsize_set = FALSE;
+    config.rlimit_nofile_set = FALSE;
+    config.rlimit_stack_set = FALSE;
+#ifdef RLIMIT_NPROC
+    config.rlimit_nproc_set = FALSE;
+#endif
+    
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
     else
@@ -776,7 +909,7 @@ int main(int argc, char *argv[]) {
     else if (config.command == DAEMON_RUN) {
         pid_t pid;
 
-        if (getuid() != 0) {
+        if (getuid() != 0 && config.drop_root) {
             avahi_log_error("This program is intended to be run as root.");
             goto finish;
         }
@@ -810,10 +943,8 @@ int main(int argc, char *argv[]) {
             /* Child */
         }
 
-
-        printf("%s "PACKAGE_VERSION" starting up.\n", argv0);
-        
-        chdir("/");
+        if (config.use_syslog || config.daemonize)
+            daemon_log_use = DAEMON_LOG_SYSLOG;
 
         if (make_runtime_dir() < 0)
             goto finish;
@@ -832,6 +963,13 @@ int main(int argc, char *argv[]) {
         } else
             wrote_pid_file = TRUE;
 
+        if (!config.no_rlimits)
+            enforce_rlimits();
+
+        chdir("/");
+        
+        avahi_log_info("%s "PACKAGE_VERSION" starting up.\n", argv0);
+        
         if (run_server(&config) == 0)
             r = 0;
     }

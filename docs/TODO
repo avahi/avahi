@@ -1,7 +1,7 @@
 todo:
-* drop glib
+* drop glib from avahi-daemon
 * allow srv port == 0
-* deal with no local interface
+* deal with no local interface ?
 * release!
 
 later:

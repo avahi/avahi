@@ -193,6 +193,11 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     g_assert(s);
     g_assert(c);
 
+    /** This function is possibly called before the global variable
+     * avahi_server has been set, therefore we do it explicitly */
+
+    avahi_server = s;
+    
 #ifdef ENABLE_DBUS
     if (c->enable_dbus)
         dbus_protocol_server_state_changed(state);
@@ -624,14 +629,14 @@ static gint run_server(DaemonConfig *c) {
             goto finish;
 #endif
     
+    load_resolv_conf(c);
+    static_service_load();
+
     if (!(avahi_server = avahi_server_new(avahi_glib_poll_get(poll_api), &c->server_config, server_callback, c, &error))) {
         avahi_log_error("Failed to create server: %s", avahi_strerror(error));
         goto finish;
     }
 
-    load_resolv_conf(c);
-    
-    static_service_load();
 
     if (c->daemonize)
         daemon_retval_send(0);
@@ -968,7 +973,7 @@ int main(int argc, char *argv[]) {
 
         chdir("/");
         
-        avahi_log_info("%s "PACKAGE_VERSION" starting up.\n", argv0);
+        avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
         
         if (run_server(&config) == 0)
             r = 0;

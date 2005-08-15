@@ -393,6 +393,17 @@ int avahi_simple_poll_iterate(AvahiSimplePoll *s, int timeout) {
         int t;
         AvahiUsec usec;
 
+        if (next_timeout->expiry.tv_sec == 0 &&
+            next_timeout->expiry.tv_usec == 0) {
+
+            /* Just a shortcut so that we don't need to call gettimeofday() */
+            
+            /* The events poll() returned in the last call are now no longer valid */
+            s->events_valid = 0;
+            return start_timeout_callback(next_timeout);
+        }
+
+            
         gettimeofday(&now, NULL);
         usec = avahi_timeval_diff(&next_timeout->expiry, &now);
 

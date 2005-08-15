@@ -70,14 +70,14 @@ static void update_timeout(AvahiTimeEventQueue *q) {
 }
 
 static void expiration_event(AvahiTimeout *timeout, void *userdata) {
-    struct timeval now;
     AvahiTimeEventQueue *q = userdata;
     AvahiTimeEvent *e;
 
-    gettimeofday(&now, NULL);
-    
     if ((e = avahi_time_event_queue_root(q))) {
+        struct timeval now;
 
+        gettimeofday(&now, NULL);
+    
         /* Check if expired */
         if (avahi_timeval_compare(&now, &e->expiry) >= 0) {
 
@@ -88,15 +88,21 @@ static void expiration_event(AvahiTimeout *timeout, void *userdata) {
             /* Run it */
             assert(e->callback);
             e->callback(e, e->userdata);
-        }
+
+            update_timeout(q);
+            return;
+        } 
     }
 
+    avahi_log_debug(__FILE__": Strange, expiration_event() called, but nothing really happened.");
     update_timeout(q);
 }
 
 static void fix_expiry_time(AvahiTimeEvent *e) {
     struct timeval now;
     assert(e);
+
+    return; /*** DO WE REALLY NEED THIS? ***/
 
     gettimeofday(&now, NULL);
 

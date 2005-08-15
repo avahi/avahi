@@ -280,8 +280,6 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
         if (attr[2])
             goto invalid_attr;
         
-            
-        
     } else if (u->current_tag == XML_TAG_SERVICE_GROUP && strcmp(el, "service") == 0) {
         if (attr[0])
             goto invalid_attr;
@@ -409,6 +407,7 @@ static char *append_cdata(char *t, const char *n, int length) {
     if (!length)
         return t;
 
+    
     k = avahi_strndup(n, length);
 
     if (t) {

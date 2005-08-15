@@ -169,16 +169,16 @@ char *avahi_strdup(const char *s) {
 char *avahi_strndup(const char *s, size_t max) {
     char *r;
     size_t size;
+    const char *p;
     
     if (!s)
         return NULL;
 
-    size = strlen(s);
-
-    if (size > max)
-        size = max;
+    for (p = s, size = 0;
+         size < max && *p;
+         p++, size++);
     
-    if (!(r = avahi_malloc(size+1)))
+    if (!(r = avahi_new(char, size+1)))
         return NULL;
 
     memcpy(r, s, size);

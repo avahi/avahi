@@ -52,23 +52,31 @@ SUBDIRS = \
 	tests
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = \
-	avahi-core.pc \
-	avahi-client.pc \
-	avahi-glib.pc
+pkgconfig_DATA = avahi-core.pc
 
 avahi-core.pc: avahi-core.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
+if HAVE_DBUS
+
+pkgconfig_DATA += avahi-client.pc
+
 avahi-client.pc: avahi-client.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+endif
+
+if HAVE_GLIB
+
+pkgconfig_DATA += avahi-glib.pc
 
 avahi-glib.pc: avahi-glib.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
+endif
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 

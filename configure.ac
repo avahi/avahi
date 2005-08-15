@@ -209,13 +209,10 @@ AC_ARG_ENABLE(python,
 	      *) AC_MSG_ERROR([bad value ${enableval} for --enable-python]) ;;
 	esac],[HAVE_PYTHON=yes])
 
-if test "y$HAVE_PYTHON" = xyes ; then
-   AM_PATH_PYTHON(2.4)
-
-   if  test "x$HAVE_PYTHON" = xyes ; then
-       AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
-       AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
-   fi
+if test "x$HAVE_PYTHON" = "xyes" ; then
+   AM_PATH_PYTHON([2.4])
+   AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
+   AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
 

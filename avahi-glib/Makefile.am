@@ -27,7 +27,7 @@ avahiincludedir=$(includedir)/avahi-glib
 if HAVE_GLIB
 
 avahiinclude_HEADERS = \
-	glib-watch.h
+	glib-watch.h \
 	glib-malloc.h
 
 lib_LTLIBRARIES = \

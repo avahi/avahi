@@ -62,14 +62,13 @@ libavahi_common_la_SOURCES = \
 	watch.h gccmacro.h
 
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
-libavahi_common_la_LIBADD = $(AM_LDADD)
+libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
 
 strlst_test_SOURCES = \
 	strlst.c strlst.h \
 	malloc.c malloc.h \
 	strlst-test.c
 strlst_test_CFLAGS = $(AM_CFLAGS)
-strlst_test_LDADD = $(AM_LDADD)
 
 alternative_test_SOURCES = \
 	alternative.c alternative.h \
@@ -77,14 +76,12 @@ alternative_test_SOURCES = \
 	domain.c domain.h \
 	alternative-test.c
 alternative_test_CFLAGS = $(AM_CFLAGS)
-alternative_test_LDADD = $(AM_LDADD)
 
 domain_test_SOURCES = \
 	domain.c domain.h \
 	malloc.c malloc.h \
 	domain-test.c
 domain_test_CFLAGS = $(AM_CFLAGS)
-domain_test_LDADD = $(AM_LDADD)
 
 watch_test_SOURCES = \
 	timeval.c timeval.h \
@@ -93,28 +90,25 @@ watch_test_SOURCES = \
 	malloc.c malloc.h \
 	watch-test.c
 watch_test_CFLAGS = $(AM_CFLAGS)
-watch_test_LDADD = $(AM_LDADD)
 
 timeval_test_SOURCES = \
 	timeval.c timeval.h \
 	timeval-test.c
 timeval_test_CFLAGS = $(AM_CFLAGS)
-timeval_test_LDADD = $(AM_LDADD)
-
-
 
 if ENABLE_DBUS
+
 noinst_HEADERS += \
 	dbus.h \
 	dbus-watch-glue.h
 
-noinst_LIBRARIES = \
-	libdbus-watch-glue.a
+noinst_LTLIBRARIES = \
+	libdbus-watch-glue.la
 
-libdbus_watch_glue_a_SOURCES = \
+libdbus_watch_glue_la_SOURCES = \
 	dbus-watch-glue.h dbus-watch-glue.c
-
-libdbus_watch_glue_a_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+libdbus_watch_glue_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+libdbus_watch_glue_la_LDFLAGS = $(AM_LDFLAGS) -static -export-dynamic
 
 endif
 

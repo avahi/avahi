@@ -78,6 +78,7 @@ libavahi_core_la_SOURCES = \
 
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)
 libavahi_core_la_LIBADD = $(AM_LDADD) $(COMMON_LDADD)
+libavahi_core_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
 
 prioq_test_SOURCES = \
 	prioq-test.c  \

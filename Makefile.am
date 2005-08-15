@@ -31,7 +31,10 @@ EXTRA_DIST = \
 	docs/DBUS-API \
 	docs/AUTHORS \
 	docs/HACKING \
-	docs/overview.dia
+	docs/overview.dia \
+	avahi-core.pc.in \
+	avahi-client.pc.in \
+	avahi-glib.pc.in
 
 SUBDIRS = \
 	common \
@@ -49,7 +52,23 @@ SUBDIRS = \
 	tests
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = avahi-core.pc
+pkgconfig_DATA = \
+	avahi-core.pc \
+	avahi-client.pc \
+	avahi-glib.pc
+
+avahi-core.pc: avahi-core.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+avahi-client.pc: avahi-client.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+avahi-glib.pc: avahi-glib.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 

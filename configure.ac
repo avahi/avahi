@@ -280,7 +280,6 @@ AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
 # ==========================================================================
 AC_CONFIG_FILES([
 Makefile 
-avahi-core.pc 
 avahi-common/Makefile 
 avahi-core/Makefile 
 avahi-glib/Makefile 

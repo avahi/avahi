@@ -92,12 +92,13 @@ EXTRA_DIST = \
 	introspect.xsl
 
 if ENABLE_DBUS
+
 avahi_daemon_SOURCES += \
 	dbus-protocol.c \
 	dbus-protocol.h
 
 avahi_daemon_LDADD += \
-	../avahi-common/libdbus-watch-glue.a
+	../avahi-common/libdbus-watch-glue.la
 
 dbusservice_DATA = avahi-dbus.conf
 

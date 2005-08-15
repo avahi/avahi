@@ -3,8 +3,9 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
-Name: avahi-core
-Description: Avahi Multicast DNS Responder (Embeddable Stack)
+Name: avahi-glib
+Description: Avahi Multicast DNS Responder (GLib Support)
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lavahi-common -lavahi-core
+Requires: glib-2.0
+Libs: -L${libdir} -lavahi-commong -lavahi-glib
 Cflags: -D_REENTRANT -I${includedir}

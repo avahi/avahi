@@ -44,7 +44,8 @@ libavahi_client_la_SOURCES = \
 	browser.c
 
 libavahi_client_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
-libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-watch-glue.a 
+libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-watch-glue.la
+libavahi_client_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
 
 client_test_SOURCES = \
 	client-test.c

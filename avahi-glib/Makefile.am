@@ -19,17 +19,12 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
-
-# Import stuff from avahi-common
-COMMON_LDADD=../avahi-common/libavahi-common.la
-
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 avahiincludedir=$(includedir)/avahi-glib
+
+if HAVE_GLIB
 
 avahiinclude_HEADERS = \
 	glib-watch.h
@@ -44,16 +39,14 @@ noinst_PROGRAMS = \
 libavahi_glib_la_SOURCES = \
 	glib-watch.c glib-watch.h \
 	glib-malloc.h glib-malloc.c
-libavahi_glib_la_CFLAGS = $(AM_CFLAGS)
-libavahi_glib_la_LIBADD = $(AM_LDADD) $(COMMON_LDADD)
+libavahi_glib_la_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+libavahi_glib_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
 
 glib_watch_test_SOURCES = \
 	glib-watch.c glib-watch.h \
 	glib-watch-test.c
-glib_watch_test_CFLAGS = $(AM_CFLAGS)
-glib_watch_test_LDADD = $(AM_LDADD) $(COMMON_LDADD)
+glib_watch_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+glib_watch_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
 
-
-
-
+endif
 

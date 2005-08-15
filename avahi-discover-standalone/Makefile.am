@@ -17,24 +17,30 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=-I$(top_srcdir) \
+AM_CFLAGS=\
+	-I$(top_srcdir) \
 	-DAVAHI_INTERFACES_DIR=\"$(interfacesdir)\"
-
-AM_CFLAGS+=$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-if ENABLE_GTK
+if HAVE_GTK
 bin_PROGRAMS = \
 	avahi-discover-standalone
 
 avahi_discover_standalone_SOURCES = \
 	main.c
 
-avahi_discover_standalone_CFLAGS = $(AM_CFLAGS)
-avahi_discover_standalone_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la ../avahi-core/libavahi-core.la 
+avahi_discover_standalone_CFLAGS = \
+	$(AM_CFLAGS) \
+	$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)
+
+avahi_discover_standalone_LDADD = \
+	$(AM_LDADD) \
+	../avahi-common/libavahi-common.la \
+	../avahi-glib/libavahi-glib.la \
+	../avahi-core/libavahi-core.la  \
+	$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
 interfaces = \
         avahi-discover.glade

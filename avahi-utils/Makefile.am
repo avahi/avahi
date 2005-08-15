@@ -36,14 +36,14 @@ EXTRA_DIST = \
 	avahi-resolve-address.in \
 	avahi-discover.desktop.in
 
-if HAVE_PYTHON
 SUBDIRS=avahi
+
+if HAVE_PYTHON
 
 desktopdir = $(datadir)/applications
 desktop_DATA = avahi-discover.desktop
 
 bin_SCRIPTS = $(pythonscripts)
-endif
 
 avahi-discover.desktop: avahi-discover.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
@@ -79,3 +79,5 @@ avahi-resolve-address: avahi-resolve-address.in
 	chmod +x $@
 
 CLEANFILES = $(pythonscripts) $(desktop_DATA)
+
+endif

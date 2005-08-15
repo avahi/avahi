@@ -19,12 +19,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import os
+import os, sys
 
 def print_includes(dir):
 
     files = os.listdir("../%s" % dir)
     files = filter(lambda fn: fn.endswith(".h") and not fn.startswith("."), files)
+    files.sort()
 
     for f in files:
         print "#include <%s/%s>" % (dir, f)
@@ -52,9 +53,8 @@ print """/* $Id$ */
 ***/
 """
 
-print_includes("avahi-common")
-print_includes("avahi-core")
-print_includes("avahi-client")
+for f in sys.argv[1:]:
+    print_includes(f)
 
 print """
 int main(int argc, char*argv[]) {

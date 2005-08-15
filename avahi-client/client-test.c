@@ -25,10 +25,13 @@
 
 #include <avahi-client/client.h>
 #include <avahi-common/error.h>
-#include <avahi-glib/glib-watch.h>
-#include <avahi-glib/glib-malloc.h>
+#include <avahi-common/simple-watch.h>
+#include <avahi-common/malloc.h>
 #include <stdio.h>
-#include <glib.h>
+#include <assert.h>
+
+static const AvahiPoll *poll_api = NULL;
+
 
 static void
 avahi_client_callback (AvahiClient *c, AvahiClientState state, void *user_data)
@@ -60,60 +63,54 @@ avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex in
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
 }
 
-static gboolean
-test_free_domain_browser (gpointer data)
+static void test_free_domain_browser(AvahiTimeout *timeout, void* userdata)
 {
-    AvahiServiceBrowser *b = data;
+    AvahiServiceBrowser *b = userdata;
     printf ("XXX: freeing domain browser\n");
     avahi_service_browser_free (b);
-    return FALSE;
 }
 
-static gboolean
-test_free_entry_group (gpointer data)
+static void test_free_entry_group (AvahiTimeout *timeout, void* userdata)
 {
-    AvahiEntryGroup *g = data;
+    AvahiEntryGroup *g = userdata;
     printf ("XXX: freeing entry group\n");
     avahi_entry_group_free (g);
-    return FALSE;
 }
 int
 main (int argc, char *argv[])
 {
-    GMainLoop *loop;
     AvahiClient *avahi;
     AvahiEntryGroup *group;
     AvahiStringList *txt;
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
-    AvahiGLibPoll *glib_poll;
+    AvahiSimplePoll *simple_poll;
     char *ret;
+    struct timeval tv;
 
-    avahi_set_allocator(avahi_glib_allocator());
-
-    glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
-    loop = g_main_loop_new (NULL, FALSE);
+    simple_poll = avahi_simple_poll_new();
+    poll_api = avahi_simple_poll_get(simple_poll);
     
-    avahi = avahi_client_new (avahi_glib_poll_get(glib_poll), avahi_client_callback, "omghai2u");
+    avahi = avahi_client_new(poll_api, avahi_client_callback, "omghai2u");
 
-    g_assert (avahi != NULL);
+    assert (avahi != NULL);
 
     ret = avahi_client_get_version_string (avahi);
     printf ("Avahi Server Version: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    g_free (ret);
+    avahi_free (ret);
 
     ret = avahi_client_get_host_name (avahi);
     printf ("Host Name: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    g_free (ret);
+    avahi_free (ret);
 
     ret = avahi_client_get_domain_name (avahi);
     printf ("Domain Name: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    g_free (ret);
+    avahi_free (ret);
 
     ret = avahi_client_get_host_name_fqdn (avahi);
     printf ("FQDN: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    g_free (ret);
+    avahi_free (ret);
     
     group = avahi_entry_group_new (avahi, avahi_entry_group_callback, "omghai");
 
@@ -148,12 +145,20 @@ main (int argc, char *argv[])
     else
         printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_path (sb));
 
-    g_timeout_add (2000, test_free_entry_group, group);
-    g_timeout_add (5000, test_free_domain_browser, sb);
 
-    g_main_loop_run (loop);
+    avahi_elapse_time(&tv, 5000, 0);
+    poll_api->timeout_new(poll_api, &tv, test_free_entry_group, group);
+    avahi_elapse_time(&tv, 8000, 0);
+    poll_api->timeout_new(poll_api, &tv, test_free_domain_browser, sb);
 
-    g_free (avahi);
+    for (;;)
+        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
+            break;
+
+
+    avahi_simple_poll_free(simple_poll);
+
+    avahi_free (avahi);
 
     return 0;
 }

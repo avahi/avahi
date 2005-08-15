@@ -22,35 +22,27 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-if ENABLE_DBUS
+if HAVE_DBUS
 
 avahi_clientincludedir=$(includedir)/avahi-client
+avahi_clientinclude_HEADERS = client.h
 
-avahi_clientinclude_HEADERS = \
-	client.h
+noinst_HEADERS = internal.h
 
-noinst_HEADERS = \
-	internal.h
+noinst_PROGRAMS = client-test
 
-noinst_PROGRAMS = \
-	client-test
-
-lib_LTLIBRARIES = \
-	libavahi-client.la 
+lib_LTLIBRARIES = libavahi-client.la 
 
 libavahi_client_la_SOURCES = \
 	client.c client.h \
 	entrygroup.c \
 	browser.c
-
 libavahi_client_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
-libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-watch-glue.la
+libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-watch-glue-pic.la
 libavahi_client_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
 
-client_test_SOURCES = \
-	client-test.c
-
-client_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
-client_test_LDADD = $(AM_LDADD) $(GLIB20_LIBS) libavahi-client.la ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la
+client_test_SOURCES = client-test.c
+client_test_CFLAGS = $(AM_CFLAGS) 
+client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
 
 endif

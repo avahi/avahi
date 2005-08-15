@@ -68,21 +68,48 @@ AC_FUNC_STAT
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
 
-# Check for GLIB 2.0
-PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
-AC_SUBST(GLIB20_CFLAGS)
-AC_SUBST(GLIB20_LIBS)
+# If using GCC specify some additional parameters
+if test "x$GCC" = "xyes" ; then
+   CFLAGS="$CFLAGS -pipe -W -Wall -pedantic"
 
-AC_ARG_ENABLE(gtk,
-        AS_HELP_STRING([--disable-gtk],[Use GTK+ (default=yes)]),
+   AC_LANG_CONFTEST([int main() {}])
+   $CC -c conftest.c -std=c99 -Wno-unused-parameter $CFLAGS > /dev/null 2> /dev/null && CFLAGS="$CFLAGS -std=c99 -Wno-unused-parameter"
+   rm -f conftest.o
+fi
+
+#
+# Check for GLIB 2.0
+#
+AC_ARG_ENABLE(glib,
+        AS_HELP_STRING([--disable-glib],[Disable use of GLib]),
         [case "${enableval}" in
-                yes) ENABLE_GTK=yes ;;
-                no)  ENABLE_GTK=no ;;
+                yes) HAVE_GLIB=yes ;;
+                no)  HAVE_GLIB=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-glib) ;;
+        esac],
+        [HAVE_GLIB=yes])
+
+if test "x$HAVE_GLIB" = "xyes"; then
+        PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
+        AC_SUBST(GLIB20_CFLAGS)
+        AC_SUBST(GLIB20_LIBS)
+fi
+AM_CONDITIONAL(HAVE_GLIB, test "x$HAVE_GLIB" = "xyes")
+
+
+#
+# Check for GTK+
+#
+AC_ARG_ENABLE(gtk,
+        AS_HELP_STRING([--disable-gtk],[Disable use of GTK+]),
+        [case "${enableval}" in
+                yes) HAVE_GTK=yes ;;
+                no)  HAVE_GTK=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk) ;;
         esac],
-        [ENABLE_GTK=yes]) dnl Default value
+        [HAVE_GTK=yes])
 
-if test "x$ENABLE_GTK" = "xyes"; then
+if test "x$HAVE_GTK" = "xyes"; then
         # Check for GTK 2.0
         PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.4.0 ])
         AC_SUBST(GTK20_CFLAGS)
@@ -93,104 +120,103 @@ if test "x$ENABLE_GTK" = "xyes"; then
         AC_SUBST(GLADE20_CFLAGS)
         AC_SUBST(GLADE20_LIBS)
 
-	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
-	AC_SUBST(interfacesdir)
-
+	    interfacesdir="${datadir}/${PACKAGE}/interfaces/"
+	    AC_SUBST(interfacesdir)
 fi
-AM_CONDITIONAL(ENABLE_GTK, test "x$ENABLE_GTK" = "xyes")
-
-#
-# Doxygen
-#
-DX_HTML_FEATURE(ON)
-DX_CHM_FEATURE(OFF)
-DX_CHI_FEATURE(OFF)
-DX_MAN_FEATURE(OFF)
-DX_RTF_FEATURE(OFF)
-DX_XML_FEATURE(OFF)
-DX_PDF_FEATURE(OFF)
-DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
-
-#
-# XMLTOMAN manpage generation
-#
-AC_ARG_ENABLE(xmltoman,
-        AS_HELP_STRING([--disable-xmltoman],[Disable rebuilding of man pages with xmltoman]),
-[case "${enableval}" in
-  yes) xmltoman=yes ;;
-  no)  xmltoman=no ;;
-  *) AC_MSG_ERROR([bad value ${enableval} for --disable-xmltoman]) ;;
-esac],[xmltoman=yes])
-
-if test x$xmltoman = xyes ; then
-   AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
-
-   if test x$have_xmltoman = xno ; then
-     AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
-     xmltoman=no
-   fi
-fi
-
-AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
+AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
 
 #
 # D-BUS
 #
 AC_ARG_ENABLE(dbus,
-        AS_HELP_STRING([--disable-dbus],[Enable DBUS support (default=no)]),
+        AS_HELP_STRING([--disable-dbus],[Disable use of D-BUS]),
         [case "${enableval}" in
-                yes) ENABLE_DBUS=yes ;;
-                no)  ENABLE_DBUS=no ;;
+                yes) HAVE_DBUS=yes ;;
+                no)  HAVE_DBUS=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-dbus) ;;
         esac],
-	[ENABLE_DBUS=yes]) dnl Default value
+        [HAVE_DBUS=yes]) 
 
+AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
 
-if test "x$ENABLE_DBUS" = "xyes"; then
-	AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
-        PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.30])
+if test "x$HAVE_DBUS" = "xyes"; then
+	AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
-	AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
+    PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.30 ])
+    DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
+    AC_SUBST(DBUS_CFLAGS)
+	AC_SUBST(DBUS_LIBS)
 
 	if ! test -z "$with_dbus_sys" ; then
     	   DBUS_SYS_DIR="$with_dbus_sys"
 	else
-	   DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
+	       DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
 	fi
 	AC_SUBST(DBUS_SYS_DIR)
     
-    DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
-    AC_SUBST(DBUS_CFLAGS)
-	AC_SUBST(DBUS_LIBS)
 fi
-
-AM_CONDITIONAL(ENABLE_DBUS, test "x$ENABLE_DBUS" = "xyes")
+AM_CONDITIONAL(HAVE_DBUS, test "x$HAVE_DBUS" = "xyes")
 
 #
 # Expat
 #
-AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
+AC_ARG_ENABLE(expat,
+        AS_HELP_STRING([--disable-expat],[Disable use of Expat]),
+        [case "${enableval}" in
+                yes) HAVE_EXPAT=yes ;;
+                no)  HAVE_EXPAT=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-expat) ;;
+        esac],
+        [HAVE_EXPAT=yes]) 
 
-if ! $have_expat ; then
-   AC_MSG_ERROR([*** libexpat not found ***])
+if test "x$HAVE_DBUS" = "xyes"; then
+   AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
+
+   if ! $have_expat ; then
+      AC_MSG_ERROR([*** libexpat not found ***])
+   fi
 fi
+AM_CONDITIONAL(HAVE_EXPAT, test "x$HAVE_EXPAT" = "xyes")
 
 #
-# LibDaemon
+# libdaemon
 #
-PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.5 ])
-AC_SUBST(LIBDAEMON_CFLAGS)
-AC_SUBST(LIBDAEMON_LIBS)
+AC_ARG_ENABLE(libdaemon,
+        AS_HELP_STRING([--disable-libdaemon],[Disable use of libdaemon]),
+        [case "${enableval}" in
+                yes) HAVE_LIBDAEMON=yes ;;
+                no)  HAVE_LIBDAEMON=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-libdaemon) ;;
+        esac],
+        [HAVE_LIBDAEMON=yes]) 
 
-# If using GCC specify some additional parameters
-if test "x$GCC" = "xyes" ; then
-   CFLAGS="$CFLAGS -pipe -W -Wall -pedantic"
-
-   AC_LANG_CONFTEST([int main() {}])
-   $CC -c conftest.c -std=c99 -Wno-unused-parameter $CFLAGS > /dev/null 2> /dev/null && CFLAGS="$CFLAGS -std=c99 -Wno-unused-parameter"
-   rm -f conftest.o
+if test "x$HAVE_LIBDAEMON" = "xyes"; then
+   PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.5 ])
+   AC_SUBST(LIBDAEMON_CFLAGS)
+   AC_SUBST(LIBDAEMON_LIBS)
 fi
+AM_CONDITIONAL(HAVE_LIBDAEMON, test "x$HAVE_LIBDAEMON" = "xyes")
+
+#
+# Python stuff
+#
+AC_ARG_ENABLE(python,
+	AS_HELP_STRING([--disable-python], [Disable scripts that depends on python]),
+	[case "${enableval}" in
+	      yes) HAVE_PYTHON=yes ;;
+	      no)  HAVE_PYTHON=no ;;
+	      *) AC_MSG_ERROR([bad value ${enableval} for --enable-python]) ;;
+	esac],[HAVE_PYTHON=yes])
+
+if test "y$HAVE_PYTHON" = xyes ; then
+   AM_PATH_PYTHON(2.4)
+
+   if  test "x$HAVE_PYTHON" = xyes ; then
+       AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
+       AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
+   fi
+fi
+AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
 
 #
 # Detecting the linux distro for specific things like initscripts.
@@ -254,28 +280,41 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
-#
-# Python stuff
-#
-AC_ARG_ENABLE(python,
-	AS_HELP_STRING([--disable-python], [Disable scripts that depends on python]),
-	[case "${enableval}" in
-	      yes) use_python=yes ;;
-	      no)  use_python=no ;;
-	      *) AC_MSG_ERROR([bad value ${enableval} for --disable-python]) ;;
-	esac],[use_python=yes])
 
-HAVE_PYTHON=no
-if test "x$use_python" = xyes ; then
-   AM_PATH_PYTHON(2.4, [HAVE_PYTHON=yes], [HAVE_PYTHON=no])
+#
+# Doxygen
+#
+DX_HTML_FEATURE(ON)
+DX_CHM_FEATURE(OFF)
+DX_CHI_FEATURE(OFF)
+DX_MAN_FEATURE(OFF)
+DX_RTF_FEATURE(OFF)
+DX_XML_FEATURE(OFF)
+DX_PDF_FEATURE(OFF)
+DX_PS_FEATURE(OFF)
+DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 
-   if  test "x$HAVE_PYTHON" = xyes ; then
-       AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(could not find pygtk module)])
-       AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(could not find python dbus module)])
+#
+# XMLTOMAN manpage generation
+#
+AC_ARG_ENABLE(xmltoman,
+        AS_HELP_STRING([--disable-xmltoman],[Disable rebuilding of man pages with xmltoman]),
+[case "${enableval}" in
+  yes) xmltoman=yes ;;
+  no)  xmltoman=no ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --disable-xmltoman]) ;;
+esac],[xmltoman=yes])
+
+if test x$xmltoman = xyes ; then
+   AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
+
+   if test x$have_xmltoman = xno ; then
+     AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
+     xmltoman=no
    fi
 fi
 
-AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = xyes ])
+AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
 
 # ==========================================================================
 AC_CONFIG_FILES([
@@ -311,12 +350,34 @@ echo "
     dbus-1 version:         `pkg-config dbus-1 --modversion`
     compiler:               ${CC}
     cflags:                 ${CFLAGS}
-    Enable Gtk:             ${ENABLE_GTK}
-    Enable DBUS:            ${ENABLE_DBUS}
+    Enable GLIB:            ${HAVE_GLIB}
+    Enable GTK:             ${HAVE_GTK}
+    Enable D-BUS:           ${HAVE_DBUS}
+    Enable Expat:           ${HAVE_EXPAT}
+    Enable libdaemon:       ${HAVE_LIBDAEMON}
     Have Python:            ${HAVE_PYTHON}
     Linux Distro:           ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}
+"
 
- NOTE: Remember to create user ${AVAHI_USER} and group ${AVAHI_GROUP} before make install
+BUILD_DAEMON=no
+
+if test "x$HAVE_EXPAT" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
+   BUILD_DAEMON=yes
+fi
+
+BUILD_UTILS=no
+
+if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" ; then
+   BUILD_UTILS=yes
+fi
+    
+echo "
+    Building avahi-core                 yes
+    Building avahi-daemon:              ${BUILD_DAEMON}
+    Building avahi-dnsconfd:            ${BUILD_DAEMON}
+    Building avahi-utils:               ${BUILD_UTILS}
+    Building avahi-glib:                ${HAVE_GLIB}
+    Building avahi-discover-standalone  ${HAVE_GTK}
 "

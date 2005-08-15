@@ -32,8 +32,8 @@
 #include <assert.h>
 
 #include <avahi-common/alternative.h>
-#include <avahi-glib/glib-watch.h>
-#include <avahi-glib/glib-malloc.h>
+#include <avahi-common/malloc.h>
+#include <avahi-common/simple-watch.h>
 
 #include "core.h"
 #include "log.h"
@@ -42,14 +42,19 @@ static char *name = NULL;
 static AvahiSEntryGroup *group = NULL;
 static int try = 0;
 static AvahiServer *avahi = NULL;
+static const AvahiPoll *poll_api;
 
 static void dump_line(const char *text, void* userdata) {
     printf("%s\n", text);
 }
 
-static int dump_timeout(void* data) {
+static void dump_timeout_callback(AvahiTimeout *timeout, void* data) {
+    struct timeval tv;
+    
     avahi_server_dump(avahi, dump_line, NULL);
-    return 1;
+
+    avahi_elapse_time(&tv, 5000, 0);
+    poll_api->timeout_update(timeout, &tv);
 }
 
 static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata);
@@ -59,7 +64,7 @@ static void create_service(const char *t) {
 
     assert(t || name);
 
-    n = t ? g_strdup(t) : avahi_alternative_service_name(name);
+    n = t ? avahi_strdup(t) : avahi_alternative_service_name(name);
     avahi_free(name);
     name = n;
 
@@ -74,14 +79,16 @@ static void create_service(const char *t) {
     try++;
 }
 
-static int rename_timeout(void* data) {
+static void rename_timeout_callback(AvahiTimeout *timeout, void *userdata) {
+    struct timeval tv;
     
     if (access("flag", F_OK) == 0) { 
         create_service("New - Bonjour Service Name");
-        return 0;
+        return;
     }
 
-    return 1;
+    avahi_elapse_time(&tv, 5000, 0);
+    poll_api->timeout_update(timeout, &tv);
 }
 
 static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
@@ -103,27 +110,30 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void* userda
 }
 
 int main(int argc, char *argv[]) {
-    GMainLoop *loop = NULL;
-    gint error;
-    AvahiGLibPoll *glib_poll;
+    int error;
+    AvahiSimplePoll *simple_poll;
+    struct timeval tv;
 
-    avahi_set_allocator(avahi_glib_allocator());
-
-    glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
+    simple_poll = avahi_simple_poll_new();
+    poll_api = avahi_simple_poll_get(simple_poll);
     
-    avahi = avahi_server_new(avahi_glib_poll_get(glib_poll), NULL, server_callback, NULL, &error);
-    
-    loop = g_main_loop_new(NULL, 0);
-    g_timeout_add(1000*5, dump_timeout, avahi);
-    g_timeout_add(1000*5, rename_timeout, avahi); 
-    g_main_loop_run(loop);
-    g_main_loop_unref(loop);
+    avahi = avahi_server_new(poll_api, NULL, server_callback, NULL, &error);
 
+    avahi_elapse_time(&tv, 5000, 0);
+    poll_api->timeout_new(poll_api, &tv, dump_timeout_callback, avahi);
+
+    avahi_elapse_time(&tv, 5000, 0);
+    poll_api->timeout_new(poll_api, &tv, rename_timeout_callback, avahi);
+
+    for (;;)
+        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
+            break;
+    
     if (group)
         avahi_s_entry_group_free(group);   
     avahi_server_free(avahi);
 
-    avahi_glib_poll_free(glib_poll);
+    avahi_simple_poll_free(simple_poll);
     
     return 0;
 }

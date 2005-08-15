@@ -31,8 +31,7 @@
 #include <assert.h>
 
 #include <avahi-common/malloc.h>
-#include <avahi-glib/glib-watch.h>
-#include <avahi-glib/glib-malloc.h>
+#include <avahi-common/simple-watch.h>
 #include <avahi-core/core.h>
 #include <avahi-core/log.h>
 
@@ -41,19 +40,26 @@ static AvahiSEntryGroup *group = NULL;
 static AvahiServer *server = NULL;
 static char *service_name = NULL;
 
-static int quit_timeout(void* data) {
-    g_main_loop_quit(data);
-    return 0;
+static const AvahiPoll *poll_api;
+
+static void quit_timeout_callback(AvahiTimeout *timeout, void* userdata) {
+    AvahiSimplePoll *simple_poll = userdata;
+
+    avahi_simple_poll_quit(simple_poll);
 }
 
 static void dump_line(const char *text, void* userdata) {
     printf("%s\n", text);
 }
 
-static int dump_timeout(void* data) {
-    AvahiServer *Avahi = data;
-    avahi_server_dump(Avahi, dump_line, NULL);
-    return 1;
+static void dump_timeout_callback(AvahiTimeout *timeout, void* userdata) {
+    struct timeval tv;
+    
+    AvahiServer *avahi = userdata;
+    avahi_server_dump(avahi, dump_line, NULL);
+
+    avahi_elapse_time(&tv, 5000, 0);
+    poll_api->timeout_update(timeout, &tv);
 }
 
 static void record_browser_callback(AvahiSRecordBrowser *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
@@ -120,7 +126,7 @@ static void create_entries(int new_name) {
     assert(avahi_s_entry_group_is_empty(group));
     
     if (!service_name)
-        service_name = g_strdup("Test Service");
+        service_name = avahi_strdup("Test Service");
     else if (new_name) {
         char *n = avahi_alternative_service_name(service_name);
         avahi_free(service_name);
@@ -210,7 +216,6 @@ static void dsb_callback(AvahiSDNSServerBrowser *b, AvahiIfIndex iface, AvahiPro
 }
 
 int main(int argc, char *argv[]) {
-    GMainLoop *loop = NULL;
     AvahiSRecordBrowser *r;
     AvahiSHostNameResolver *hnr;
     AvahiSAddressResolver *ar;
@@ -222,15 +227,16 @@ int main(int argc, char *argv[]) {
     AvahiSServiceBrowser *sb;
     AvahiSServiceResolver *sr;
     AvahiSDNSServerBrowser *dsb;
-    AvahiGLibPoll *glib_poll;
+    AvahiSimplePoll *simple_poll;
     int error;
+    struct timeval tv;
 
-    avahi_set_allocator(avahi_glib_allocator());
-    glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
+    simple_poll = avahi_simple_poll_new();
+    poll_api = avahi_simple_poll_get(simple_poll);
     
     avahi_server_config_init(&config);
 /*     config.host_name = g_strdup("test"); */
-    server = avahi_server_new(avahi_glib_poll_get(glib_poll), &config, server_callback, NULL, &error);
+    server = avahi_server_new(poll_api, &config, server_callback, NULL, &error);
     avahi_server_config_free(&config);
 
     k = avahi_key_new("_http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
@@ -251,13 +257,15 @@ int main(int argc, char *argv[]) {
 
     dsb = avahi_s_dns_server_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "local", AVAHI_DNS_SERVER_RESOLVE, AVAHI_PROTO_UNSPEC, dsb_callback, NULL);
 
-    
-    g_timeout_add(1000*5, dump_timeout, server);
-    g_timeout_add(1000*60, quit_timeout, loop);     
-    
-    loop = g_main_loop_new(NULL, 0);
-    g_main_loop_run(loop);
-    g_main_loop_unref(loop);
+    avahi_elapse_time(&tv, 1000*5, 0);
+    poll_api->timeout_new(poll_api, &tv, dump_timeout_callback, server);
+
+    avahi_elapse_time(&tv, 1000*60, 0);
+    poll_api->timeout_new(poll_api, &tv, quit_timeout_callback, server);
+
+    for (;;)
+        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
+            break;
 
     avahi_s_record_browser_free(r);
     avahi_s_host_name_resolver_free(hnr);
@@ -273,8 +281,8 @@ int main(int argc, char *argv[]) {
     if (server)
         avahi_server_free(server);
 
-    if (glib_poll)
-        avahi_glib_poll_free(glib_poll);
+    if (simple_poll)
+        avahi_simple_poll_free(simple_poll);
 
     avahi_free(service_name);
     

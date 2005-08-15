@@ -17,6 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+if HAVE_EXPAT
+if HAVE_LIBDAEMON
+
 pkgsysconfdir=$(sysconfdir)/avahi
 
 AM_CFLAGS= \
@@ -25,22 +28,18 @@ AM_CFLAGS= \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-dnsconfd.action\"
 
-# libdaemon
-AM_CFLAGS+=$(LIBDAEMON_CFLAGS)
-AM_LDADD=$(LIBDAEMON_LIBS)
-
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-sbin_PROGRAMS = \
-	avahi-dnsconfd
+sbin_PROGRAMS = avahi-dnsconfd
 
-avahi_dnsconfd_SOURCES = \
-	main.c 
-
-avahi_dnsconfd_CFLAGS = $(AM_CFLAGS)
-avahi_dnsconfd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+avahi_dnsconfd_SOURCES = main.c 
+avahi_dnsconfd_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS)
+avahi_dnsconfd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(LIBDAEMON_LIBS)
 
 pkgsysconf_SCRIPTS=avahi-dnsconfd.action
+
+endif
+endif
 
 EXTRA_DIST=avahi-dnsconfd.action

@@ -52,9 +52,12 @@
 
 #include "main.h"
 #include "simple-protocol.h"
-#include "dbus-protocol.h"
 #include "static-services.h"
 #include "ini-file-parser.h"
+
+#ifdef HAVE_DBUS
+#include "dbus-protocol.h"
+#endif
 
 AvahiServer *avahi_server = NULL;
 
@@ -208,7 +211,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
 
     avahi_server = s;
     
-#ifdef ENABLE_DBUS
+#ifdef HAVE_DBUS
     if (c->enable_dbus)
         dbus_protocol_server_state_changed(state);
 #endif
@@ -580,7 +583,7 @@ static int run_server(DaemonConfig *c) {
     if (simple_protocol_setup(poll_api) < 0)
         goto finish;
     
-#ifdef ENABLE_DBUS
+#ifdef HAVE_DBUS
     if (c->enable_dbus)
         if (dbus_protocol_setup(poll_api) < 0)
             goto finish;

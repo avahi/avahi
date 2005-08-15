@@ -20,24 +20,33 @@
 AM_CFLAGS= \
 	-I$(top_srcdir)
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
+if HAVE_GLIB
+if HAVE_DBUS
 
-# DBUS
-AM_CFLAGS+=$(DBUS_CFLAGS)
-AM_LDADD+=$(DBUS_LIBS)
+noinst_PROGRAMS = c-plus-plus-test
 
-noinst_PROGRAMS = \
-	c-plus-plus-test
+c_plus_plus_test_SOURCES = c-plus-plus-test.cc
 
-c_plus_plus_test_SOURCES = \
-	c-plus-plus-test.cc
+c_plus_plus_test_CXXFLAGS = \
+	$(AM_CFLAGS) \
+	$(GLIB20_CFLAGS) \
+	$(DBUS_CFLAGS)
 
-c_plus_plus_test_CXXFLAGS = $(AM_CFLAGS)
-c_plus_plus_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la
+c_plus_plus_test_LDADD = \
+	$(AM_LDADD) \
+	../avahi-common/libavahi-common.la \
+	../avahi-core/libavahi-core.la \
+	../avahi-client/libavahi-client.la \
+	../avahi-glib/libavahi-glib.la  \
+	$(GLIB20_LIBS) \
+	$(DBUS_LIBS)
+
+
+endif
+endif
 
 EXTRA_DIST=c-plus-plus-test-gen.py
 
 gen:
-	python ./c-plus-plus-test-gen.py > c-plus-plus-test.cc
+	python ./c-plus-plus-test-gen.py avahi-common avahi-core avahi-client avahi-glib > c-plus-plus-test.cc
+

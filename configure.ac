@@ -169,7 +169,7 @@ AC_ARG_ENABLE(expat,
         esac],
         [HAVE_EXPAT=yes]) 
 
-if test "x$HAVE_DBUS" = "xyes"; then
+if test "x$HAVE_EXPAT" = "xyes"; then
    AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
 
    if ! $have_expat ; then

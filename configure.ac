@@ -362,13 +362,13 @@ echo "
     Group for Avahi:        ${AVAHI_GROUP}
 "
 
-BUILD_DAEMON=no
+BUILD_DAEMON="no (!)"
 
 if test "x$HAVE_EXPAT" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
    BUILD_DAEMON=yes
 fi
 
-BUILD_UTILS=no
+BUILD_UTILS="no (!)"
 
 if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" ; then
    BUILD_UTILS=yes
@@ -380,5 +380,5 @@ echo "
     Building avahi-dnsconfd:            ${BUILD_DAEMON}
     Building avahi-utils:               ${BUILD_UTILS}
     Building avahi-glib:                ${HAVE_GLIB}
-    Building avahi-discover-standalone  ${HAVE_GTK}
+    Building avahi-discover-standalone: ${HAVE_GTK}
 "

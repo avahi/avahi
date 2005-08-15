@@ -31,7 +31,7 @@ avahi_commoninclude_HEADERS = \
 	domain.h \
 	cdecl.h \
 	defs.h \
-	malloc.h
+	malloc.h \
 	watch.h \
 	timeval.h \
 	simple-watch.h \

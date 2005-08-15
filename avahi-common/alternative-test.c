@@ -46,4 +46,5 @@ int main(int argc, char *argv[]) {
     }
 
     avahi_free(r);
+    return 0;
 }

@@ -269,7 +269,7 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
         OPTION_DEBUG
     };
     
-    static const struct option const long_options[] = {
+    static const struct option long_options[] = {
         { "help",         no_argument,       NULL, 'h' },
         { "daemonize",    no_argument,       NULL, 'D' },
         { "kill",         no_argument,       NULL, 'k' },
@@ -477,7 +477,7 @@ finish:
 
 static void log_function(AvahiLogLevel level, const char *txt) {
 
-    static const int const log_level_map[] = {
+    static const int log_level_map[] = {
         LOG_ERR,
         LOG_WARNING,
         LOG_NOTICE,

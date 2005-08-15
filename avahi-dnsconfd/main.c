@@ -400,7 +400,7 @@ static void help(FILE *f, const char *argv0) {
 static int parse_command_line(int argc, char *argv[]) {
     int c;
     
-    static const struct option const long_options[] = {
+    static const struct option long_options[] = {
         { "help",      no_argument,       NULL, 'h' },
         { "daemonize", no_argument,       NULL, 'D' },
         { "kill",      no_argument,       NULL, 'k' },

@@ -25,8 +25,12 @@
 /** \file gccmacro.h Defines some macros for GCC extensions */
 
 #ifdef __GNUC__
+#if __GNUC__ >= 4
 #define AVAHI_GCC_SENTINEL __attribute__ ((sentinel))
-#else
+#endif
+#endif
+
+#ifndef AVAHI_GCC_SENTINEL
 /** Macro for usage of GCC's sentinel compilation warnings */
 #define AVAHI_GCC_SENTINEL
 #endif

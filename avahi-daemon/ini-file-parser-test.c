@@ -56,4 +56,5 @@ int main(int argc, char *argv[]) {
     }
 
     avahi_ini_file_free(f);
+    return 0;
 }

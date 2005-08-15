@@ -98,7 +98,10 @@ static void* scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
 
 static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
     AvahiSRecordBrowser *b = userdata;
-    struct cbdata cbdata = { b, i };
+    struct cbdata cbdata;
+
+    cbdata.record_browser = b;
+    cbdata.interface = i;
 
     assert(m);
     assert(i);

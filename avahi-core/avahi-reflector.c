@@ -56,4 +56,6 @@ int main(int argc, char*argv[]) {
 
     avahi_server_free(server);
     avahi_simple_poll_free(simple_poll);
+
+    return 0;
 }

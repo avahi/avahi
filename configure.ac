@@ -370,12 +370,20 @@ BUILD_UTILS="no (!)"
 if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" ; then
    BUILD_UTILS=yes
 fi
+
+BUILD_CLIENT="no (!)"
+
+if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" ; then
+   BUILD_CLIENT=yes
+fi
+
     
 echo "
-    Building avahi-core                 yes
+    Building libavahi-core              yes
     Building avahi-daemon:              ${BUILD_DAEMON}
     Building avahi-dnsconfd:            ${BUILD_DAEMON}
     Building avahi-utils:               ${BUILD_UTILS}
-    Building avahi-glib:                ${HAVE_GLIB}
+    Building libavahi-glib:             ${HAVE_GLIB}
+    Building libavahi-client:           ${BUILD_CLIENT}
     Building avahi-discover-standalone: ${HAVE_GTK}
 "

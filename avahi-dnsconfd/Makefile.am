@@ -25,13 +25,9 @@ AM_CFLAGS= \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-dnsconfd.action\"
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
-
 # libdaemon
 AM_CFLAGS+=$(LIBDAEMON_CFLAGS)
-AM_LDADD+=$(LIBDAEMON_LIBS)
+AM_LDADD=$(LIBDAEMON_LIBS)
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'

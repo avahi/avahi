@@ -36,10 +36,12 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <getopt.h>
-
-#include <glib.h>
+#include <assert.h>
+#include <inttypes.h>
+#include <stdlib.h>
 
 #include <avahi-common/llist.h>
+#include <avahi-common/malloc.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -49,12 +51,16 @@
 
 #define BROWSE_DNS_SERVERS "BROWSE-DNS-SERVERS\n"
 
+#define ENV_INTERFACE_DNS_SERVERS  "AVAHI_INTERFACE_DNS_SERVERS"
+#define ENV_DNS_SERVERS "AVAHI_DNS_SERVERS"
+#define ENV_INTERFACE "AVAHI_INTERFACE"
+
 static enum {
     ACKWAIT,
     BROWSING
 } state = ACKWAIT;
 
-static gboolean quit = FALSE;
+static int quit = 0;
 
 static enum {
     DAEMON_RUN,
@@ -65,31 +71,31 @@ static enum {
     DAEMON_CHECK
 } command = DAEMON_RUN;
 
-static gboolean daemonize = FALSE;
+static int daemonize = 0;
 
 typedef struct DNSServerInfo DNSServerInfo;
 
 struct DNSServerInfo {
-    gint interface;
-    guchar protocol;
-    gchar *address;
+    int interface;
+    int protocol;
+    char *address;
     AVAHI_LLIST_FIELDS(DNSServerInfo, servers);
 };
 
 static AVAHI_LLIST_HEAD(DNSServerInfo, servers);
 
 static void server_info_free(DNSServerInfo *i) {
-    g_assert(i);
+    assert(i);
 
-    g_free(i->address);
+    avahi_free(i->address);
     
     AVAHI_LLIST_REMOVE(DNSServerInfo, servers, servers, i);
-    g_free(i);
+    avahi_free(i);
 }
 
-static DNSServerInfo* get_server_info(gint interface, guchar protocol, const gchar *address) {
+static DNSServerInfo* get_server_info(int interface, int protocol, const char *address) {
     DNSServerInfo *i;
-    g_assert(address);
+    assert(address);
 
     for (i = servers; i; i = i->servers_next)
         if (i->interface == interface &&
@@ -100,15 +106,15 @@ static DNSServerInfo* get_server_info(gint interface, guchar protocol, const gch
     return NULL;
 }
 
-static DNSServerInfo* new_server_info(gint interface, guchar protocol, const gchar *address) {
+static DNSServerInfo* new_server_info(int interface, int protocol, const char *address) {
     DNSServerInfo *i;
     
-    g_assert(address);
+    assert(address);
 
-    i = g_new(DNSServerInfo, 1);
+    i = avahi_new(DNSServerInfo, 1);
     i->interface = interface;
     i->protocol = protocol;
-    i->address = g_strdup(address);
+    i->address = avahi_strdup(address);
 
     AVAHI_LLIST_PREPEND(DNSServerInfo, servers, servers, i);
     
@@ -150,6 +156,8 @@ static int open_socket(void) {
 
     if (connect(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "connect(): %s", strerror(errno));
+	daemon_log(LOG_INFO, "Failed to connect to the daemon. This probably means that you");
+	daemon_log(LOG_INFO, "didn't start avahi-daemon before avahi-dnsconfd.");
         goto fail;
     }
 
@@ -165,7 +173,7 @@ fail:
 static ssize_t loop_write(int fd, const void*data, size_t size) {
 
     ssize_t ret = 0;
-    g_assert(fd >= 0 && data && size);
+    assert(fd >= 0 && data && size);
 
     while (size > 0) {
         ssize_t r;
@@ -177,39 +185,39 @@ static ssize_t loop_write(int fd, const void*data, size_t size) {
             break;
 
         ret += r;
-        data = (const guint8*) data + r;
+        data = (const uint8_t*) data + r;
         size -= r;
     }
 
     return ret;
 }
 
-static gchar *concat_dns_servers(gint interface) {
+static char *concat_dns_servers(int interface) {
     DNSServerInfo *i;
-    gchar *r = NULL;
+    char *r = NULL;
     
     for (i = servers; i; i = i->servers_next)
         if (i->interface == interface || interface <= 0) {
-            gchar *t;
+            char *t;
 
             if (!r)
-                t = g_strdup(i->address);
+                t = avahi_strdup(i->address);
             else
-                t = g_strdup_printf("%s %s", r, i->address);
+                t = avahi_strdup_printf("%s %s", r, i->address);
 
-            g_free(r);
+            avahi_free(r);
             r = t;
         }
 
     return r;
 }
 
-static gchar *getifname(gint interface, gchar *name, guint len) {
+static char *getifname(int interface, char *name, size_t len) {
     int fd = -1;
-    gchar *ret = NULL;
+    char *ret = NULL;
     struct ifreq ifr;
 
-    g_assert(interface >= 0);
+    assert(interface >= 0);
     
     if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0) {
         daemon_log(LOG_ERR, "socket(): %s", strerror(errno));
@@ -233,31 +241,57 @@ finish:
         close(fd);
     
     return ret;
- }
+}
 
-static void run_script(gboolean new, gint interface, guchar protocol, const gchar *address) {
-    gchar *p;
-    gint ret;
-    gchar ia[16], pa[16];
-    gchar name[IFNAMSIZ+1];
+static void set_env(const char *name, const char *value) {
+    char **e;
+    size_t l;
+    
+    assert(name);
+    assert(value);
 
-    g_assert(interface > 0);
+    l = strlen(name);
+
+    for (e = environ; *e; e++) {
+        /* Search for the variable */
+        if (strlen(*e) < l+1)
+            continue;
+        
+        if (strncmp(*e, name, l) != 0 || *e[l] != '=')
+            continue;
+
+        /* We simply free the record, sicne we know that we created it previously */
+        avahi_free(*e);
+        *e = avahi_strdup_printf("%s=%s", name, value);
+        return;
+    }
+
+    assert(0);
+}
+
+static void run_script(int new, int interface, int protocol, const char *address) {
+    char *p;
+    int ret;
+    char ia[16], pa[16];
+    char name[IFNAMSIZ+1];
+
+    assert(interface > 0);
 
     if (!getifname(interface, name, sizeof(name))) 
         return;
     
     p = concat_dns_servers(interface);
-    g_setenv("AVAHI_INTERFACE_DNS_SERVERS", p ? p : "", TRUE);
-    g_free(p); 
+    set_env(ENV_INTERFACE_DNS_SERVERS, p ? p : "");
+    avahi_free(p); 
 
     p = concat_dns_servers(-1);
-    g_setenv("AVAHI_DNS_SERVERS", p ? p : "", TRUE);
-    g_free(p); 
+    set_env(ENV_DNS_SERVERS, p ? p : "");
+    avahi_free(p); 
 
-    g_setenv("AVAHI_INTERFACE", name, TRUE);
+    set_env(ENV_INTERFACE, name);
     
     snprintf(ia, sizeof(ia), "%i", interface);
-    snprintf(pa, sizeof(pa), "%u", protocol);
+    snprintf(pa, sizeof(pa), "%i", protocol);
 
     if (daemon_exec("/", &ret, AVAHI_DNSCONF_SCRIPT, AVAHI_DNSCONF_SCRIPT, new ? "+" : "-", address, ia, pa, NULL) < 0)
         daemon_log(LOG_WARNING, "Failed to run script");
@@ -265,8 +299,8 @@ static void run_script(gboolean new, gint interface, guchar protocol, const gcha
         daemon_log(LOG_WARNING, "Script returned with non-zero exit code %i", ret);
 }
 
-static gint new_line(const gchar *l) {
-    g_assert(l);
+static int new_line(const char *l) {
+    assert(l);
 
     if (state == ACKWAIT) {
         if (*l != '+') {
@@ -277,19 +311,19 @@ static gint new_line(const gchar *l) {
         daemon_log(LOG_INFO, "Successfully connected to Avahi daemon.");
         state = BROWSING;
     } else {
-        gint interface;
-        guint protocol;
-        guint port;
-        gchar a[64];
+        int interface;
+        int protocol;
+        int port;
+        char a[64];
         
-        g_assert(state == BROWSING); 
+        assert(state == BROWSING); 
 
         if (*l != '<' && *l != '>') {
             daemon_log(LOG_ERR, "Avahi sent us an invalid browsing line: %s", l);
             return -1;
         }
 
-        if (sscanf(l+1, "%i %u %64s %u", &interface, &protocol, a, &port) != 4) {
+        if (sscanf(l+1, "%i %i %64s %i", &interface, &protocol, a, &port) != 4) {
             daemon_log(LOG_ERR, "Failed to parse browsing line: %s", l);
             return -1;
         }
@@ -299,17 +333,17 @@ static gint new_line(const gchar *l) {
                 daemon_log(LOG_WARNING, "DNS server with port address != 53 found, ignoring");
             else {
                 daemon_log(LOG_INFO, "New DNS Server %s (interface: %i.%u)", a, interface, protocol);
-                new_server_info(interface, (guchar) protocol, a);
-                run_script(TRUE, interface, (guchar) protocol, a);
+                new_server_info(interface, protocol, a);
+                run_script(1, interface, protocol, a);
             }
         } else {
             DNSServerInfo *i;
 
             if (port == 53) 
-                if ((i = get_server_info(interface, (guchar) protocol, a))) {
+                if ((i = get_server_info(interface, protocol, a))) {
                     daemon_log(LOG_INFO, "DNS Server %s removed (interface: %i.%u)", a, interface, protocol);
                     server_info_free(i);
-                    run_script(FALSE, interface, (guchar) protocol, a);
+                    run_script(0, interface, protocol, a);
                 }
         }
 
@@ -318,8 +352,8 @@ static gint new_line(const gchar *l) {
     return 0;
 }
 
-static gint do_connect(void) {
-    gint fd = -1;
+static int do_connect(void) {
+    int fd = -1;
     
     if ((fd = open_socket()) < 0)
         goto fail;
@@ -341,17 +375,17 @@ fail:
 
 static void free_dns_server_info_list(void) {
     while (servers) {
-        gint interface = servers->interface;
-        guchar protocol = servers->protocol;
-        gchar *address = g_strdup(servers->address);
+        int interface = servers->interface;
+        int protocol = servers->protocol;
+        char *address = avahi_strdup(servers->address);
         server_info_free(servers);
         
-        run_script(FALSE, interface, protocol, address);
-        g_free(address);
+        run_script(0, interface, protocol, address);
+        avahi_free(address);
     }
 }
 
-static void help(FILE *f, const gchar *argv0) {
+static void help(FILE *f, const char *argv0) {
     fprintf(f,
             "%s [options]\n"
             "    -h --help        Show this help\n"
@@ -363,8 +397,8 @@ static void help(FILE *f, const gchar *argv0) {
             argv0);
 }
 
-static gint parse_command_line(int argc, char *argv[]) {
-    gint c;
+static int parse_command_line(int argc, char *argv[]) {
+    int c;
     
     static const struct option const long_options[] = {
         { "help",      no_argument,       NULL, 'h' },
@@ -383,7 +417,7 @@ static gint parse_command_line(int argc, char *argv[]) {
                 command = DAEMON_HELP;
                 break;
             case 'D':
-                daemonize = TRUE;
+                daemonize = 1;
                 break;
             case 'k':
                 command = DAEMON_KILL;
@@ -412,13 +446,18 @@ static gint parse_command_line(int argc, char *argv[]) {
 }
 
 static int run_daemon(void) {
-    gint fd = -1, ret = -1;
-    gchar buf[1024];
+    int fd = -1, ret = -1;
+    char buf[1024];
     size_t buflen = 0;
 
     AVAHI_LLIST_HEAD_INIT(DNSServerInfo, servers);
     
     daemon_signal_init(SIGINT, SIGTERM, SIGCHLD, SIGHUP, 0);
+
+    /* Allocate some memory for our environment variables */
+    putenv(avahi_strdup(ENV_INTERFACE"="));
+    putenv(avahi_strdup(ENV_DNS_SERVERS"="));
+    putenv(avahi_strdup(ENV_INTERFACE_DNS_SERVERS"="));
     
     if ((fd = do_connect()) < 0)
         goto finish;
@@ -483,7 +522,7 @@ static int run_daemon(void) {
             
         } else if (FD_ISSET(fd, &rfds)) {
             ssize_t r;
-            gchar *n;
+            char *n;
 
             if ((r = read(fd, buf, sizeof(buf) - buflen - 1)) <= 0) {
                 daemon_log(LOG_ERR, "read(): %s", r < 0 ? strerror(errno) : "EOF");
@@ -491,7 +530,7 @@ static int run_daemon(void) {
             }
 
             buflen += r;
-            g_assert(buflen <= sizeof(buf)-1);
+            assert(buflen <= sizeof(buf)-1);
 
             while ((n = memchr(buf, '\n', buflen))) {
                 *(n++) = 0;
@@ -534,10 +573,10 @@ static const char* pid_file_proc(void) {
     return AVAHI_RUNTIME_DIR"/avahi-dnsconfd.pid";
 }
 
-gint main(gint argc, gchar *argv[]) {
-    gchar *argv0;
-    gint r = 1;
-    gboolean wrote_pid_file = FALSE;
+int main(int argc, char *argv[]) {
+    char *argv0;
+    int r = 1;
+    int wrote_pid_file = 0;
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
@@ -593,7 +632,7 @@ gint main(gint argc, gchar *argv[]) {
                 daemon_retval_send(1);
             goto finish;
         } else
-            wrote_pid_file = TRUE;
+            wrote_pid_file = 1;
 
         if (run_daemon() < 0)
             goto finish;

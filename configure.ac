@@ -77,6 +77,8 @@ if test "x$GCC" = "xyes" ; then
    rm -f conftest.o
 fi
 
+PKG_PROG_PKG_CONFIG
+
 #
 # Check for GLIB 2.0
 #
@@ -89,13 +91,12 @@ AC_ARG_ENABLE(glib,
         esac],
         [HAVE_GLIB=yes])
 
-if test "x$HAVE_GLIB" = "xyes"; then
+if test "x$HAVE_GLIB" = "xyes" ; then
         PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
         AC_SUBST(GLIB20_CFLAGS)
         AC_SUBST(GLIB20_LIBS)
 fi
 AM_CONDITIONAL(HAVE_GLIB, test "x$HAVE_GLIB" = "xyes")
-
 
 #
 # Check for GTK+
@@ -109,7 +110,7 @@ AC_ARG_ENABLE(gtk,
         esac],
         [HAVE_GTK=yes])
 
-if test "x$HAVE_GTK" = "xyes"; then
+if test "x$HAVE_GTK" = "xyes" ; then
         # Check for GTK 2.0
         PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.4.0 ])
         AC_SUBST(GTK20_CFLAGS)
@@ -139,7 +140,7 @@ AC_ARG_ENABLE(dbus,
 
 AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
 
-if test "x$HAVE_DBUS" = "xyes"; then
+if test "x$HAVE_DBUS" = "xyes" ; then
 	AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
     PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.30 ])
@@ -169,7 +170,7 @@ AC_ARG_ENABLE(expat,
         esac],
         [HAVE_EXPAT=yes]) 
 
-if test "x$HAVE_EXPAT" = "xyes"; then
+if test "x$HAVE_EXPAT" = "xyes" ; then
    AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
 
    if ! $have_expat ; then
@@ -190,7 +191,7 @@ AC_ARG_ENABLE(libdaemon,
         esac],
         [HAVE_LIBDAEMON=yes]) 
 
-if test "x$HAVE_LIBDAEMON" = "xyes"; then
+if test "x$HAVE_LIBDAEMON" = "xyes" ; then
    PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.5 ])
    AC_SUBST(LIBDAEMON_CFLAGS)
    AC_SUBST(LIBDAEMON_LIBS)

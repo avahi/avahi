@@ -22,7 +22,9 @@
   USA.
 ***/
 
-int simple_protocol_setup(GMainContext *c);
+#include <avahi-common/watch.h>
+
+int simple_protocol_setup(const AvahiPoll *poll_api);
 void simple_protocol_shutdown(void);
 void simple_protocol_restart_queries(void);
 

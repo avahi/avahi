@@ -149,7 +149,7 @@ AC_ARG_ENABLE(dbus,
 
 if test "x$ENABLE_DBUS" = "xyes"; then
 	AC_DEFINE(ENABLE_DBUS, 1, [Whether to use DBUS or not])
-        PKG_CHECK_MODULES(DBUS, [ dbus-glib-1 >= 0.30])
+        PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.30])
 
 	AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
 

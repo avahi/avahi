@@ -31,10 +31,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <glib.h>
 #include <expat.h>
 
 #include <avahi-common/llist.h>
+#include <avahi-common/malloc.h>
 #include <avahi-core/log.h>
 
 #include "main.h"
@@ -46,10 +46,10 @@ typedef struct StaticServiceGroup StaticServiceGroup;
 struct StaticService {
     StaticServiceGroup *group;
     
-    gchar *type;
-    gchar *domain_name;
-    gchar *host_name;
-    guint16 port;
+    char *type;
+    char *domain_name;
+    char *host_name;
+    uint16_t port;
 
     AvahiStringList *txt_records;
     
@@ -57,11 +57,11 @@ struct StaticService {
 };
 
 struct StaticServiceGroup {
-    gchar *filename;
+    char *filename;
     time_t mtime;
 
-    gchar *name, *chosen_name;
-    gboolean replace_wildcards;
+    char *name, *chosen_name;
+    int replace_wildcards;
 
     AvahiSEntryGroup *entry_group;
     AVAHI_LLIST_HEAD(StaticService, services);
@@ -70,30 +70,30 @@ struct StaticServiceGroup {
 
 static AVAHI_LLIST_HEAD(StaticServiceGroup, groups) = NULL;
 
-static gchar *replacestr(const gchar *pattern, const gchar *a, const gchar *b) {
-    gchar *r = NULL, *e, *n;
+static char *replacestr(const char *pattern, const char *a, const char *b) {
+    char *r = NULL, *e, *n;
 
     while ((e = strstr(pattern, a))) {
-        gchar *k;
+        char *k;
 
-        k = g_strndup(pattern, e - pattern);
+        k = avahi_strndup(pattern, e - pattern);
         if (r)
-            n = g_strconcat(r, k, b, NULL);
+            n = avahi_strdup_printf("%s%s%s", r, k, b);
         else
-            n = g_strconcat(k, b, NULL);
+            n = avahi_strdup_printf("%s%s", k, b);
 
-        g_free(k);
-        g_free(r);
+        avahi_free(k);
+        avahi_free(r);
         r = n;
 
         pattern = e + strlen(a);
     }
 
     if (!r)
-        return g_strdup(pattern);
+        return avahi_strdup(pattern);
 
-    n = g_strconcat(r, pattern, NULL);
-    g_free(r);
+    n = avahi_strdup_printf("%s%s", r, pattern);
+    avahi_free(r);
 
     return n;
 }
@@ -104,8 +104,8 @@ static void remove_static_service_group_from_server(StaticServiceGroup *g);
 static StaticService *static_service_new(StaticServiceGroup *group) {
     StaticService *s;
     
-    g_assert(group);
-    s = g_new(StaticService, 1);
+    assert(group);
+    s = avahi_new(StaticService, 1);
     s->group = group;
 
     s->type = s->host_name = s->domain_name = NULL;
@@ -118,15 +118,15 @@ static StaticService *static_service_new(StaticServiceGroup *group) {
     return s;
 }
 
-static StaticServiceGroup *static_service_group_new(gchar *filename) {
+static StaticServiceGroup *static_service_group_new(char *filename) {
     StaticServiceGroup *g;
-    g_assert(filename);
+    assert(filename);
 
-    g = g_new(StaticServiceGroup, 1);
-    g->filename = g_strdup(filename);
+    g = avahi_new(StaticServiceGroup, 1);
+    g->filename = avahi_strdup(filename);
     g->mtime = 0;
     g->name = g->chosen_name = NULL;
-    g->replace_wildcards = FALSE;
+    g->replace_wildcards = 0;
     g->entry_group = NULL;
 
     AVAHI_LLIST_HEAD_INIT(StaticService, g->services);
@@ -136,21 +136,21 @@ static StaticServiceGroup *static_service_group_new(gchar *filename) {
 }
 
 static void static_service_free(StaticService *s) {
-    g_assert(s);
+    assert(s);
     
     AVAHI_LLIST_REMOVE(StaticService, services, s->group->services, s);
 
-    g_free(s->type);
-    g_free(s->host_name);
-    g_free(s->domain_name);
+    avahi_free(s->type);
+    avahi_free(s->host_name);
+    avahi_free(s->domain_name);
 
     avahi_string_list_free(s->txt_records);
     
-    g_free(s);
+    avahi_free(s);
 }
 
 static void static_service_group_free(StaticServiceGroup *g) {
-    g_assert(g);
+    assert(g);
 
     if (g->entry_group)
         avahi_s_entry_group_free(g->entry_group);
@@ -160,25 +160,25 @@ static void static_service_group_free(StaticServiceGroup *g) {
 
     AVAHI_LLIST_REMOVE(StaticServiceGroup, groups, groups, g);
 
-    g_free(g->filename);
-    g_free(g->name);
-    g_free(g->chosen_name);
-    g_free(g);
+    avahi_free(g->filename);
+    avahi_free(g->name);
+    avahi_free(g->chosen_name);
+    avahi_free(g);
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *eg, AvahiEntryGroupState state, gpointer userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *eg, AvahiEntryGroupState state, void* userdata) {
     StaticServiceGroup *g = userdata;
     
-    g_assert(s);
-    g_assert(g);
+    assert(s);
+    assert(g);
     
     if (state == AVAHI_ENTRY_GROUP_COLLISION) {
-        gchar *n;
+        char *n;
 
         remove_static_service_group_from_server(g);
 
         n = avahi_alternative_service_name(g->chosen_name);
-        g_free(g->chosen_name);
+        avahi_free(g->chosen_name);
         g->chosen_name = n;
 
         avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
@@ -191,20 +191,20 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *eg, AvahiEntr
 static void add_static_service_group_to_server(StaticServiceGroup *g) {
     StaticService *s;
 
-    g_assert(g);
+    assert(g);
     
     if (g->chosen_name)
-        g_free(g->chosen_name);
+        avahi_free(g->chosen_name);
     
     if (g->replace_wildcards)
         g->chosen_name = replacestr(g->name, "%h", avahi_server_get_host_name(avahi_server));
     else
-        g->chosen_name = g_strdup(g->name);
+        g->chosen_name = avahi_strdup(g->name);
 
     if (!g->entry_group)
         g->entry_group = avahi_s_entry_group_new(avahi_server, entry_group_callback, g);
 
-    g_assert(avahi_s_entry_group_is_empty(g->entry_group));
+    assert(avahi_s_entry_group_is_empty(g->entry_group));
     
     for (s = g->services; s; s = s->services_next) {
 
@@ -227,7 +227,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
 }
 
 static void remove_static_service_group_from_server(StaticServiceGroup *g) {
-    g_assert(g);
+    assert(g);
 
     if (g->entry_group)
         avahi_s_entry_group_reset(g->entry_group);
@@ -249,14 +249,14 @@ struct xml_userdata {
     StaticServiceGroup *group;
     StaticService *service;
     xml_tag_name current_tag;
-    gboolean failed;
-    gchar *buf;
+    int failed;
+    char *buf;
 };
 
 static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
     struct xml_userdata *u = data;
     
-    g_assert(u);
+    assert(u);
 
     if (u->failed)
         return;
@@ -286,7 +286,7 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
         if (attr[0])
             goto invalid_attr;
 
-        g_assert(!u->service);
+        assert(!u->service);
         u->service = static_service_new(u->group);
 
         u->current_tag = XML_TAG_SERVICE;
@@ -317,20 +317,20 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
         u->current_tag = XML_TAG_TXT_RECORD;
     } else {
         avahi_log_error("%s: parse failure: didn't expect element <%s>.", u->group->filename, el);
-        u->failed = TRUE;
+        u->failed = 1;
     }
 
     return;
 
 invalid_attr:
     avahi_log_error("%s: parse failure: invalid attribute for element <%s>.", u->group->filename, el);
-    u->failed = TRUE;
+    u->failed = 1;
     return;
 }
     
 static void XMLCALL xml_end(void *data, const char *el) {
     struct xml_userdata *u = data;
-    g_assert(u);
+    assert(u);
 
     if (u->failed)
         return;
@@ -340,7 +340,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
 
             if (!u->group->name || !u->group->services) {
                 avahi_log_error("%s: parse failure: service group incomplete.", u->group->filename);
-                u->failed = TRUE;
+                u->failed = 1;
                 return;
             }
             
@@ -351,7 +351,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
 
             if (!u->service->type) {
                 avahi_log_error("%s: parse failure: service incomplete.", u->group->filename);
-                u->failed = TRUE;
+                u->failed = 1;
                 return;
             }
             
@@ -365,24 +365,24 @@ static void XMLCALL xml_end(void *data, const char *el) {
 
         case XML_TAG_PORT: {
             int p;
-            g_assert(u->service);
+            assert(u->service);
             
             p = u->buf ? atoi(u->buf) : 0;
 
             if (p < 0 || p > 0xFFFF) {
                 avahi_log_error("%s: parse failure: invalid port specification \"%s\".", u->group->filename, u->buf);
-                u->failed = TRUE;
+                u->failed = 1;
                 return;
             }
 
-            u->service->port = (guint16) p;
+            u->service->port = (uint16_t) p;
 
             u->current_tag = XML_TAG_SERVICE;
             break;
         }
 
         case XML_TAG_TXT_RECORD: {
-            g_assert(u->service);
+            assert(u->service);
             
             u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
             u->current_tag = XML_TAG_SERVICE;
@@ -399,22 +399,22 @@ static void XMLCALL xml_end(void *data, const char *el) {
             ;
     }
 
-    g_free(u->buf);
+    avahi_free(u->buf);
     u->buf = NULL;
 }
 
-static gchar *append_cdata(gchar *t, const gchar *n, int length) {
-    gchar *r, *k;
+static char *append_cdata(char *t, const char *n, int length) {
+    char *r, *k;
     
     if (!length)
         return t;
 
-    k = g_strndup(n, length);
+    k = avahi_strndup(n, length);
 
     if (t) {
-        r = g_strconcat(t, k, NULL);
-        g_free(k);
-        g_free(t);
+        r = avahi_strdup_printf("%s%s", t, k);
+        avahi_free(k);
+        avahi_free(t);
     } else
         r = k;
     
@@ -423,7 +423,7 @@ static gchar *append_cdata(gchar *t, const gchar *n, int length) {
 
 static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
     struct xml_userdata *u = data;
-    g_assert(u);
+    assert(u);
 
     if (u->failed)
         return;
@@ -434,17 +434,17 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
             break;
             
         case XML_TAG_TYPE:
-            g_assert(u->service);
+            assert(u->service);
             u->service->type = append_cdata(u->service->type, s, len);
             break;
 
         case XML_TAG_DOMAIN_NAME:
-            g_assert(u->service);
+            assert(u->service);
             u->service->domain_name = append_cdata(u->service->domain_name, s, len);
             break;
 
         case XML_TAG_HOST_NAME:
-            g_assert(u->service);
+            assert(u->service);
             u->service->host_name = append_cdata(u->service->host_name, s, len);
             break;
 
@@ -460,31 +460,31 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
     }
 }
 
-static gint static_service_group_load(StaticServiceGroup *g) {
+static int static_service_group_load(StaticServiceGroup *g) {
     XML_Parser parser = NULL;
-    gint fd = -1;
+    int fd = -1;
     struct xml_userdata u;
-    gint r = -1;
+    int r = -1;
     struct stat st;
     ssize_t n;
 
-    g_assert(g);
+    assert(g);
 
     u.buf = NULL;
     u.group = g;
     u.service = NULL;
     u.current_tag = XML_TAG_INVALID;
-    u.failed = FALSE;
+    u.failed = 0;
 
     /* Cleanup old data in this service group, if available */
     remove_static_service_group_from_server(g);
     while (g->services)
         static_service_free(g->services);
 
-    g_free(g->name);
-    g_free(g->chosen_name);
+    avahi_free(g->name);
+    avahi_free(g->chosen_name);
     g->name = g->chosen_name = NULL;
-    g->replace_wildcards = FALSE;
+    g->replace_wildcards = 0;
     
     if (!(parser = XML_ParserCreate(NULL))) {
         avahi_log_error("XML_ParserCreate() failed.");
@@ -541,14 +541,14 @@ finish:
     if (parser)
         XML_ParserFree(parser);
 
-    g_free(u.buf);
+    avahi_free(u.buf);
 
     return r;
 }
 
-static void load_file(gchar *n) {
+static void load_file(char *n) {
     StaticServiceGroup *g;
-    g_assert(n);
+    assert(n);
 
     for (g = groups; g; g = g->groups_next)
         if (strcmp(g->filename, n) == 0)
@@ -566,7 +566,7 @@ static void load_file(gchar *n) {
 void static_service_load(void) {
     StaticServiceGroup *g, *n;
     glob_t globbuf;
-    gchar **p;
+    char **p;
 
     for (g = groups; g; g = n) {
         struct stat st;

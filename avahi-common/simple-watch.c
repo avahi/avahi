@@ -158,6 +158,7 @@ static void remove_pollfd(AvahiWatch *w) {
 
 static void watch_free(AvahiWatch *w) {
     assert(w);
+
     assert(!w->dead);
 
     remove_pollfd(w);

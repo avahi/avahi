@@ -22,9 +22,7 @@
   USA.
 ***/
 
-#include <glib.h>
-
-int dbus_protocol_setup(GMainLoop *loop);
+int dbus_protocol_setup(const AvahiPoll *poll_api);
 void dbus_protocol_shutdown(void);
 void dbus_protocol_server_state_changed(AvahiServerState state);
 

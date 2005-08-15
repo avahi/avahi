@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include <dbus/dbus.h>
-#include <dbus/dbus-glib-lowlevel.h>
 
 #include <avahi-client/client.h>
 #include <avahi-common/dbus.h>

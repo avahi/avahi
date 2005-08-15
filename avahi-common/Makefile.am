@@ -37,11 +37,8 @@ avahi_commoninclude_HEADERS = \
 	simple-watch.h \
 	gccmacro.h
 
-noinst_HEADERS = llist.h
-
-if ENABLE_DBUS
-noinst_HEADERS += dbus.h
-endif
+noinst_HEADERS = \
+	llist.h
 
 noinst_PROGRAMS = \
 	strlst-test \
@@ -104,4 +101,20 @@ timeval_test_SOURCES = \
 timeval_test_CFLAGS = $(AM_CFLAGS)
 timeval_test_LDADD = $(AM_LDADD)
 
+
+
+if ENABLE_DBUS
+noinst_HEADERS += \
+	dbus.h \
+	dbus-watch-glue.h
+
+noinst_LIBRARIES = \
+	libdbus-watch-glue.a
+
+libdbus_watch_glue_a_SOURCES = \
+	dbus-watch-glue.h dbus-watch-glue.c
+
+libdbus_watch_glue_a_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+
+endif
 

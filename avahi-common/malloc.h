@@ -45,10 +45,10 @@ void avahi_free(void *p);
 void *avahi_realloc(void *p, size_t size);
 
 /** Allocate n new structures of the specified type. */
-#define avahi_new(type, n) (type*) avahi_malloc(n*sizeof(type))
+#define avahi_new(type, n) ((type*) avahi_malloc((n)*sizeof(type)))
 
 /** Same as avahi_new() but set the memory to zero */
-#define avahi_new0(type, n) (type*) avahi_malloc0(n*sizeof(type))
+#define avahi_new0(type, n) ((type*) avahi_malloc0((n)*sizeof(type)))
 
 /** Just like libc's strdup() */
 char *avahi_strdup(const char *s);

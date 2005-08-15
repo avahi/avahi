@@ -32,16 +32,11 @@ AM_CFLAGS= \
 
 AM_LDADD=-lexpat
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD+=$(GLIB20_LIBS)
-
 # libdaemon
 AM_CFLAGS+=$(LIBDAEMON_CFLAGS)
 AM_LDADD+=$(LIBDAEMON_LIBS)
 
 if ENABLE_DBUS
-# DBUS
 AM_CFLAGS+=$(DBUS_CFLAGS)
 AM_LDADD+=$(DBUS_LIBS)
 endif
@@ -52,10 +47,24 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 sbin_PROGRAMS = \
 	avahi-daemon
 
+noinst_PROGRAMS = \
+	ini-file-parser-test
+
 avahi_daemon_SOURCES = \
 	main.c main.h \
 	simple-protocol.c simple-protocol.h \
-	static-services.c static-services.h
+	static-services.c static-services.h \
+	ini-file-parser.c ini-file-parser.h
+
+avahi_daemon_CFLAGS = $(AM_CFLAGS)
+avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la 
+
+ini_file_parser_test_SOURCES = \
+	ini-file-parser.c ini-file-parser.h \
+	ini-file-parser-test.c
+
+ini_file_parser_test_CFLAGS = $(AM_CFLAGS)
+ini_file_parser_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la 
 
 pkgsysconf_DATA = \
 	avahi-daemon.conf
@@ -83,7 +92,12 @@ EXTRA_DIST = \
 	introspect.xsl
 
 if ENABLE_DBUS
-avahi_daemon_SOURCES += dbus-protocol.c dbus-protocol.h
+avahi_daemon_SOURCES += \
+	dbus-protocol.c \
+	dbus-protocol.h
+
+avahi_daemon_LDADD += \
+	../avahi-common/libdbus-watch-glue.a
 
 dbusservice_DATA = avahi-dbus.conf
 
@@ -96,8 +110,7 @@ introspection_DATA = \
 
 endif
 
-avahi_daemon_CFLAGS = $(AM_CFLAGS)
-avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la ../avahi-core/libavahi-core.la 
+
 
 xmllint:
 	xmllint --noout --valid example.service

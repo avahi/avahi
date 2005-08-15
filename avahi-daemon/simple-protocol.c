@@ -23,6 +23,7 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -31,9 +32,8 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include <glib.h>
-
 #include <avahi-common/llist.h>
+#include <avahi-common/malloc.h>
 #include <avahi-core/log.h>
 
 #include "simple-protocol.h"
@@ -59,11 +59,11 @@ struct Client {
 
     ClientState state;
     
-    gint fd;
-    GPollFD poll_fd;
+    int fd;
+    AvahiWatch *watch;
 
-    gchar inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
-    guint inbuf_length, outbuf_length;
+    char inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
+    size_t inbuf_length, outbuf_length;
 
     AvahiSHostNameResolver *host_name_resolver;
     AvahiSAddressResolver *address_resolver;
@@ -75,22 +75,23 @@ struct Client {
 };
 
 struct Server {
-    GSource source;
-    GMainContext *context;
-    GPollFD poll_fd;
-    gint fd;
+    const AvahiPoll *poll_api;
+    int fd;
+    AvahiWatch *watch;
     AVAHI_LLIST_HEAD(Client, clients);
 
-    guint n_clients;
-    gboolean bind_successful;
+    unsigned n_clients;
+    int bind_successful;
 };
 
 static Server *server = NULL;
 
-static void client_free(Client *c) {
-    g_assert(c);
+static void client_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata);
 
-    g_assert(c->server->n_clients >= 1);
+static void client_free(Client *c) {
+    assert(c);
+
+    assert(c->server->n_clients >= 1);
     c->server->n_clients--;
 
     if (c->host_name_resolver)
@@ -101,19 +102,20 @@ static void client_free(Client *c) {
 
     if (c->dns_server_browser)
         avahi_s_dns_server_browser_free(c->dns_server_browser);
-    
-    g_source_remove_poll(&c->server->source, &c->poll_fd);
+
+    c->server->poll_api->watch_free(c->watch);
     close(c->fd);
+    
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
-    g_free(c);
+    avahi_free(c);
 }
 
 static void client_new(Server *s, int fd) {
     Client *c;
 
-    g_assert(fd >= 0);
+    assert(fd >= 0);
 
-    c = g_new(Client, 1);
+    c = avahi_new(Client, 1);
     c->server = s;
     c->fd = fd;
     c->state = CLIENT_IDLE;
@@ -124,20 +126,17 @@ static void client_new(Server *s, int fd) {
     c->address_resolver = NULL;
     c->dns_server_browser = NULL;
 
-    memset(&c->poll_fd, 0, sizeof(GPollFD));
-    c->poll_fd.fd = fd;
-    c->poll_fd.events = G_IO_IN|G_IO_ERR|G_IO_HUP;
-    g_source_add_poll(&s->source, &c->poll_fd);
+    c->watch = s->poll_api->watch_new(s->poll_api, fd, AVAHI_WATCH_IN, client_work, c);
 
     AVAHI_LLIST_PREPEND(Client, clients, s->clients, c);
     s->n_clients++;
 }
 
-static void client_output(Client *c, const guint8*data, guint size) {
-    guint k, m;
+static void client_output(Client *c, const uint8_t*data, size_t size) {
+    size_t k, m;
     
-    g_assert(c);
-    g_assert(data);
+    assert(c);
+    assert(data);
 
     if (!size)
         return;
@@ -148,19 +147,19 @@ static void client_output(Client *c, const guint8*data, guint size) {
     memcpy(c->outbuf + c->outbuf_length, data, m);
     c->outbuf_length += m;
 
-    c->poll_fd.events |= G_IO_OUT;
+    server->poll_api->watch_update(c->watch, AVAHI_WATCH_OUT);
 }
 
-static void client_output_printf(Client *c, const gchar *format, ...) {
-    gchar *t;
+static void client_output_printf(Client *c, const char *format, ...) {
+    char *t;
     va_list ap;
     
     va_start(ap, format);
-    t = g_strdup_vprintf(format, ap);
+    t = avahi_strdup_vprintf(format, ap);
     va_end(ap);
 
-    client_output(c, (guint8*) t, strlen(t));
-    g_free(t);
+    client_output(c, (uint8_t*) t, strlen(t));
+    avahi_free(t);
 }
 
 
@@ -175,12 +174,12 @@ static void host_name_resolver_callback(
 
     Client *c = userdata;
     
-    g_assert(c);
+    assert(c);
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
     else {
-        gchar t[64];
+        char t[64];
         avahi_address_snprint(t, sizeof(t), a);
         client_output_printf(c, "+ %i %u %s %s\n", iface, protocol, hostname, t);
     }
@@ -199,7 +198,7 @@ static void address_resolver_callback(
     
     Client *c = userdata;
     
-    g_assert(c);
+    assert(c);
 
     if (event == AVAHI_RESOLVER_TIMEOUT)
         client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
@@ -220,9 +219,9 @@ static void dns_server_browser_callback(
     void* userdata) {
     
     Client *c = userdata;
-    gchar t[64];
+    char t[64];
     
-    g_assert(c);
+    assert(c);
 
     if (!a)
         return;
@@ -231,12 +230,12 @@ static void dns_server_browser_callback(
     client_output_printf(c, "%c %i %u %s %u\n", event == AVAHI_BROWSER_NEW ? '>' : '<',  interface, protocol, t, port);
 }
 
-static void handle_line(Client *c, const gchar *s) {
-    gchar cmd[64], arg[64];
-    gint n_args;
+static void handle_line(Client *c, const char *s) {
+    char cmd[64], arg[64];
+    int n_args;
 
-    g_assert(c);
-    g_assert(s);
+    assert(c);
+    assert(s);
 
     if (c->state != CLIENT_IDLE)
         return;
@@ -312,16 +311,16 @@ fail:
 }
 
 static void handle_input(Client *c) {
-    g_assert(c);
+    assert(c);
 
     for (;;) {
-        gchar *e;
-        guint k;
+        char *e;
+        size_t k;
 
         if (!(e = memchr(c->inbuf, '\n', c->inbuf_length)))
             break;
 
-        k = e - (gchar*) c->inbuf;
+        k = e - (char*) c->inbuf;
         *e = 0;
         
         handle_line(c, c->inbuf);
@@ -330,10 +329,12 @@ static void handle_input(Client *c) {
     }
 }
 
-static void client_work(Client *c) {
-    g_assert(c);
+static void client_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
+    Client *c = userdata;
 
-    if ((c->poll_fd.revents & G_IO_IN) && c->inbuf_length < sizeof(c->inbuf)) {
+    assert(c);
+
+    if ((events & AVAHI_WATCH_IN) && c->inbuf_length < sizeof(c->inbuf)) {
         ssize_t r;
         
         if ((r = read(c->fd, c->inbuf + c->inbuf_length, sizeof(c->inbuf) - c->inbuf_length)) <= 0) {
@@ -344,12 +345,12 @@ static void client_work(Client *c) {
         }
 
         c->inbuf_length += r;
-        g_assert(c->inbuf_length <= sizeof(c->inbuf));
+        assert(c->inbuf_length <= sizeof(c->inbuf));
 
         handle_input(c);
     }
 
-    if ((c->poll_fd.revents & G_IO_OUT) && c->outbuf_length > 0) {
+    if ((events & AVAHI_WATCH_OUT) && c->outbuf_length > 0) {
         ssize_t r;
 
         if ((r = write(c->fd, c->outbuf, c->outbuf_length)) < 0) {
@@ -358,7 +359,7 @@ static void client_work(Client *c) {
             return;
         }
 
-        g_assert((guint) r <= c->outbuf_length);
+        assert((size_t) r <= c->outbuf_length);
         c->outbuf_length -= r;
         
         if (c->outbuf_length)
@@ -370,84 +371,40 @@ static void client_work(Client *c) {
         }
     }
 
-    c->poll_fd.events =
-        G_IO_ERR |
-        G_IO_HUP |
-        (c->outbuf_length > 0 ? G_IO_OUT : 0) |
-        (c->inbuf_length < sizeof(c->inbuf) ? G_IO_IN : 0);
+    c->server->poll_api->watch_update(
+        watch, 
+        (c->outbuf_length > 0 ? AVAHI_WATCH_OUT : 0) |
+        (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
 
-static gboolean prepare_func(GSource *source, gint *timeout) {
-    g_assert(source);
-    g_assert(timeout);
-    
-    *timeout = -1;
-    return FALSE;
-}
+static void server_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
+    Server *s = userdata;
 
-static gboolean check_func(GSource *source) {
-    Server *s = (Server*) source;
-    Client *c;
-    
-    g_assert(s);
+    assert(s);
 
-    if (s->poll_fd.revents)
-        return TRUE;
-    
-    for (c = s->clients; c; c = c->clients_next)
-        if (c->poll_fd.revents)
-            return TRUE;
+    if (events & AVAHI_WATCH_IN) {
+        int cfd;
 
-    return FALSE;
-}
-
-static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer user_data) {
-    Server *s = (Server*) source;
-    Client *c, *n;
-    
-    g_assert(s);
-
-    if (s->poll_fd.revents & G_IO_IN) {
-        gint fd;
-
-        if ((fd = accept(s->fd, NULL, NULL)) < 0)
-            avahi_log_warn("accept(): %s", strerror(errno));
+        if ((cfd = accept(fd, NULL, NULL)) < 0)
+            avahi_log_error("accept(): %s", strerror(errno));
         else
-            client_new(s, fd);
-    } else if (s->poll_fd.revents)
-        g_error("Invalid revents");
-
-    for (c = s->clients; c; c = n) {
-        n = c->clients_next;
-        if (c->poll_fd.revents)
-            client_work(c);
+            client_new(s, cfd);
     }
-    
-    return TRUE;
 }
-
-int simple_protocol_setup(GMainContext *c) {
+    
+int simple_protocol_setup(const AvahiPoll *poll_api) {
     struct sockaddr_un sa;
     mode_t u;
 
-    static GSourceFuncs source_funcs = {
-        prepare_func,
-        check_func,
-        dispatch_func,
-        NULL,
-        NULL,
-        NULL
-    };
-    
-    g_assert(!server);
+    assert(!server);
 
-    server = (Server*) g_source_new(&source_funcs, sizeof(Server));
-    server->bind_successful = FALSE;
+    server = avahi_new(Server, 1);
+    server->poll_api = poll_api;
+    server->bind_successful = 0;
     server->fd = -1;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
-    g_main_context_ref(server->context = (c ? c : g_main_context_default()));
-    server->clients = NULL;
-
+    server->watch = NULL;
+    
     u = umask(0000);
 
     if ((server->fd = socket(PF_LOCAL, SOCK_STREAM, 0)) < 0) {
@@ -471,7 +428,7 @@ int simple_protocol_setup(GMainContext *c) {
         goto fail;
     }
 
-    server->bind_successful = TRUE;
+    server->bind_successful = 1;
     
     if (listen(server->fd, 2) < 0) {
         avahi_log_warn("listen(): %s", strerror(errno));
@@ -480,12 +437,7 @@ int simple_protocol_setup(GMainContext *c) {
 
     umask(u);
 
-    memset(&server->poll_fd, 0, sizeof(GPollFD));
-    server->poll_fd.fd = server->fd;
-    server->poll_fd.events = G_IO_IN|G_IO_ERR;
-    g_source_add_poll(&server->source, &server->poll_fd);
-
-    g_source_attach(&server->source, server->context);
+    server->watch = poll_api->watch_new(poll_api, server->fd, AVAHI_WATCH_IN, server_work, server);
     
     return 0;
 
@@ -501,20 +453,20 @@ void simple_protocol_shutdown(void) {
 
     if (server) {
 
+        if (server->bind_successful)
+            unlink(AVAHI_SOCKET);
+
         while (server->clients)
             client_free(server->clients);
 
-        if (server->bind_successful)
-            unlink(AVAHI_SOCKET);
+        if (server->watch)
+            server->poll_api->watch_free(server->watch);
         
         if (server->fd >= 0)
             close(server->fd);
 
-        g_main_context_unref(server->context);
+        avahi_free(server);
         
-        g_source_destroy(&server->source);
-        g_source_unref(&server->source);
-
         server = NULL;
     }
 }
@@ -524,7 +476,7 @@ void simple_protocol_restart_queries(void) {
 
     /* Restart queries in case of local domain name changes */
     
-    g_assert(server);
+    assert(server);
 
     for (c = server->clients; c; c = c->clients_next)
         if (c->state == CLIENT_BROWSE_DNS_SERVERS && c->dns_server_browser) {

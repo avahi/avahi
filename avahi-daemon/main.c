@@ -23,6 +23,7 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
 #include <getopt.h>
 #include <string.h>
 #include <signal.h>
@@ -44,15 +45,16 @@
 #include <libdaemon/dlog.h>
 #include <libdaemon/dpid.h>
 
+#include <avahi-common/malloc.h>
+#include <avahi-common/simple-watch.h>
 #include <avahi-core/core.h>
 #include <avahi-core/log.h>
-#include <avahi-glib/glib-malloc.h>
-#include <avahi-glib/glib-watch.h>
 
 #include "main.h"
 #include "simple-protocol.h"
 #include "dbus-protocol.h"
 #include "static-services.h"
+#include "ini-file-parser.h"
 
 AvahiServer *avahi_server = NULL;
 
@@ -68,21 +70,21 @@ typedef enum {
 typedef struct {
     AvahiServerConfig server_config;
     DaemonCommand command;
-    gboolean daemonize;
-    gboolean use_syslog;
-    gchar *config_file;
-    gboolean enable_dbus;
-    gboolean drop_root;
-    gboolean publish_resolv_conf;
-    gchar ** publish_dns_servers;
-    gboolean no_rlimits;
-    gboolean debug;
+    int daemonize;
+    int use_syslog;
+    char *config_file;
+    int enable_dbus;
+    int drop_root;
+    int publish_resolv_conf;
+    char ** publish_dns_servers;
+    int no_rlimits;
+    int debug;
 
-    gboolean rlimit_as_set, rlimit_core_set, rlimit_data_set, rlimit_fsize_set, rlimit_nofile_set, rlimit_stack_set;
+    int rlimit_as_set, rlimit_core_set, rlimit_data_set, rlimit_fsize_set, rlimit_nofile_set, rlimit_stack_set;
     rlim_t rlimit_as, rlimit_core, rlimit_data, rlimit_fsize, rlimit_nofile, rlimit_stack;
 
 #ifdef RLIMIT_NPROC
-    gboolean rlimit_nproc_set;
+    int rlimit_nproc_set;
     rlim_t rlimit_nproc;
 #endif
 } DaemonConfig;
@@ -92,18 +94,26 @@ typedef struct {
 static AvahiSEntryGroup *dns_servers_entry_group = NULL;
 static AvahiSEntryGroup *resolv_conf_entry_group = NULL;
 
-static gchar **resolv_conf = NULL;
+static char **resolv_conf = NULL;
 
 static DaemonConfig config;
 
 #define MAX_NAME_SERVERS 10
 
-static gint load_resolv_conf(const DaemonConfig *c) {
-    gint ret = -1;
-    FILE *f;
-    gint i = 0;
+static int has_prefix(const char *s, const char *prefix) {
+    size_t l;
+
+    l = strlen(prefix);
     
-    g_strfreev(resolv_conf);
+    return strlen(s) >= l && strncmp(s, prefix, l) == 0;
+}
+
+static int load_resolv_conf(const DaemonConfig *c) {
+    int ret = -1;
+    FILE *f;
+    int i = 0;
+    
+    avahi_strfreev(resolv_conf);
     resolv_conf = NULL;
 
     if (!c->publish_resolv_conf)
@@ -114,11 +124,11 @@ static gint load_resolv_conf(const DaemonConfig *c) {
         goto finish;
     }
 
-    resolv_conf = g_new0(gchar*, MAX_NAME_SERVERS+1);
+    resolv_conf = avahi_new0(char*, MAX_NAME_SERVERS+1);
 
     while (!feof(f) && i < MAX_NAME_SERVERS) {
         char ln[128];
-        gchar *p;
+        char *p;
 
         if (!(fgets(ln, sizeof(ln), f)))
             break;
@@ -126,11 +136,11 @@ static gint load_resolv_conf(const DaemonConfig *c) {
         ln[strcspn(ln, "\r\n#")] = 0;
         p = ln + strspn(ln, "\t ");
 
-        if (g_str_has_prefix(p, "nameserver")) {
+        if (has_prefix(p, "nameserver")) {
             p += 10;
             p += strspn(p, "\t ");
             p[strcspn(p, "\t ")] = 0;
-            resolv_conf[i++] = strdup(p);
+            resolv_conf[i++] = avahi_strdup(p);
         }
     }
 
@@ -139,7 +149,7 @@ static gint load_resolv_conf(const DaemonConfig *c) {
 finish:
 
     if (ret != 0) {
-        g_strfreev(resolv_conf);
+        avahi_strfreev(resolv_conf);
         resolv_conf = NULL;
     }
         
@@ -149,16 +159,16 @@ finish:
     return ret;
 }
 
-static AvahiSEntryGroup* add_dns_servers(AvahiServer *s, AvahiSEntryGroup* g, gchar **l) {
-    gchar **p;
+static AvahiSEntryGroup* add_dns_servers(AvahiServer *s, AvahiSEntryGroup* g, char **l) {
+    char **p;
 
-    g_assert(s);
-    g_assert(l);
+    assert(s);
+    assert(l);
 
     if (!g) 
         g = avahi_s_entry_group_new(s, NULL, NULL);
 
-    g_assert(avahi_s_entry_group_is_empty(g));
+    assert(avahi_s_entry_group_is_empty(g));
 
     for (p = l; *p; p++) {
         AvahiAddress a;
@@ -190,8 +200,8 @@ static void remove_dns_server_entry_groups(void) {
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
     DaemonConfig *c = userdata;
     
-    g_assert(s);
-    g_assert(c);
+    assert(s);
+    assert(c);
 
     /** This function is possibly called before the global variable
      * avahi_server has been set, therefore we do it explicitly */
@@ -218,7 +228,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         simple_protocol_restart_queries();
         
     } else if (state == AVAHI_SERVER_COLLISION) {
-        gchar *n;
+        char *n;
 
         static_service_remove_from_server();
 
@@ -227,11 +237,11 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
         avahi_log_warn("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
-        g_free(n);
+        avahi_free(n);
     }
 }
 
-static void help(FILE *f, const gchar *argv0) {
+static void help(FILE *f, const char *argv0) {
     fprintf(f,
             "%s [options]\n"
             "    -h --help          Show this help\n"
@@ -250,8 +260,8 @@ static void help(FILE *f, const gchar *argv0) {
 }
 
 
-static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
-    gint o;
+static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
+    int o;
 
     enum {
         OPTION_NO_RLIMITS = 256,
@@ -274,20 +284,20 @@ static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    g_assert(c);
+    assert(c);
 
     opterr = 0;
     while ((o = getopt_long(argc, argv, "hDkVf:rcs", long_options, NULL)) >= 0) {
 
         switch(o) {
             case 's':
-                c->use_syslog = TRUE;
+                c->use_syslog = 1;
                 break;
             case 'h':
                 c->command = DAEMON_HELP;
                 break;
             case 'D':
-                c->daemonize = TRUE;
+                c->daemonize = 1;
                 break;
             case 'k':
                 c->command = DAEMON_KILL;
@@ -296,8 +306,8 @@ static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
                 c->command = DAEMON_VERSION;
                 break;
             case 'f':
-                g_free(c->config_file);
-                c->config_file = g_strdup(optarg);
+                avahi_free(c->config_file);
+                c->config_file = avahi_strdup(optarg);
                 break;
             case 'r':
                 c->command = DAEMON_RELOAD;
@@ -306,13 +316,13 @@ static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
                 c->command = DAEMON_CHECK;
                 break;
             case OPTION_NO_RLIMITS:
-                c->no_rlimits = TRUE;
+                c->no_rlimits = 1;
                 break;
             case OPTION_NO_DROP_ROOT:
-                c->drop_root = FALSE;
+                c->drop_root = 0;
                 break;
             case OPTION_DEBUG:
-                c->debug = TRUE;
+                c->debug = 1;
                 break;
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", o);
@@ -328,177 +338,129 @@ static gint parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
     return 0;
 }
 
-static gboolean is_yes(const gchar *s) {
-    g_assert(s);
+static int is_yes(const char *s) {
+    assert(s);
     
     return *s == 'y' || *s == 'Y';
 }
 
-static gint load_config_file(DaemonConfig *c) {
+static int load_config_file(DaemonConfig *c) {
     int r = -1;
-    GKeyFile *f = NULL;
-    GError *err = NULL;
-    gchar **groups = NULL, **g, **keys = NULL, *v = NULL;
+    AvahiIniFile *f;
+    AvahiIniFileGroup *g;
 
-    g_assert(c);
-    
-    f = g_key_file_new();
-    g_key_file_set_list_separator(f, ',');
-    
-    if (!g_key_file_load_from_file(f, c->config_file ? c->config_file : AVAHI_CONFIG_FILE, G_KEY_FILE_NONE, &err)) {
-        fprintf(stderr, "Unable to read config file: %s\n", err->message);
+    assert(c);
+
+    if (!(f = avahi_ini_file_load(c->config_file ? c->config_file : AVAHI_CONFIG_FILE)))
         goto finish;
-    }
-
-    groups = g_key_file_get_groups(f, NULL);
-
-    for (g = groups; *g; g++) {
-        if (g_strcasecmp(*g, "server") == 0) {
-            gchar **k;
-            
-            keys = g_key_file_get_keys(f, *g, NULL, NULL);
-
-            for (k = keys; *k; k++) {
-
-                v = g_key_file_get_value(f, *g, *k, NULL);
-                
-                if (g_strcasecmp(*k, "host-name") == 0) {
-                    g_free(c->server_config.host_name);
-                    c->server_config.host_name = v;
-                    v = NULL;
-                } else if (g_strcasecmp(*k, "domain-name") == 0) {
-                    g_free(c->server_config.domain_name);
-                    c->server_config.domain_name = v;
-                    v = NULL;
-                } else if (g_strcasecmp(*k, "use-ipv4") == 0)
-                    c->server_config.use_ipv4 = is_yes(v);
-                else if (g_strcasecmp(*k, "use-ipv6") == 0)
-                    c->server_config.use_ipv6 = is_yes(v);
-                else if (g_strcasecmp(*k, "check-response-ttl") == 0)
-                    c->server_config.check_response_ttl = is_yes(v);
-                else if (g_strcasecmp(*k, "use-iff-running") == 0)
-                    c->server_config.use_iff_running = is_yes(v);
-                else if (g_strcasecmp(*k, "enable-dbus") == 0)
-                    c->enable_dbus = is_yes(v);
-                else if (g_strcasecmp(*k, "drop-root") == 0)
-                    c->drop_root = is_yes(v);
-                else {
-                    fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
-                    goto finish;
-                }
-
-                g_free(v);
-                v = NULL;
-            }
-        
-            g_strfreev(keys);
-            keys = NULL;
-            
-        } else if (g_strcasecmp(*g, "publish") == 0) {
-            gchar **k;
-            
-            keys = g_key_file_get_keys(f, *g, NULL, NULL);
-
-            for (k = keys; *k; k++) {
-
-                v = g_key_file_get_string(f, *g, *k, NULL);
-                
-                if (g_strcasecmp(*k, "publish-addresses") == 0)
-                    c->server_config.publish_addresses = is_yes(v);
-                else if (g_strcasecmp(*k, "publish-hinfo") == 0)
-                    c->server_config.publish_hinfo = is_yes(v);
-                else if (g_strcasecmp(*k, "publish-workstation") == 0)
-                    c->server_config.publish_workstation = is_yes(v);
-                else if (g_strcasecmp(*k, "publish-domain") == 0)
-                    c->server_config.publish_domain = is_yes(v);
-                else if (g_strcasecmp(*k, "publish-resolv-conf-dns-servers") == 0)
-                    c->publish_resolv_conf = is_yes(v);
-                else if (g_strcasecmp(*k, "publish-dns-servers") == 0) {
-                    g_strfreev(c->publish_dns_servers);
-                    c->publish_dns_servers = g_key_file_get_string_list(f, *g, *k, NULL, NULL);
-                } else {
-                    fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
-                    goto finish;
-                }
-
-                g_free(v);
-                v = NULL;
-            }
-
-            g_strfreev(keys);
-            keys = NULL;
-
-        } else if (g_strcasecmp(*g, "reflector") == 0) {
-            gchar **k;
-            
-            keys = g_key_file_get_keys(f, *g, NULL, NULL);
-
-            for (k = keys; *k; k++) {
-
-                v = g_key_file_get_string(f, *g, *k, NULL);
-                
-                if (g_strcasecmp(*k, "enable-reflector") == 0)
-                    c->server_config.enable_reflector = is_yes(v);
-                else if (g_strcasecmp(*k, "reflect-ipv") == 0)
-                    c->server_config.reflect_ipv = is_yes(v);
-                else {
-                    fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
-                    goto finish;
-                }
-
-                g_free(v);
-                v = NULL;
-            }
     
-            g_strfreev(keys);
-            keys = NULL;
-            
-        } else if (g_strcasecmp(*g, "rlimits") == 0) {
-            gchar **k;
-            
-            keys = g_key_file_get_keys(f, *g, NULL, NULL);
+    for (g = f->groups; g; g = g->groups_next) {
+        
+        if (strcasecmp(g->name, "server") == 0) {
+            AvahiIniFilePair *p;
 
-            for (k = keys; *k; k++) {
+            for (p = g->pairs; p; p = p->pairs_next) {
 
-                v = g_key_file_get_string(f, *g, *k, NULL);
+                if (strcasecmp(p->key, "host-name") == 0) {
+                    avahi_free(c->server_config.host_name);
+                    c->server_config.host_name = avahi_strdup(p->value);
+                } else if (strcasecmp(p->key, "domain-name") == 0) {
+                    avahi_free(c->server_config.domain_name);
+                    c->server_config.domain_name = avahi_strdup(p->value);
+                } else if (strcasecmp(p->key, "use-ipv4") == 0)
+                    c->server_config.use_ipv4 = is_yes(p->value);
+                else if (strcasecmp(p->key, "use-ipv6") == 0)
+                    c->server_config.use_ipv6 = is_yes(p->value);
+                else if (strcasecmp(p->key, "check-response-ttl") == 0)
+                    c->server_config.check_response_ttl = is_yes(p->value);
+                else if (strcasecmp(p->key, "use-iff-running") == 0)
+                    c->server_config.use_iff_running = is_yes(p->value);
+                else if (strcasecmp(p->key, "enable-dbus") == 0)
+                    c->enable_dbus = is_yes(p->value);
+                else if (strcasecmp(p->key, "drop-root") == 0)
+                    c->drop_root = is_yes(p->value);
+                else {
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    goto finish;
+                }
+            }
+            
+        } else if (strcasecmp(g->name, "publish") == 0) {
+            AvahiIniFilePair *p;
+
+            for (p = g->pairs; p; p = p->pairs_next) {
                 
-                if (g_strcasecmp(*k, "rlimit-as") == 0) {
-                    c->rlimit_as_set = TRUE;
-                    c->rlimit_as = atoi(v);
-                } else if (g_strcasecmp(*k, "rlimit-core") == 0) {
-                    c->rlimit_core_set = TRUE;
-                    c->rlimit_core = atoi(v);
-                } else if (g_strcasecmp(*k, "rlimit-data") == 0) {
-                    c->rlimit_data_set = TRUE;
-                    c->rlimit_data = atoi(v);
-                } else if (g_strcasecmp(*k, "rlimit-fsize") == 0) {
-                    c->rlimit_fsize_set = TRUE;
-                    c->rlimit_fsize = atoi(v);
-                } else if (g_strcasecmp(*k, "rlimit-nofile") == 0) {
-                    c->rlimit_nofile_set = TRUE;
-                    c->rlimit_nofile = atoi(v);
-                } else if (g_strcasecmp(*k, "rlimit-stack") == 0) {
-                    c->rlimit_stack_set = TRUE;
-                    c->rlimit_stack = atoi(v);
+                if (strcasecmp(p->key, "publish-addresses") == 0)
+                    c->server_config.publish_addresses = is_yes(p->value);
+                else if (strcasecmp(p->key, "publish-hinfo") == 0)
+                    c->server_config.publish_hinfo = is_yes(p->value);
+                else if (strcasecmp(p->key, "publish-workstation") == 0)
+                    c->server_config.publish_workstation = is_yes(p->value);
+                else if (strcasecmp(p->key, "publish-domain") == 0)
+                    c->server_config.publish_domain = is_yes(p->value);
+                else if (strcasecmp(p->key, "publish-resolv-conf-dns-servers") == 0)
+                    c->publish_resolv_conf = is_yes(p->value);
+                else if (strcasecmp(p->key, "publish-dns-servers") == 0) {
+                    avahi_strfreev(c->publish_dns_servers);
+                    c->publish_dns_servers = avahi_split_csv(p->value);
+                } else {
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    goto finish;
+                }
+            }
+
+        } else if (strcasecmp(g->name, "reflector") == 0) {
+            AvahiIniFilePair *p;
+
+            for (p = g->pairs; p; p = p->pairs_next) {
+                
+                if (strcasecmp(p->key, "enable-reflector") == 0)
+                    c->server_config.enable_reflector = is_yes(p->value);
+                else if (strcasecmp(p->key, "reflect-ipv") == 0)
+                    c->server_config.reflect_ipv = is_yes(p->value);
+                else {
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    goto finish;
+                }
+            }
+            
+        } else if (strcasecmp(g->name, "rlimits") == 0) {
+            AvahiIniFilePair *p;
+
+            for (p = g->pairs; p; p = p->pairs_next) {
+                
+                if (strcasecmp(p->key, "rlimit-as") == 0) {
+                    c->rlimit_as_set = 1;
+                    c->rlimit_as = atoi(p->value);
+                } else if (strcasecmp(p->key, "rlimit-core") == 0) {
+                    c->rlimit_core_set = 1;
+                    c->rlimit_core = atoi(p->value);
+                } else if (strcasecmp(p->key, "rlimit-data") == 0) {
+                    c->rlimit_data_set = 1;
+                    c->rlimit_data = atoi(p->value);
+                } else if (strcasecmp(p->key, "rlimit-fsize") == 0) {
+                    c->rlimit_fsize_set = 1;
+                    c->rlimit_fsize = atoi(p->value);
+                } else if (strcasecmp(p->key, "rlimit-nofile") == 0) {
+                    c->rlimit_nofile_set = 1;
+                    c->rlimit_nofile = atoi(p->value);
+                } else if (strcasecmp(p->key, "rlimit-stack") == 0) {
+                    c->rlimit_stack_set = 1;
+                    c->rlimit_stack = atoi(p->value);
 #ifdef RLIMIT_NPROC
-                } else if (g_strcasecmp(*k, "rlimit-nproc") == 0) {
-                    c->rlimit_nproc_set = TRUE;
-                    c->rlimit_nproc = atoi(v);
+                } else if (strcasecmp(p->key, "rlimit-nproc") == 0) {
+                    c->rlimit_nproc_set = 1;
+                    c->rlimit_nproc = atoi(p->value);
 #endif
                 } else {
-                    fprintf(stderr, "Invalid configuration key \"%s\" in group \"%s\"\n", *k, *g);
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;
                 }
 
-                g_free(v);
-                v = NULL;
             }
-    
-            g_strfreev(keys);
-            keys = NULL;
             
         } else {
-            fprintf(stderr, "Invalid configuration file group \"%s\".\n", *g);
+            avahi_log_error("Invalid configuration file group \"%s\".\n", g->name);
             goto finish;
         }
     }
@@ -507,20 +469,13 @@ static gint load_config_file(DaemonConfig *c) {
 
 finish:
 
-    g_strfreev(groups);
-    g_strfreev(keys);
-    g_free(v);
-
-    if (err)
-        g_error_free (err);
-
     if (f)
-        g_key_file_free(f);
+        avahi_ini_file_free(f);
     
     return r;
 }
 
-static void log_function(AvahiLogLevel level, const gchar *txt) {
+static void log_function(AvahiLogLevel level, const char *txt) {
 
     static const int const log_level_map[] = {
         LOG_ERR,
@@ -530,8 +485,8 @@ static void log_function(AvahiLogLevel level, const gchar *txt) {
         LOG_DEBUG
     };
     
-    g_assert(level < AVAHI_LOG_LEVEL_MAX);
-    g_assert(txt);
+    assert(level < AVAHI_LOG_LEVEL_MAX);
+    assert(txt);
 
     if (!config.debug && level == AVAHI_LOG_DEBUG)
         return;
@@ -539,20 +494,24 @@ static void log_function(AvahiLogLevel level, const gchar *txt) {
     daemon_log(log_level_map[level], "%s", txt);
 }
 
-static void dump(const gchar *text, gpointer userdata) {
+static void dump(const char *text, void* userdata) {
     avahi_log_info("%s", text);
 }
 
-static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpointer data) {
-    gint sig;
-    GMainLoop *loop = data;
+static void signal_callback(AvahiWatch *watch, int fd, AvahiWatchEvent event, void *userdata) {
+    int sig;
+    AvahiSimplePoll *simple_poll_api = userdata;
+    const AvahiPoll *poll_api;
     
-    g_assert(source);
-    g_assert(loop);
+    assert(watch);
+    assert(simple_poll_api);
+
+    poll_api = avahi_simple_poll_get(simple_poll_api);
 
     if ((sig = daemon_signal_next()) <= 0) {
         avahi_log_error("daemon_signal_next() failed");
-        return FALSE;
+        poll_api->watch_free(watch);
+        return;
     }
 
     switch (sig) {
@@ -563,7 +522,7 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
                 "Got %s, quitting.",
                 sig == SIGINT ? "SIGINT" :
                 (sig == SIGQUIT ? "SIGQUIT" : "SIGTERM"));
-            g_main_loop_quit(loop);
+            avahi_simple_poll_quit(simple_poll_api);
             break;
 
         case SIGHUP:
@@ -590,49 +549,47 @@ static gboolean signal_callback(GIOChannel *source, GIOCondition condition, gpoi
             avahi_log_warn("Got spurious signal, ignoring.");
             break;
     }
-
-    return TRUE;
 }
 
-static gint run_server(DaemonConfig *c) {
-    GMainLoop *loop = NULL;
-    gint r = -1;
-    GIOChannel *io = NULL;
-    guint watch_id = (guint) -1;
-    gint error;
-    AvahiGLibPoll *poll_api;
+static int run_server(DaemonConfig *c) {
+    int r = -1;
+    int error;
+    AvahiSimplePoll *simple_poll_api;
+    const AvahiPoll *poll_api;
+    AvahiWatch *sig_watch;
 
-    g_assert(c);
+    assert(c);
 
-    poll_api = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
-    loop = g_main_loop_new(NULL, FALSE);
+    if (!(simple_poll_api = avahi_simple_poll_new())) {
+        avahi_log_error("Failed to create main loop object.");
+        goto finish;
+    }
+
+    poll_api = avahi_simple_poll_get(simple_poll_api);
 
     if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, SIGUSR1, 0) < 0) {
         avahi_log_error("Could not register signal handlers (%s).", strerror(errno));
         goto finish;
     }
 
-    if (!(io = g_io_channel_unix_new(daemon_signal_fd()))) {
-        avahi_log_error( "Failed to create signal io channel.");
+    if (!(sig_watch = poll_api->watch_new(poll_api, daemon_signal_fd(), AVAHI_WATCH_IN, signal_callback, simple_poll_api))) {
+        avahi_log_error( "Failed to create signal watcher");
         goto finish;
     }
 
-    g_io_channel_set_close_on_unref(io, FALSE);
-    watch_id = g_io_add_watch(io, G_IO_IN, signal_callback, loop);
-    
-    if (simple_protocol_setup(NULL) < 0)
+    if (simple_protocol_setup(poll_api) < 0)
         goto finish;
     
 #ifdef ENABLE_DBUS
     if (c->enable_dbus)
-        if (dbus_protocol_setup(loop) < 0)
+        if (dbus_protocol_setup(poll_api) < 0)
             goto finish;
 #endif
     
     load_resolv_conf(c);
     static_service_load();
 
-    if (!(avahi_server = avahi_server_new(avahi_glib_poll_get(poll_api), &c->server_config, server_callback, c, &error))) {
+    if (!(avahi_server = avahi_server_new(poll_api, &c->server_config, server_callback, c, &error))) {
         avahi_log_error("Failed to create server: %s", avahi_strerror(error));
         goto finish;
     }
@@ -641,9 +598,20 @@ static gint run_server(DaemonConfig *c) {
     if (c->daemonize)
         daemon_retval_send(0);
 
-    r = 0;
+    for (;;) {
+        if ((r = avahi_simple_poll_iterate(simple_poll_api, -1)) < 0) {
 
-    g_main_loop_run(loop);
+            /* We handle signals through an FD, so let's continue */
+            if (errno == EINTR)
+                continue;
+            
+            avahi_log_error("poll(): %s", strerror(errno));
+            goto finish;
+        } else if (r > 0)
+            /* Quit */
+            break;
+    }
+    
 
 finish:
     
@@ -663,28 +631,24 @@ finish:
 
     daemon_signal_done();
 
-    if (watch_id != (guint) -1)
-        g_source_remove(watch_id);
-    
-    if (io)
-        g_io_channel_unref(io);
+    if (sig_watch)
+        poll_api->watch_free(sig_watch);
 
-    if (poll_api)
-        avahi_glib_poll_free(poll_api);
+    if (simple_poll_api)
+        avahi_simple_poll_free(simple_poll_api);
 
-    if (loop)
-        g_main_loop_unref(loop);
-    
     if (r != 0 && c->daemonize)
         daemon_retval_send(1);
     
     return r;
 }
 
-static gint drop_root(void) {
+#define set_env(key, value) putenv(avahi_strdup_printf("%s=%s", (key), (value)))
+
+static int drop_root(void) {
     struct passwd *pw;
     struct group * gr;
-    gint r;
+    int r;
     
     if (!(pw = getpwnam(AVAHI_USER))) {
         avahi_log_error( "Failed to find user '"AVAHI_USER"'.");
@@ -731,9 +695,9 @@ static gint drop_root(void) {
         return -1;
     }
 
-    g_setenv("USER", pw->pw_name, 1);
-    g_setenv("LOGNAME", pw->pw_name, 1);
-    g_setenv("HOME", pw->pw_dir, 1);
+    set_env("USER", pw->pw_name);
+    set_env("LOGNAME", pw->pw_name);
+    set_env("HOME", pw->pw_dir);
     
     avahi_log_info("Successfully dropped root privileges.");
 
@@ -744,10 +708,10 @@ static const char* pid_file_proc(void) {
     return AVAHI_DAEMON_RUNTIME_DIR"/pid";
 }
 
-static gint make_runtime_dir(void) {
-    gint r = -1;
+static int make_runtime_dir(void) {
+    int r = -1;
     mode_t u;
-    gboolean reset_umask = FALSE;
+    int reset_umask = 0;
     struct passwd *pw;
     struct group * gr;
     struct stat st;
@@ -763,7 +727,7 @@ static gint make_runtime_dir(void) {
     }
 
     u = umask(0000);
-    reset_umask = TRUE;
+    reset_umask = 1;
     
     if (mkdir(AVAHI_DAEMON_RUNTIME_DIR, 0755) < 0 && errno != EEXIST) {
         avahi_log_error("mkdir(\""AVAHI_DAEMON_RUNTIME_DIR"\"): %s", strerror(errno));
@@ -790,7 +754,7 @@ fail:
     return r;
 }
 
-static void set_one_rlimit(int resource, rlim_t limit, const gchar *name) {
+static void set_one_rlimit(int resource, rlim_t limit, const char *name) {
     struct rlimit rl;
     rl.rlim_cur = rl.rlim_max = limit;
 
@@ -844,35 +808,34 @@ static void init_rand_seed(void) {
 }
 
 int main(int argc, char *argv[]) {
-    gint r = 255;
-    const gchar *argv0;
-    gboolean wrote_pid_file = FALSE;
+    int r = 255;
+    const char *argv0;
+    int wrote_pid_file = 0;
 
     avahi_set_log_function(log_function);
-    avahi_set_allocator(avahi_glib_allocator());
 
     init_rand_seed();
     
     avahi_server_config_init(&config.server_config);
     config.command = DAEMON_RUN;
-    config.daemonize = FALSE;
+    config.daemonize = 0;
     config.config_file = NULL;
-    config.enable_dbus = TRUE;
-    config.drop_root = TRUE;
+    config.enable_dbus = 1;
+    config.drop_root = 1;
     config.publish_dns_servers = NULL;
-    config.publish_resolv_conf = FALSE;
-    config.use_syslog = FALSE;
-    config.no_rlimits = FALSE;
-    config.debug = FALSE;
+    config.publish_resolv_conf = 0;
+    config.use_syslog = 0;
+    config.no_rlimits = 0;
+    config.debug = 0;
     
-    config.rlimit_as_set = FALSE;
-    config.rlimit_core_set = FALSE;
-    config.rlimit_data_set = FALSE;
-    config.rlimit_fsize_set = FALSE;
-    config.rlimit_nofile_set = FALSE;
-    config.rlimit_stack_set = FALSE;
+    config.rlimit_as_set = 0;
+    config.rlimit_core_set = 0;
+    config.rlimit_data_set = 0;
+    config.rlimit_fsize_set = 0;
+    config.rlimit_nofile_set = 0;
+    config.rlimit_stack_set = 0;
 #ifdef RLIMIT_NPROC
-    config.rlimit_nproc_set = FALSE;
+    config.rlimit_nproc_set = 0;
 #endif
     
     if ((argv0 = strrchr(argv[0], '/')))
@@ -966,7 +929,7 @@ int main(int argc, char *argv[]) {
                 daemon_retval_send(1);
             goto finish;
         } else
-            wrote_pid_file = TRUE;
+            wrote_pid_file = 1;
 
         if (!config.no_rlimits)
             enforce_rlimits();
@@ -985,9 +948,9 @@ finish:
         daemon_retval_done();
 
     avahi_server_config_free(&config.server_config);
-    g_free(config.config_file);
-    g_strfreev(config.publish_dns_servers);
-    g_strfreev(resolv_conf);
+    avahi_free(config.config_file);
+    avahi_strfreev(config.publish_dns_servers);
+    avahi_strfreev(resolv_conf);
 
     if (wrote_pid_file)
         daemon_pid_file_remove();

@@ -28,6 +28,7 @@
 #include <avahi-common/llist.h>
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/dbus-watch-glue.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,7 +37,6 @@
 
 #include <stdlib.h>
 
-#include "dbus-watch-glue.h"
 #include "client.h"
 #include "internal.h"
 

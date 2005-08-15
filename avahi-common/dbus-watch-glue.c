@@ -84,7 +84,7 @@ static dbus_bool_t update_watch(const AvahiPoll *poll_api, DBusWatch *dbus_watch
                   dbus_watch)))
             return FALSE;
 
-        dbus_watch_set_data(dbus_watch, avahi_watch, (DBusFreeFunction) poll_api->watch_free);
+        dbus_watch_set_data(dbus_watch, avahi_watch, NULL);
         
     } else if (!b && avahi_watch) {
         
@@ -116,9 +116,10 @@ static void remove_watch(DBusWatch *dbus_watch, void *userdata) {
     assert(dbus_watch);
     assert(poll_api);
 
-    avahi_watch = dbus_watch_get_data(dbus_watch);
-    poll_api->watch_free(avahi_watch);
-    dbus_watch_set_data(dbus_watch, NULL, NULL);
+    if ((avahi_watch = dbus_watch_get_data(dbus_watch))) {
+        poll_api->watch_free(avahi_watch);
+        dbus_watch_set_data(dbus_watch, NULL, NULL);
+    }
 }
 
 static void watch_toggled(DBusWatch *dbus_watch, void *userdata) {

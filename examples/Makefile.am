@@ -19,10 +19,6 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-# GLIB 2.0
-AM_CFLAGS+=$(GLIB20_CFLAGS)
-AM_LDADD=$(GLIB20_LIBS)
-
 noinst_PROGRAMS = \
 	publish-service \
 	browse-services

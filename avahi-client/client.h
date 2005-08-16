@@ -59,16 +59,16 @@ typedef void (*AvahiClientCallback) (AvahiClient *s, AvahiClientState state, voi
 typedef void (*AvahiEntryGroupCallback) (AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
 
 /** The function prototype for the callback of an AvahiDomainBrowser */
-typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void *user_data);
+typedef void (*AvahiDomainBrowserCallback) (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void *userdata);
 
 /** The function prototype for the callback of an AvahiServiceBrowser */
-typedef void (*AvahiServiceBrowserCallback) (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, void *user_data);
+typedef void (*AvahiServiceBrowserCallback) (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, void *userdata);
 
 /** The function prototype for the callback of an AvahiServiceTypeBrowser */
-typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *user_data);
+typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *userdata);
 
 /** Creates a new client instance */
-AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *user_data);
+AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *error);
 
 /** Get the version of the server */
 char* avahi_client_get_version_string (AvahiClient*);
@@ -83,7 +83,7 @@ char* avahi_client_get_domain_name (AvahiClient*);
 char* avahi_client_get_host_name_fqdn (AvahiClient*);
 
 /** Create a new AvahiEntryGroup object */
-AvahiEntryGroup* avahi_entry_group_new (AvahiClient*, AvahiEntryGroupCallback callback, void *user_data);
+AvahiEntryGroup* avahi_entry_group_new (AvahiClient*, AvahiEntryGroupCallback callback, void *userdata);
 
 /** Clean up and free an AvahiEntryGroup object */
 int avahi_entry_group_free (AvahiEntryGroup *);
@@ -128,7 +128,7 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               const char *domain,
                                               AvahiDomainBrowserType btype,
                                               AvahiDomainBrowserCallback callback,
-                                              void *user_data);
+                                              void *userdata);
 
 /** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
 const char* avahi_domain_browser_path (AvahiDomainBrowser *);
@@ -143,7 +143,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 AvahiProtocol protocol,
                 const char *domain,
                 AvahiServiceTypeBrowserCallback callback,
-                void *user_data);
+                void *userdata);
 
 /** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
 const char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
@@ -159,7 +159,7 @@ AvahiServiceBrowser* avahi_service_browser_new (
                 const char *type,
                 const char *domain,
                 AvahiServiceBrowserCallback callback,
-                void *user_data);
+                void *userdata);
 
 /** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
 const char* avahi_service_browser_path (AvahiServiceBrowser *);

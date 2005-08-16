@@ -354,7 +354,8 @@ static DBusHandlerResult respond_error(DBusConnection *c, DBusMessage *m, int er
         AVAHI_DBUS_ERR_DBUS_ERROR,
         AVAHI_DBUS_ERR_NOT_CONNECTED,
         AVAHI_DBUS_ERR_NO_MEMORY,
-        AVAHI_DBUS_ERR_INVALID_OBJECT
+        AVAHI_DBUS_ERR_INVALID_OBJECT,
+        AVAHI_DBUS_ERR_NO_DAEMON
     };
 
     assert(-error > -AVAHI_OK);
@@ -1686,9 +1687,8 @@ int dbus_protocol_setup(const AvahiPoll *poll_api) {
         goto fail;
     }
 
-    dbus_bus_add_match(server->bus, "type='signal',""interface='" DBUS_INTERFACE_DBUS  "'", &error);
-
     dbus_connection_add_filter(server->bus, msg_signal_filter_impl, (void*) poll_api, NULL);
+    dbus_bus_add_match(server->bus, "type='signal',""interface='" DBUS_INTERFACE_DBUS  "'", &error);
     dbus_connection_register_object_path(server->bus, AVAHI_DBUS_PATH_SERVER, &server_vtable, NULL);
 
     return 0;

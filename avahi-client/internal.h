@@ -30,8 +30,11 @@ struct _AvahiClient
     const AvahiPoll *poll_api;
     DBusConnection *bus;
     int error;
+    AvahiServerState state;
+
     AvahiClientCallback callback;
-    void *user_data;
+    void *userdata;
+    
     AVAHI_LLIST_HEAD(AvahiEntryGroup, groups);
     AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceBrowser, service_browsers);
@@ -42,7 +45,7 @@ struct _AvahiEntryGroup {
     char *path;
     AvahiClient *client;
     AvahiEntryGroupCallback callback;
-    void *user_data;
+    void *userdata;
     AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
 };
 
@@ -50,7 +53,7 @@ struct _AvahiDomainBrowser {
     char *path;
     AvahiClient *client;
     AvahiDomainBrowserCallback callback;
-    void *user_data;
+    void *userdata;
     AVAHI_LLIST_FIELDS(AvahiDomainBrowser, domain_browsers);
 };
 
@@ -58,7 +61,7 @@ struct _AvahiServiceBrowser {
     char *path;
     AvahiClient *client;
     AvahiServiceBrowserCallback callback;
-    void *user_data;
+    void *userdata;
     AVAHI_LLIST_FIELDS(AvahiServiceBrowser, service_browsers);
 };
 
@@ -66,7 +69,7 @@ struct _AvahiServiceTypeBrowser {
     char *path;
     AvahiClient *client;
     AvahiServiceTypeBrowserCallback callback;
-    void *user_data;
+    void *userdata;
     AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, service_type_browsers);
 };
 

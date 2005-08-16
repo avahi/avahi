@@ -43,7 +43,7 @@ void avahi_entry_group_state_change (AvahiEntryGroup *group, int state)
     if (group == NULL || group->callback == NULL)
         return;
 
-    group->callback (group, state, group->user_data);
+    group->callback (group, state, group->userdata);
 }
 
 AvahiEntryGroup*
@@ -93,7 +93,7 @@ avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCallback callback, vo
 
     tmp->path = avahi_strdup (path);
     tmp->callback = callback;
-    tmp->user_data = user_data;
+    tmp->userdata = user_data;
 
     AVAHI_LLIST_PREPEND(AvahiEntryGroup, groups, client->groups, tmp);
 

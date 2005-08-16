@@ -27,17 +27,32 @@
 
 #include <avahi-common/cdecl.h>
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
+/** A numeric data type for storing microsecond values. (signed 64bit integer) */
 typedef int64_t AvahiUsec;
 
+/** Compare two timeval structures and return a ngeative value when a < b, 0 when a == b and a positive value otherwise */
 int avahi_timeval_compare(const struct timeval *a, const struct timeval *b);
+
+/** Calculate the difference between to timeval structures as microsecond value */
 AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b);
+
+/** Add a number of microseconds to the specified timeval structure and return it. *a is modified. */
 struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec);
 
+/** Return the difference between the current time and *a. Positive if *a was earlier */
 AvahiUsec avahi_age(const struct timeval *a);
-struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter);
 
+/** Fill *tv with the current time plus "ms" milliseconds plus an
+ * extra jitter of "j" milliseconds. Pass 0 for j if you don't want
+ * the jitter */
+struct timeval *avahi_elapse_time(struct timeval *tv, unsigned ms, unsigned j);
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

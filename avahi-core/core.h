@@ -228,7 +228,7 @@ int avahi_server_add_txt(
     AvahiEntryFlags flags,
     uint32_t ttl,             /**< DNS TTL for this record */
     const char *name,       /**< TXT record name */
-    ... /**< Text record data, terminated by NULL */);
+    ... /**< Text record data, terminated by NULL */) AVAHI_GCC_SENTINEL;
 
 /** Add a PTR RR to the server. Mostly identical to
  * avahi_server_add_text but takes a va_list instead of a variable
@@ -288,7 +288,7 @@ int avahi_server_add_service(
     const char *domain,       
     const char *host,         /**< Host name where this servcie resides, or NULL if on the local host */
     uint16_t port,              /**< Port number of the service */
-    ...  /**< Text records, terminated by NULL */);
+    ...  /**< Text records, terminated by NULL */) AVAHI_GCC_SENTINEL;
 
 /** Mostly identical to avahi_server_add_service(), but takes an va_list for the TXT records. */
 int avahi_server_add_service_va(

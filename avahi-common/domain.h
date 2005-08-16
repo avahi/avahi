@@ -1,5 +1,5 @@
 #ifndef foodomainhfoo
-#define foodimainhfoo
+#define foodomainhfoo
 
 /* $Id$ */
 
@@ -30,7 +30,9 @@
 
 #include <avahi-common/cdecl.h>
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
 /** Normalize a domain name into canonical form. This drops trailing
  * dots and removes useless backslash escapes. avahi_free() the
@@ -68,8 +70,8 @@ int avahi_is_valid_host_name(const char *t);
 /** Return some kind of hash value for the domain, useful for using domains as hash table keys. */
 unsigned avahi_domain_hash(const char *name);
 
-
-
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

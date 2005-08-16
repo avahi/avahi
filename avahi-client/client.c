@@ -43,20 +43,23 @@
 int
 avahi_client_set_errno (AvahiClient *client, int error)
 {
-    if (client == NULL) return error;
+    assert(client);
 
     client->error = error;
 
     return error;
 }
     
-static
-void avahi_client_state_change (AvahiClient *client, int state)
-{
-    if (client == NULL || client->callback == NULL) 
+static void avahi_client_set_state (AvahiClient *client, AvahiServerState state) {
+    assert(state);
+
+    if (client->state == state)
         return;
 
-    client->callback (client, state, client->user_data);
+    client->state = state;
+
+    if (client->callback)
+        client->callback (client, state, client->userdata);
 }
 
 static void
@@ -80,7 +83,7 @@ avahi_client_state_request_callback (DBusPendingCall *call, void *data)
         if (dbus_error_is_set (&error))
             return;
         
-        avahi_client_state_change (client, state);
+        avahi_client_set_state (client, state);
     } else if (type == DBUS_MESSAGE_TYPE_ERROR) {
         dbus_set_error_from_message (&error, reply);
     }
@@ -93,6 +96,10 @@ avahi_client_schedule_state_request (AvahiClient *client)
 {
     DBusMessage *message;
     DBusPendingCall *pcall;
+
+    /*** Lennart says that this can't happen this way since it will
+     * never be called if no main loop is used. This call has to
+     * happen synchronously */
 
     if (client == NULL) return;
 
@@ -128,9 +135,9 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         if (strcmp (name, AVAHI_DBUS_NAME) == 0) {
 
             if (old == NULL && new != NULL) {
-                avahi_client_state_change (client, AVAHI_CLIENT_RECONNECTED);
+                avahi_client_set_state (client, AVAHI_CLIENT_RECONNECTED);
             } else if (old != NULL && new == NULL) {
-                avahi_client_state_change (client, AVAHI_CLIENT_DISCONNECTED);
+                avahi_client_set_state (client, AVAHI_CLIENT_DISCONNECTED);
                 /* XXX: we really need to expire all entry groups */
             }
         }
@@ -153,8 +160,6 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         
         if (group != NULL) {
             int state;
-            DBusError error;
-            dbus_error_init (&error);
             dbus_message_get_args (message, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID);
             if (dbus_error_is_set (&error))
                 goto out;
@@ -181,74 +186,116 @@ out:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
+static int translate_dbus_error(const DBusError *error) {
+    assert(error);
+
+    /*** FIXME! Some more eloquent error translation should happen here */
+    
+    return AVAHI_ERR_DBUS_ERROR;
+}
+
 AvahiClient *
-avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *user_data)
+avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *ret_error)
 {
-    AvahiClient *tmp = NULL;
+    AvahiClient *client = NULL;
     DBusError error;
 
     dbus_error_init (&error);
 
-    if (!(tmp = avahi_new(AvahiClient, 1)))
+    if (!(client = avahi_new(AvahiClient, 1))) {
+        if (ret_error)
+            *ret_error = AVAHI_ERR_NO_MEMORY;
         goto fail;
+    }
 
-    AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, tmp->groups);
-    AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, tmp->domain_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, tmp->service_browsers);
-    AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, tmp->service_type_browsers);
-    
-    tmp->poll_api = poll_api;
-    tmp->bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+    client->poll_api = poll_api;
+    client->error = AVAHI_OK;
+    client->callback = callback;
+    client->userdata = userdata;
+    client->state = AVAHI_SERVER_INVALID;
+
+    AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, client->groups);
+    AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, client->domain_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, client->service_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, client->service_type_browsers);
+
+    client->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
+    if (dbus_error_is_set (&error)) {
+        if (ret_error)
+            *ret_error = translate_dbus_error(&error);
+        goto fail;
+    }
+
+    if (avahi_dbus_connection_glue(client->bus, poll_api) < 0) {
+        if (ret_error)
+            *ret_error = AVAHI_ERR_NO_MEMORY; /* Not optimal */
+        goto fail;
+    }
+
+    if (!dbus_connection_add_filter (client->bus, filter_func, client, NULL)) {
+        if (ret_error)
+            *ret_error = AVAHI_ERR_NO_MEMORY; 
+        goto fail;
+    }
+        
+    dbus_bus_add_match(
+        client->bus,
+        "type='signal', "
+        "interface='" AVAHI_DBUS_INTERFACE_SERVER "', "
+        "sender='" AVAHI_DBUS_NAME "', "
+        "path='" AVAHI_DBUS_PATH_SERVER "'",
+        &error);
 
     if (dbus_error_is_set (&error)) {
-        goto fail;
-    }
-
-/*     dbus_connection_setup_with_g_main (tmp->bus, NULL); */
-/*     dbus_connection_set_exit_on_disconnect (tmp->bus, FALSE); */
-
-    if (avahi_dbus_connection_glue(tmp->bus, poll_api) < 0)
-        goto fail;
-
-    if (!dbus_connection_add_filter (tmp->bus, filter_func, tmp, NULL))
-    {
-        goto fail;
-    }
-
-    dbus_bus_add_match (tmp->bus,
-            "type='signal', "
-            "interface='" AVAHI_DBUS_INTERFACE_SERVER "', "
-            "sender='" AVAHI_DBUS_NAME "', "
-            "path='" AVAHI_DBUS_PATH_SERVER "'",
-            &error);
-
-    if (dbus_error_is_set (&error))
-    {
+        if (ret_error)
+            *ret_error = translate_dbus_error(&error);
         goto fail;
     }   
 
-    dbus_bus_add_match (tmp->bus,
-            "type='signal', "
-            "interface='" DBUS_INTERFACE_DBUS "', "
-            "sender='" DBUS_SERVICE_DBUS "', "
-            "path='" DBUS_PATH_DBUS "'",
-            &error);
+    dbus_bus_add_match (
+        client->bus,
+        "type='signal', "
+        "interface='" DBUS_INTERFACE_DBUS "', "
+        "sender='" DBUS_SERVICE_DBUS "', "
+        "path='" DBUS_PATH_DBUS "'",
+        &error);
 
-    if (dbus_error_is_set (&error))
-    {
+    if (dbus_error_is_set (&error)) {
+        if (ret_error)
+            *ret_error = translate_dbus_error(&error);
         goto fail;
     }
 
-    tmp->callback = callback;
-    tmp->user_data = user_data;
+    if (!(dbus_bus_name_has_owner(client->bus, AVAHI_DBUS_NAME, &error))) {
 
-    avahi_client_schedule_state_request (tmp);
+        if (dbus_error_is_set (&error)) {
+            if (ret_error)
+                *ret_error = translate_dbus_error(&error);
+            goto fail;
+        }
+        
+        if (ret_error)
+            *ret_error = AVAHI_ERR_NO_DAEMON;
+        goto fail;
+    }
 
-    avahi_client_set_errno (tmp, AVAHI_OK);
-    return tmp;
+    /* This can't happen asynchronously, since it is not guaranteed that a main loop is used */
+    
+    /*client_get_server_state (client);*/
+
+    return client;
 
 fail:
-    avahi_free (tmp);
+
+    if (client) {
+
+        if (client->bus) {
+            dbus_connection_disconnect(client->bus);
+            dbus_connection_unref(client->bus);
+        }
+        
+        avahi_free(client);
+    }
 
     if (dbus_error_is_set(&error))
         dbus_error_free(&error);

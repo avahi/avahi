@@ -56,6 +56,7 @@ enum {
     AVAHI_ERR_NOT_CONNECTED = -23,         /**< Could not get a connection to the daemon */
     AVAHI_ERR_NO_MEMORY = -24,             /**< Memory exhausted */
     AVAHI_ERR_INVALID_OBJECT = -25,        /**< The object passed to this function was invalid */
+    AVAHI_ERR_NO_DAEMON = -26,             /**< Daemon not running */
 
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -66,7 +67,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -26
+    AVAHI_ERR_MAX = -27
 };
 
 /** Return a human readable error string for the specified error code */

@@ -87,12 +87,16 @@ main (int argc, char *argv[])
     AvahiServiceTypeBrowser *st;
     AvahiSimplePoll *simple_poll;
     char *ret;
+    int error;
     struct timeval tv;
 
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
     
-    avahi = avahi_client_new(poll_api, avahi_client_callback, "omghai2u");
+    if (!(avahi = avahi_client_new(poll_api, avahi_client_callback, "omghai2u", &error))) {
+        fprintf(stderr, "Client failed: %s\n", avahi_strerror(error));
+        goto fail;
+    }
 
     assert (avahi != NULL);
 
@@ -155,10 +159,13 @@ main (int argc, char *argv[])
         if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
             break;
 
+fail:
 
-    avahi_simple_poll_free(simple_poll);
+    if (simple_poll)
+        avahi_simple_poll_free(simple_poll);
 
-    avahi_free (avahi);
+    if (avahi)
+        avahi_free (avahi);
 
     return 0;
 }

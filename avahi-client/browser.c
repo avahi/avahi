@@ -40,7 +40,7 @@
 
 /* AvahiDomainBrowser */
 
-AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDomainBrowserType btype, AvahiDomainBrowserCallback callback, void *user_data)
+AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiDomainBrowserType btype, AvahiDomainBrowserCallback callback, void *userdata)
 {
     AvahiDomainBrowser *tmp = NULL;
     DBusMessage *message = NULL, *reply;
@@ -72,7 +72,7 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client, AvahiIfIndex 
     tmp = avahi_new (AvahiDomainBrowser, 1);
     tmp->client = client;
     tmp->callback = callback;
-    tmp->user_data = user_data;
+    tmp->userdata = userdata;
     tmp->path = strdup (path);
 
     AVAHI_LLIST_PREPEND(AvahiDomainBrowser, domain_browsers, client->domain_browsers, tmp);
@@ -150,7 +150,7 @@ avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMe
     if (dbus_error_is_set (&error))
         goto out;
 
-    db->callback (db, interface, protocol, event, domain, db->user_data);
+    db->callback (db, interface, protocol, event, domain, db->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
@@ -160,7 +160,7 @@ out:
 }
 
 /* AvahiServiceTypeBrowser */
-AvahiServiceTypeBrowser* avahi_service_type_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiServiceTypeBrowserCallback callback, void *user_data)
+AvahiServiceTypeBrowser* avahi_service_type_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiServiceTypeBrowserCallback callback, void *userdata)
 {
     AvahiServiceTypeBrowser *tmp = NULL;
     DBusMessage *message = NULL, *reply;
@@ -194,7 +194,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (AvahiClient *client, Av
     tmp = avahi_new(AvahiServiceTypeBrowser, 1);
     tmp->client = client;
     tmp->callback = callback;
-    tmp->user_data = user_data;
+    tmp->userdata = userdata;
     tmp->path = strdup (path);
 
     AVAHI_LLIST_PREPEND(AvahiServiceTypeBrowser, service_type_browsers, client->service_type_browsers, tmp);
@@ -276,7 +276,7 @@ avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, 
     if (dbus_error_is_set (&error))
         goto out;
 
-    db->callback (db, interface, protocol, event, type, domain, db->user_data);
+    db->callback (db, interface, protocol, event, type, domain, db->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
@@ -287,7 +287,7 @@ out:
 
 /* AvahiServiceBrowser */
 
-AvahiServiceBrowser* avahi_service_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *type, const char *domain, AvahiServiceBrowserCallback callback, void *user_data)
+AvahiServiceBrowser* avahi_service_browser_new (AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *type, const char *domain, AvahiServiceBrowserCallback callback, void *userdata)
 {
     AvahiServiceBrowser *tmp = NULL;
     DBusMessage *message = NULL, *reply;
@@ -324,7 +324,7 @@ AvahiServiceBrowser* avahi_service_browser_new (AvahiClient *client, AvahiIfInde
     tmp = avahi_new(AvahiServiceBrowser, 1);
     tmp->client = client;
     tmp->callback = callback;
-    tmp->user_data = user_data;
+    tmp->userdata = userdata;
     tmp->path = strdup (path);
 
     AVAHI_LLIST_PREPEND(AvahiServiceBrowser, service_browsers, client->service_browsers, tmp);
@@ -407,7 +407,7 @@ avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusM
     if (dbus_error_is_set (&error))
         goto out;
 
-    db->callback (db, interface, protocol, event, name, type, domain, db->user_data);
+    db->callback (db, interface, protocol, event, name, type, domain, db->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 

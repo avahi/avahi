@@ -48,8 +48,9 @@ const char *avahi_strerror(int error) {
         "Invalid operation",
         "An unexpected DBUS error occured",
         "Could not get a connection to the daemon",
-        "Memory exhausted"
-        "The object passed in was not valid"
+        "Memory exhausted",
+        "The object passed in was not valid",
+        "Daemon not running",
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

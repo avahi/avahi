@@ -192,6 +192,10 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
     StaticService *s;
 
     assert(g);
+
+    if (g->entry_group && !avahi_s_entry_group_is_empty(g->entry_group))
+        /* This service group is already registered in the server */
+        return;
     
     if (g->chosen_name)
         avahi_free(g->chosen_name);

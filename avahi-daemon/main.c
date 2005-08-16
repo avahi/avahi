@@ -257,7 +257,7 @@ static void help(FILE *f, const char *argv0) {
             "    -f --file=FILE     Load the specified configuration file instead of\n"
             "                       "AVAHI_CONFIG_FILE"\n"
             "       --no-rlimits    Don't enforce resource limits\n"
-            "       --no-drop-root  Don't drop priviliges\n"
+            "       --no-drop-root  Don't drop privileges\n"
             "       --debug         Increase verbosity\n",
             argv0);
 }

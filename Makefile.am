@@ -90,3 +90,7 @@ homepage:
 	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
 	    man/*.xml man/xmltoman.dtd man/xmltoman.xsl \
 	    fdo:public_html/
+	rm -rf doxygen
+	$(MAKE) doxygen-run
+	ssh fdo rm -rf public_html/doxygen
+	scp -r doxygen/html fdo:public_html/doxygen

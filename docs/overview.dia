@@ -442,9 +442,6 @@
       <dia:attribute name="elem_height">
         <dia:real val="2"/>
       </dia:attribute>
-      <dia:attribute name="inner_color">
-        <dia:color val="#ff0000"/>
-      </dia:attribute>
       <dia:attribute name="show_background">
         <dia:boolean val="true"/>
       </dia:attribute>

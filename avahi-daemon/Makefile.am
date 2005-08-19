@@ -76,7 +76,7 @@ avahi_daemon_SOURCES += \
 	dbus-protocol.h
 
 avahi_daemon_LDADD += \
-	../avahi-common/libdbus-watch-glue.la \
+	../avahi-common/libdbus-common.la \
 	$(DBUS_LIBS)
 
 avahi_daemon_CFLAGS += $(DBUS_CFLAGS)

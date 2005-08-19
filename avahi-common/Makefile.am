@@ -22,9 +22,6 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-# Need some DBUS defines for dbus.h
-AM_CFLAGS+=$(DBUS_CFLAGS)
-
 avahi_commonincludedir=$(includedir)/avahi-common
 
 avahi_commoninclude_HEADERS = \
@@ -63,8 +60,7 @@ libavahi_common_la_SOURCES = \
 	domain.c domain.h \
 	timeval.c timeval.h \
 	simple-watch.c simple-watch.h \
-	watch.h gccmacro.h \
-	dbus.c dbus.h
+	watch.h gccmacro.h
 
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
@@ -108,17 +104,18 @@ noinst_HEADERS += \
 	dbus-watch-glue.h
 
 noinst_LTLIBRARIES = \
-	libdbus-watch-glue.la \
-	libdbus-watch-glue-pic.la
+	libdbus-common.la \
+	libdbus-common-pic.la
 
-libdbus_watch_glue_la_SOURCES = \
-	dbus-watch-glue.h dbus-watch-glue.c
-libdbus_watch_glue_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
-libdbus_watch_glue_la_LDFLAGS = $(AM_LDFLAGS) -all-static
+libdbus_common_la_SOURCES = \
+	dbus-watch-glue.h dbus-watch-glue.c \
+	dbus.h dbus.c
+libdbus_common_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+libdbus_common_la_LDFLAGS = $(AM_LDFLAGS) -all-static
 
-libdbus_watch_glue_pic_la_SOURCES = $(libdbus_watch_glue_la_SOURCES)
-libdbus_watch_glue_pic_la_CFLAGS = $(libdbus_watch_glue_la_CFLAGS) -fPIC
-libdbus_watch_glue_pic_la_LDFLAGS = $(libdbus_watch_glue_la_LDFLAGS)
+libdbus_common_pic_la_SOURCES = $(libdbus_common_la_SOURCES)
+libdbus_common_pic_la_CFLAGS = $(libdbus_common_la_CFLAGS) -fPIC
+libdbus_common_pic_la_LDFLAGS = $(libdbus_common_la_LDFLAGS)
 
 endif
 

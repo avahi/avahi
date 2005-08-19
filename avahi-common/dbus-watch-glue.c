@@ -286,13 +286,13 @@ int avahi_dbus_connection_glue(DBusConnection *c, const AvahiPoll *poll_api) {
     if (!(d->dispatch_timeout = poll_api->timeout_new(poll_api, NULL, dispatch_timeout_callback, d)))
         goto fail;
     
-    if (!(dbus_connection_set_watch_functions(c, add_watch, remove_watch, watch_toggled, connection_data_ref(d), connection_data_unref)))
+    if (!(dbus_connection_set_watch_functions(c, add_watch, remove_watch, watch_toggled, connection_data_ref(d), (DBusFreeFunction)connection_data_unref)))
         goto fail;
 
-    if (!(dbus_connection_set_timeout_functions(c, add_timeout, remove_timeout, timeout_toggled, connection_data_ref(d), connection_data_unref)))
+    if (!(dbus_connection_set_timeout_functions(c, add_timeout, remove_timeout, timeout_toggled, connection_data_ref(d), (DBusFreeFunction)connection_data_unref)))
         goto fail;
 
-    dbus_connection_set_dispatch_status_function(c, dispatch_status, connection_data_ref(d), connection_data_unref);
+    dbus_connection_set_dispatch_status_function(c, dispatch_status, connection_data_ref(d), (DBusFreeFunction)connection_data_unref);
 
     if (dbus_connection_get_dispatch_status(c) == DBUS_DISPATCH_DATA_REMAINS)
         request_dispatch(d);

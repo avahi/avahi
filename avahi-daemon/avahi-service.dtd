@@ -14,5 +14,7 @@
 <!ATTLIST host-name>
 <!ELEMENT port (#PCDATA)>
 <!ATTLIST port>
+<!ELEMENT protocol (#PCDATA)>
+<!ATTLIST protocol>
 <!ELEMENT txt-record (#PCDATA)>
 <!ATTLIST txt-record>

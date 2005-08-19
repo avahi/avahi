@@ -50,6 +50,7 @@ struct StaticService {
     char *domain_name;
     char *host_name;
     uint16_t port;
+    int protocol;
 
     AvahiStringList *txt_records;
     
@@ -110,6 +111,7 @@ static StaticService *static_service_new(StaticServiceGroup *group) {
 
     s->type = s->host_name = s->domain_name = NULL;
     s->port = 0;
+    s->protocol = AF_UNSPEC;
 
     s->txt_records = NULL;
 
@@ -215,7 +217,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         if (avahi_server_add_service_strlst(
                 avahi_server,
                 g->entry_group,
-                -1, AF_UNSPEC,
+                -1, s->protocol,
                 g->chosen_name, s->type, 
                 s->domain_name, s->host_name, s->port,
                 s->txt_records) < 0) {
@@ -246,6 +248,7 @@ typedef enum {
     XML_TAG_DOMAIN_NAME,
     XML_TAG_HOST_NAME,
     XML_TAG_PORT,
+    XML_TAG_PROTOCOL,
     XML_TAG_TXT_RECORD
 } xml_tag_name;
 
@@ -312,6 +315,11 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
             goto invalid_attr;
         
         u->current_tag = XML_TAG_PORT;
+    } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "protocol") == 0) {
+        if (attr[0])
+            goto invalid_attr;
+
+        u->current_tag = XML_TAG_PROTOCOL;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "txt-record") == 0) {
         if (attr[0])
             goto invalid_attr;
@@ -380,6 +388,26 @@ static void XMLCALL xml_end(void *data, const char *el) {
             u->service->port = (uint16_t) p;
 
             u->current_tag = XML_TAG_SERVICE;
+            break;
+        }
+
+        case XML_TAG_PROTOCOL: {
+            int protocol;
+            assert(u->service);
+
+            if (strcasecmp (u->buf, "ipv4") == 0) {
+                protocol = AF_INET;
+            } else if (strcasecmp (u->buf, "ipv6") == 0) {
+                protocol = AF_INET6;
+            } else if (strcasecmp (u->buf, "any") == 0) {
+                protocol = AF_UNSPEC;
+            } else {
+                avahi_log_error("%s: parse failure: invalid protocol specification \"%s\".", u->group->filename, u->buf);
+                u->failed = 1;
+                return;
+            }
+
+            u->service->protocol = protocol;
             break;
         }
 
@@ -452,7 +480,9 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
             break;
 
         case XML_TAG_PORT:
+        case XML_TAG_PROTOCOL:
         case XML_TAG_TXT_RECORD:
+            assert(u->service);
             u->buf = append_cdata(u->buf, s, len);
             break;
 

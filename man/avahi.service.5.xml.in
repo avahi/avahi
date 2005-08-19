@@ -88,6 +88,10 @@
       </option>
 
       <option>
+        <p><opt>&lt;protocol&gt;</opt> The protocol to advertise the service on, can be any of <opt>ipv4</opt>, <opt>ipv6</opt> or <opt>any</opt>.</p>
+      </option>
+
+      <option>
         <p><opt>&lt;txt-record&gt;</opt> DNS-SD TXT record data.</p>
       </option>
 

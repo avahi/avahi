@@ -96,7 +96,12 @@ class AvahiBookmarks(resource.Resource):
 
                 path = self.find_path(v[4])
 
-                t += '<li><a href="%s://%s%s%s">%s</a></li>' % (urlproto[k[3]], v[2], port, path, k[2])
+                if v[1] == avahi.PROTO_INET6:
+                    ip = "[" + v[2] + "]"
+                else:
+                    ip = v[2]
+
+                t += '<li><a href="%s://%s%s%s">%s</a></li>' % (urlproto[k[3]], ip, port, path, k[2])
                 
             t += '</ul>'
         

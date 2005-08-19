@@ -1665,7 +1665,6 @@ int dbus_protocol_setup(const AvahiPoll *poll_api) {
         NULL
     };
 
-
     dbus_error_init(&error);
 
     server = avahi_new(Server, 1);
@@ -1673,23 +1672,43 @@ int dbus_protocol_setup(const AvahiPoll *poll_api) {
     server->current_id = 0;
     server->n_clients = 0;
 
-    server->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-    if (dbus_error_is_set(&error)) {
-        avahi_log_warn("dbus_bus_get(): %s", error.message);
+    if (!(server->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error))) {
+        assert(dbus_error_is_set(&error));
+        avahi_log_error("dbus_bus_get(): %s", error.message);
         goto fail;
     }
 
-    avahi_dbus_connection_glue(server->bus, poll_api);
-
-    dbus_bus_request_name(server->bus, AVAHI_DBUS_NAME, 0, &error);
-    if (dbus_error_is_set(&error)) {
-        avahi_log_warn("dbus_bus_request_name(): %s", error.message);
+    if (avahi_dbus_connection_glue(server->bus, poll_api) < 0) {
+        avahi_log_error("avahi_dbus_connection_glue() failed");
         goto fail;
     }
 
-    dbus_connection_add_filter(server->bus, msg_signal_filter_impl, (void*) poll_api, NULL);
+    if (dbus_bus_request_name(server->bus, AVAHI_DBUS_NAME, DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT, &error) != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
+        if (dbus_error_is_set(&error)) {
+            avahi_log_error("dbus_bus_request_name(): %s", error.message);
+            goto fail;
+        }
+
+        avahi_log_error("Failed to acquire DBUS name '"AVAHI_DBUS_NAME"'");
+        goto fail;
+    }
+
+    if (!(dbus_connection_add_filter(server->bus, msg_signal_filter_impl, (void*) poll_api, NULL))) {
+        avahi_log_error("dbus_connection_add_filter() failed");
+        goto fail;
+    }
+    
     dbus_bus_add_match(server->bus, "type='signal',""interface='" DBUS_INTERFACE_DBUS  "'", &error);
-    dbus_connection_register_object_path(server->bus, AVAHI_DBUS_PATH_SERVER, &server_vtable, NULL);
+
+    if (dbus_error_is_set(&error)) {
+        avahi_log_error("dbus_bus_add_match(): %s", error.message);
+        goto fail;
+    }
+    
+    if (!(dbus_connection_register_object_path(server->bus, AVAHI_DBUS_PATH_SERVER, &server_vtable, NULL))) {
+        avahi_log_error("dbus_connection_register_object_path() failed");
+        goto fail;
+    }
 
     return 0;
 
@@ -1698,8 +1717,10 @@ fail:
         dbus_connection_disconnect(server->bus);
         dbus_connection_unref(server->bus);
     }
-    
-    dbus_error_free (&error);
+
+    if (dbus_error_is_set(&error))
+        dbus_error_free(&error);
+        
     avahi_free(server);
     server = NULL;
     return -1;

@@ -40,17 +40,13 @@
 #include "client.h"
 #include "internal.h"
 
-int
-avahi_client_set_errno (AvahiClient *client, int error)
-{
+int avahi_client_set_errno (AvahiClient *client, int error) {
     assert(client);
 
-    client->error = error;
-
-    return error;
+    return client->error = error;
 }
     
-static void avahi_client_set_state (AvahiClient *client, AvahiServerState state) {
+static void client_set_state (AvahiClient *client, AvahiServerState state) {
     assert(state);
 
     if (client->state == state)
@@ -60,54 +56,6 @@ static void avahi_client_set_state (AvahiClient *client, AvahiServerState state)
 
     if (client->callback)
         client->callback (client, state, client->userdata);
-}
-
-static void
-avahi_client_state_request_callback (DBusPendingCall *call, void *data)
-{
-    AvahiClient *client = data;
-    DBusError error;
-    DBusMessage *reply;
-    int state, type;
-
-    dbus_error_init (&error);
-
-    reply = dbus_pending_call_steal_reply (call);
-
-    type = dbus_message_get_type (reply);
-
-    if (type == DBUS_MESSAGE_TYPE_METHOD_RETURN)
-    {
-        dbus_message_get_args (reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID);
-        
-        if (dbus_error_is_set (&error))
-            return;
-        
-        avahi_client_set_state (client, state);
-    } else if (type == DBUS_MESSAGE_TYPE_ERROR) {
-        dbus_set_error_from_message (&error, reply);
-    }
-
-    dbus_pending_call_unref (call);
-}
-
-static void
-avahi_client_schedule_state_request (AvahiClient *client)
-{
-    DBusMessage *message;
-    DBusPendingCall *pcall;
-
-    /*** Lennart says that this can't happen this way since it will
-     * never be called if no main loop is used. This call has to
-     * happen synchronously */
-
-    if (client == NULL) return;
-
-    message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetState");
-
-    dbus_connection_send_with_reply (client->bus, message, &pcall, -1);
-
-    dbus_pending_call_set_notify (pcall, avahi_client_state_request_callback, client, NULL);
 }
 
 static DBusHandlerResult
@@ -135,9 +83,9 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
         if (strcmp (name, AVAHI_DBUS_NAME) == 0) {
 
             if (old == NULL && new != NULL) {
-                avahi_client_set_state (client, AVAHI_CLIENT_RECONNECTED);
+                client_set_state (client, AVAHI_CLIENT_RECONNECTED);
             } else if (old != NULL && new == NULL) {
-                avahi_client_set_state (client, AVAHI_CLIENT_DISCONNECTED);
+                client_set_state (client, AVAHI_CLIENT_DISCONNECTED);
                 /* XXX: we really need to expire all entry groups */
             }
         }
@@ -194,9 +142,46 @@ static int translate_dbus_error(const DBusError *error) {
     return AVAHI_ERR_DBUS_ERROR;
 }
 
-AvahiClient *
-avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *ret_error)
-{
+static int get_server_state(AvahiClient *client, int *ret_error) {
+    DBusMessage *message, *reply;
+    DBusError error;
+    int32_t state;
+    int e;
+    
+    assert(client);
+
+    dbus_error_init(&error);
+
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetState")))
+        goto fail;
+
+    reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
+    dbus_message_unref(message);
+
+    if (!reply)
+        goto fail;
+
+    if (!(dbus_message_get_args(reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID)))
+        goto fail;
+
+    client_set_state(client, (AvahiServerState) state);
+
+    return AVAHI_OK;
+
+fail:
+    if (dbus_error_is_set(&error)) {
+        e = translate_dbus_error(&error);
+        dbus_error_free(&error);
+    } else
+        e = AVAHI_ERR_NO_MEMORY;
+
+    if (ret_error)
+        *ret_error = e;
+        
+    return e;
+}
+
+AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *ret_error) {
     AvahiClient *client = NULL;
     DBusError error;
 
@@ -279,28 +264,43 @@ avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void 
         goto fail;
     }
 
-    /* This can't happen asynchronously, since it is not guaranteed that a main loop is used */
-    
-    /*client_get_server_state (client);*/
+    if (get_server_state(client, ret_error) < 0)
+        goto fail;
 
     return client;
 
 fail:
 
-    if (client) {
-
-        if (client->bus) {
-            dbus_connection_disconnect(client->bus);
-            dbus_connection_unref(client->bus);
-        }
-        
-        avahi_free(client);
-    }
+    if (client)
+        avahi_client_free(client);
 
     if (dbus_error_is_set(&error))
         dbus_error_free(&error);
         
     return NULL;
+}
+
+void avahi_client_free(AvahiClient *client) {
+    assert(client);
+
+    if (client->bus) {
+        dbus_connection_disconnect(client->bus);
+        dbus_connection_unref(client->bus);
+    }
+
+    while (client->groups)
+        avahi_entry_group_free(client->groups);
+
+    while (client->domain_browsers)
+        avahi_domain_browser_free(client->domain_browsers);
+
+    while (client->service_browsers)
+        avahi_service_browser_free(client->service_browsers);
+
+    while (client->service_type_browsers)
+        avahi_service_type_browser_free(client->service_type_browsers);
+    
+    avahi_free(client);
 }
 
 static char*

@@ -36,15 +36,11 @@
 AVAHI_C_DECL_BEGIN
 #endif
 
-typedef struct _AvahiClient AvahiClient;
-
-typedef struct _AvahiEntryGroup AvahiEntryGroup;
-
-typedef struct _AvahiDomainBrowser AvahiDomainBrowser;
-
-typedef struct _AvahiServiceBrowser AvahiServiceBrowser;
-
-typedef struct _AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
+typedef struct AvahiClient AvahiClient;
+typedef struct AvahiEntryGroup AvahiEntryGroup;
+typedef struct AvahiDomainBrowser AvahiDomainBrowser;
+typedef struct AvahiServiceBrowser AvahiServiceBrowser;
+typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 
 /** States of a client object, note that AvahiServerStates are also emitted */
 typedef enum {
@@ -69,6 +65,9 @@ typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, Ava
 
 /** Creates a new client instance */
 AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *error);
+
+/** Free a client instance */
+void avahi_client_free(AvahiClient *client);
 
 /** Get the version of the server */
 char* avahi_client_get_version_string (AvahiClient*);

@@ -25,8 +25,7 @@
 #include <dbus/dbus.h>
 #include "client.h"
 
-struct _AvahiClient
-{
+struct AvahiClient {
     const AvahiPoll *poll_api;
     DBusConnection *bus;
     int error;
@@ -41,7 +40,7 @@ struct _AvahiClient
     AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
 };
 
-struct _AvahiEntryGroup {
+struct AvahiEntryGroup {
     char *path;
     AvahiClient *client;
     AvahiEntryGroupCallback callback;
@@ -49,7 +48,7 @@ struct _AvahiEntryGroup {
     AVAHI_LLIST_FIELDS(AvahiEntryGroup, groups);
 };
 
-struct _AvahiDomainBrowser {
+struct AvahiDomainBrowser {
     char *path;
     AvahiClient *client;
     AvahiDomainBrowserCallback callback;
@@ -57,7 +56,7 @@ struct _AvahiDomainBrowser {
     AVAHI_LLIST_FIELDS(AvahiDomainBrowser, domain_browsers);
 };
 
-struct _AvahiServiceBrowser {
+struct AvahiServiceBrowser {
     char *path;
     AvahiClient *client;
     AvahiServiceBrowserCallback callback;
@@ -65,7 +64,7 @@ struct _AvahiServiceBrowser {
     AVAHI_LLIST_FIELDS(AvahiServiceBrowser, service_browsers);
 };
 
-struct _AvahiServiceTypeBrowser {
+struct AvahiServiceTypeBrowser {
     char *path;
     AvahiClient *client;
     AvahiServiceTypeBrowserCallback callback;

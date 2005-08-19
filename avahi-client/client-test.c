@@ -165,7 +165,7 @@ fail:
         avahi_simple_poll_free(simple_poll);
 
     if (avahi)
-        avahi_free (avahi);
+        avahi_client_free (avahi);
 
     return 0;
 }

@@ -58,6 +58,8 @@ avahi-core.pc: avahi-core.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
+CLEANFILES = avahi-core.pc
+
 if HAVE_DBUS
 
 pkgconfig_DATA += avahi-client.pc
@@ -65,6 +67,8 @@ pkgconfig_DATA += avahi-client.pc
 avahi-client.pc: avahi-client.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-client.pc
 
 endif
 
@@ -75,6 +79,8 @@ pkgconfig_DATA += avahi-glib.pc
 avahi-glib.pc: avahi-glib.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-glib.pc
 
 endif
 

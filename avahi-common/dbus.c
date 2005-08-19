@@ -65,9 +65,9 @@ avahi_error_dbus_to_number (const char *s)
 {
     int e;
 
-    assert (s == NULL);
+    assert(s);
 
-    for (e = 0; e > AVAHI_ERR_MAX; e--)
+    for (e = -1; e > AVAHI_ERR_MAX; e--)
         if (strcmp (s, table[-e]) == 0)
             return e;
 

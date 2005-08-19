@@ -27,6 +27,7 @@
 #include <avahi-common/dbus.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/error.h>
+#include <avahi-common/dbus.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/dbus-watch-glue.h>
 #include <stdlib.h>
@@ -137,9 +138,7 @@ out:
 static int translate_dbus_error(const DBusError *error) {
     assert(error);
 
-    /*** FIXME! Some more eloquent error translation should happen here */
-    
-    return AVAHI_ERR_DBUS_ERROR;
+    return avahi_error_dbus_to_number (error->name);
 }
 
 static int get_server_state(AvahiClient *client, int *ret_error) {

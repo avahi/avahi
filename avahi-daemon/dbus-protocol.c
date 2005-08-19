@@ -36,6 +36,7 @@
 
 #include <dbus/dbus.h>
 
+#include <avahi-common/dbus.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/dbus.h>
@@ -328,40 +329,10 @@ static Client *client_get(const char *name, int create) {
 static DBusHandlerResult respond_error(DBusConnection *c, DBusMessage *m, int error, const char *text) {
     DBusMessage *reply;
 
-    const char * const table[- AVAHI_ERR_MAX] = {
-        NULL, /* OK */
-        AVAHI_DBUS_ERR_FAILURE,
-        AVAHI_DBUS_ERR_BAD_STATE,
-        AVAHI_DBUS_ERR_INVALID_HOST_NAME,
-        AVAHI_DBUS_ERR_INVALID_DOMAIN_NAME,
-        AVAHI_DBUS_ERR_NO_NETWORK,
-        AVAHI_DBUS_ERR_INVALID_TTL,
-        AVAHI_DBUS_ERR_IS_PATTERN,
-        AVAHI_DBUS_ERR_LOCAL_COLLISION,
-        AVAHI_DBUS_ERR_INVALID_RECORD,
-        AVAHI_DBUS_ERR_INVALID_SERVICE_NAME,
-        AVAHI_DBUS_ERR_INVALID_SERVICE_TYPE,
-        AVAHI_DBUS_ERR_INVALID_PORT,
-        AVAHI_DBUS_ERR_INVALID_KEY,
-        AVAHI_DBUS_ERR_INVALID_ADDRESS,
-        AVAHI_DBUS_ERR_TIMEOUT,
-        AVAHI_DBUS_ERR_TOO_MANY_CLIENTS,
-        AVAHI_DBUS_ERR_TOO_MANY_OBJECTS,
-        AVAHI_DBUS_ERR_TOO_MANY_ENTRIES,
-        AVAHI_DBUS_ERR_OS,
-        AVAHI_DBUS_ERR_ACCESS_DENIED,
-        AVAHI_DBUS_ERR_INVALID_OPERATION,
-        AVAHI_DBUS_ERR_DBUS_ERROR,
-        AVAHI_DBUS_ERR_NOT_CONNECTED,
-        AVAHI_DBUS_ERR_NO_MEMORY,
-        AVAHI_DBUS_ERR_INVALID_OBJECT,
-        AVAHI_DBUS_ERR_NO_DAEMON
-    };
-
     assert(-error > -AVAHI_OK);
     assert(-error < -AVAHI_ERR_MAX);
     
-    reply = dbus_message_new_error(m, table[-error], text ? text : avahi_strerror(error));
+    reply = dbus_message_new_error(m, avahi_error_number_to_dbus (error), text ? text : avahi_strerror(error));
     dbus_connection_send(c, reply, NULL);
     dbus_message_unref(reply);
     

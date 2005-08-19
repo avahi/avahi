@@ -22,6 +22,9 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+# Need some DBUS defines for dbus.h
+AM_CFLAGS+=$(DBUS_CFLAGS)
+
 avahi_commonincludedir=$(includedir)/avahi-common
 
 avahi_commoninclude_HEADERS = \
@@ -60,7 +63,8 @@ libavahi_common_la_SOURCES = \
 	domain.c domain.h \
 	timeval.c timeval.h \
 	simple-watch.c simple-watch.h \
-	watch.h gccmacro.h
+	watch.h gccmacro.h \
+	dbus.c dbus.h
 
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0

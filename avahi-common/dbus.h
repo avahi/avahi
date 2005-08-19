@@ -25,6 +25,7 @@
 /** \file dbus.h Some definitions for the DBUS interface */
 
 #include <avahi-common/cdecl.h>
+#include <dbus/dbus.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -62,6 +63,13 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_NO_MEMORY "org.freedesktop.Avahi.NoMemoryError"
 #define AVAHI_DBUS_ERR_INVALID_OBJECT "org.freedesktop.Avahi.InvalidObjectError"
 #define AVAHI_DBUS_ERR_NO_DAEMON "org.freedesktop.Avahi.NoDaemonError"
+
+
+/** Convert a DBus error string into an Avahi error number */
+int avahi_error_dbus_to_number (const char *s);
+
+/** Convert an Avahi error number into a DBus error string.  Result should not be freed */
+const char * avahi_error_number_to_dbus (int error);
 
 AVAHI_C_DECL_END
 

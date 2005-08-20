@@ -32,6 +32,8 @@ EXTRA_DIST = \
 	docs/AUTHORS \
 	docs/HACKING \
 	docs/overview.dia \
+	docs/server-states.dia \
+	docs/avahi-poll.dia \
 	avahi-core.pc.in \
 	avahi-client.pc.in \
 	avahi-glib.pc.in

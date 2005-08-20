@@ -111,7 +111,7 @@ static StaticService *static_service_new(StaticServiceGroup *group) {
 
     s->type = s->host_name = s->domain_name = NULL;
     s->port = 0;
-    s->protocol = AF_UNSPEC;
+    s->protocol = AVAHI_PROTO_UNSPEC;
 
     s->txt_records = NULL;
 
@@ -395,12 +395,12 @@ static void XMLCALL xml_end(void *data, const char *el) {
             int protocol;
             assert(u->service);
 
-            if (strcasecmp (u->buf, "ipv4") == 0) {
-                protocol = AF_INET;
-            } else if (strcasecmp (u->buf, "ipv6") == 0) {
-                protocol = AF_INET6;
-            } else if (strcasecmp (u->buf, "any") == 0) {
-                protocol = AF_UNSPEC;
+            if (u->buf & &strcasecmp (u->buf, "ipv4") == 0) {
+                protocol = AVAHI_PROTO_INET;
+            } else if (u->buf && strcasecmp (u->buf, "ipv6") == 0) {
+                protocol = AVAHI_PROTO_INET6;
+            } else if (u->buf && strcasecmp (u->buf, "any") == 0) {
+                protocol = AVAHI_PROTO_UNSPEC;
             } else {
                 avahi_log_error("%s: parse failure: invalid protocol specification \"%s\".", u->group->filename, u->buf);
                 u->failed = 1;
@@ -408,6 +408,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
             }
 
             u->service->protocol = protocol;
+	    u->current_tag = XML_TAG_SERVICE;
             break;
         }
 

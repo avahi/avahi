@@ -1,4 +1,7 @@
 todo:
+* avahi-client:
+   * service resolving
+   * examples
 * release!
 
 later:

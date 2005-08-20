@@ -31,6 +31,7 @@
 #include <assert.h>
 
 static const AvahiPoll *poll_api = NULL;
+static AvahiSimplePoll *simple_poll = NULL;
 
 
 static void
@@ -48,19 +49,19 @@ avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void
 static void
 avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void *user_data)
 {
-    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_path (b), interface, protocol, event, domain, (char*)user_data);
+    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_get_dbus_path (b), interface, protocol, event, domain, (char*)user_data);
 }
 
 static void
 avahi_service_browser_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, void *user_data)
 {
-    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
+    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_get_dbus_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
 }
 
 static void
 avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *user_data)
 {
-    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_path (b), interface, protocol, event, type, domain, (char*)user_data);
+    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_get_dbus_path (b), interface, protocol, event, type, domain, (char*)user_data);
 }
 
 static void test_free_domain_browser(AvahiTimeout *timeout, void* userdata)
@@ -77,13 +78,17 @@ static void test_free_entry_group (AvahiTimeout *timeout, void* userdata)
     avahi_entry_group_free (g);
 }
 
+static void terminate(AvahiTimeout *timeout, void *userdata) {
+
+    avahi_simple_poll_quit(simple_poll);
+}
+
 int main (int argc, char *argv[]) {
     AvahiClient *avahi;
     AvahiEntryGroup *group;
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
-    AvahiSimplePoll *simple_poll;
     const char *ret;
     int error;
     struct timeval tv;
@@ -121,23 +126,24 @@ int main (int argc, char *argv[]) {
 
     avahi_entry_group_commit (group);
 
-    domain = avahi_domain_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "", AVAHI_DOMAIN_BROWSER_BROWSE, avahi_domain_browser_callback, "omghai3u");
+    domain = avahi_domain_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, avahi_domain_browser_callback, "omghai3u");
+    
     if (domain == NULL)
         printf ("Failed to create domain browser object\n");
     else
-        printf ("Sucessfully created domain browser, path %s\n", avahi_domain_browser_path (domain));
+        printf ("Sucessfully created domain browser, path %s\n", avahi_domain_browser_get_dbus_path (domain));
 
     st = avahi_service_type_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "", avahi_service_type_browser_callback, "omghai3u");
     if (st == NULL)
         printf ("Failed to create service type browser object\n");
     else
-        printf ("Sucessfully created service type browser, path %s\n", avahi_service_type_browser_path (st));
+        printf ("Sucessfully created service type browser, path %s\n", avahi_service_type_browser_get_dbus_path (st));
 
     sb = avahi_service_browser_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "_http._tcp", "", avahi_service_browser_callback, "omghai3u");
     if (sb == NULL)
         printf ("Failed to create service browser object\n");
     else
-        printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_path (sb));
+        printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_get_dbus_path (sb));
 
 
     avahi_elapse_time(&tv, 5000, 0);
@@ -145,17 +151,20 @@ int main (int argc, char *argv[]) {
     avahi_elapse_time(&tv, 8000, 0);
     poll_api->timeout_new(poll_api, &tv, test_free_domain_browser, sb);
 
+    avahi_elapse_time(&tv, 20000, 0);
+    poll_api->timeout_new(poll_api, &tv, terminate, NULL);
+
     for (;;)
         if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
             break;
 
 fail:
 
-    if (simple_poll)
-        avahi_simple_poll_free(simple_poll);
-
     if (avahi)
         avahi_client_free (avahi);
+
+    if (simple_poll)
+        avahi_simple_poll_free(simple_poll);
 
     return 0;
 }

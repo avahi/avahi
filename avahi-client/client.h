@@ -161,7 +161,7 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               void *userdata);
 
 /** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
-const char* avahi_domain_browser_path (AvahiDomainBrowser *);
+const char* avahi_domain_browser_get_dbus_path (AvahiDomainBrowser *);
 
 /** Cleans up and frees an AvahiDomainBrowser object */
 int avahi_domain_browser_free (AvahiDomainBrowser *);
@@ -176,7 +176,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 void *userdata);
 
 /** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
-const char* avahi_service_type_browser_path (AvahiServiceTypeBrowser *);
+const char* avahi_service_type_browser_get_dbus_path(AvahiServiceTypeBrowser *);
 
 /** Cleans up and frees an AvahiServiceTypeBrowser object */
 int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
@@ -192,7 +192,7 @@ AvahiServiceBrowser* avahi_service_browser_new (
                 void *userdata);
 
 /** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
-const char* avahi_service_browser_path (AvahiServiceBrowser *);
+const char* avahi_service_browser_get_dbus_path (AvahiServiceBrowser *);
 
 /* Cleans up and frees an AvahiServiceBrowser object */
 int avahi_service_browser_free (AvahiServiceBrowser *);

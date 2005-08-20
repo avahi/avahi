@@ -125,6 +125,7 @@ AvahiEntryGroup* avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCall
     group->callback = callback;
     group->userdata = userdata;
     group->state = AVAHI_ENTRY_GROUP_UNCOMMITED;
+    group->path = NULL;
     AVAHI_LLIST_PREPEND(AvahiEntryGroup, groups, client->groups, group);
     
     if (!(message = dbus_message_new_method_call(
@@ -156,7 +157,6 @@ AvahiEntryGroup* avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCall
         goto fail;
     }
 
-
     if (retrieve_state(group) < 0)
         goto fail;
 
@@ -184,7 +184,7 @@ fail:
 }
 
 static int entry_group_simple_method_call(AvahiEntryGroup *group, const char *method) {
-    DBusMessage *message, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     int r = AVAHI_OK;
     AvahiClient *client;
@@ -288,6 +288,9 @@ int avahi_entry_group_is_empty (AvahiEntryGroup *group) {
     assert(group);
     client = group->client;
 
+    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+        return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
+
     dbus_error_init(&error);
     
     if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, group->path, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty"))) {
@@ -344,6 +347,7 @@ int avahi_entry_group_add_service_strlst(
     int reverse = 0, r = AVAHI_OK;
     DBusError error;
     AvahiClient *client;
+    int32_t i_interface, i_protocol;
 
     assert(group);
     assert(name);
@@ -351,6 +355,15 @@ int avahi_entry_group_add_service_strlst(
 
     client = group->client;
 
+    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+        return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
+
+    if (!domain)
+        domain = "";
+
+    if (!host)
+        host = "";
+    
     dbus_error_init(&error);
     
     if (!(message = dbus_message_new_method_call (AVAHI_DBUS_NAME, group->path, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService"))) {
@@ -358,10 +371,13 @@ int avahi_entry_group_add_service_strlst(
         goto fail;
     }
 
+    i_interface = (int32_t) interface;
+    i_protocol = (int32_t) protocol;
+
     if (!dbus_message_append_args(
             message,
-            DBUS_TYPE_INT32, &interface,
-            DBUS_TYPE_INT32, &protocol,
+            DBUS_TYPE_INT32, &i_interface,
+            DBUS_TYPE_INT32, &i_protocol,
             DBUS_TYPE_STRING, &name,
             DBUS_TYPE_STRING, &type,
             DBUS_TYPE_STRING, &domain,

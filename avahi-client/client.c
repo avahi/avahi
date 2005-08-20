@@ -170,19 +170,20 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
             avahi_entry_group_set_state(g, state);
         }
         
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemNew")) {
-        return avahi_domain_browser_event (client, AVAHI_BROWSER_NEW, message);
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemRemove")) {
-        return avahi_domain_browser_event (client, AVAHI_BROWSER_REMOVE, message);
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "ItemNew")) {
+    } else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemNew"))
+        return avahi_domain_browser_event(client, AVAHI_BROWSER_NEW, message);
+    else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemRemove")) 
+        return avahi_domain_browser_event(client, AVAHI_BROWSER_REMOVE, message);
+
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "ItemNew")) 
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_NEW, message);
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "ItemRemove")) {
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "ItemRemove")) 
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_REMOVE, message);
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemNew")) {
+
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemNew")) 
         return avahi_service_browser_event (client, AVAHI_BROWSER_NEW, message);
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemRemove")) {
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemRemove")) 
         return avahi_service_browser_event (client, AVAHI_BROWSER_REMOVE, message);
-    }
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
@@ -259,8 +260,8 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, client->service_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, client->service_type_browsers);
 
-    client->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-    if (!client->bus || dbus_error_is_set (&error))
+    if (!(client->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) ||
+        dbus_error_is_set (&error))
         goto fail;
 
     if (avahi_dbus_connection_glue(client->bus, poll_api) < 0) {
@@ -306,7 +307,8 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     if (dbus_error_is_set (&error))
         goto fail;
 
-    if (!(dbus_bus_name_has_owner(client->bus, AVAHI_DBUS_NAME, &error))) {
+    if (!(dbus_bus_name_has_owner(client->bus, AVAHI_DBUS_NAME, &error)) ||
+        dbus_error_is_set(&error)) {
 
         if (ret_error)
             *ret_error = AVAHI_ERR_NO_DAEMON;
@@ -338,11 +340,6 @@ fail:
 void avahi_client_free(AvahiClient *client) {
     assert(client);
 
-    if (client->bus) {
-        dbus_connection_disconnect(client->bus);
-        dbus_connection_unref(client->bus);
-    }
-
     while (client->groups)
         avahi_entry_group_free(client->groups);
 
@@ -354,6 +351,11 @@ void avahi_client_free(AvahiClient *client) {
 
     while (client->service_type_browsers)
         avahi_service_type_browser_free(client->service_type_browsers);
+
+    if (client->bus) {
+        dbus_connection_disconnect(client->bus);
+        dbus_connection_unref(client->bus);
+    }
 
     avahi_free(client->version_string);
     avahi_free(client->host_name);

@@ -28,18 +28,19 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include <avahi-core/core.h>
+#include <avahi-client/client.h>
+#include <avahi-common/alternative.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/error.h>
 
-static AvahiSEntryGroup *group = NULL;
+static AvahiEntryGroup *group = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 static char *name = NULL;
 
-static void create_services(AvahiServer *s);
+static void create_services(AvahiClient *c);
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
-    assert(s);
+static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
     assert(g == group);
 
     /* Called whenever the entry group state changes */
@@ -59,19 +60,19 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
         fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
 
         /* And recreate the services */
-        create_services(s);
+        create_services(avahi_entry_group_get_client(g));
     }
 }
 
-static void create_services(AvahiServer *s) {
+static void create_services(AvahiClient *c) {
     char r[128];
     int ret;
-    assert(s);
+    assert(c);
 
     /* If this is the first time we're called, let's create a new entry group */
     if (!group) {
-        if (!(group = avahi_s_entry_group_new(s, entry_group_callback, NULL))) {
-            fprintf(stderr, "avahi_entry_group_new() failed: %s\n", avahi_strerror(avahi_server_errno(s)));
+        if (!(group = avahi_entry_group_new(c, entry_group_callback, NULL))) {
+            fprintf(stderr, "avahi_entry_group_new() failed: %s\n", avahi_strerror(avahi_client_errno(c)));
             goto fail;
         }
     }
@@ -82,19 +83,19 @@ static void create_services(AvahiServer *s) {
     snprintf(r, sizeof(r), "random=%i", rand());
 
     /* Add the service for IPP */
-    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
+    if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
         fprintf(stderr, "Failed to add _ipp._tcp service: %s\n", avahi_strerror(ret));
         goto fail;
     }
 
     /* Add the same service for BSD LPR */
-    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
+    if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
         fprintf(stderr, "Failed to add _printer._tcp service: %s\n", avahi_strerror(ret));
         goto fail;
     }
 
     /* Tell the server to register the service */
-    if ((ret = avahi_s_entry_group_commit(group)) < 0) {
+    if ((ret = avahi_entry_group_commit(group)) < 0) {
         fprintf(stderr, "Failed to commit entry_group: %s\n", avahi_strerror(ret));
         goto fail;
     }
@@ -106,50 +107,35 @@ fail:
     return;
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, void * userdata) {
-    assert(s);
+static void client_callback(AvahiClient *c, AvahiClientState state, void * userdata) {
+    assert(c);
 
-    /* Called whenever the server state changes */
+    /* Called whenever the client or server state changes */
 
-    if (state == AVAHI_SERVER_RUNNING)
+    if (state == AVAHI_CLIENT_S_RUNNING)
         /* The serve has startup successfully and registered its host
          * name on the network, so it's time to create our services */
-        create_services(s);
+        create_services(c);
     
-    else if (state == AVAHI_SERVER_COLLISION) {
-        char *n;
-        int r;
-        
-        /* A host name collision happened. Let's pick a new name for the server */
-        n = avahi_alternative_host_name(avahi_server_get_host_name(s));
-        fprintf(stderr, "Host name collision, retrying with '%s'\n", n);
-        r = avahi_server_set_host_name(s, n);
-        avahi_free(n);
-
-        if (r < 0) {
-            fprintf(stderr, "Failed to set new host name: %s\n", avahi_strerror(r));
-
-            avahi_simple_poll_quit(simple_poll);
-            return;
-        }
-
+    else if (state == AVAHI_CLIENT_S_COLLISION) {
         /* Let's drop our registered services. When the server is back
          * in AVAHI_SERVER_RUNNING state we will register them
          * again with the new host name. */
         if (group)
-            avahi_s_entry_group_reset(group);
+            avahi_entry_group_reset(group);
+        
+    } else if (state == AVAHI_CLIENT_DISCONNECTED) {
+
+        fprintf(stderr, "Server connection terminated.\n");
+        avahi_simple_poll_quit(simple_poll);
     }
 }
 
 int main(int argc, char*argv[]) {
-    AvahiServerConfig config;
-    AvahiServer *server = NULL;
+    AvahiClient *client = NULL;
     int error;
     int ret = 1;
     
-    /* Initialize the pseudo-RNG */
-    srand(time(NULL));
-
     /* Allocate main loop object */
     if (!(simple_poll = avahi_simple_poll_new())) {
         fprintf(stderr, "Failed to create simple poll object.\n");
@@ -158,20 +144,12 @@ int main(int argc, char*argv[]) {
     
     name = avahi_strdup("MegaPrinter");
 
-    /* Let's set the host name for this server. */
-    avahi_server_config_init(&config);
-    config.host_name = avahi_strdup("gurkiman");
-    config.publish_workstation = 0;
-    
-    /* Allocate a new server */
-    server = avahi_server_new(avahi_simple_poll_get(simple_poll), &config, server_callback, NULL, &error);
+    /* Allocate a new client */
+    client = avahi_client_new(avahi_simple_poll_get(simple_poll), client_callback, NULL, &error);
 
-    /* Free the configuration data */
-    avahi_server_config_free(&config);
-
-    /* Check wether creating the server object succeeded */
-    if (!server) {
-        fprintf(stderr, "Failed to create server: %s", avahi_strerror(error));
+    /* Check wether creating the client object succeeded */
+    if (!client) {
+        fprintf(stderr, "Failed to create client: %s\n", avahi_strerror(error));
         goto fail;
     }
     
@@ -186,10 +164,10 @@ fail:
     
     /* Cleanup things */
     if (group)
-        avahi_s_entry_group_free(group);
+        avahi_entry_group_free(group);
 
-    if (server)
-        avahi_server_free(server);
+    if (client)
+        avahi_client_free(client);
 
     if (simple_poll)
         avahi_simple_poll_free(simple_poll);

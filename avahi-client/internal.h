@@ -41,6 +41,7 @@ struct AvahiClient {
     AVAHI_LLIST_HEAD(AvahiDomainBrowser, domain_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceBrowser, service_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
+    AVAHI_LLIST_HEAD(AvahiServiceResolver, service_resolvers);
 };
 
 struct AvahiEntryGroup {
@@ -76,6 +77,14 @@ struct AvahiServiceTypeBrowser {
     AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, service_type_browsers);
 };
 
+struct AvahiServiceResolver {
+    DBusPendingCall *call;
+    AvahiClient *client;
+    AvahiServiceResolverCallback callback;
+    void *userdata;
+    AVAHI_LLIST_FIELDS(AvahiServiceResolver, service_resolvers);
+};
+
 int avahi_client_set_errno (AvahiClient *client, int error);
 int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error);
 
@@ -86,4 +95,5 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
 DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 
 DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
+
 #endif

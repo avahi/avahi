@@ -102,10 +102,10 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
     
     dbus_error_init (&error);
 
-    fprintf(stderr, "dbus: interface=%s, path=%s, member=%s\n",
-            dbus_message_get_interface (message),
-            dbus_message_get_path (message),
-            dbus_message_get_member (message));
+/*     fprintf(stderr, "dbus: interface=%s, path=%s, member=%s\n", */
+/*             dbus_message_get_interface (message), */
+/*             dbus_message_get_path (message), */
+/*             dbus_message_get_member (message)); */
 
     if (client->state == AVAHI_CLIENT_DISCONNECTED)
         goto fail;
@@ -259,6 +259,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, client->domain_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, client->service_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, client->service_type_browsers);
+    AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, client->service_resolvers);
 
     if (!(client->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) ||
         dbus_error_is_set (&error))
@@ -351,6 +352,9 @@ void avahi_client_free(AvahiClient *client) {
 
     while (client->service_type_browsers)
         avahi_service_type_browser_free(client->service_type_browsers);
+
+    while (client->service_resolvers)
+        avahi_service_resolver_free(client->service_resolvers);
 
     if (client->bus) {
         dbus_connection_disconnect(client->bus);

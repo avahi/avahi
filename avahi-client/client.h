@@ -37,11 +37,23 @@
 AVAHI_C_DECL_BEGIN
 #endif
 
+/** A connection context */
 typedef struct AvahiClient AvahiClient;
+
+/** An entry group object */
 typedef struct AvahiEntryGroup AvahiEntryGroup;
+
+/** A domain browser object */
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
+
+/** A service browser object */
 typedef struct AvahiServiceBrowser AvahiServiceBrowser;
+
+/** A service type browser object */
 typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
+
+/** A service resolver object */
+typedef struct AvahiServiceResolver AvahiServiceResolver;
 
 /** States of a client object, note that AvahiServerStates are also emitted */
 typedef enum {
@@ -66,6 +78,21 @@ typedef void (*AvahiServiceBrowserCallback) (AvahiServiceBrowser *b, AvahiIfInde
 
 /** The function prototype for the callback of an AvahiServiceTypeBrowser */
 typedef void (*AvahiServiceTypeBrowserCallback) (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *userdata);
+
+/** The function prototype for the callback of an AvahiServiceResolver */
+typedef void (*AvahiServiceResolverCallback) (
+    AvahiServiceResolver *r,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *host_name,
+    const AvahiAddress *a,
+    uint16_t port,
+    AvahiStringList *txt,
+    void *userdata);
 
 /** Creates a new client instance */
 AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *error);
@@ -196,6 +223,24 @@ const char* avahi_service_browser_get_dbus_path (AvahiServiceBrowser *);
 
 /* Cleans up and frees an AvahiServiceBrowser object */
 int avahi_service_browser_free (AvahiServiceBrowser *);
+
+/** Create a new service resolver object */
+AvahiServiceResolver * avahi_service_resolver_new(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    const char *type,
+    const char *domain,
+    AvahiProtocol aprotocol,
+    AvahiServiceResolverCallback callback,
+    void *userdata);
+
+/** Free a service resolver object */
+int avahi_service_resolver_free(AvahiServiceResolver *r);
+
+/** Block until the resolving is complete */
+int avahi_service_resolver_block(AvahiServiceResolver *r);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

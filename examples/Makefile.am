@@ -20,13 +20,23 @@
 AM_CFLAGS=-I$(top_srcdir)
 
 noinst_PROGRAMS = \
-	publish-service \
-	browse-services
+	core-publish-service \
+	core-browse-services \
+	client-publish-service \
+	client-browse-services
 
-publish_service_SOURCES = publish-service.c
-publish_service_CFLAGS = $(AM_CFLAGS)
-publish_service_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+core_publish_service_SOURCES = core-publish-service.c
+core_publish_service_CFLAGS = $(AM_CFLAGS)
+core_publish_service_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
-browse_services_SOURCES = browse-services.c
-browse_services_CFLAGS = $(AM_CFLAGS)
-browse_services_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+core_browse_services_SOURCES = core-browse-services.c
+core_browse_services_CFLAGS = $(AM_CFLAGS)
+core_browse_services_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
+
+client_publish_service_SOURCES = client-publish-service.c
+client_publish_service_CFLAGS = $(AM_CFLAGS)
+client_publish_service_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
+
+client_browse_services_SOURCES = client-browse-services.c
+client_browse_services_CFLAGS = $(AM_CFLAGS)
+client_browse_services_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la

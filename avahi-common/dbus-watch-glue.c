@@ -95,9 +95,15 @@ static void dispatch_timeout_callback(AvahiTimeout *t, void *userdata) {
     assert(t);
     assert(d);
 
+    connection_data_ref(d);
+    dbus_connection_ref(d->connection);
+
     if (dbus_connection_dispatch(d->connection) == DBUS_DISPATCH_DATA_REMAINS)
         /* If there's still data, request that this handler is called again */
         request_dispatch(d);
+
+    dbus_connection_unref(d->connection);
+    connection_data_unref(d);
 }
 
 static void watch_callback(AvahiWatch *avahi_watch, int fd, AvahiWatchEvent events, void *userdata) {
@@ -180,10 +186,32 @@ typedef struct TimeoutData {
     const AvahiPoll *poll_api;
     AvahiTimeout *avahi_timeout;
     DBusTimeout *dbus_timeout;
+    int ref;
 } TimeoutData;
+
+static TimeoutData* timeout_data_ref(TimeoutData *t) {
+    assert(t);
+    assert(t->ref >= 1);
+
+    t->ref++;
+    return t;
+}
+
+static void timeout_data_unref(TimeoutData *t) {
+    assert(t);
+    assert(t->ref >= 1);
+
+    if (--t->ref <= 0) {
+        if (t->avahi_timeout)
+            t->poll_api->timeout_free(t->avahi_timeout);
+        
+        avahi_free(t);
+    }
+}
 
 static void update_timeout(TimeoutData *timeout) {
     assert(timeout);
+    assert(timeout->ref >= 1);
     
     if (dbus_timeout_get_enabled(timeout->dbus_timeout)) {
         struct timeval tv;
@@ -201,10 +229,15 @@ static void timeout_callback(AvahiTimeout *avahi_timeout, void *userdata) {
     assert(avahi_timeout);
     assert(timeout);
 
+    timeout_data_ref(timeout);
+
     dbus_timeout_handle(timeout->dbus_timeout);
     /* Ignore the return value */
+
+    if (timeout->avahi_timeout)
+        update_timeout(timeout);
     
-    update_timeout(timeout);
+    timeout_data_unref(timeout);
 }
 
 static dbus_bool_t add_timeout(DBusTimeout *dbus_timeout, void *userdata) {
@@ -221,6 +254,7 @@ static dbus_bool_t add_timeout(DBusTimeout *dbus_timeout, void *userdata) {
 
     timeout->dbus_timeout = dbus_timeout;
     timeout->poll_api = d->poll_api;
+    timeout->ref = 1;
 
     if ((b = dbus_timeout_get_enabled(dbus_timeout)))
         avahi_elapse_time(&tv, dbus_timeout_get_interval(dbus_timeout), 0);
@@ -229,12 +263,12 @@ static dbus_bool_t add_timeout(DBusTimeout *dbus_timeout, void *userdata) {
               d->poll_api,
               b ? &tv : NULL,
               timeout_callback,
-              dbus_timeout))) {
+              timeout))) {
         avahi_free(timeout);
         return FALSE;
     }
 
-    dbus_timeout_set_data(dbus_timeout, timeout, NULL);
+    dbus_timeout_set_data(dbus_timeout, timeout, (DBusFreeFunction) timeout_data_unref);
     return TRUE;
 }
 
@@ -249,8 +283,7 @@ static void remove_timeout(DBusTimeout *dbus_timeout, void *userdata) {
     assert(timeout);
 
     d->poll_api->timeout_free(timeout->avahi_timeout);
-    avahi_free(timeout);
-    dbus_timeout_set_data(dbus_timeout, NULL, NULL);
+    timeout->avahi_timeout = NULL;
 }
 
 static void timeout_toggled(DBusTimeout *dbus_timeout, void *userdata) {

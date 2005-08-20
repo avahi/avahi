@@ -36,7 +36,9 @@ lib_LTLIBRARIES = libavahi-client.la
 libavahi_client_la_SOURCES = \
 	client.c client.h \
 	entrygroup.c \
-	browser.c
+	browser.c \
+	resolver.c
+
 libavahi_client_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
 libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-common.la
 libavahi_client_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0

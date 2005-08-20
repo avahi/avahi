@@ -63,7 +63,7 @@ typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 /** A service resolver object */
 typedef struct AvahiServiceResolver AvahiServiceResolver;
 
-/** States of a client object, note that AvahiServerStates are also emitted */
+/** States of a client object, a superset of AvahiServerState */
 typedef enum {
     AVAHI_CLIENT_S_INVALID = AVAHI_SERVER_INVALID,
     AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,

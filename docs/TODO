@@ -1,7 +1,4 @@
 todo:
-* avahi-client:
-   * service resolving
-   * examples
 * release!
 
 later:
@@ -55,3 +52,6 @@ done:
 * add internal error codes
 * finish DBUS stuff: allow NUL bytes in TXT records
 * allow srv port == 0
+* avahi-client:
+   * service resolving
+   * examples

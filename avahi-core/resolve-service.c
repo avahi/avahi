@@ -122,7 +122,6 @@ static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
             st[i-1] = 0;
 
         r->callback(r, r->interface, r->protocol, event, sn, st, r->domain_name, r->srv_record->data.srv.name, &a, r->srv_record->data.srv.port, r->txt_record->data.txt.string_list, r->userdata);
-
     }
 }
 

@@ -238,6 +238,7 @@ static void service_resolver_callback(AvahiSServiceResolver *r, AvahiIfIndex int
         g_assert(r == service_resolver);
         avahi_s_service_resolver_free(service_resolver);
         service_resolver = NULL;
+        return;
     }
 
     if (event == AVAHI_RESOLVER_TIMEOUT)

@@ -42,7 +42,7 @@ avahi_client_callback (AvahiClient *c, AvahiClientState state, void *user_data)
 static void
 avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *user_data)
 {
-    printf ("XXX: Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_path (g), state, (char*)user_data);
+    printf ("XXX: Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_get_dbus_path(g), state, (char*)user_data);
 }
 
 static void
@@ -76,17 +76,15 @@ static void test_free_entry_group (AvahiTimeout *timeout, void* userdata)
     printf ("XXX: freeing entry group\n");
     avahi_entry_group_free (g);
 }
-int
-main (int argc, char *argv[])
-{
+
+int main (int argc, char *argv[]) {
     AvahiClient *avahi;
     AvahiEntryGroup *group;
-    AvahiStringList *txt;
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
     AvahiSimplePoll *simple_poll;
-    char *ret;
+    const char *ret;
     int error;
     struct timeval tv;
 
@@ -98,36 +96,28 @@ main (int argc, char *argv[])
         goto fail;
     }
 
-    assert (avahi != NULL);
+    printf("State: %i\n", avahi_client_get_state(avahi));
 
     ret = avahi_client_get_version_string (avahi);
-    printf ("Avahi Server Version: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    avahi_free (ret);
+    printf("Avahi Server Version: %s (Error Return: %s)\n", ret, ret ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
 
     ret = avahi_client_get_host_name (avahi);
-    printf ("Host Name: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    avahi_free (ret);
+    printf("Host Name: %s (Error Return: %s)\n", ret, ret ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
 
     ret = avahi_client_get_domain_name (avahi);
-    printf ("Domain Name: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    avahi_free (ret);
+    printf("Domain Name: %s (Error Return: %s)\n", ret, ret ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
 
     ret = avahi_client_get_host_name_fqdn (avahi);
-    printf ("FQDN: %s (Error Return: %s)\n", ret, avahi_strerror (avahi_client_errno (avahi)));
-    avahi_free (ret);
+    printf("FQDN: %s (Error Return: %s)\n", ret, ret ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
     
     group = avahi_entry_group_new (avahi, avahi_entry_group_callback, "omghai");
+    printf("Creating entry group: %s\n", group ? "OK" : avahi_strerror(avahi_client_errno (avahi)));
 
-    printf ("Creating entry group: %s\n", avahi_strerror (avahi_client_errno (avahi)));
+    assert(group);
+    
+    printf("Sucessfully created entry group, path %s\n", avahi_entry_group_get_dbus_path (group));
 
-    if (group == NULL)
-        printf ("Failed to create entry group object\n");
-    else
-        printf ("Sucessfully created entry group, path %s\n", avahi_entry_group_path (group));
-
-    txt = avahi_string_list_new ("foo=bar", NULL);
-
-    avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AF_UNSPEC, "Lathiat's Site", "_http._tcp", "", "", 80, txt);
+    avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AF_UNSPEC, "Lathiat's Site", "_http._tcp", "", "", 80, "foo=bar", NULL);
 
     avahi_entry_group_commit (group);
 

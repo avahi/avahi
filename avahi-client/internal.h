@@ -29,8 +29,11 @@ struct AvahiClient {
     const AvahiPoll *poll_api;
     DBusConnection *bus;
     int error;
-    AvahiServerState state;
+    AvahiClientState state;
 
+    /* Cache for some seldom changing server data */
+    char *version_string, *host_name, *host_name_fqdn, *domain_name;
+    
     AvahiClientCallback callback;
     void *userdata;
     
@@ -42,6 +45,7 @@ struct AvahiClient {
 
 struct AvahiEntryGroup {
     char *path;
+    AvahiEntryGroupState state;
     AvahiClient *client;
     AvahiEntryGroupCallback callback;
     void *userdata;
@@ -73,8 +77,9 @@ struct AvahiServiceTypeBrowser {
 };
 
 int avahi_client_set_errno (AvahiClient *client, int error);
+int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error);
 
-void avahi_entry_group_state_change (AvahiEntryGroup *group, int state);
+void avahi_entry_group_set_state(AvahiEntryGroup *group, AvahiEntryGroupState state);
 
 DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 

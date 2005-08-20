@@ -27,7 +27,9 @@
 #include <avahi-common/cdecl.h>
 #include <dbus/dbus.h>
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
 #define AVAHI_DBUS_NAME "org.freedesktop.Avahi"
 #define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME".Server"
@@ -64,13 +66,14 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_INVALID_OBJECT "org.freedesktop.Avahi.InvalidObjectError"
 #define AVAHI_DBUS_ERR_NO_DAEMON "org.freedesktop.Avahi.NoDaemonError"
 
-
 /** Convert a DBus error string into an Avahi error number */
-int avahi_error_dbus_to_number (const char *s);
+int avahi_error_dbus_to_number(const char *s);
 
 /** Convert an Avahi error number into a DBus error string.  Result should not be freed */
-const char * avahi_error_number_to_dbus (int error);
+const char * avahi_error_number_to_dbus(int error);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

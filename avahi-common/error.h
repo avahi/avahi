@@ -26,7 +26,24 @@
 
 #include <avahi-common/cdecl.h>
 
+/** \mainpage
+ *
+ * \section Error Reporting
+ *
+ * Some notes on the Avahai erro handling:
+ *
+ * \li Error codes are negative integers and defined in the enum AVAHI_ERR_xx 
+ * \li If a function returns some kind of non-negative integer value on success, a failure is indicated by returning the error code directly.
+ * \li If a function returns a pointer of some kind on success, a failure is indicated by returning NULL
+ * \li The last error number may be retrieved by calling avahi_server_errno() (for the server API) or avahi_client_errno() (for the client API)
+ * \li Just like the libc errno the Avahi errno is NOT reset to AVAHI_OK if a function call succeeds.
+ * \li You may convert a numeric error code into a human readable string using avahi_strerror.c
+ * 
+ */
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
 /** Error codes used by avahi */
 enum { 
@@ -61,8 +78,7 @@ enum {
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
      ****    IT TO THE STRING ARRAY IN avahi_strerror() IN error.c AND
-     ****    TO THE ARRAY IN respond_error() IN dbus-protocol.c
-     ****    AND FINALLY TO dbus.h!
+     ****    TO THE ARRAY IN dbus.c AND FINALLY TO dbus.h!
      ****
      ****    Also remember to update the MAX value below.
      ****/
@@ -73,6 +89,8 @@ enum {
 /** Return a human readable error string for the specified error code */
 const char *avahi_strerror(int error);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

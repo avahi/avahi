@@ -29,6 +29,7 @@
 #include <avahi-common/strlst.h>
 #include <avahi-common/defs.h>
 #include <avahi-common/watch.h>
+#include <avahi-common/gccmacro.h>
 
 /** \file client.h Definitions and functions for the client API over D-Bus */
 
@@ -44,8 +45,11 @@ typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 
 /** States of a client object, note that AvahiServerStates are also emitted */
 typedef enum {
-    AVAHI_CLIENT_DISCONNECTED = 100, /**< Lost DBUS connection to the Avahi daemon */
-    AVAHI_CLIENT_RECONNECTED  = 101  /**< Regained connection to the daemon, all records need to be re-added */
+    AVAHI_CLIENT_S_INVALID = AVAHI_SERVER_INVALID,
+    AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,
+    AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,
+    AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,
+    AVAHI_CLIENT_DISCONNECTED = 100 /**< Lost DBUS connection to the Avahi daemon */
 } AvahiClientState;
 
 /** The function prototype for the callback of an AvahiClient */
@@ -70,16 +74,22 @@ AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback ca
 void avahi_client_free(AvahiClient *client);
 
 /** Get the version of the server */
-char* avahi_client_get_version_string (AvahiClient*);
+const char* avahi_client_get_version_string (AvahiClient*);
 
 /** Get host name */
-char* avahi_client_get_host_name (AvahiClient*);
+const char* avahi_client_get_host_name (AvahiClient*);
 
 /** Get domain name */
-char* avahi_client_get_domain_name (AvahiClient*);
+const char* avahi_client_get_domain_name (AvahiClient*);
 
 /** Get FQDN domain name */
-char* avahi_client_get_host_name_fqdn (AvahiClient*);
+const char* avahi_client_get_host_name_fqdn (AvahiClient*);
+
+/** Get state */
+AvahiClientState avahi_client_get_state(AvahiClient *client); 
+
+/** Get the last error number */
+int avahi_client_errno (AvahiClient*);
 
 /** Create a new AvahiEntryGroup object */
 AvahiEntryGroup* avahi_entry_group_new (AvahiClient*, AvahiEntryGroupCallback callback, void *userdata);
@@ -99,26 +109,47 @@ int avahi_entry_group_get_state (AvahiEntryGroup*);
 /** Check if an AvahiEntryGroup is empty */
 int avahi_entry_group_is_empty (AvahiEntryGroup*);
 
-/** Get the last error number */
-int avahi_client_errno (AvahiClient*);
-
 /** Get an AvahiEntryGroup's owning client instance */
 AvahiClient* avahi_entry_group_get_client (AvahiEntryGroup*);
 
+/** Add a service, takes a variable NULL terminated list of text records */
+int avahi_entry_group_add_service(
+    AvahiEntryGroup *group,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *host,
+    uint16_t port,
+    ...) AVAHI_GCC_SENTINEL;
+
 /** Add a service, takes an AvahiStringList for text records */
-int
-avahi_entry_group_add_service (AvahiEntryGroup *group,
-                               AvahiIfIndex interface,
-                               AvahiProtocol protocol,
-                               const char *name,
-                               const char *type,
-                               const char *domain,
-                               const char *host,
-                               uint16_t port,
-                               AvahiStringList *txt);
+int avahi_entry_group_add_service_strlst(
+    AvahiEntryGroup *group,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *host,
+    uint16_t port,
+    AvahiStringList *txt);
+
+/** Add a service, takes a NULL terminated va_list for text records */
+int avahi_entry_group_add_service_va(
+    AvahiEntryGroup *group,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *host,
+    uint16_t port,
+    va_list va);
 
 /** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */
-const char* avahi_entry_group_path (AvahiEntryGroup *);
+const char* avahi_entry_group_get_dbus_path (AvahiEntryGroup *);
 
 /** Browse for domains on the local network */
 AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,

@@ -23,20 +23,18 @@
 #include <config.h>
 #endif
 
-#include <avahi-client/client.h>
-#include <avahi-common/dbus.h>
-#include <avahi-common/llist.h>
-#include <avahi-common/error.h>
-#include <avahi-common/dbus.h>
-#include <avahi-common/malloc.h>
-#include <avahi-common/dbus-watch-glue.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <dbus/dbus.h>
 
-#include <stdlib.h>
+#include <avahi-common/dbus.h>
+#include <avahi-common/llist.h>
+#include <avahi-common/error.h>
+#include <avahi-common/dbus.h>
+#include <avahi-common/malloc.h>
+#include <avahi-common/dbus-watch-glue.h>
 
 #include "client.h"
 #include "internal.h"
@@ -46,75 +44,132 @@ int avahi_client_set_errno (AvahiClient *client, int error) {
 
     return client->error = error;
 }
-    
+
+int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error) {
+    assert(client);
+    assert(error);
+
+    return avahi_client_set_errno(client, avahi_error_dbus_to_number(error->name));
+}
+
 static void client_set_state (AvahiClient *client, AvahiServerState state) {
-    assert(state);
+    assert(client);
 
     if (client->state == state)
         return;
 
     client->state = state;
 
+    switch (client->state) {
+        case AVAHI_CLIENT_DISCONNECTED:
+            if (client->bus) {
+                dbus_connection_disconnect(client->bus);
+                dbus_connection_unref(client->bus);
+                client->bus = NULL;
+            }
+
+            /* Fall through */
+
+        case AVAHI_CLIENT_S_COLLISION:
+        case AVAHI_CLIENT_S_REGISTERING:
+
+            /* Clear cached strings */
+            avahi_free(client->host_name);
+            avahi_free(client->host_name_fqdn);
+            avahi_free(client->domain_name);
+
+            client->host_name =  NULL;
+            client->host_name_fqdn = NULL;
+            client->domain_name = NULL;
+            break;
+
+        case AVAHI_CLIENT_S_INVALID:
+        case AVAHI_CLIENT_S_RUNNING:
+            break;
+            
+    }
+    
     if (client->callback)
         client->callback (client, state, client->userdata);
 }
 
-static DBusHandlerResult
-filter_func (DBusConnection *bus, DBusMessage *message, void *data)
-{
-    AvahiClient *client = data;
+static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, void *userdata) {
+    AvahiClient *client = userdata;
     DBusError error;
+
+    assert(bus);
+    assert(message);
     
-    printf ("dbus: interface=%s, path=%s, member=%s\n",
+    dbus_error_init (&error);
+
+    fprintf(stderr, "dbus: interface=%s, path=%s, member=%s\n",
             dbus_message_get_interface (message),
             dbus_message_get_path (message),
             dbus_message_get_member (message));
 
-    dbus_error_init (&error);
+    if (client->state == AVAHI_CLIENT_DISCONNECTED)
+        goto fail;
 
-    if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
+    if (dbus_message_is_signal(message, DBUS_INTERFACE_LOCAL, "Disconnected")) {
+
+        /* The DBUS server died or kicked us */
+        client_set_state(client, AVAHI_CLIENT_DISCONNECTED);
+
+    } if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
         char *name, *old, *new;
-        dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, &old, DBUS_TYPE_STRING, &new, DBUS_TYPE_INVALID);
         
-        if (dbus_error_is_set (&error)) {
-            dbus_error_free (&error);
-            goto out;
+        if (!(dbus_message_get_args(
+                  message, &error,
+                  DBUS_TYPE_STRING, &name,
+                  DBUS_TYPE_STRING, &old,
+                  DBUS_TYPE_STRING, &new,
+                  DBUS_TYPE_INVALID) || dbus_error_is_set (&error))) {
+
+            fprintf(stderr, "WARNING: Failed to parse NameOwnerChanged signal: %s\n", error.message);
+            goto fail;
         }
 
-        if (strcmp (name, AVAHI_DBUS_NAME) == 0) {
+        if (strcmp(name, AVAHI_DBUS_NAME) == 0)
 
-            if (old == NULL && new != NULL) {
-                client_set_state (client, AVAHI_CLIENT_RECONNECTED);
-            } else if (old != NULL && new == NULL) {
-                client_set_state (client, AVAHI_CLIENT_DISCONNECTED);
-                /* XXX: we really need to expire all entry groups */
-            }
+            /* Regardless if the server lost or acquired its name or
+             * if the name was transfered: our services are no longer
+             * available, so we disconnect ourselves */
+            
+            client_set_state(client, AVAHI_CLIENT_DISCONNECTED);
+
+    } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged")) {
+        int32_t state;
+        
+        if (!(dbus_message_get_args(
+                  message, &error,
+                  DBUS_TYPE_INT32, &state,
+                  DBUS_TYPE_INVALID) || dbus_error_is_set (&error))) {
+            fprintf(stderr, "WARNING: Failed to parse Server.StateChanged signal: %s\n", error.message);
+            goto fail;
         }
-    } else if (dbus_message_is_signal (message, AVAHI_DBUS_NAME, "StateChanged")) {
-        /* XXX: todo */
-        printf ("server statechange\n");
+            
+        client_set_state(client, (AvahiClientState) state);
+
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged")) {
         const char *path;
-        AvahiEntryGroup *n, *group = NULL;
-        path = dbus_message_get_path (message);
+        AvahiEntryGroup *g;
+        path = dbus_message_get_path(message);
 
-        for (n = client->groups; n != NULL; n = n->groups_next)
-        {
-            if (strcmp (n->path, path) == 0)
-            {
-                group = n;
+        for (g = client->groups; g; g = g->groups_next)
+            if (strcmp(g->path, path) == 0)
                 break;
+        
+        if (g) {
+            int32_t state;
+            if (!(dbus_message_get_args (message, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID)) ||
+                dbus_error_is_set(&error)) {
+                fprintf(stderr, "WARNING: Failed to parse EntryGroup.StateChanged signal: %s\n", error.message);
+                goto fail;
             }
+            
+            avahi_entry_group_set_state(g, state);
         }
         
-        if (group != NULL) {
-            int state;
-            dbus_message_get_args (message, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID);
-            if (dbus_error_is_set (&error))
-                goto out;
-            
-            avahi_entry_group_state_change (group, state);
-        }
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemNew")) {
         return avahi_domain_browser_event (client, AVAHI_BROWSER_NEW, message);
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "ItemRemove")) {
@@ -131,14 +186,10 @@ filter_func (DBusConnection *bus, DBusMessage *message, void *data)
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
-out: 
+fail:
+
+    dbus_error_free (&error);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static int translate_dbus_error(const DBusError *error) {
-    assert(error);
-
-    return avahi_error_dbus_to_number (error->name);
 }
 
 static int get_server_state(AvahiClient *client, int *ret_error) {
@@ -169,7 +220,7 @@ static int get_server_state(AvahiClient *client, int *ret_error) {
 
 fail:
     if (dbus_error_is_set(&error)) {
-        e = translate_dbus_error(&error);
+        e = avahi_error_dbus_to_number (error.name);
         dbus_error_free(&error);
     } else
         e = AVAHI_ERR_NO_MEMORY;
@@ -196,7 +247,12 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     client->error = AVAHI_OK;
     client->callback = callback;
     client->userdata = userdata;
-    client->state = AVAHI_SERVER_INVALID;
+    client->state = AVAHI_CLIENT_DISCONNECTED;
+
+    client->host_name = NULL;
+    client->host_name_fqdn = NULL;
+    client->domain_name = NULL;
+    client->version_string = NULL;
 
     AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, client->groups);
     AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, client->domain_browsers);
@@ -204,11 +260,8 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, client->service_type_browsers);
 
     client->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-    if (dbus_error_is_set (&error)) {
-        if (ret_error)
-            *ret_error = translate_dbus_error(&error);
+    if (!client->bus || dbus_error_is_set (&error))
         goto fail;
-    }
 
     if (avahi_dbus_connection_glue(client->bus, poll_api) < 0) {
         if (ret_error)
@@ -230,11 +283,8 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
         "path='" AVAHI_DBUS_PATH_SERVER "'",
         &error);
 
-    if (dbus_error_is_set (&error)) {
-        if (ret_error)
-            *ret_error = translate_dbus_error(&error);
+    if (dbus_error_is_set (&error))
         goto fail;
-    }   
 
     dbus_bus_add_match (
         client->bus,
@@ -244,22 +294,23 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
         "path='" DBUS_PATH_DBUS "'",
         &error);
 
-    if (dbus_error_is_set (&error)) {
-        if (ret_error)
-            *ret_error = translate_dbus_error(&error);
+    if (dbus_error_is_set (&error))
         goto fail;
-    }
+
+        dbus_bus_add_match (
+        client->bus,
+        "type='signal', "
+        "interface='" DBUS_INTERFACE_LOCAL "'",
+        &error);
+
+    if (dbus_error_is_set (&error))
+        goto fail;
 
     if (!(dbus_bus_name_has_owner(client->bus, AVAHI_DBUS_NAME, &error))) {
 
-        if (dbus_error_is_set (&error)) {
-            if (ret_error)
-                *ret_error = translate_dbus_error(&error);
-            goto fail;
-        }
-        
         if (ret_error)
             *ret_error = AVAHI_ERR_NO_DAEMON;
+        
         goto fail;
     }
 
@@ -273,8 +324,13 @@ fail:
     if (client)
         avahi_client_free(client);
 
-    if (dbus_error_is_set(&error))
+    if (dbus_error_is_set(&error)) {
+
+        if (ret_error)
+            *ret_error = avahi_error_dbus_to_number(error.name);
+        
         dbus_error_free(&error);
+    }
         
     return NULL;
 }
@@ -298,88 +354,135 @@ void avahi_client_free(AvahiClient *client) {
 
     while (client->service_type_browsers)
         avahi_service_type_browser_free(client->service_type_browsers);
+
+    avahi_free(client->version_string);
+    avahi_free(client->host_name);
+    avahi_free(client->host_name_fqdn);
+    avahi_free(client->domain_name);
     
     avahi_free(client);
 }
 
-static char*
-avahi_client_get_string_reply_and_block (AvahiClient *client, const char *method, const char *param)
-{
-    DBusMessage *message;
-    DBusMessage *reply;
+static char* avahi_client_get_string_reply_and_block (AvahiClient *client, const char *method, const char *param) {
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
-    char *ret, *new;
+    char *ret, *n;
 
-    if (client == NULL || method == NULL) return NULL;
+    assert(client);
+    assert(method);
 
     dbus_error_init (&error);
 
-    message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, method);
+    if (!(message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, method))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
 
-    if (param != NULL)
-    {
-        if (!dbus_message_append_args (message, DBUS_TYPE_STRING, &param, DBUS_TYPE_INVALID))
-        {
-            avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
-            return NULL;
+    if (param) {
+        if (!dbus_message_append_args (message, DBUS_TYPE_STRING, &param, DBUS_TYPE_INVALID)) {
+            avahi_client_set_errno (client, AVAHI_ERR_NO_MEMORY);
+            goto fail;
         }
     }
     
     reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
 
-    if (dbus_error_is_set (&error))
-    {
-        dbus_error_free (&error);
-        dbus_message_unref (message);
+    if (!reply || dbus_error_is_set (&error))
+        goto fail;
 
-        avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
+    if (!dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID) ||
+        dbus_error_is_set (&error))
+        goto fail;
+    
+    if (!(n = avahi_strdup(ret))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+    
+    return n;
+
+fail:
+
+    if (message)
+        dbus_message_unref(message);
+    if (reply)
+        dbus_message_unref(reply);
+    
+    if (dbus_error_is_set(&error)) {
+        avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    return NULL;
+}
+
+const char* avahi_client_get_version_string (AvahiClient *client) {
+    assert(client);
+
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
 
-    if (reply == NULL)
-    {
-        dbus_message_unref (message);
+    if (!client->version_string)
+        client->version_string = avahi_client_get_string_reply_and_block(client, "GetVersionString", NULL);
 
-        avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
+    return client->version_string;
+}
+
+const char* avahi_client_get_domain_name (AvahiClient *client) {
+    assert(client);
+
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
 
-    dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID);
+    if (!client->domain_name)
+        client->domain_name = avahi_client_get_string_reply_and_block(client, "GetDomainName", NULL);
+    
+    return client->domain_name;
+}
 
-    if (dbus_error_is_set (&error))
-    {
-        dbus_error_free (&error);
-
-        avahi_client_set_errno (client, AVAHI_ERR_DBUS_ERROR);
+const char* avahi_client_get_host_name (AvahiClient *client) {
+    assert(client);
+    
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
 
-    new = avahi_strdup (ret);
-
-    avahi_client_set_errno (client, AVAHI_OK);
-    return new;
+    if (!client->host_name)
+        client->host_name = avahi_client_get_string_reply_and_block(client, "GetHostName", NULL);
+    
+    return client->host_name;
 }
 
-char*
-avahi_client_get_version_string (AvahiClient *client)
-{
-    return avahi_client_get_string_reply_and_block (client, "GetVersionString", NULL);
+const char* avahi_client_get_host_name_fqdn (AvahiClient *client) {
+    assert(client);
+
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
+        return NULL;
+    }
+    
+    if (!client->host_name_fqdn)
+        client->host_name_fqdn = avahi_client_get_string_reply_and_block(client, "GetHostNameFqdn", NULL);
+
+    return client->host_name_fqdn;
 }
 
-char*
-avahi_client_get_domain_name (AvahiClient *client)
-{
-    return avahi_client_get_string_reply_and_block (client, "GetDomainName", NULL);
+AvahiClientState avahi_client_get_state(AvahiClient *client) {
+    assert(client);
+
+    return client->state;
 }
 
-char*
-avahi_client_get_host_name (AvahiClient *client)
-{
-    return avahi_client_get_string_reply_and_block (client, "GetHostName", NULL);
-}
-
-char*
-avahi_client_get_host_name_fqdn (AvahiClient *client)
-{
-    return avahi_client_get_string_reply_and_block (client, "GetHostNameFqdn", NULL);
+int avahi_client_errno(AvahiClient *client) {
+    assert(client);
+    
+    return client->error;
 }

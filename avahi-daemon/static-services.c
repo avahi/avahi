@@ -395,7 +395,7 @@ static void XMLCALL xml_end(void *data, const char *el) {
             int protocol;
             assert(u->service);
 
-            if (u->buf & &strcasecmp (u->buf, "ipv4") == 0) {
+            if (u->buf && strcasecmp (u->buf, "ipv4") == 0) {
                 protocol = AVAHI_PROTO_INET;
             } else if (u->buf && strcasecmp (u->buf, "ipv6") == 0) {
                 protocol = AVAHI_PROTO_INET6;

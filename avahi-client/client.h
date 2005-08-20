@@ -33,6 +33,14 @@
 
 /** \file client.h Definitions and functions for the client API over D-Bus */
 
+/** \example client-publish-service.c Example how to register a DNS-SD
+ * service using the client interface to avahi-daemon. It behaves like a network
+ * printer registering both an IPP and a BSD LPR service. */
+
+/** \example client-browse-services.c Example how to browse for DNS-SD
+ * services using the client interface to avahi-daemon. */
+ 
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
 #endif

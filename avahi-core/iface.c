@@ -32,6 +32,7 @@
 #include <net/if.h>
 #include <stdio.h>
 
+#include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 
 #include "iface.h"

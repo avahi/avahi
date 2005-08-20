@@ -24,11 +24,11 @@
 
 /** \file core.h The Avahi Multicast DNS and DNS Service Discovery implmentation. */
 
-/** \example publish-service.c Example how to register a DNS-SD
+/** \example core-publish-service.c Example how to register a DNS-SD
  * service using an embedded mDNS stack. It behaves like a network
  * printer registering both an IPP and a BSD LPR service. */
 
-/** \example browse-services.c Example how to browse for DNS-SD
+/** \example core-browse-services.c Example how to browse for DNS-SD
  * services using an embedded mDNS stack. */
 
 #include <avahi-common/cdecl.h>
@@ -49,8 +49,6 @@ AVAHI_C_DECL_END
 
 #include <avahi-core/rr.h>
 #include <avahi-common/address.h>
-#include <avahi-common/alternative.h>
-#include <avahi-common/error.h>
 #include <avahi-common/defs.h>
 #include <avahi-common/watch.h>
 

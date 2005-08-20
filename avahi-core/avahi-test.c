@@ -32,9 +32,9 @@
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/simple-watch.h>
+#include <avahi-common/alternative.h>
 #include <avahi-core/core.h>
 #include <avahi-core/log.h>
-
 
 static AvahiSEntryGroup *group = NULL;
 static AvahiServer *server = NULL;

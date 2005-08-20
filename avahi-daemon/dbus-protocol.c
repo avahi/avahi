@@ -41,6 +41,8 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/dbus.h>
 #include <avahi-common/dbus-watch-glue.h>
+#include <avahi-common/alternative.h>
+#include <avahi-common/error.h>
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
 

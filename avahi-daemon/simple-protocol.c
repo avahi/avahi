@@ -34,6 +34,7 @@
 
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/error.h>
 #include <avahi-core/log.h>
 
 #include "simple-protocol.h"

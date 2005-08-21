@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "strlst.h"
 #include "malloc.h"
@@ -38,7 +39,10 @@ AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size)
     
     n->next = l;
     n->size = size;
-    
+
+    /* NUL terminate strings, just to make sure */
+    n->text[size] = 0;
+
     return n;
 }
 
@@ -52,7 +56,7 @@ AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const uint8
 
     if (size > 0)
         memcpy(n->text, text, size);
-    
+
     return n;
 }
 
@@ -282,4 +286,54 @@ unsigned avahi_string_list_length(const AvahiStringList *l) {
         n++;
 
     return n;
+}
+
+AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *format, va_list va) {
+    size_t len = 80;
+    AvahiStringList *r;
+    
+    assert(format);
+
+    if (!(r = avahi_malloc(sizeof(AvahiStringList) + len)))
+        return NULL;
+
+    for (;;) {
+        int n;
+        AvahiStringList *nr;
+        
+        n = vsnprintf((char*) r->text, len+1, format, va);
+
+        if (n >= 0 && n < (int) len)
+            break;
+
+        if (n >= 0)
+            len = n+1;
+        else
+            len *= 2;
+
+        if (!(nr = avahi_realloc(r, sizeof(AvahiStringList) + len))) {
+            avahi_free(r);
+            return NULL;
+        }
+
+        r = nr;
+    }
+
+    
+    r->next = l;
+    r->size = strlen((char*) r->text); 
+
+    return r;
+}
+
+AvahiStringList *avahi_string_list_add_printf(AvahiStringList *l, const char *format, ...) {
+    va_list va;
+    
+    assert(format);
+
+    va_start(va, format);
+    l  = avahi_string_list_add_vprintf(l, format, va);
+    va_end(va);
+
+    return l;    
 }

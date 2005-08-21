@@ -192,7 +192,7 @@ void avahi_set_allocator(const AvahiAllocator *a) {
 }
 
 char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
-    size_t len = 100;
+    size_t len = 80;
     char *buf;
     
     assert(fmt);

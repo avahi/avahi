@@ -66,6 +66,12 @@ void avahi_string_list_free(AvahiStringList *l);
  * start. */
 AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text);
 
+/** Append a new NUL terminated formatted string to the specified string list */
+AvahiStringList *avahi_string_list_add_printf(AvahiStringList *l, const char *format, ...) AVAHI_GCC_PRINTF_ATTR23;
+
+/** Append a new NUL terminated formatted string to the specified string list */
+AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *format, va_list va);
+
 /** Append an arbitrary length byte string to the list. Returns the
  * new list start. */
 AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const uint8_t *text, size_t size);

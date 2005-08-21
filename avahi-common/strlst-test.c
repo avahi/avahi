@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
     a = avahi_string_list_add(a, "quux");
     a = avahi_string_list_add_arbitrary(a, (const uint8_t*) "null\0null", 9);
     a = avahi_string_list_add(a, "end");
+    a = avahi_string_list_add_printf(a, "seven=%i %c", 7, 'x');
 
     t = avahi_string_list_to_string(a);
     printf("--%s--\n", t);

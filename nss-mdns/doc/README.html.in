@@ -42,6 +42,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Sun Aug 21 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.6.tar.gz">Version 0.6</a>
+released. Changes include: honour search list in
+<tt>/etc/resolv.conf</tt>; try to contact <a
+href="http://www.freedesktop.org/Software/Avahi">Avahi</a> for
+resolving.</p>
+
 <div class="news-date">Sat Jun 4 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.5.tar.gz">Version 0.5</a>
 released. Changes include: only lookup hostnames ending in
@@ -80,12 +87,16 @@ name resolution by common Unix/Linux programs in the ad-hoc mDNS domain <tt>.loc
 <p><tt>nss-mdns</tt> provides client functionality only, which
 means that you have to run a mDNS responder daemon seperately
 from <tt>nss-mdns</tt> if you want to register the local host name via
-mDNS (e.g. <a href="http://www.porchdogsoft.com/products/howl/">HOWL</a>).</p>
+mDNS (e.g. <a href="http://www.freedesktop.org/Software/Avahi">Avahi</a>).</p>
 
 <p><tt>nss-mdns</tt> is very lightweight (23 KByte stripped binary
 <tt>.so</tt> compiled with <tt>-DNDEBUG=1</tt> on i386, <tt>gcc</tt>
 3.3), has no dependencies besides the <tt>glibc</tt> and requires only
 minimal configuration.</p>
+
+<p>Optionally, <tt>nss-mdns</tt> can try to contact a running <a
+href="http://www.freedesktop.org/Software/Avahi">avahi-daemon</a> to
+make use of its superior record cacheing.</p>
 
 <h2><a name="status">Current Status</a></h2>
 
@@ -209,22 +220,24 @@ compilation and <tt>make install</tt> (as root) for installation of
 
 <p>SHIROYAMA Takayuki for a patch.</p>
 
+<p>Sean Meiners for search list support.</p>
+
 <h2><a name="download">Download</a></h2>
 
 <p>The newest release is always available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a></p>
 
 <p>The current release is <a href="@PACKAGE_URL@nss-mdns-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
 
-<p>Get <tt>nss-mdns</tt>'s development sources from the <a href="http://subversion.tigris.org/">Subversion</a> <a href="svn://seth.intheinter.net/nss-mdns">repository</a> (<a href="http://0pointer.de/cgi-bin/viewcvs.cgi/?root=nss-mdns">viewcvs</a>): </p>
+<p>Get <tt>nss-mdns</tt>'s development sources from the <a href="http://subversion.tigris.org/">Subversion</a> <a href="svn://svn.0pointer.de/nss-mdns">repository</a> (<a href="http://0pointer.de/cgi-bin/viewcvs.cgi/?root=nss-mdns">viewcvs</a>): </p>
 
-<pre>svn checkout svn://seth.intheinter.net/nss-mdns/trunk nss-mdns</pre>
+<pre>svn checkout svn://svn.0pointer.de/nss-mdns/trunk nss-mdns</pre>
 
 <p>You may find an up to date Debian package of <tt>nss-mdns</tt> on the <a href="http://packages.debian.org/libnss-mdns">Debian package repository</a>.</p>
 
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 
 <hr/>
-<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, June 2005</address>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, Aug 2005</address>
 <div class="grey"><i>$Id$</i></div>
 
 </body>

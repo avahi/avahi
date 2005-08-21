@@ -403,6 +403,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     server->poll_api = poll_api;
     server->bind_successful = 0;
     server->fd = -1;
+    server->n_clients = 0;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
     

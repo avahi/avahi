@@ -46,6 +46,30 @@ AC_PROG_GCC_TRADITIONAL
 # libtool stuff
 AC_PROG_LIBTOOL
 
+test_gcc_flag() {
+   AC_LANG_CONFTEST([int main() {}])
+   $CC -c conftest.c $CFLAGS $@ > /dev/null 2> /dev/null
+   ret=$?
+   rm -f conftest.o
+   return $ret
+}
+
+# If using GCC specify some additional parameters
+if test "x$GCC" = "xyes" ; then
+   
+   DESIRED_FLAGS="-std=c99 -Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wlarger-than-4000 -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
+
+   for flag in $DESIRED_FLAGS ; do
+       AC_MSG_CHECKING([whether $CC accepts $flag])
+       if test_gcc_flag $flag ; then 
+          CFLAGS="$CFLAGS $flag"
+          AC_MSG_RESULT([yes])
+       else
+          AC_MSG_RESULT([no])
+       fi
+   done 
+fi
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h limits.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
@@ -67,15 +91,6 @@ AC_FUNC_CHOWN
 AC_FUNC_STAT
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
-
-# If using GCC specify some additional parameters
-if test "x$GCC" = "xyes" ; then
-   CFLAGS="$CFLAGS -pipe -W -Wall -pedantic"
-
-   AC_LANG_CONFTEST([int main() {}])
-   $CC -c conftest.c -std=c99 -Wno-unused-parameter $CFLAGS > /dev/null 2> /dev/null && CFLAGS="$CFLAGS -std=c99 -Wno-unused-parameter"
-   rm -f conftest.o
-fi
 
 PKG_PROG_PKG_CONFIG
 

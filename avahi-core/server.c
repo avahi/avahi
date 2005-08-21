@@ -713,9 +713,10 @@ static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {
     if (!(slot = avahi_new(AvahiLegacyUnicastReflectSlot, 1)))
         return NULL; /* OOM */
 
-    slot = s->legacy_unicast_reflect_slots[idx];
+    s->legacy_unicast_reflect_slots[idx] = slot;
     slot->id = s->legacy_unicast_reflect_id++;
     slot->server = s;
+    
     return slot;
 }
 

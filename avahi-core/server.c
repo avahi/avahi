@@ -1472,15 +1472,14 @@ static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiPr
         if ((flags & AVAHI_ENTRY_ALLOWMUTIPLE) && (e->flags & AVAHI_ENTRY_ALLOWMUTIPLE) )
             continue;
 
-        if (interface <= 0 ||
-            e->interface <= 0 ||
-            e->interface == interface ||
-            protocol == AVAHI_PROTO_UNSPEC ||
-            e->protocol == AVAHI_PROTO_UNSPEC ||
-            e->protocol == protocol)
+        if ((interface <= 0 ||
+             e->interface <= 0 ||
+             e->interface == interface) &&
+            (protocol == AVAHI_PROTO_UNSPEC ||
+             e->protocol == AVAHI_PROTO_UNSPEC ||
+             e->protocol == protocol))
 
             return -1;
-
     }
 
     return 0;

@@ -25,6 +25,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <avahi-common/domain.h>
 #include <avahi-common/timeval.h>
@@ -32,6 +33,8 @@
 #include <avahi-common/error.h>
 
 #include "browse.h"
+
+#define TIMEOUT_MSEC 1000
 
 struct AvahiSServiceResolver {
     AvahiServer *server;
@@ -60,26 +63,6 @@ struct AvahiSServiceResolver {
 
 static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
     assert(r);
-
-    if (r->record_browser_a) {
-        avahi_s_record_browser_free(r->record_browser_a);
-        r->record_browser_a = NULL;
-    }
-
-    if (r->record_browser_aaaa) {
-        avahi_s_record_browser_free(r->record_browser_aaaa);
-        r->record_browser_aaaa = NULL;
-    }
-
-    if (r->record_browser_srv) {
-        avahi_s_record_browser_free(r->record_browser_srv);
-        r->record_browser_srv = NULL;
-    }
-
-    if (r->record_browser_txt) {
-        avahi_s_record_browser_free(r->record_browser_txt);
-        r->record_browser_txt = NULL;
-    }
 
     if (r->time_event) {
         avahi_time_event_free(r->time_event);
@@ -125,68 +108,6 @@ static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
     }
 }
 
-static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
-    AvahiSServiceResolver *r = userdata;
-
-    assert(rr);
-    assert(record);
-    assert(r);
-
-    if (!(event == AVAHI_BROWSER_NEW))
-        return;
-
-    if (r->interface > 0 && interface != r->interface)
-        return;
-
-    if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
-        return;
-    
-    if (r->interface <= 0)
-        r->interface = interface;
-
-    if (r->protocol == AVAHI_PROTO_UNSPEC)
-        r->protocol = protocol;
-    
-    switch (record->key->type) {
-        case AVAHI_DNS_TYPE_SRV:
-            if (!r->srv_record) {
-                r->srv_record = avahi_record_ref(record);
-
-                assert(!r->record_browser_a && !r->record_browser_aaaa);
-                
-                if (r->address_protocol == AVAHI_PROTO_INET || r->address_protocol == AVAHI_PROTO_UNSPEC) {
-                    AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
-                    r->record_browser_a = avahi_s_record_browser_new(r->server, r->interface, r->protocol, k, record_browser_callback, r);
-                    avahi_key_unref(k);
-                } 
-                
-                if (r->address_protocol == AVAHI_PROTO_INET6 || r->address_protocol == AVAHI_PROTO_UNSPEC) {
-                    AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
-                    r->record_browser_aaaa = avahi_s_record_browser_new(r->server, r->interface, r->protocol, k, record_browser_callback, r);
-                    avahi_key_unref(k);
-                }
-            }
-            break;
-            
-        case AVAHI_DNS_TYPE_TXT:
-            if (!r->txt_record)
-                r->txt_record = avahi_record_ref(record);
-            break;
-
-        case AVAHI_DNS_TYPE_A:
-        case AVAHI_DNS_TYPE_AAAA:
-            if (!r->address_record)
-                r->address_record = avahi_record_ref(record);
-            break;
-            
-        default:
-            assert(0);
-    }
-
-    if (r->txt_record && r->srv_record && r->address_record)
-        finish(r, AVAHI_RESOLVER_FOUND);
-}
-
 static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     AvahiSServiceResolver *r = userdata;
     
@@ -196,10 +117,138 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     finish(r, AVAHI_RESOLVER_TIMEOUT);
 }
 
+static void start_timeout(AvahiSServiceResolver *r) {
+    struct timeval tv;
+    assert(r);
+
+    if (r->time_event)
+        return;
+    
+    avahi_elapse_time(&tv, TIMEOUT_MSEC, 0);
+    r->time_event = avahi_time_event_new(r->server->time_event_queue, &tv, time_event_callback, r);
+}
+
+static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
+    AvahiSServiceResolver *r = userdata;
+
+    assert(rr);
+    assert(record);
+    assert(r);
+
+    if (event == AVAHI_BROWSER_NEW) {
+        int changed = 0;
+
+        if (r->interface > 0 && interface != r->interface)
+            return;
+        
+        if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
+            return;
+        
+        if (r->interface <= 0)
+            r->interface = interface;
+        
+        if (r->protocol == AVAHI_PROTO_UNSPEC)
+            r->protocol = protocol;
+        
+        switch (record->key->type) {
+            case AVAHI_DNS_TYPE_SRV:
+                if (!r->srv_record) {
+                    r->srv_record = avahi_record_ref(record);
+                    changed = 1;
+                    
+                    assert(!r->record_browser_a && !r->record_browser_aaaa);
+                    
+                    if (r->address_protocol == AVAHI_PROTO_INET || r->address_protocol == AVAHI_PROTO_UNSPEC) {
+                        AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);
+                        r->record_browser_a = avahi_s_record_browser_new(r->server, r->interface, r->protocol, k, record_browser_callback, r);
+                        avahi_key_unref(k);
+                    } 
+                    
+                    if (r->address_protocol == AVAHI_PROTO_INET6 || r->address_protocol == AVAHI_PROTO_UNSPEC) {
+                        AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
+                        r->record_browser_aaaa = avahi_s_record_browser_new(r->server, r->interface, r->protocol, k, record_browser_callback, r);
+                        avahi_key_unref(k);
+                    }
+                }
+                break;
+                
+            case AVAHI_DNS_TYPE_TXT:
+                if (!r->txt_record) {
+                    r->txt_record = avahi_record_ref(record);
+                    changed = 1;
+                }
+                break;
+                
+            case AVAHI_DNS_TYPE_A:
+            case AVAHI_DNS_TYPE_AAAA:
+                if (!r->address_record) {
+                    r->address_record = avahi_record_ref(record);
+                    changed = 1;
+                }
+                break;
+                
+            default:
+                abort();
+        }
+
+
+        if (changed && r->txt_record && r->srv_record && r->address_record)
+            finish(r, AVAHI_RESOLVER_FOUND);
+
+    } else {
+        assert(event == AVAHI_BROWSER_REMOVE);
+
+        switch (record->key->type) {
+            case AVAHI_DNS_TYPE_SRV:
+
+                if (avahi_record_equal_no_ttl(record, r->srv_record)) {
+                    avahi_record_unref(r->srv_record);
+                    r->srv_record = NULL;
+
+                    /** Look for a replacement */
+                    avahi_s_record_browser_restart(r->record_browser_srv);
+                    start_timeout(r);
+                }
+                
+                break;
+
+            case AVAHI_DNS_TYPE_TXT:
+
+                if (avahi_record_equal_no_ttl(record, r->txt_record)) {
+                    avahi_record_unref(r->txt_record);
+                    r->txt_record = NULL;
+
+                    /** Look for a replacement */
+                    avahi_s_record_browser_restart(r->record_browser_txt);
+                    start_timeout(r);
+                }
+                break;
+
+            case AVAHI_DNS_TYPE_A:
+            case AVAHI_DNS_TYPE_AAAA:
+
+                if (avahi_record_equal_no_ttl(record, r->address_record)) {
+                    avahi_record_unref(r->address_record);
+                    r->address_record = NULL;
+
+                    /** Look for a replacement */
+                    if (r->record_browser_aaaa)
+                        avahi_s_record_browser_restart(r->record_browser_aaaa);
+                    if (r->record_browser_a)
+                        avahi_s_record_browser_restart(r->record_browser_a);
+                    start_timeout(r);
+                }
+                break;
+
+            default:
+                abort();
+        }
+    }
+}
+
 AvahiSServiceResolver *avahi_s_service_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, AvahiProtocol aprotocol, AvahiSServiceResolverCallback callback, void* userdata) {
     AvahiSServiceResolver *r;
     AvahiKey *k;
-    struct timeval tv;
     char t[256], *n;
     size_t l;
     
@@ -246,8 +295,8 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(AvahiServer *server, AvahiIf
     avahi_escape_label((const uint8_t*) name, strlen(name), &n, &l);
     snprintf(n, l, ".%s.%s", r->service_type, r->domain_name);
 
-    avahi_elapse_time(&tv, 1000, 0);
-    r->time_event = avahi_time_event_new(server->time_event_queue, &tv, time_event_callback, r);
+    r->time_event = NULL;
+    start_timeout(r);
     
     AVAHI_LLIST_PREPEND(AvahiSServiceResolver, resolver, server->service_resolvers, r);
 

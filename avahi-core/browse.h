@@ -34,6 +34,8 @@ int avahi_is_subscribed(AvahiServer *s, AvahiInterface *i, AvahiKey *k);
 
 void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b);
 
+void avahi_s_record_browser_restart(AvahiSRecordBrowser *b);
+
 void avahi_browser_new_interface(AvahiServer*s, AvahiInterface *i);
 
 #endif

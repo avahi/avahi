@@ -126,6 +126,17 @@ static void scan_callback(AvahiTimeEvent *e, void *userdata) {
     }
 }
 
+void avahi_s_record_browser_restart(AvahiSRecordBrowser *b) {
+    assert(b);
+
+    if (!b->scan_time_event) {
+        b->scan_time_event = avahi_time_event_new(b->server->time_event_queue, NULL, scan_callback, b);
+        assert(b->scan_time_event);
+    }
+
+    avahi_server_post_query(b->server, b->interface, b->protocol, b->key);
+}
+
 AvahiSRecordBrowser *avahi_s_record_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key, AvahiSRecordBrowserCallback callback, void* userdata) {
     AvahiSRecordBrowser *b, *t;
     struct timeval tv;

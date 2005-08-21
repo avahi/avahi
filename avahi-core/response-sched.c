@@ -29,9 +29,16 @@
 #include "response-sched.h"
 #include "log.h"
 
+/* Local packets are supressed this long after sending them */
 #define AVAHI_RESPONSE_HISTORY_MSEC 500
+
+/* Local packets are deferred this long before sending them */
 #define AVAHI_RESPONSE_DEFER_MSEC 20
+
+/* Additional jitter for deferred packets */
 #define AVAHI_RESPONSE_JITTER_MSEC 100
+
+/* Remote packets can suppress local traffic as long as this value */
 #define AVAHI_RESPONSE_SUPPRESS_MSEC 700
 
 typedef struct AvahiResponseJob AvahiResponseJob;

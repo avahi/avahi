@@ -53,6 +53,31 @@ SUBDIRS = \
 	man \
 	tests
 
+DX_INPUT = \
+	$(srcdir)/avahi-common/cdecl.h \
+	$(srcdir)/avahi-core/core.h \
+	$(srcdir)/avahi-common/address.h \
+	$(srcdir)/avahi-core/rr.h \
+	$(srcdir)/avahi-common/strlst.h \
+	$(srcdir)/avahi-common/alternative.h \
+	$(srcdir)/avahi-core/log.h \
+	$(srcdir)/avahi-common/defs.h \
+	$(srcdir)/avahi-client/client.h \
+	$(srcdir)/avahi-common/error.h \
+	$(srcdir)/avahi-common/malloc.h \
+	$(srcdir)/avahi-common/domain.h \
+	$(srcdir)/avahi-common/gccmacro.h \
+	$(srcdir)/avahi-common/watch.h \
+	$(srcdir)/avahi-common/simple-watch.h \
+	$(srcdir)/avahi-glib/glib-watch.h \
+	$(srcdir)/avahi-glib/glib-malloc.h \
+	$(srcdir)/avahi-common/timeval.h \
+	$(srcdir)/avahi-common/dbus.h
+
+DX_EXAMPLE_PATH = $(srcdir)/examples
+
+DX_EXAMPLE_PATTERNS = *.c
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc
 

@@ -341,8 +341,6 @@ avahi-discover-standalone/Makefile
 avahi-client/Makefile 
 initscript/Makefile 
 initscript/Debian/Makefile
-initscript/Gentoo/Makefile
-initscript/SUSE/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-utils/avahi/Makefile

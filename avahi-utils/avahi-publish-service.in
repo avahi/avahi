@@ -83,17 +83,19 @@ def add_service():
 
     if group is None:
         group = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.EntryGroupNew()), avahi.DBUS_INTERFACE_ENTRY_GROUP)
-
+        group.connect_to_signal('StateChanged', entry_group_state_changed)
+        
     assert group.IsEmpty()
 
     print "Adding service '%s' of type '%s' ..." % (name, stype)
-    group.connect_to_signal('StateChanged', entry_group_state_changed)
 
     group.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, stype, domain, host, dbus.UInt16(port), avahi.string_array_to_txt_array(txt))
     group.Commit()
 
 def entry_group_state_changed(state):
     global name, server, n_rename
+
+#    print "state change: %i" % state
     
     if state == avahi.ENTRY_GROUP_ESTABLISHED:
         print "Service established."

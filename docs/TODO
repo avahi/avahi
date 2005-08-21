@@ -2,13 +2,14 @@ todo:
 * release!
 
 later:
-* drop glib from avahi-daemon
+* add support for an async HostnameResolver to DBUS
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec
   * Defer unicast responses the same way as multicast responses 
 
 done:
+* drop glib from avahi-daemon
 * doxygen updates
 * deal with no local interface
 * Probing/Conflict resolution

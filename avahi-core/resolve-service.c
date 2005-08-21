@@ -75,6 +75,8 @@ static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
         AvahiAddress a;
         char sn[256], st[256];
         size_t i;
+
+        assert(event == AVAHI_RESOLVER_FOUND);
         
         assert(r->srv_record);
         assert(r->txt_record);

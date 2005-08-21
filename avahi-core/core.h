@@ -506,7 +506,7 @@ typedef void (*AvahiSServiceResolverCallback)(
     AvahiSServiceResolver *r,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    AvahiResolverEvent event,
+    AvahiResolverEvent event,  /**< Is AVAHI_RESOLVER_FOUND when the service was resolved successfully, and everytime it changes. Is AVAHI_RESOLVER_TIMOUT when the service failed to resolve or disappeared. */
     const char *name,       /**< Service name */
     const char *type,       /**< Service Type */
     const char *domain,
@@ -516,7 +516,7 @@ typedef void (*AvahiSServiceResolverCallback)(
     AvahiStringList *txt,    /**< TXT record data */
     void* userdata);
 
-/** Create a new AvahiSServiceResolver object */
+/** Create a new AvahiSServiceResolver object. The specified callback function will be called with the resolved service data. */
 AvahiSServiceResolver *avahi_s_service_resolver_new(
     AvahiServer *server,
     AvahiIfIndex interface,

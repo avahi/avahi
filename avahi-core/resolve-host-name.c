@@ -23,6 +23,8 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h>
+
 #include <avahi-common/domain.h>
 #include <avahi-common/timeval.h>
 #include <avahi-common/malloc.h>
@@ -30,6 +32,8 @@
 
 #include "browse.h"
 #include "log.h"
+
+#define TIMEOUT_MSEC 1000
 
 struct AvahiSHostNameResolver {
     AvahiServer *server;
@@ -41,49 +45,68 @@ struct AvahiSHostNameResolver {
     AvahiSHostNameResolverCallback callback;
     void* userdata;
 
+    AvahiRecord *address_record;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
+
     AvahiTimeEvent *time_event;
 
     AVAHI_LLIST_FIELDS(AvahiSHostNameResolver, resolver);
 };
 
-static void finish(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiRecord *record) {
-    AvahiAddress a;
-    
+static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
     assert(r);
-
-    if (r->record_browser_a) {
-        avahi_s_record_browser_free(r->record_browser_a);
-        r->record_browser_a = NULL;
-    }
-
-    if (r->record_browser_aaaa) {
-        avahi_s_record_browser_free(r->record_browser_aaaa);
-        r->record_browser_aaaa = NULL;
-    }
 
     if (r->time_event) {
         avahi_time_event_free(r->time_event);
         r->time_event = NULL;
     }
 
-    if (record) {
-        switch (record->key->type) {
+    if (event == AVAHI_RESOLVER_TIMEOUT)
+        r->callback(r, r->interface, r->protocol, AVAHI_RESOLVER_TIMEOUT, r->host_name, NULL, r->userdata);
+    else {
+        AvahiAddress a;
+    
+        assert(event == AVAHI_RESOLVER_FOUND);
+        assert(r->address_record);
+    
+        switch (r->address_record->key->type) {
             case AVAHI_DNS_TYPE_A:
                 a.family = AVAHI_PROTO_INET;
-                a.data.ipv4 = record->data.a.address;
+                a.data.ipv4 = r->address_record->data.a.address;
                 break;
                 
             case AVAHI_DNS_TYPE_AAAA:
                 a.family = AVAHI_PROTO_INET6;
-                a.data.ipv6 = record->data.aaaa.address;
+                a.data.ipv6 = r->address_record->data.aaaa.address;
                 break;
                 
             default:
-                assert(0);
+                abort();
         }
-    }
 
-    r->callback(r, interface, protocol, event, record ? record->key->name : r->host_name, record ? &a : NULL, r->userdata);
+        r->callback(r, r->interface, r->protocol, AVAHI_RESOLVER_FOUND, r->address_record->key->name, &a, r->userdata);
+    }
+}
+
+static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
+    AvahiSHostNameResolver *r = userdata;
+    
+    assert(e);
+    assert(r);
+
+    finish(r, AVAHI_RESOLVER_TIMEOUT);
+}
+
+static void start_timeout(AvahiSHostNameResolver *r) {
+    struct timeval tv;
+    assert(r);
+
+    if (r->time_event)
+        return;
+
+    avahi_elapse_time(&tv, TIMEOUT_MSEC, 0);
+    r->time_event = avahi_time_event_new(r->server->time_event_queue, &tv, time_event_callback, r);
 }
 
 static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
@@ -93,26 +116,49 @@ static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interfa
     assert(record);
     assert(r);
 
-    if (!(event == AVAHI_BROWSER_NEW))
-        return;
-    
     assert(record->key->type == AVAHI_DNS_TYPE_A || record->key->type == AVAHI_DNS_TYPE_AAAA);
-    finish(r, interface, protocol, AVAHI_RESOLVER_FOUND, record);
-}
-
-static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
-    AvahiSHostNameResolver *r = userdata;
     
-    assert(e);
-    assert(r);
+    if (event == AVAHI_BROWSER_NEW) {
 
-    finish(r, -1, AVAHI_PROTO_UNSPEC, AVAHI_RESOLVER_TIMEOUT, NULL);
+        if (r->interface > 0 && interface != r->interface)
+            return;
+        
+        if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
+            return;
+        
+        if (r->interface <= 0)
+            r->interface = interface;
+        
+        if (r->protocol == AVAHI_PROTO_UNSPEC)
+            r->protocol = protocol;
+        
+        if (!r->address_record) {
+            r->address_record = avahi_record_ref(record);
+            
+            finish(r, AVAHI_RESOLVER_FOUND);
+        }
+    } else {
+
+        assert(event == AVAHI_BROWSER_REMOVE);
+
+        if (avahi_record_equal_no_ttl(record, r->address_record)) {
+            avahi_record_unref(r->address_record);
+            r->address_record = NULL;
+
+            /** Look for a replacement */
+            if (r->record_browser_aaaa)
+                avahi_s_record_browser_restart(r->record_browser_aaaa);
+            if (r->record_browser_a)
+                avahi_s_record_browser_restart(r->record_browser_a);
+
+            start_timeout(r);
+        }
+    }
 }
 
 AvahiSHostNameResolver *avahi_s_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *host_name, AvahiProtocol aprotocol, AvahiSHostNameResolverCallback callback, void* userdata) {
     AvahiSHostNameResolver *r;
     AvahiKey *k;
-    struct timeval tv;
     
     assert(server);
     assert(host_name);
@@ -134,11 +180,14 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(AvahiServer *server, Avah
     r->host_name = avahi_normalize_name(host_name);
     r->callback = callback;
     r->userdata = userdata;
+    r->address_record = NULL;
+    r->interface = interface;
+    r->protocol = protocol;
 
     r->record_browser_a = r->record_browser_aaaa = NULL;
-        
-    avahi_elapse_time(&tv, 1000, 0);
-    r->time_event = avahi_time_event_new(server->time_event_queue, &tv, time_event_callback, r);
+
+    r->time_event = NULL;
+    start_timeout(r);
 
     AVAHI_LLIST_PREPEND(AvahiSHostNameResolver, resolver, server->host_name_resolvers, r);
 
@@ -184,6 +233,9 @@ void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r) {
 
     if (r->time_event)
         avahi_time_event_free(r->time_event);
+
+    if (r->address_record)
+        avahi_record_unref(r->address_record);
     
     avahi_free(r->host_name);
     avahi_free(r);

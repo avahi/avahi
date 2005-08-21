@@ -114,6 +114,7 @@ endif
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 homepage:
+	$(MAKE) -C man
 	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
 	    man/*.xml man/xmltoman.dtd man/xmltoman.xsl \
 	    fdo:public_html/

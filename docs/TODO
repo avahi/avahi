@@ -1,5 +1,6 @@
 todo:
-* release!
+* Add asynchronous interface for AvahiServerResolver to DBUS
+* release 0.2!
 
 later:
 * add support for an async HostnameResolver to DBUS

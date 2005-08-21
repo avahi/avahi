@@ -21,9 +21,7 @@ AM_CFLAGS=-I$(top_srcdir)
 
 noinst_PROGRAMS = \
 	core-publish-service \
-	core-browse-services \
-	client-publish-service \
-	client-browse-services
+	core-browse-services
 
 core_publish_service_SOURCES = core-publish-service.c
 core_publish_service_CFLAGS = $(AM_CFLAGS)
@@ -33,6 +31,12 @@ core_browse_services_SOURCES = core-browse-services.c
 core_browse_services_CFLAGS = $(AM_CFLAGS)
 core_browse_services_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
+
+if HAVE_DBUS
+
+noinst_PROGRAMS += \
+	client-publish-service \
+	client-browse-services
 client_publish_service_SOURCES = client-publish-service.c
 client_publish_service_CFLAGS = $(AM_CFLAGS)
 client_publish_service_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
@@ -40,3 +44,5 @@ client_publish_service_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ..
 client_browse_services_SOURCES = client-browse-services.c
 client_browse_services_CFLAGS = $(AM_CFLAGS)
 client_browse_services_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
+
+endif

@@ -78,6 +78,18 @@ static void test_free_entry_group (AvahiTimeout *timeout, void* userdata)
     avahi_entry_group_free (g);
 }
 
+static void test_entry_group_reset (AvahiTimeout *timeout, void* userdata)
+{
+    AvahiEntryGroup *g = userdata;
+
+    printf ("XXX: resetting entry group\n");
+    avahi_entry_group_reset (g);
+
+    avahi_entry_group_add_service (g, AVAHI_IF_UNSPEC, AF_UNSPEC, "Lathiat's Site", "_http._tcp", "", "", 80, "foo=bar2", NULL);
+
+    avahi_entry_group_commit (g);
+}
+
 static void terminate(AvahiTimeout *timeout, void *userdata) {
 
     avahi_simple_poll_quit(simple_poll);
@@ -146,12 +158,14 @@ int main (int argc, char *argv[]) {
         printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_get_dbus_path (sb));
 
 
-    avahi_elapse_time(&tv, 5000, 0);
-    poll_api->timeout_new(poll_api, &tv, test_free_entry_group, group);
     avahi_elapse_time(&tv, 8000, 0);
+    poll_api->timeout_new(poll_api, &tv, test_entry_group_reset, group);
+    avahi_elapse_time(&tv, 20000, 0);
+    poll_api->timeout_new(poll_api, &tv, test_free_entry_group, group);
+    avahi_elapse_time(&tv, 25000, 0);
     poll_api->timeout_new(poll_api, &tv, test_free_domain_browser, sb);
 
-    avahi_elapse_time(&tv, 20000, 0);
+    avahi_elapse_time(&tv, 30000, 0);
     poll_api->timeout_new(poll_api, &tv, terminate, NULL);
 
     for (;;)

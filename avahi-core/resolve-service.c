@@ -200,10 +200,11 @@ static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interfa
     } else {
         assert(event == AVAHI_BROWSER_REMOVE);
 
+        
         switch (record->key->type) {
             case AVAHI_DNS_TYPE_SRV:
 
-                if (avahi_record_equal_no_ttl(record, r->srv_record)) {
+                if (r->srv_record && avahi_record_equal_no_ttl(record, r->srv_record)) {
                     avahi_record_unref(r->srv_record);
                     r->srv_record = NULL;
 
@@ -216,7 +217,7 @@ static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interfa
 
             case AVAHI_DNS_TYPE_TXT:
 
-                if (avahi_record_equal_no_ttl(record, r->txt_record)) {
+                if (r->txt_record && avahi_record_equal_no_ttl(record, r->txt_record)) {
                     avahi_record_unref(r->txt_record);
                     r->txt_record = NULL;
 
@@ -229,7 +230,7 @@ static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interfa
             case AVAHI_DNS_TYPE_A:
             case AVAHI_DNS_TYPE_AAAA:
 
-                if (avahi_record_equal_no_ttl(record, r->address_record)) {
+                if (r->address_record && avahi_record_equal_no_ttl(record, r->address_record)) {
                     avahi_record_unref(r->address_record);
                     r->address_record = NULL;
 

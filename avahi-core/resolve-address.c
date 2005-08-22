@@ -121,7 +121,7 @@ static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interfa
         
         assert(event == AVAHI_BROWSER_REMOVE);
         
-        if (avahi_record_equal_no_ttl(record, r->ptr_record)) {
+        if (r->ptr_record && avahi_record_equal_no_ttl(record, r->ptr_record)) {
             avahi_record_unref(r->ptr_record);
             r->ptr_record = NULL;
 

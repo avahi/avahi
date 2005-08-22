@@ -78,7 +78,10 @@ typedef struct {
     int daemonize;
     int use_syslog;
     char *config_file;
+#ifdef HAVE_DBUS
     int enable_dbus;
+    int fail_on_missing_dbus;
+#endif
     int drop_root;
     int publish_resolv_conf;
     char ** publish_dns_servers;
@@ -380,8 +383,20 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.check_response_ttl = is_yes(p->value);
                 else if (strcasecmp(p->key, "use-iff-running") == 0)
                     c->server_config.use_iff_running = is_yes(p->value);
-                else if (strcasecmp(p->key, "enable-dbus") == 0)
-                    c->enable_dbus = is_yes(p->value);
+#ifdef HAVE_DBUS                
+                else if (strcasecmp(p->key, "enable-dbus") == 0) {
+
+                    if (*(p->value) == 'w' || *(p->value) == 'W') {
+                        c->fail_on_missing_dbus = 0;
+                        c->enable_dbus = 1;
+                    } else if (*(p->value) == 'y' || *(p->value) == 'Y') {
+                        c->fail_on_missing_dbus = 1;
+                        c->enable_dbus = 1;
+                    } else
+                        c->enable_dbus = 0;
+                    
+                }
+#endif
                 else if (strcasecmp(p->key, "drop-root") == 0)
                     c->drop_root = is_yes(p->value);
                 else {
@@ -587,8 +602,14 @@ static int run_server(DaemonConfig *c) {
     
 #ifdef HAVE_DBUS
     if (c->enable_dbus)
-        if (dbus_protocol_setup(poll_api) < 0)
-            goto finish;
+        if (dbus_protocol_setup(poll_api) < 0) {
+
+            if (c->fail_on_missing_dbus)
+                goto finish;
+
+            avahi_log_warn("WARNING: Failed to contact D-BUS daemon, disabling D-BUS support.");
+            c->enable_dbus = 0;
+        }
 #endif
     
     load_resolv_conf(c);
@@ -825,7 +846,10 @@ int main(int argc, char *argv[]) {
     config.command = DAEMON_RUN;
     config.daemonize = 0;
     config.config_file = NULL;
+#ifdef HAVE_DBUS
     config.enable_dbus = 1;
+    config.fail_on_missing_dbus = 1;
+#endif
     config.drop_root = 1;
     config.publish_dns_servers = NULL;
     config.publish_resolv_conf = 0;

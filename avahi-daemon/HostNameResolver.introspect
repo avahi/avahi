@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<?xml-stylesheet type="text/xsl" href="introspect.xsl"?>
+<!DOCTYPE node SYSTEM "introspect.dtd">
+<node>
+  
+  <!-- $Id$ -->
+
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg name="data" type="s" direction="out" />
+    </method>
+  </interface>
+
+  <interface name="org.freedesktop.Avahi.ServiceResolver">
+
+    <method name="Free"/>
+      
+    <signal name="Found">
+      <arg name="interface" type="i" direction="out"/>
+      <arg name="protocol" type="i" direction="out"/>
+      <arg name="name" type="s" direction="out"/>
+      <arg name="aprotocol" type="i" direction="out"/>
+      <arg name="address" type="s" direction="out"/>
+    </signal>
+
+    <signal name="Timeout"/>
+
+  </interface> 
+</node>

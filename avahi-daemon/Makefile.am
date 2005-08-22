@@ -88,7 +88,10 @@ introspection_DATA = \
 	EntryGroup.introspect \
 	DomainBrowser.introspect \
 	ServiceTypeBrowser.introspect \
-	ServiceBrowser.introspect
+	ServiceBrowser.introspect \
+	ServiceResolver.introspect \
+	AddressResolver.introspect \
+	HostNameResolver.introspect
 
 endif
 endif
@@ -112,8 +115,6 @@ EXTRA_DIST = \
 
 xmllint:
 	xmllint --noout --valid example.service
-	xmllint --noout --valid Server.introspect
-	xmllint --noout --valid EntryGroup.introspect
-	xmllint --noout --valid DomainBrowser.introspect
-	xmllint --noout --valid ServiceTypeBrowser.introspect
-	xmllint --noout --valid ServiceBrowser.introspect
+	for F in $(introspection_DATA) ; do \
+		xmllint --noout --valid $$F ; \
+	done

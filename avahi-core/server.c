@@ -267,7 +267,6 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         }
     }
 
-
     if (!ours) {
 
         if (won)

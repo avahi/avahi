@@ -261,7 +261,7 @@ int main(int argc, char *argv[]) {
     poll_api->timeout_new(poll_api, &tv, dump_timeout_callback, server);
 
     avahi_elapse_time(&tv, 1000*60, 0);
-    poll_api->timeout_new(poll_api, &tv, quit_timeout_callback, server);
+    poll_api->timeout_new(poll_api, &tv, quit_timeout_callback, simple_poll);
 
     for (;;)
         if (avahi_simple_poll_iterate(simple_poll, -1) != 0)

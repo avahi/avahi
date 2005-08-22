@@ -69,6 +69,7 @@ static Entry* entry_get(AvahiHashmap *m, const void *key) {
 
 static void entry_free(AvahiHashmap *m, Entry *e, int stolen) {
     unsigned idx;
+    assert(m);
     assert(e);
 
     idx = m->hash_func(e->key) % HASH_MAP_SIZE;

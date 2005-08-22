@@ -52,12 +52,15 @@
 typedef struct Server Server;
 typedef struct Client Client;
 typedef struct EntryGroupInfo EntryGroupInfo;
-typedef struct HostNameResolverInfo HostNameResolverInfo;
-typedef struct AddressResolverInfo AddressResolverInfo;
+typedef struct SyncHostNameResolverInfo SyncHostNameResolverInfo;
+typedef struct AsyncHostNameResolverInfo AsyncHostNameResolverInfo;
+typedef struct SyncAddressResolverInfo SyncAddressResolverInfo;
+typedef struct AsyncAddressResolverInfo AsyncAddressResolverInfo;
 typedef struct DomainBrowserInfo DomainBrowserInfo;
 typedef struct ServiceTypeBrowserInfo ServiceTypeBrowserInfo;
 typedef struct ServiceBrowserInfo ServiceBrowserInfo;
-typedef struct ServiceResolverInfo ServiceResolverInfo;
+typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
+typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
 
 #define MAX_CLIENTS 20
 #define MAX_OBJECTS_PER_CLIENT 50
@@ -76,20 +79,38 @@ struct EntryGroupInfo {
     AVAHI_LLIST_FIELDS(EntryGroupInfo, entry_groups);
 };
 
-struct HostNameResolverInfo {
+struct SyncHostNameResolverInfo {
     Client *client;
     AvahiSHostNameResolver *host_name_resolver;
     DBusMessage *message;
 
-    AVAHI_LLIST_FIELDS(HostNameResolverInfo, host_name_resolvers);
+    AVAHI_LLIST_FIELDS(SyncHostNameResolverInfo, sync_host_name_resolvers);
 };
 
-struct AddressResolverInfo {
+struct AsyncHostNameResolverInfo {
+    unsigned id;
+    Client *client;
+    AvahiSHostNameResolver *host_name_resolver;
+    char *path;
+
+    AVAHI_LLIST_FIELDS(AsyncHostNameResolverInfo, async_host_name_resolvers);
+};
+
+struct SyncAddressResolverInfo {
     Client *client;
     AvahiSAddressResolver *address_resolver;
     DBusMessage *message;
 
-    AVAHI_LLIST_FIELDS(AddressResolverInfo, address_resolvers);
+    AVAHI_LLIST_FIELDS(SyncAddressResolverInfo, sync_address_resolvers);
+};
+
+struct AsyncAddressResolverInfo {
+    unsigned id;
+    Client *client;
+    AvahiSAddressResolver *address_resolver;
+    char *path;
+
+    AVAHI_LLIST_FIELDS(AsyncAddressResolverInfo, async_address_resolvers);
 };
 
 struct DomainBrowserInfo {
@@ -119,12 +140,21 @@ struct ServiceBrowserInfo {
     AVAHI_LLIST_FIELDS(ServiceBrowserInfo, service_browsers);
 };
 
-struct ServiceResolverInfo {
+struct SyncServiceResolverInfo {
     Client *client;
     AvahiSServiceResolver *service_resolver;
     DBusMessage *message;
 
-    AVAHI_LLIST_FIELDS(ServiceResolverInfo, service_resolvers);
+    AVAHI_LLIST_FIELDS(SyncServiceResolverInfo, sync_service_resolvers);
+};
+
+struct AsyncServiceResolverInfo {
+    unsigned id;
+    Client *client;
+    AvahiSServiceResolver *service_resolver;
+    char *path;
+
+    AVAHI_LLIST_FIELDS(AsyncServiceResolverInfo, async_service_resolvers);
 };
 
 struct Client {
@@ -135,12 +165,15 @@ struct Client {
     
     AVAHI_LLIST_FIELDS(Client, clients);
     AVAHI_LLIST_HEAD(EntryGroupInfo, entry_groups);
-    AVAHI_LLIST_HEAD(HostNameResolverInfo, host_name_resolvers);
-    AVAHI_LLIST_HEAD(AddressResolverInfo, address_resolvers);
+    AVAHI_LLIST_HEAD(SyncHostNameResolverInfo, sync_host_name_resolvers);
+    AVAHI_LLIST_HEAD(AsyncHostNameResolverInfo, async_host_name_resolvers);
+    AVAHI_LLIST_HEAD(SyncAddressResolverInfo, sync_address_resolvers);
+    AVAHI_LLIST_HEAD(AsyncAddressResolverInfo, async_address_resolvers);
     AVAHI_LLIST_HEAD(DomainBrowserInfo, domain_browsers);
     AVAHI_LLIST_HEAD(ServiceTypeBrowserInfo, service_type_browsers);
     AVAHI_LLIST_HEAD(ServiceBrowserInfo, service_browsers);
-    AVAHI_LLIST_HEAD(ServiceResolverInfo, service_resolvers);
+    AVAHI_LLIST_HEAD(SyncServiceResolverInfo, sync_service_resolvers);
+    AVAHI_LLIST_HEAD(AsyncServiceResolverInfo, async_service_resolvers);
 };
 
 struct Server {
@@ -167,13 +200,13 @@ static void entry_group_free(EntryGroupInfo *i) {
     avahi_free(i);
  }
 
-static void host_name_resolver_free(HostNameResolverInfo *i) {
+static void host_name_resolver_free(SyncHostNameResolverInfo *i) {
     assert(i);
 
     if (i->host_name_resolver)
         avahi_s_host_name_resolver_free(i->host_name_resolver);
     dbus_message_unref(i->message);
-    AVAHI_LLIST_REMOVE(HostNameResolverInfo, host_name_resolvers, i->client->host_name_resolvers, i);
+    AVAHI_LLIST_REMOVE(SyncHostNameResolverInfo, sync_host_name_resolvers, i->client->sync_host_name_resolvers, i);
 
     i->client->n_objects--;
     assert(i->client->n_objects >= 0);
@@ -181,13 +214,13 @@ static void host_name_resolver_free(HostNameResolverInfo *i) {
     avahi_free(i);
 }
 
-static void address_resolver_free(AddressResolverInfo *i) {
+static void address_resolver_free(SyncAddressResolverInfo *i) {
     assert(i);
 
     if (i->address_resolver)
         avahi_s_address_resolver_free(i->address_resolver);
     dbus_message_unref(i->message);
-    AVAHI_LLIST_REMOVE(AddressResolverInfo, address_resolvers, i->client->address_resolvers, i);
+    AVAHI_LLIST_REMOVE(SyncAddressResolverInfo, sync_address_resolvers, i->client->sync_address_resolvers, i);
 
     i->client->n_objects--;
     assert(i->client->n_objects >= 0);
@@ -240,13 +273,13 @@ static void service_browser_free(ServiceBrowserInfo *i) {
     avahi_free(i);
 }
 
-static void service_resolver_free(ServiceResolverInfo *i) {
+static void service_resolver_free(SyncServiceResolverInfo *i) {
     assert(i);
 
     if (i->service_resolver)
         avahi_s_service_resolver_free(i->service_resolver);
     dbus_message_unref(i->message);
-    AVAHI_LLIST_REMOVE(ServiceResolverInfo, service_resolvers, i->client->service_resolvers, i);
+    AVAHI_LLIST_REMOVE(SyncServiceResolverInfo, sync_service_resolvers, i->client->sync_service_resolvers, i);
 
     i->client->n_objects--;
     assert(i->client->n_objects >= 0);
@@ -262,11 +295,11 @@ static void client_free(Client *c) {
     while (c->entry_groups)
         entry_group_free(c->entry_groups);
 
-    while (c->host_name_resolvers)
-        host_name_resolver_free(c->host_name_resolvers);
+    while (c->sync_host_name_resolvers)
+        host_name_resolver_free(c->sync_host_name_resolvers);
 
-    while (c->address_resolvers)
-        address_resolver_free(c->address_resolvers);
+    while (c->sync_address_resolvers)
+        address_resolver_free(c->sync_address_resolvers);
 
     while (c->domain_browsers)
         domain_browser_free(c->domain_browsers);
@@ -277,8 +310,8 @@ static void client_free(Client *c) {
     while (c->service_browsers)
         service_browser_free(c->service_browsers);
 
-    while (c->service_resolvers)
-        service_resolver_free(c->service_resolvers);
+    while (c->sync_service_resolvers)
+        service_resolver_free(c->sync_service_resolvers);
 
     assert(c->n_objects == 0);
     
@@ -312,13 +345,14 @@ static Client *client_get(const char *name, int create) {
     client->name = avahi_strdup(name);
     client->current_id = 0;
     client->n_objects = 0;
+    
     AVAHI_LLIST_HEAD_INIT(EntryGroupInfo, client->entry_groups);
-    AVAHI_LLIST_HEAD_INIT(HostNameResolverInfo, client->host_name_resolvers);
-    AVAHI_LLIST_HEAD_INIT(AddressResolverInfo, client->address_resolvers);
+    AVAHI_LLIST_HEAD_INIT(SyncHostNameResolverInfo, client->sync_host_name_resolvers);
+    AVAHI_LLIST_HEAD_INIT(SyncAddressResolverInfo, client->sync_address_resolvers);
     AVAHI_LLIST_HEAD_INIT(DomainBrowserInfo, client->domain_browsers);
     AVAHI_LLIST_HEAD_INIT(ServiceTypeBrowserInfo, client->service_type_browsers);
     AVAHI_LLIST_HEAD_INIT(ServiceBrowserInfo, client->service_browsers);
-    AVAHI_LLIST_HEAD_INIT(ServiceResolverInfo, client->service_resolvers);
+    AVAHI_LLIST_HEAD_INIT(SyncServiceResolverInfo, client->sync_service_resolvers);
 
     AVAHI_LLIST_PREPEND(Client, clients, server->clients, client);
 
@@ -750,7 +784,7 @@ fail:
 }
 
 static void host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, void* userdata) {
-    HostNameResolverInfo *i = userdata;
+    SyncHostNameResolverInfo *i = userdata;
     
     assert(r);
     assert(host_name);
@@ -790,7 +824,7 @@ static void host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex 
 }
 
 static void address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, void* userdata) {
-    AddressResolverInfo *i = userdata;
+    SyncAddressResolverInfo *i = userdata;
     
     assert(r);
     assert(address);
@@ -1052,7 +1086,7 @@ static void service_resolver_callback(
     AvahiStringList *txt,
     void* userdata) {
     
-    ServiceResolverInfo *i = userdata;
+    SyncServiceResolverInfo *i = userdata;
     
     assert(r);
     assert(i);
@@ -1317,7 +1351,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         Client *client;
         int32_t interface, protocol, aprotocol;
         char *name;
-        HostNameResolverInfo *i;
+        SyncHostNameResolverInfo *i;
             
         if (!dbus_message_get_args(
                 m, &error,
@@ -1340,10 +1374,10 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
-        i = avahi_new(HostNameResolverInfo, 1);
+        i = avahi_new(SyncHostNameResolverInfo, 1);
         i->client = client;
         i->message = dbus_message_ref(m);
-        AVAHI_LLIST_PREPEND(HostNameResolverInfo, host_name_resolvers, client->host_name_resolvers, i);
+        AVAHI_LLIST_PREPEND(SyncHostNameResolverInfo, sync_host_name_resolvers, client->sync_host_name_resolvers, i);
         client->n_objects++;
 
         if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, host_name_resolver_callback, i))) {
@@ -1357,7 +1391,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         Client *client;
         int32_t interface, protocol;
         char *address;
-        AddressResolverInfo *i;
+        SyncAddressResolverInfo *i;
         AvahiAddress a;
             
         if (!dbus_message_get_args(
@@ -1383,10 +1417,10 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
-        i = avahi_new(AddressResolverInfo, 1);
+        i = avahi_new(SyncAddressResolverInfo, 1);
         i->client = client;
         i->message = dbus_message_ref(m);
-        AVAHI_LLIST_PREPEND(AddressResolverInfo, address_resolvers, client->address_resolvers, i);
+        AVAHI_LLIST_PREPEND(SyncAddressResolverInfo, sync_address_resolvers, client->sync_address_resolvers, i);
         client->n_objects++;
 
         if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, address_resolver_callback, i))) {
@@ -1561,7 +1595,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         Client *client;
         int32_t interface, protocol, aprotocol;
         char *name, *type, *domain;
-        ServiceResolverInfo *i;
+        SyncServiceResolverInfo *i;
             
         if (!dbus_message_get_args(
                 m, &error,
@@ -1589,10 +1623,10 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         if (!*domain)
             domain = NULL;
         
-        i = avahi_new(ServiceResolverInfo, 1);
+        i = avahi_new(SyncServiceResolverInfo, 1);
         i->client = client;
         i->message = dbus_message_ref(m);
-        AVAHI_LLIST_PREPEND(ServiceResolverInfo, service_resolvers, client->service_resolvers, i);
+        AVAHI_LLIST_PREPEND(SyncServiceResolverInfo, sync_service_resolvers, client->sync_service_resolvers, i);
         client->n_objects++;
 
         if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, service_resolver_callback, i))) {

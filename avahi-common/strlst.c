@@ -117,8 +117,6 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
     size_t s = 0;
     char *t, *e;
 
-    l = avahi_string_list_reverse(l);
-    
     for (n = l; n; n = n->next) {
         if (n != l)
             s ++;
@@ -126,11 +124,11 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
         s += n->size+2;
     }
 
-    if (!(t = e = avahi_new(char, s+1))) {
-        l = avahi_string_list_reverse(l);
+    if (!(t = e = avahi_new(char, s+1)))
         return NULL;
-    }
 
+    l = avahi_string_list_reverse(l);
+    
     for (n = l; n; n = n->next) {
         if (n != l)
             *(e++) = ' ';
@@ -336,4 +334,94 @@ AvahiStringList *avahi_string_list_add_printf(AvahiStringList *l, const char *fo
     va_end(va);
 
     return l;    
+}
+
+AvahiStringList *avahi_string_list_find(AvahiStringList *l, const char *key) {
+    size_t n;
+    
+    assert(key);
+    n = strlen(key);
+
+    for (; l; l = l->next) {
+        if (strcasecmp((char*) l->text, key) == 0)
+            return l;
+
+        if (strncasecmp((char*) l->text, key, n) == 0 && l->text[n] == '=')
+            return l;
+    }
+
+    return NULL;
+}
+
+AvahiStringList *avahi_string_list_add_pair(AvahiStringList *l, const char *key, const char *value) {
+    assert(key);
+
+    if (value)
+        return avahi_string_list_add_printf(l, "%s=%s", key, value);
+    else
+        return avahi_string_list_add(l, key);
+}
+
+AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const char *key, const uint8_t *value, size_t size) {
+    size_t n;
+    assert(key);
+
+    if (!value)
+        return avahi_string_list_add(l, key);
+
+    n = strlen(key);
+    
+    if (!(l = avahi_string_list_add_anonymous(l, n + 1 + size)))
+        return NULL;
+
+    memcpy(l->text, key, n);
+    l->text[n] = '=';
+    memcpy(l->text + n + 1, value, size);
+
+    return l;
+}
+
+
+int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, size_t *size) {
+    char *e;
+    
+    assert(l);
+    assert(key);
+
+    if (!(e = memchr(l->text, '=', l->size))) {
+        
+        if (!(*key = avahi_strdup((char*) l->text)))
+            return -1;
+
+        if (value)
+            *value = NULL;
+
+        if (size)
+            *size = 0;
+
+    } else {
+        size_t n;
+
+        if (!(*key = avahi_strndup((char*) l->text, e - (char *) l->text)))
+            return -1;
+
+        e++; /* Advance after '=' */
+        
+        n = l->size - (e - (char*) l->text);
+        
+        if (value) {
+
+            if (!(*value = avahi_memdup(e, n+1))) {
+                avahi_free(*key);
+                return -1;
+            }
+
+            (*value)[n] = 0;
+        }
+
+        if (size)
+            *size = n;
+    }
+
+    return 0;
 }

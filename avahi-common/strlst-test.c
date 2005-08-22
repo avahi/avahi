@@ -30,20 +30,25 @@
 #include "malloc.h"
 
 int main(int argc, char *argv[]) {
-    char *t;
+    char *t, *v;
     uint8_t data[1024];
-    AvahiStringList *a = NULL, *b;
+    AvahiStringList *a = NULL, *b, *p;
     size_t size, n;
+    int r;
 
     a = avahi_string_list_new("prefix", "a", "b", NULL);
     
     a = avahi_string_list_add(a, "start");
-    a = avahi_string_list_add(a, "foo");
+    a = avahi_string_list_add(a, "foo=99");
     a = avahi_string_list_add(a, "bar");
     a = avahi_string_list_add(a, "quux");
     a = avahi_string_list_add_arbitrary(a, (const uint8_t*) "null\0null", 9);
-    a = avahi_string_list_add(a, "end");
     a = avahi_string_list_add_printf(a, "seven=%i %c", 7, 'x');
+    a = avahi_string_list_add_pair(a, "blubb", "blaa");
+    a = avahi_string_list_add_pair(a, "uxknurz", NULL);
+    a = avahi_string_list_add_pair_arbitrary(a, "uxknurz2", (const uint8_t*) "blafasel\0oerks", 14);
+    
+    a = avahi_string_list_add(a, "end");
 
     t = avahi_string_list_to_string(a);
     printf("--%s--\n", t);
@@ -79,6 +84,30 @@ int main(int argc, char *argv[]) {
     t = avahi_string_list_to_string(b);
     printf("--%s--\n", t);
     avahi_free(t);
+
+    p = avahi_string_list_find(a, "seven");
+    assert(p);
+    
+    r = avahi_string_list_get_pair(p, &t, &v, NULL);  
+    assert(r >= 0);
+    assert(t);
+    assert(v);
+    
+    printf("<%s>=<%s>\n", t, v);
+    avahi_free(t);
+    avahi_free(v);
+
+    p = avahi_string_list_find(a, "quux");
+    assert(p);
+
+    r = avahi_string_list_get_pair(p, &t, &v, NULL);
+    assert(r >= 0);
+    assert(t);
+    assert(!v);
+
+    printf("<%s>=<%s>\n", t, v);
+    avahi_free(t);
+    avahi_free(v);
     
     avahi_string_list_free(a);
     avahi_string_list_free(b);

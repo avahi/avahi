@@ -116,6 +116,23 @@ AvahiStringList* avahi_string_list_reverse(AvahiStringList *l);
 /** Return the number of elements in the string list */
 unsigned avahi_string_list_length(const AvahiStringList *l);
 
+/** Find the string list entry for the given DNS-SD TXT key */
+AvahiStringList *avahi_string_list_find(AvahiStringList *l, const char *key);
+
+/** Return the DNS-SD TXT key and value for the specified string list
+ * item. If size is not NULL it will be filled with the length of
+ * value. (for strings containing NUL bytes). If the entry doesn't
+ * contain a value *value will be set to NULL. You need to
+ * avahi_free() the strings returned in *key and *value. */
+int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, size_t *size);
+
+/** Add a new DNS-SD TXT key value pair to the string list. value may
+ * be NULL in case you want to specify a key without a value */
+AvahiStringList *avahi_string_list_add_pair(AvahiStringList *l, const char *key, const char *value);
+
+/** Same as avahi_string_list_add_pair() but allow strings containing NUL bytes in *value. */
+AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const char *key, const uint8_t *value, size_t size);
+
 AVAHI_C_DECL_END
 
 #endif

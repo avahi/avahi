@@ -200,7 +200,7 @@ static void entry_group_free(EntryGroupInfo *i) {
     avahi_free(i);
  }
 
-static void host_name_resolver_free(SyncHostNameResolverInfo *i) {
+static void sync_host_name_resolver_free(SyncHostNameResolverInfo *i) {
     assert(i);
 
     if (i->host_name_resolver)
@@ -214,13 +214,41 @@ static void host_name_resolver_free(SyncHostNameResolverInfo *i) {
     avahi_free(i);
 }
 
-static void address_resolver_free(SyncAddressResolverInfo *i) {
+static void async_host_name_resolver_free(AsyncHostNameResolverInfo *i) {
+    assert(i);
+
+    if (i->host_name_resolver)
+        avahi_s_host_name_resolver_free(i->host_name_resolver);
+    dbus_connection_unregister_object_path(server->bus, i->path);
+    AVAHI_LLIST_REMOVE(AsyncHostNameResolverInfo, async_host_name_resolvers, i->client->async_host_name_resolvers, i);
+
+    i->client->n_objects--;
+    assert(i->client->n_objects >= 0);
+
+    avahi_free(i);
+}
+
+static void sync_address_resolver_free(SyncAddressResolverInfo *i) {
     assert(i);
 
     if (i->address_resolver)
         avahi_s_address_resolver_free(i->address_resolver);
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(SyncAddressResolverInfo, sync_address_resolvers, i->client->sync_address_resolvers, i);
+
+    i->client->n_objects--;
+    assert(i->client->n_objects >= 0);
+
+    avahi_free(i);
+}
+
+static void async_address_resolver_free(AsyncAddressResolverInfo *i) {
+    assert(i);
+
+    if (i->address_resolver)
+        avahi_s_address_resolver_free(i->address_resolver);
+    dbus_connection_unregister_object_path(server->bus, i->path);
+    AVAHI_LLIST_REMOVE(AsyncAddressResolverInfo, async_address_resolvers, i->client->async_address_resolvers, i);
 
     i->client->n_objects--;
     assert(i->client->n_objects >= 0);
@@ -273,13 +301,28 @@ static void service_browser_free(ServiceBrowserInfo *i) {
     avahi_free(i);
 }
 
-static void service_resolver_free(SyncServiceResolverInfo *i) {
+static void sync_service_resolver_free(SyncServiceResolverInfo *i) {
     assert(i);
 
     if (i->service_resolver)
         avahi_s_service_resolver_free(i->service_resolver);
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(SyncServiceResolverInfo, sync_service_resolvers, i->client->sync_service_resolvers, i);
+
+    i->client->n_objects--;
+    assert(i->client->n_objects >= 0);
+
+    avahi_free(i);
+}
+
+static void async_service_resolver_free(AsyncServiceResolverInfo *i) {
+    assert(i);
+
+    if (i->service_resolver)
+        avahi_s_service_resolver_free(i->service_resolver);
+
+    dbus_connection_unregister_object_path(server->bus, i->path);
+    AVAHI_LLIST_REMOVE(AsyncServiceResolverInfo, async_service_resolvers, i->client->async_service_resolvers, i);
 
     i->client->n_objects--;
     assert(i->client->n_objects >= 0);
@@ -296,10 +339,16 @@ static void client_free(Client *c) {
         entry_group_free(c->entry_groups);
 
     while (c->sync_host_name_resolvers)
-        host_name_resolver_free(c->sync_host_name_resolvers);
+        sync_host_name_resolver_free(c->sync_host_name_resolvers);
 
+    while (c->async_host_name_resolvers)
+        async_host_name_resolver_free(c->async_host_name_resolvers);
+    
     while (c->sync_address_resolvers)
-        address_resolver_free(c->sync_address_resolvers);
+        sync_address_resolver_free(c->sync_address_resolvers);
+
+    while (c->async_address_resolvers)
+        async_address_resolver_free(c->async_address_resolvers);
 
     while (c->domain_browsers)
         domain_browser_free(c->domain_browsers);
@@ -311,7 +360,10 @@ static void client_free(Client *c) {
         service_browser_free(c->service_browsers);
 
     while (c->sync_service_resolvers)
-        service_resolver_free(c->sync_service_resolvers);
+        sync_service_resolver_free(c->sync_service_resolvers);
+
+    while (c->async_service_resolvers)
+        async_service_resolver_free(c->async_service_resolvers);
 
     assert(c->n_objects == 0);
     
@@ -348,11 +400,14 @@ static Client *client_get(const char *name, int create) {
     
     AVAHI_LLIST_HEAD_INIT(EntryGroupInfo, client->entry_groups);
     AVAHI_LLIST_HEAD_INIT(SyncHostNameResolverInfo, client->sync_host_name_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AsyncHostNameResolverInfo, client->async_host_name_resolvers);
     AVAHI_LLIST_HEAD_INIT(SyncAddressResolverInfo, client->sync_address_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AsyncAddressResolverInfo, client->async_address_resolvers);
     AVAHI_LLIST_HEAD_INIT(DomainBrowserInfo, client->domain_browsers);
     AVAHI_LLIST_HEAD_INIT(ServiceTypeBrowserInfo, client->service_type_browsers);
     AVAHI_LLIST_HEAD_INIT(ServiceBrowserInfo, client->service_browsers);
     AVAHI_LLIST_HEAD_INIT(SyncServiceResolverInfo, client->sync_service_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AsyncServiceResolverInfo, client->async_service_resolvers);
 
     AVAHI_LLIST_PREPEND(Client, clients, server->clients, client);
 
@@ -820,7 +875,7 @@ static void host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex 
         respond_error(server->bus, i->message, AVAHI_ERR_TIMEOUT, NULL);
     }
 
-    host_name_resolver_free(i);
+    sync_host_name_resolver_free(i);
 }
 
 static void address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, void* userdata) {
@@ -859,7 +914,7 @@ static void address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex int
         respond_error(server->bus, i->message, AVAHI_ERR_TIMEOUT, NULL);
     }
 
-    address_resolver_free(i);
+    sync_address_resolver_free(i);
 }
 
 static DBusHandlerResult msg_domain_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
@@ -1144,7 +1199,7 @@ static void service_resolver_callback(
         respond_error(server->bus, i->message, AVAHI_ERR_TIMEOUT, NULL);
     }
 
-    service_resolver_free(i);
+    sync_service_resolver_free(i);
 }
 
 static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
@@ -1381,7 +1436,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         client->n_objects++;
 
         if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, host_name_resolver_callback, i))) {
-            host_name_resolver_free(i);
+            sync_host_name_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
@@ -1424,7 +1479,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         client->n_objects++;
 
         if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, address_resolver_callback, i))) {
-            address_resolver_free(i);
+            sync_address_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
@@ -1630,7 +1685,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         client->n_objects++;
 
         if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, service_resolver_callback, i))) {
-            service_resolver_free(i);
+            sync_service_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         

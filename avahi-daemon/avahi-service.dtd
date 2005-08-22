@@ -5,7 +5,7 @@
 <!ELEMENT name (#PCDATA)>
 <!ATTLIST name replace-wildcards (yes|no) "no">
 <!ELEMENT service (type,domain-name?,host-name?,port,txt-record*)>
-<!ATTLIST service>
+<!ATTLIST service protocol (ipv4|ipv6|any) "any">
 <!ELEMENT type (#PCDATA)>
 <!ATTLIST type>
 <!ELEMENT domain-name (#PCDATA)>
@@ -14,7 +14,5 @@
 <!ATTLIST host-name>
 <!ELEMENT port (#PCDATA)>
 <!ATTLIST port>
-<!ELEMENT protocol (#PCDATA)>
-<!ATTLIST protocol>
 <!ELEMENT txt-record (#PCDATA)>
 <!ATTLIST txt-record>

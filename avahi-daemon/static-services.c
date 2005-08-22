@@ -251,7 +251,6 @@ typedef enum {
     XML_TAG_DOMAIN_NAME,
     XML_TAG_HOST_NAME,
     XML_TAG_PORT,
-    XML_TAG_PROTOCOL,
     XML_TAG_TXT_RECORD
 } xml_tag_name;
 
@@ -285,19 +284,41 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
                 u->group->replace_wildcards = strcmp(attr[1], "yes") == 0;
             else
                 goto invalid_attr;
-        }
 
-        if (attr[2])
-            goto invalid_attr;
+            if (attr[2])
+                goto invalid_attr;
+        }
         
     } else if (u->current_tag == XML_TAG_SERVICE_GROUP && strcmp(el, "service") == 0) {
-        if (attr[0])
-            goto invalid_attr;
+        u->current_tag = XML_TAG_SERVICE;
 
         assert(!u->service);
         u->service = static_service_new(u->group);
 
-        u->current_tag = XML_TAG_SERVICE;
+        if (attr[0]) {
+            if (strcmp(attr[0], "protocol") == 0) {
+                AvahiProtocol protocol;
+                
+                if (strcmp(attr[1], "ipv4") == 0) {
+                    protocol = AVAHI_PROTO_INET;
+                } else if (strcmp(attr[1], "ipv6") == 0) {
+                    protocol = AVAHI_PROTO_INET6;
+                } else if (strcmp(attr[1], "any") == 0) {
+                    protocol = AVAHI_PROTO_UNSPEC;
+                } else {
+                    avahi_log_error("%s: parse failure: invalid protocol specification \"%s\".", u->group->filename, attr[1]);
+                    u->failed = 1;
+                    return;
+                }
+
+                u->service->protocol = protocol;
+            } else
+                goto invalid_attr;
+
+            if (attr[2])
+                goto invalid_attr;
+        }
+
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "type") == 0) {
         if (attr[0])
             goto invalid_attr;
@@ -318,11 +339,6 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
             goto invalid_attr;
         
         u->current_tag = XML_TAG_PORT;
-    } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "protocol") == 0) {
-        if (attr[0])
-            goto invalid_attr;
-
-        u->current_tag = XML_TAG_PROTOCOL;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "txt-record") == 0) {
         if (attr[0])
             goto invalid_attr;
@@ -391,27 +407,6 @@ static void XMLCALL xml_end(void *data, const char *el) {
             u->service->port = (uint16_t) p;
 
             u->current_tag = XML_TAG_SERVICE;
-            break;
-        }
-
-        case XML_TAG_PROTOCOL: {
-            int protocol;
-            assert(u->service);
-
-            if (u->buf && strcasecmp (u->buf, "ipv4") == 0) {
-                protocol = AVAHI_PROTO_INET;
-            } else if (u->buf && strcasecmp (u->buf, "ipv6") == 0) {
-                protocol = AVAHI_PROTO_INET6;
-            } else if (u->buf && strcasecmp (u->buf, "any") == 0) {
-                protocol = AVAHI_PROTO_UNSPEC;
-            } else {
-                avahi_log_error("%s: parse failure: invalid protocol specification \"%s\".", u->group->filename, u->buf);
-                u->failed = 1;
-                return;
-            }
-
-            u->service->protocol = protocol;
-	    u->current_tag = XML_TAG_SERVICE;
             break;
         }
 
@@ -484,7 +479,6 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
             break;
 
         case XML_TAG_PORT:
-        case XML_TAG_PROTOCOL:
         case XML_TAG_TXT_RECORD:
             assert(u->service);
             u->buf = append_cdata(u->buf, s, len);

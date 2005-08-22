@@ -16,12 +16,11 @@
     <port>631</port>
   </service>
 
-  <service>
+  <service protocol="ipv6">
     <type>_uberprinter._tcp</type>
     <domain-name>local</domain-name>
     <host-name>quux.local</host-name>
     <port>4711</port>
-    <protocol>any</protocol>
     <txt-record>this=is</txt-record>
     <txt-record>a=really</txt-record>
     <txt-record>bad=example</txt-record>

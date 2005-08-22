@@ -46,3 +46,13 @@ client_browse_services_CFLAGS = $(AM_CFLAGS)
 client_browse_services_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
 endif
+
+if HAVE_GTK
+
+noinst_PROGRAMS += \
+	glib-integration
+glib_integration_SOURCES = glib-integration.c
+glib_integration_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+glib_integration_LDADD = $(AM_LDADD) $(GLIB20_LIBS) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la ../avahi-glib/libavahi-glib.la
+
+endif

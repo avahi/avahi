@@ -39,6 +39,9 @@
 
 /** \example client-browse-services.c Example how to browse for DNS-SD
  * services using the client interface to avahi-daemon. */
+
+/** \example glib-integration.c Example of how to integrate
+ * avahi use with GLIB/GTK applications */
  
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

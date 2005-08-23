@@ -17,9 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+if HAVE_PYTHON
 avahidir = $(pythondir)/avahi
 
-if HAVE_PYTHON
 avahi_PYTHON = __init__.py SimpleGladeApp.py
 endif
 

@@ -573,6 +573,9 @@ DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowser
         if (strcmp (b->path, path) == 0)
             break;
 
+    if (!b)
+        goto fail;
+
     if (!dbus_message_get_args (
               message, &error,
               DBUS_TYPE_INT32, &interface,

@@ -394,10 +394,6 @@ static int load_config_file(DaemonConfig *c) {
                     } else {
                         c->enable_dbus = 0;
                     }
-#ifdef HAVE_DBUS                
-                    if (c->enable_dbus == 1) 
-                        avahi_log_warn("Avahi was compiled without d-bus support but you requested it was enabled in the config file");
-#endif
                 }
                 else if (strcasecmp(p->key, "drop-root") == 0)
                     c->drop_root = is_yes(p->value);
@@ -601,9 +597,8 @@ static int run_server(DaemonConfig *c) {
 
     if (simple_protocol_setup(poll_api) < 0)
         goto finish;
-    
+    if (c->enable_dbus) {
 #ifdef HAVE_DBUS
-    if (c->enable_dbus)
         if (dbus_protocol_setup(poll_api) < 0) {
 
             if (c->fail_on_missing_dbus)
@@ -612,7 +607,10 @@ static int run_server(DaemonConfig *c) {
             avahi_log_warn("WARNING: Failed to contact D-BUS daemon, disabling D-BUS support.");
             c->enable_dbus = 0;
         }
+#else
+        avahi_log_warn("WARNING: We are configured to enable D-BUS but it was not compiled in");
 #endif
+    }
     
     load_resolv_conf(c);
     static_service_load();

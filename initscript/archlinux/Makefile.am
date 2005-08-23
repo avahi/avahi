@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Makefile.am 267 2005-08-08 10:19:22Z lennart $
 
 # This file is part of avahi.
 #
@@ -17,22 +17,24 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-SUBDIRS = 
+initddir = $(sysconfdir)/rc.d
 
-if TARGET_DEBIAN
-SUBDIRS += Debian
-endif
+EXTRA_DIST = \
+	avahi-daemon.in \
+	avahi-dnsconfd.in
 
-if TARGET_ARCHLINUX
-SUBDIRS += archlinux
-endif
+initd_SCRIPTS = \
+	avahi-daemon \
+	avahi-dnsconfd
 
-# We disable shipping of Gentoo and SUSE init scripts for now as they are out of date
+CLEANFILES = \
+	avahi-daemon \
+	avahi-dnsconfd
 
-#if TARGET_GENTOO
-#SUBDIRS += Gentoo
-#endif
+avahi-daemon: avahi-daemon.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@
 
-#if TARGET_SUSE
-#SUBDIRS += SUSE
-#endif
+avahi-dnsconfd: avahi-dnsconfd.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@

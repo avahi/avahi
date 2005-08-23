@@ -46,6 +46,37 @@ AC_PROG_GCC_TRADITIONAL
 # libtool stuff
 AC_PROG_LIBTOOL
 
+#
+# Detecting the linux distro for specific things like initscripts.
+#
+AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, archlinux or none]))
+if test "z$with_distro" = "z"; then
+   #AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
+   #AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
+   AC_CHECK_FILE(/etc/arch-version,with_distro="archlinux")
+   AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
+fi
+with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
+
+if test "z$with_distro" = "z"; then
+   echo "Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO"
+   exit 1
+else
+case $with_distro in
+   debian|arch)
+     ;;
+   *)
+     echo "Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)"
+     ;;
+esac
+fi
+
+#AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
+#AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
+AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
+AM_CONDITIONAL(TARGET_ARCHLINUX, test x"$with_distro" = xarchlinux)
+
+
 test_gcc_flag() {
    AC_LANG_CONFTEST([int main() {}])
    $CC -c conftest.c $CFLAGS $@ > /dev/null 2> /dev/null
@@ -57,7 +88,13 @@ test_gcc_flag() {
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then
    
-   DESIRED_FLAGS="-std=c99 -Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wlarger-than-4000 -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
+   DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wlarger-than-4000 -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
+
+   # Work around a kernel header bug in arch linux where rtnetlink.h
+   # can't be included with -std=c99
+   if test "x$with_distro" != "xarchlinux" ; then
+       DESIRED_FLAGS="$DESIRED_FLAGS -std=c99"
+   fi
 
    for flag in $DESIRED_FLAGS ; do
        AC_MSG_CHECKING([whether $CC accepts $flag])
@@ -230,39 +267,6 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
    AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
-
-#
-# Detecting the linux distro for specific things like initscripts.
-#
-AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, slackware or none]))
-if test "z$with_distro" = "z"; then
-   AC_CHECK_FILE(/etc/redhat-release,with_distro="redhat")
-   AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
-   AC_CHECK_FILE(/etc/fedora-release,with_distro="redhat")
-   AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
-   AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
-   AC_CHECK_FILE(/etc/slackware-version,with_distro="slackware")
-fi
-with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
-
-if test "z$with_distro" = "z"; then
-   echo "Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO"
-   exit 1
-else
-case $with_distro in
-   debian|gentoo|suse)
-     ;;
-   *)
-     echo "Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)"
-     ;;
-esac
-
-fi
-AM_CONDITIONAL(TARGET_REDHAT, test x"$with_distro" = xredhat)
-AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
-AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
-AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
-AM_CONDITIONAL(TARGET_SLACKWARE, test x"$with_distro" = xslackware)
 
 #
 # Defining Avahi User and Group.

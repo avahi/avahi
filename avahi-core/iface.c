@@ -823,3 +823,21 @@ int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
 
     return 0;
 }
+
+int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, const AvahiAddress *a) {
+    AvahiInterface *i;
+    AvahiInterfaceAddress *j;
+    
+    assert(m);
+    assert(iface != AVAHI_IF_UNSPEC);
+    assert(a);
+
+    if (!(i = avahi_interface_monitor_get_interface(m, iface, a->family)))
+        return 0;
+
+    for (j = i->addresses; j; j = j->address_next)
+        if (avahi_address_cmp(a, &j->address) == 0)
+            return 1;
+
+    return 0;
+}

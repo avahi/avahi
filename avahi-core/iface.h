@@ -138,4 +138,6 @@ int avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
 
 int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a);
 
+int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, const AvahiAddress *a);
+
 #endif

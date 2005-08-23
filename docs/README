@@ -33,6 +33,10 @@ Avahi has the following requirements:
 	- doxygen (optional, needed for he API documentaton)
 	- Python 2.4, pygtk2 (optional, needed by all client tools)
 	- python-twisted (optional, needed by avahi-bookmarks)
+    - xmltoman (if building from SVN rather than a tarball)
+      If you are not using debian or ubuntu, the upstream authors page has
+      disappeared, but you can get the source from debian here
+      http://ftp.debian.org/debian/pool/main/x/xmltoman/xmltoman_0.3.orig.tar.gz
 
 Please make sure to read the currently available documentation for avahi before
 asking for support on the mailing list:

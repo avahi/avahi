@@ -63,7 +63,7 @@ if test "z$with_distro" = "z"; then
    exit 1
 else
 case $with_distro in
-   debian|arch)
+   debian|archlinux)
      ;;
    *)
      echo "Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)"

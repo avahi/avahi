@@ -21,7 +21,7 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([avahi],[0.1],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.2],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
@@ -53,7 +53,7 @@ AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux dis
 if test "z$with_distro" = "z"; then
    #AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
    #AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
-   AC_CHECK_FILE(/etc/arch-version,with_distro="archlinux")
+   AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
    AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
 fi
 with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `

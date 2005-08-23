@@ -396,7 +396,7 @@ static int load_config_file(DaemonConfig *c) {
                     }
 #ifdef HAVE_DBUS                
                     if (c->enable_dbus == 1) 
-                        avahi_log_warning("Avahi was compiled without d-bus support but you requested it was enabled in the config file");
+                        avahi_log_warn("Avahi was compiled without d-bus support but you requested it was enabled in the config file");
 #endif
                 }
                 else if (strcasecmp(p->key, "drop-root") == 0)

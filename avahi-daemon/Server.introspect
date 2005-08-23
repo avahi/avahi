@@ -127,7 +127,6 @@
       <arg name="path" type="o" direction="out"/>
     </method>
 
-
     <method name="ServiceResolverNew">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>

@@ -20,7 +20,7 @@
 SUBDIRS = 
 
 if TARGET_DEBIAN
-SUBDIRS += Debian
+SUBDIRS += debian
 endif
 
 if TARGET_ARCHLINUX
@@ -30,9 +30,9 @@ endif
 # We disable shipping of Gentoo and SUSE init scripts for now as they are out of date
 
 #if TARGET_GENTOO
-#SUBDIRS += Gentoo
+#SUBDIRS += gentoo
 #endif
 
 #if TARGET_SUSE
-#SUBDIRS += SUSE
+#SUBDIRS += suse
 #endif

@@ -92,7 +92,7 @@ if test "x$GCC" = "xyes" ; then
 
    # Work around a kernel header bug in arch linux where rtnetlink.h
    # can't be included with -std=c99
-   if test "x$with_distro" != "xarchlinux" ; then
+   if test x"$with_distro" != xarchlinux ; then
        DESIRED_FLAGS="$DESIRED_FLAGS -std=c99"
    fi
 
@@ -344,7 +344,8 @@ avahi-daemon/avahi-dbus.conf
 avahi-discover-standalone/Makefile 
 avahi-client/Makefile 
 initscript/Makefile 
-initscript/Debian/Makefile
+initscript/debian/Makefile
+initscript/archlinux/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-utils/avahi/Makefile

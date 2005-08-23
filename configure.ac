@@ -47,7 +47,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
 #
-# Detecting the linux distro for specific things like initscripts.
+# Detecting the linux distribution for specific things like init scripts.
 #
 AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, gentoo, archlinux or none]))
 if test "z$with_distro" = "z"; then
@@ -59,14 +59,14 @@ fi
 with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
 
 if test "z$with_distro" = "z"; then
-   echo "Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO"
+   AC_MSG_ERROR([Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO])
    exit 1
 else
 case $with_distro in
    debian|gentoo|archlinux)
      ;;
    *)
-     echo "Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)"
+     AC_MSG_ERROR([Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)])
      ;;
 esac
 fi
@@ -75,7 +75,6 @@ fi
 AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
 AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
 AM_CONDITIONAL(TARGET_ARCHLINUX, test x"$with_distro" = xarchlinux)
-
 
 test_gcc_flag() {
    AC_LANG_CONFTEST([int main() {}])
@@ -93,7 +92,7 @@ if test "x$GCC" = "xyes" ; then
     # Test whether rtnetlink.h can be included when compiled with -std=c99
     # some distributions (e.g. archlinux) have broken headers that dont
     # define __u64 with -std=c99
-    echo -n "checking whether rtnetlink.h can be included with -std=c99... "
+    AC_MSG_CHECKING([checking whether rtnetlink.h can be included with -std=c99])
     OLDCFLAGS="$CFLAGS"
     CFLAGS="-std=c99"
     AC_TRY_COMPILE([#include <linux/rtnetlink.h>], [],
@@ -101,9 +100,9 @@ if test "x$GCC" = "xyes" ; then
 
     if test x"$use_stdc99" = xyes; then
         DESIRED_FLAGS="-std=c99 $DESIRED_FLAGS"
-        echo "yes"
+        AC_MSG_RESULT([yes])
     else
-        echo "no"
+        AC_MSG_RESULT([no])
     fi
 
     CFLAGS="$OLDCFLAGS"

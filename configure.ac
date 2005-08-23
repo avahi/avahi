@@ -184,8 +184,8 @@ if test "x$HAVE_GTK" = "xyes" ; then
         AC_SUBST(GLADE20_CFLAGS)
         AC_SUBST(GLADE20_LIBS)
 
-	    interfacesdir="${datadir}/${PACKAGE}/interfaces/"
-	    AC_SUBST(interfacesdir)
+        interfacesdir="${datadir}/${PACKAGE}/interfaces/"
+        AC_SUBST(interfacesdir)
 fi
 AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
 
@@ -202,21 +202,31 @@ AC_ARG_ENABLE(dbus,
         [HAVE_DBUS=yes]) 
 
 AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
+AC_ARG_WITH(dbus-system-socket, AS_HELP_STRING([--with-dbus-system-address=<address>], [where the dbus system socket is, you probably want to put unix:path= at the start]))
 
 if test "x$HAVE_DBUS" = "xyes" ; then
-	AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
+    AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
     PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.30 ])
     DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
     AC_SUBST(DBUS_CFLAGS)
-	AC_SUBST(DBUS_LIBS)
+    AC_SUBST(DBUS_LIBS)
 
-	if ! test -z "$with_dbus_sys" ; then
-    	   DBUS_SYS_DIR="$with_dbus_sys"
-	else
-	       DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
-	fi
-	AC_SUBST(DBUS_SYS_DIR)
+    if ! test -z "$with_dbus_sys" ; then
+        DBUS_SYS_DIR="$with_dbus_sys"
+    else
+        DBUS_SYS_DIR="${sysconfdir}/dbus-1/system.d"
+    fi
+    AC_SUBST(DBUS_SYS_DIR)
+
+    if ! test -z "$with_dbus_system_address" ; then
+        DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="$with_dbus_system_address"
+    else
+        # Note this default path is hardcoded in D-BUS and should
+        # not use $localstatedir
+        DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="unix:path=/var/run/dbus/system_bus_socket"
+    fi
+    AC_SUBST(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)
     
 fi
 AM_CONDITIONAL(HAVE_DBUS, test "x$HAVE_DBUS" = "xyes")
@@ -265,12 +275,12 @@ AM_CONDITIONAL(HAVE_LIBDAEMON, test "x$HAVE_LIBDAEMON" = "xyes")
 # Python stuff
 #
 AC_ARG_ENABLE(python,
-	AS_HELP_STRING([--disable-python], [Disable scripts that depends on python]),
-	[case "${enableval}" in
-	      yes) HAVE_PYTHON=yes ;;
-	      no)  HAVE_PYTHON=no ;;
-	      *) AC_MSG_ERROR([bad value ${enableval} for --enable-python]) ;;
-	esac],[HAVE_PYTHON=yes])
+    AS_HELP_STRING([--disable-python], [Disable scripts that depends on python]),
+    [case "${enableval}" in
+          yes) HAVE_PYTHON=yes ;;
+          no)  HAVE_PYTHON=no ;;
+          *) AC_MSG_ERROR([bad value ${enableval} for --enable-python]) ;;
+    esac],[HAVE_PYTHON=yes])
 
 if test "x$HAVE_PYTHON" = "xyes" ; then
     AM_PATH_PYTHON([2.4])
@@ -380,6 +390,7 @@ echo "
     sysconfdir:             ${sysconfdir}
     dbus-1 system.d dir:    ${DBUS_SYS_DIR}
     dbus-1 version:         `pkg-config dbus-1 --modversion`
+    dbus-1 system socket    ${DBUS_SYSTEM_BUS_DEFAULT_ADDRESS}
     compiler:               ${CC}
     cflags:                 ${CFLAGS}
     Enable GLIB:            ${HAVE_GLIB}

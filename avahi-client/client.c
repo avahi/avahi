@@ -232,6 +232,43 @@ fail:
     return e;
 }
 
+/* This function acts like dbus_bus_get but creates a private
+ * connection instead */
+static DBusConnection*
+avahi_dbus_bus_get (DBusBusType type, DBusError *error)
+{
+    DBusConnection *conn;
+    char *env_addr;
+
+    env_addr = getenv ("DBUS_SYSTEM_BUS_ADDRESS");
+
+    if (env_addr == NULL || (strcmp (env_addr, "") == 0))
+    {
+        env_addr = DBUS_SYSTEM_BUS_DEFAULT_ADDRESS;
+    }
+
+    conn = dbus_connection_open_private (env_addr, error);
+
+    if (!conn)
+    {
+        printf ("Failed to open private connection: %s\n", error->message);
+        return NULL;
+    }
+
+    dbus_connection_set_exit_on_disconnect (conn, TRUE);
+
+    if (!dbus_bus_register (conn, error))
+    {
+        printf ("Failed to register connection\n");
+        dbus_connection_close (conn);
+        dbus_connection_unref (conn);
+
+        return NULL;
+    }
+
+    return conn;
+}
+
 AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *ret_error) {
     AvahiClient *client = NULL;
     DBusError error;
@@ -261,7 +298,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, client->service_type_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, client->service_resolvers);
 
-    if (!(client->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) ||
+    if (!(client->bus = avahi_dbus_bus_get(DBUS_BUS_SYSTEM, &error)) ||
         dbus_error_is_set (&error))
         goto fail;
 

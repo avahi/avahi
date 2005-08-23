@@ -2,7 +2,6 @@
 # $Id$
 # Copyright 1999-2005 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/www/www.gentoo.org/raw_cvs/gentoo-x86/net-dns/avahi/files/avahi.initd,v 1.2 2005/08/22 03:47:19 swegener Exp $
 
 opts="${opts} reload"
 

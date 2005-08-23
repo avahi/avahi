@@ -49,10 +49,10 @@ AC_PROG_LIBTOOL
 #
 # Detecting the linux distro for specific things like initscripts.
 #
-AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, archlinux or none]))
+AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, gentoo, archlinux or none]))
 if test "z$with_distro" = "z"; then
    #AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
-   #AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
+   AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
    AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
    AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
 fi
@@ -63,7 +63,7 @@ if test "z$with_distro" = "z"; then
    exit 1
 else
 case $with_distro in
-   debian|archlinux)
+   debian|gentoo|archlinux)
      ;;
    *)
      echo "Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)"
@@ -349,6 +349,7 @@ avahi-discover-standalone/Makefile
 avahi-client/Makefile 
 initscript/Makefile 
 initscript/debian/Makefile
+initscript/gentoo/Makefile
 initscript/archlinux/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile

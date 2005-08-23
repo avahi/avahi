@@ -27,11 +27,11 @@ if TARGET_ARCHLINUX
 SUBDIRS += archlinux
 endif
 
-# We disable shipping of Gentoo and SUSE init scripts for now as they are out of date
+if TARGET_GENTOO
+SUBDIRS += gentoo
+endif
 
-#if TARGET_GENTOO
-#SUBDIRS += gentoo
-#endif
+# We disable shipping of these init scripts for now as they are out of date
 
 #if TARGET_SUSE
 #SUBDIRS += suse

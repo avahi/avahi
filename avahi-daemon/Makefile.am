@@ -108,6 +108,9 @@ EXTRA_DIST = \
 	DomainBrowser.introspect \
 	ServiceTypeBrowser.introspect \
 	ServiceBrowser.introspect \
+	ServiceResolver.introspect \
+	AddressResolver.introspect \
+	HostNameResolver.introspect \
 	ssh.service \
 	example.service \
 	introspect.dtd \

@@ -22,9 +22,9 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-avahiincludedir=$(includedir)/avahi-glib
-
 if HAVE_GLIB
+
+avahiincludedir=$(includedir)/avahi-glib
 
 avahiinclude_HEADERS = \
 	glib-watch.h \
@@ -49,4 +49,3 @@ glib_watch_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
 glib_watch_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
 
 endif
-

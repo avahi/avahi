@@ -72,7 +72,7 @@ esac
 fi
 
 #AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
-#AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
+AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
 AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
 AM_CONDITIONAL(TARGET_ARCHLINUX, test x"$with_distro" = xarchlinux)
 
@@ -87,24 +87,36 @@ test_gcc_flag() {
 
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then
-   
-   DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wlarger-than-4000 -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
 
-   # Work around a kernel header bug in arch linux where rtnetlink.h
-   # can't be included with -std=c99
-   if test x"$with_distro" != xarchlinux ; then
-       DESIRED_FLAGS="$DESIRED_FLAGS -std=c99"
-   fi
+    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wlarger-than-4000 -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
 
-   for flag in $DESIRED_FLAGS ; do
-       AC_MSG_CHECKING([whether $CC accepts $flag])
-       if test_gcc_flag $flag ; then 
-          CFLAGS="$CFLAGS $flag"
-          AC_MSG_RESULT([yes])
-       else
-          AC_MSG_RESULT([no])
-       fi
-   done 
+    # Test whether rtnetlink.h can be included when compiled with -std=c99
+    # some distributions (e.g. archlinux) have broken headers that dont
+    # define __u64 with -std=c99
+    echo -n "checking whether rtnetlink.h can be included with -std=c99... "
+    OLDCFLAGS="$CFLAGS"
+    CFLAGS="-std=c99"
+    AC_TRY_COMPILE([#include <linux/rtnetlink.h>], [],
+        use_stdc99=yes, use_stdc99=no)
+
+    if test x"$use_stdc99" = xyes; then
+        DESIRED_FLAGS="-std=c99 $DESIRED_FLAGS"
+        echo "yes"
+    else
+        echo "no"
+    fi
+
+    CFLAGS="$OLDCFLAGS"
+
+    for flag in $DESIRED_FLAGS ; do
+        AC_MSG_CHECKING([whether $CC accepts $flag])
+        if test_gcc_flag $flag ; then 
+           CFLAGS="$CFLAGS $flag"
+           AC_MSG_RESULT([yes])
+        else
+           AC_MSG_RESULT([no])
+        fi
+    done 
 fi
 
 # Checks for header files.

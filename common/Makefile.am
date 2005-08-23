@@ -18,6 +18,6 @@
 # USA.
 
 EXTRA_DIST = \
-        doxygen.m4 \
+    doxygen.m4 \
 	doxygen.mk \
 	python.m4

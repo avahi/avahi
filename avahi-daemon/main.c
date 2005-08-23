@@ -383,7 +383,6 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.check_response_ttl = is_yes(p->value);
                 else if (strcasecmp(p->key, "use-iff-running") == 0)
                     c->server_config.use_iff_running = is_yes(p->value);
-#ifdef HAVE_DBUS                
                 else if (strcasecmp(p->key, "enable-dbus") == 0) {
 
                     if (*(p->value) == 'w' || *(p->value) == 'W') {
@@ -392,11 +391,14 @@ static int load_config_file(DaemonConfig *c) {
                     } else if (*(p->value) == 'y' || *(p->value) == 'Y') {
                         c->fail_on_missing_dbus = 1;
                         c->enable_dbus = 1;
-                    } else
+                    } else {
                         c->enable_dbus = 0;
-                    
-                }
+                    }
+#ifdef HAVE_DBUS                
+                    if (c->enable_dbus == 1) 
+                        avahi_log_warning("Avahi was compiled without d-bus support but you requested it was enabled in the config file");
 #endif
+                }
                 else if (strcasecmp(p->key, "drop-root") == 0)
                     c->drop_root = is_yes(p->value);
                 else {

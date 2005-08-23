@@ -1,9 +1,9 @@
 todo:
-* Add asynchronous interface for AvahiServerResolver to DBUS
+* Add asynchronous interface for AvahiServiceResolver to DBUS
 * release 0.2!
 
 later:
-* add support for an async HostnameResolver to DBUS
+* Passive observation of failures
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec

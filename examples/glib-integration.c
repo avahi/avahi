@@ -138,4 +138,6 @@ fail:
     g_main_loop_unref (loop);
     avahi_client_free (client);
     avahi_glib_poll_free (glib_poll);
+
+    return 0;
 }

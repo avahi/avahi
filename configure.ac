@@ -234,7 +234,7 @@ AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
 #
 # Detecting the linux distro for specific things like initscripts.
 #
-AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, or slackware]))
+AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of redhat, suse, gentoo, debian, slackware or none]))
 if test "z$with_distro" = "z"; then
    AC_CHECK_FILE(/etc/redhat-release,with_distro="redhat")
    AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")

@@ -28,6 +28,7 @@ man_MANS = \
 	avahi.service.5
 
 if HAVE_PYTHON
+if HAVE_DBUS
 
 man_MANS += \
 	avahi-browse.1 \
@@ -38,6 +39,7 @@ man_MANS += \
 	avahi-discover.1 \
 	avahi-bookmarks.1
 
+endif
 endif
 
 noinst_DATA = \

@@ -36,9 +36,9 @@ EXTRA_DIST = \
 	avahi-resolve-address.in \
 	avahi-discover.desktop.in
 
-SUBDIRS=avahi
-
 if HAVE_PYTHON
+if HAVE_DBUS
+SUBDIRS=avahi
 
 desktopdir = $(datadir)/applications
 desktop_DATA = avahi-discover.desktop
@@ -80,4 +80,5 @@ avahi-resolve-address: avahi-resolve-address.in
 
 CLEANFILES = $(pythonscripts) $(desktop_DATA)
 
+endif
 endif

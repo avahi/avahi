@@ -78,10 +78,8 @@ typedef struct {
     int daemonize;
     int use_syslog;
     char *config_file;
-#ifdef HAVE_DBUS
     int enable_dbus;
     int fail_on_missing_dbus;
-#endif
     int drop_root;
     int publish_resolv_conf;
     char ** publish_dns_servers;

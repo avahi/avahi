@@ -38,7 +38,7 @@ try:
     from twisted.internet import reactor
     from twisted.web import server, resource
 except ImportError:
-    print "Sorry, to use this tool you need to install twisted."
+    print "Sorry, to use this tool you need to install twisted and twisted.web."
     sys.exit(1)
 
 urlproto = { "_http._tcp" : "http",  "_https._tcp" : "https", "_ftp._tcp" : "ftp" }

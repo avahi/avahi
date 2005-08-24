@@ -59,14 +59,14 @@ fi
 with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
 
 if test "z$with_distro" = "z"; then
-    AC_MSG_ERROR([Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO])
+    AC_MSG_ERROR([Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO, set DISTRO to none if your distribution is not supported.])
     exit 1
 else
 case $with_distro in
-    debian|gentoo|archlinux)
+    debian|gentoo|archlinux|none)
      ;;
     *)
-     AC_MSG_ERROR([Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome)])
+     AC_MSG_ERROR([Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome), you can specify --with-distro=none to skip this check])
      ;;
 esac
 fi
@@ -139,6 +139,14 @@ AC_FUNC_CHOWN
 AC_FUNC_STAT
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
+
+# Check for pkg-config manually first, as if its not installed the
+# PKG_PROG_PKG_CONFIG macro won't be defined.
+AC_CHECK_PROG(have_pkg_config, pkg-config, yes, no)
+
+if test x"$have_pkg_config" == xno; then
+    AC_MSG_ERROR(pkg-config is required to install this program)
+fi
 
 PKG_PROG_PKG_CONFIG
 

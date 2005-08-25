@@ -28,13 +28,12 @@ run_versioned() {
     "$P" "$@"
 }
 
+set -ex
+
 if [ "x$1" = "xam" ] ; then
-    set -ex
     run_versioned automake "$VERSION" -a -c --foreign
     ./config.status
 else 
-    set -ex
-
     rm -rf autom4te.cache
     rm -f config.cache
 

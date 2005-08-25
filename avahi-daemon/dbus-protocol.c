@@ -1549,7 +1549,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         return respond_string(c, m, "blah");
 #else
         
-        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
             if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
                 char txt[256];
                 snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
@@ -1584,7 +1584,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 #ifdef VALGRIND_WORKAROUND
         return respond_int32(c, m, 1);
 #else
-        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
             if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
                 char txt[256];
                 snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));

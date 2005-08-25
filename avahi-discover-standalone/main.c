@@ -23,7 +23,10 @@
 #include <config.h>
 #endif
 
+#include <sys/ioctl.h>
 #include <string.h>
+#include <net/if.h>
+#include <unistd.h>
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
@@ -63,6 +66,34 @@ static AvahiSServiceTypeBrowser *service_type_browser = NULL;
 static GHashTable *service_type_hash_table = NULL;
 static AvahiSServiceResolver *service_resolver = NULL;
 static struct Service *current_service = NULL;
+
+static const char* getifname(int idx) {
+    static char t[256];
+    static struct ifreq ifreq;
+    int fd = -1;
+
+    memset(&ifreq, 0, sizeof(ifreq));
+
+    if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
+        if ((fd = socket(PF_INET6, SOCK_DGRAM, 0)) < 0)
+            goto fail;
+    
+    ifreq.ifr_ifindex = idx;
+    if (ioctl(fd, SIOCGIFNAME, &ifreq) < 0)
+        goto fail;
+
+    close(fd);
+    
+    return ifreq.ifr_name;
+
+    
+fail:
+    if (fd >= 0)
+        close(fd);
+
+    snprintf(t, sizeof(t), "#%i", idx);
+    return t;
+}
 
 static struct Service *get_service(const gchar *service_type, const gchar *service_name, const gchar*domain_name, AvahiIfIndex interface, AvahiProtocol protocol) {
     struct ServiceType *st;
@@ -135,7 +166,7 @@ static void service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex inter
         ppath = gtk_tree_row_reference_get_path(s->service_type->tree_ref);
         gtk_tree_model_get_iter(GTK_TREE_MODEL(tree_store), &piter, ppath);
 
-        snprintf(iface, sizeof(iface), "#%i %s", interface, protocol == AF_INET ? "IPv4" : "IPv6");
+        snprintf(iface, sizeof(iface), "%s %s", getifname(interface), protocol == AF_INET ? "IPv4" : "IPv6");
 
         gtk_tree_store_append(tree_store, &iter, &piter);
         gtk_tree_store_set(tree_store, &iter, 0, s->service_name, 1, iface, 2, s, -1);
@@ -204,14 +235,13 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
              "<b>Service Type:</b> %s\n"
              "<b>Service Name:</b> %s\n"
              "<b>Domain Name:</b> %s\n"
-             "<b>Interface:</b> %i %s\n"
+             "<b>Interface:</b> %s %s\n"
              "<b>Address:</b> %s\n"
              "<b>TXT Data:</b> %s",
              s->service_type->service_type,
              s->service_name,
              s->domain_name,
-             s->interface,
-             s->protocol == AF_INET ? "IPv4" : "IPv6",
+             getifname(s->interface), s->protocol == AF_INET ? "IPv4" : "IPv6",
              address,
              txt_s);
 

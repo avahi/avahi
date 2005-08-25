@@ -607,7 +607,7 @@ static int run_server(DaemonConfig *c) {
         }
 #else
         avahi_log_warn("WARNING: We are configured to enable D-BUS but it was not compiled in");
-        c->enabled_dbus = 0;
+        c->enable_dbus = 0;
 #endif
     }
     

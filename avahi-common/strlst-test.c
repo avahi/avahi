@@ -53,8 +53,10 @@ int main(int argc, char *argv[]) {
     t = avahi_string_list_to_string(a);
     printf("--%s--\n", t);
     avahi_free(t);
-
+    
+    n = avahi_string_list_serialize(a, NULL, 0);
     size = avahi_string_list_serialize(a, data, sizeof(data));
+    assert(size == n);
 
     printf("%u\n", size);
 
@@ -112,8 +114,10 @@ int main(int argc, char *argv[]) {
     avahi_string_list_free(a);
     avahi_string_list_free(b);
 
+    n = avahi_string_list_serialize(NULL, NULL, 0);
     size = avahi_string_list_serialize(NULL, data, sizeof(data));
     assert(size == 1);
+    assert(size == n);
 
     a = avahi_string_list_parse(data, size);
     assert(!a);

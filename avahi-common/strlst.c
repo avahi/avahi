@@ -200,14 +200,19 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
     } else {
         AvahiStringList *n;
 
-        for (n = l; n; n = n->next) {
-            size_t k;
-        
-            k = n->size;
-            if (k > 255)
-                k = 255;
-            
-            used += 1+k;
+        if (!l)
+            used = 1;
+        else {
+
+            for (n = l; n; n = n->next) {
+                size_t k;
+                
+                k = n->size;
+                if (k > 255)
+                    k = 255;
+                
+                used += 1+k;
+            }
         }
     }
 

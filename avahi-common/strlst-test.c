@@ -111,6 +111,12 @@ int main(int argc, char *argv[]) {
     
     avahi_string_list_free(a);
     avahi_string_list_free(b);
+
+    size = avahi_string_list_serialize(NULL, data, sizeof(data));
+    assert(size == 1);
+
+    a = avahi_string_list_parse(data, size);
+    assert(!a);
     
     return 0;
 }

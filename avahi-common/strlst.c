@@ -80,7 +80,9 @@ AvahiStringList *avahi_string_list_parse(const void* data, size_t size) {
             break;
 
         k = *(c++);
-        r = avahi_string_list_add_arbitrary(r, c, k);
+
+        if (k > 0) /* Ignore empty strings */
+            r = avahi_string_list_add_arbitrary(r, c, k);
         c += k;
 
         size -= 1 + k;
@@ -153,34 +155,48 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
     size_t used = 0;
 
     if (data) {
-        uint8_t *c;
-        AvahiStringList *n;
     
-        assert(data);
+        if (l) {
+            uint8_t *c;
+            AvahiStringList *n;
         
-        l = avahi_string_list_reverse(l);
-        c = data;
+            l = avahi_string_list_reverse(l);
+            c = data;
+            
+            for (n = l; n; n = n->next) {
+                size_t k;
+                if (size < 1)
+                    break;
+                
+                k = n->size;
+                if (k > 255)
+                    k = 255;
+                
+                if (k > size-1)
+                    k = size-1;
+                
+                *(c++) = k;
+                memcpy(c, n->text, k);
+                c += k;
+                
+                used += 1+ k;
+            }
         
-        for (n = l; n; n = n->next) {
-            size_t k;
-            if (size < 1)
-                break;
+            l = avahi_string_list_reverse(l);
             
-            k = n->size;
-            if (k > 255)
-                k = 255;
+        } else {
+
+            /* Empty lists are treated specially. To comply with
+             * section 6.1 of the DNS-SD spec, we return a single
+             * empty string (i.e. a NUL byte)*/
+
+            if (size > 0) {
+                *(uint8_t*) data = 0;
+                used = 1;
+            }
             
-            if (k > size-1)
-                k = size-1;
-            
-            *(c++) = k;
-            memcpy(c, n->text, k);
-            c += k;
-            
-            used += 1+ k;
         }
-        
-        l = avahi_string_list_reverse(l);
+            
     } else {
         AvahiStringList *n;
 

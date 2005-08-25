@@ -132,9 +132,10 @@ static void free_service(struct Service *s) {
     
     s->service_type->services = g_list_remove(s->service_type->services, s);
 
-    path = gtk_tree_row_reference_get_path(s->tree_ref);
-    gtk_tree_model_get_iter(GTK_TREE_MODEL(tree_store), &iter, path);
-    gtk_tree_path_free(path);
+    if ((path = gtk_tree_row_reference_get_path(s->tree_ref))) {
+        gtk_tree_model_get_iter(GTK_TREE_MODEL(tree_store), &iter, path);
+        gtk_tree_path_free(path);
+    }
     
     gtk_tree_store_remove(tree_store, &iter);
 
@@ -256,6 +257,10 @@ static struct Service *get_service_on_cursor(void) {
     GtkTreeIter iter;
     
     gtk_tree_view_get_cursor(tree_view, &path, NULL);
+
+    if (!path)
+        return NULL;
+    
     gtk_tree_model_get_iter(GTK_TREE_MODEL(tree_store), &iter, path);
     gtk_tree_model_get(GTK_TREE_MODEL(tree_store), &iter, 2, &s, -1);
     gtk_tree_path_free(path);

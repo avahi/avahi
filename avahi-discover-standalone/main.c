@@ -190,7 +190,11 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
         char na[256];
         avahi_address_snprint(na, sizeof(na), a);
         snprintf(address, sizeof(address), "%s/%s:%u", hostname, na, port);
-        txt_s = avahi_string_list_to_string(txt);
+
+        if (txt)
+            txt_s = avahi_string_list_to_string(txt);
+        else
+            txt_s = g_strdup("<i>empty</i>");
     } else {
         snprintf(address, sizeof(address), "<i>n/a</i>");
         txt_s = g_strdup("<i>n/a</i>");

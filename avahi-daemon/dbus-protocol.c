@@ -1550,10 +1550,11 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 #else
         
         if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-            char txt[256];
-            snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-            return respond_error(c, m, AVAHI_ERR_OS, txt);
-        }
+            if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
+                char txt[256];
+                snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
+                return respond_error(c, m, AVAHI_ERR_OS, txt);
+            }
 
         memset(&ifr, 0, sizeof(ifr));
         ifr.ifr_ifindex = idx;
@@ -1584,10 +1585,11 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         return respond_int32(c, m, 1);
 #else
         if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-            char txt[256];
-            snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-            return respond_error(c, m, AVAHI_ERR_OS, txt);
-        }
+            if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
+                char txt[256];
+                snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
+                return respond_error(c, m, AVAHI_ERR_OS, txt);
+            }
 
         memset(&ifr, 0, sizeof(ifr));
         snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", n);

@@ -42,6 +42,7 @@ struct AvahiClient {
     AVAHI_LLIST_HEAD(AvahiServiceBrowser, service_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceTypeBrowser, service_type_browsers);
     AVAHI_LLIST_HEAD(AvahiServiceResolver, service_resolvers);
+    AVAHI_LLIST_HEAD(AvahiHostNameResolver, host_name_resolvers);
 };
 
 struct AvahiEntryGroup {
@@ -83,6 +84,15 @@ struct AvahiServiceResolver {
     AvahiServiceResolverCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiServiceResolver, service_resolvers);
+};
+
+struct AvahiHostNameResolver {
+    char *path;
+    DBusPendingCall *call;
+    AvahiClient *client;
+    AvahiHostNameResolverCallback callback;
+    void *userdata;
+    AVAHI_LLIST_FIELDS(AvahiHostNameResolver, host_name_resolvers);
 };
 
 int avahi_client_set_errno (AvahiClient *client, int error);

@@ -53,8 +53,28 @@ avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, Av
 }
 
 static void
+avahi_service_resolver_callback (AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *name, const char *type, const char *domain, const char *host_name, const AvahiAddress *a, uint16_t port, AvahiStringList *txt, void *user_data)
+{
+    char addr[64];
+    char *txtr;
+    if (event == AVAHI_RESOLVER_TIMEOUT)
+    {
+        printf ("ServiceResolver timed out\n");
+        return;
+    }
+    avahi_address_snprint (addr, sizeof (addr), a);
+    txtr = avahi_string_list_to_string (txt);
+    printf ("XXX: Callback on ServiceResolver, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), host_name (%s), address (%s), port (%d), txtdata (%s), data(%s)\n", interface, protocol, event, name, type, domain, host_name, addr, port, txtr, (char*)user_data);
+}
+
+static void
 avahi_service_browser_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, void *user_data)
 {
+    AvahiServiceResolver *sr;
+    if (b && name)
+    {
+        sr = avahi_service_resolver_new (avahi_service_browser_get_client (b), interface, protocol, name, type, domain, AF_UNSPEC, avahi_service_resolver_callback, "xxXXxx");
+    }
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_get_dbus_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
 }
 
@@ -62,6 +82,20 @@ static void
 avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *user_data)
 {
     printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_get_dbus_path (b), interface, protocol, event, type, domain, (char*)user_data);
+}
+
+static void
+avahi_host_name_resolver_callback (AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *name, const AvahiAddress *a, void *user_data)
+{
+    char addr[64];
+
+    if (event == AVAHI_RESOLVER_TIMEOUT)
+    {
+        printf ("XXX: Callback on HostNameResolver, timed out.\n");
+        return;
+    }
+    avahi_address_snprint (addr, sizeof (addr), a);
+    printf ("XXX: Callback on HostNameResolver, interface (%d), protocol (%d), event (%d), name (%s), address (%s), data (%s)\n", interface, protocol, event, name, addr, (char*)user_data);
 }
 
 static void test_free_domain_browser(AvahiTimeout *timeout, void* userdata)
@@ -101,6 +135,7 @@ int main (int argc, char *argv[]) {
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
+    AvahiHostNameResolver *hnr;
     const char *ret;
     int error;
     struct timeval tv;
@@ -156,6 +191,12 @@ int main (int argc, char *argv[]) {
         printf ("Failed to create service browser object\n");
     else
         printf ("Sucessfully created service browser, path %s\n", avahi_service_browser_get_dbus_path (sb));
+
+    hnr = avahi_host_name_resolver_new (avahi, AVAHI_IF_UNSPEC, AF_UNSPEC, "hotbox.local", AF_UNSPEC, avahi_host_name_resolver_callback, "omghai4u");
+    if (hnr == NULL)
+        printf ("Failed to create hostname resolver object\n");
+    else
+        printf ("Successfully created hostname resolver object\n");
 
 
     avahi_elapse_time(&tv, 8000, 0);

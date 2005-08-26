@@ -192,6 +192,12 @@ fail:
     return NULL;
 }
 
+AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *b)
+{
+    assert(b);
+    return b->client;
+}
+
 int avahi_domain_browser_free (AvahiDomainBrowser *b) {
     AvahiClient *client;
     int r = AVAHI_OK;
@@ -359,6 +365,12 @@ fail:
         dbus_message_unref(reply);
 
     return NULL;
+}
+
+AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *b)
+{
+    assert(b);
+    return b->client;
 }
 
 int avahi_service_type_browser_free (AvahiServiceTypeBrowser *b) {
@@ -533,7 +545,13 @@ fail:
 
     return NULL;
 }
-    
+
+AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *b)
+{
+    assert(b);
+    return b->client;
+}
+
 int avahi_service_browser_free (AvahiServiceBrowser *b) {
     AvahiClient *client;
     int r = AVAHI_OK;

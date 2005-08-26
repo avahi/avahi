@@ -66,6 +66,9 @@ typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 /** A service resolver object */
 typedef struct AvahiServiceResolver AvahiServiceResolver;
 
+/** A service resolver object */
+typedef struct AvahiHostNameResolver AvahiHostNameResolver;
+
 /** States of a client object, a superset of AvahiServerState */
 typedef enum {
     AVAHI_CLIENT_S_INVALID = AVAHI_SERVER_INVALID,
@@ -103,6 +106,16 @@ typedef void (*AvahiServiceResolverCallback) (
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
+    void *userdata);
+
+/** The function prototype for the callback of an AvahiHostNameResolver */
+typedef void (*AvahiHostNameResolverCallback) (
+    AvahiHostNameResolver *r,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const char *name,
+    const AvahiAddress *a,
     void *userdata);
 
 /** Creates a new client instance */
@@ -198,6 +211,9 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               AvahiDomainBrowserCallback callback,
                                               void *userdata);
 
+/** Get the parent client of an AvahiDomainBrowser object */
+AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *);
+
 /** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
 const char* avahi_domain_browser_get_dbus_path (AvahiDomainBrowser *);
 
@@ -212,6 +228,9 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
                 const char *domain,
                 AvahiServiceTypeBrowserCallback callback,
                 void *userdata);
+
+/** Get the parent client of an AvahiServiceTypeBrowser object */
+AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *);
 
 /** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
 const char* avahi_service_type_browser_get_dbus_path(AvahiServiceTypeBrowser *);
@@ -232,6 +251,9 @@ AvahiServiceBrowser* avahi_service_browser_new (
 /** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
 const char* avahi_service_browser_get_dbus_path (AvahiServiceBrowser *);
 
+/** Get the parent client of an AvahiServiceBrowser object */
+AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *);
+
 /* Cleans up and frees an AvahiServiceBrowser object */
 int avahi_service_browser_free (AvahiServiceBrowser *);
 
@@ -247,11 +269,33 @@ AvahiServiceResolver * avahi_service_resolver_new(
     AvahiServiceResolverCallback callback,
     void *userdata);
 
+/** Get the parent client of an AvahiServiceResolver object */
+AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *);
+
 /** Free a service resolver object */
 int avahi_service_resolver_free(AvahiServiceResolver *r);
 
 /** Block until the resolving is complete */
 int avahi_service_resolver_block(AvahiServiceResolver *r);
+
+/** Create a new hostname resolver object */
+AvahiHostNameResolver * avahi_host_name_resolver_new(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    AvahiProtocol aprotocol,
+    AvahiHostNameResolverCallback callback,
+    void *userdata);
+
+/** Get the parent client of an AvahiHostNameResolver object */
+AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *);
+
+/** Free a hostname resolver object */
+int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
+
+/** Block until the resolving is complete */
+int avahi_host_name_resolver_block(AvahiHostNameResolver *r);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

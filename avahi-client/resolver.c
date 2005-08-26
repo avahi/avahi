@@ -38,7 +38,8 @@
 #include "client.h"
 #include "internal.h"
 
-static void pending_call_callback(DBusPendingCall *pending, void *userdata) {
+static void
+service_pending_call_callback(DBusPendingCall *pending, void *userdata) {
     AvahiServiceResolver *r =  userdata;
     DBusMessage *message = NULL;
     AvahiStringList *strlst = NULL;
@@ -145,6 +146,63 @@ fail:
     dbus_error_free (&error);
 }
 
+static void
+hostname_pending_call_callback(DBusPendingCall *pending, void *userdata) {
+    AvahiHostNameResolver *r =  userdata;
+    DBusMessage *message = NULL;
+    DBusError error;
+    
+    assert(pending);
+    assert(r);
+
+    dbus_error_init(&error);
+
+    if (!(message = dbus_pending_call_steal_reply(pending)))
+        goto fail;
+
+    if (dbus_message_get_type(message) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
+        int32_t interface, protocol, aprotocol;
+        char *name, *address;
+        AvahiAddress a;
+        
+        if (!dbus_message_get_args(
+                message, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_INT32, &aprotocol,
+                DBUS_TYPE_STRING, &address,
+                DBUS_TYPE_INVALID) ||
+            dbus_error_is_set (&error)) {
+            fprintf(stderr, "Failed to parse resolver event.\n");
+            goto fail;
+        }
+        
+        assert(address);
+        if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
+            fprintf(stderr, "Failed to parse address\n");
+            goto fail;
+        }
+    
+        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, &a, r->userdata);
+
+    } else {
+
+        assert(dbus_message_get_type(message) == DBUS_MESSAGE_TYPE_ERROR);
+
+        avahi_client_set_errno(r->client, avahi_error_dbus_to_number(dbus_message_get_error_name(message)));
+
+        r->callback(r, (AvahiIfIndex) 0, (AvahiProtocol) 0, AVAHI_RESOLVER_TIMEOUT, NULL, NULL, r->userdata);
+    }
+
+fail:
+    
+    if (message)
+        dbus_message_unref(message);
+    
+    dbus_error_free (&error);
+}
+
 AvahiServiceResolver * avahi_service_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -210,7 +268,7 @@ AvahiServiceResolver * avahi_service_resolver_new(
     }
 
     if (!dbus_connection_send_with_reply(client->bus, message, &r->call, -1) ||
-        !dbus_pending_call_set_notify(r->call, pending_call_callback, r, NULL)) {
+        !dbus_pending_call_set_notify(r->call, service_pending_call_callback, r, NULL)) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
     }
@@ -234,6 +292,14 @@ fail:
 
     return NULL;
 
+}
+
+AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *r) {
+    AvahiClient *client;
+
+    assert (r);
+
+    return r->client;
 }
 
 int avahi_service_resolver_free(AvahiServiceResolver *r) {
@@ -266,3 +332,123 @@ int avahi_service_resolver_block(AvahiServiceResolver *r) {
     return AVAHI_OK;
 }
 
+AvahiHostNameResolver * avahi_host_name_resolver_new(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    AvahiProtocol aprotocol,
+    AvahiHostNameResolverCallback callback,
+    void *userdata) {
+
+    DBusError error;
+    AvahiHostNameResolver *r;
+    DBusMessage *message;
+    int32_t i_interface, i_protocol, i_aprotocol;
+    
+    assert(client);
+    assert(name);
+
+    dbus_error_init (&error);
+
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
+        goto fail;
+    }
+
+    if (!(r = avahi_new(AvahiHostNameResolver, 1))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    r->client = client;
+    r->callback = callback;
+    r->userdata = userdata;
+    r->call = NULL;
+    
+    AVAHI_LLIST_PREPEND(AvahiHostNameResolver, host_name_resolvers, client->host_name_resolvers, r);
+
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "ResolveHostName"))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    i_interface = interface;
+    i_protocol = protocol;
+    i_aprotocol = aprotocol;
+
+    if (!(dbus_message_append_args(
+              message,
+              DBUS_TYPE_INT32, &i_interface,
+              DBUS_TYPE_INT32, &i_protocol,
+              DBUS_TYPE_STRING, &name,
+              DBUS_TYPE_INT32, &i_aprotocol,
+              DBUS_TYPE_INVALID))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    if (!dbus_connection_send_with_reply(client->bus, message, &r->call, -1) ||
+        !dbus_pending_call_set_notify(r->call, hostname_pending_call_callback, r, NULL)) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    dbus_message_unref(message);
+
+    return r;
+    
+fail:
+
+    if (dbus_error_is_set(&error)) {
+        avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    if (r)
+        avahi_host_name_resolver_free(r);
+    
+    if (message)
+        dbus_message_unref(message);
+
+    return NULL;
+
+}
+
+int avahi_host_name_resolver_free(AvahiHostNameResolver *r) {
+    AvahiClient *client;
+
+    assert(r);
+    client = r->client;
+
+    if (r->call) {
+        dbus_pending_call_cancel(r->call);
+        dbus_pending_call_unref(r->call);
+    }
+
+    AVAHI_LLIST_REMOVE(AvahiHostNameResolver, host_name_resolvers, client->host_name_resolvers, r);
+
+    avahi_free(r);
+
+    return AVAHI_OK;
+}
+
+AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *r) {
+    AvahiClient *client;
+
+    assert (r);
+
+    return r->client;
+}
+
+int avahi_host_name_resolver_block(AvahiHostNameResolver *r) {
+    AvahiClient *client;
+
+    assert(r);
+    client = r->client;
+
+    if (r->call)
+        dbus_pending_call_block(r->call);
+
+    return AVAHI_OK;
+}

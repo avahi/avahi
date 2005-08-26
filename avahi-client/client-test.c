@@ -37,19 +37,19 @@ static AvahiSimplePoll *simple_poll = NULL;
 static void
 avahi_client_callback (AvahiClient *c, AvahiClientState state, void *user_data)
 {
-    printf ("XXX: Callback on client, state -> %d, data -> %s\n", state, (char*)user_data);
+    printf ("Callback on client, state -> %d, data -> %s\n", state, (char*)user_data);
 }
 
 static void
 avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *user_data)
 {
-    printf ("XXX: Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_get_dbus_path(g), state, (char*)user_data);
+    printf ("Callback on %s, state -> %d, data -> %s\n", avahi_entry_group_get_dbus_path(g), state, (char*)user_data);
 }
 
 static void
 avahi_domain_browser_callback (AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, void *user_data)
 {
-    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_get_dbus_path (b), interface, protocol, event, domain, (char*)user_data);
+    printf ("Callback on %s, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", avahi_domain_browser_get_dbus_path (b), interface, protocol, event, domain, (char*)user_data);
 }
 
 static void
@@ -60,11 +60,12 @@ avahi_service_resolver_callback (AvahiServiceResolver *r, AvahiIfIndex interface
     if (event == AVAHI_RESOLVER_TIMEOUT)
     {
         printf ("ServiceResolver timed out\n");
+        avahi_service_resolver_free (r);
         return;
     }
     avahi_address_snprint (addr, sizeof (addr), a);
     txtr = avahi_string_list_to_string (txt);
-    printf ("XXX: Callback on ServiceResolver, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), host_name (%s), address (%s), port (%d), txtdata (%s), data(%s)\n", interface, protocol, event, name, type, domain, host_name, addr, port, txtr, (char*)user_data);
+    printf ("Callback on ServiceResolver, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), host_name (%s), address (%s), port (%d), txtdata (%s), data(%s)\n", interface, protocol, event, name, type, domain, host_name, addr, port, txtr, (char*)user_data);
 }
 
 static void
@@ -75,40 +76,64 @@ avahi_service_browser_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, 
     {
         sr = avahi_service_resolver_new (avahi_service_browser_get_client (b), interface, protocol, name, type, domain, AF_UNSPEC, avahi_service_resolver_callback, "xxXXxx");
     }
-    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_get_dbus_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
+    printf ("Callback on %s, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", avahi_service_browser_get_dbus_path (b), interface, protocol, event, name, type, domain, (char*)user_data);
 }
 
 static void
 avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, void *user_data)
 {
-    printf ("XXX: Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_get_dbus_path (b), interface, protocol, event, type, domain, (char*)user_data);
+    printf ("Callback on %s, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", avahi_service_type_browser_get_dbus_path (b), interface, protocol, event, type, domain, (char*)user_data);
+}
+
+static void
+avahi_address_resolver_callback (AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiProtocol aprotocol, const AvahiAddress *address, const char *name, const char *userdata)
+{
+    char addr[64];
+    if (event == AVAHI_RESOLVER_TIMEOUT)
+    {
+        printf ("Callback on AddressResolver, timed out.\n");
+        avahi_address_resolver_free (r);
+        return;
+    }
+    avahi_address_snprint (&addr, sizeof (addr), address);
+    printf ("Callback on AddressResolver, interface (%d), protocol (%d), even (%d), aprotocol (%d), address (%s), name (%s), data(%s)\n", interface, protocol, event, aprotocol, addr, name);
 }
 
 static void
 avahi_host_name_resolver_callback (AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *name, const AvahiAddress *a, void *user_data)
 {
+    AvahiClient *client;
+    AvahiAddressResolver *ar;
     char addr[64];
-
+    
     if (event == AVAHI_RESOLVER_TIMEOUT)
     {
-        printf ("XXX: Callback on HostNameResolver, timed out.\n");
+        printf ("Callback on HostNameResolver, timed out.\n");
+        avahi_host_name_resolver_free (r);
         return;
     }
-    avahi_address_snprint (addr, sizeof (addr), a);
-    printf ("XXX: Callback on HostNameResolver, interface (%d), protocol (%d), event (%d), name (%s), address (%s), data (%s)\n", interface, protocol, event, name, addr, (char*)user_data);
+    client = avahi_host_name_resolver_get_client (r);
+    ar = avahi_address_resolver_new_a (client, AVAHI_IF_UNSPEC, a, avahi_address_resolver_callback, "omghai6u");
+    if (ar)
+    {
+        printf ("Succesfully created address resolver object\n");
+    } else {
+        printf ("Failed to create AddressResolver\n");
+    }
+    avahi_address_snprint (&addr, sizeof (addr), a);
+    printf ("Callback on HostNameResolver, interface (%d), protocol (%d), event (%d), name (%s), address (%s), data (%s)\n", interface, protocol, event, name, addr, (char*)user_data);
 }
-
 static void test_free_domain_browser(AvahiTimeout *timeout, void* userdata)
 {
     AvahiServiceBrowser *b = userdata;
-    printf ("XXX: freeing domain browser\n");
+    printf ("Freeing domain browser\n");
     avahi_service_browser_free (b);
 }
 
 static void test_free_entry_group (AvahiTimeout *timeout, void* userdata)
 {
     AvahiEntryGroup *g = userdata;
-    printf ("XXX: freeing entry group\n");
+    printf ("Freeing entry group\n");
     avahi_entry_group_free (g);
 }
 
@@ -116,7 +141,7 @@ static void test_entry_group_reset (AvahiTimeout *timeout, void* userdata)
 {
     AvahiEntryGroup *g = userdata;
 
-    printf ("XXX: resetting entry group\n");
+    printf ("Resetting entry group\n");
     avahi_entry_group_reset (g);
 
     avahi_entry_group_add_service (g, AVAHI_IF_UNSPEC, AF_UNSPEC, "Lathiat's Site", "_http._tcp", "", "", 80, "foo=bar2", NULL);

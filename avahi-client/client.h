@@ -69,6 +69,9 @@ typedef struct AvahiServiceResolver AvahiServiceResolver;
 /** A service resolver object */
 typedef struct AvahiHostNameResolver AvahiHostNameResolver;
 
+/** An address resolver object */
+typedef struct AvahiAddressResolver AvahiAddressResolver;
+
 /** States of a client object, a superset of AvahiServerState */
 typedef enum {
     AVAHI_CLIENT_S_INVALID = AVAHI_SERVER_INVALID,
@@ -116,6 +119,17 @@ typedef void (*AvahiHostNameResolverCallback) (
     AvahiResolverEvent event,
     const char *name,
     const AvahiAddress *a,
+    void *userdata);
+
+/** The function prototype for the callback of an AvahiAddressResolver */
+typedef void (*AvahiAddressResolverCallback) (
+    AvahiAddressResolver *r,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    AvahiProtocol aprotocol,
+    const AvahiAddress *a,
+    const char *name,
     void *userdata);
 
 /** Creates a new client instance */
@@ -296,6 +310,32 @@ int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 
 /** Block until the resolving is complete */
 int avahi_host_name_resolver_block(AvahiHostNameResolver *r);
+
+/** Create a new address resolver object from an address string.  Set protocol to AF_UNSPEC for protocol detection. */
+AvahiAddressResolver * avahi_address_resolver_new(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *address,
+    AvahiAddressResolverCallback callback,
+    void *userdata);
+
+/** Create a new address resolver object from an AvahiAddress object */
+AvahiAddressResolver* avahi_address_resolver_new_a(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    const AvahiAddress *a,
+    AvahiAddressResolverCallback callback,
+    void *userdata);
+
+/** Get the parent client of an AvahiAddressResolver object */
+AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *);
+
+/** Free a AvahiAddressResolver resolver object */
+int avahi_address_resolver_free(AvahiAddressResolver *r);
+
+/** Block until the resolving is complete */
+int avahi_address_resolver_block(AvahiAddressResolver *r);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

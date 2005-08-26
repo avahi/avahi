@@ -55,7 +55,8 @@ service_pending_call_callback(DBusPendingCall *pending, void *userdata) {
 
     if (dbus_message_get_type(message) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
         int j;
-        int32_t interface, protocol, aprotocol;
+        int32_t interface;
+        AvahiProtocol protocol, aprotocol;
         char *name, *type, *domain, *host, *address;
         uint16_t port;
         DBusMessageIter iter, sub;
@@ -161,7 +162,8 @@ hostname_pending_call_callback(DBusPendingCall *pending, void *userdata) {
         goto fail;
 
     if (dbus_message_get_type(message) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
-        int32_t interface, protocol, aprotocol;
+        int32_t interface;
+        AvahiProtocol protocol, aprotocol;
         char *name, *address;
         AvahiAddress a;
         
@@ -203,6 +205,65 @@ fail:
     dbus_error_free (&error);
 }
 
+static void
+address_pending_call_callback(DBusPendingCall *pending, void *userdata) {
+    AvahiAddressResolver *r =  userdata;
+    DBusMessage *message = NULL;
+    DBusError error;
+    
+    assert(pending);
+    assert(r);
+
+    dbus_error_init(&error);
+
+    if (!(message = dbus_pending_call_steal_reply(pending)))
+        goto fail;
+
+    if (dbus_message_get_type(message) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
+        int32_t interface;
+        AvahiProtocol protocol, aprotocol;
+        char *name, *address;
+        AvahiAddress a;
+        
+        if (!dbus_message_get_args(
+                message, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_INT32, &aprotocol,
+                DBUS_TYPE_STRING, &address,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_INVALID) ||
+            dbus_error_is_set (&error)) {
+            fprintf(stderr, "Failed to parse resolver event.\n");
+            goto fail;
+        }
+        
+        assert(address);
+        if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
+            fprintf(stderr, "Failed to parse address\n");
+            goto fail;
+        }
+    
+        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, (AvahiProtocol) aprotocol, &a, name, r->userdata);
+
+    } else {
+
+        assert(dbus_message_get_type(message) == DBUS_MESSAGE_TYPE_ERROR);
+
+        avahi_client_set_errno(r->client, avahi_error_dbus_to_number(dbus_message_get_error_name(message)));
+
+        r->callback(r, (AvahiIfIndex) 0, (AvahiProtocol) 0, AVAHI_RESOLVER_TIMEOUT, (AvahiProtocol) 0, NULL, NULL, r->userdata);
+    }
+
+fail:
+    
+    if (message)
+        dbus_message_unref(message);
+    
+    dbus_error_free (&error);
+}
+
+/* AvahiServiceResolver implementation */
 AvahiServiceResolver * avahi_service_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -295,8 +356,6 @@ fail:
 }
 
 AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *r) {
-    AvahiClient *client;
-
     assert (r);
 
     return r->client;
@@ -331,6 +390,8 @@ int avahi_service_resolver_block(AvahiServiceResolver *r) {
 
     return AVAHI_OK;
 }
+
+/* AvahiHostNameResolver implementation */
 
 AvahiHostNameResolver * avahi_host_name_resolver_new(
     AvahiClient *client,
@@ -434,14 +495,148 @@ int avahi_host_name_resolver_free(AvahiHostNameResolver *r) {
 }
 
 AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *r) {
-    AvahiClient *client;
-
     assert (r);
 
     return r->client;
 }
 
 int avahi_host_name_resolver_block(AvahiHostNameResolver *r) {
+    AvahiClient *client;
+
+    assert(r);
+    client = r->client;
+
+    if (r->call)
+        dbus_pending_call_block(r->call);
+
+    return AVAHI_OK;
+}
+
+/* AvahiAddressResolver implementation */
+
+AvahiAddressResolver * avahi_address_resolver_new_a(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    const AvahiAddress *a,
+    AvahiAddressResolverCallback callback,
+    void *userdata) {
+
+    char addr[64];
+
+    assert (a);
+
+    avahi_address_snprint (addr, sizeof (addr), a);
+
+    return avahi_address_resolver_new (client, interface,
+            a->family, addr,
+            callback, userdata);
+}
+
+AvahiAddressResolver * avahi_address_resolver_new(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *address,
+    AvahiAddressResolverCallback callback,
+    void *userdata) {
+
+    DBusError error;
+    AvahiAddressResolver *r;
+    DBusMessage *message;
+    int32_t i_interface;
+    AvahiProtocol i_protocol;
+    
+    assert(client);
+
+    dbus_error_init (&error);
+
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
+        goto fail;
+    }
+
+    if (!(r = avahi_new(AvahiAddressResolver, 1))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    r->client = client;
+    r->callback = callback;
+    r->userdata = userdata;
+    r->call = NULL;
+    
+    AVAHI_LLIST_PREPEND(AvahiAddressResolver, address_resolvers, client->address_resolvers, r);
+
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "ResolveAddress"))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    i_interface = interface;
+    i_protocol = protocol;
+
+    if (!(dbus_message_append_args(
+              message,
+              DBUS_TYPE_INT32, &i_interface,
+              DBUS_TYPE_INT32, &i_protocol,
+              DBUS_TYPE_STRING, &address,
+              DBUS_TYPE_INVALID))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    if (!dbus_connection_send_with_reply(client->bus, message, &r->call, -1) ||
+        !dbus_pending_call_set_notify(r->call, address_pending_call_callback, r, NULL)) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    dbus_message_unref(message);
+
+    return r;
+    
+fail:
+
+    if (dbus_error_is_set(&error)) {
+        avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    if (r)
+        avahi_address_resolver_free(r);
+    
+    if (message)
+        dbus_message_unref(message);
+
+    return NULL;
+
+}
+
+AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *r) {
+    assert (r);
+
+    return r->client;
+}
+
+int avahi_address_resolver_free(AvahiAddressResolver *r) {
+    AvahiClient *client;
+
+    assert(r);
+    client = r->client;
+
+    if (r->call) {
+        dbus_pending_call_cancel(r->call);
+        dbus_pending_call_unref(r->call);
+    }
+
+    AVAHI_LLIST_REMOVE(AvahiAddressResolver, address_resolvers, client->address_resolvers, r);
+
+    avahi_free(r);
+
+    return AVAHI_OK;
+}
+
+int avahi_address_resolver_block(AvahiAddressResolver *r) {
     AvahiClient *client;
 
     assert(r);

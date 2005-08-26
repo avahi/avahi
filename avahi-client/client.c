@@ -293,6 +293,8 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, client->service_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceTypeBrowser, client->service_type_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, client->service_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiHostNameResolver, client->host_name_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiAddressResolver, client->address_resolvers);
 
     if (!(client->bus = avahi_dbus_bus_get(&error)) ||
         dbus_error_is_set (&error))

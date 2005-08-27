@@ -22,7 +22,7 @@
 import sys, getopt
 
 try:
-    import avahi, gobject, dbus
+    import avahi, gobject, dbus, avahi.ServiceTypeDatabase
 except ImportError:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
     sys.exit(1)
@@ -70,6 +70,8 @@ if stype is None and not show_all:
 service_type_browsers = {}
 service_browsers = {}
 
+service_type_db = avahi.ServiceTypeDatabase.ServiceTypeDatabase()
+
 def siocgifname(interface):
     global server
     
@@ -78,38 +80,46 @@ def siocgifname(interface):
     else:
         return server.GetNetworkInterfaceNameByIndex(interface)
 
-def service_resolved(interface, protocol, name, type, domain, host, aprotocol, address, port, txt):
-    print "Service data for service '%s' of type '%s' in domain '%s' on %s.%i:" % (name, type, domain, siocgifname(interface), protocol)
+def lookup_service_type(stype):
+    global service_type_db
+
+    try:
+        return service_type_db[stype]
+    except KeyError:
+        return "n/a"
+
+def service_resolved(interface, protocol, name, stype, domain, host, aprotocol, address, port, txt):
+    print "Service data for service '%s' of type '%s' (%s) in domain '%s' on %s.%i:" % (name, stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
     print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, avahi.txt_array_to_string_array(txt))
 
 def print_error(err):
     print "Error:", str(err)
 
-def new_service(interface, protocol, name, type, domain):
+def new_service(interface, protocol, name, stype, domain):
     global server
     
-    print "Found service '%s' of type '%s' in domain '%s' on %s.%i." % (name, type, domain, siocgifname(interface), protocol)
+    print "Found service '%s' of type '%s' (%s) in domain '%s' on %s.%i." % (name, stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
 
     # Asynchronous resolving
-    server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, reply_handler=service_resolved, error_handler=print_error)
+    server.ResolveService(interface, protocol, name, stype, domain, avahi.PROTO_UNSPEC, reply_handler=service_resolved, error_handler=print_error)
 
-def remove_service(interface, protocol, name, type, domain):
-    print "Service '%s' of type '%s' in domain '%s' on %s.%i disappeared." % (name, type, domain, siocgifname(interface), protocol)
+def remove_service(interface, protocol, name, stype, domain):
+    print "Service '%s' of type '%s' (%s) in domain '%s' on %s.%i disappeared." % (name, stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
  
-def new_service_type(interface, protocol, type, domain):
+def new_service_type(interface, protocol, stype, domain):
     global server, service_browsers
 
     # Are we already browsing this domain for this type? 
-    if service_browsers.has_key((interface, protocol, type, domain)):
+    if service_browsers.has_key((interface, protocol, stype, domain)):
         return
 
-    print "Browsing for services of type '%s' in domain '%s' on %s.%i ..." % (type, domain, siocgifname(interface), protocol)
+    print "Browsing for services of type '%s' (%s) in domain '%s' on %s.%i ..." % (stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
     
-    b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceBrowserNew(interface, protocol, type, domain)), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+    b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceBrowserNew(interface, protocol, stype, domain)), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
     b.connect_to_signal('ItemNew', new_service)
     b.connect_to_signal('ItemRemove', remove_service)
 
-    service_browsers[(interface, protocol, type, domain)] = b
+    service_browsers[(interface, protocol, stype, domain)] = b
 
 def browse_domain(interface, protocol, domain):
     global server, service_type_browsers, stype

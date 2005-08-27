@@ -86,7 +86,7 @@ avahi_service_type_browser_callback (AvahiServiceTypeBrowser *b, AvahiIfIndex in
 }
 
 static void
-avahi_address_resolver_callback (AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiProtocol aprotocol, const AvahiAddress *address, const char *name, const char *userdata)
+avahi_address_resolver_callback (AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, AvahiProtocol aprotocol, const AvahiAddress *address, const char *name, void *userdata)
 {
     char addr[64];
     if (event == AVAHI_RESOLVER_TIMEOUT)
@@ -95,7 +95,7 @@ avahi_address_resolver_callback (AvahiAddressResolver *r, AvahiIfIndex interface
         avahi_address_resolver_free (r);
         return;
     }
-    avahi_address_snprint (&addr, sizeof (addr), address);
+    avahi_address_snprint (addr, sizeof (addr), address);
     printf ("Callback on AddressResolver, interface (%d), protocol (%d), even (%d), aprotocol (%d), address (%s), name (%s), data(%s)\n", interface, protocol, event, aprotocol, addr, name);
 }
 
@@ -113,14 +113,14 @@ avahi_host_name_resolver_callback (AvahiHostNameResolver *r, AvahiIfIndex interf
         return;
     }
     client = avahi_host_name_resolver_get_client (r);
-    ar = avahi_address_resolver_new_a (client, AVAHI_IF_UNSPEC, a, avahi_address_resolver_callback, "omghai6u");
+    ar = avahi_address_resolver_new_a (client, interface, protocol, a, avahi_address_resolver_callback, "omghai6u");
     if (ar)
     {
         printf ("Succesfully created address resolver object\n");
     } else {
         printf ("Failed to create AddressResolver\n");
     }
-    avahi_address_snprint (&addr, sizeof (addr), a);
+    avahi_address_snprint (addr, sizeof (addr), a);
     printf ("Callback on HostNameResolver, interface (%d), protocol (%d), event (%d), name (%s), address (%s), data (%s)\n", interface, protocol, event, name, addr, (char*)user_data);
 }
 static void test_free_domain_browser(AvahiTimeout *timeout, void* userdata)

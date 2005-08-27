@@ -517,6 +517,7 @@ int avahi_host_name_resolver_block(AvahiHostNameResolver *r) {
 AvahiAddressResolver * avahi_address_resolver_new_a(
     AvahiClient *client,
     AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const AvahiAddress *a,
     AvahiAddressResolverCallback callback,
     void *userdata) {
@@ -525,11 +526,15 @@ AvahiAddressResolver * avahi_address_resolver_new_a(
 
     assert (a);
 
-    avahi_address_snprint (addr, sizeof (addr), a);
+    if (!avahi_address_snprint (addr, sizeof (addr), a)) {
+        avahi_client_set_errno(client, AVAHI_ERR_INVALID_ADDRESS);
+        return NULL;
+    }
 
-    return avahi_address_resolver_new (client, interface,
-            a->family, addr,
-            callback, userdata);
+    return avahi_address_resolver_new (
+        client, interface, protocol,
+        addr,
+        callback, userdata);
 }
 
 AvahiAddressResolver * avahi_address_resolver_new(

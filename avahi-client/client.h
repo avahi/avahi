@@ -311,7 +311,7 @@ int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 /** Block until the resolving is complete */
 int avahi_host_name_resolver_block(AvahiHostNameResolver *r);
 
-/** Create a new address resolver object from an address string.  Set protocol to AF_UNSPEC for protocol detection. */
+/** Create a new address resolver object from an address string.  Set aprotocol to AF_UNSPEC for protocol detection. */
 AvahiAddressResolver * avahi_address_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -324,6 +324,7 @@ AvahiAddressResolver * avahi_address_resolver_new(
 AvahiAddressResolver* avahi_address_resolver_new_a(
     AvahiClient *client,
     AvahiIfIndex interface,
+    AvahiProtocol protocol,
     const AvahiAddress *a,
     AvahiAddressResolverCallback callback,
     void *userdata);

@@ -26,8 +26,8 @@
 #
 # is not a source that complies with the criterion!
 
-_http._tcp:Web Service
-_http._tcp[de]:Web Dienst
+_http._tcp:Web Site
+_http._tcp[de]:Web-Angebot
 
 _https._tcp:Secure Web Service
 _https._tcpi[de]:Sicherer Web Dienst
@@ -35,13 +35,11 @@ _https._tcpi[de]:Sicherer Web Dienst
 _ftp._tcp:FTP File Transfer
 _ftp._tcp[de]:FTP Dateifreigabe
 
-# UDP?
 _h323._tcp:H.323 Telephony
 _h323._tcp[de]:H.323 Telefonie
 
-# UDP?
-_sip._tcp:SIP Telephony
-_sip._tcp[de]:SIP Telefonie
+_sip._udp:SIP Telephony
+_sip._udp[de]:SIP Telefonie
 
 _ssh._tcp:SSH Remote Terminal
 _ssh._tcp[de]:SSH Fernzugriff
@@ -59,10 +57,14 @@ _imap._tcp:IMAP Mail Access
 
 _pop3._tcp:POP3 Mail Access
 
-_rfb._tcp:VNC Remote Frambuffer
+_rfb._tcp:VNC Remote Access
 
 _sftp-ssh._tcp:SFTP File Transfer
 
 _telnet._tcp:Telnet Remote Terminal
 
 _presence._tcp:iChat Presence
+
+_webdav._tcp:WebDAV File Share
+
+_webdavs._tcp:Secure WebDAV File Share

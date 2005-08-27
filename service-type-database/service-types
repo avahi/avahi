@@ -68,3 +68,6 @@ _presence._tcp:iChat Presence
 _webdav._tcp:WebDAV File Share
 
 _webdavs._tcp:Secure WebDAV File Share
+
+_workstation._tcp:Workstation
+_workstation._tcp[de]:Arbeitsplatzrechner

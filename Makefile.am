@@ -51,7 +51,8 @@ SUBDIRS = \
 	avahi-utils \
 	examples \
 	man \
-	tests
+	tests \
+	service-type-database
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/cdecl.h \

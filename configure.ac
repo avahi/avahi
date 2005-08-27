@@ -387,6 +387,7 @@ examples/Makefile
 common/Makefile
 man/Makefile
 tests/Makefile
+service-type-database/Makefile
 ])
 AC_OUTPUT
 

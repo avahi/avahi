@@ -42,12 +42,23 @@ avahi_discover_standalone_LDADD = \
 	../avahi-core/libavahi-core.la  \
 	$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
+interfaces_DATA = $(interfaces)
+
+else 
+
+if HAVE_PYTHON 
+if HAVE_DBUS
+
+# We need this for the python version of avahi-discover
+interfaces_DATA = $(interfaces)
+
+endif
+endif
+endif
+
 interfaces = \
         avahi-discover.glade
-
-interfaces_DATA = $(interfaces)
 
 EXTRA_DIST = \
 	$(interfaces) \
 	avahi-discover.gladep
-endif

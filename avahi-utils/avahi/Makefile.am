@@ -17,13 +17,22 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+EXTRA_DIST = __init__.py SimpleGladeApp.py ServiceTypeDatabase.py.in
+
 if HAVE_PYTHON
 avahidir = $(pythondir)/avahi
 
-avahi_PYTHON = __init__.py SimpleGladeApp.py
+avahi_PYTHON = __init__.py SimpleGladeApp.py ServiceTypeDatabase.py
+
+BUILT_SOURCES = ServiceTypeDatabase.py
+
+ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' \
+		-e 's,@pkgdatadir\@,$(pkgdatadir),g' $< > $@
+	chmod +x $@
+
+CLEANFILES=*.pyc *.pyo ServiceTypeDatabase.py
+
 endif
 
-EXTRA_DIST = __init__.py SimpleGladeApp.py
 
-clean-local:
-	rm -rf *.pyc *.pyo

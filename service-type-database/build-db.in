@@ -1,5 +1,5 @@
 #!@PYTHON@
-
+# -*-python-*-
 # $Id$
 
 # This file is part of avahi.
@@ -22,13 +22,21 @@
 import dbm, sys
 
 if len(sys.argv) > 1:
-    fn = sys.argv[1]
+    infn = sys.argv[1]
 else:
-    fn = "service-types"
+    infn = "service-types"
 
-db = dbm.open(fn, "n")
+if len(sys.argv) > 2:
+    outfn = sys.argv[2]
+else:
+    outfn = infn
 
-for ln in file(fn, "r"):
+if outfn.endswith(".db"):
+    outfn = outfn[:-3]
+
+db = dbm.open(outfn, "n")
+
+for ln in file(infn, "r"):
     ln = ln.strip(" \r\n\t")
     
     if ln == "" or ln.startswith("#"):

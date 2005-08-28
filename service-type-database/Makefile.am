@@ -31,7 +31,7 @@ build-db: build-db.in
 	chmod +x $@
 
 service-types.db: service-types
-	$(PYTHON) build-db $<
+	$(PYTHON) build-db $(srcdir)/$< $@
 
 CLEANFILES = service-types.db build-db
 

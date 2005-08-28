@@ -220,7 +220,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
 #endif
 
     if (state == AVAHI_SERVER_RUNNING) {
-        avahi_log_info("Server startup complete.  Host name is %s.", avahi_server_get_host_name_fqdn(s));
+        avahi_log_info("Server startup complete. Host name is %s.", avahi_server_get_host_name_fqdn(s));
         static_service_add_to_server();
 
         remove_dns_server_entry_groups();
@@ -606,7 +606,7 @@ static int run_server(DaemonConfig *c) {
             c->enable_dbus = 0;
         }
 #else
-        avahi_log_warn("WARNING: We are configured to enable D-BUS but it was not compiled in");
+        avahi_log_warn("WARNING: We are configured to enable D-BUS but it was not compiled in.");
         c->enable_dbus = 0;
 #endif
     }

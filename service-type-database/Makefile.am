@@ -30,7 +30,7 @@ build-db: build-db.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
-service-types.db: service-types
+service-types.db: service-types build-db
 	$(PYTHON) build-db $(srcdir)/$< $@
 
 CLEANFILES = service-types.db build-db

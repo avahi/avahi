@@ -303,7 +303,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
     b = avahi_interface_relevant(i);
 
     if (b && !i->announcing) {
-        avahi_log_debug("New relevant interface %s.%i (#%i)", i->hardware->name, i->protocol, i->hardware->index);
+        avahi_log_info("New relevant interface %s.%i.", i->hardware->name, i->protocol);
 
         if (i->protocol == AVAHI_PROTO_INET)
             avahi_mdns_mcast_join_ipv4(m->server->fd_ipv4, i->hardware->index);
@@ -314,7 +314,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         avahi_announce_interface(m->server, i);
         avahi_browser_new_interface(m->server, i);
     } else if (!b && i->announcing) {
-        avahi_log_debug("Interface %s.%i no longer relevant", i->hardware->name, i->protocol);
+        avahi_log_info("Interface %s.%i no longer relevant.", i->hardware->name, i->protocol);
 
         if (i->protocol == AVAHI_PROTO_INET)
             avahi_mdns_mcast_leave_ipv4(m->server->fd_ipv4, i->hardware->index);
@@ -492,7 +492,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             addr->scope = ifaddrmsg->ifa_scope;
             addr->prefix_len = ifaddrmsg->ifa_prefixlen;
 
-            update_address_rr(m, addr, 0);
+            update_interface_rr(m, addr->interface, 0);
         } else {
             AvahiInterfaceAddress *addr;
             
@@ -501,6 +501,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
             update_address_rr(m, addr, 1);
             free_address(m, addr);
+
+            update_interface_rr(m, addr->interface, 0); /* if this address was removed another might becomes usable instead */
         }
 
         check_interface_relevant(m, i);
@@ -516,7 +518,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
                 m->list = LIST_ADDR;
         } else {
             m->list = LIST_DONE;
-            avahi_log_debug("Network interface enumeration completed");
+            avahi_log_info("Network interface enumeration completed.");
         }
         
     } else if (n->nlmsg_type == NLMSG_ERROR && (n->nlmsg_seq == m->query_link_seq || n->nlmsg_seq == m->query_addr_seq)) {
@@ -712,10 +714,31 @@ int avahi_interface_relevant(AvahiInterface *i) {
         relevant_address;
 }
 
-int avahi_interface_address_relevant(AvahiInterfaceAddress *a) { 
+int avahi_interface_address_relevant(AvahiInterfaceAddress *a) {
+    AvahiInterfaceAddress *b;
     assert(a);
 
-    return a->scope == RT_SCOPE_UNIVERSE;
+    /* Publish public IP addresses */
+    if (a->scope == RT_SCOPE_UNIVERSE ||
+        a->scope == RT_SCOPE_SITE)
+        return 1;
+
+    if (a->scope == RT_SCOPE_LINK) {
+        
+        /* Publish link local IP addresses if they are the only ones on the link */
+        for (b = a->interface->addresses; b; b = b->address_next) {
+            if (b == a)
+                continue;
+            
+            if (b->scope == RT_SCOPE_UNIVERSE ||
+                b->scope == RT_SCOPE_SITE)
+                return 0;
+        }
+
+        return 1;
+    }
+
+    return 0;
 }
 
 

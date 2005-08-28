@@ -209,6 +209,8 @@ char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
         
         n = vsnprintf(buf, len, fmt, ap);
 
+        va_end (ap2);
+
         if (n >= 0 && n < (int) len)
             return buf;
 

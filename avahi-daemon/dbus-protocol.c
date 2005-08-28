@@ -566,7 +566,7 @@ static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *
 
     dbus_error_init(&error);
 
-/*     avahi_log_debug("dbus: interface=%s, path=%s, member=%s", */
+/*     avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s", */
 /*                     dbus_message_get_interface(m), */
 /*                     dbus_message_get_path(m), */
 /*                     dbus_message_get_member(m)); */
@@ -574,7 +574,7 @@ static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *
     if (dbus_message_is_signal(m, DBUS_INTERFACE_LOCAL, "Disconnected")) {
         /* No, we shouldn't quit, but until we get somewhere
          * usefull such that we can restore our state, we will */
-        avahi_log_warn("Disconnnected from d-bus, terminating...");
+        avahi_log_warn("Disconnnected from D-BUS, terminating...");
         
         raise(SIGQUIT); /* The signal handler will catch this and terminate the process cleanly*/
         
@@ -588,7 +588,7 @@ static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *
             goto fail;
         }
 
-/*         avahi_log_info("dbus: name acquired (%s)", name); */
+/*         avahi_log_info(__FILE__": name acquired (%s)", name); */
         return DBUS_HANDLER_RESULT_HANDLED;
         
     } else if (dbus_message_is_signal(m, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
@@ -603,7 +603,7 @@ static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *
             Client *client;
 
             if ((client = client_get(name, FALSE))) {
-/*                 avahi_log_info("dbus: client %s vanished", name); */
+                avahi_log_debug(__FILE__": client %s vanished.", name); 
                 client_free(client);
             }
         }
@@ -643,7 +643,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -927,7 +927,7 @@ static DBusHandlerResult msg_domain_browser_impl(DBusConnection *c, DBusMessage 
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -995,7 +995,7 @@ static DBusHandlerResult msg_service_type_browser_impl(DBusConnection *c, DBusMe
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -1065,7 +1065,7 @@ static DBusHandlerResult msg_service_browser_impl(DBusConnection *c, DBusMessage
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -1243,6 +1243,7 @@ static void async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInd
         reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Timeout");
     }
 
+    dbus_message_set_destination(reply, i->client->name);  
     dbus_connection_send(server->bus, reply, NULL);
     dbus_message_unref(reply);
 }
@@ -1257,7 +1258,7 @@ static DBusHandlerResult msg_async_address_resolver_impl(DBusConnection *c, DBus
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -1325,6 +1326,7 @@ static void async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIf
         reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Timeout");
     }
 
+    dbus_message_set_destination(reply, i->client->name);  
     dbus_connection_send(server->bus, reply, NULL);
     dbus_message_unref(reply);
 }
@@ -1339,7 +1341,7 @@ static DBusHandlerResult msg_async_host_name_resolver_impl(DBusConnection *c, DB
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -1390,7 +1392,6 @@ static void async_service_resolver_callback(
     DBusMessage *reply;
     
     assert(r);
-    assert(host_name);
     assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
@@ -1398,6 +1399,8 @@ static void async_service_resolver_callback(
         int32_t i_interface, i_protocol, i_aprotocol;
     
         assert(host_name);
+
+/*         avahi_log_debug(__FILE__": [%s] Successfully resolved service <%s.%s.%s>", i->path, name, type, domain); */
         
         assert(a);
         avahi_address_snprint(t, sizeof(t), a);
@@ -1425,9 +1428,12 @@ static void async_service_resolver_callback(
     } else {
         assert(event == AVAHI_RESOLVER_TIMEOUT);
 
+/*         avahi_log_debug(__FILE__": [%s] Failed to resolve service <%s.%s.%s>", i->path, name, type, domain); */
+        
         reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Timeout");
     }
 
+    dbus_message_set_destination(reply, i->client->name);  
     dbus_connection_send(server->bus, reply, NULL);
     dbus_message_unref(reply);
 }
@@ -1442,7 +1448,7 @@ static DBusHandlerResult msg_async_service_resolver_impl(DBusConnection *c, DBus
     
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -1480,7 +1486,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 
     dbus_error_init(&error);
 
-    avahi_log_debug("dbus: interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -2013,6 +2019,8 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             async_service_resolver_free(i);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
+
+/*         avahi_log_debug(__FILE__": [%s], new service resolver for <%s.%s.%s>", i->path, name, type, domain); */
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
         return respond_path(c, m, i->path);

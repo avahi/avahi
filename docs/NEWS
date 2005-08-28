@@ -49,3 +49,5 @@ Avahi 0.2, the 'Dzień Dobry' release
  * Fixed an issue where Avahi might think it encountered a conflict
    if the process or machine has been suspended
  * Fixed compilation and runtime issues on 64-bit distributions
+ * ...
+ * PROFIT!!!

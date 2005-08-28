@@ -47,7 +47,8 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
     assert(m);
     assert(a);
 
-    if (m->list == LIST_DONE &&
+    if (a->interface->announcing &&
+        m->list == LIST_DONE &&
         avahi_interface_address_relevant(a) &&
         !remove_rrs &&
         m->server->config.publish_addresses &&

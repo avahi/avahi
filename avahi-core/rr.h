@@ -78,7 +78,7 @@ typedef struct {
  * creation. */
 typedef struct  {
     int ref;         /**< Reference counter */
-    AvahiKey *key;   /**< Reference to the query key of thsi record */
+    AvahiKey *key;   /**< Reference to the query key of this record */
     
     uint32_t ttl;     /**< DNS TTL of this record */
 

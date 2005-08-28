@@ -1,10 +1,19 @@
 $Id$
 
+* NOTE *
+While this document provides an overview of the DBUS-API, a much better reference is the .introspect files
+in the avahi-daemon directory
+
+You can find copies online, under "Developing with Avahi" here
+http://www.freedesktop.org/Software/Avahi
+
+- Lathiat
+
 org.freedesktop.Avahi.Server               
+        string GetVersionString()
         string GetHostName()
         string GetHostNameFqdn()
         string GetDomainName()
-        string GetVersionString()
         int32 GetState()
         string GetAlternativeHostName(string name)
         string GetAlternativeServiceName(string name)
@@ -12,11 +21,14 @@ org.freedesktop.Avahi.Server
         int32 GetNetworkInterfaceIndexByName(string name)
         [int32 interface, int32 protocol, string name, int32 aprotocol, string address] ResolveHostName(int32 interface, int32 protocol, string name, int32 aprotocol)
         [int32 interface, int32 protocol, int32 aprotocol, string address, string name] ResolveAddress(int32 interface, int32 protocol, string address)
-        [int32 interface, int32 protocol, string name, string type, string domain, string host, int32 aprotocol, string address, uint16 port, string txt[]] ResolveService(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol) 
+        [int32 interface, int32 protocol, string name, string type, string domain, string host, int32 aprotocol, string address, uint16 port, byte txt[][]] ResolveService(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol) 
         path EntryGroupNew()              
         path DomainBrowserNew(int32 interface, int32 protocol, string domain, int32 btype)
         path ServiceTypeBrowserNew(int32 interface, int32 protocol, string domain)
         path ServiceBrowserNew(int32 interface, int32 protocol, string type, string domain)
+        path ServiceResolverNew(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol)
+        path HostNameResolverNew(int32, int32 protocol, string name, int aprotocol)
+        path AddressResolverNew(int32 interface, int32 protocol, string address)
         SIGNAL StateChanged(int32 state)
 
 org.freedesktop.Avahi.EntryGroup
@@ -43,3 +55,18 @@ org.freedesktop.Avahi.ServiceBrowser
         void Free()
         SIGNAL ItemNew(int32 interface, int32 protocol, string name, string type, string domain)
         SIGNAL ItemRemove(int32 interface, int32 protocol, string name, string type, string domain)
+
+org.freedesktop.Avahi.AddressResolver
+        void Free()
+        SIGNAL Found(int32 interface, int32 protocol, int32 aprotocol, string address, string name)
+        SIGNAL Timeout()
+
+org.freedesktop.Avahi.HostNameResolver
+        void Free()
+        SIGNAL Found(int32 interface, int32 protocol, string name, int32 aprotocol, string address)
+        SIGNAL Timeout()
+
+org.freedesktop.Avahi.ServiceResolver
+        void Free()
+        SIGNAL Found(int32 interface, int32 protocol,string name, string type, string domain, string host, int32 aprotocol, string address, int32 port, byte[][] txt)
+        SIGNAL Timeout()

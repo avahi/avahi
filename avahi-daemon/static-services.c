@@ -585,7 +585,7 @@ static void load_file(char *n) {
         if (strcmp(g->filename, n) == 0)
             return;
 
-    avahi_log_info("Loading service file %s", n);
+    avahi_log_info("Loading service file %s.", n);
     
     g = static_service_group_new(n);
     if (static_service_group_load(g) < 0) {

@@ -61,6 +61,10 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
             return;
         
         if (avahi_s_entry_group_is_empty(a->entry_group)) {
+            char t[64];
+            avahi_address_snprint(t, sizeof(t), &a->address);
+
+            avahi_log_info("Registering new address %s on %s.", t, a->interface->hardware->name);
 
             if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_address() failed: %s", avahi_strerror(m->server->error));
@@ -76,9 +80,13 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
         /* Clear the entry group */
 
         if (a->entry_group && !avahi_s_entry_group_is_empty(a->entry_group)) {
+            char t[64];
+            avahi_address_snprint(t, sizeof(t), &a->address);
 
             if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
+
+            avahi_log_info("Withdrawing address %s on %s.", t, a->interface->hardware->name);
             
             avahi_s_entry_group_reset(a->entry_group);
         }

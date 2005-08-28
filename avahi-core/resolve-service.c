@@ -157,8 +157,16 @@ static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interfa
                 if (!r->srv_record) {
                     r->srv_record = avahi_record_ref(record);
                     changed = 1;
-                    
-                    assert(!r->record_browser_a && !r->record_browser_aaaa);
+
+                    if (r->record_browser_a) {
+                        avahi_s_record_browser_free(r->record_browser_a);
+                        r->record_browser_a = NULL;
+                    }
+
+                    if (r->record_browser_aaaa) {
+                        avahi_s_record_browser_free(r->record_browser_aaaa);
+                        r->record_browser_aaaa = NULL;
+                    }
                     
                     if (r->address_protocol == AVAHI_PROTO_INET || r->address_protocol == AVAHI_PROTO_UNSPEC) {
                         AvahiKey *k = avahi_key_new(r->srv_record->data.srv.name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);

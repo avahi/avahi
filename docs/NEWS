@@ -51,3 +51,80 @@ Avahi 0.2, the 'Dzień Dobry' release
  * Fixed compilation and runtime issues on 64-bit distributions
  * ...
  * PROFIT!!!
+
+Avahi 0.1, the "Guten Tag" release
+==================================
+
+The Avahi team would like to announce the immediate availability of
+Avahi 0.1 "Guten Tag".
+
+Avahi is a fully LGPL framework for Multicast DNS Service Discovery.
+It allows programs to publish and discover services and hosts
+running on a local network with no specific configuration.  For
+example you can plug into a network and instantly find printers to
+print to, files to look at and people to talk to.
+
+Avahi is designed to be compatible with the mDNS/DNS-SD specification
+and boasts the following features
+
+ * Fully open source and freely available under the LGPL
+ * Full IPv4 and IPv6 support
+ * An embeddable mDNS stack
+ * Dynamic adjustment to network reconfiguration
+ * Daemon with DBUS API for desktop applications
+ * C library to interface with the DBUS API
+ * Compatible with other mDNS/DNS-SD implementations such as
+   Howl and Apple Bonjour (previously Rendezvous)
+ * Ability to correctly "reflect" mDNS between two or more LAN segments
+ * Ability to configure DNS servers based on mDNS/DNS-SD published
+   information, a feature that is very usefull on IPv6
+   which has no other mechanism for this.
+ * Combined with nss-mdns, allows hostname lookup such as
+   'laptop.local' without the configuration of a DNS server.
+   http://0pointer.de/lennart/projects/nss-mdns/
+ * Easy integration into GLIB, GTK other mainloop applications.
+ * Documentation and examples of both developer APIs and utilities.
+
+mDNS/DNS-SD is part of a larger set of specifications for easy
+configuration of networking known as "ZeroConf"
+(http://www.zeroconf.org/), with the aim of allowing you to plug into
+a network and instantly be able to interact with it's services.
+
+Avahi was designed to be a fully free implementation, and is
+available under the LGPL.  Many other implementations of the mDNS/DNS-SD
+specification were previously non-free, restricting their use in many
+platforms such as the GNOME desktop and many distributions.
+
+While Avahi is a 0.1 release, we feel it is feature complete and
+available for immediate use, developers can make use of the Avahi
+client library to provide above mentioned functionality in their
+programs.
+
+We unfortunately do not have a logo yet! We would love if someone
+could suggest ideas for a logo or even design us one.  If you think
+you can help us out, you can contact us on our mailing list or by
+emailing Trent Lloyd on lathiat@bur.st.
+
+If you would like more information or help, you can subscribe
+to our mailinglist, goto
+    http://lists.freedesktop.org/mailman/listinfo/avahi
+
+You can download Avahi 0.1 here
+    http://www.freedesktop.org/~lennart/avahi-0.1.tar.gz
+
+You can also find out more information from our homepage
+    http://www.freedesktop.org/Software/Avahi
+
+We would like to thank the following people for their
+contribution to Avahi 0.1.
+    Lennart Poeterring
+    Trent Lloyd
+    Sebastien Estienne
+    Ross Burton
+    Tommi Vainikainen
+    Joe Shaw
+    Ikke
+    Steev
+
+Cheers,
+The Avahi Team

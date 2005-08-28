@@ -203,6 +203,9 @@ char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
     for (;;) {
         int n;
         char *nbuf;
+        va_list ap2;
+
+        va_copy (ap2, ap);
         
         n = vsnprintf(buf, len, fmt, ap);
 

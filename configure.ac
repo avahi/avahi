@@ -294,6 +294,9 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
     AM_PATH_PYTHON([2.4])
     AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
     AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
+    AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
+    AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
+    AM_CHECK_PYMOD(anydbm,,,[AC_MSG_ERROR(Could not find Python module anydbm)])
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
 

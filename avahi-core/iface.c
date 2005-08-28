@@ -424,8 +424,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             a = RTA_NEXT(a, l);
         }
 
-        update_hw_interface_rr(m, hw, 0);
         check_hw_interface_relevant(m, hw);
+        update_hw_interface_rr(m, hw, 0);
         
     } else if (n->nlmsg_type == RTM_DELLINK) {
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
@@ -509,8 +509,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             free_address(m, addr);
         }
 
-        update_interface_rr(m, i, 0);
         check_interface_relevant(m, i);
+        update_interface_rr(m, i, 0);
         
     } else if (n->nlmsg_type == NLMSG_DONE) {
         

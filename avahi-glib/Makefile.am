@@ -41,6 +41,7 @@ libavahi_glib_la_SOURCES = \
 	glib-malloc.h glib-malloc.c
 libavahi_glib_la_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
 libavahi_glib_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
+libavahi_glib_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:1:0
 
 glib_watch_test_SOURCES = \
 	glib-watch.c glib-watch.h \

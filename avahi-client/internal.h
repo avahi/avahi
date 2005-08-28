@@ -80,7 +80,7 @@ struct AvahiServiceTypeBrowser {
 };
 
 struct AvahiServiceResolver {
-    DBusPendingCall *call;
+    char *path;
     AvahiClient *client;
     AvahiServiceResolverCallback callback;
     void *userdata;
@@ -89,7 +89,6 @@ struct AvahiServiceResolver {
 
 struct AvahiHostNameResolver {
     char *path;
-    DBusPendingCall *call;
     AvahiClient *client;
     AvahiHostNameResolverCallback callback;
     void *userdata;
@@ -98,7 +97,6 @@ struct AvahiHostNameResolver {
 
 struct AvahiAddressResolver {
     char *path;
-    DBusPendingCall *call;
     AvahiClient *client;
     AvahiAddressResolverCallback callback;
     void *userdata;
@@ -111,9 +109,13 @@ int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error);
 void avahi_entry_group_set_state(AvahiEntryGroup *group, AvahiEntryGroupState state);
 
 DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
-
 DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
-
 DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
+
+DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolverEvent event, DBusMessage *message);
+DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiResolverEvent event, DBusMessage *message);
+DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolverEvent event, DBusMessage *message);
+
+int avahi_client_simple_method_call(AvahiClient *client, const char *path, const char *interface, const char *method);
 
 #endif

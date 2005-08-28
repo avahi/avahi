@@ -213,9 +213,6 @@ int avahi_entry_group_add_service_va(
     uint16_t port,
     va_list va);
 
-/** Get the D-Bus path of an AvahiEntryGroup object, for debugging purposes only. */
-const char* avahi_entry_group_get_dbus_path (AvahiEntryGroup *);
-
 /** Browse for domains on the local network */
 AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
                                               AvahiIfIndex interface,
@@ -227,9 +224,6 @@ AvahiDomainBrowser* avahi_domain_browser_new (AvahiClient *client,
 
 /** Get the parent client of an AvahiDomainBrowser object */
 AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *);
-
-/** Get the D-Bus path of an AvahiDomainBrowser object, for debugging purposes only. */
-const char* avahi_domain_browser_get_dbus_path (AvahiDomainBrowser *);
 
 /** Cleans up and frees an AvahiDomainBrowser object */
 int avahi_domain_browser_free (AvahiDomainBrowser *);
@@ -246,9 +240,6 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
 /** Get the parent client of an AvahiServiceTypeBrowser object */
 AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *);
 
-/** Get the D-Bus path of an AvahiServiceTypeBrowser object, for debugging purposes only. */
-const char* avahi_service_type_browser_get_dbus_path(AvahiServiceTypeBrowser *);
-
 /** Cleans up and frees an AvahiServiceTypeBrowser object */
 int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
 
@@ -261,9 +252,6 @@ AvahiServiceBrowser* avahi_service_browser_new (
                 const char *domain,
                 AvahiServiceBrowserCallback callback,
                 void *userdata);
-
-/** Get the D-Bus path of an AvahiServiceBrowser object, for debugging purposes only. */
-const char* avahi_service_browser_get_dbus_path (AvahiServiceBrowser *);
 
 /** Get the parent client of an AvahiServiceBrowser object */
 AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *);
@@ -289,9 +277,6 @@ AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *);
 /** Free a service resolver object */
 int avahi_service_resolver_free(AvahiServiceResolver *r);
 
-/** Block until the resolving is complete */
-int avahi_service_resolver_block(AvahiServiceResolver *r);
-
 /** Create a new hostname resolver object */
 AvahiHostNameResolver * avahi_host_name_resolver_new(
     AvahiClient *client,
@@ -307,9 +292,6 @@ AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *);
 
 /** Free a hostname resolver object */
 int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
-
-/** Block until the resolving is complete */
-int avahi_host_name_resolver_block(AvahiHostNameResolver *r);
 
 /** Create a new address resolver object from an address string.  Set aprotocol to AF_UNSPEC for protocol detection. */
 AvahiAddressResolver * avahi_address_resolver_new(
@@ -334,9 +316,6 @@ AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *);
 
 /** Free a AvahiAddressResolver resolver object */
 int avahi_address_resolver_free(AvahiAddressResolver *r);
-
-/** Block until the resolving is complete */
-int avahi_address_resolver_block(AvahiAddressResolver *r);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

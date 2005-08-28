@@ -38,55 +38,6 @@
 #include "client.h"
 #include "internal.h"
 
-static int simple_method_call(AvahiClient *client, const char *path, const char *interface, const char *method) {
-    DBusMessage *message = NULL, *reply = NULL;
-    DBusError error;
-    int r = AVAHI_OK;
-    
-    dbus_error_init(&error);
-
-    assert(client);
-    assert(path);
-    assert(interface);
-    assert(method);
-    
-    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, path, interface, method))) {
-        r = avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
-        goto fail;
-    }
-        
-    if (!(reply = dbus_connection_send_with_reply_and_block(client->bus, message, -1, &error)) ||
-        dbus_error_is_set (&error)) {
-        r = avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
-        goto fail;
-    }
-    
-    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_INVALID) ||
-        dbus_error_is_set (&error)) {
-        r = avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
-        goto fail;
-    }
-
-    dbus_message_unref(message);
-    dbus_message_unref(reply);
-
-    return AVAHI_OK;
-    
-fail:
-    if (dbus_error_is_set(&error)) {
-        r = avahi_client_set_dbus_error(client, &error);
-        dbus_error_free(&error);
-    }
-
-    if (message)
-        dbus_message_unref(message);
-
-    if (reply)
-        dbus_message_unref(reply);
-
-    return r;
-}
-
 AvahiDomainBrowser* avahi_domain_browser_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -97,7 +48,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
     void *userdata) {
     
     AvahiDomainBrowser *db = NULL;
-    DBusMessage *message = NULL, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
     int32_t i_interface, i_protocol, bt;
@@ -206,7 +157,7 @@ int avahi_domain_browser_free (AvahiDomainBrowser *b) {
     client = b->client;
 
     if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
-        r = simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Free");
+        r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiDomainBrowser, domain_browsers, client->domain_browsers, b);
 
@@ -214,12 +165,6 @@ int avahi_domain_browser_free (AvahiDomainBrowser *b) {
     avahi_free(b);
 
     return r;
-}
-
-const char* avahi_domain_browser_get_dbus_path(AvahiDomainBrowser *b) {
-    assert(b);
-    
-    return b->path;
 }
 
 DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
@@ -274,7 +219,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new(
     void *userdata) {
         
     AvahiServiceTypeBrowser *b = NULL;
-    DBusMessage *message = NULL, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
     int32_t i_interface, i_protocol;
@@ -381,19 +326,13 @@ int avahi_service_type_browser_free (AvahiServiceTypeBrowser *b) {
     client = b->client;
 
     if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
-        r = simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Free");
+        r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, service_type_browsers, b->client->service_type_browsers, b);
 
     avahi_free(b->path);
     avahi_free(b);
     return r;
-}
-
-const char* avahi_service_type_browser_get_dbus_path(AvahiServiceTypeBrowser *b) {
-    assert(b);
-    
-    return b->path;
 }
 
 DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
@@ -451,7 +390,7 @@ AvahiServiceBrowser* avahi_service_browser_new(
     void *userdata) {
     
     AvahiServiceBrowser *b = NULL;
-    DBusMessage *message = NULL, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
     int32_t i_protocol, i_interface;
@@ -560,7 +499,7 @@ int avahi_service_browser_free (AvahiServiceBrowser *b) {
     client = b->client;
 
     if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
-        r = simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Free");
+        r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiServiceBrowser, service_browsers, b->client->service_browsers, b);
 
@@ -569,11 +508,6 @@ int avahi_service_browser_free (AvahiServiceBrowser *b) {
     return r;
 }
 
-const char* avahi_service_browser_get_dbus_path(AvahiServiceBrowser *b) {
-    assert(b);
-    
-    return b->path;
-}
 
 DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
     AvahiServiceBrowser *b = NULL;

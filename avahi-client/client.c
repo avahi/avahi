@@ -185,6 +185,22 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "ItemRemove")) 
         return avahi_service_browser_event (client, AVAHI_BROWSER_REMOVE, message);
 
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Found")) 
+        return avahi_service_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Timeout")) 
+        return avahi_service_resolver_event (client, AVAHI_RESOLVER_TIMEOUT, message);
+
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Found")) 
+        return avahi_host_name_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Timeout")) 
+        return avahi_host_name_resolver_event (client, AVAHI_RESOLVER_TIMEOUT, message);
+
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Found")) 
+        return avahi_address_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Timeout")) 
+        return avahi_address_resolver_event (client, AVAHI_RESOLVER_TIMEOUT, message);
+    
+    
     return DBUS_HANDLER_RESULT_HANDLED;
 
 fail:
@@ -238,7 +254,7 @@ static DBusConnection*
 avahi_dbus_bus_get (DBusError *error)
 {
     DBusConnection *conn;
-    char *env_addr;
+    const char *env_addr;
 
     env_addr = getenv ("DBUS_SYSTEM_BUS_ADDRESS");
 
@@ -527,3 +543,54 @@ int avahi_client_errno(AvahiClient *client) {
     
     return client->error;
 }
+
+/* Just for internal use */
+int avahi_client_simple_method_call(AvahiClient *client, const char *path, const char *interface, const char *method) {
+    DBusMessage *message = NULL, *reply = NULL;
+    DBusError error;
+    int r = AVAHI_OK;
+    
+    dbus_error_init(&error);
+
+    assert(client);
+    assert(path);
+    assert(interface);
+    assert(method);
+    
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, path, interface, method))) {
+        r = avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+        
+    if (!(reply = dbus_connection_send_with_reply_and_block(client->bus, message, -1, &error)) ||
+        dbus_error_is_set (&error)) {
+        r = avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
+        goto fail;
+    }
+    
+    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_INVALID) ||
+        dbus_error_is_set (&error)) {
+        r = avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
+        goto fail;
+    }
+
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+
+    return AVAHI_OK;
+    
+fail:
+    if (dbus_error_is_set(&error)) {
+        r = avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    if (message)
+        dbus_message_unref(message);
+
+    if (reply)
+        dbus_message_unref(reply);
+
+    return r;
+}
+

@@ -27,6 +27,7 @@ EXTRA_DIST = \
 	$(DX_CONFIG) \
 	docs/INSTALL \
 	docs/TODO \
+	docs/NEWS \
 	docs/README \
 	docs/DBUS-API \
 	docs/AUTHORS \

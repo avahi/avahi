@@ -1,5 +1,4 @@
 todo:
-* publish IP addresses with scope "link" only, unless ther are the only one the interface
 * release 0.2!
 
 later:
@@ -58,3 +57,4 @@ done:
 * avahi-client:
    * service resolving
    * examples
+* publish IP addresses with scope "link" only, unless ther are the only one the interface

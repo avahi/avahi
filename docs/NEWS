@@ -26,7 +26,7 @@ Avahi 0.2, the 'Dzień Dobry' release
    available (if configured with enable-dbus=warn)
  * Fixed a potential crasher when resolving things in libavahi-core.
  * New example demonstrating integration into glib applications
- * Addition new convenience AvahiStringList functions
+ * Addtion of a set of convenience functions for AvahiStringList
    avahi_string_list_find()
    avahi_string_list_get_pair()
    avahi_string_list_add_pair()
@@ -44,7 +44,7 @@ Avahi 0.2, the 'Dzień Dobry' release
    or use it in an application already using D-BUS
  * Fixed assembly of empty string lists to RFC compliant TXT records
  * Added a new service type description database with human
-   understandable descriptions of services and translations.
+   understandable descriptions of services with translations.
  * Fixed various minor memory corruption bugs
  * Fixed an issue where Avahi might think it encountered a conflict
    if the process or machine has been suspended

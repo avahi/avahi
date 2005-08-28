@@ -1,8 +1,9 @@
 todo:
-* Add asynchronous interface for AvahiServiceResolver to DBUS
+* publish IP addresses with scope "link" only, unless ther are the only one the interface
 * release 0.2!
 
 later:
+* Add sensible record updateing API
 * Passive observation of failures
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

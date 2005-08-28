@@ -1,0 +1,51 @@
+$Id$
+
+Avahi 0.2, the 'Dzień Dobry' release
+====================================
+
+ * Unfortunately this release broke the API/ABI of libavahi-client
+   with the following function removals
+
+   Removal of these functions may affect users of the 0.1 API
+    - avahi_service_resolver_block()
+
+   The following functions were simply for debugging information
+   and their removal should not affect anyone
+    - avahi_entry_group_get_dbus_path()
+    - avahi_domain_browser_get_dbus_path()
+    - avahi_service_type_browser_get_dbus_path()
+    - avahi_service_browser_get_dbus_path()
+
+   Note that while the libavahi-client API changed slightly, the DBUS
+   API itself has only had additions and no existing definitions
+   have changed.
+ 
+ * avahi-daemon will now ignore local IP addresses with the "link" scope
+   unless it is the only IP address on the interface.
+ * avahi-daemon will no longer fail to start if D-BUS is not
+   available (if configured with enable-dbus=warn)
+ * Fixed a potential crasher when resolving things in libavahi-core.
+ * New example demonstrating integration into glib applications
+ * Addition new convenience AvahiStringList functions
+   avahi_string_list_find()
+   avahi_string_list_get_pair()
+   avahi_string_list_add_pair()
+   avahi_string_list_add_pair_arbitrary()
+ * Fixed a typo in avahi-glib.pc that stopped programs using
+   the GLIB api from compiling correctly
+ * A critical bug in the reflector was fixed where it may go into a
+   state of constantly flooding queries out to the network.
+ * Introduced new asynchronous resolver API
+ * libavahi-client gained an API for resolving HostNames and Addresses
+   in addition to the ServiceResolver provided in 0.1
+ * Added support for Arch and Gentoo linux distributions.
+ * Allowed configuration on non-supported distributions
+ * Fixed a critical bug where you cannot use more than one AvahiClient 
+   or use it in an application already using D-BUS
+ * Fixed assembly of empty string lists to RFC compliant TXT records
+ * Added a new service type description database with human
+   understandable descriptions of services and translations.
+ * Fixed various minor memory corruption bugs
+ * Fixed an issue where Avahi might think it encountered a conflict
+   if the process or machine has been suspended
+ * Fixed compilation and runtime issues on 64-bit distributions

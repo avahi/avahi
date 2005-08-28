@@ -22,9 +22,8 @@ EXTRA_DIST = __init__.py SimpleGladeApp.py ServiceTypeDatabase.py.in
 if HAVE_PYTHON
 avahidir = $(pythondir)/avahi
 
-avahi_PYTHON = __init__.py SimpleGladeApp.py ServiceTypeDatabase.py
-
-BUILT_SOURCES = ServiceTypeDatabase.py
+avahi_PYTHON = __init__.py SimpleGladeApp.py 
+avahi_SCRIPTS = ServiceTypeDatabase.py
 
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \

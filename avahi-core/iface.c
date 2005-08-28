@@ -47,7 +47,8 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
     assert(m);
     assert(a);
 
-    if (avahi_interface_address_relevant(a) &&
+    if (m->list == LIST_DONE &&
+        avahi_interface_address_relevant(a) &&
         !remove_rrs &&
         m->server->config.publish_addresses &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
@@ -112,7 +113,8 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
     for (i = hw->interfaces; i; i = i->by_hardware_next)
         update_interface_rr(m, i, remove_rrs);
 
-    if (!remove_rrs &&
+    if (m->list == LIST_DONE &&
+        !remove_rrs &&
         m->server->config.publish_workstation &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
         m->server->state == AVAHI_SERVER_REGISTERING)) {
@@ -302,7 +304,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
 
     b = avahi_interface_relevant(i);
 
-    if (b && !i->announcing) {
+    if (m->list == LIST_DONE && b && !i->announcing) {
         avahi_log_info("New relevant interface %s.%i.", i->hardware->name, i->protocol);
 
         if (i->protocol == AVAHI_PROTO_INET)
@@ -338,6 +340,14 @@ static void check_hw_interface_relevant(AvahiInterfaceMonitor *m, AvahiHwInterfa
     assert(hw);
 
     for (i = hw->interfaces; i; i = i->by_hardware_next)
+        check_interface_relevant(m, i);
+}
+
+static void check_all_interfaces_relevant(AvahiInterfaceMonitor *m) {
+    AvahiInterface *i;
+    assert(m);
+
+    for (i = m->interfaces; i; i = i->interface_next)
         check_interface_relevant(m, i);
 }
 
@@ -427,7 +437,6 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) ifinfomsg->ifi_index)))
             return;
 
-        update_hw_interface_rr(m, hw, 1);
         free_hw_interface(m, hw, 0);
         
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
@@ -491,33 +500,35 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             addr->flags = ifaddrmsg->ifa_flags;
             addr->scope = ifaddrmsg->ifa_scope;
             addr->prefix_len = ifaddrmsg->ifa_prefixlen;
-
-            update_interface_rr(m, addr->interface, 0);
         } else {
             AvahiInterfaceAddress *addr;
             
             if (!(addr = get_address(m, i, &raddr)))
                 return;
 
-            update_address_rr(m, addr, 1);
             free_address(m, addr);
-
-            update_interface_rr(m, addr->interface, 0); /* if this address was removed another might becomes usable instead */
         }
 
+        update_interface_rr(m, i, 0);
         check_interface_relevant(m, i);
         
     } else if (n->nlmsg_type == NLMSG_DONE) {
         
         if (m->list == LIST_IFACE) {
-            m->list = LIST_DONE;
             
-            if (netlink_list_items(m->netlink, RTM_GETADDR, &m->query_addr_seq) < 0)
+            if (netlink_list_items(m->netlink, RTM_GETADDR, &m->query_addr_seq) < 0) {
                 avahi_log_warn("NETLINK: Failed to list addrs: %s", strerror(errno));
-            else
+                m->list = LIST_DONE;
+            } else
                 m->list = LIST_ADDR;
-        } else {
+
+        } else
+            /* We're through */
             m->list = LIST_DONE;
+
+        if (m->list == LIST_DONE) {
+            check_all_interfaces_relevant(m);
+            avahi_update_host_rrs(m, 0);
             avahi_log_info("Network interface enumeration completed.");
         }
         
@@ -740,7 +751,6 @@ int avahi_interface_address_relevant(AvahiInterfaceAddress *a) {
 
     return 0;
 }
-
 
 int avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol) {
     assert(i);

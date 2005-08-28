@@ -295,7 +295,30 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
     for (e = avahi_hashmap_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
 
-        if (e->dead || (!(e->flags & AVAHI_ENTRY_UNIQUE) && !unique))
+        if (e->dead)
+            continue;
+
+        /* Check if the incoming is a goodbye record */
+        if (avahi_record_is_goodbye(record)) {
+
+            if (avahi_record_equal_no_ttl(e->record, record)) {
+                char *t;
+
+                /* Refresh */
+                t = avahi_record_to_string(record); 
+                avahi_log_debug("Recieved goodbye record for one of our records [%s]. Refreshing.", t);
+                avahi_server_prepare_matching_responses(s, i, e->record->key, 0);
+
+                valid = 0;
+                avahi_free(t);
+                break;
+            }
+
+            /* If the goodybe packet doesn't match one of our own RRs, we simply ignore it. */
+            continue;
+        }
+        
+        if (!(e->flags & AVAHI_ENTRY_UNIQUE) && !unique)
             continue;
 
         /* Either our entry or the other is intended to be unique, so let's check */

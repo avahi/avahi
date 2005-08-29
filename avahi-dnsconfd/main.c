@@ -257,7 +257,7 @@ static void set_env(const char *name, const char *value) {
         if (strlen(*e) < l+1)
             continue;
         
-        if (strncmp(*e, name, l) != 0 || *e[l] != '=')
+        if (strncmp(*e, name, l) != 0 || (*e)[l] != '=')
             continue;
 
         /* We simply free the record, sicne we know that we created it previously */

@@ -18,4 +18,4 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-CFLAGS="$CFLAGS -g -O0" ./autogen.sh --sysconfdir=/etc --localstatedir=/var "$@"
+CFLAGS="$CFLAGS -g -O0" exec ./autogen.sh --sysconfdir=/etc --localstatedir=/var "$@"

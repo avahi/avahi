@@ -170,7 +170,7 @@ static void q_timeout_free(AvahiTimeout *t)
 
 static AvahiPoll qt_poll;
 
-const AvahiPoll* avahi_qt_poll_get() 
+const AvahiPoll* avahi_qt_poll_get(void) 
 {
     qt_poll.userdata=0;
     qt_poll.watch_new = q_watch_new;
@@ -184,4 +184,8 @@ const AvahiPoll* avahi_qt_poll_get()
     return &qt_poll;
 }
 
-#include "qt-watch.moc"
+#ifdef QT4
+#include "qt-watch.moc4"
+#else
+#include "qt-watch.moc3"
+#endif

@@ -170,6 +170,59 @@ fi
 AM_CONDITIONAL(HAVE_GLIB, test "x$HAVE_GLIB" = "xyes")
 
 #
+# Check for Qt 3
+#
+AC_ARG_ENABLE(qt3,
+        AS_HELP_STRING([--disable-qt3],[Disable building of Qt3 mainloop integration]),
+        [case "${enableval}" in
+                yes) HAVE_QT3=yes ;;
+                no)  HAVE_QT3=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt3) ;;
+        esac],
+        [HAVE_QT3=yes])
+
+if test "x$HAVE_QT3" = "xyes" ; then
+        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ], [ 
+        AC_SUBST(QT3_CFLAGS)
+	AC_SUBST(QT3_LIBS)
+	QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
+        MOC_QT3="no"
+	AC_CHECK_FILE( "$QT3_PREFIX/moc-qt3", [ MOC_QT3=$QT3_PREFIX/moc-qt3 ], [
+	    AC_CHECK_FILE("$QT3_PREFIX/moc", [ MOC_QT3=$QT3_PREFIX/moc ], [ HAVE_QT3=no ] ) 
+	] )   
+	AC_SUBST(MOC_QT3)
+      ], [ HAVE_QT3=no ] )
+fi
+AM_CONDITIONAL(HAVE_QT3, test "x$HAVE_QT3" = "xyes")
+
+#
+# Check for Qt 4
+#
+AC_ARG_ENABLE(qt4,
+        AS_HELP_STRING([--disable-qt4],[Disable building of Qt4Core mainloop integration]),
+        [case "${enableval}" in
+                yes) HAVE_QT4=yes ;;
+                no)  HAVE_QT4=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt4) ;;
+        esac],
+        [HAVE_QT4=yes])
+
+if test "x$HAVE_QT4" = "xyes" ; then
+        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ], [ 
+        AC_SUBST(QT4_CFLAGS)
+	AC_SUBST(QT4_LIBS)
+	QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"
+        MOC_QT4="no"
+	AC_CHECK_FILE( "$QT4_PREFIX/moc-qt4", [ MOC_QT4=$QT4_PREFIX/moc-qt4 ], [
+	    AC_CHECK_FILE("$QT4_PREFIX/moc", [ MOC_QT4=$QT4_PREFIX/moc ], [ HAVE_QT4=no ] ) 
+	] )   
+	AC_SUBST(MOC_QT4)
+      ], [ HAVE_QT4=no ] )
+fi
+AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")
+
+
+#
 # Check for GTK+
 #
 AC_ARG_ENABLE(gtk,
@@ -375,6 +428,7 @@ Makefile
 avahi-common/Makefile 
 avahi-core/Makefile 
 avahi-glib/Makefile 
+avahi-qt/Makefile
 avahi-daemon/Makefile 
 avahi-daemon/avahi-dbus.conf
 avahi-discover-standalone/Makefile 

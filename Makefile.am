@@ -46,6 +46,7 @@ SUBDIRS = \
 	avahi-glib \
 	avahi-core \
 	avahi-discover-standalone \
+	avahi-qt \
 	avahi-client \
 	avahi-daemon \
 	initscript \

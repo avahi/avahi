@@ -29,7 +29,7 @@ AVAHI_C_DECL_BEGIN
 /**
 Setup abstract poll structure for integration with Qt main loop  */
 
-const AvahiPoll* avahi_qt_poll_get();
+const AvahiPoll* avahi_qt_poll_get(void);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

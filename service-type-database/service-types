@@ -29,8 +29,8 @@
 _http._tcp:Web Site
 _http._tcp[de]:Web-Angebot
 
-_https._tcp:Secure Web Service
-_https._tcpi[de]:Sicherer Web Dienst
+_https._tcp:Secure Web Site
+_https._tcpi[de]:Sicheres Web-Angebot
 
 _ftp._tcp:FTP File Transfer
 _ftp._tcp[de]:FTP Dateifreigabe

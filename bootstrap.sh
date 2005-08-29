@@ -37,11 +37,11 @@ else
     rm -rf autom4te.cache
     rm -f config.cache
 
-    run_versioned aclocal "$VERSION" -I common
     libtoolize -c --force
+    run_versioned aclocal "$VERSION" -I common
+    autoconf -Wall
     autoheader
     run_versioned automake "$VERSION" -a -c --foreign
-    autoconf -Wall
 
     CFLAGS="$CFLAGS -g -O0" ./configure --sysconfdir=/etc --localstatedir=/var "$@"
 

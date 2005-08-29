@@ -35,7 +35,7 @@ class AvahiWatch : public QObject
 public:
     AvahiWatch(int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void* userdata);
     ~AvahiWatch() {}
-    AvahiWatchEvent getEvents() const { return m_lastEvent; }
+    AvahiWatchEvent getEvents() const { return m_incallback ? m_lastEvent : (AvahiWatchEvent)0; }
     void setWatchedEvents(AvahiWatchEvent event);
 
 private slots:
@@ -50,6 +50,7 @@ private:
     AvahiWatchEvent m_lastEvent;
     int m_fd;
     void* m_userdata;
+    bool m_incallback;
 };
 
 class AvahiTimeout : public QObject 
@@ -73,7 +74,7 @@ private:
 
 
 AvahiWatch::AvahiWatch(int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void* userdata) : 
-    m_in(0), m_out(0),  m_callback(callback), m_fd(fd), m_userdata(userdata)
+    m_in(0), m_out(0),  m_callback(callback), m_fd(fd), m_userdata(userdata), m_incallback(false)
 {
     setWatchedEvents(event);
 }
@@ -81,13 +82,17 @@ AvahiWatch::AvahiWatch(int fd, AvahiWatchEvent event, AvahiWatchCallback callbac
 void AvahiWatch::gotIn()
 {
     m_lastEvent = AVAHI_WATCH_IN;
+    m_incallback=true;
     m_callback(this,m_fd,m_lastEvent,m_userdata);
+    m_incallback=false;
 }
 
 void AvahiWatch::gotOut()
 {
     m_lastEvent = AVAHI_WATCH_IN;
+    m_incallback=true;
     m_callback(this,m_fd,m_lastEvent,m_userdata);
+    m_incallback=false;
 }
 
 void AvahiWatch::setWatchedEvents(AvahiWatchEvent event) 
@@ -163,18 +168,20 @@ static void q_timeout_free(AvahiTimeout *t)
     delete t;
 }
 
+static AvahiPoll qt_poll;
 
-void create_qt_poll(AvahiPoll *api) 
+const AvahiPoll* avahi_qt_poll_get() 
 {
-    api->userdata=0;
-    api->watch_new = q_watch_new;
-    api->watch_free = q_watch_free;
-    api->watch_update = q_watch_update;
-    api->watch_get_events = q_watch_get_events;
+    qt_poll.userdata=0;
+    qt_poll.watch_new = q_watch_new;
+    qt_poll.watch_free = q_watch_free;
+    qt_poll.watch_update = q_watch_update;
+    qt_poll.watch_get_events = q_watch_get_events;
     
-    api->timeout_new = q_timeout_new;
-    api->timeout_free = q_timeout_free;
-    api->timeout_update = q_timeout_update;
+    qt_poll.timeout_new = q_timeout_new;
+    qt_poll.timeout_free = q_timeout_free;
+    qt_poll.timeout_update = q_timeout_update;
+    return &qt_poll;
 }
 
 #include "qt-watch.moc"

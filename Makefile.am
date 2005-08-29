@@ -22,6 +22,7 @@ ACLOCAL_AMFLAGS = -I common
 include $(srcdir)/common/doxygen.mk
 
 EXTRA_DIST = \
+	autogen.sh \
 	bootstrap.sh \
 	LICENSE \
 	$(DX_CONFIG) \

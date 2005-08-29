@@ -18,4 +18,32 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-CFLAGS="$CFLAGS -g -O0" ./autogen.sh --sysconfdir=/etc --localstatedir=/var "$@"
+VERSION=1.9
+
+run_versioned() {
+    local P
+    type -p "$1-$2" &> /dev/null && P="$1-$2" || local P="$1"
+
+    shift 2
+    "$P" "$@"
+}
+
+set -ex
+
+if [ "x$1" = "xam" ] ; then
+    run_versioned automake "$VERSION" -a -c --foreign
+    ./config.status
+else 
+    rm -rf autom4te.cache
+    rm -f config.cache
+
+    libtoolize -c --force
+    run_versioned aclocal "$VERSION" -I common
+    autoconf -Wall
+    autoheader
+    run_versioned automake "$VERSION" -a -c --foreign
+
+    ./configure "$@"
+
+    make clean
+fi

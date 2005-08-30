@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import sys
+import sys, getopt
 
 try:
     import avahi, gobject, dbus
@@ -42,6 +42,10 @@ except ImportError:
     sys.exit(1)
 
 urlproto = { "_http._tcp" : "http",  "_https._tcp" : "https", "_ftp._tcp" : "ftp" }
+
+port = 8080
+address = "127.0.0.1"
+use_host_names = False
 
 class AvahiBookmarks(resource.Resource):
     isLeaf = True
@@ -74,10 +78,10 @@ class AvahiBookmarks(resource.Resource):
 
         for k in l:
             if k[:5] == "path=":
-                if k[5]:
-                    return "/" + k[5:]
-                else
+                if k[5:].startswith("/"):
                     return k[5:]
+                else:
+                    return "/" + k[5:]
 
         return "/"
 
@@ -98,13 +102,7 @@ class AvahiBookmarks(resource.Resource):
                     port = ':%i' % v[3]
 
                 path = self.find_path(v[4])
-
-                if v[1] == avahi.PROTO_INET6:
-                    ip = "[" + v[2] + "]"
-                else:
-                    ip = v[2]
-
-                t += '<li><a href="%s://%s%s%s">%s</a></li>' % (urlproto[k[4]], ip, port, path, k[2])
+                t += '<li><a href="%s://%s%s%s">%s</a></li>' % (urlproto[k[3]], v[2], port, path, k[2])
                 
             t += '</ul>'
         
@@ -117,21 +115,52 @@ class AvahiBookmarks(resource.Resource):
 
         interface, protocol, name, type, domain, host, aprotocol, address, port, txt = self.server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC)
 
-        self.services[(interface, protocol, name, type, domain)] = (host, aprotocol, address, port, txt)
+        if use_host_names:
+            h = host
+        else:
+            if aprotocol == avahi.PROTO_INET6:
+                h = "[" + address + "]"
+            else:
+                h = address
+
+        self.services[(interface, protocol, name, type, domain)] = (host, aprotocol, h, port, txt)
 
     def remove_service(self, interface, protocol, name, type, domain):
         del self.services[(interface, protocol, name, type, domain)]
 
 
-port = 8080
+def usage(retval = 0):
+    print "%s [options]\n" % sys.argv[0]
+    print "   -h --help             Show this help"
+    print "   -p --port PORT        Specify the port to use (default %u)" % port
+    print "   -a --address ADDRESS  Specify the address to bind to (default %s)" % address
+    print "   -H --host-names       Show all services, regardless of the type"
+    sys.exit(retval)
 
-if __name__ == '__main__':
-    site = server.Site(AvahiBookmarks())
-    reactor.listenTCP(port, site, interface="127.0.0.1")
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hp:a:H", ["help", "port=", "address=", "host-names"])
+except getopt.GetoptError:
+    usage(2)
 
-    print "Now point your web browser to http://localhost:%u/!" % port
+for o, a in opts:
+    if o in ("-h", "--help"):
+        usage()
 
-    try:
-        reactor.run()
-    except KeyboardInterrupt, k:
-        pass
+    if o in ("-p", "--port"):
+        port = int(a)
+
+    if o in ("-a", "--address"):
+        address = a
+
+    if o in ("-H", "--host-names"):
+        use_host_names = True
+    
+site = server.Site(AvahiBookmarks())
+reactor.listenTCP(port, site, interface=address)
+
+print "Now point your web browser to http://%s:%u/!" % (address, port)
+
+try:
+    reactor.run()
+except KeyboardInterrupt, k:
+    pass

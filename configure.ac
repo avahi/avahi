@@ -352,7 +352,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         esac],
         [HAVE_PYGTK=yes])
     
-    if "x$HAVE_PYGTK" = "xyes" ; then
+    if test "x$HAVE_PYGTK" = "xyes" ; then
         AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module gtk)])
     fi
 
@@ -367,7 +367,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         esac],
         [HAVE_PYTHON_DBUS=yes])
     
-    if "x$HAVE_PYTHON_DBUS" = "xyes"; then
+    if test "x$HAVE_PYTHON_DBUS" = "xyes"; then
         AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
     fi
 

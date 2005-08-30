@@ -21,7 +21,6 @@ pythonscripts = \
 	avahi-publish-address \
 	avahi-publish-service \
 	avahi-browse \
-	avahi-discover \
 	avahi-bookmarks \
 	avahi-resolve-host-name \
 	avahi-resolve-address
@@ -30,24 +29,35 @@ EXTRA_DIST = \
 	avahi-publish-address.in \
 	avahi-publish-service.in \
 	avahi-browse.in \
-	avahi-discover.in \
 	avahi-bookmarks.in \
 	avahi-resolve-host-name.in \
-	avahi-resolve-address.in \
-	avahi-discover.desktop.in
+	avahi-resolve-address.in
+
 
 if HAVE_PYTHON
 if HAVE_DBUS
 SUBDIRS=avahi
 
+
+if HAVE_GTK
 desktopdir = $(datadir)/applications
 desktop_DATA = avahi-discover.desktop
 
-bin_SCRIPTS = $(pythonscripts)
+pythonscripts += avahi-discover
+
+EXTRA_DIST += \
+	avahi-discover.in
+	avahi-discover.desktop.in
 
 avahi-discover.desktop: avahi-discover.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 	chmod +x $@
+
+avahi-discover: avahi-discover.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' \
+		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
+	chmod +x $@
+endif
 
 avahi-publish-address: avahi-publish-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
@@ -61,11 +71,6 @@ avahi-browse: avahi-browse.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
-avahi-discover: avahi-discover.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' \
-		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
-	chmod +x $@
-
 avahi-bookmarks: avahi-bookmarks.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
@@ -77,8 +82,8 @@ avahi-resolve-host-name: avahi-resolve-host-name.in
 avahi-resolve-address: avahi-resolve-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
+endif
+endif
 
+bin_SCRIPTS = $(pythonscripts)
 CLEANFILES = $(pythonscripts) $(desktop_DATA)
-
-endif
-endif

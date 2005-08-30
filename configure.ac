@@ -342,8 +342,12 @@ AC_ARG_ENABLE(python,
 
 if test "x$HAVE_PYTHON" = "xyes" ; then
     AM_PATH_PYTHON([2.4])
-    AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
-    AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
+    if test "x$HAVE_GTK" = "xyes" ; then
+        AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
+    fi
+    if test "x$HAVE_DBUS" = "xyes" ; then
+        AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
+    fi
     AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
     AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
     AM_CHECK_PYMOD(anydbm,,,[AC_MSG_ERROR(Could not find Python module anydbm)])

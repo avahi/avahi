@@ -1,6 +1,8 @@
 #ifndef QAVAHI_H
 #define QAVAHI_H
 
+/* $Id$ */
+
 /***
   This file is part of avahi.
  
@@ -20,6 +22,8 @@
   USA.
 ***/
 
+/** \file qt-watch.h Qt main loop adapter */
+
 #include <avahi-common/watch.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +38,5 @@ const AvahiPoll* avahi_qt_poll_get(void);
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif
-
-
 
 #endif

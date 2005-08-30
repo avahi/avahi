@@ -22,7 +22,7 @@
   USA.
 ***/
 
-/** \file glib-watch.h GLib's memory allocator for Avahi */
+/** \file glib-watch.h GLib main loop adapter */
 
 #include <glib.h>
 

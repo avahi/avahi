@@ -22,6 +22,8 @@
   USA.
 ***/
 
+/** \file timeval.h Functions to facilitate timeval handling */
+
 #include <inttypes.h>
 #include <sys/time.h>
 

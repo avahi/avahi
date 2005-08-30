@@ -76,7 +76,8 @@ DX_INPUT = \
 	$(srcdir)/avahi-glib/glib-watch.h \
 	$(srcdir)/avahi-glib/glib-malloc.h \
 	$(srcdir)/avahi-common/timeval.h \
-	$(srcdir)/avahi-common/dbus.h
+	$(srcdir)/avahi-common/dbus.h \
+	$(srcdir)/avahi-qt/qt-watch.h
 
 DX_EXAMPLE_PATH = $(srcdir)/examples
 
@@ -114,6 +115,31 @@ avahi-glib.pc: avahi-glib.pc.in
 CLEANFILES += avahi-glib.pc
 
 endif
+
+if HAVE_QT3
+
+pkgconfig_DATA += avahi-qt3.pc
+
+avahi-qt3.pc: avahi-qt3.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-qt3.pc
+
+endif
+
+if HAVE_QT4
+
+pkgconfig_DATA += avahi-qt4.pc
+
+avahi-qt4.pc: avahi-qt4.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-qt4.pc
+
+endif
+
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 

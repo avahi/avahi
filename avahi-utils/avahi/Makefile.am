@@ -20,18 +20,25 @@
 EXTRA_DIST = __init__.py SimpleGladeApp.py ServiceTypeDatabase.py.in
 
 if HAVE_PYTHON
+
 avahidir = $(pythondir)/avahi
 
-avahi_PYTHON = __init__.py SimpleGladeApp.py 
 avahi_SCRIPTS = ServiceTypeDatabase.py
+
+if HAVE_PYTHON_DBUS
+if HAVE_PYGTK
+
+avahi_PYTHON = __init__.py SimpleGladeApp.py 
 
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@pkgdatadir\@,$(pkgdatadir),g' $< > $@
 	chmod +x $@
 
-CLEANFILES=*.pyc *.pyo ServiceTypeDatabase.py
-
 endif
+endif
+endif
+
+CLEANFILES=*.pyc *.pyo ServiceTypeDatabase.py
 
 

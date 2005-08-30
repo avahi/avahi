@@ -17,37 +17,33 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-pythonscripts = \
-	avahi-publish-address \
-	avahi-publish-service \
-	avahi-browse \
-	avahi-bookmarks \
-	avahi-resolve-host-name \
-	avahi-resolve-address
-
 EXTRA_DIST = \
 	avahi-publish-address.in \
 	avahi-publish-service.in \
 	avahi-browse.in \
 	avahi-bookmarks.in \
 	avahi-resolve-host-name.in \
-	avahi-resolve-address.in
+	avahi-resolve-address.in \
+	avahi-discover.in \
+	avahi-discover.desktop.in
 
+SUBDIRS=avahi
 
 if HAVE_PYTHON
 if HAVE_PYTHON_DBUS
-SUBDIRS=avahi
-
-
 if HAVE_PYGTK
+
+pythonscripts = \
+	avahi-publish-address \
+	avahi-publish-service \
+	avahi-browse \
+	avahi-bookmarks \
+	avahi-resolve-host-name \
+	avahi-resolve-address \
+	avahi-discover
+
 desktopdir = $(datadir)/applications
 desktop_DATA = avahi-discover.desktop
-
-pythonscripts += avahi-discover
-
-EXTRA_DIST += \
-	avahi-discover.in
-	avahi-discover.desktop.in
 
 avahi-discover.desktop: avahi-discover.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
@@ -57,7 +53,6 @@ avahi-discover: avahi-discover.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
 	chmod +x $@
-endif
 
 avahi-publish-address: avahi-publish-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
@@ -82,8 +77,10 @@ avahi-resolve-host-name: avahi-resolve-host-name.in
 avahi-resolve-address: avahi-resolve-address.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
-endif
-endif
 
 bin_SCRIPTS = $(pythonscripts)
 CLEANFILES = $(pythonscripts) $(desktop_DATA)
+
+endif
+endif
+endif

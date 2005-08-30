@@ -67,3 +67,5 @@ libavahi_qt4_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT4_LI
 libavahi_qt4_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
 
 endif
+
+CLEANFILES = $(BUILT_SOURCES)

@@ -38,7 +38,9 @@ EXTRA_DIST = \
 	docs/avahi-poll.dia \
 	avahi-core.pc.in \
 	avahi-client.pc.in \
-	avahi-glib.pc.in
+	avahi-glib.pc.in \
+	avahi-qt3.pc.in \
+	avahi-qt4.pc.in
 
 SUBDIRS = \
 	common \

@@ -182,16 +182,15 @@ AC_ARG_ENABLE(qt3,
         [HAVE_QT3=yes])
 
 if test "x$HAVE_QT3" = "xyes" ; then
-        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ], [ 
+        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])
         AC_SUBST(QT3_CFLAGS)
-	AC_SUBST(QT3_LIBS)
-	QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
+        AC_SUBST(QT3_LIBS)
+	    QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
         MOC_QT3="no"
-	AC_CHECK_FILE( "$QT3_PREFIX/moc-qt3", [ MOC_QT3=$QT3_PREFIX/moc-qt3 ], [
-	    AC_CHECK_FILE("$QT3_PREFIX/moc", [ MOC_QT3=$QT3_PREFIX/moc ], [ HAVE_QT3=no ] ) 
-	] )   
-	AC_SUBST(MOC_QT3)
-      ], [ HAVE_QT3=no ] )
+	    AC_CHECK_FILE( "$QT3_PREFIX/moc-qt3", [ MOC_QT3=$QT3_PREFIX/moc-qt3 ], [
+        	    AC_CHECK_FILE("$QT3_PREFIX/moc", [ MOC_QT3=$QT3_PREFIX/moc ], [ 
+                AC_MSG_ERROR([Couldn't find QT3 moc])])])
+        AC_SUBST(MOC_QT3)
 fi
 AM_CONDITIONAL(HAVE_QT3, test "x$HAVE_QT3" = "xyes")
 
@@ -208,19 +207,17 @@ AC_ARG_ENABLE(qt4,
         [HAVE_QT4=yes])
 
 if test "x$HAVE_QT4" = "xyes" ; then
-        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ], [ 
+        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ])
         AC_SUBST(QT4_CFLAGS)
-	AC_SUBST(QT4_LIBS)
-	QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"
+        AC_SUBST(QT4_LIBS)
+	    QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"
         MOC_QT4="no"
-	AC_CHECK_FILE( "$QT4_PREFIX/moc-qt4", [ MOC_QT4=$QT4_PREFIX/moc-qt4 ], [
-	    AC_CHECK_FILE("$QT4_PREFIX/moc", [ MOC_QT4=$QT4_PREFIX/moc ], [ HAVE_QT4=no ] ) 
-	] )   
-	AC_SUBST(MOC_QT4)
-      ], [ HAVE_QT4=no ] )
+	    AC_CHECK_FILE( "$QT4_PREFIX/moc-qt4", [ MOC_QT4=$QT4_PREFIX/moc-qt4 ], [
+               AC_CHECK_FILE("$QT4_PREFIX/moc", [ MOC_QT4=$QT4_PREFIX/moc ], [ 
+               AC_MSG_ERROR([Couldn't find QT4 moc])])])
+        AC_SUBST(MOC_QT4)
 fi
 AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")
-
 
 #
 # Check for GTK+
@@ -464,7 +461,9 @@ echo "
     Enable D-BUS:           ${HAVE_DBUS}
     Enable Expat:           ${HAVE_EXPAT}
     Enable libdaemon:       ${HAVE_LIBDAEMON}
-    Have Python:            ${HAVE_PYTHON}
+    Enable Python:          ${HAVE_PYTHON}
+    Enable QT3:             ${HAVE_QT3}
+    Enable QT4:             ${HAVE_QT4}
     Linux Distro:           ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}
@@ -488,7 +487,6 @@ if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" ; then
     BUILD_CLIENT=yes
 fi
 
-    
 echo "
     Building libavahi-core              yes
     Building avahi-daemon:              ${BUILD_DAEMON}
@@ -497,4 +495,6 @@ echo "
     Building libavahi-glib:             ${HAVE_GLIB}
     Building libavahi-client:           ${BUILD_CLIENT}
     Building avahi-discover-standalone: ${HAVE_GTK}
+    Building libavahi-qt3:              ${HAVE_QT3}
+    Building libavahi-qt4:              ${HAVE_QT4}
 "

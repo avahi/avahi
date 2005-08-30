@@ -340,6 +340,9 @@ AC_ARG_ENABLE(python,
           *) AC_MSG_ERROR([bad value ${enableval} for --enable-python]) ;;
     esac],[HAVE_PYTHON=yes])
 
+HAVE_PYTHON_DBUS=no
+HAVE_PYGTK=no
+
 if test "x$HAVE_PYTHON" = "xyes" ; then
     AM_PATH_PYTHON([2.4])
 
@@ -356,7 +359,6 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module gtk)])
     fi
 
-    AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
 
     AC_ARG_ENABLE(python-dbus,
         AS_HELP_STRING([--disable-python-dbus],[Disable use of D-BUS in Python]),
@@ -371,13 +373,13 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
     fi
 
-    AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
-
     AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
     AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
     AM_CHECK_PYMOD(anydbm,,,[AC_MSG_ERROR(Could not find Python module anydbm)])
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
+AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
+AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
 
 #
 # Defining Avahi User and Group.

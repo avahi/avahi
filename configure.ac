@@ -342,12 +342,37 @@ AC_ARG_ENABLE(python,
 
 if test "x$HAVE_PYTHON" = "xyes" ; then
     AM_PATH_PYTHON([2.4])
-    if test "x$HAVE_GTK" = "xyes" ; then
-        AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module pygtk)])
+
+    AC_ARG_ENABLE(pygtk,
+        AS_HELP_STRING([--disable-pygtk],[Disable use of GTK in Python]),
+        [case "${enableval}" in
+                yes) HAVE_PYGTK=yes ;;
+                no)  HAVE_PYGTK=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-pygtk) ;;
+        esac],
+        [HAVE_PYGTK=yes])
+    
+    if "x$HAVE_PYGTK" = "xyes" ; then
+        AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module gtk)])
     fi
-    if test "x$HAVE_DBUS" = "xyes" ; then
+
+    AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
+
+    AC_ARG_ENABLE(python-dbus,
+        AS_HELP_STRING([--disable-python-dbus],[Disable use of D-BUS in Python]),
+        [case "${enableval}" in
+                yes) HAVE_PYTHON_DBUS=yes ;;
+                no)  HAVE_PYTHON_DBUS=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-python-dbus) ;;
+        esac],
+        [HAVE_PYTHON_DBUS=yes])
+    
+    if "x$HAVE_PYTHON_DBUS" = "xyes"; then
         AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
     fi
+
+    AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
+
     AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
     AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
     AM_CHECK_PYMOD(anydbm,,,[AC_MSG_ERROR(Could not find Python module anydbm)])
@@ -481,7 +506,7 @@ fi
 
 BUILD_UTILS="no (!)"
 
-if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" ; then
+if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYTHON_GTK"; then
     BUILD_UTILS=yes
 fi
 

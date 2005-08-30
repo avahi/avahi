@@ -35,11 +35,11 @@ EXTRA_DIST = \
 
 
 if HAVE_PYTHON
-if HAVE_DBUS
+if HAVE_PYTHON_DBUS
 SUBDIRS=avahi
 
 
-if HAVE_GTK
+if HAVE_PYGTK
 desktopdir = $(datadir)/applications
 desktop_DATA = avahi-discover.desktop
 

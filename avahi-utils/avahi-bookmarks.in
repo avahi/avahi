@@ -74,7 +74,10 @@ class AvahiBookmarks(resource.Resource):
 
         for k in l:
             if k[:5] == "path=":
-                return k[5:]
+                if k[5]:
+                    return "/" + k[5:]
+                else
+                    return k[5:]
 
         return "/"
 
@@ -101,7 +104,7 @@ class AvahiBookmarks(resource.Resource):
                 else:
                     ip = v[2]
 
-                t += '<li><a href="%s://%s%s/%s">%s</a></li>' % (urlproto[k[3]], ip, port, path, k[2])
+                t += '<li><a href="%s://%s%s%s">%s</a></li>' % (urlproto[k[4]], ip, port, path, k[2])
                 
             t += '</ul>'
         

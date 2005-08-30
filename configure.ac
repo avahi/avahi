@@ -491,6 +491,8 @@ echo "
     Enable Expat:           ${HAVE_EXPAT}
     Enable libdaemon:       ${HAVE_LIBDAEMON}
     Enable Python:          ${HAVE_PYTHON}
+    Enable pygtk:           ${HAVE_PYGTK}
+    Enable python-dbus:     ${HAVE_PYTHON_DBUS}
     Enable QT3:             ${HAVE_QT3}
     Enable QT4:             ${HAVE_QT4}
     Linux Distro:           ${with_distro}
@@ -506,7 +508,7 @@ fi
 
 BUILD_UTILS="no (!)"
 
-if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYTHON_GTK"; then
+if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGTK" = "xyes" ; then
     BUILD_UTILS=yes
 fi
 

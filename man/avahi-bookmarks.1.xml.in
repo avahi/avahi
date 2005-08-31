@@ -39,12 +39,32 @@
       
 	</description>
 	
-	<options>
+    <options>
+      <option>
+        <p><opt>-p | --port=</opt> <arg>PORT</arg></p>
+        <optdesc><p>Specify a TCP port number to listen on. If omitted defaults to 8080.</p></optdesc>
+      </option>
 
-      <p>avahi-bookmarks takes no command line arguments at the moment.</p>
+      <option>
+        <p><opt>-a | --address=</opt> <arg>address</arg></p>
+        <optdesc><p>Specify an IP address to listen on. If omitted defaults to 127.0.0.1. Specify 0.0.0.0 if you want to allow remote access.</p></optdesc>
+      </option>
+
+      <option>
+        <p><opt>-H | --host-names</opt></p>
+        <optdesc><p>Create links pointing to mDNS host names instead
+        of resolved IP addreses. This is only compatible with your
+        browser if you run some kind of local NSS module to resolve
+        mDNS host names (e.g. nss-mdns).</p></optdesc>
+      </option>
+    
+	  <option>
+		<p><opt>-h | --help</opt></p>
+		<optdesc><p>Show help</p></optdesc>
+	  </option>
 
     </options>
-	
+
 	<section name="Authors">
 	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>

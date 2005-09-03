@@ -10,8 +10,8 @@ Avahi 0.3, the 'Buenos Días' release
  * avahi-bookmarks
    - Add new help option
    - Fix handling of paths not starting with a /
-   - You can now specify the port and IP to bind too
-   - Add option to use hostnames instead of IPs
+   - You can now specify the port and IP to bind to
+   - Add option to generate links with hostnames instead of IPs
 
 Avahi 0.2, the 'Dzień Dobry' release
 ====================================

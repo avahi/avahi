@@ -1,5 +1,18 @@
 $Id$
 
+Avahi 0.3, the 'Buenos Días' release
+====================================
+
+ * New integration library for QT main-loop applications.
+ * Fix a crash in avahi-dnsconfd
+ * Documentation Updates
+ * Fix building when you don't want Python DBUS or GTK
+ * avahi-bookmarks
+   - Add new help option
+   - Fix handling of paths not starting with a /
+   - You can now specify the port and IP to bind too
+   - Add option to use hostnames instead of IPs
+
 Avahi 0.2, the 'Dzień Dobry' release
 ====================================
 

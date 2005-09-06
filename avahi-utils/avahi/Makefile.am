@@ -25,15 +25,15 @@ avahidir = $(pythondir)/avahi
 
 avahi_SCRIPTS = ServiceTypeDatabase.py
 
-if HAVE_PYTHON_DBUS
-if HAVE_PYGTK
-
-avahi_PYTHON = __init__.py SimpleGladeApp.py 
-
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@pkgdatadir\@,$(pkgdatadir),g' $< > $@
 	chmod +x $@
+
+if HAVE_PYGTK
+if HAVE_PYTHON_DBUS
+
+avahi_PYTHON = __init__.py SimpleGladeApp.py 
 
 endif
 endif

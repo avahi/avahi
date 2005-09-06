@@ -19,14 +19,14 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-avahiincludedir=$(includedir)/avahi-qt
-
 lib_LTLIBRARIES = 
 BUILT_SOURCES = 
 
 if HAVE_QT3
 
-avahiinclude_HEADERS = \
+avahiqt3includedir=$(includedir)/avahi-qt3
+
+avahiqt3include_HEADERS = \
 	qt-watch.h 
 
 lib_LTLIBRARIES += \
@@ -48,7 +48,8 @@ endif
 
 if HAVE_QT4
 
-avahiinclude_HEADERS = \
+avahiqt4includedir=$(includedir)/avahi-qt4
+avahiqt4include_HEADERS = \
 	qt-watch.h 
 
 lib_LTLIBRARIES += \

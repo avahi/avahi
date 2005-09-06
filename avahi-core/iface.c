@@ -85,7 +85,8 @@ static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a
             char t[64];
             avahi_address_snprint(t, sizeof(t), &a->address);
 
-            if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
+            if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING &&
+		m->server->state == AVAHI_SERVER_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
 
             avahi_log_info("Withdrawing address %s on %s.", t, a->interface->hardware->name);

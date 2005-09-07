@@ -31,8 +31,6 @@ if TARGET_GENTOO
 SUBDIRS += gentoo
 endif
 
-# We disable shipping of these init scripts for now as they are out of date
-
-#if TARGET_SUSE
-#SUBDIRS += suse
-#endif
+if TARGET_SUSE
+SUBDIRS += suse
+endif

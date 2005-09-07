@@ -58,7 +58,7 @@ AC_PROG_LIBTOOL
 #
 AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, gentoo, archlinux or none]))
 if test "z$with_distro" = "z"; then
-    #AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
+    AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
     AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
     AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
     AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
@@ -70,7 +70,7 @@ if test "z$with_distro" = "z"; then
     exit 1
 else
 case $with_distro in
-    debian|gentoo|archlinux|none)
+    debian|gentoo|archlinux|suse|none)
      ;;
     *)
      AC_MSG_ERROR([Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome), you can specify --with-distro=none to skip this check])
@@ -78,7 +78,7 @@ case $with_distro in
 esac
 fi
 
-#AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
+AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
 AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
 AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
 AM_CONDITIONAL(TARGET_ARCHLINUX, test x"$with_distro" = xarchlinux)
@@ -471,6 +471,7 @@ initscript/Makefile
 initscript/debian/Makefile
 initscript/gentoo/Makefile
 initscript/archlinux/Makefile
+initscript/suse/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-utils/avahi/Makefile

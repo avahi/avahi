@@ -28,6 +28,13 @@ AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
 
 AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Avahi])
 
+AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [1:0:1])
+AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [0:1:0])
+AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [1:0:0])
+AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [0:1:0])
+AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [0:0:0])
+AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [0:0:0])
+
 if type -p stow > /dev/null && test -d /usr/local/stow ; then
     AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
     ac_default_prefix="/usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION}"

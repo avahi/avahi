@@ -42,7 +42,7 @@ qt-watch.moc3: qt-watch.cpp
 
 libavahi_qt3_la_CPPFLAGS = $(AM_CFLAGS) $(QT3_CFLAGS)
 libavahi_qt3_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT3_LIBS)
-libavahi_qt3_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
+libavahi_qt3_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_QT3_VERSION_INFO)
 
 endif
 
@@ -65,7 +65,7 @@ qt-watch.moc4: qt-watch.cpp
 
 libavahi_qt4_la_CPPFLAGS = $(AM_CFLAGS) $(QT4_CFLAGS) -DQT4
 libavahi_qt4_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT4_LIBS)
-libavahi_qt4_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info 0:0:0
+libavahi_qt4_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_QT4_VERSION_INFO)
 
 endif
 

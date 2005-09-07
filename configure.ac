@@ -265,7 +265,7 @@ AC_ARG_WITH(dbus-system-socket, AS_HELP_STRING([--with-dbus-system-address=<addr
 if test "x$HAVE_DBUS" = "xyes" ; then
     AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
-    PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.30 ])
+    PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.34 ])
     DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
     AC_SUBST(DBUS_CFLAGS)
     AC_SUBST(DBUS_LIBS)

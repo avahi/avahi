@@ -381,8 +381,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
     fi
 
     AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
-    AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
-    AM_CHECK_PYMOD(anydbm,,,[AC_MSG_ERROR(Could not find Python module anydbm)])
+    AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
 AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")

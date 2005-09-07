@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import anydbm
+import gdbm
 import locale
 
 locale.setlocale(locale.LC_ALL, '')
@@ -28,7 +28,7 @@ class ServiceTypeDatabase:
 
     def __init__(self, filename = "@pkgdatadir@/service-types.db"):
 
-        self.db = anydbm.open(filename, "r")
+        self.db = gdbm.open(filename, "r")
 
         l = locale.getlocale(locale.LC_MESSAGES)
 

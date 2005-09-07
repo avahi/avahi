@@ -128,7 +128,6 @@ case "$1" in
     reload|restart|force-reload)
         log_begin_msg "Restarting $DESC: $NAME"
         d_stop
-        sleep 1
         d_start
         log_end_msg $?
         ;;

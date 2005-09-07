@@ -36,34 +36,6 @@ Please comply with the following rules when hacking on Avahi:
    your code thrice with your brain before committing. Valgrind is
    only a final check.
 
- * When you code in C, please compile with the following gcc options from time
-   to time:
-  
-   -Wextra
-   -Wfloat-equal 
-   -Wmissing-declarations
-   -Wmissing-prototypes
-   -Wstrict-prototypes
-   -Wredundant-decls
-   -Wold-style-definition
-   -Wmissing-noreturn
-   -Wdeclaration-after-statement
-   -Wshadow
-   -Wendif-labels
-   -Wlarger-than-4000
-   -Wpointer-arith
-   -Wbad-function-cast
-   -Wcast-qual
-   -Wcast-align
-   -Wwrite-strings
-   -Winline
-
-   This will show you a bunch of issues which might be problems in your source
-   code.  Not all options are available on all GCC versions. Just pass these
-   options in $CFLAGS when running bootstrap.sh:
-
-   CFLAGS="-Wextra ..." ./bootstrap.sh
-
  * Whenever you add a new Makefile.am, C (.c or .h) source file, shell or
    python script please add this legal blurb to its header:
 

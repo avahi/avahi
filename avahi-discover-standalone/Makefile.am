@@ -27,6 +27,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_GTK
 
+interfacesdir=${datadir}/${PACKAGE}/interfaces/
 
 bin_PROGRAMS = \
 	avahi-discover-standalone
@@ -46,7 +47,6 @@ avahi_discover_standalone_LDADD = \
 	../avahi-core/libavahi-core.la  \
 	$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
-interfacesdir=${datadir}/${PACKAGE}/interfaces/
 interfaces_DATA = $(interfaces)
 
 else 

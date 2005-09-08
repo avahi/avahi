@@ -17,9 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AM_CFLAGS=\
-	-I$(top_srcdir) \
-	-DAVAHI_INTERFACES_DIR=\"$(interfacesdir)\"
+AM_CFLAGS=-I$(top_srcdir)
 
 interfaces = \
         avahi-discover.glade
@@ -28,6 +26,8 @@ interfaces = \
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_GTK
+
+
 bin_PROGRAMS = \
 	avahi-discover-standalone
 
@@ -36,7 +36,8 @@ avahi_discover_standalone_SOURCES = \
 
 avahi_discover_standalone_CFLAGS = \
 	$(AM_CFLAGS) \
-	$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)
+	$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)\
+	-DAVAHI_INTERFACES_DIR=\"$(interfacesdir)\"
 
 avahi_discover_standalone_LDADD = \
 	$(AM_LDADD) \
@@ -45,6 +46,7 @@ avahi_discover_standalone_LDADD = \
 	../avahi-core/libavahi-core.la  \
 	$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
+interfacesdir=${datadir}/${PACKAGE}/interfaces/
 interfaces_DATA = $(interfaces)
 
 else 
@@ -53,6 +55,7 @@ if HAVE_PYTHON
 if HAVE_DBUS
 
 # We need this for the python version of avahi-discover
+interfacesdir=${datadir}/${PACKAGE}/interfaces/
 interfaces_DATA = $(interfaces)
 
 endif

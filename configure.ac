@@ -248,9 +248,6 @@ if test "x$HAVE_GTK" = "xyes" ; then
         PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
         AC_SUBST(GLADE20_CFLAGS)
         AC_SUBST(GLADE20_LIBS)
-
-        interfacesdir="${datadir}/${PACKAGE}/interfaces/"
-        AC_SUBST(interfacesdir)
 fi
 AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
 

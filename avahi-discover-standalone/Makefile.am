@@ -21,6 +21,9 @@ AM_CFLAGS=\
 	-I$(top_srcdir) \
 	-DAVAHI_INTERFACES_DIR=\"$(interfacesdir)\"
 
+interfaces = \
+        avahi-discover.glade
+
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
@@ -55,9 +58,6 @@ interfaces_DATA = $(interfaces)
 endif
 endif
 endif
-
-interfaces = \
-        avahi-discover.glade
 
 EXTRA_DIST = \
 	$(interfaces) \

@@ -26,8 +26,6 @@ interfaces = \
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_GTK
-
-
 bin_PROGRAMS = \
 	avahi-discover-standalone
 
@@ -46,7 +44,6 @@ avahi_discover_standalone_LDADD = \
 	../avahi-core/libavahi-core.la  \
 	$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
 
-interfacesdir=${datadir}/${PACKAGE}/interfaces/
 interfaces_DATA = $(interfaces)
 
 else 
@@ -54,8 +51,6 @@ else
 if HAVE_PYTHON 
 if HAVE_DBUS
 
-# We need this for the python version of avahi-discover
-interfacesdir=${datadir}/${PACKAGE}/interfaces/
 interfaces_DATA = $(interfaces)
 
 endif

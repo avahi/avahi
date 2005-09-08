@@ -251,6 +251,8 @@ if test "x$HAVE_GTK" = "xyes" ; then
 fi
 AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
 
+
+
 #
 # D-BUS
 #
@@ -412,6 +414,15 @@ avahi_runtime_dir="${localstatedir}/run"
 avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
+
+
+#
+# Avahi interfaces dir
+#
+if test x$HAVE_PYTHON_DBUS || test x$HAVE_GTK; then
+	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
+	AC_SUBST(interfacesdir)
+fi
 
 
 #

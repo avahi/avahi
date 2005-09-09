@@ -20,6 +20,7 @@
 ***/
 
 using System;
+using System.Text;
 using System.Net;
 using Gtk;
 using Avahi;
@@ -73,6 +74,9 @@ public class AvahiTest {
 	private static void OnServiceResolved (object o, ServiceInfo info)
 	{
 		Console.WriteLine ("Service '{0}' at {1}:{2}", info.Name, info.Host, info.Port);
+		foreach (byte[] bytes in info.Text) {
+			Console.WriteLine ("Text: " + Encoding.UTF8.GetString (bytes));
+		}
 		AddressResolver ar = new AddressResolver (client, info.Address);
 		ar.Found += OnAddressResolved;
 	}

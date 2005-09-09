@@ -54,6 +54,15 @@ namespace Avahi
                                                                  Protocol aproto, ServiceResolverCallback cb,
                                                                  IntPtr userdata);
 
+        [DllImport ("avahi-common")]
+        private static extern IntPtr avahi_string_list_get_next (IntPtr list);
+
+        [DllImport ("avahi-common")]
+        private static extern IntPtr avahi_string_list_get_text (IntPtr list);
+
+        [DllImport ("avahi-common")]
+        private static extern int avahi_string_list_get_size (IntPtr list);
+
         [DllImport ("avahi-client")]
         private static extern void avahi_service_resolver_free (IntPtr handle);
 
@@ -161,8 +170,19 @@ namespace Avahi
             info.Host = Utility.PtrToString (host);
             info.Address = Utility.PtrToAddress (address);
             info.Port = port;
-            info.Text = null;
 
+            ArrayList txtlist = new ArrayList ();
+            for (IntPtr l = txt; l != IntPtr.Zero; l = avahi_string_list_get_next (l)) {
+                IntPtr buf = avahi_string_list_get_text (l);
+                int len = avahi_string_list_get_size (l);
+
+                byte[] txtbuf = new byte[len];
+                Marshal.Copy (buf, txtbuf, 0, len);
+                txtlist.Add (txtbuf);
+            }
+
+            info.Text = (byte[][]) txtlist.ToArray (typeof (byte[]));
+            
             if (revent == ResolverEvent.Found) {
                 currentInfo = info;
 

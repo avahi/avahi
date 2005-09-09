@@ -133,6 +133,15 @@ AvahiStringList *avahi_string_list_add_pair(AvahiStringList *l, const char *key,
 /** Same as avahi_string_list_add_pair() but allow strings containing NUL bytes in *value. */
 AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const char *key, const uint8_t *value, size_t size);
 
+/** Returns the next item in the string list */
+AvahiStringList *avahi_string_list_get_next(AvahiStringList *l);
+
+/** Returns the text for the current item */
+const uint8_t *avahi_string_list_get_text(AvahiStringList *l);
+
+/** Returns the size of the current text */
+size_t avahi_string_list_get_size(AvahiStringList *l);
+
 AVAHI_C_DECL_END
 
 #endif

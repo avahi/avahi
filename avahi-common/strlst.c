@@ -446,3 +446,18 @@ int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, siz
 
     return 0;
 }
+
+AvahiStringList *avahi_string_list_get_next(AvahiStringList *l) {
+    assert(l);
+    return l->next;
+}
+
+const uint8_t *avahi_string_list_get_text(AvahiStringList *l) {
+    assert(l);
+    return l->text;
+}
+
+size_t avahi_string_list_get_size(AvahiStringList *l) {
+    assert(l);
+    return l->size;
+}

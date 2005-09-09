@@ -51,6 +51,7 @@ SUBDIRS = \
 	avahi-qt \
 	avahi-client \
 	avahi-daemon \
+	avahi-sharp \
 	initscript \
 	avahi-dnsconfd \
 	avahi-utils \
@@ -58,6 +59,7 @@ SUBDIRS = \
 	man \
 	tests \
 	service-type-database
+
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/cdecl.h \

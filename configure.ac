@@ -387,6 +387,34 @@ AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
 AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
 
 #
+# Check for mono stuff
+#
+AC_ARG_ENABLE(mono,
+        AS_HELP_STRING([--disable-mono],[Disable mono bindings]),
+        [case "${enableval}" in
+                yes) HAVE_MONO=yes ;;
+                no)  HAVE_MONO=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-mono) ;;
+        esac],
+        [HAVE_MONO=yes])
+
+if test "x$HAVE_MONO" = "xyes" ; then
+        AC_PATH_PROG(MCS, mcs)
+        if test "x$MCS" = "x" ; then
+               AC_MSG_ERROR([Can not find "mcs" in your PATH])
+        fi
+
+        AC_PATH_PROG(GACUTIL, gacutil)
+        if test "x$GACUTIL" = "x" ; then
+               AC_MSG_ERROR([Can not find "gacutil" in your PATH])
+        fi
+
+        AC_SUBST(MCS)
+        AC_SUBST(GACUTIL)
+fi
+AM_CONDITIONAL(HAVE_MONO, test "x$HAVE_MONO" = "xyes")
+
+#
 # Defining Avahi User and Group.
 #
 AC_ARG_WITH(avahi_user, AS_HELP_STRING([--with-avahi-user=<user>],[User for running the Avahi daemon (avahi)]))
@@ -546,4 +574,5 @@ echo "
     Building avahi-discover-standalone: ${HAVE_GTK}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
+    Building avahi-sharp:               ${HAVE_MONO}
 "

@@ -1,6 +1,9 @@
 
 
-all: avahi-sharp.dll
+ASSEMBLY = avahi-sharp.dll
+
+CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
+EXTRA_DIST = $(AVAHISOURCES) avahi.snk
 
 AVAHISOURCES = 				\
 	$(srcdir)/AddressResolver.cs	\
@@ -12,9 +15,14 @@ AVAHISOURCES = 				\
 	$(srcdir)/ServiceBrowser.cs	\
 	$(srcdir)/ServiceResolver.cs	\
 	$(srcdir)/ServiceTypeBrowser.cs	\
-	Utility.cs
+	$(srcdir)/Utility.cs
 
-avahi-sharp.dll: $(AVAHISOURCES)
-	mcs -target:library -o $@ -debug $(AVAHISOURCES) -r:Mono.Posix
+$(ASSEMBLY): $(AVAHISOURCES)
+	mcs -keyfile:$(srcdir)/avahi.snk -target:library -o $@ -debug $(AVAHISOURCES) -r:Mono.Posix
 
-CLEANFILES = avahi-sharp.dll avahi-sharp.dll.mdb
+if HAVE_MONO
+all: $(ASSEMBLY)
+
+install-data-hook:
+	$(GACUTIL) /i $(ASSEMBLY) /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+endif

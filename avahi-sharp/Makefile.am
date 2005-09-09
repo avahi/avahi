@@ -20,7 +20,7 @@
 ASSEMBLY = avahi-sharp.dll
 
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
-EXTRA_DIST = $(AVAHISOURCES) avahi.snk
+EXTRA_DIST = $(AVAHISOURCES) avahi.snk avahi-sharp.dll.config
 
 AVAHISOURCES = 				\
 	$(srcdir)/AssemblyInfo.cs	\

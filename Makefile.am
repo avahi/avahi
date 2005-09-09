@@ -40,7 +40,8 @@ EXTRA_DIST = \
 	avahi-client.pc.in \
 	avahi-glib.pc.in \
 	avahi-qt3.pc.in \
-	avahi-qt4.pc.in
+	avahi-qt4.pc.in \
+	avahi-sharp.pc.in
 
 SUBDIRS = \
 	common \
@@ -144,6 +145,18 @@ CLEANFILES += avahi-qt4.pc
 
 endif
 
+if HAVE_MONO
+
+pkgconfig_DATA += avahi-sharp.pc
+
+avahi-sharp.pc: avahi-sharp.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' \
+	    -e 's,@libdir\@,$(libdir),g' $< > $@
+
+CLEANFILES += avahi-sharp.pc
+
+endif
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 

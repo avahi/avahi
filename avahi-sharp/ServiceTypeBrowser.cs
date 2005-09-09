@@ -46,6 +46,7 @@ namespace Avahi
         private int iface;
         private Protocol proto;
         private string domain;
+        private ServiceTypeBrowserCallback cb;
 
         private ArrayList addListeners = new ArrayList ();
         private ArrayList removeListeners = new ArrayList ();
@@ -101,6 +102,7 @@ namespace Avahi
             this.iface = iface;
             this.proto = proto;
             this.domain = domain;
+            cb = OnServiceTypeBrowserCallback;
         }
 
         ~ServiceTypeBrowser ()
@@ -120,7 +122,7 @@ namespace Avahi
 
             IntPtr domainPtr = Utility.StringToPtr (domain);
             handle = avahi_service_type_browser_new (client.Handle, iface, (int) proto, domainPtr,
-                                                     OnServiceTypeBrowserCallback, IntPtr.Zero);
+                                                     cb, IntPtr.Zero);
             Utility.Free (domainPtr);
         }
 

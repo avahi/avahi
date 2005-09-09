@@ -41,6 +41,7 @@ namespace Avahi
         private int iface;
         private Protocol proto;
         private IPAddress address;
+        private AddressResolverCallback cb;
 
         private IPAddress currentAddress;
         private string currentHost;
@@ -100,6 +101,7 @@ namespace Avahi
             this.iface = iface;
             this.proto = proto;
             this.address = address;
+            cb = OnAddressResolverCallback;
         }
 
         ~AddressResolver ()
@@ -119,7 +121,7 @@ namespace Avahi
 
             IntPtr addrPtr = Utility.StringToPtr (address.ToString ());
             handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr,
-                                                 OnAddressResolverCallback, IntPtr.Zero);
+                                                 cb, IntPtr.Zero);
             Utility.Free (addrPtr);
         }
 

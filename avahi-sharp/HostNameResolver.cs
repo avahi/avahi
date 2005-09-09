@@ -40,6 +40,7 @@ namespace Avahi
         private Protocol proto;
         private string hostname;
         private Protocol aproto;
+        private HostNameResolverCallback cb;
 
         private IPAddress currentAddress;
         private string currentHost;
@@ -102,6 +103,7 @@ namespace Avahi
             this.proto = proto;
             this.hostname = hostname;
             this.aproto = aproto;
+            cb = OnHostNameResolverCallback;
         }
 
         ~HostNameResolver ()

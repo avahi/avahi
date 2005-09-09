@@ -44,6 +44,7 @@ namespace Avahi
         private string type;
         private string domain;
         private Protocol aproto;
+        private ServiceResolverCallback cb;
 
         private ArrayList foundListeners = new ArrayList ();
         private ArrayList timeoutListeners = new ArrayList ();
@@ -119,8 +120,7 @@ namespace Avahi
             this.type = type;
             this.domain = domain;
             this.aproto = aproto;
-            
-            
+            cb = OnServiceResolverCallback;
         }
 
         ~ServiceResolver ()
@@ -142,7 +142,7 @@ namespace Avahi
             IntPtr typePtr = Utility.StringToPtr (type);
             IntPtr domainPtr = Utility.StringToPtr (domain);
             handle = avahi_service_resolver_new (client.Handle, iface, proto, namePtr, typePtr, domainPtr,
-                                                 aproto, OnServiceResolverCallback, IntPtr.Zero);
+                                                 aproto, cb, IntPtr.Zero);
             Utility.Free (namePtr);
             Utility.Free (typePtr);
             Utility.Free (domainPtr);
@@ -167,7 +167,7 @@ namespace Avahi
             info.Domain = Utility.PtrToString (domain);
             info.ServiceType = Utility.PtrToString (type);
             info.Name = Utility.PtrToString (name);
-            info.Host = Utility.PtrToString (host);
+            info.HostName = Utility.PtrToString (host);
             info.Address = Utility.PtrToAddress (address);
             info.Port = port;
 

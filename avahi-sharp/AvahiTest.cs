@@ -73,7 +73,7 @@ public class AvahiTest {
 
 	private static void OnServiceResolved (object o, ServiceInfo info)
 	{
-		Console.WriteLine ("Service '{0}' at {1}:{2}", info.Name, info.Host, info.Port);
+		Console.WriteLine ("Service '{0}' at {1}:{2}", info.Name, info.HostName, info.Port);
 		foreach (byte[] bytes in info.Text) {
 			Console.WriteLine ("Text: " + Encoding.UTF8.GetString (bytes));
 		}

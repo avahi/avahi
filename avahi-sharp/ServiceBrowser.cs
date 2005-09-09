@@ -37,7 +37,7 @@ namespace Avahi
         public string ServiceType;
         public string Name;
 
-        public string Host;
+        public string HostName;
         public IPAddress Address;
         public UInt16 Port;
         public byte[][] Text;
@@ -56,6 +56,7 @@ namespace Avahi
         private Protocol proto;
         private string domain;
         private string type;
+        private ServiceBrowserCallback cb;
 
         private ArrayList addListeners = new ArrayList ();
         private ArrayList removeListeners = new ArrayList ();
@@ -113,8 +114,7 @@ namespace Avahi
             this.proto = proto;
             this.domain = domain;
             this.type = type;
-            
-            
+            cb = OnServiceBrowserCallback;
         }
 
         ~ServiceBrowser ()
@@ -135,7 +135,7 @@ namespace Avahi
             IntPtr domainPtr = Utility.StringToPtr (domain);
             IntPtr typePtr = Utility.StringToPtr (type);
             handle = avahi_service_browser_new (client.Handle, iface, (int) proto, typePtr, domainPtr,
-                                                OnServiceBrowserCallback, IntPtr.Zero);
+                                                cb, IntPtr.Zero);
             Utility.Free (domainPtr);
             Utility.Free (typePtr);
         }
@@ -158,7 +158,7 @@ namespace Avahi
             info.Domain = Utility.PtrToString (domain);
             info.ServiceType = Utility.PtrToString (type);
             info.Name = Utility.PtrToString (name);
-            info.Host = null;
+            info.HostName = null;
             info.Address = null;
             info.Port = 0;
             info.Text = null;

@@ -36,7 +36,9 @@ namespace Avahi
         Removed
     }
     
-    internal delegate void ClientHandler (IntPtr client, ClientState state, IntPtr userData);
+    internal delegate void ClientCallback (IntPtr client, ClientState state, IntPtr userData);
+
+    public delegate void ClientStateHandler (object o, ClientState state);
 
     public enum Protocol {
         Unspecified = 0,
@@ -57,7 +59,7 @@ namespace Avahi
         private IntPtr handle;
 
         [DllImport ("avahi-client")]
-        private static extern IntPtr avahi_client_new (IntPtr poll, ClientHandler handler,
+        private static extern IntPtr avahi_client_new (IntPtr poll, ClientCallback handler,
                                                        IntPtr userData, out int error);
 
         [DllImport ("avahi-client")]
@@ -86,6 +88,8 @@ namespace Avahi
 
         [DllImport ("avahi-glib")]
         private static extern IntPtr avahi_glib_poll_get (IntPtr gpoll);
+
+        public event ClientStateHandler StateChanged;
 
         internal IntPtr Handle
         {
@@ -156,7 +160,8 @@ namespace Avahi
         
         private void OnClientCallback (IntPtr client, ClientState state, IntPtr userData)
         {
-            Console.WriteLine ("Got new state: " + state);
+            if (StateChanged != null)
+                StateChanged (this, state);
         }
     }
 }

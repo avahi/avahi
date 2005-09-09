@@ -452,7 +452,7 @@ AvahiStringList *avahi_string_list_get_next(AvahiStringList *l) {
     return l->next;
 }
 
-const uint8_t *avahi_string_list_get_text(AvahiStringList *l) {
+uint8_t *avahi_string_list_get_text(AvahiStringList *l) {
     assert(l);
     return l->text;
 }

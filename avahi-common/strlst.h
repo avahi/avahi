@@ -137,7 +137,7 @@ AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const 
 AvahiStringList *avahi_string_list_get_next(AvahiStringList *l);
 
 /** Returns the text for the current item */
-const uint8_t *avahi_string_list_get_text(AvahiStringList *l);
+uint8_t *avahi_string_list_get_text(AvahiStringList *l);
 
 /** Returns the size of the current text */
 size_t avahi_string_list_get_size(AvahiStringList *l);

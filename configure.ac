@@ -541,6 +541,7 @@ echo "
     Enable python-dbus:     ${HAVE_PYTHON_DBUS}
     Enable QT3:             ${HAVE_QT3}
     Enable QT4:             ${HAVE_QT4}
+    Enable Mono:            ${HAVE_MONO}
     Linux Distro:           ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}

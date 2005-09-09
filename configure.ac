@@ -488,6 +488,7 @@ common/Makefile
 man/Makefile
 tests/Makefile
 service-type-database/Makefile
+avahi-sharp/Makefile
 ])
 AC_OUTPUT
 

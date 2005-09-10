@@ -320,6 +320,9 @@ int avahi_address_resolver_free(AvahiAddressResolver *r);
 /** Return the local service cookie. returns AVAHI_SERVICE_COOKIE_INVALID on failure. */
 uint32_t avahi_client_get_local_service_cookie(AvahiClient *client);
 
+/** Return 1 if the specified service is a registered locally, negative on failure, 0 otherwise. */
+int avahi_client_is_service_local(AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

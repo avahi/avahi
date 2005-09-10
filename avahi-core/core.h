@@ -568,6 +568,9 @@ int avahi_server_errno(AvahiServer *s);
 /** Return the local service cookie */
 uint32_t avahi_server_get_local_service_cookie(AvahiServer *s);
 
+/** Return 1 if there is a local service with the specified credentials registeresd. Return 0 if not, negative on failure */
+int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex, AvahiProtocol protocol, const char *name, const char *type,  const char*domain);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

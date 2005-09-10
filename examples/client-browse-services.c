@@ -64,7 +64,15 @@ static void resolve_callback(
 
         avahi_address_snprint(a, sizeof(a), address);
         t = avahi_string_list_to_string(txt);
-        fprintf(stderr, "\t%s:%u (%s) TXT=%s (cookie is %u)\n", host_name, port, a, t, avahi_string_list_get_service_cookie(txt));
+        fprintf(stderr,
+                "\t%s:%u (%s)\n"
+                "\tTXT=%s\n"
+                "\tcookie is %u\n"
+                "\tis_local: %i\n",
+                host_name, port, a,
+                t,
+                avahi_string_list_get_service_cookie(txt),
+                avahi_client_is_service_local(avahi_service_resolver_get_client(r), interface, protocol, name, type, domain));
         avahi_free(t);
     }
 

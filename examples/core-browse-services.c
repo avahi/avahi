@@ -45,6 +45,7 @@
 #include <avahi-common/error.h>
 
 static AvahiSimplePoll *simple_poll = NULL;
+static AvahiServer *server = NULL;
 
 static void resolve_callback(
     AvahiSServiceResolver *r,
@@ -75,7 +76,15 @@ static void resolve_callback(
 
         avahi_address_snprint(a, sizeof(a), address);
         t = avahi_string_list_to_string(txt);
-        fprintf(stderr, "\t%s:%u (%s) TXT=%s (cookie is %u)\n", host_name, port, a, t, avahi_string_list_get_service_cookie(txt));
+        fprintf(stderr,
+                "\t%s:%u (%s)\n"
+                "\tTXT=%s\n"
+                "\tcookie is %u\n"
+                "\tis_local: %i\n",
+                host_name, port, a,
+                t,
+                avahi_string_list_get_service_cookie(txt),
+                avahi_server_is_service_local(server, interface, protocol, name, type, domain));
         avahi_free(t);
     }
 
@@ -116,7 +125,6 @@ static void browse_callback(
 
 int main(int argc, char*argv[]) {
     AvahiServerConfig config;
-    AvahiServer *server = NULL;
     AvahiSServiceBrowser *sb;
     int error;
     int ret = 1;

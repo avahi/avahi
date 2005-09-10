@@ -463,6 +463,17 @@ static DBusHandlerResult respond_uint32(DBusConnection *c, DBusMessage *m, uint3
     return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static DBusHandlerResult respond_boolean(DBusConnection *c, DBusMessage *m, int b) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_method_return(m);
+    dbus_message_append_args(reply, DBUS_TYPE_BOOLEAN, &b, DBUS_TYPE_INVALID);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+    
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
 static DBusHandlerResult respond_ok(DBusConnection *c, DBusMessage *m) {
     DBusMessage *reply;
 
@@ -1560,6 +1571,28 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
         
         return respond_uint32(c, m, avahi_server_get_local_service_cookie(avahi_server));
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "IsServiceLocal")) {
+        int32_t interface, protocol;
+        char *name, *type, *domain;
+        int b;
+        
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_STRING, &type,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_INVALID) || !name || !type || !domain) {
+            avahi_log_warn("Error parsing Server::IsServiceLocal message");
+            goto fail;
+        }
+
+        if ((b = avahi_server_is_service_local(avahi_server, interface, protocol, name, type, domain)) < 0)
+            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);            
+        
+        return respond_boolean(c, m, b);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;

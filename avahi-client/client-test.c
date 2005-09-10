@@ -164,6 +164,7 @@ int main (int argc, char *argv[]) {
     AvahiHostNameResolver *hnr;
     const char *ret;
     int error;
+    uint32_t cookie;
     struct timeval tv;
 
     simple_poll = avahi_simple_poll_new();
@@ -188,6 +189,9 @@ int main (int argc, char *argv[]) {
     ret = avahi_client_get_host_name_fqdn (avahi);
     printf("FQDN: %s (Error Return: %s)\n", ret, ret ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
     
+    cookie = avahi_client_get_local_service_cookie(avahi);
+    printf("Local service cookie: %u (Error Return: %s)\n", cookie, cookie != AVAHI_SERVICE_COOKIE_INVALID ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
+
     group = avahi_entry_group_new (avahi, avahi_entry_group_callback, "omghai");
     printf("Creating entry group: %s\n", group ? "OK" : avahi_strerror(avahi_client_errno (avahi)));
 

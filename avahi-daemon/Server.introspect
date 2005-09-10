@@ -33,6 +33,10 @@
       <arg name="state" type="i"/>
     </signal>
 
+    <method name="GetLocalServiceCookie">
+      <arg name="cookie" type="u" direction="out"/>
+    </method>
+
     <method name="GetAlternativeHostName">
       <arg name="name" type="s" direction="in"/>
       <arg name="name" type="s" direction="out"/>

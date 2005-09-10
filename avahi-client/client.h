@@ -317,6 +317,9 @@ AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *);
 /** Free a AvahiAddressResolver resolver object */
 int avahi_address_resolver_free(AvahiAddressResolver *r);
 
+/** Return the local service cookie. returns AVAHI_SERVICE_COOKIE_INVALID on failure. */
+uint32_t avahi_client_get_local_service_cookie(AvahiClient *client);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

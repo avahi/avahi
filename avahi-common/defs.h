@@ -172,6 +172,15 @@ typedef enum {
     AVAHI_SERVER_COLLISION         /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
 } AvahiServerState;
 
+/** For every service a special TXT item is implicitly added, which
+ * contains a random cookie which is private to the local daemon. This
+ * can be used by clients to determine if two services on two
+ * different subnets are effectively the same. */
+#define AVAHI_SERVICE_COOKIE "org.freedesktop.Avahi.cookie"
+
+/** In invalid cookie as special value */
+#define AVAHI_SERVICE_COOKIE_INVALID (0)
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

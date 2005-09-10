@@ -85,6 +85,7 @@ typedef struct AvahiServerConfig {
     int use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
     int enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
     int reflect_ipv;                  /**< if enable_reflector is 1, enable/disable reflecting between IPv4 and IPv6 */
+    int add_service_cookie;           /**< Add magic service cookie to all locally generated records implicitly */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */
@@ -563,6 +564,9 @@ void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b);
 
 /** Return the last error code */
 int avahi_server_errno(AvahiServer *s);
+
+/** Return the local service cookie */
+uint32_t avahi_server_get_local_service_cookie(AvahiServer *s);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

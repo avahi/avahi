@@ -452,6 +452,17 @@ static DBusHandlerResult respond_int32(DBusConnection *c, DBusMessage *m, int32_
     return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static DBusHandlerResult respond_uint32(DBusConnection *c, DBusMessage *m, uint32_t u) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_method_return(m);
+    dbus_message_append_args(reply, DBUS_TYPE_UINT32, &u, DBUS_TYPE_INVALID);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+    
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
 static DBusHandlerResult respond_ok(DBusConnection *c, DBusMessage *m) {
     DBusMessage *reply;
 
@@ -1540,6 +1551,15 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         
         state = avahi_server_get_state(avahi_server);
         return respond_int32(c, m, (int32_t) state);
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetLocalServiceCookie")) {
+
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
+            avahi_log_warn("Error parsing Server::GetLocalServiceCookie message");
+            goto fail;
+        }
+        
+        return respond_uint32(c, m, avahi_server_get_local_service_cookie(avahi_server));
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;

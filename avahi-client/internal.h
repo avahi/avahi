@@ -33,6 +33,8 @@ struct AvahiClient {
 
     /* Cache for some seldom changing server data */
     char *version_string, *host_name, *host_name_fqdn, *domain_name;
+    uint32_t local_service_cookie;
+    int local_service_cookie_valid;
     
     AvahiClientCallback callback;
     void *userdata;

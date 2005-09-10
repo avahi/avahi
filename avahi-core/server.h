@@ -139,6 +139,8 @@ struct AvahiServer {
     uint16_t legacy_unicast_reflect_id;
 
     int error;
+
+    uint32_t local_service_cookie;
 };
 
 int avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);

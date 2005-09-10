@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include <avahi-common/domain.h>
 #include <avahi-common/timeval.h>
@@ -1411,6 +1412,10 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
 
     s->legacy_unicast_reflect_slots = NULL;
     s->legacy_unicast_reflect_id = 0;
+
+    do {
+        s->local_service_cookie = (uint32_t) rand() * (uint32_t) rand();
+    } while (s->local_service_cookie == AVAHI_SERVICE_COOKIE_INVALID);
     
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
@@ -1849,6 +1854,22 @@ static void escape_service_name(char *d, size_t size, const char *s) {
     *(d++) = 0;
 }
 
+static AvahiStringList *add_magic_cookie(
+    AvahiServer *s,
+    AvahiStringList *strlst) {
+
+    assert(s);
+
+    if (!s->config.add_service_cookie)
+        return strlst;
+
+    if (avahi_string_list_find(strlst, AVAHI_SERVICE_COOKIE))
+        /* This string list already contains a magic cookie */
+        return strlst;
+
+    return avahi_string_list_add_printf(strlst, AVAHI_SERVICE_COOKIE"=%u", s->local_service_cookie);
+}
+
 static int server_add_service_strlst_nocopy(
     AvahiServer *s,
     AvahiSEntryGroup *g,
@@ -1919,6 +1940,8 @@ static int server_add_service_strlst_nocopy(
     if (ret < 0)
         goto fail;
 
+    strlst = add_magic_cookie(s, strlst);
+    
     ret = server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_ENTRY_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
     strlst = NULL;
 
@@ -2389,6 +2412,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->use_iff_running = 0;
     c->enable_reflector = 0;
     c->reflect_ipv = 0;
+    c->add_service_cookie = 1;
     
     return c;
 }
@@ -2435,3 +2459,8 @@ int avahi_server_set_errno(AvahiServer *s, int error) {
     return s->error = error;
 }
 
+uint32_t avahi_server_get_local_service_cookie(AvahiServer *s) {
+    assert(s);
+
+    return s->local_service_cookie;
+}

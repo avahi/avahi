@@ -303,7 +303,8 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     client->host_name_fqdn = NULL;
     client->domain_name = NULL;
     client->version_string = NULL;
-
+    client->local_service_cookie_valid = 0;
+    
     AVAHI_LLIST_HEAD_INIT(AvahiEntryGroup, client->groups);
     AVAHI_LLIST_HEAD_INIT(AvahiDomainBrowser, client->domain_browsers);
     AVAHI_LLIST_HEAD_INIT(AvahiServiceBrowser, client->service_browsers);
@@ -594,3 +595,52 @@ fail:
     return r;
 }
 
+uint32_t avahi_client_get_local_service_cookie(AvahiClient *client) {
+    DBusMessage *message = NULL, *reply = NULL;
+    DBusError error;
+    assert(client);
+
+    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
+        return AVAHI_SERVICE_COOKIE_INVALID;
+    }
+
+    if (client->local_service_cookie_valid)
+        return client->local_service_cookie;
+
+    dbus_error_init (&error);
+
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetLocalServiceCookie"))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
+
+    if (!reply || dbus_error_is_set (&error))
+        goto fail;
+
+    if (!dbus_message_get_args (reply, &error, DBUS_TYPE_UINT32, &client->local_service_cookie, DBUS_TYPE_INVALID) ||
+        dbus_error_is_set (&error))
+        goto fail;
+    
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+
+    client->local_service_cookie_valid = 1;
+    return client->local_service_cookie;
+
+fail:
+
+    if (message)
+        dbus_message_unref(message);
+    if (reply)
+        dbus_message_unref(reply);
+    
+    if (dbus_error_is_set(&error)) {
+        avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    return AVAHI_SERVICE_COOKIE_INVALID;
+}

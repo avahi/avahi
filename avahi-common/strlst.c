@@ -477,10 +477,13 @@ uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
         return AVAHI_SERVICE_COOKIE_INVALID;
 
     ret = (uint32_t) strtoll(value, &end, 0);
-    avahi_free(value);
 
-    if (*value && end && *end != 0)
+    if (*value && end && *end != 0) {
+        avahi_free(value);
         return AVAHI_SERVICE_COOKIE_INVALID;
+    }
 
+    avahi_free(value);
+    
     return ret;
 }

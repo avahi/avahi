@@ -2,7 +2,6 @@ todo:
 * Add sensible record updating API
 * Passive observation of failures
 * support for special domain PTR records based on local IP subnet address
-* add API to detect if a service is local
 * add subtype browsing
 * add wide area support (i.e. DNS-SD over unicast DNS) 
 * remove queries from queue if the browse object they very issued from is destroyed
@@ -61,3 +60,4 @@ done:
 * publish IP addresses with scope "link" only, unless ther are the only one the interface
 * release 0.2!
 * add identical service detection cookie
+* add API to detect if a service is local

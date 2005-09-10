@@ -64,7 +64,7 @@ static void resolve_callback(
 
         avahi_address_snprint(a, sizeof(a), address);
         t = avahi_string_list_to_string(txt);
-        fprintf(stderr, "\t%s:%u (%s) TXT=%s\n", host_name, port, a, t);
+        fprintf(stderr, "\t%s:%u (%s) TXT=%s (cookie is %u)\n", host_name, port, a, t, avahi_string_list_get_service_cookie(txt));
         avahi_free(t);
     }
 

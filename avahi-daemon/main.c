@@ -392,9 +392,10 @@ static int load_config_file(DaemonConfig *c) {
                     } else {
                         c->enable_dbus = 0;
                     }
-                }
-                else if (strcasecmp(p->key, "drop-root") == 0)
+                } else if (strcasecmp(p->key, "drop-root") == 0)
                     c->drop_root = is_yes(p->value);
+                else if (strcasecmp(p->key, "add-service-cookie") == 0)
+                    c->server_config.add_service_cookie = is_yes(p->value);
                 else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;

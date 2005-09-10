@@ -142,6 +142,10 @@ uint8_t *avahi_string_list_get_text(AvahiStringList *l);
 /** Returns the size of the current text */
 size_t avahi_string_list_get_size(AvahiStringList *l);
 
+/** Try to find a magic service cookie in the specified DNS-SD string
+ * list. Or return AVAHI_SERVICE_COOKIE_INVALID if none is found. */
+uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l);
+
 AVAHI_C_DECL_END
 
 #endif

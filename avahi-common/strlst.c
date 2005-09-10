@@ -27,9 +27,11 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "strlst.h"
 #include "malloc.h"
+#include "defs.h"
 
 AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size) {
     AvahiStringList *n;
@@ -402,17 +404,16 @@ AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const 
     return l;
 }
 
-
 int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, size_t *size) {
     char *e;
     
     assert(l);
-    assert(key);
 
     if (!(e = memchr(l->text, '=', l->size))) {
-        
-        if (!(*key = avahi_strdup((char*) l->text)))
-            return -1;
+
+        if (key) 
+            if (!(*key = avahi_strdup((char*) l->text)))
+                return -1;
 
         if (value)
             *value = NULL;
@@ -423,8 +424,9 @@ int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, siz
     } else {
         size_t n;
 
-        if (!(*key = avahi_strndup((char*) l->text, e - (char *) l->text)))
-            return -1;
+        if (key)
+            if (!(*key = avahi_strndup((char*) l->text, e - (char *) l->text)))
+                return -1;
 
         e++; /* Advance after '=' */
         
@@ -433,7 +435,8 @@ int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, siz
         if (value) {
 
             if (!(*value = avahi_memdup(e, n+1))) {
-                avahi_free(*key);
+                if (key)
+                    avahi_free(*key);
                 return -1;
             }
 
@@ -460,4 +463,24 @@ uint8_t *avahi_string_list_get_text(AvahiStringList *l) {
 size_t avahi_string_list_get_size(AvahiStringList *l) {
     assert(l);
     return l->size;
+}
+
+uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
+    AvahiStringList *f;
+    char *value = NULL, *end = NULL;
+    uint32_t ret;
+    
+    if (!(f = avahi_string_list_find(l, AVAHI_SERVICE_COOKIE)))
+        return AVAHI_SERVICE_COOKIE_INVALID;
+
+    if (avahi_string_list_get_pair(f, NULL, &value, NULL) < 0 || !value)
+        return AVAHI_SERVICE_COOKIE_INVALID;
+
+    ret = (uint32_t) strtoll(value, &end, 0);
+    avahi_free(value);
+
+    if (*value && end && *end != 0)
+        return AVAHI_SERVICE_COOKIE_INVALID;
+
+    return ret;
 }

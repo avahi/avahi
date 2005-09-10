@@ -501,8 +501,3 @@ int avahi_entry_group_add_service_va(
     return r;
 }
 
-const char* avahi_entry_group_get_dbus_path(AvahiEntryGroup *group) {
-    assert(group);
-
-    return group->path;
-}

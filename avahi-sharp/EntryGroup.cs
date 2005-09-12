@@ -124,7 +124,7 @@ namespace Avahi
         }
 
         public void AddService (int iface, Protocol proto, string name, string type, string domain,
-                                string host, UInt16 port, string[] txt)
+                                string host, UInt16 port, params string[] txt)
         {
             IntPtr list = avahi_string_list_new (IntPtr.Zero);
 

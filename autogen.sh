@@ -43,7 +43,8 @@ else
     autoheader
     run_versioned automake "$VERSION" -a -c --foreign
 
-    ./configure "$@"
-
-    make clean
+    if test "x$NOCONFIGURE" = "x"; then
+        ./configure "$@"
+        make clean
+    fi
 fi

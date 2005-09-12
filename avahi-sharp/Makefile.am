@@ -41,6 +41,9 @@ $(ASSEMBLY): $(AVAHISOURCES)
 if HAVE_MONO
 all: $(ASSEMBLY)
 
-install-data-hook:
+install-data-hook: $(ASSEMBLY)
 	$(GACUTIL) /i $(ASSEMBLY) /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+
+uninstall-hook: $(ASSEMBLY)
+	$(GACUTIL) /u avahi-sharp /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 endif

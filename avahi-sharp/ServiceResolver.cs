@@ -161,6 +161,7 @@ namespace Avahi
                                                 IntPtr domain, IntPtr host, IntPtr address,
                                                 UInt16 port, IntPtr txt, IntPtr userdata)
         {
+
             ServiceInfo info;
             info.NetworkInterface = iface;
             info.Protocol = proto;

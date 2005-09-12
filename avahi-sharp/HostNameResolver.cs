@@ -123,7 +123,7 @@ namespace Avahi
 
             IntPtr hostPtr = Utility.StringToPtr (hostname);
             handle = avahi_host_name_resolver_new (client.Handle, iface, proto, hostPtr, aproto,
-                                                   OnHostNameResolverCallback, IntPtr.Zero);
+                                                   cb, IntPtr.Zero);
             Utility.Free (hostPtr);
         }
 

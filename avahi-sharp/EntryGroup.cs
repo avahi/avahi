@@ -68,7 +68,7 @@ namespace Avahi
         private static extern IntPtr avahi_string_list_new (IntPtr txt);
 
         [DllImport ("avahi-common")]
-        private static extern void avahi_string_list_add (IntPtr list, IntPtr txt);
+        private static extern IntPtr avahi_string_list_add (IntPtr list, IntPtr txt);
 
         [DllImport ("avahi-common")]
         private static extern void avahi_string_list_free (IntPtr list);
@@ -131,7 +131,7 @@ namespace Avahi
             if (txt != null) {
                 foreach (string item in txt) {
                     IntPtr itemPtr = Utility.StringToPtr (item);
-                    avahi_string_list_add (list, itemPtr);
+                    list = avahi_string_list_add (list, itemPtr);
                     Utility.Free (itemPtr);
                 }
             }
@@ -145,8 +145,6 @@ namespace Avahi
             avahi_string_list_free (list);
 
             client.CheckError ();
-            
-            Console.WriteLine ("Added service: {0}, {1}, {2}, {3}, {4}", name, type, domain, host, port);
         }
 
         private void OnEntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata)

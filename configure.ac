@@ -526,6 +526,8 @@ echo "
 
     prefix:                 ${prefix}
     sysconfdir:             ${sysconfdir}
+    localstatedir:          ${localstatedir}
+    avahi socket:           ${avahi_socket}
     dbus-1 system.d dir:    ${DBUS_SYS_DIR}
     dbus-1 version:         `pkg-config dbus-1 --modversion`
     dbus-1 system socket    ${DBUS_SYSTEM_BUS_DEFAULT_ADDRESS}

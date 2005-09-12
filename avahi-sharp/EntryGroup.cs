@@ -118,7 +118,7 @@ namespace Avahi
         }
 
         public void AddService (string name, string type, string domain,
-                                UInt16 port, string[] txt)
+                                UInt16 port, params string[] txt)
         {
             AddService (-1, Protocol.Unspecified, name, type, domain, null, port, txt);
         }

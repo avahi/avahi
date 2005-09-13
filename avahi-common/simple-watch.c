@@ -430,7 +430,7 @@ int avahi_simple_poll_iterate(AvahiSimplePoll *s, int timeout) {
     s->events_valid = 1;
 
     /* Check whether the wakeup time has been reached now */
-    if (next_timeout) {
+    if ((next_timeout = find_next_timeout(s))) {
         struct timeval now;
         
         gettimeofday(&now, NULL);

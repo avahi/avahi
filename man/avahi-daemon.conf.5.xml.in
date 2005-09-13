@@ -92,6 +92,17 @@
         D-BUS daemon.</p>
       </option>
 
+      <option>
+        <p><opt>add-service-cookie=</opt> Takes a boolean value ("yes"
+        or "no"). If set to "yes" an implicit TXT entry will be added
+        to all locally registered services, containing a cookie value
+        which is chosen randomly on daemon startup. This can be used
+        to detect if two services on two different
+        interfaces/protocols are actually identical. Defaults to
+        "yes".</p>
+      </option>
+
+
 	</section>
 
 	<section name="Section [publish]">

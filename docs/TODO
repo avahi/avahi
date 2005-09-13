@@ -7,6 +7,7 @@ for 0.6:
 * add a way to notify the user that all cache entries have been read when browsing
 
 later:
+* wrap avahi_server_add_record() via DBUS and in avahi-client
 * Passive observation of failures
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

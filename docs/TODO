@@ -1,15 +1,18 @@
-todo:
+for 0.6:
 * Add sensible record updating API
+* add wide area support (i.e. DNS-SD over unicast DNS) 
+* add subtype browsing
+* remove queries from queue if the browse object they were issued from is destroyed
+* if two local clients browse for the same RRs, only send out query series once
+* add a way to notify the user that all cache entries have been read when browsing
+
+later:
 * Passive observation of failures
 * support for special domain PTR records based on local IP subnet address
-* add subtype browsing
-* add wide area support (i.e. DNS-SD over unicast DNS) 
-* remove queries from queue if the browse object they were issued from is destroyed
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec
   * Defer unicast responses the same way as multicast responses 
-* if two local clients browse for the same RRs, only send out query series once
-
+  
 done:
 * drop glib from avahi-daemon
 * doxygen updates

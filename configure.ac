@@ -286,9 +286,19 @@ if test "x$HAVE_DBUS" = "xyes" ; then
     if ! test -z "$with_dbus_system_address" ; then
         DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="$with_dbus_system_address"
     else
-        # Note this default path is hardcoded in D-BUS and should
-        # not use $localstatedir
+        # This is ugly, but D-BUS doesn't export this address for us
+        # so we have to guess, pretty much all setups i've seen have 
+        # it in /var/lib/dbus or /var/run/dbus, and its defaulted to
+        # /var/run upstream so we will try guess first then default
+        # to /var/run/dbus
+
         DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="unix:path=/var/run/dbus/system_bus_socket"
+        TRY_SOCKETS="/var/lib/dbus/system_bus_socket /var/run/dbus/system_bus_socket"
+        for sock in $TRY_SOCKETS; do
+            if test -S $sock; then
+                DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="unix:path=$sock"
+            fi
+        done
     fi
     AC_SUBST(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)
     

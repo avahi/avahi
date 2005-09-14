@@ -530,10 +530,11 @@ int avahi_simple_poll_iterate(AvahiSimplePoll *s, int timeout) {
     return 0;
 }
 
-void avahi_simple_poll_quit(AvahiSimplePoll *w) {
-    assert(w);
+void avahi_simple_poll_quit(AvahiSimplePoll *s) {
+    assert(s);
 
-    w->quit = 1;
+    s->quit = 1;
+    wakeup(s);
 }
 
 const AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s) {
@@ -546,4 +547,5 @@ void avahi_simple_poll_set_func(AvahiSimplePoll *s, AvahiPollFunc func) {
     assert(s);
 
     s->poll_func = func ? func : (AvahiPollFunc) poll;
+    wakeup(s);
 }

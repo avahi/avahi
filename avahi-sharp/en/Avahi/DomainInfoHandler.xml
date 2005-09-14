@@ -1,0 +1,23 @@
+<Type Name="DomainInfoHandler" FullName="Avahi.DomainInfoHandler">
+  <TypeSignature Language="C#" Value="public delegate void DomainInfoHandler(object o, Avahi.DomainInfo info);" />
+  <AssemblyInfo>
+    <AssemblyName>avahi-sharp</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Delegate</BaseTypeName>
+  </Base>
+  <Parameters>
+    <Parameter Name="o" Type="System.Object" />
+    <Parameter Name="info" Type="Avahi.DomainInfo" />
+  </Parameters>
+  <ReturnValue>
+    <ReturnType>System.Void</ReturnType>
+  </ReturnValue>
+  <Docs>
+    <param name="o">To be added.</param>
+    <param name="info">To be added.</param>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+</Type>

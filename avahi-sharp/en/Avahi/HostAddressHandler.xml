@@ -1,0 +1,25 @@
+<Type Name="HostAddressHandler" FullName="Avahi.HostAddressHandler">
+  <TypeSignature Language="C#" Value="public delegate void HostAddressHandler(object o, string host, System.Net.IPAddress address);" />
+  <AssemblyInfo>
+    <AssemblyName>avahi-sharp</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Delegate</BaseTypeName>
+  </Base>
+  <Parameters>
+    <Parameter Name="o" Type="System.Object" />
+    <Parameter Name="host" Type="System.String" />
+    <Parameter Name="address" Type="System.Net.IPAddress" />
+  </Parameters>
+  <ReturnValue>
+    <ReturnType>System.Void</ReturnType>
+  </ReturnValue>
+  <Docs>
+    <param name="o">To be added.</param>
+    <param name="host">To be added.</param>
+    <param name="address">To be added.</param>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+</Type>

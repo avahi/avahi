@@ -398,6 +398,15 @@ AC_ARG_ENABLE(mono,
         esac],
         [HAVE_MONO=yes])
 
+AC_ARG_ENABLE(mono-docs,
+        AS_HELP_STRING([--disable-mono-docs],[Disable documentation for mono bindings]),
+        [case "${enableval}" in
+                yes) HAVE_MONODOC=yes ;;
+                no)  HAVE_MONODOC=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-mono-docs) ;;
+        esac],
+        [HAVE_MONODOC=yes])
+
 if test "x$HAVE_MONO" = "xyes" ; then
         AC_PATH_PROG(MCS, mcs)
         if test "x$MCS" = "x" ; then
@@ -406,13 +415,29 @@ if test "x$HAVE_MONO" = "xyes" ; then
 
         AC_PATH_PROG(GACUTIL, gacutil)
         if test "x$GACUTIL" = "x" ; then
-               AC_MSG_ERROR([Can not find "gacutil" in your PATH])
+                AC_MSG_ERROR([Can not find "gacutil" in your PATH])
         fi
 
         AC_SUBST(MCS)
         AC_SUBST(GACUTIL)
 fi
 AM_CONDITIONAL(HAVE_MONO, test "x$HAVE_MONO" = "xyes")
+
+#
+# Check for monodoc stuff
+#
+if test "x$HAVE_MONODOC" = "xyes" ; then
+        PKG_CHECK_MODULES(MONODOC, [monodoc >= 1.1.8])
+        MONODOC_DIR=`$PKG_CONFIG --variable=sourcesdir monodoc`        
+
+        AC_PATH_PROG(MONODOCER, monodocer)
+        AC_PATH_PROG(MDASSEMBLER, mdassembler)
+
+        AC_SUBST(MONODOC_DIR)
+        AC_SUBST(MONODOCER)
+        AC_SUBST(MDASSEMBLER)
+fi
+AM_CONDITIONAL(HAVE_MONODOC, test "x$HAVE_MONODOC" = "xyes")
 
 #
 # Defining Avahi User and Group.

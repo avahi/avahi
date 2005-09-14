@@ -20,7 +20,13 @@
 ASSEMBLY = avahi-sharp.dll
 
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
-EXTRA_DIST = $(AVAHISOURCES) avahi.snk avahi-sharp.dll.config
+EXTRA_DIST =			\
+	$(AVAHISOURCES)		\
+	avahi.snk		\
+	avahi-sharp.dll.config	\
+	avahi-sharp-docs.source	\
+	en/*.xml		\
+	en/*/*.xml
 
 AVAHISOURCES = 				\
 	$(srcdir)/AssemblyInfo.cs	\
@@ -40,6 +46,18 @@ $(ASSEMBLY): $(AVAHISOURCES)
 
 if HAVE_MONO
 all: $(ASSEMBLY)
+
+if HAVE_MONODOC
+update-docs: $(ASSEMBLY)
+	$(MONODOCER) -assembly:$(ASSEMBLY) -path:en
+
+avahi-sharp-docs.zip: $(srcdir)/en/*/*
+	$(MDASSEMBLER) --out avahi-sharp-docs --ecma $(srcdir)/en
+
+docdir = $(MONODOC_DIR)
+doc_DATA = avahi-sharp-docs.zip avahi-sharp-docs.tree avahi-sharp-docs.source
+
+endif
 
 install-data-hook: $(ASSEMBLY)
 	$(GACUTIL) /i $(ASSEMBLY) /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)

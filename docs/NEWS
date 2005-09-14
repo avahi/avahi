@@ -7,7 +7,7 @@ Avahi 0.5, the 'Bom Dia' release
    any CLI language such as C#
  * Attempt auto-detection of the D-BUS system bus address
  * Include a 'cookie' in all published records which allows us
-   to reliably determine if a service is our own.
+   to reliably determine if a service is the same as another.
  * Add API to determine if services are local
  * Better support for threading with AvahiSimplePoll
  * Add some new StringList functions to help binding to it in

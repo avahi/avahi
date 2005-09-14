@@ -122,20 +122,26 @@ namespace Avahi
 
         private void Start ()
         {
-            if (handle != IntPtr.Zero || (addListeners.Count == 0 && removeListeners.Count == 0))
+            if (client.Handle == IntPtr.Zero && handle != IntPtr.Zero ||
+                (addListeners.Count == 0 && removeListeners.Count == 0))
                 return;
 
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-            handle = avahi_domain_browser_new (client.Handle, iface, (int) proto, domainPtr, (int) btype,
-                                               cb, IntPtr.Zero);
-            Utility.Free (domainPtr);
+            lock (client) {
+                IntPtr domainPtr = Utility.StringToPtr (domain);
+                handle = avahi_domain_browser_new (client.Handle, iface, (int) proto, domainPtr, (int) btype,
+                                                   cb, IntPtr.Zero);
+                Utility.Free (domainPtr);
+            }
         }
 
         private void Stop (bool force)
         {
-            if (handle != IntPtr.Zero && (force || (addListeners.Count == 0 && removeListeners.Count == 0))) {
-                avahi_domain_browser_free (handle);
-                handle = IntPtr.Zero;
+            if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero &&
+                (force || (addListeners.Count == 0 && removeListeners.Count == 0))) {
+                lock (client) {
+                    avahi_domain_browser_free (handle);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 

@@ -135,14 +135,19 @@ namespace Avahi
 
         private void Start ()
         {
-            if (handle != IntPtr.Zero || (foundListeners.Count == 0 && timeoutListeners.Count == 0))
+            if (client.Handle == IntPtr.Zero || handle != IntPtr.Zero ||
+                (foundListeners.Count == 0 && timeoutListeners.Count == 0))
                 return;
 
             IntPtr namePtr = Utility.StringToPtr (name);
             IntPtr typePtr = Utility.StringToPtr (type);
             IntPtr domainPtr = Utility.StringToPtr (domain);
-            handle = avahi_service_resolver_new (client.Handle, iface, proto, namePtr, typePtr, domainPtr,
-                                                 aproto, cb, IntPtr.Zero);
+
+            lock (client) {
+                handle = avahi_service_resolver_new (client.Handle, iface, proto, namePtr, typePtr, domainPtr,
+                                                     aproto, cb, IntPtr.Zero);
+            }
+            
             Utility.Free (namePtr);
             Utility.Free (typePtr);
             Utility.Free (domainPtr);
@@ -150,9 +155,13 @@ namespace Avahi
 
         private void Stop (bool force)
         {
-            if (handle != IntPtr.Zero && (force || (foundListeners.Count == 0 && timeoutListeners.Count == 0))) {
-                avahi_service_resolver_free (handle);
-                handle = IntPtr.Zero;
+            if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero &&
+                (force || (foundListeners.Count == 0 && timeoutListeners.Count == 0))) {
+
+                lock (client) {
+                    avahi_service_resolver_free (handle);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 
@@ -161,7 +170,6 @@ namespace Avahi
                                                 IntPtr domain, IntPtr host, IntPtr address,
                                                 UInt16 port, IntPtr txt, IntPtr userdata)
         {
-
             ServiceInfo info;
             info.NetworkInterface = iface;
             info.Protocol = proto;

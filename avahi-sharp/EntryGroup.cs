@@ -40,6 +40,7 @@ namespace Avahi
     {
         private Client client;
         private IntPtr handle;
+        private EntryGroupCallback cb;
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_entry_group_new (IntPtr client, EntryGroupCallback cb, IntPtr userdata);
@@ -77,19 +78,31 @@ namespace Avahi
         
         public EntryGroupState State
         {
-            get { return avahi_entry_group_get_state (handle); }
+            get {
+                lock (client) {
+                    return avahi_entry_group_get_state (handle);
+                }
+            }
         }
 
         public bool IsEmpty
         {
-            get { return avahi_entry_group_is_empty (handle); }
+            get {
+                lock (client) {
+                    return avahi_entry_group_is_empty (handle);
+                }
+            }
         }
         
         public EntryGroup (Client client)
         {
             this.client = client;
-            handle = avahi_entry_group_new (client.Handle, OnEntryGroupCallback, IntPtr.Zero);
-            client.CheckError ();
+            cb = OnEntryGroupCallback;
+
+            lock (client) {
+                handle = avahi_entry_group_new (client.Handle, cb, IntPtr.Zero);
+                client.CheckError ();
+            }
         }
 
         ~EntryGroup ()
@@ -99,22 +112,28 @@ namespace Avahi
 
         public void Dispose ()
         {
-            if (handle != IntPtr.Zero) {
-                avahi_entry_group_free (handle);
-                handle = IntPtr.Zero;
+            if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero) {
+                lock (client) {
+                    avahi_entry_group_free (handle);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 
         public void Commit ()
         {
-            avahi_entry_group_commit (handle);
-            client.CheckError ();
+            lock (client) {
+                avahi_entry_group_commit (handle);
+                client.CheckError ();
+            }
         }
 
         public void Reset ()
         {
-            avahi_entry_group_reset (handle);
-            client.CheckError ();
+            lock (client) {
+                avahi_entry_group_reset (handle);
+                client.CheckError ();
+            }
         }
 
         public void AddService (string name, string type, string domain,
@@ -140,8 +159,12 @@ namespace Avahi
             IntPtr typePtr = Utility.StringToPtr (type);
             IntPtr domainPtr = Utility.StringToPtr (domain);
             IntPtr hostPtr = Utility.StringToPtr (host);
-            avahi_entry_group_add_service_strlst (handle, iface, proto, namePtr, typePtr, domainPtr,
-                                                  hostPtr, port, list);
+
+            lock (client) {
+                avahi_entry_group_add_service_strlst (handle, iface, proto, namePtr, typePtr, domainPtr,
+                                                      hostPtr, port, list);
+            }
+            
             avahi_string_list_free (list);
 
             client.CheckError ();

@@ -116,20 +116,29 @@ namespace Avahi
 
         private void Start ()
         {
-            if (handle != IntPtr.Zero || (foundListeners.Count == 0 && timeoutListeners.Count == 0))
+            if (client.Handle == IntPtr.Zero || handle != IntPtr.Zero ||
+                (foundListeners.Count == 0 && timeoutListeners.Count == 0))
                 return;
 
             IntPtr addrPtr = Utility.StringToPtr (address.ToString ());
-            handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr,
-                                                 cb, IntPtr.Zero);
+
+            lock (client) {
+                handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr,
+                                                     cb, IntPtr.Zero);
+            }
+            
             Utility.Free (addrPtr);
         }
 
         private void Stop (bool force)
         {
-            if (handle != IntPtr.Zero && (force || (foundListeners.Count == 0 && timeoutListeners.Count == 0))) {
-                avahi_address_resolver_free (handle);
-                handle = IntPtr.Zero;
+            if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero &&
+                (force || (foundListeners.Count == 0 && timeoutListeners.Count == 0))) {
+
+                lock (client) {
+                    avahi_address_resolver_free (handle);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 

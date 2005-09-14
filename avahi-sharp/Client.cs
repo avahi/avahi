@@ -21,6 +21,7 @@
 
 
 using System;
+using System.Threading;
 using System.Collections;
 using System.Runtime.InteropServices;
 
@@ -35,7 +36,8 @@ namespace Avahi
         Added,
         Removed
     }
-    
+
+    internal delegate int PollCallback (IntPtr ufds, uint nfds, int timeout);
     internal delegate void ClientCallback (IntPtr client, ClientState state, IntPtr userData);
 
     public delegate void ClientStateHandler (object o, ClientState state);
@@ -57,6 +59,11 @@ namespace Avahi
     public class Client : IDisposable
     {
         private IntPtr handle;
+        private ClientCallback cb;
+        private PollCallback pollcb;
+        private IntPtr spoll;
+
+        private Thread thread;
 
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_client_new (IntPtr poll, ClientCallback handler,
@@ -83,11 +90,26 @@ namespace Avahi
         [DllImport ("avahi-client")]
         private static extern int avahi_client_errno (IntPtr handle);
         
-        [DllImport ("avahi-glib")]
-        private static extern IntPtr avahi_glib_poll_new (IntPtr context, int priority);
+        [DllImport ("avahi-common")]
+        private static extern IntPtr avahi_simple_poll_new ();
 
-        [DllImport ("avahi-glib")]
-        private static extern IntPtr avahi_glib_poll_get (IntPtr gpoll);
+        [DllImport ("avahi-common")]
+        private static extern IntPtr avahi_simple_poll_get (IntPtr spoll);
+
+        [DllImport ("avahi-common")]
+        private static extern void avahi_simple_poll_free (IntPtr spoll);
+
+        [DllImport ("avahi-common")]
+        private static extern int avahi_simple_poll_iterate (IntPtr spoll, int timeout);
+
+        [DllImport ("avahi-common")]
+        private static extern void avahi_simple_poll_set_func (IntPtr spoll, PollCallback cb);
+
+        [DllImport ("avahi-common")]
+        private static extern void avahi_simple_poll_quit (IntPtr spoll);
+
+        [DllImport ("libc")]
+        private static extern int poll(IntPtr ufds, uint nfds, int timeout);
 
         public event ClientStateHandler StateChanged;
 
@@ -98,43 +120,75 @@ namespace Avahi
         
         public string Version
         {
-            get { return Utility.PtrToString (avahi_client_get_version_string (handle)); }
+            get {
+                lock (this) {
+                    return Utility.PtrToString (avahi_client_get_version_string (handle));
+                }
+            }
         }
 
         public string HostName
         {
-            get { return Utility.PtrToString (avahi_client_get_host_name (handle)); }
+            get {
+                lock (this) {
+                    return Utility.PtrToString (avahi_client_get_host_name (handle));
+                }
+            }
         }
 
         public string DomainName
         {
-            get { return Utility.PtrToString (avahi_client_get_domain_name (handle)); }
+            get {
+                lock (this) {
+                    return Utility.PtrToString (avahi_client_get_domain_name (handle));
+                }
+            }
         }
 
         public string HostNameFqdn
         {
-            get { return Utility.PtrToString (avahi_client_get_host_name_fqdn (handle)); }
+            get {
+                lock (this) {
+                    return Utility.PtrToString (avahi_client_get_host_name_fqdn (handle));
+                }
+            }
         }
 
         public ClientState State
         {
-            get { return (ClientState) avahi_client_get_state (handle); }
+            get {
+                lock (this) {
+                    return (ClientState) avahi_client_get_state (handle);
+                }
+            }
         }
 
         internal int LastError
         {
-            get { return avahi_client_errno (handle); }
+            get {
+                lock (this) {
+                    return avahi_client_errno (handle);
+                }
+            }
         }
 
         public Client ()
         {
-            IntPtr gpoll = avahi_glib_poll_new (IntPtr.Zero, 0);
-            IntPtr poll = avahi_glib_poll_get (gpoll);
+            spoll = avahi_simple_poll_new ();
+
+            pollcb = OnPollCallback;
+            avahi_simple_poll_set_func (spoll, pollcb);
+            IntPtr poll = avahi_simple_poll_get (spoll);
+            cb = OnClientCallback;
 
             int error;
-            handle = avahi_client_new (poll, OnClientCallback, IntPtr.Zero, out error);
+            handle = avahi_client_new (poll, cb, IntPtr.Zero, out error);
             if (error != 0)
                 throw new ClientException (error);
+
+            thread = new Thread (PollLoop);
+            thread.IsBackground = true;
+            thread.Start ();
         }
 
         ~Client ()
@@ -144,9 +198,15 @@ namespace Avahi
 
         public void Dispose ()
         {
-            if (handle != IntPtr.Zero) {
-                avahi_client_free (handle);
-                handle = IntPtr.Zero;
+            lock (this) {
+                if (handle != IntPtr.Zero) {
+                    thread.Abort ();
+
+                    avahi_client_free (handle);
+                    avahi_simple_poll_quit (spoll);
+                    avahi_simple_poll_free (spoll);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 
@@ -162,6 +222,27 @@ namespace Avahi
         {
             if (StateChanged != null)
                 StateChanged (this, state);
+        }
+
+        private int OnPollCallback (IntPtr ufds, uint nfds, int timeout) {
+            Monitor.Exit (this);
+            int result = poll (ufds, nfds, timeout);
+            Monitor.Enter (this);
+            return result;
+        }
+
+        private void PollLoop () {
+            try {
+                lock (this) {
+                    while (true) {
+                        if (avahi_simple_poll_iterate (spoll, -1) != 0)
+                            break;
+                    }
+                }
+            } catch (ThreadAbortException e) {
+            } catch (Exception e) {
+                Console.Error.WriteLine ("Error in avahi-sharp event loop: " + e);
+            }
         }
     }
 }

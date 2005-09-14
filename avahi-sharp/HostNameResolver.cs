@@ -118,20 +118,29 @@ namespace Avahi
 
         private void Start ()
         {
-            if (handle != IntPtr.Zero || (foundListeners.Count == 0 && timeoutListeners.Count == 0))
+            if (client.Handle == IntPtr.Zero || handle != IntPtr.Zero ||
+                (foundListeners.Count == 0 && timeoutListeners.Count == 0))
                 return;
 
             IntPtr hostPtr = Utility.StringToPtr (hostname);
-            handle = avahi_host_name_resolver_new (client.Handle, iface, proto, hostPtr, aproto,
-                                                   cb, IntPtr.Zero);
+
+            lock (client) {
+                handle = avahi_host_name_resolver_new (client.Handle, iface, proto, hostPtr, aproto,
+                                                       cb, IntPtr.Zero);
+            }
+            
             Utility.Free (hostPtr);
         }
 
         private void Stop (bool force)
         {
-            if (handle != IntPtr.Zero && (force || (foundListeners.Count == 0 && timeoutListeners.Count == 0))) {
-                avahi_host_name_resolver_free (handle);
-                handle = IntPtr.Zero;
+            if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero &&
+                (force || (foundListeners.Count == 0 && timeoutListeners.Count == 0))) {
+
+                lock (client) {
+                    avahi_host_name_resolver_free (handle);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 

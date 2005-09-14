@@ -74,6 +74,9 @@ namespace Avahi
         [DllImport ("avahi-common")]
         private static extern void avahi_string_list_free (IntPtr list);
 
+        [DllImport ("avahi-common")]
+        private static extern IntPtr avahi_alternative_service_name (IntPtr name);
+
         public event EntryGroupStateHandler StateChanged;
         
         public EntryGroupState State
@@ -168,6 +171,14 @@ namespace Avahi
             avahi_string_list_free (list);
 
             client.CheckError ();
+        }
+
+        public static string GetAlternativeServiceName (string name) {
+            IntPtr namePtr = Utility.StringToPtr (name);
+            IntPtr result = avahi_alternative_service_name (namePtr);
+            Utility.Free (namePtr);
+
+            return Utility.PtrToStringFree (result);
         }
 
         private void OnEntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata)

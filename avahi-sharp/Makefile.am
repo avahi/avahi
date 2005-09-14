@@ -20,13 +20,6 @@
 ASSEMBLY = avahi-sharp.dll
 
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
-EXTRA_DIST =			\
-	$(AVAHISOURCES)		\
-	avahi.snk		\
-	avahi-sharp.dll.config	\
-	avahi-sharp-docs.source	\
-	en/*.xml		\
-	en/*/*.xml
 
 AVAHISOURCES = 				\
 	$(srcdir)/AssemblyInfo.cs	\
@@ -40,6 +33,15 @@ AVAHISOURCES = 				\
 	$(srcdir)/ServiceResolver.cs	\
 	$(srcdir)/ServiceTypeBrowser.cs	\
 	$(srcdir)/Utility.cs
+
+EXTRA_DIST =			\
+	$(AVAHISOURCES)		\
+	$(srcdir)/avahi.snk		\
+	$(srcdir)/avahi-sharp.dll.config	\
+	$(srcdir)/avahi-sharp-docs.source	\
+	$(srcdir)/en/*.xml		\
+	$(srcdir)/en/*/*.xml
+
 
 $(ASSEMBLY): $(AVAHISOURCES)
 	mcs -keyfile:$(srcdir)/avahi.snk -target:library -out:$@ -debug $(AVAHISOURCES) -r:Mono.Posix

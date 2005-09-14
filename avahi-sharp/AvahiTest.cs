@@ -35,8 +35,8 @@ public class AvahiTest {
 		eg.AddService ("foobar2", "_daap._tcp", client.DomainName,
 			       444, new string[] { "foo", "bar", "baz" });
 		eg.Commit ();
-
-		Application.Run ();
+		Console.WriteLine ("Press enter to quit");
+		Console.ReadLine ();
 	}
 
 	private static void OnEntryGroupChanged (object o, EntryGroupState state)

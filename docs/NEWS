@@ -8,7 +8,7 @@ Avahi 0.5, the 'omghai2uasl' release
  * Attempt auto-detection of the D-BUS system bus address
  * Include a 'cookie' in all published records which allows us
    to reliably determine if a service is our own.
- * Add API using the cookie to determine if services are local
+ * Add API to determine if services are local
  * Better support for threading with AvahiSimplePoll
  * Add some new StringList functions to help binding to it in
    other languages

@@ -160,6 +160,9 @@ endif
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
+DISTCHECK_CONFIGURE_FLAGS = \
+	--disable-mono-docs
+
 homepage:
 	$(MAKE) -C man
 	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\

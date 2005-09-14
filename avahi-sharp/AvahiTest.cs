@@ -22,7 +22,6 @@
 using System;
 using System.Text;
 using System.Net;
-using Gtk;
 using Avahi;
 
 public class AvahiTest {

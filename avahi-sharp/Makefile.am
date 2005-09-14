@@ -22,8 +22,8 @@ ASSEMBLY = avahi-sharp.dll
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
 
 AVAHISOURCES = 				\
-	$(srcdir)/AssemblyInfo.cs	\
 	$(srcdir)/AddressResolver.cs	\
+	$(srcdir)/AssemblyInfo.cs	\
 	$(srcdir)/Client.cs		\
 	$(srcdir)/ClientException.cs	\
 	$(srcdir)/DomainBrowser.cs	\
@@ -34,8 +34,9 @@ AVAHISOURCES = 				\
 	$(srcdir)/ServiceTypeBrowser.cs	\
 	$(srcdir)/Utility.cs
 
-EXTRA_DIST =			\
-	$(AVAHISOURCES)		\
+EXTRA_DIST =				\
+	$(AVAHISOURCES)			\
+	$(srcdir)/AvahiTest.cs 		\
 	$(srcdir)/avahi.snk		\
 	$(srcdir)/avahi-sharp.dll.config	\
 	$(srcdir)/avahi-sharp-docs.source	\

@@ -43,9 +43,9 @@ namespace Avahi
     public delegate void ClientStateHandler (object o, ClientState state);
 
     public enum Protocol {
-        Unspecified = 0,
-        IPv4 = 2,
-        IPv6 = 10
+        Unspecified = -1,
+        IPv4 = 0,
+        IPv6 = 1
     }
     
     public enum ClientState {

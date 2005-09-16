@@ -72,12 +72,12 @@ static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
     
         switch (r->address_record->key->type) {
             case AVAHI_DNS_TYPE_A:
-                a.family = AVAHI_PROTO_INET;
+                a.proto = AVAHI_PROTO_INET;
                 a.data.ipv4 = r->address_record->data.a.address;
                 break;
                 
             case AVAHI_DNS_TYPE_AAAA:
-                a.family = AVAHI_PROTO_INET6;
+                a.proto = AVAHI_PROTO_INET6;
                 a.data.ipv6 = r->address_record->data.aaaa.address;
                 break;
                 

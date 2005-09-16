@@ -243,7 +243,7 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
     n = (struct nlmsghdr*) req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtgenmsg));
     n->nlmsg_type = type;
-    n->nlmsg_flags = NLM_F_ROOT/*|NLM_F_MATCH*/|NLM_F_REQUEST;
+    n->nlmsg_flags = NLM_F_ROOT|NLM_F_REQUEST;
     n->nlmsg_pid = 0;
 
     gen = NLMSG_DATA(n);
@@ -307,7 +307,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
     b = avahi_interface_relevant(i);
 
     if (m->list == LIST_DONE && b && !i->announcing) {
-        avahi_log_info("New relevant interface %s.%i.", i->hardware->name, i->protocol);
+        avahi_log_info("New relevant interface %s.%s.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
         if (i->protocol == AVAHI_PROTO_INET)
             avahi_mdns_mcast_join_ipv4(m->server->fd_ipv4, i->hardware->index);
@@ -318,7 +318,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
         avahi_announce_interface(m->server, i);
         avahi_browser_new_interface(m->server, i);
     } else if (!b && i->announcing) {
-        avahi_log_info("Interface %s.%i no longer relevant.", i->hardware->name, i->protocol);
+        avahi_log_info("Interface %s.%s no longer relevant.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
         if (i->protocol == AVAHI_PROTO_INET)
             avahi_mdns_mcast_leave_ipv4(m->server->fd_ipv4, i->hardware->index);
@@ -450,13 +450,13 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         AvahiAddress raddr;
         int raddr_valid = 0;
 
-        if (ifaddrmsg->ifa_family != AVAHI_PROTO_INET && ifaddrmsg->ifa_family != AVAHI_PROTO_INET6)
+        if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
             return;
 
-        if (!(i = (AvahiInterface*) avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, (AvahiProtocol) ifaddrmsg->ifa_family)))
+        if (!(i = (AvahiInterface*) avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, avahi_af_to_proto(ifaddrmsg->ifa_family))))
             return;
 
-        raddr.family = (AvahiProtocol) ifaddrmsg->ifa_family;
+        raddr.proto = avahi_af_to_proto(ifaddrmsg->ifa_family);
 
         l = NLMSG_PAYLOAD(n, sizeof(struct ifaddrmsg));
         a = IFA_RTA(ifaddrmsg);
@@ -465,8 +465,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
             switch(a->rta_type) {
                 case IFA_ADDRESS:
-                    if ((raddr.family == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
-                        (raddr.family == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
+                    if ((raddr.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
+                        (raddr.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
                         return;
 
                     memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
@@ -630,7 +630,7 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
     if (!avahi_interface_relevant(i))
         return;
     
-    assert(!a || a->family == i->protocol);
+    assert(!a || a->proto == i->protocol);
 
 /*     if (a) */
 /*         avahi_log_debug("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port); */
@@ -687,7 +687,7 @@ int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void
     for (i = m->interfaces; i; i = i->interface_next) {
         if (avahi_interface_relevant(i)) {
             char ln[256];
-            snprintf(ln, sizeof(ln), ";;; INTERFACE %s.%i ;;;", i->hardware->name, i->protocol);
+            snprintf(ln, sizeof(ln), ";;; INTERFACE %s.%s ;;;", i->hardware->name, avahi_proto_to_string(i->protocol));
             callback(ln, userdata);
             if (avahi_cache_dump(i->cache, callback, userdata) < 0)
                 return -1;
@@ -825,12 +825,12 @@ int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
     assert(i);
     assert(a);
 
-    if (a->family != i->protocol)
+    if (a->proto != i->protocol)
         return 0;
 
     for (ia = i->addresses; ia; ia = ia->address_next) {
 
-        if (a->family == AVAHI_PROTO_INET) {
+        if (a->proto == AVAHI_PROTO_INET) {
             uint32_t m;
             
             m = ~(((uint32_t) -1) >> ia->prefix_len);
@@ -840,7 +840,7 @@ int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
         } else {
             unsigned j;
             unsigned char pl;
-            assert(a->family == AVAHI_PROTO_INET6);
+            assert(a->proto == AVAHI_PROTO_INET6);
 
             pl = ia->prefix_len;
             
@@ -875,7 +875,7 @@ int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, co
     assert(iface != AVAHI_IF_UNSPEC);
     assert(a);
 
-    if (!(i = avahi_interface_monitor_get_interface(m, iface, a->family)))
+    if (!(i = avahi_interface_monitor_get_interface(m, iface, a->proto)))
         return 0;
 
     for (j = i->addresses; j; j = j->address_next)

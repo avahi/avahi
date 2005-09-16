@@ -814,7 +814,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     assert(i);
     assert(a);
     assert(port > 0);
-    assert(i->protocol == a->family);
+    assert(i->protocol == a->proto);
     
     if (!s->config.enable_reflector)
         return;
@@ -902,7 +902,7 @@ static int is_mdns_mcast_address(const AvahiAddress *a) {
     AvahiAddress b;
     assert(a);
 
-    avahi_address_parse(a->family == AVAHI_PROTO_INET ? AVAHI_IPV4_MCAST_GROUP : AVAHI_IPV6_MCAST_GROUP, a->family, &b);
+    avahi_address_parse(a->proto == AVAHI_PROTO_INET ? AVAHI_IPV4_MCAST_GROUP : AVAHI_IPV6_MCAST_GROUP, a->proto, &b);
     return avahi_address_cmp(a, &b) == 0;
 }
 
@@ -930,7 +930,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
     assert(dest);
     assert(iface > 0);
 
-    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
+    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, avahi_af_to_proto(sa->sa_family))) ||
         !avahi_interface_relevant(i)) {
         avahi_log_warn("Recieved packet from invalid interface.");
         return;
@@ -1024,7 +1024,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
     assert(sa);
     assert(iface > 0);
 
-    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, sa->sa_family)) ||
+    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, avahi_af_to_proto(sa->sa_family))) ||
         !avahi_interface_relevant(i)) {
         avahi_log_warn("Recieved packet from invalid interface.");
         return;
@@ -1049,7 +1049,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
         return;
     }
 
-    if (!(j = avahi_interface_monitor_get_interface(s->monitor, slot->interface, slot->address.family)) ||
+    if (!(j = avahi_interface_monitor_get_interface(s->monitor, slot->interface, slot->address.proto)) ||
         !avahi_interface_relevant(j))
         return;
 
@@ -1078,27 +1078,27 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *us
     if (events & AVAHI_WATCH_IN) {
     
         if (fd == s->fd_ipv4) {
-            dest.family = AVAHI_PROTO_INET;
+            dest.proto = AVAHI_PROTO_INET;
             if ((p = avahi_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &dest.data.ipv4, &iface, &ttl))) {
                 dispatch_packet(s, p, (struct sockaddr*) &sa, &dest, iface, ttl);
                 avahi_dns_packet_free(p);
             }
         } else if (fd == s->fd_ipv6) {
-            dest.family = AVAHI_PROTO_INET6;
+            dest.proto = AVAHI_PROTO_INET6;
 
             if ((p = avahi_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &dest.data.ipv6, &iface, &ttl))) {
                 dispatch_packet(s, p, (struct sockaddr*) &sa6, &dest, iface, ttl);
                 avahi_dns_packet_free(p);
             }
         } else if (fd == s->fd_legacy_unicast_ipv4) {
-            dest.family = AVAHI_PROTO_INET;
+            dest.proto = AVAHI_PROTO_INET;
             
             if ((p = avahi_recv_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, &sa, &dest.data.ipv4, &iface, &ttl))) {
                 dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa, iface, ttl);
                 avahi_dns_packet_free(p);
             }
         } else if (fd == s->fd_legacy_unicast_ipv6) {
-            dest.family = AVAHI_PROTO_INET6;
+            dest.proto = AVAHI_PROTO_INET6;
             
             if ((p = avahi_recv_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, &sa6, &dest.data.ipv6, &iface, &ttl))) {
                 dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa6, iface, ttl);
@@ -1686,7 +1686,7 @@ int avahi_server_add_address(
         goto fail;
     }
     
-    if (a->family == AVAHI_PROTO_INET) {
+    if (a->proto == AVAHI_PROTO_INET) {
         char *reverse;
         AvahiRecord  *r;
 
@@ -1714,7 +1714,7 @@ int avahi_server_add_address(
         char *reverse;
         AvahiRecord *r;
 
-        assert(a->family == AVAHI_PROTO_INET6);
+        assert(a->proto == AVAHI_PROTO_INET6);
             
         if (!(r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME))) {
             ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
@@ -2064,7 +2064,7 @@ int avahi_server_add_dns_server_address(
     assert(s);
     assert(address);
     assert(type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE);
-    assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
+    assert(address->proto == AVAHI_PROTO_INET || address->proto == AVAHI_PROTO_INET6);
 
     if (port == 0)
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PORT);
@@ -2072,7 +2072,7 @@ int avahi_server_add_dns_server_address(
     if (domain && !avahi_is_valid_domain_name(domain))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    if (address->family == AVAHI_PROTO_INET) {
+    if (address->proto == AVAHI_PROTO_INET) {
         hexstring(n+3, sizeof(n)-3, &address->data, 4);
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.a.address = address->data.ipv4;

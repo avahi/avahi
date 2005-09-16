@@ -32,16 +32,16 @@
 AVAHI_C_DECL_BEGIN
 
 /** Protocol family specification, takes the values AVAHI_INET, AVAHI_INET6, AVAHI_UNSPEC */
-typedef unsigned char AvahiProtocol;
+typedef char AvahiProtocol;
 
 /** Numeric network interface index. Takes OS dependent values and the special constant AVAHI_IF_UNSPEC  */
 typedef int AvahiIfIndex;
 
 /** Values for AvahiProtocol */
 enum {
-    AVAHI_PROTO_INET = AF_INET,     /**< IPv4 */
-    AVAHI_PROTO_INET6 = AF_INET6,   /**< IPv6 */
-    AVAHI_PROTO_UNSPEC = AF_UNSPEC  /**< Unspecified/all protocol(s) */
+    AVAHI_PROTO_INET = 0,     /**< IPv4 */
+    AVAHI_PROTO_INET6 = 1,   /**< IPv6 */
+    AVAHI_PROTO_UNSPEC = -1  /**< Unspecified/all protocol(s) */
 };
 
 /** Special values for AvahiIfIndex */
@@ -61,7 +61,7 @@ typedef struct {
 
 /** Protocol (address family) independent address structure */
 typedef struct {
-    AvahiProtocol family; /**< Address family */
+    AvahiProtocol proto; /**< Address family */
 
     union {
         AvahiIPv6Address ipv6;  /** Address when IPv6 */
@@ -102,6 +102,15 @@ char* avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a);
 /** Check whether the specified IPv6 address is in fact an
  * encapsulated IPv4 address, returns 1 if yes, 0 otherwise */
 int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a);
+
+/** Map AVAHI_PROTO_xxx constants to Unix AF_xxx constants */
+int avahi_proto_to_af(AvahiProtocol proto);
+
+/** Map Unix AF_xxx constants to AVAHI_PROTO_xxx constants */
+AvahiProtocol avahi_af_to_proto(int af);
+
+/** Return a textual representation of the specified protocol number. i.e. "IPv4", "IPv6" or "UNSPEC" */
+const char* avahi_proto_to_string(AvahiProtocol proto);
 
 AVAHI_C_DECL_END
 

@@ -877,7 +877,7 @@ static void sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfI
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->family;
+        i_aprotocol = (int32_t) a->proto;
         
         reply = dbus_message_new_method_return(i->message);
         dbus_message_append_args(
@@ -917,7 +917,7 @@ static void sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInde
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) address->family;
+        i_aprotocol = (int32_t) address->proto;
         
         reply = dbus_message_new_method_return(i->message);
         dbus_message_append_args(
@@ -1201,7 +1201,7 @@ static void sync_service_resolver_callback(
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->family;
+        i_aprotocol = (int32_t) a->proto;
 
         reply = dbus_message_new_method_return(i->message);
         dbus_message_append_args(
@@ -1247,7 +1247,7 @@ static void async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInd
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) address->family;
+        i_aprotocol = (int32_t) address->proto;
         
         reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Found");
         dbus_message_append_args(
@@ -1331,7 +1331,7 @@ static void async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIf
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->family;
+        i_aprotocol = (int32_t) a->proto;
         
         reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Found");
         dbus_message_append_args(
@@ -1429,7 +1429,7 @@ static void async_service_resolver_callback(
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->family;
+        i_aprotocol = (int32_t) a->proto;
 
         reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Found");
         dbus_message_append_args(

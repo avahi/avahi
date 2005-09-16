@@ -397,7 +397,7 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
     msg.msg_controllen = sizeof(cmsg_data);
     msg.msg_flags = 0;
 
-    return sendmsg_loop(fd, &msg, 0 /*MSG_DONTROUTE*/);
+    return sendmsg_loop(fd, &msg, 0);
 }
 
 int avahi_send_dns_packet_ipv6(int fd, int interface, AvahiDnsPacket *p, const AvahiIPv6Address *a, uint16_t port) {

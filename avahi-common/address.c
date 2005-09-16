@@ -35,9 +35,9 @@
 size_t avahi_address_get_size(const AvahiAddress *a) {
     assert(a);
 
-    if (a->family == AVAHI_PROTO_INET)
+    if (a->proto == AVAHI_PROTO_INET)
         return 4;
-    else if (a->family == AVAHI_PROTO_INET6)
+    else if (a->proto == AVAHI_PROTO_INET6)
         return 16;
 
     return 0;
@@ -47,7 +47,7 @@ int avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b) {
     assert(a);
     assert(b);
     
-    if (a->family != b->family)
+    if (a->proto != b->proto)
         return -1;
 
     return memcmp(a->data.data, b->data.data, avahi_address_get_size(a));
@@ -58,7 +58,7 @@ char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
     assert(length);
     assert(a);
     
-    return (char*) inet_ntop(a->family, a->data.data, s, length);
+    return (char*) inet_ntop(avahi_proto_to_af(a->proto), a->data.data, s, length);
 }
 
 char* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a) {
@@ -114,23 +114,23 @@ char *avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a) {
     return reverse_lookup_name_ipv6(a, "ip6.int");
 }
 
-AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol family, AvahiAddress *ret_addr) {
+AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol proto, AvahiAddress *ret_addr) {
     assert(ret_addr);
     assert(s);
 
-    if (family == AVAHI_PROTO_UNSPEC) {
+    if (proto == AVAHI_PROTO_UNSPEC) {
         if (inet_pton(AF_INET, s, ret_addr->data.data) <= 0) {
             if (inet_pton(AF_INET6, s, ret_addr->data.data) <= 0)
                 return NULL;
             else
-                ret_addr->family = AVAHI_PROTO_INET6;
+                ret_addr->proto = AVAHI_PROTO_INET6;
         } else
-            ret_addr->family = AVAHI_PROTO_INET;
+            ret_addr->proto = AVAHI_PROTO_INET;
     } else {
-        if (inet_pton(family, s, ret_addr->data.data) <= 0)
+        if (inet_pton(avahi_proto_to_af(proto), s, ret_addr->data.data) <= 0)
             return NULL;
         
-        ret_addr->family = family;
+        ret_addr->proto = proto;
     }
     
     return ret_addr;
@@ -142,7 +142,7 @@ AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddres
 
     assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
 
-    ret_addr->family = sa->sa_family;
+    ret_addr->proto = avahi_af_to_proto(sa->sa_family);
 
     if (sa->sa_family == AF_INET)
         memcpy(&ret_addr->data.ipv4, &((const struct sockaddr_in*) sa)->sin_addr, sizeof(ret_addr->data.ipv4));
@@ -173,9 +173,38 @@ int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
     
     assert(a);
 
-    if (a->family != AVAHI_PROTO_INET6)
+    if (a->proto != AVAHI_PROTO_INET6)
         return 0;
 
     return memcmp(a->data.ipv6.address, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0;
 }
 
+int avahi_proto_to_af(AvahiProtocol proto) {
+    if (proto == AVAHI_PROTO_INET)
+        return AF_INET;
+    if (proto == AVAHI_PROTO_INET6)
+        return AF_INET6;
+
+    assert(proto == AVAHI_PROTO_UNSPEC);
+    return AF_UNSPEC;
+}
+
+AvahiProtocol avahi_af_to_proto(int af) {
+    if (af == AF_INET)
+        return AVAHI_PROTO_INET;
+    if (af == AF_INET6)
+        return AVAHI_PROTO_INET6;
+
+    assert(af == AF_UNSPEC);
+    return AVAHI_PROTO_UNSPEC;
+}
+
+const char* avahi_proto_to_string(AvahiProtocol proto) {
+    if (proto == AVAHI_PROTO_INET)
+        return "IPv4";
+    if (proto == AVAHI_PROTO_INET6)
+        return "IPv6";
+
+    assert(proto == AVAHI_PROTO_UNSPEC);
+    return "UNSPEC";
+}

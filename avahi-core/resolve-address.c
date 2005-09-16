@@ -141,9 +141,9 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(AvahiServer *server, AvahiIf
     assert(address);
     assert(callback);
 
-    assert(address->family == AVAHI_PROTO_INET || address->family == AVAHI_PROTO_INET6);
+    assert(address->proto == AVAHI_PROTO_INET || address->proto == AVAHI_PROTO_INET6);
 
-    if (address->family == AVAHI_PROTO_INET)
+    if (address->proto == AVAHI_PROTO_INET)
         n = avahi_reverse_lookup_name_ipv4(&address->data.ipv4);
     else 
         n = avahi_reverse_lookup_name_ipv6_arpa(&address->data.ipv6);

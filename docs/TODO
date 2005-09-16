@@ -1,11 +1,10 @@
 for 0.6:
 * Add sensible record updating API
-* add wide area support (i.e. DNS-SD over unicast DNS) 
 * add subtype browsing
+* add wide area support (i.e. DNS-SD over unicast DNS) 
 * remove queries from queue if the browse object they were issued from is destroyed
 * if two local clients browse for the same RRs, only send out query series once
 * add a way to notify the user that all cache entries have been read when browsing
-* make AVAHI_PROTO_xxx well defined constants
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 
@@ -68,3 +67,4 @@ done:
 * release 0.2!
 * add identical service detection cookie
 * add API to detect if a service is local
+* make AVAHI_PROTO_xxx well defined constants

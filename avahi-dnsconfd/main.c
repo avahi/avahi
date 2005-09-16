@@ -42,6 +42,7 @@
 
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/address.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -76,8 +77,8 @@ static int daemonize = 0;
 typedef struct DNSServerInfo DNSServerInfo;
 
 struct DNSServerInfo {
-    int interface;
-    int protocol;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
     char *address;
     AVAHI_LLIST_FIELDS(DNSServerInfo, servers);
 };
@@ -93,7 +94,7 @@ static void server_info_free(DNSServerInfo *i) {
     avahi_free(i);
 }
 
-static DNSServerInfo* get_server_info(int interface, int protocol, const char *address) {
+static DNSServerInfo* get_server_info(AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
     DNSServerInfo *i;
     assert(address);
 
@@ -106,7 +107,7 @@ static DNSServerInfo* get_server_info(int interface, int protocol, const char *a
     return NULL;
 }
 
-static DNSServerInfo* new_server_info(int interface, int protocol, const char *address) {
+static DNSServerInfo* new_server_info(AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
     DNSServerInfo *i;
     
     assert(address);
@@ -192,7 +193,7 @@ static ssize_t loop_write(int fd, const void*data, size_t size) {
     return ret;
 }
 
-static char *concat_dns_servers(int interface) {
+static char *concat_dns_servers(AvahiIfIndex interface) {
     DNSServerInfo *i;
     char *r = NULL;
     
@@ -212,7 +213,7 @@ static char *concat_dns_servers(int interface) {
     return r;
 }
 
-static char *getifname(int interface, char *name, size_t len) {
+static char *getifname(AvahiIfIndex interface, char *name, size_t len) {
     int fd = -1;
     char *ret = NULL;
     struct ifreq ifr;
@@ -225,7 +226,7 @@ static char *getifname(int interface, char *name, size_t len) {
     }
 
     memset(&ifr, 0, sizeof(ifr));
-    ifr.ifr_ifindex = interface;
+    ifr.ifr_ifindex = (int) interface;
     
     if (ioctl(fd, SIOCGIFNAME, &ifr) < 0) {
         daemon_log(LOG_ERR, "SIOCGIFNAME: %s\n", strerror(errno));
@@ -269,7 +270,7 @@ static void set_env(const char *name, const char *value) {
     assert(0);
 }
 
-static void run_script(int new, int interface, int protocol, const char *address) {
+static void run_script(int new, AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
     char *p;
     int ret;
     char ia[16], pa[16];
@@ -290,10 +291,10 @@ static void run_script(int new, int interface, int protocol, const char *address
 
     set_env(ENV_INTERFACE, name);
     
-    snprintf(ia, sizeof(ia), "%i", interface);
-    snprintf(pa, sizeof(pa), "%i", protocol);
+    snprintf(ia, sizeof(ia), "%i", (int) interface);
+    snprintf(pa, sizeof(pa), "%i", (int) protocol);
 
-    if (daemon_exec("/", &ret, AVAHI_DNSCONF_SCRIPT, AVAHI_DNSCONF_SCRIPT, new ? "+" : "-", address, ia, pa, NULL) < 0)
+    if (daemon_exec("/", &ret, AVAHI_DNSCONF_SCRIPT, AVAHI_DNSCONF_SCRIPT, new ? "+" : "-", address, ia, pa, avahi_proto_to_string(protocol), NULL) < 0)
         daemon_log(LOG_WARNING, "Failed to run script");
     else if (ret != 0)
         daemon_log(LOG_WARNING, "Script returned with non-zero exit code %i", ret);
@@ -311,9 +312,9 @@ static int new_line(const char *l) {
         daemon_log(LOG_INFO, "Successfully connected to Avahi daemon.");
         state = BROWSING;
     } else {
-        int interface;
-        int protocol;
-        int port;
+        AvahiIfIndex interface;
+        AvahiProtocol protocol;
+        int i_interface, i_protocol, port;
         char a[64];
         
         assert(state == BROWSING); 
@@ -323,16 +324,19 @@ static int new_line(const char *l) {
             return -1;
         }
 
-        if (sscanf(l+1, "%i %i %64s %i", &interface, &protocol, a, &port) != 4) {
+        if (sscanf(l+1, "%i %i %64s %i", &i_interface, &i_protocol, a, &port) != 4) {
             daemon_log(LOG_ERR, "Failed to parse browsing line: %s", l);
             return -1;
         }
+
+        interface = (AvahiIfIndex) i_interface;
+        protocol = (AvahiProtocol) i_protocol;
 
         if (*l == '>') {
             if (port != 53)
                 daemon_log(LOG_WARNING, "DNS server with port address != 53 found, ignoring");
             else {
-                daemon_log(LOG_INFO, "New DNS Server %s (interface: %i.%u)", a, interface, protocol);
+                daemon_log(LOG_INFO, "New DNS Server %s (interface: %i.%s)", a, interface, avahi_proto_to_string(protocol));
                 new_server_info(interface, protocol, a);
                 run_script(1, interface, protocol, a);
             }
@@ -341,7 +345,7 @@ static int new_line(const char *l) {
 
             if (port == 53) 
                 if ((i = get_server_info(interface, protocol, a))) {
-                    daemon_log(LOG_INFO, "DNS Server %s removed (interface: %i.%u)", a, interface, protocol);
+                    daemon_log(LOG_INFO, "DNS Server %s removed (interface: %i.%s)", a, interface, avahi_proto_to_string(protocol));
                     server_info_free(i);
                     run_script(0, interface, protocol, a);
                 }
@@ -375,8 +379,8 @@ fail:
 
 static void free_dns_server_info_list(void) {
     while (servers) {
-        int interface = servers->interface;
-        int protocol = servers->protocol;
+        AvahiIfIndex interface = servers->interface;
+        AvahiProtocol protocol = servers->protocol;
         char *address = avahi_strdup(servers->address);
         server_info_free(servers);
         

@@ -233,7 +233,6 @@ static int get_server_state(AvahiClient *client, int *ret_error) {
 
     client_set_state(client, (AvahiServerState) state);
 
-    *ret_error = AVAHI_OK;
     return AVAHI_OK;
 
 fail:

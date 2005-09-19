@@ -31,7 +31,7 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** Protocol family specification, takes the values AVAHI_INET, AVAHI_INET6, AVAHI_UNSPEC */
+/** Protocol family specification, takes the values AVAHI_PROTO_INET, AVAHI_PROTO_INET6, AVAHI_PROTO_UNSPEC */
 typedef char AvahiProtocol;
 
 /** Numeric network interface index. Takes OS dependent values and the special constant AVAHI_IF_UNSPEC  */

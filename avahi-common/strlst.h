@@ -93,7 +93,7 @@ AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) AVAHI_GCC_S
 AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
 
 /** Convert the string list object to a single character string,
- * seperated by spaces and enclosed in "". g_free() the result! This
+ * seperated by spaces and enclosed in "". avahi_free() the result! This
  * function doesn't work well with string that contain NUL bytes. */
 char* avahi_string_list_to_string(AvahiStringList *l);
 

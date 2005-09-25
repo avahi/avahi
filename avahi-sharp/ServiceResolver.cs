@@ -31,7 +31,8 @@ namespace Avahi
     internal delegate void ServiceResolverCallback (IntPtr resolver, int iface, Protocol proto,
                                                     ResolverEvent revent, IntPtr name, IntPtr type,
                                                     IntPtr domain, IntPtr host, IntPtr address,
-                                                    UInt16 port, IntPtr txt, IntPtr userdata);
+                                                    UInt16 port, IntPtr txt, LookupResultFlags flags,
+                                                    IntPtr userdata);
 
     public class ServiceResolver : IDisposable
     {
@@ -44,6 +45,7 @@ namespace Avahi
         private string type;
         private string domain;
         private Protocol aproto;
+        private LookupFlags flags;
         private ServiceResolverCallback cb;
 
         private ArrayList foundListeners = new ArrayList ();
@@ -52,7 +54,8 @@ namespace Avahi
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_service_resolver_new (IntPtr client, int iface, Protocol proto,
                                                                  IntPtr name, IntPtr type, IntPtr domain,
-                                                                 Protocol aproto, ServiceResolverCallback cb,
+                                                                 Protocol aproto, LookupFlags flags,
+                                                                 ServiceResolverCallback cb,
                                                                  IntPtr userdata);
 
         [DllImport ("avahi-common")]
@@ -145,7 +148,7 @@ namespace Avahi
 
             lock (client) {
                 handle = avahi_service_resolver_new (client.Handle, iface, proto, namePtr, typePtr, domainPtr,
-                                                     aproto, cb, IntPtr.Zero);
+                                                     aproto, flags, cb, IntPtr.Zero);
             }
             
             Utility.Free (namePtr);
@@ -168,7 +171,8 @@ namespace Avahi
         private void OnServiceResolverCallback (IntPtr resolver, int iface, Protocol proto,
                                                 ResolverEvent revent, IntPtr name, IntPtr type,
                                                 IntPtr domain, IntPtr host, IntPtr address,
-                                                UInt16 port, IntPtr txt, IntPtr userdata)
+                                                UInt16 port, IntPtr txt, LookupResultFlags flags,
+                                                IntPtr userdata)
         {
             ServiceInfo info;
             info.NetworkInterface = iface;
@@ -191,6 +195,7 @@ namespace Avahi
             }
 
             info.Text = (byte[][]) txtlist.ToArray (typeof (byte[]));
+            info.Flags = flags;
             
             if (revent == ResolverEvent.Found) {
                 currentInfo = info;

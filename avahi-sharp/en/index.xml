@@ -52,6 +52,8 @@
       <Type Name="ClientState" />
       <Type Name="DomainBrowserType" />
       <Type Name="EntryGroupState" />
+      <Type Name="LookupFlags" />
+      <Type Name="LookupResultFlags" />
     </Namespace>
   </Types>
   <Title>avahi-sharp</Title>

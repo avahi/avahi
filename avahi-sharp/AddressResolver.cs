@@ -30,7 +30,7 @@ namespace Avahi
 
     internal delegate void AddressResolverCallback (IntPtr resolver, int iface, Protocol proto,
                                                     ResolverEvent revent, Protocol aproto, IntPtr address,
-                                                    IntPtr hostname, IntPtr userdata);
+                                                    IntPtr hostname, LookupResultFlags flags, IntPtr userdata);
 
     public delegate void HostAddressHandler (object o, string host, IPAddress address);
     
@@ -41,6 +41,7 @@ namespace Avahi
         private int iface;
         private Protocol proto;
         private IPAddress address;
+        private LookupFlags flags;
         private AddressResolverCallback cb;
 
         private IPAddress currentAddress;
@@ -51,7 +52,8 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_address_resolver_new (IntPtr client, int iface, Protocol proto,
-                                                                 IntPtr address, AddressResolverCallback cb,
+                                                                 IntPtr address, LookupFlags flags,
+                                                                 AddressResolverCallback cb,
                                                                  IntPtr userdata);
 
         [DllImport ("avahi-client")]
@@ -91,16 +93,18 @@ namespace Avahi
             get { return currentHost; }
         }
 
-        public AddressResolver (Client client, IPAddress address) : this (client, -1, Protocol.Unspecified, address)
+        public AddressResolver (Client client, IPAddress address) : this (client, -1, Protocol.Unspecified,
+                                                                          address, LookupFlags.None)
         {
         }
 
-        public AddressResolver (Client client, int iface, Protocol proto, IPAddress address)
+        public AddressResolver (Client client, int iface, Protocol proto, IPAddress address, LookupFlags flags)
         {
             this.client = client;
             this.iface = iface;
             this.proto = proto;
             this.address = address;
+            this.flags = flags;
             cb = OnAddressResolverCallback;
         }
 
@@ -123,7 +127,7 @@ namespace Avahi
             IntPtr addrPtr = Utility.StringToPtr (address.ToString ());
 
             lock (client) {
-                handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr,
+                handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr, flags,
                                                      cb, IntPtr.Zero);
             }
             
@@ -144,7 +148,7 @@ namespace Avahi
 
         private void OnAddressResolverCallback (IntPtr resolver, int iface, Protocol proto,
                                                 ResolverEvent revent, Protocol aproto, IntPtr address,
-                                                IntPtr hostname, IntPtr userdata)
+                                                IntPtr hostname, LookupResultFlags flags, IntPtr userdata)
         {
             if (revent == ResolverEvent.Found) {
                 currentAddress = Utility.PtrToAddress (address);

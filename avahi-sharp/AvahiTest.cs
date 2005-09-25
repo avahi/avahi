@@ -43,16 +43,25 @@ public class AvahiTest {
 	{
 		Console.WriteLine ("Entry group status: " + state);
 
+		/*
 		if (state == EntryGroupState.Established) {
 			DomainBrowser browser = new DomainBrowser (client);
 			browser.DomainAdded += OnDomainAdded;
 		}
+		*/
+
+		BrowseServiceTypes ("dns-sd.org");
 	}
 
 	private static void OnDomainAdded (object o, DomainInfo info)
 	{
 		Console.WriteLine ("Got domain added: " + info.Domain);
-		ServiceTypeBrowser stb = new ServiceTypeBrowser (client, info.Domain);
+		BrowseServiceTypes (info.Domain);
+	}
+
+	private static void BrowseServiceTypes (string domain)
+	{
+		ServiceTypeBrowser stb = new ServiceTypeBrowser (client, domain);
 		stb.ServiceTypeAdded += OnServiceTypeAdded;
 	}
 

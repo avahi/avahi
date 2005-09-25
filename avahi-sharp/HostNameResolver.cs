@@ -30,7 +30,7 @@ namespace Avahi
 
     internal delegate void HostNameResolverCallback (IntPtr resolver, int iface, Protocol proto,
                                                      ResolverEvent revent, IntPtr hostname, IntPtr address,
-                                                     IntPtr userdata);
+                                                     LookupResultFlags flags, IntPtr userdata);
 
     public class HostNameResolver : IDisposable
     {
@@ -40,6 +40,7 @@ namespace Avahi
         private Protocol proto;
         private string hostname;
         private Protocol aproto;
+        private LookupFlags flags;
         private HostNameResolverCallback cb;
 
         private IPAddress currentAddress;
@@ -50,7 +51,7 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_host_name_resolver_new (IntPtr client, int iface, Protocol proto,
-                                                                   IntPtr hostname, Protocol aproto,
+                                                                   IntPtr hostname, Protocol aproto, LookupFlags flags,
                                                                    HostNameResolverCallback cb, IntPtr userdata);
 
         [DllImport ("avahi-client")]
@@ -91,18 +92,20 @@ namespace Avahi
         }
 
         public HostNameResolver (Client client, string hostname) : this (client, -1, Protocol.Unspecified,
-                                                                         hostname, Protocol.Unspecified)
+                                                                         hostname, Protocol.Unspecified,
+                                                                         LookupFlags.None)
         {
         }
 
         public HostNameResolver (Client client, int iface, Protocol proto, string hostname,
-                                 Protocol aproto)
+                                 Protocol aproto, LookupFlags flags)
         {
             this.client = client;
             this.iface = iface;
             this.proto = proto;
             this.hostname = hostname;
             this.aproto = aproto;
+            this.flags = flags;
             cb = OnHostNameResolverCallback;
         }
 
@@ -125,7 +128,7 @@ namespace Avahi
             IntPtr hostPtr = Utility.StringToPtr (hostname);
 
             lock (client) {
-                handle = avahi_host_name_resolver_new (client.Handle, iface, proto, hostPtr, aproto,
+                handle = avahi_host_name_resolver_new (client.Handle, iface, proto, hostPtr, aproto, flags,
                                                        cb, IntPtr.Zero);
             }
             
@@ -146,7 +149,7 @@ namespace Avahi
 
         private void OnHostNameResolverCallback (IntPtr resolver, int iface, Protocol proto,
                                                  ResolverEvent revent, IntPtr hostname, IntPtr address,
-                                                 IntPtr userdata)
+                                                 LookupResultFlags flags, IntPtr userdata)
         {
             if (revent == ResolverEvent.Found) {
                 currentAddress = Utility.PtrToAddress (address);

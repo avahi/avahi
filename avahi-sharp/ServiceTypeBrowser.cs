@@ -26,7 +26,8 @@ using System.Runtime.InteropServices;
 namespace Avahi
 {
     internal delegate void ServiceTypeBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
-                                                       IntPtr type, IntPtr domain, IntPtr userdata);
+                                                       IntPtr type, IntPtr domain, LookupResultFlags flags,
+                                                       IntPtr userdata);
     
     public struct ServiceTypeInfo
     {
@@ -34,6 +35,7 @@ namespace Avahi
         public Protocol Protocol;
         public string Domain;
         public string ServiceType;
+        public LookupResultFlags Flags;
     }
 
     public delegate void ServiceTypeInfoHandler (object o, ServiceTypeInfo info);
@@ -46,6 +48,7 @@ namespace Avahi
         private int iface;
         private Protocol proto;
         private string domain;
+        private LookupFlags flags;
         private ServiceTypeBrowserCallback cb;
 
         private ArrayList addListeners = new ArrayList ();
@@ -53,7 +56,8 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_service_type_browser_new (IntPtr client, int iface, int proto,
-                                                                     IntPtr domain, ServiceTypeBrowserCallback cb,
+                                                                     IntPtr domain, LookupFlags flags,
+                                                                     ServiceTypeBrowserCallback cb,
                                                                      IntPtr userdata);
 
         [DllImport ("avahi-client")]
@@ -92,16 +96,18 @@ namespace Avahi
         {
         }
 
-        public ServiceTypeBrowser (Client client, string domain) : this (client, -1, Protocol.Unspecified, domain)
+        public ServiceTypeBrowser (Client client, string domain) : this (client, -1, Protocol.Unspecified,
+                                                                         domain, LookupFlags.None)
         {
         }
-        
-        public ServiceTypeBrowser (Client client, int iface, Protocol proto, string domain)
+
+        public ServiceTypeBrowser (Client client, int iface, Protocol proto, string domain, LookupFlags flags)
         {
             this.client = client;
             this.iface = iface;
             this.proto = proto;
             this.domain = domain;
+            this.flags = flags;
             cb = OnServiceTypeBrowserCallback;
         }
 
@@ -123,7 +129,7 @@ namespace Avahi
 
             lock (client) {
                 IntPtr domainPtr = Utility.StringToPtr (domain);
-                handle = avahi_service_type_browser_new (client.Handle, iface, (int) proto, domainPtr,
+                handle = avahi_service_type_browser_new (client.Handle, iface, (int) proto, domainPtr, flags,
                                                          cb, IntPtr.Zero);
                 Utility.Free (domainPtr);
             }
@@ -142,7 +148,8 @@ namespace Avahi
         }
 
         private void OnServiceTypeBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
-                                                   IntPtr type, IntPtr domain, IntPtr userdata)
+                                                   IntPtr type, IntPtr domain, LookupResultFlags flags,
+                                                   IntPtr userdata)
         {
 
             ServiceTypeInfo info;
@@ -150,6 +157,7 @@ namespace Avahi
             info.Protocol = proto;
             info.Domain = Utility.PtrToString (domain);
             info.ServiceType = Utility.PtrToString (type);
+            info.Flags = flags;
 
             infos.Add (info);
             

@@ -27,26 +27,6 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public HostNameResolver (Avahi.Client client, int iface, Avahi.Protocol proto, string hostname, Avahi.Protocol aproto);" />
-      <MemberType>Constructor</MemberType>
-      <Parameters>
-        <Parameter Name="client" Type="Avahi.Client" />
-        <Parameter Name="iface" Type="System.Int32" />
-        <Parameter Name="proto" Type="Avahi.Protocol" />
-        <Parameter Name="hostname" Type="System.String" />
-        <Parameter Name="aproto" Type="Avahi.Protocol" />
-      </Parameters>
-      <Docs>
-        <param name="client">To be added.</param>
-        <param name="iface">To be added.</param>
-        <param name="proto">To be added.</param>
-        <param name="hostname">To be added.</param>
-        <param name="aproto">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="Found">
       <MemberSignature Language="C#" Value="public event Avahi.HostAddressHandler Found;" />
       <MemberType>Event</MemberType>
@@ -102,6 +82,28 @@
       <Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public HostNameResolver (Avahi.Client client, int iface, Avahi.Protocol proto, string hostname, Avahi.Protocol aproto, Avahi.LookupFlags flags);" />
+      <MemberType>Constructor</MemberType>
+      <Parameters>
+        <Parameter Name="client" Type="Avahi.Client" />
+        <Parameter Name="iface" Type="System.Int32" />
+        <Parameter Name="proto" Type="Avahi.Protocol" />
+        <Parameter Name="hostname" Type="System.String" />
+        <Parameter Name="aproto" Type="Avahi.Protocol" />
+        <Parameter Name="flags" Type="Avahi.LookupFlags" />
+      </Parameters>
+      <Docs>
+        <param name="client">To be added.</param>
+        <param name="iface">To be added.</param>
+        <param name="proto">To be added.</param>
+        <param name="hostname">To be added.</param>
+        <param name="aproto">To be added.</param>
+        <param name="flags">To be added.</param>
+        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

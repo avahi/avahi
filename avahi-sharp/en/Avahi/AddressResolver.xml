@@ -27,24 +27,6 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public AddressResolver (Avahi.Client client, int iface, Avahi.Protocol proto, System.Net.IPAddress address);" />
-      <MemberType>Constructor</MemberType>
-      <Parameters>
-        <Parameter Name="client" Type="Avahi.Client" />
-        <Parameter Name="iface" Type="System.Int32" />
-        <Parameter Name="proto" Type="Avahi.Protocol" />
-        <Parameter Name="address" Type="System.Net.IPAddress" />
-      </Parameters>
-      <Docs>
-        <param name="client">To be added.</param>
-        <param name="iface">To be added.</param>
-        <param name="proto">To be added.</param>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="Found">
       <MemberSignature Language="C#" Value="public event Avahi.HostAddressHandler Found;" />
       <MemberType>Event</MemberType>
@@ -100,6 +82,26 @@
       <Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public AddressResolver (Avahi.Client client, int iface, Avahi.Protocol proto, System.Net.IPAddress address, Avahi.LookupFlags flags);" />
+      <MemberType>Constructor</MemberType>
+      <Parameters>
+        <Parameter Name="client" Type="Avahi.Client" />
+        <Parameter Name="iface" Type="System.Int32" />
+        <Parameter Name="proto" Type="Avahi.Protocol" />
+        <Parameter Name="address" Type="System.Net.IPAddress" />
+        <Parameter Name="flags" Type="Avahi.LookupFlags" />
+      </Parameters>
+      <Docs>
+        <param name="client">To be added.</param>
+        <param name="iface">To be added.</param>
+        <param name="proto">To be added.</param>
+        <param name="address">To be added.</param>
+        <param name="flags">To be added.</param>
+        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

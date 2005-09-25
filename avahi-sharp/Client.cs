@@ -55,6 +55,23 @@ namespace Avahi
         Collision,
         Disconnected = 100
     }
+
+    [Flags]
+    public enum LookupFlags {
+        None,
+        UseWideArea,
+        UseMulticast,
+        NoTxt,
+        NoAddress
+    }
+
+    [Flags]
+    public enum LookupResultFlags {
+        None,
+        Cached,
+        WideArea,
+        Multicast
+    }
     
     public class Client : IDisposable
     {
@@ -107,6 +124,14 @@ namespace Avahi
 
         [DllImport ("avahi-common")]
         private static extern void avahi_simple_poll_quit (IntPtr spoll);
+
+        [DllImport ("avahi-client")]
+        private static extern uint avahi_client_get_local_service_cookie (IntPtr client);
+
+        [DllImport ("avahi-client")]
+        private static extern int avahi_client_is_service_local (IntPtr client, int iface, Protocol proto,
+                                                                 IntPtr name, IntPtr type, IntPtr domain);
+
 
         [DllImport ("libc")]
         private static extern int poll(IntPtr ufds, uint nfds, int timeout);
@@ -163,6 +188,15 @@ namespace Avahi
             }
         }
 
+        public uint LocalServiceCookie
+        {
+            get {
+                lock (this) {
+                    return avahi_client_get_local_service_cookie (handle);
+                }
+            }
+        }
+
         internal int LastError
         {
             get {
@@ -208,6 +242,27 @@ namespace Avahi
                     handle = IntPtr.Zero;
                 }
             }
+        }
+
+        public bool IsServiceLocal (ServiceInfo service)
+        {
+            return IsServiceLocal (service.NetworkInterface, service.Protocol, service.Name,
+                                   service.ServiceType, service.Domain);
+        }
+
+        public bool IsServiceLocal (int iface, Protocol proto, string name, string type, string domain)
+        {
+            IntPtr namePtr = Utility.StringToPtr (name);
+            IntPtr typePtr = Utility.StringToPtr (type);
+            IntPtr domainPtr = Utility.StringToPtr (domain);
+            
+            int result = avahi_client_is_service_local (handle, iface, proto, namePtr, typePtr, domainPtr);
+
+            Utility.Free (namePtr);
+            Utility.Free (typePtr);
+            Utility.Free (domainPtr);
+
+            return result == 1;
         }
 
         internal void CheckError ()

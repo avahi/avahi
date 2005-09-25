@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 namespace Avahi
 {
     internal delegate void DomainBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
-                                                  IntPtr domain, IntPtr userdata);
+                                                  IntPtr domain, LookupResultFlags flags, IntPtr userdata);
 
     public enum DomainBrowserType {
         Register,
@@ -41,6 +41,7 @@ namespace Avahi
         public int NetworkInterface;
         public Protocol Protocol;
         public string Domain;
+        public LookupResultFlags Flags;
     }
 
     public delegate void DomainInfoHandler (object o, DomainInfo info);
@@ -54,6 +55,7 @@ namespace Avahi
         private Protocol proto;
         private string domain;
         private DomainBrowserType btype;
+        private LookupFlags flags;
         private DomainBrowserCallback cb;
 
         private ArrayList addListeners = new ArrayList ();
@@ -61,7 +63,8 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_domain_browser_new (IntPtr client, int iface, int proto,
-                                                               IntPtr domain, int btype, DomainBrowserCallback cb,
+                                                               IntPtr domain, int btype, LookupFlags flags,
+                                                               DomainBrowserCallback cb,
                                                                IntPtr userdata);
 
         [DllImport ("avahi-client")]
@@ -97,16 +100,18 @@ namespace Avahi
         }
 
         public DomainBrowser (Client client) : this (client, -1, Protocol.Unspecified, client.DomainName,
-                                                     DomainBrowserType.Browse) {
+                                                     DomainBrowserType.Browse, LookupFlags.None) {
         }
         
-        public DomainBrowser (Client client, int iface, Protocol proto, string domain, DomainBrowserType btype)
+        public DomainBrowser (Client client, int iface, Protocol proto, string domain,
+                              DomainBrowserType btype, LookupFlags flags)
         {
             this.client = client;
             this.iface = iface;
             this.proto = proto;
             this.domain = domain;
             this.btype = btype;
+            this.flags = flags;
             cb = OnDomainBrowserCallback;
         }
 
@@ -128,7 +133,7 @@ namespace Avahi
 
             lock (client) {
                 IntPtr domainPtr = Utility.StringToPtr (domain);
-                handle = avahi_domain_browser_new (client.Handle, iface, (int) proto, domainPtr, (int) btype,
+                handle = avahi_domain_browser_new (client.Handle, iface, (int) proto, domainPtr, (int) btype, flags,
                                                    cb, IntPtr.Zero);
                 Utility.Free (domainPtr);
             }
@@ -146,13 +151,14 @@ namespace Avahi
         }
 
         private void OnDomainBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
-                                              IntPtr domain, IntPtr userdata)
+                                              IntPtr domain, LookupResultFlags flags, IntPtr userdata)
         {
 
             DomainInfo info;
             info.NetworkInterface = iface;
             info.Protocol = proto;
             info.Domain = Utility.PtrToString (domain);
+            info.Flags = flags;
 
             infos.Add (info);
             

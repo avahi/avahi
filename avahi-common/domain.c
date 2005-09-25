@@ -337,3 +337,21 @@ unsigned avahi_domain_hash(const char *s) {
             hash = 31 * hash + tolower(*p);
     }
 }
+
+int avahi_domain_ends_with(const char *domain, const char *suffix) {
+    assert(domain);
+    assert(suffix);
+
+    assert(avahi_is_valid_domain_name(domain));
+    assert(avahi_is_valid_domain_name(suffix));
+
+    for (;;) {
+        char dummy[64];
+        
+        if (avahi_domain_equal(domain, suffix))
+            return 1;
+
+        if (!(avahi_unescape_label(&domain, dummy, sizeof(dummy))))
+            return 0;
+    } 
+}

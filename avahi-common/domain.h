@@ -70,6 +70,9 @@ int avahi_is_valid_host_name(const char *t);
 /** Return some kind of hash value for the domain, useful for using domains as hash table keys. */
 unsigned avahi_domain_hash(const char *name);
 
+/** Returns 1 if the the end labels of domain are eqal to suffix */
+int avahi_domain_ends_with(const char *domain, const char *suffix);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

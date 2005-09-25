@@ -4,6 +4,8 @@ for 0.6:
 * add simplification routine for adding services 
 * add API to add addresses without reverse PTR record
 
+* add sever version check to avahi-client
+
 * remove queries from queue if the browse object they were issued from is destroyed
 
 * Passive observation of failures

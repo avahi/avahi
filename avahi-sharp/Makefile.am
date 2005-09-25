@@ -19,7 +19,7 @@
 
 ASSEMBLY = avahi-sharp.dll
 
-CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
+CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb $(ASSEMBLY).config
 
 AVAHISOURCES = 				\
 	$(srcdir)/AddressResolver.cs	\
@@ -38,17 +38,22 @@ EXTRA_DIST =				\
 	$(AVAHISOURCES)			\
 	$(srcdir)/AvahiTest.cs 		\
 	$(srcdir)/avahi.snk		\
-	$(srcdir)/avahi-sharp.dll.config	\
+	$(srcdir)/$(ASSEMBLY).config	\
 	$(srcdir)/avahi-sharp-docs.source	\
 	$(srcdir)/en/*.xml		\
-	$(srcdir)/en/*/*.xml
-
+	$(srcdir)/en/*/*.xml		\
+	$(srcdir)/gencfg.sh
 
 $(ASSEMBLY): $(AVAHISOURCES)
 	mcs -keyfile:$(srcdir)/avahi.snk -target:library -out:$@ -debug $(AVAHISOURCES) -r:Mono.Posix
 
+
+$(ASSEMBLY).config: $(ASSEMBLY).config.in
+	$(srcdir)/gencfg.sh $(top_builddir)/avahi-client/libavahi-client.la \
+		$(top_builddir)/avahi-common/libavahi-common.la < $< > $@
+
 if HAVE_MONO
-all: $(ASSEMBLY)
+all: $(ASSEMBLY) $(ASSEMBLY).config
 
 if HAVE_MONODOC
 update-docs: $(ASSEMBLY)

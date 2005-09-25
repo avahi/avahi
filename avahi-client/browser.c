@@ -44,6 +44,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
     AvahiProtocol protocol,
     const char *domain,
     AvahiDomainBrowserType btype,
+    AvahiLookupFlags flags,
     AvahiDomainBrowserCallback callback,
     void *userdata) {
     
@@ -51,7 +52,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
     DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
-    int32_t i_interface, i_protocol, bt;
+    int32_t i_interface, i_protocol, i_flags, bt;
 
     assert(client);
     assert(callback);
@@ -83,8 +84,9 @@ AvahiDomainBrowser* avahi_domain_browser_new(
         goto fail;
     }
 
-    i_interface = interface;
-    i_protocol = protocol;
+    i_interface = (int32_t) interface;
+    i_protocol = (int32_t) protocol;
+    i_flags = (int32_t) flags;
     bt = btype;
 
     if (!(dbus_message_append_args(
@@ -93,6 +95,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
               DBUS_TYPE_INT32, &i_protocol,
               DBUS_TYPE_STRING, &domain,
               DBUS_TYPE_INT32, &bt,
+              DBUS_TYPE_INT32, &flags,
               DBUS_TYPE_INVALID))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -171,8 +174,8 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
     AvahiDomainBrowser *db = NULL;
     DBusError error;
     const char *path;
-    char *domain;
-    int32_t interface, protocol;
+    char *domain = NULL;
+    int32_t interface = AVAHI_IF_UNSPEC, protocol = AVAHI_PROTO_UNSPEC, flags = 0;
 
     assert(client);
     assert(message);
@@ -189,18 +192,21 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
     if (!db)
         goto fail;
 
-    if (!dbus_message_get_args(
-              message, &error,
-              DBUS_TYPE_INT32, &interface,
-              DBUS_TYPE_INT32, &protocol,
-              DBUS_TYPE_STRING, &domain,
-              DBUS_TYPE_INVALID) ||
-          dbus_error_is_set (&error)) {
-        fprintf(stderr, "Failed to parse browser event.\n");
-        goto fail;
+    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
+        if (!dbus_message_get_args(
+                message, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_INT32, &flags,
+                DBUS_TYPE_INVALID) ||
+            dbus_error_is_set (&error)) {
+            fprintf(stderr, "Failed to parse browser event.\n");
+            goto fail;
+        }
     }
 
-    db->callback(db, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, domain, db->userdata);
+    db->callback(db, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, domain, (AvahiLookupResultFlags) flags, db->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
@@ -215,6 +221,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const char *domain,
+    AvahiLookupFlags flags, 
     AvahiServiceTypeBrowserCallback callback,
     void *userdata) {
         
@@ -222,7 +229,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new(
     DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
-    int32_t i_interface, i_protocol;
+    int32_t i_interface, i_protocol, i_flags;
 
     assert(client);
     assert(callback);
@@ -254,14 +261,16 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new(
         goto fail;
     }
     
-    i_interface = interface;
-    i_protocol = protocol;
+    i_interface = (int32_t) interface;
+    i_protocol = (int32_t) protocol;
+    i_flags = (int32_t) flags;
 
     if (!dbus_message_append_args(
             message,
-            DBUS_TYPE_INT32, &interface,
-            DBUS_TYPE_INT32, &protocol,
+            DBUS_TYPE_INT32, &i_interface,
+            DBUS_TYPE_INT32, &i_protocol,
             DBUS_TYPE_STRING, &domain,
+            DBUS_TYPE_INT32, &i_flags,
             DBUS_TYPE_INVALID)) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -339,8 +348,8 @@ DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBr
     AvahiServiceTypeBrowser *b = NULL;
     DBusError error;
     const char *path;
-    char *domain, *type;
-    int32_t interface, protocol;
+    char *domain = NULL, *type = NULL;
+    int32_t interface = AVAHI_IF_UNSPEC, protocol = AVAHI_PROTO_UNSPEC, flags = 0;
 
     assert(client);
     assert(message);
@@ -357,19 +366,22 @@ DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBr
     if (!b)
         goto fail;
 
-    if (!dbus_message_get_args(
-              message, &error,
-              DBUS_TYPE_INT32, &interface,
-              DBUS_TYPE_INT32, &protocol,
-              DBUS_TYPE_STRING, &type,
-              DBUS_TYPE_STRING, &domain,
-              DBUS_TYPE_INVALID) ||
-          dbus_error_is_set(&error)) {
-        fprintf(stderr, "Failed to parse browser event.\n");
-        goto fail;
+    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
+        if (!dbus_message_get_args(
+                message, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &type,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_INT32, &flags,
+                DBUS_TYPE_INVALID) ||
+            dbus_error_is_set(&error)) {
+            fprintf(stderr, "Failed to parse browser event.\n");
+            goto fail;
+        }
     }
 
-    b->callback(b, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, type, domain, b->userdata);
+    b->callback(b, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, type, domain, (AvahiLookupResultFlags) flags, b->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
@@ -386,6 +398,7 @@ AvahiServiceBrowser* avahi_service_browser_new(
     AvahiProtocol protocol,
     const char *type,
     const char *domain,
+    AvahiLookupFlags flags, 
     AvahiServiceBrowserCallback callback,
     void *userdata) {
     
@@ -393,7 +406,7 @@ AvahiServiceBrowser* avahi_service_browser_new(
     DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
-    int32_t i_protocol, i_interface;
+    int32_t i_protocol, i_interface, i_flags;
 
     assert(client);
     assert(type);
@@ -426,9 +439,9 @@ AvahiServiceBrowser* avahi_service_browser_new(
         goto fail;
     }
 
-    i_interface = interface;
-    i_protocol = protocol;
-    
+    i_interface = (int32_t) interface;
+    i_protocol = (int32_t) protocol;
+    i_flags = (int32_t) flags;
 
     if (!dbus_message_append_args(
             message,
@@ -436,6 +449,7 @@ AvahiServiceBrowser* avahi_service_browser_new(
             DBUS_TYPE_INT32, &i_protocol,
             DBUS_TYPE_STRING, &type,
             DBUS_TYPE_STRING, &domain,
+            DBUS_TYPE_INT32, &i_flags,
             DBUS_TYPE_INVALID)) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -513,8 +527,8 @@ DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowser
     AvahiServiceBrowser *b = NULL;
     DBusError error;
     const char *path;
-    char *name, *type, *domain;
-    int32_t interface, protocol;
+    char *name = NULL, *type = NULL, *domain = NULL;
+    int32_t interface = AVAHI_IF_UNSPEC, protocol = AVAHI_PROTO_UNSPEC, flags = 0;
 
     dbus_error_init (&error);
 
@@ -528,20 +542,23 @@ DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowser
     if (!b)
         goto fail;
 
-    if (!dbus_message_get_args (
-              message, &error,
-              DBUS_TYPE_INT32, &interface,
-              DBUS_TYPE_INT32, &protocol,
-              DBUS_TYPE_STRING, &name,
-              DBUS_TYPE_STRING, &type,
-              DBUS_TYPE_STRING, &domain,
-              DBUS_TYPE_INVALID) ||
-          dbus_error_is_set(&error)) {
-        fprintf(stderr, "Failed to parse browser event.\n");
-        goto fail;
+    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
+        if (!dbus_message_get_args (
+                message, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_STRING, &type,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_INT32, &flags,
+                DBUS_TYPE_INVALID) ||
+            dbus_error_is_set(&error)) {
+            fprintf(stderr, "Failed to parse browser event.\n");
+            goto fail;
+        }
     }
 
-    b->callback(b, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, name, type, domain, b->userdata);
+    b->callback(b, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, name, type, domain, (AvahiLookupResultFlags) flags, b->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 

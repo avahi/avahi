@@ -29,7 +29,9 @@ avahi_clientinclude_HEADERS = client.h
 
 noinst_HEADERS = internal.h
 
-noinst_PROGRAMS = client-test
+noinst_PROGRAMS = \
+	client-test \
+	srv-test
 
 lib_LTLIBRARIES = libavahi-client.la 
 
@@ -46,5 +48,9 @@ libavahi_client_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAV
 client_test_SOURCES = client-test.c
 client_test_CFLAGS = $(AM_CFLAGS) 
 client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
+
+srv_test_SOURCES = srv-test.c
+srv_test_CFLAGS = $(AM_CFLAGS) 
+srv_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
 
 endif

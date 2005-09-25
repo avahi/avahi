@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . $1
 client_dlname=$dlname

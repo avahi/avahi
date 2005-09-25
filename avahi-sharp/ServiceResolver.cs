@@ -102,19 +102,21 @@ namespace Avahi
         public ServiceResolver (Client client, string name, string type, string domain) : this (client, -1,
                                                                                                 Protocol.Unspecified,
                                                                                                 name, type, domain,
-                                                                                                Protocol.Unspecified)
+                                                                                                Protocol.Unspecified,
+                                                                                                LookupFlags.None)
         {
         }
 
         public ServiceResolver (Client client, ServiceInfo service) : this (client, service.NetworkInterface,
                                                                             service.Protocol, service.Name,
                                                                             service.ServiceType, service.Domain,
-                                                                            Protocol.Unspecified)
+                                                                            Protocol.Unspecified,
+                                                                            GetLookupFlags (service.Flags))
         {
         }
         
         public ServiceResolver (Client client, int iface, Protocol proto, string name,
-                                string type, string domain, Protocol aproto)
+                                string type, string domain, Protocol aproto, LookupFlags flags)
         {
             this.client = client;
             this.iface = iface;
@@ -123,6 +125,7 @@ namespace Avahi
             this.type = type;
             this.domain = domain;
             this.aproto = aproto;
+            this.flags = flags;
             cb = OnServiceResolverCallback;
         }
 
@@ -208,6 +211,17 @@ namespace Avahi
                 foreach (EventHandler handler in timeoutListeners)
                     handler (this, new EventArgs ());
             }
+        }
+
+        private static LookupFlags GetLookupFlags (LookupResultFlags rflags) {
+            LookupFlags ret = LookupFlags.None;
+
+            if ((rflags & LookupResultFlags.Multicast) > 0)
+                ret |= LookupFlags.UseMulticast;
+            if ((rflags & LookupResultFlags.WideArea) > 0)
+                ret |= LookupFlags.UseWideArea;
+
+            return ret;
         }
     }
 }

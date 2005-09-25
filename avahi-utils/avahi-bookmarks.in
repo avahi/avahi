@@ -46,6 +46,7 @@ urlproto = { "_http._tcp" : "http",  "_https._tcp" : "https", "_ftp._tcp" : "ftp
 port = 8080
 address = "127.0.0.1"
 use_host_names = False
+domain = "local"
 
 class AvahiBookmarks(resource.Resource):
     isLeaf = True
@@ -68,7 +69,9 @@ class AvahiBookmarks(resource.Resource):
 
     def browse_service_type(self, stype):
 
-        browser = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, stype, "local")), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+        global domain
+
+        browser = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, stype, domain, 0)), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         browser.connect_to_signal('ItemNew', self.new_service)
         browser.connect_to_signal('ItemRemove', self.remove_service)
 
@@ -111,9 +114,9 @@ class AvahiBookmarks(resource.Resource):
         return t
 
 
-    def new_service(self, interface, protocol, name, type, domain):
+    def new_service(self, interface, protocol, name, type, domain, flags):
 
-        interface, protocol, name, type, domain, host, aprotocol, address, port, txt = self.server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC)
+        interface, protocol, name, type, domain, host, aprotocol, address, port, txt, flags = self.server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, 0)
 
         if use_host_names:
             h = host
@@ -135,10 +138,11 @@ def usage(retval = 0):
     print "   -p --port PORT        Specify the port to use (default %u)" % port
     print "   -a --address ADDRESS  Specify the address to bind to (default %s)" % address
     print "   -H --host-names       Show all services, regardless of the type"
+    print "   -d --domain DOMAIN    Specify the domain to browse" 
     sys.exit(retval)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hp:a:H", ["help", "port=", "address=", "host-names"])
+    opts, args = getopt.getopt(sys.argv[1:], "hp:a:Hd:", ["help", "port=", "address=", "host-names", "domain="])
 except getopt.GetoptError:
     usage(2)
 
@@ -154,6 +158,9 @@ for o, a in opts:
 
     if o in ("-H", "--host-names"):
         use_host_names = True
+
+    if o in ("-d", "--domain"):
+        domain = a
     
 site = server.Site(AvahiBookmarks())
 reactor.listenTCP(port, site, interface=address)

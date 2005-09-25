@@ -44,7 +44,7 @@ ret = 0
 
 for name in sys.argv[1:]:
     try:
-        r = server.ResolveHostName(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, avahi.PROTO_UNSPEC)
+        r = server.ResolveHostName(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, avahi.PROTO_UNSPEC, 0)
         print r[2], r[4]
     except dbus.DBusException, e:
         print "Resolving '%s' failed: %s" % (name, str(e))

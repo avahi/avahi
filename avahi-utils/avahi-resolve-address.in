@@ -44,7 +44,7 @@ ret = 0
 
 for a in sys.argv[1:]:
     try:
-        r = server.ResolveAddress(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, a)
+        r = server.ResolveAddress(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, a, 0)
         print r[3], r[4]
     except dbus.DBusException, e:
         print "Resolving '%s' failed: %s" % (a, str(e))

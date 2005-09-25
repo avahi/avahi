@@ -173,7 +173,7 @@ static void sender_timeout_callback(AvahiTimeEvent *e, void *userdata) {
     
     if (l->n_send >= 6) {
         avahi_log_warn(__FILE__": Query timed out.");
-        l->callback(l->engine, AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_CALLBACK_WIDE_AREA, NULL, l->userdata);
+        l->callback(l->engine, AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
         avahi_wide_area_lookup_free(l);
         return;
     }
@@ -372,7 +372,7 @@ static void run_callbacks(AvahiWideAreaLookupEngine *e, AvahiRecord *r) {
         if (l->dead || !l->callback)
             continue;
         
-        l->callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_CALLBACK_WIDE_AREA, r, l->userdata);
+        l->callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_RESULT_WIDE_AREA, r, l->userdata);
     }
     
     if (r->key->clazz == AVAHI_DNS_CLASS_IN && r->key->type == AVAHI_DNS_TYPE_CNAME) {
@@ -386,7 +386,7 @@ static void run_callbacks(AvahiWideAreaLookupEngine *e, AvahiRecord *r) {
             
             if ((key = avahi_key_new_cname(l->key))) {
                 if (avahi_key_equal(r->key, key))
-                    l->callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_CALLBACK_WIDE_AREA, r, l->userdata);
+                    l->callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_RESULT_WIDE_AREA, r, l->userdata);
 
                 avahi_key_unref(key);
             }
@@ -472,7 +472,7 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
 
         /* Tell the user about the failure */
         if (l->callback)
-            l->callback(e, r == 3 ? AVAHI_BROWSER_NOT_FOUND : AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_CALLBACK_WIDE_AREA, NULL, l->userdata);
+            l->callback(e, r == 3 ? AVAHI_BROWSER_NOT_FOUND : AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
         goto finish;
     }
 
@@ -506,7 +506,7 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
 
     /** Inform the user that this is the last reply */
     if (l->callback && !l->dead)
-        l->callback(e, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_CALLBACK_WIDE_AREA, NULL, l->userdata);
+        l->callback(e, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
     
 finish:
     if (l)
@@ -666,14 +666,14 @@ unsigned avahi_wide_area_scan_cache(AvahiWideAreaLookupEngine *e, AvahiKey *key,
     assert(callback);
 
     for (c = avahi_hashmap_lookup(e->cache_by_key, key); c; c = c->by_key_next) {
-        callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_CALLBACK_WIDE_AREA|AVAHI_LOOKUP_CALLBACK_CACHED, c->record, userdata);
+        callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_RESULT_WIDE_AREA|AVAHI_LOOKUP_RESULT_CACHED, c->record, userdata);
         n++;
     }
 
     if ((cname_key = avahi_key_new_cname(key))) {
 
         for (c = avahi_hashmap_lookup(e->cache_by_key, cname_key); c; c = c->by_key_next) {
-            callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_CALLBACK_WIDE_AREA|AVAHI_LOOKUP_CALLBACK_CACHED, c->record, userdata);
+            callback(e, AVAHI_BROWSER_NEW, AVAHI_LOOKUP_RESULT_WIDE_AREA|AVAHI_LOOKUP_RESULT_CACHED, c->record, userdata);
             n++;
         }
         

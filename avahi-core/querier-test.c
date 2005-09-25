@@ -65,7 +65,7 @@ static void sb_callback(
     const char *domain,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    avahi_log_debug("SB%i: (%i.%s) <%s> as <%s> in <%s> [%s] cached=%i", b == service_browser1 ? 1 : 2, iface, avahi_proto_to_string(protocol), name, service_type, domain, browser_event_to_string(event), !!(flags & AVAHI_LOOKUP_CALLBACK_CACHED));
+    avahi_log_debug("SB%i: (%i.%s) <%s> as <%s> in <%s> [%s] cached=%i", b == service_browser1 ? 1 : 2, iface, avahi_proto_to_string(protocol), name, service_type, domain, browser_event_to_string(event), !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
 }
 
 static void create_second_service_browser(AvahiTimeout *timeout, void* userdata) {

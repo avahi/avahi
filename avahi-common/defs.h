@@ -163,10 +163,10 @@ typedef enum {
 
 /** Some flags for lookup callback functions */
 typedef enum {
-    AVAHI_LOOKUP_CALLBACK_NULL = 0,
-    AVAHI_LOOKUP_CALLBACK_CACHED = 1,      /**< This response originates from the cache */
-    AVAHI_LOOKUP_CALLBACK_WIDE_AREA = 2,   /**< This response originates from wide area DNS */
-    AVAHI_LOOKUP_CALLBACK_MULTICAST = 4,   /**< This response originates from multicast DNS */
+    AVAHI_LOOKUP_RESULT_NULL = 0,
+    AVAHI_LOOKUP_RESULT_CACHED = 1,      /**< This response originates from the cache */
+    AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,   /**< This response originates from wide area DNS */
+    AVAHI_LOOKUP_RESULT_MULTICAST = 4,   /**< This response originates from multicast DNS */
 } AvahiLookupResultFlags;
 
 /** Type of callback event when browsing */

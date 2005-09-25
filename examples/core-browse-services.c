@@ -93,9 +93,9 @@ static void resolve_callback(
                     t,
                     avahi_string_list_get_service_cookie(txt),
                     avahi_server_is_service_local(server, interface, protocol, name, type, domain),
-                    !!(flags & AVAHI_LOOKUP_CALLBACK_WIDE_AREA),
-                    !!(flags & AVAHI_LOOKUP_CALLBACK_MULTICAST),
-                    !!(flags & AVAHI_LOOKUP_CALLBACK_CACHED));
+                    !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA),
+                    !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
+                    !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
             avahi_free(t);
         }
     }

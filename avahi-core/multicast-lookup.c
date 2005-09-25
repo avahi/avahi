@@ -71,7 +71,7 @@ static void all_for_now_callback(AvahiTimeEvent *e, void* userdata) {
     avahi_time_event_free(l->all_for_now_event);
     l->all_for_now_event = NULL;
 
-    l->callback(l->engine, l->interface, l->protocol, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_CALLBACK_MULTICAST, NULL, l->userdata);
+    l->callback(l->engine, l->interface, l->protocol, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_RESULT_MULTICAST, NULL, l->userdata);
 }
 
 AvahiMulticastLookup *avahi_multicast_lookup_new(
@@ -208,7 +208,7 @@ static void* scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
         cbdata->interface->hardware->index,
         cbdata->interface->protocol,
         AVAHI_BROWSER_NEW,
-        AVAHI_LOOKUP_CALLBACK_CACHED|AVAHI_LOOKUP_CALLBACK_MULTICAST,
+        AVAHI_LOOKUP_RESULT_CACHED|AVAHI_LOOKUP_RESULT_MULTICAST,
         e->record,
         cbdata->userdata);
 
@@ -295,7 +295,7 @@ void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiIn
             continue;
 
         if (avahi_interface_match(i, l->interface, l->protocol))
-            l->callback(e, i->hardware->index, i->protocol, event, AVAHI_LOOKUP_CALLBACK_MULTICAST, record, l->userdata);
+            l->callback(e, i->hardware->index, i->protocol, event, AVAHI_LOOKUP_RESULT_MULTICAST, record, l->userdata);
     }
 
 
@@ -310,7 +310,7 @@ void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiIn
             
             if ((key = avahi_key_new_cname(l->key))) {
                 if (avahi_key_equal(record->key, key))
-                    l->callback(e, i->hardware->index, i->protocol, event, AVAHI_LOOKUP_CALLBACK_MULTICAST, record, l->userdata);
+                    l->callback(e, i->hardware->index, i->protocol, event, AVAHI_LOOKUP_RESULT_MULTICAST, record, l->userdata);
 
                 avahi_key_unref(key);
             }

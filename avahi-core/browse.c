@@ -466,7 +466,7 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
 
         b->callback(
             b, b->interface, b->protocol, AVAHI_BROWSER_FAILURE, NULL,
-            b->flags & AVAHI_LOOKUP_USE_WIDE_AREA ? AVAHI_LOOKUP_CALLBACK_WIDE_AREA : AVAHI_LOOKUP_CALLBACK_MULTICAST,
+            b->flags & AVAHI_LOOKUP_USE_WIDE_AREA ? AVAHI_LOOKUP_RESULT_WIDE_AREA : AVAHI_LOOKUP_RESULT_MULTICAST,
             b->userdata);
         
         avahi_s_record_browser_cancel(b);
@@ -476,7 +476,7 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
     /* Tell the client that we're done with the cache */
     b->callback(
         b, b->interface, b->protocol, AVAHI_BROWSER_CACHE_EXHAUSTED, NULL,
-        b->flags & AVAHI_LOOKUP_USE_WIDE_AREA ? AVAHI_LOOKUP_CALLBACK_WIDE_AREA : AVAHI_LOOKUP_CALLBACK_MULTICAST,
+        b->flags & AVAHI_LOOKUP_USE_WIDE_AREA ? AVAHI_LOOKUP_RESULT_WIDE_AREA : AVAHI_LOOKUP_RESULT_MULTICAST,
         b->userdata);
 
     if (!b->dead && b->root_lookup && b->root_lookup->flags & AVAHI_LOOKUP_USE_WIDE_AREA && n > 0) {
@@ -485,7 +485,7 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
          * entries, we assume that it is complete, and tell the user
          * so by firing ALL_FOR_NOW. */
         
-        b->callback(b, b->interface, b->protocol, AVAHI_BROWSER_ALL_FOR_NOW, NULL, AVAHI_LOOKUP_CALLBACK_WIDE_AREA, b->userdata);
+        b->callback(b, b->interface, b->protocol, AVAHI_BROWSER_ALL_FOR_NOW, NULL, AVAHI_LOOKUP_RESULT_WIDE_AREA, b->userdata);
     }
 }
 

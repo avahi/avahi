@@ -71,3 +71,12 @@ _webdavs._tcp:Secure WebDAV File Share
 
 _workstation._tcp:Workstation
 _workstation._tcp[de]:Arbeitsplatzrechner
+
+_printer._tcp:UNIX Printer
+
+_afpovertcp._tcp:Apple File Sharing
+
+_pdl-datastream._tcp:PDL Printer
+
+_ipp._tcp:Internet Printer
+

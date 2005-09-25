@@ -19,6 +19,10 @@
   USA.
  ***/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "error.h"
 
 const char *avahi_strerror(int error) {
@@ -51,6 +55,11 @@ const char *avahi_strerror(int error) {
         "Memory exhausted",
         "The object passed in was not valid",
         "Daemon not running",
+        "Invalid interface index",
+        "Invalid protocol specification",
+        "Invalid flags",
+        "Not found",
+        "Invalid configuration"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

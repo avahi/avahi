@@ -59,6 +59,11 @@ enum {
     AVAHI_ERR_NO_MEMORY = -24,             /**< Memory exhausted */
     AVAHI_ERR_INVALID_OBJECT = -25,        /**< The object passed to this function was invalid */
     AVAHI_ERR_NO_DAEMON = -26,             /**< Daemon not running */
+    AVAHI_ERR_INVALID_INTERFACE = -27,     /**< Invalid interface */
+    AVAHI_ERR_INVALID_PROTOCOL = -28,      /**< Invalid protocol */
+    AVAHI_ERR_INVALID_FLAGS = -29,         /**< Invalid flags */
+    AVAHI_ERR_NOT_FOUND = -30,             /**< Not found */
+    AVAHI_ERR_INVALID_CONFIG = -31,        /**< Configuration error */
 
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -68,7 +73,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -27
+    AVAHI_ERR_MAX = -32
 };
 
 /** Return a human readable error string for the specified error code */

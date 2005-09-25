@@ -110,6 +110,7 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
     AVAHI_LLIST_PREPEND(AvahiMulticastLookup, lookups, e->lookups, l);
 
     avahi_querier_add_for_all(e->server, interface, protocol, l->key, &ctime);
+    l->queriers_added = 1;
 
     /* add a second */
     avahi_timeval_add(&ctime, 1000000);

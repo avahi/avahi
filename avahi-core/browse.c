@@ -569,9 +569,6 @@ void avahi_s_record_browser_cancel(AvahiSRecordBrowser *b) {
         avahi_time_event_free(b->defer_time_event);
         b->defer_time_event = NULL;
     }
-
-
-    
 }
 
 void avahi_s_record_browser_free(AvahiSRecordBrowser *b) {

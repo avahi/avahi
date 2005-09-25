@@ -81,7 +81,7 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
     
     assert(i);
     assert(key);
-
+    
     if ((q = avahi_hashmap_lookup(i->queriers_by_key, key))) {
         /* Someone is already browsing for records of this RR key */
         q->n_used++;
@@ -126,6 +126,7 @@ void avahi_querier_remove(AvahiInterface *i, AvahiKey *key) {
     }
 
     assert(q->n_used >= 1);
+
     if ((--q->n_used) <= 0)
         avahi_querier_free(q);
 }

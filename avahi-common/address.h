@@ -32,7 +32,7 @@
 AVAHI_C_DECL_BEGIN
 
 /** Protocol family specification, takes the values AVAHI_PROTO_INET, AVAHI_PROTO_INET6, AVAHI_PROTO_UNSPEC */
-typedef char AvahiProtocol;
+typedef int AvahiProtocol;
 
 /** Numeric network interface index. Takes OS dependent values and the special constant AVAHI_IF_UNSPEC  */
 typedef int AvahiIfIndex;
@@ -46,13 +46,20 @@ enum {
 
 /** Special values for AvahiIfIndex */
 enum {
-    AVAHI_IF_UNSPEC = -1 /**< Unspecifed/all interfaces */
+    AVAHI_IF_UNSPEC = -1,       /**< Unspecified/all interface(s) */
 };
+
+/** Return TRUE if the specified interface index is valid */
+#define AVAHI_IF_VALID(ifindex) (((ifindex) >= 0) || ((ifindex) == AVAHI_PROTO_UNSPEC))
+
+/** Return TRUE if the specified protocol is valid */
+#define AVAHI_PROTO_VALID(protocol) (((protocol) == AVAHI_PROTO_INET) || ((protocol) == AVAHI_PROTO_INET6) || ((protocol) == AVAHI_PROTO_UNSPEC))
 
 /** An IPv4 address */
 typedef struct {
     uint32_t address; /**< Address data in network byte order. */
 } AvahiIPv4Address;
+
 
 /** An IPv6 address */
 typedef struct {

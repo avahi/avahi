@@ -65,6 +65,8 @@ SUBDIRS = \
 DX_INPUT = \
 	$(srcdir)/avahi-common/cdecl.h \
 	$(srcdir)/avahi-core/core.h \
+	$(srcdir)/avahi-core/lookup.h \
+	$(srcdir)/avahi-core/publish.h \
 	$(srcdir)/avahi-common/address.h \
 	$(srcdir)/avahi-core/rr.h \
 	$(srcdir)/avahi-common/strlst.h \

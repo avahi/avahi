@@ -1,19 +1,26 @@
 for 0.6:
 * Add sensible record updating API
 * add subtype browsing
-* add wide area support (i.e. DNS-SD over unicast DNS) 
+* add simplification routine for adding services 
+* add API to add addresses without reverse PTR record
+
 * remove queries from queue if the browse object they were issued from is destroyed
-* if two local clients browse for the same RRs, only send out query series once
-* add a way to notify the user that all cache entries have been read when browsing
+
+* Passive observation of failures
+
+* add API to allow user to tell the server that some service is not reachable
+
 * Add static host configuration like static services [lathiat]
-* wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
+* wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
 
 later:
-* Passive observation of failures
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec
   * Defer unicast responses the same way as multicast responses 
+* DNSSEC
+* Wide area DNS Update
+* long lived queries
   
 done:
 * drop glib from avahi-daemon
@@ -68,3 +75,10 @@ done:
 * add identical service detection cookie
 * add API to detect if a service is local
 * make AVAHI_PROTO_xxx well defined constants
+* if two local clients browse for the same RRs, only send out query series once
+* handle multicast/wide area resolving for reverse host name looups
+* add wide area support (i.e. DNS-SD over unicast DNS) 
+* add a way to notify the user that all cache entries have been read when browsing
+* allow resolving of services without name
+
+

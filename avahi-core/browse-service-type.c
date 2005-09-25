@@ -44,40 +44,51 @@ struct AvahiSServiceTypeBrowser {
     AVAHI_LLIST_FIELDS(AvahiSServiceTypeBrowser, browser);
 };
 
-static void record_browser_callback(AvahiSRecordBrowser*rr, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, void* userdata) {
+static void record_browser_callback(
+    AvahiSRecordBrowser*rr,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiBrowserEvent event,
+    AvahiRecord *record,
+    AvahiLookupResultFlags flags,
+    void* userdata) {
+    
     AvahiSServiceTypeBrowser *b = userdata;
-    char *n, *e, *c;
+    char *n = NULL, *c = NULL;
 
     assert(rr);
-    assert(record);
     assert(b);
 
-    assert(record->key->type == AVAHI_DNS_TYPE_PTR);
-
-    n = avahi_normalize_name(record->data.ptr.name);
-
-    if (*n != '_')
-        goto fail;
-    
-    for (c = e = n; *c == '_';) {
-        c += strcspn(c, ".");
-
-        if (*c == 0)
+    if (record) {
+        char *e;
+        
+        assert(record->key->type == AVAHI_DNS_TYPE_PTR);
+        
+        n = avahi_normalize_name(record->data.ptr.name);
+        
+        if (*n != '_')
             goto fail;
-
-        assert(*c == '.');
-        e = c;
-        c++;
+        
+        for (c = e = n; *c == '_';) {
+            c += strcspn(c, ".");
+            
+            if (*c == 0)
+                goto fail;
+            
+            assert(*c == '.');
+            e = c;
+            c++;
+        }
+        
+        *e = 0;
+        
+        if (!avahi_domain_equal(c, b->domain_name))
+            goto fail;
     }
-
-    *e = 0;
-
-    if (!avahi_domain_equal(c, b->domain_name))
-        goto fail;
     
-    b->callback(b, interface, protocol, event, n, c, b->userdata);
+    b->callback(b, interface, protocol, event, n, c, flags, b->userdata);
     avahi_free(n);
-
+    
     return;
 
 fail:
@@ -85,7 +96,15 @@ fail:
     avahi_free(n);
 }
 
-AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol, const char *domain, AvahiSServiceTypeBrowserCallback callback, void* userdata) {
+AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(
+    AvahiServer *server,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *domain,
+    AvahiLookupFlags flags,
+    AvahiSServiceTypeBrowserCallback callback,
+    void* userdata) {
+    
     AvahiSServiceTypeBrowser *b;
     AvahiKey *k;
     char *n = NULL;
@@ -98,13 +117,21 @@ AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(AvahiServer *server, 
         return NULL;
     }
 
+    if (!domain)
+        domain = server->domain_name;
+
+    if (!AVAHI_VALID_FLAGS(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
+        return NULL;
+    }
+
     if (!(b = avahi_new(AvahiSServiceTypeBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
     
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain ? domain : "local");
+    b->domain_name = avahi_normalize_name(domain);
     b->callback = callback;
     b->userdata = userdata;
 
@@ -114,7 +141,7 @@ AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(AvahiServer *server, 
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     avahi_free(n);
     
-    b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, record_browser_callback, b);
+    b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b);
     avahi_key_unref(k);
 
     if (!b->record_browser)

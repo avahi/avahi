@@ -286,20 +286,36 @@ uint8_t *avahi_dns_packet_extend(AvahiDnsPacket *p, size_t l) {
     return d;
 }
 
-int avahi_dns_packet_is_valid(AvahiDnsPacket *p) {
+int avahi_dns_packet_check_valid(AvahiDnsPacket *p) {
     uint16_t flags;
     assert(p);
 
-    if (p->size < 12)
+    if (p->size < AVAHI_DNS_PACKET_HEADER_SIZE)
         return -1;
 
     flags = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS);
-
-    if (flags & AVAHI_DNS_FLAG_OPCODE || flags & AVAHI_DNS_FLAG_RCODE)
+    
+    if (flags & AVAHI_DNS_FLAG_OPCODE)
         return -1;
 
     return 0;
 }
+
+int avahi_dns_packet_check_valid_multicast(AvahiDnsPacket *p) {
+    uint16_t flags;
+    assert(p);
+
+    if (avahi_dns_packet_check_valid(p) < 0)
+        return -1;
+    
+    flags = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS);
+    
+    if (flags & AVAHI_DNS_FLAG_RCODE)
+        return -1;
+
+    return 0;
+}
+
 
 int avahi_dns_packet_is_query(AvahiDnsPacket *p) {
     assert(p);
@@ -478,7 +494,6 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, int *ret_cache_f
     const void* start;
 
     assert(p);
-    assert(ret_cache_flush);
 
 /*     avahi_log_debug("consume_record()"); */
 
@@ -492,7 +507,8 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, int *ret_cache_f
 
 /*     avahi_log_debug("name = %s, rdlength = %u", name, rdlength); */
 
-    *ret_cache_flush = !!(class & AVAHI_DNS_CACHE_FLUSH);
+    if (ret_cache_flush)
+        *ret_cache_flush = !!(class & AVAHI_DNS_CACHE_FLUSH);
     class &= ~AVAHI_DNS_CACHE_FLUSH;
     
     start = avahi_dns_packet_get_rptr(p);
@@ -608,16 +624,17 @@ AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, int *ret_unicast_respo
     uint16_t type, class;
 
     assert(p);
-    assert(ret_unicast_response);
 
     if (avahi_dns_packet_consume_name(p, name, sizeof(name)) < 0 ||
         avahi_dns_packet_consume_uint16(p, &type) < 0 ||
         avahi_dns_packet_consume_uint16(p, &class) < 0)
         return NULL;
 
-    *ret_unicast_response = !!(class & AVAHI_DNS_UNICAST_RESPONSE);
-    class &= ~AVAHI_DNS_UNICAST_RESPONSE;
+    if (ret_unicast_response)
+        *ret_unicast_response = !!(class & AVAHI_DNS_UNICAST_RESPONSE);
 
+    class &= ~AVAHI_DNS_UNICAST_RESPONSE;
+    
     return avahi_key_new(name, class, type);
 }
 

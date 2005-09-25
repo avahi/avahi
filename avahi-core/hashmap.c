@@ -57,7 +57,7 @@ struct AvahiHashmap {
 static Entry* entry_get(AvahiHashmap *m, const void *key) {
     unsigned idx;
     Entry *e;
-    
+
     idx = m->hash_func(key) % HASH_MAP_SIZE;
     
     for (e = m->entries[idx]; e; e = e->bucket_next)
@@ -91,15 +91,13 @@ AvahiHashmap* avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_fu
     assert(hash_func);
     assert(equal_func);
 
-    if (!(m = avahi_new(AvahiHashmap, 1)))
+    if (!(m = avahi_new0(AvahiHashmap, 1)))
         return NULL;
 
     m->hash_func = hash_func;
     m->equal_func = equal_func;
     m->key_free_func = key_free_func;
     m->value_free_func = value_free_func;
-
-    memset(m->entries, 0, sizeof(m->entries));
 
     AVAHI_LLIST_HEAD_INIT(Entry, m->entries_list);
     
@@ -231,6 +229,8 @@ unsigned avahi_string_hash(const void *data) {
     const char *p = data;
     unsigned hash = 0;
 
+    assert(p);
+    
     for (; *p; p++)
         hash = 31 * hash + *p;
 
@@ -240,17 +240,25 @@ unsigned avahi_string_hash(const void *data) {
 int avahi_string_equal(const void *a, const void *b) {
     const char *p = a, *q = b;
 
+    assert(p);
+    assert(q);
+    
     return strcmp(p, q) == 0;
 }
 
 unsigned avahi_int_hash(const void *data) {
     const int *i = data;
 
+    assert(i);
+    
     return (unsigned) *i;
 }
 
 int avahi_int_equal(const void *a, const void *b) {
     const int *_a = a, *_b = b;
 
+    assert(_a);
+    assert(_b);
+    
     return *_a == *_b;
 }

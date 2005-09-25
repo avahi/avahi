@@ -37,6 +37,8 @@ typedef struct AvahiEntry AvahiEntry;
 #include "dns.h"
 #include "rrlist.h"
 #include "hashmap.h"
+#include "wide-area.h"
+#include "multicast-lookup.h"
 
 #define AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS 100
 
@@ -138,9 +140,14 @@ struct AvahiServer {
     AvahiLegacyUnicastReflectSlot **legacy_unicast_reflect_slots;
     uint16_t legacy_unicast_reflect_id;
 
+    /* The last error code */
     int error;
 
+    /* The local service cookie */
     uint32_t local_service_cookie;
+
+    AvahiMulticastLookupEngine *multicast_lookup_engine;
+    AvahiWideAreaLookupEngine *wide_area_lookup_engine;
 };
 
 int avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);

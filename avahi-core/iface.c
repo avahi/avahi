@@ -42,6 +42,8 @@
 #include "announce.h"
 #include "util.h"
 #include "log.h"
+#include "multicast-lookup.h"
+#include "querier.h"
 
 static void update_address_rr(AvahiInterfaceMonitor *m, AvahiInterfaceAddress *a, int remove_rrs) {
     assert(m);
@@ -180,11 +182,16 @@ static void free_interface(AvahiInterfaceMonitor *m, AvahiInterface *i, int send
     assert(m);
     assert(i);
 
+    /* Handle goodbyes and remove announcers */
     avahi_goodbye_interface(m->server, i, send_goodbye);
     avahi_response_scheduler_force(i->response_scheduler);
-    
     assert(!i->announcements);
 
+    /* Remove queriers */
+    avahi_querier_free_all(i);
+    avahi_hashmap_free(i->queriers_by_key);
+
+    /* Remove local RRs */
     update_interface_rr(m, i, 1);
     
     while (i->addresses)
@@ -271,6 +278,9 @@ static void new_interface(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, AvahiP
     AVAHI_LLIST_HEAD_INIT(AvahiInterfaceAddress, i->addresses);
     AVAHI_LLIST_HEAD_INIT(AvahiAnnouncement, i->announcements);
 
+    AVAHI_LLIST_HEAD_INIT(AvahiQuerier, i->queriers);
+    i->queriers_by_key = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, NULL, NULL);
+
     i->cache = avahi_cache_new(m->server, i);
     i->response_scheduler = avahi_response_scheduler_new(i);
     i->query_scheduler = avahi_query_scheduler_new(i);
@@ -316,7 +326,7 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
 
         i->announcing = 1;
         avahi_announce_interface(m->server, i);
-        avahi_browser_new_interface(m->server, i);
+        avahi_multicast_lookup_engine_new_interface(m->server->multicast_lookup_engine, i);
     } else if (!b && i->announcing) {
         avahi_log_info("Interface %s.%s no longer relevant.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
@@ -326,6 +336,8 @@ static void check_interface_relevant(AvahiInterfaceMonitor *m, AvahiInterface *i
             avahi_mdns_mcast_leave_ipv6(m->server->fd_ipv6, i->hardware->index);
 
         avahi_goodbye_interface(m->server, i, 0);
+        avahi_querier_free_all(i);
+
         avahi_response_scheduler_clear(i->response_scheduler);
         avahi_query_scheduler_clear(i->query_scheduler);
         avahi_probe_scheduler_clear(i->probe_scheduler);
@@ -585,7 +597,6 @@ void avahi_interface_monitor_free(AvahiInterfaceMonitor *m) {
         free_hw_interface(m, m->hw_interfaces, 1);
 
     assert(!m->interfaces);
-
     
     if (m->netlink)
         avahi_netlink_free(m->netlink);
@@ -602,7 +613,7 @@ AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, 
     AvahiInterface *i;
     
     assert(m);
-    assert(idx > 0);
+    assert(idx >= 0);
     assert(protocol != AVAHI_PROTO_UNSPEC);
 
     if (!(hw = avahi_interface_monitor_get_hw_interface(m, idx)))
@@ -757,7 +768,7 @@ int avahi_interface_address_relevant(AvahiInterfaceAddress *a) {
 int avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol) {
     assert(i);
     
-    if (idx > 0 && idx != i->hardware->index)
+    if (idx != AVAHI_IF_UNSPEC && idx != i->hardware->index)
         return 0;
 
     if (protocol != AVAHI_PROTO_UNSPEC && protocol != i->protocol)
@@ -770,7 +781,7 @@ void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex interfa
     assert(m);
     assert(callback);
     
-    if (interface > 0) {
+    if (interface != AVAHI_IF_UNSPEC) {
         if (protocol != AVAHI_PROTO_UNSPEC) {
             AvahiInterface *i;
             

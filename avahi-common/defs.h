@@ -152,16 +152,39 @@ typedef enum {
     AVAHI_DOMAIN_BROWSER_MAX
 } AvahiDomainBrowserType;
 
+/** Some flags for lookup functions */
+typedef enum {
+    AVAHI_LOOKUP_NULL = 0,
+    AVAHI_LOOKUP_USE_WIDE_AREA = 1,    /**< Force lookup via wide area DNS */
+    AVAHI_LOOKUP_USE_MULTICAST = 2,    /**< Force lookup via multicast DNS */
+    AVAHI_LOOKUP_NO_TXT = 4,           /**< When doing service resolving, don't lookup TXT record */
+    AVAHI_LOOKUP_NO_ADDRESS = 8        /**< When doing service resolving, don't lookup A/AAAA record */
+} AvahiLookupFlags;
+
+/** Some flags for lookup callback functions */
+typedef enum {
+    AVAHI_LOOKUP_CALLBACK_NULL = 0,
+    AVAHI_LOOKUP_CALLBACK_CACHED = 1,      /**< This response originates from the cache */
+    AVAHI_LOOKUP_CALLBACK_WIDE_AREA = 2,   /**< This response originates from wide area DNS */
+    AVAHI_LOOKUP_CALLBACK_MULTICAST = 4,   /**< This response originates from multicast DNS */
+} AvahiLookupResultFlags;
+
 /** Type of callback event when browsing */
 typedef enum {
-    AVAHI_BROWSER_NEW,            /**< The object is new on the network */
-    AVAHI_BROWSER_REMOVE          /**< The object has been removed from the network */
+    AVAHI_BROWSER_NEW,               /**< The object is new on the network */
+    AVAHI_BROWSER_REMOVE,            /**< The object has been removed from the network */
+    AVAHI_BROWSER_CACHE_EXHAUSTED,   /**< One-time event, to notify the user that all entries from the caches have been send */
+    AVAHI_BROWSER_ALL_FOR_NOW,       /**< One-time event, to notify the user that more records will probably not show up in the near future, i.e. all cache entries have been read and all static servers been queried */
+    AVAHI_BROWSER_NOT_FOUND,      /**< Issued when using wide area DNS-SD to inform that a record is not existing */
+    AVAHI_BROWSER_FAILURE            /**< Issued when using wide area DNS-SD to inform about server failures */
 } AvahiBrowserEvent;
 
 /** Type of callback event when resolving */
 typedef enum {
-    AVAHI_RESOLVER_FOUND,         /**< RR found, resolving successful */
-    AVAHI_RESOLVER_TIMEOUT        /**< Noone responded within the timeout, resolving failed */
+    AVAHI_RESOLVER_FOUND,          /**< RR found, resolving successful */
+    AVAHI_RESOLVER_TIMEOUT,        /**< Noone responded within the timeout, resolving failed */
+    AVAHI_RESOLVER_NOT_FOUND,      /**< Query was done using wide area DNS-SD and the server told us that the entry is nto available */
+    AVAHI_RESOLVER_FAILURE,        /**< Query was done using wide area DNS-SD and the server failed */
 } AvahiResolverEvent;
 
 /** States of a server object */

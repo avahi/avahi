@@ -23,19 +23,43 @@
 ***/
 
 #include <avahi-common/llist.h>
+
 #include "core.h"
 #include "timeeventq.h"
 #include "server.h"
+#include "dns.h"
+#include "lookup.h"
+
+typedef struct AvahiSRBLookup AvahiSRBLookup;
+
+struct AvahiSRecordBrowser {
+    AVAHI_LLIST_FIELDS(AvahiSRecordBrowser, browser);
+    int dead;
+    AvahiServer *server;
+
+    AvahiKey *key;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
+    AvahiLookupFlags flags;
+    
+    AvahiTimeEvent *defer_time_event;
+
+    AvahiSRecordBrowserCallback callback;
+    void* userdata;
+
+    /* Lookup data */
+    AVAHI_LLIST_HEAD(AvahiSRBLookup, lookups);
+    unsigned n_lookups;
+
+    AvahiSRBLookup *root_lookup;
+};
 
 void avahi_browser_cleanup(AvahiServer *server);
-void avahi_browser_notify(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event);
-
-int avahi_is_subscribed(AvahiServer *s, AvahiInterface *i, AvahiKey *k);
 
 void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b);
-
 void avahi_s_record_browser_restart(AvahiSRecordBrowser *b);
+void avahi_s_record_browser_cancel(AvahiSRecordBrowser *b);
 
-void avahi_browser_new_interface(AvahiServer*s, AvahiInterface *i);
+#define AVAHI_VALID_FLAGS(flags, max) (!((flags) & ~(max)))
 
 #endif

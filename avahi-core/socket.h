@@ -28,14 +28,15 @@
 #include "dns.h"
 
 #define AVAHI_MDNS_PORT 5353
+#define AVAHI_DNS_PORT 53
 #define AVAHI_IPV4_MCAST_GROUP "224.0.0.251"
 #define AVAHI_IPV6_MCAST_GROUP "ff02::fb"
 
 int avahi_open_socket_ipv4(void);
 int avahi_open_socket_ipv6(void);
 
-int avahi_open_legacy_unicast_socket_ipv4(void);
-int avahi_open_legacy_unicast_socket_ipv6(void);
+int avahi_open_unicast_socket_ipv4(void);
+int avahi_open_unicast_socket_ipv6(void);
 
 int avahi_send_dns_packet_ipv4(int fd, int iface, AvahiDnsPacket *p, const AvahiIPv4Address *a, uint16_t port);
 int avahi_send_dns_packet_ipv6(int fd, int iface, AvahiDnsPacket *p, const AvahiIPv6Address *a, uint16_t port);

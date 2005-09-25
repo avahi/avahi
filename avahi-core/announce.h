@@ -28,6 +28,7 @@ typedef struct AvahiAnnouncement AvahiAnnouncement;
 #include "iface.h"
 #include "server.h"
 #include "timeeventq.h"
+#include "publish.h"
 
 typedef enum {
     AVAHI_PROBING,

@@ -124,6 +124,9 @@ typedef struct  {
 /** Create a new AvahiKey object. The reference counter will be set to 1. */
 AvahiKey *avahi_key_new(const char *name, uint16_t clazz, uint16_t type);
 
+/** Creaze new AvahiKey object based on an existing key but replaceing the type by CNAME */
+AvahiKey *avahi_key_new_cname(AvahiKey *key);
+
 /** Increase the reference counter of an AvahiKey object by one */
 AvahiKey *avahi_key_ref(AvahiKey *k);
 

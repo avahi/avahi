@@ -60,6 +60,19 @@ AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
     return k;
 }
 
+AvahiKey *avahi_key_new_cname(AvahiKey *key) {
+    assert(key);
+
+    if (key->clazz != AVAHI_DNS_CLASS_IN)
+        return NULL;
+
+    if (key->type == AVAHI_DNS_TYPE_CNAME)
+        return NULL;
+
+    return avahi_key_new(key->name, key->clazz, AVAHI_DNS_TYPE_CNAME);
+}
+
+
 AvahiKey *avahi_key_ref(AvahiKey *k) {
     assert(k);
     assert(k->ref >= 1);

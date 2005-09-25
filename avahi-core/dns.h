@@ -58,7 +58,8 @@ uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int c
 uint8_t* avahi_dns_packet_append_string(AvahiDnsPacket *p, const char *s);
 
 int avahi_dns_packet_is_query(AvahiDnsPacket *p);
-int avahi_dns_packet_is_valid(AvahiDnsPacket *p);
+int avahi_dns_packet_check_valid(AvahiDnsPacket *p);
+int avahi_dns_packet_check_valid_multicast(AvahiDnsPacket *p);
 
 int avahi_dns_packet_consume_uint16(AvahiDnsPacket *p, uint16_t *ret_v);
 int avahi_dns_packet_consume_uint32(AvahiDnsPacket *p, uint32_t *ret_v);
@@ -97,8 +98,11 @@ size_t avahi_dns_packet_space(AvahiDnsPacket *p);
          ((uint16_t) !!ra << 7) | \
          ((uint16_t) !!ad << 5) | \
          ((uint16_t) !!cd << 4) | \
-         ((uint16_t) (rd & 15)))
-         
+         ((uint16_t) (rcode & 15)))
+
+#define AVAHI_MDNS_SUFFIX_LOCAL "local"
+#define AVAHI_MDNS_SUFFIX_ADDR_IPV4 "254.169.in-addr.arpa"
+#define AVAHI_MDNS_SUFFIX_ADDR_IPV6 "0.8.e.f.ip6.arpa"
 
 #endif
 

@@ -27,7 +27,9 @@ avahiincludedir=$(includedir)/avahi-core
 avahiinclude_HEADERS = \
 	core.h \
 	log.h \
-	rr.h
+	rr.h \
+	publish.h \
+	lookup.h
 
 lib_LTLIBRARIES = \
 	libavahi-core.la 
@@ -39,7 +41,8 @@ noinst_PROGRAMS = \
 	avahi-reflector \
 	dns-test \
 	timeeventq-test \
-	hashmap-test
+	hashmap-test \
+	querier-test
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -63,12 +66,15 @@ libavahi_core_la_SOURCES = \
 	resolve-service.c \
 	dns.c dns.h \
 	rr.c rr.h \
-	core.h \
+	core.h lookup.h publish.h \
 	log.c log.h \
 	browse-dns-server.c \
 	fdutil.h fdutil.c \
 	util.c util.h \
-	hashmap.c hashmap.h
+	hashmap.c hashmap.h \
+	wide-area.c wide-area.h \
+	multicast-lookup.c multicast-lookup.h \
+	querier.c querier.h
 
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)
 libavahi_core_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
@@ -84,6 +90,12 @@ avahi_test_SOURCES = \
 	avahi-test.c
 avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
+
+
+querier_test_SOURCES = \
+	querier-test.c
+querier_test_CFLAGS = $(AM_CFLAGS)
+querier_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
 
 conformance_test_SOURCES = \
 	conformance-test.c

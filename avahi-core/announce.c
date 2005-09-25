@@ -443,7 +443,7 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int goodbye) {
 /*     avahi_log_debug("goodbye entry: %p", e); */
     
     if (goodbye && !e->dead)
-        avahi_interface_monitor_walk(s->monitor, 0, AF_UNSPEC, send_goodbye_callback, e);
+        avahi_interface_monitor_walk(s->monitor, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, send_goodbye_callback, e);
 
     while (e->announcements)
         remove_announcement(s, e->announcements);

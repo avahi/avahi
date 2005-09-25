@@ -38,6 +38,8 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include "probe-sched.h"
 #include "dns.h"
 #include "announce.h"
+#include "browse.h"
+#include "querier.h"
 
 #define AVAHI_MAX_MAC_ADDRESS 32
 
@@ -85,12 +87,16 @@ struct AvahiInterface {
     int announcing;
 
     AvahiCache *cache;
+
     AvahiQueryScheduler *query_scheduler;
     AvahiResponseScheduler * response_scheduler;
     AvahiProbeScheduler *probe_scheduler;
 
     AVAHI_LLIST_HEAD(AvahiInterfaceAddress, addresses);
     AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
+
+    AvahiHashmap *queriers_by_key;
+    AVAHI_LLIST_HEAD(AvahiQuerier, queriers);
 };
 
 struct AvahiInterfaceAddress {

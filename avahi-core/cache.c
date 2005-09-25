@@ -32,7 +32,7 @@
 #include "cache.h"
 #include "log.h"
 
-#define AVAHI_MAX_CACHE_ENTRIES 200
+#define AVAHI_MAX_CACHE_ENTRIES 500
 
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
@@ -56,8 +56,8 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     if (e->time_event)
         avahi_time_event_free(e->time_event);
 
-    avahi_browser_notify(c->server, c->interface, e->record, AVAHI_BROWSER_REMOVE);
-
+    avahi_multicast_lookup_engine_notify(c->server->multicast_lookup_engine, c->interface, e->record, AVAHI_BROWSER_REMOVE);
+    
     avahi_record_unref(e->record);
     
     avahi_free(e);
@@ -204,7 +204,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         assert(percent > 0);
 
         /* Request a cache update, if we are subscribed to this entry */
-        if (avahi_is_subscribed(e->cache->server, e->cache->interface, e->record->key)) {
+        if (avahi_querier_exists(e->cache->interface, e->record->key)) {
 /*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);   */
             avahi_interface_post_query(e->cache->interface, e->record->key, 1);
         }
@@ -345,7 +345,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
             c->n_entries++;
 
             /* Notify subscribers */
-            avahi_browser_notify(c->server, c->interface, e->record, AVAHI_BROWSER_NEW);
+            avahi_multicast_lookup_engine_notify(c->server->multicast_lookup_engine, c->interface, e->record, AVAHI_BROWSER_NEW);
         } 
         
         e->origin = *a;

@@ -37,6 +37,7 @@
 
 #include "core.h"
 #include "log.h"
+#include "lookup.h"
 
 static char *name = NULL;
 static AvahiSEntryGroup *group = NULL;
@@ -73,7 +74,7 @@ static void create_service(const char *t) {
     else
         group = avahi_s_entry_group_new(avahi, entry_group_callback, NULL);
     
-    avahi_server_add_service(avahi, group, 0, AF_UNSPEC, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);   
+    avahi_server_add_service(avahi, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);   
     avahi_s_entry_group_commit(group);
 
     try++;

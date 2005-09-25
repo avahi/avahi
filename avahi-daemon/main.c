@@ -50,6 +50,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/alternative.h>
 #include <avahi-core/core.h>
+#include <avahi-core/publish.h>
 #include <avahi-core/log.h>
 
 #include "main.h"
@@ -104,8 +105,6 @@ static char **resolv_conf = NULL;
 
 static DaemonConfig config;
 
-#define MAX_NAME_SERVERS 10
-
 static int has_prefix(const char *s, const char *prefix) {
     size_t l;
 
@@ -122,17 +121,14 @@ static int load_resolv_conf(const DaemonConfig *c) {
     avahi_strfreev(resolv_conf);
     resolv_conf = NULL;
 
-    if (!c->publish_resolv_conf)
-        return 0;
-
     if (!(f = fopen(RESOLV_CONF, "r"))) {
         avahi_log_warn("Failed to open "RESOLV_CONF".");
         goto finish;
     }
 
-    resolv_conf = avahi_new0(char*, MAX_NAME_SERVERS+1);
+    resolv_conf = avahi_new0(char*, AVAHI_MAX_WIDE_AREA_SERVERS+1);
 
-    while (!feof(f) && i < MAX_NAME_SERVERS) {
+    while (!feof(f) && i < AVAHI_MAX_WIDE_AREA_SERVERS) {
         char ln[128];
         char *p;
 
@@ -179,10 +175,10 @@ static AvahiSEntryGroup* add_dns_servers(AvahiServer *s, AvahiSEntryGroup* g, ch
     for (p = l; *p; p++) {
         AvahiAddress a;
         
-        if (!avahi_address_parse(*p, AF_UNSPEC, &a))
+        if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a))
             avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
         else
-            if (avahi_server_add_dns_server_address(s, g, -1, AF_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
+            if (avahi_server_add_dns_server_address(s, g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
                 avahi_s_entry_group_free(g);
                 avahi_log_error("Failed to add DNS server address: %s", avahi_strerror(avahi_server_errno(s)));
                 return NULL;
@@ -201,6 +197,22 @@ static void remove_dns_server_entry_groups(void) {
     
     if (dns_servers_entry_group) 
         avahi_s_entry_group_reset(dns_servers_entry_group);
+}
+
+static void update_wide_area_servers(void) {
+    AvahiAddress a[AVAHI_MAX_WIDE_AREA_SERVERS];
+    unsigned n = 0;
+    char **p;
+
+    for (p = resolv_conf; *p && n < AVAHI_MAX_WIDE_AREA_SERVERS; p++) {
+        if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a[n]))
+            avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
+        else
+            n++;
+    }
+
+    avahi_server_set_wide_area_servers(avahi_server, a, n);
+    
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
@@ -225,7 +237,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
 
         remove_dns_server_entry_groups();
 
-        if (resolv_conf && resolv_conf[0])
+        if (c->publish_resolv_conf && resolv_conf && resolv_conf[0])
             resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf);
 
         if (c->publish_dns_servers && c->publish_dns_servers[0])
@@ -426,6 +438,19 @@ static int load_config_file(DaemonConfig *c) {
                 }
             }
 
+        } else if (strcasecmp(g->name, "wide-area") == 0) {
+            AvahiIniFilePair *p;
+
+            for (p = g->pairs; p; p = p->pairs_next) {
+                
+                if (strcasecmp(p->key, "enable-wide-area") == 0)
+                    c->server_config.enable_wide_area = is_yes(p->value);
+                else {
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    goto finish;
+                }
+            }
+            
         } else if (strcasecmp(g->name, "reflector") == 0) {
             AvahiIniFilePair *p;
 
@@ -551,8 +576,10 @@ static void signal_callback(AvahiWatch *watch, int fd, AvahiWatchEvent event, vo
                 avahi_s_entry_group_reset(resolv_conf_entry_group);
 
             load_resolv_conf(&config);
+
+            update_wide_area_servers();
             
-            if (resolv_conf && resolv_conf[0])
+            if (config.publish_resolv_conf && resolv_conf && resolv_conf[0])
                 resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf);
 
             break;
@@ -620,6 +647,7 @@ static int run_server(DaemonConfig *c) {
         goto finish;
     }
 
+    update_wide_area_servers();
 
     if (c->daemonize)
         daemon_retval_send(0);

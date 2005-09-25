@@ -38,6 +38,7 @@
 #include <avahi-common/alternative.h>
 #include <avahi-common/error.h>
 #include <avahi-core/log.h>
+#include <avahi-core/publish.h>
 
 #include "main.h"
 #include "static-services.h"

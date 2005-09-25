@@ -21,6 +21,7 @@
       <arg name="name" type="s"/>
       <arg name="type" type="s"/>
       <arg name="domain" type="s"/>
+      <arg name="flags" type="i"/>
     </signal>
 
     <signal name="ItemRemove">
@@ -29,7 +30,17 @@
       <arg name="name" type="s"/>
       <arg name="type" type="s"/>
       <arg name="domain" type="s"/>
+      <arg name="flags" type="i"/>
     </signal>
+
+    <signal name="Failure"/>
+
+    <signal name="NotFound"/>
+
+    <signal name="AllForNow"/>
+
+    <signal name="CacheExhausted"/>
+
 
   </interface> 
 </node>

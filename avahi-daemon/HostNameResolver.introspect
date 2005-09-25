@@ -21,9 +21,14 @@
       <arg name="name" type="s" direction="out"/>
       <arg name="aprotocol" type="i" direction="out"/>
       <arg name="address" type="s" direction="out"/>
+      <arg name="flags" type="i" direction="out"/>
     </signal>
 
     <signal name="Timeout"/>
+
+    <signal name="NotFound"/>
+
+    <signal name="Failure"/>
 
   </interface> 
 </node>

@@ -24,7 +24,6 @@
 
 /** \file domain.h Domain name handling functions */
 
-
 #include <inttypes.h>
 #include <sys/types.h>
 

@@ -22,17 +22,34 @@
   USA.
 ***/
 
+/** \file rlist.h A simple linked list implementation */
+
 #include "llist.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+AVAHI_C_DECL_BEGIN
+#endif
+
+/** A doubly linked list type */
 typedef struct AvahiRList AvahiRList;
 
+/** A doubly linked list type */
 struct AvahiRList {
     AVAHI_LLIST_FIELDS(AvahiRList, rlist);
     void *data;
 };
 
+/** Prepend a new item to the beginning of the list and return the new beginning */
 AvahiRList* avahi_rlist_prepend(AvahiRList *r, void *data);
+
+/** Remove the first occurence of the specified item from the list and return the new beginning */
 AvahiRList* avahi_rlist_remove(AvahiRList *r, void *data);
+
+/** Remove the specified item from the list and return the new beginning */
 AvahiRList* avahi_rlist_remove_by_link(AvahiRList *r, AvahiRList *n);
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+AVAHI_C_DECL_END
+#endif
 
 #endif

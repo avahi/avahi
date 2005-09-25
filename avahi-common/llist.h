@@ -22,28 +22,32 @@
   USA.
 ***/
 
-/* Some macros for maintaining doubly linked lists */
+/** \file llist.h A simple macro based linked list implementation */
 
 #include <assert.h>
 
-/* The head of the linked list. Use this in the structure that shall
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+AVAHI_C_DECL_BEGIN
+#endif
+
+/** The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
 #define AVAHI_LLIST_HEAD(t,name) t *name
 
-/* The pointers in the linked list's items. Use this in the item structure */
+/** The pointers in the linked list's items. Use this in the item structure */
 #define AVAHI_LLIST_FIELDS(t,name) t *name##_next, *name##_prev
 
-/* Initialize the list's head */
+/** Initialize the list's head */
 #define AVAHI_LLIST_HEAD_INIT(t,head) do { (head) = NULL; } while(0)
 
-/* Initialize a list item */
+/** Initialize a list item */
 #define AVAHI_LLIST_INIT(t,name,item) do { \
                                t *_item = (item); \
                                assert(_item); \
                                _item->name##_prev = _item->name##_next = NULL; \
                                } while(0)
 
-/* Prepend an item to the list */
+/** Prepend an item to the list */
 #define AVAHI_LLIST_PREPEND(t,name,head,item) do { \
                                         t **_head = &(head), *_item = (item); \
                                         assert(_item); \
@@ -53,7 +57,7 @@
                                         *_head = _item; \
                                         } while (0)
 
-/* Remove an item from the list */
+/** Remove an item from the list */
 #define AVAHI_LLIST_REMOVE(t,name,head,item) do { \
                                     t **_head = &(head), *_item = (item); \
                                     assert(_item); \
@@ -67,5 +71,10 @@
                                     } \
                                     _item->name##_next = _item->name##_prev = NULL; \
                                     } while(0)
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+AVAHI_C_DECL_END
+#endif
+
 
 #endif

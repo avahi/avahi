@@ -29,7 +29,9 @@
 
 #include <avahi-common/cdecl.h>
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
+#endif
 
 /** Protocol family specification, takes the values AVAHI_PROTO_INET, AVAHI_PROTO_INET6, AVAHI_PROTO_UNSPEC */
 typedef int AvahiProtocol;
@@ -119,6 +121,8 @@ AvahiProtocol avahi_af_to_proto(int af);
 /** Return a textual representation of the specified protocol number. i.e. "IPv4", "IPv6" or "UNSPEC" */
 const char* avahi_proto_to_string(AvahiProtocol proto);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
+#endif
 
 #endif

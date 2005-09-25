@@ -36,10 +36,9 @@ avahi_commoninclude_HEADERS = \
 	timeval.h \
 	simple-watch.h \
 	gccmacro.h \
-	error.h
-
-noinst_HEADERS = \
-	llist.h
+	error.h \
+	llist.h \
+	rlist.h
 
 noinst_PROGRAMS = \
 	strlst-test \
@@ -60,7 +59,8 @@ libavahi_common_la_SOURCES = \
 	domain.c domain.h \
 	timeval.c timeval.h \
 	simple-watch.c simple-watch.h \
-	watch.h gccmacro.h
+	watch.h gccmacro.h \
+	rlist.h rlist.c
 
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
 libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMMON_VERSION_INFO) 1:0:1
@@ -99,7 +99,7 @@ timeval_test_CFLAGS = $(AM_CFLAGS)
 
 if HAVE_DBUS
 
-noinst_HEADERS += \
+noinst_HEADERS = \
 	dbus.h \
 	dbus-watch-glue.h
 

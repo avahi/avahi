@@ -58,19 +58,19 @@ namespace Avahi
 
     [Flags]
     public enum LookupFlags {
-        None,
-        UseWideArea,
-        UseMulticast,
-        NoTxt,
-        NoAddress
+        None = 0,
+        UseWideArea = 1,
+        UseMulticast = 2,
+        NoTxt = 4,
+        NoAddress = 8
     }
 
     [Flags]
     public enum LookupResultFlags {
-        None,
-        Cached,
-        WideArea,
-        Multicast
+        None = 0,
+        Cached = 1,
+        WideArea = 2,
+        Multicast = 4
     }
     
     public class Client : IDisposable

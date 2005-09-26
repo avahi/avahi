@@ -6,8 +6,6 @@ for 0.6:
 
 * remove queries from queue if the browse object they were issued from is destroyed
 
-* Passive observation of failures
-
 * add API to allow user to tell the server that some service is not reachable
 
 * Add static host configuration like static services [lathiat]
@@ -81,4 +79,4 @@ done:
 * add a way to notify the user that all cache entries have been read when browsing
 * allow resolving of services without name
 * add sever version check to avahi-client
-
+* Passive observation of failures

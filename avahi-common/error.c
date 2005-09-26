@@ -59,7 +59,8 @@ const char *avahi_strerror(int error) {
         "Invalid protocol specification",
         "Invalid flags",
         "Not found",
-        "Invalid configuration"
+        "Invalid configuration",
+        "Version mismatch"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

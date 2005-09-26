@@ -62,7 +62,8 @@ static const char * const table[- AVAHI_ERR_MAX] = {
     AVAHI_DBUS_ERR_INVALID_PROTOCOL,
     AVAHI_DBUS_ERR_INVALID_FLAGS,
     AVAHI_DBUS_ERR_NOT_FOUND,
-    AVAHI_DBUS_ERR_INVALID_CONFIG
+    AVAHI_DBUS_ERR_INVALID_CONFIG,
+    AVAHI_DBUS_ERR_VERSION_MISMATCH
 };
 
 int avahi_error_dbus_to_number(const char *s) {

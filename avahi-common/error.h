@@ -64,6 +64,7 @@ enum {
     AVAHI_ERR_INVALID_FLAGS = -29,         /**< Invalid flags */
     AVAHI_ERR_NOT_FOUND = -30,             /**< Not found */
     AVAHI_ERR_INVALID_CONFIG = -31,        /**< Configuration error */
+    AVAHI_ERR_VERSION_MISMATCH = -32,      /**< Verson mismatch */
 
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -73,7 +74,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -32
+    AVAHI_ERR_MAX = -33
 };
 
 /** Return a human readable error string for the specified error code */

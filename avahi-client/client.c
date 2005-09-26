@@ -245,10 +245,10 @@ fail:
 }
 
 static int get_server_state(AvahiClient *client, int *ret_error) {
-    DBusMessage *message, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     int32_t state;
-    int e;
+    int e = AVAHI_ERR_NO_MEMORY;
     
     assert(client);
 
@@ -258,30 +258,87 @@ static int get_server_state(AvahiClient *client, int *ret_error) {
         goto fail;
 
     reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
-    dbus_message_unref(message);
 
-    if (!reply)
+    if (!reply || dbus_error_is_set (&error))
         goto fail;
 
-    if (!(dbus_message_get_args(reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID)))
+    if (!(dbus_message_get_args(reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID)) ||
+        dbus_error_is_set (&error))
         goto fail;
 
     client_set_state(client, (AvahiServerState) state);
 
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+    
     return AVAHI_OK;
 
 fail:
     if (dbus_error_is_set(&error)) {
         e = avahi_error_dbus_to_number (error.name);
         dbus_error_free(&error);
-    } else
-        e = AVAHI_ERR_NO_MEMORY;
+    } 
+    
+    if (ret_error)
+        *ret_error = e;
+
+    if (message)
+        dbus_message_unref(message);
+    if (reply)
+        dbus_message_unref(reply);
+    
+    return e;
+}
+
+static int check_version(AvahiClient *client, int *ret_error) {
+    DBusMessage *message = NULL, *reply  = NULL;
+    DBusError error;
+    char *version;
+    int e = AVAHI_ERR_NO_MEMORY;
+    
+    assert(client);
+
+    dbus_error_init(&error);
+
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")))
+        goto fail;
+
+    reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
+
+    if (!reply || dbus_error_is_set (&error))
+        goto fail;
+
+    if (!dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &version, DBUS_TYPE_INVALID) ||
+        dbus_error_is_set (&error))
+        goto fail;
+
+    if (strcmp(version, PACKAGE_STRING) != 0) {
+        e = AVAHI_ERR_VERSION_MISMATCH;
+        goto fail;
+    }
+
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+               
+    return AVAHI_OK;
+
+fail:
+    if (dbus_error_is_set(&error)) {
+        e = avahi_error_dbus_to_number (error.name);
+        dbus_error_free(&error);
+    } 
 
     if (ret_error)
         *ret_error = e;
-        
+
+    if (message)
+        dbus_message_unref(message);
+    if (reply)
+        dbus_message_unref(reply);
+    
     return e;
 }
+
 
 /* This function acts like dbus_bus_get but creates a private
  * connection instead */
@@ -409,6 +466,9 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     }
 
     if (get_server_state(client, ret_error) < 0)
+        goto fail;
+
+    if (check_version(client, ret_error) < 0)
         goto fail;
 
     return client;

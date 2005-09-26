@@ -69,10 +69,11 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_INVALID_OBJECT "org.freedesktop.Avahi.InvalidObjectError"
 #define AVAHI_DBUS_ERR_NO_DAEMON "org.freedesktop.Avahi.NoDaemonError"
 #define AVAHI_DBUS_ERR_INVALID_INTERFACE "org.freedesktop.Avahi.InvalidInterfaceError"
-#define AVAHI_DBUS_ERR_INVALID_PROTOCOL "org.freedesktop.Avahi.InvalidInterfaceProtocol"
-#define AVAHI_DBUS_ERR_INVALID_FLAGS "org.freedesktop.Avahi.InvalidFlags"
-#define AVAHI_DBUS_ERR_NOT_FOUND "org.freedesktop.Avahi.NotFound"
-#define AVAHI_DBUS_ERR_INVALID_CONFIG "org.freedesktop.Avahi.InvalidConfiguration"
+#define AVAHI_DBUS_ERR_INVALID_PROTOCOL "org.freedesktop.Avahi.InvalidInterfaceProtocolError"
+#define AVAHI_DBUS_ERR_INVALID_FLAGS "org.freedesktop.Avahi.InvalidFlagsError"
+#define AVAHI_DBUS_ERR_NOT_FOUND "org.freedesktop.Avahi.NotFoundError"
+#define AVAHI_DBUS_ERR_INVALID_CONFIG "org.freedesktop.Avahi.InvalidConfigurationError"
+#define AVAHI_DBUS_ERR_VERSION_MISMATCH "org.freedesktop.Avahi.VersionMismatchError"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

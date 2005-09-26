@@ -32,7 +32,7 @@ namespace Avahi
                                                      ResolverEvent revent, IntPtr hostname, IntPtr address,
                                                      LookupResultFlags flags, IntPtr userdata);
 
-    public class HostNameResolver : IDisposable
+    public class HostNameResolver : ResolverBase, IDisposable
     {
         private IntPtr handle;
         private Client client;
@@ -151,18 +151,24 @@ namespace Avahi
                                                  ResolverEvent revent, IntPtr hostname, IntPtr address,
                                                  LookupResultFlags flags, IntPtr userdata)
         {
-            if (revent == ResolverEvent.Found) {
+            switch (revent) {
+            case ResolverEvent.Found:
                 currentAddress = Utility.PtrToAddress (address);
                 currentHost = Utility.PtrToString (hostname);
 
                 foreach (HostAddressHandler handler in foundListeners)
                     handler (this, currentHost, currentAddress);
-            } else {
+                break;
+            case ResolverEvent.Timeout:
                 currentAddress = null;
                 currentHost = null;
                 
                 foreach (EventHandler handler in timeoutListeners)
                     handler (this, new EventArgs ());
+                break;
+            default:
+                EmitResolverEvent (revent);
+                break;
             }
         }
     }

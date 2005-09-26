@@ -34,7 +34,7 @@ namespace Avahi
                                                     UInt16 port, IntPtr txt, LookupResultFlags flags,
                                                     IntPtr userdata);
 
-    public class ServiceResolver : IDisposable
+    public class ServiceResolver : ResolverBase, IDisposable
     {
         private IntPtr handle;
         private ServiceInfo currentInfo;
@@ -199,17 +199,23 @@ namespace Avahi
 
             info.Text = (byte[][]) txtlist.ToArray (typeof (byte[]));
             info.Flags = flags;
-            
-            if (revent == ResolverEvent.Found) {
+
+            switch (revent) {
+            case ResolverEvent.Found:
                 currentInfo = info;
 
                 foreach (ServiceInfoHandler handler in foundListeners)
                     handler (this, info);
-            } else {
+                break;
+            case ResolverEvent.Timeout:
                 currentInfo = ServiceInfo.Zero;
                 
                 foreach (EventHandler handler in timeoutListeners)
                     handler (this, new EventArgs ());
+                break;
+            default:
+                EmitResolverEvent (revent);
+                break;
             }
         }
 

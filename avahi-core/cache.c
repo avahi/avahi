@@ -165,41 +165,48 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent);
 static void elapse_func(AvahiTimeEvent *t, void *userdata) {
     AvahiCacheEntry *e = userdata;
 /*     char *txt; */
+    unsigned percent = 0;
     
     assert(t);
     assert(e);
 
 /*     txt = avahi_record_to_string(e->record); */
 
-    if (e->state == AVAHI_CACHE_FINAL) {
-        remove_entry(e->cache, e);
-/*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
-    } else {
-        unsigned percent = 0;
-    
-        switch (e->state) {
-            case AVAHI_CACHE_VALID:
-                e->state = AVAHI_CACHE_EXPIRY1;
-                percent = 85;
-                break;
-                
-            case AVAHI_CACHE_EXPIRY1:
-                e->state = AVAHI_CACHE_EXPIRY2;
-                percent = 90;
-                break;
-            case AVAHI_CACHE_EXPIRY2:
-                e->state = AVAHI_CACHE_EXPIRY3;
-                percent = 95;
-                break;
-                
-            case AVAHI_CACHE_EXPIRY3:
-                e->state = AVAHI_CACHE_FINAL;
-                percent = 100;
-                break;
+    switch (e->state) {
 
-            default:
-                ;
-        }
+        case AVAHI_CACHE_EXPIRY_FINAL:
+        case AVAHI_CACHE_POOF_FINAL:
+        case AVAHI_CACHE_GOODBYE_FINAL:
+        case AVAHI_CACHE_REPLACE_FINAL:
+
+            remove_entry(e->cache, e);
+            
+            e = NULL;
+/*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
+            break;
+            
+        case AVAHI_CACHE_VALID:
+        case AVAHI_CACHE_POOF:
+            e->state = AVAHI_CACHE_EXPIRY1;
+            percent = 85;
+            break;
+                
+        case AVAHI_CACHE_EXPIRY1:
+            e->state = AVAHI_CACHE_EXPIRY2;
+            percent = 90;
+            break;
+        case AVAHI_CACHE_EXPIRY2:
+            e->state = AVAHI_CACHE_EXPIRY3;
+            percent = 95;
+            break;
+            
+        case AVAHI_CACHE_EXPIRY3:
+            e->state = AVAHI_CACHE_EXPIRY_FINAL;
+            percent = 100;
+            break;
+    }
+
+    if (e) {
 
         assert(percent > 0);
 
@@ -208,9 +215,10 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 /*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);   */
             avahi_interface_post_query(e->cache->interface, e->record->key, 1);
         }
-
+        
         /* Check again later */
         next_expiry(e->cache, e, percent);
+        
     }
 
 /*     avahi_free(txt); */
@@ -248,11 +256,11 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
     update_time_event(c, e);
 }
 
-static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e) {
+static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state) {
     assert(c);
     assert(e);
     
-    e->state = AVAHI_CACHE_FINAL;
+    e->state = state;
     gettimeofday(&e->expiry, NULL);
     avahi_timeval_add(&e->expiry, 1000000); /* 1s */
     update_time_event(c, e);
@@ -272,7 +280,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
         AvahiCacheEntry *e;
 
         if ((e = avahi_cache_lookup_record(c, r)))
-            expire_in_one_second(c, e);
+            expire_in_one_second(c, e, AVAHI_CACHE_GOODBYE_FINAL);
 
     } else {
         AvahiCacheEntry *e = NULL, *first;
@@ -293,7 +301,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
                     t = avahi_timeval_diff(&now, &e->timestamp);
 
                     if (t > 1000000)
-                        expire_in_one_second(c, e);
+                        expire_in_one_second(c, e, AVAHI_CACHE_REPLACE_FINAL);
                 }
             }
                 
@@ -421,3 +429,70 @@ void avahi_cache_flush(AvahiCache *c) {
     while (c->entries)
         remove_entry(c, c->entries);
 }
+
+/*** Passive observation of failure ***/
+
+static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
+    AvahiAddress *a = userdata;
+
+    assert(c);
+    assert(pattern);
+    assert(e);
+    assert(a);
+    
+    switch (e->state) {
+        case AVAHI_CACHE_VALID:
+
+            /* The entry was perfectly valid till, now, so let's enter
+             * POOF mode */
+
+            e->state = AVAHI_CACHE_POOF;
+            e->poof_address = *a;
+            
+            break;
+
+        case AVAHI_CACHE_POOF:
+
+            /* This is the second time we got no response, so let's
+             * fucking remove this entry. */
+            
+            expire_in_one_second(c, e, AVAHI_CACHE_POOF_FINAL);
+            break;
+
+        default:
+            ;
+    }
+    
+    return NULL;
+}
+
+void avahi_cache_start_poof(AvahiCache *c, AvahiKey *key, const AvahiAddress *a) {
+    assert(c);
+    assert(key);
+
+    avahi_cache_walk(c, key, start_poof_callback, a);
+}
+
+void avahi_cache_stop_poof(AvahiCache *c, AvahiRecord *record, const AvahiAddress *a) {
+    AvahiCacheEntry *e;
+
+    assert(c);
+    assert(record);
+    assert(a);
+
+    if (!(e = avahi_cache_lookup_record(c, record)))
+        return;
+
+    /* This function is called for each response suppression
+       record. If the matching cache entry is in POOF state and the
+       query address is the same, we put it back into valid mode */
+
+    if (e->state == AVAHI_CACHE_POOF || e->state == AVAHI_CACHE_POOF_FINAL)
+        if (avahi_address_cmp(a, &e->poof_address) == 0) {
+            e->state = AVAHI_CACHE_VALID;
+            next_expiry(c, e, 80);
+        }
+}
+
+
+

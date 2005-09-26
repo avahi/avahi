@@ -613,8 +613,10 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             goto fail;
         }
 
-        if (!legacy_unicast && !from_local_iface)
+        if (!legacy_unicast && !from_local_iface) {
             reflect_query(s, i, key);
+            avahi_cache_start_poof(i->cache, key, a);
+        }
 
         if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0 &&
             !(avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_TC))
@@ -641,6 +643,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             if (handle_conflict(s, i, record, unique, a)) {
                 avahi_response_scheduler_suppress(i->response_scheduler, record, a);
                 avahi_record_list_drop(s->record_list, record);
+                avahi_cache_stop_poof(i->cache, record, a);
             }
             
             avahi_record_unref(record);

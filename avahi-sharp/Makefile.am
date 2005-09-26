@@ -38,7 +38,7 @@ EXTRA_DIST =				\
 	$(AVAHISOURCES)			\
 	$(srcdir)/AvahiTest.cs 		\
 	$(srcdir)/avahi.snk		\
-	$(srcdir)/$(ASSEMBLY).config	\
+	$(srcdir)/$(ASSEMBLY).config.in	\
 	$(srcdir)/avahi-sharp-docs.source	\
 	$(srcdir)/en/*.xml		\
 	$(srcdir)/en/*/*.xml		\

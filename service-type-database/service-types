@@ -80,3 +80,6 @@ _pdl-datastream._tcp:PDL Printer
 
 _ipp._tcp:Internet Printer
 
+_http-rss091._tcp:Web Syndication RSS 0.91
+
+_http-rss20._tcp:Web Syndication RSS 2.0

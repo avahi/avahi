@@ -24,6 +24,7 @@ CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb $(ASSEMBLY).config
 AVAHISOURCES = 				\
 	$(srcdir)/AddressResolver.cs	\
 	$(srcdir)/AssemblyInfo.cs	\
+	$(srcdir)/BrowserBase.cs	\
 	$(srcdir)/Client.cs		\
 	$(srcdir)/ClientException.cs	\
 	$(srcdir)/DomainBrowser.cs	\

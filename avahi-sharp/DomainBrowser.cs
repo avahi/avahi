@@ -46,7 +46,7 @@ namespace Avahi
 
     public delegate void DomainInfoHandler (object o, DomainInfo info);
     
-    public class DomainBrowser : IDisposable
+    public class DomainBrowser : BrowserBase, IDisposable
     {
         private IntPtr handle;
         private ArrayList infos = new ArrayList ();
@@ -161,17 +161,23 @@ namespace Avahi
             info.Flags = flags;
 
             infos.Add (info);
-            
-            if (bevent == BrowserEvent.Added) {
+
+            switch (bevent) {
+            case BrowserEvent.Added:
                 infos.Add (info);
 
                 foreach (DomainInfoHandler handler in addListeners)
                     handler (this, info);
-            } else {
+                break;
+            case BrowserEvent.Removed:
                 infos.Remove (info);
 
                 foreach (DomainInfoHandler handler in removeListeners)
                     handler (this, info);
+                break;
+            default:
+                EmitBrowserEvent (bevent);
+                break;
             }
         }
     }

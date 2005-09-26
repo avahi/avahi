@@ -62,7 +62,13 @@ public class AvahiTest {
 	private static void BrowseServiceTypes (string domain)
 	{
 		ServiceTypeBrowser stb = new ServiceTypeBrowser (client, domain);
+		stb.CacheExhausted += OnCacheExhausted;
 		stb.ServiceTypeAdded += OnServiceTypeAdded;
+	}
+
+	private static void OnCacheExhausted (object o, EventArgs args)
+	{
+		Console.WriteLine ("Cache is exhausted");
 	}
 
 	private static void OnServiceTypeAdded (object o, ServiceTypeInfo info)

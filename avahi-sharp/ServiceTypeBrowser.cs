@@ -40,7 +40,7 @@ namespace Avahi
 
     public delegate void ServiceTypeInfoHandler (object o, ServiceTypeInfo info);
     
-    public class ServiceTypeBrowser : IDisposable
+    public class ServiceTypeBrowser : BrowserBase, IDisposable
     {
         private IntPtr handle;
         private ArrayList infos = new ArrayList ();
@@ -160,17 +160,23 @@ namespace Avahi
             info.Flags = flags;
 
             infos.Add (info);
-            
-            if (bevent == BrowserEvent.Added) {
+
+            switch (bevent) {
+            case BrowserEvent.Added:
                 infos.Add (info);
 
                 foreach (ServiceTypeInfoHandler handler in addListeners)
                     handler (this, info);
-            } else {
+                break;
+            case BrowserEvent.Removed:
                 infos.Remove (info);
 
                 foreach (ServiceTypeInfoHandler handler in removeListeners)
                     handler (this, info);
+                break;
+            default:
+                EmitBrowserEvent (bevent);
+                break;
             }
         }
     }

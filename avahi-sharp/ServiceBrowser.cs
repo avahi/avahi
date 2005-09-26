@@ -49,7 +49,7 @@ namespace Avahi
 
     public delegate void ServiceInfoHandler (object o, ServiceInfo info);
     
-    public class ServiceBrowser : IDisposable
+    public class ServiceBrowser : BrowserBase, IDisposable
     {
         private IntPtr handle;
         private ArrayList infos = new ArrayList ();
@@ -179,17 +179,25 @@ namespace Avahi
             info.Flags = flags;
 
             infos.Add (info);
-            
-            if (bevent == BrowserEvent.Added) {
+
+            switch (bevent) {
+            case BrowserEvent.Added:
                 infos.Add (info);
 
                 foreach (ServiceInfoHandler handler in addListeners)
                     handler (this, info);
-            } else {
+
+                break;
+            case BrowserEvent.Removed:
                 infos.Remove (info);
 
                 foreach (ServiceInfoHandler handler in removeListeners)
                     handler (this, info);
+
+                break;
+            default:
+                EmitBrowserEvent (bevent);
+                break;
             }
         }
     }

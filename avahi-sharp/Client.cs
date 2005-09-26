@@ -29,12 +29,18 @@ namespace Avahi
 {
     internal enum ResolverEvent {
         Found,
-        Timeout
+        Timeout,
+        NotFound,
+        Failure
     }
     
     internal enum BrowserEvent {
         Added,
-        Removed
+        Removed,
+        CacheExhausted,
+        AllForNow,
+        NotFound,
+        Failure
     }
 
     internal delegate int PollCallback (IntPtr ufds, uint nfds, int timeout);

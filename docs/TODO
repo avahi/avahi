@@ -11,6 +11,8 @@ for 0.6:
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
 
+* add option to disable SO_REUSEADDR to disallow binding of multiple processes to port 5353
+
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

@@ -26,6 +26,10 @@
 #
 # is not a source that complies with the criterion!
 
+### This list is NOT intended to be used as developer
+### documentation. If you're looking for the correct service type to
+### use for you application please refer to the URL mentioned above.
+
 _http._tcp:Web Site
 _http._tcp[de]:Web-Angebot
 

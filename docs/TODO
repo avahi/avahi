@@ -15,6 +15,9 @@ for 0.6:
 
 * add flags argument to disable cookies-setting for local services
 
+* reset commit throttling for entry groups after a while
+
+
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

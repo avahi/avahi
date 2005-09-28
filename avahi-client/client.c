@@ -363,6 +363,10 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     if (!(dbus_bus_name_has_owner(client->bus, AVAHI_DBUS_NAME, &error)) ||
         dbus_error_is_set(&error)) {
 
+        /* We free the error so its not set, that way the fail target
+         * will return the NO_DAEMON error rather than a DBUS error */
+        dbus_error_free (&error);
+
         if (ret_error)
             *ret_error = AVAHI_ERR_NO_DAEMON;
         

@@ -11,8 +11,6 @@ for 0.6:
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
 
-* add option to disable SO_REUSEADDR to disallow binding of multiple processes to port 5353
-
 * add flags argument to disable cookies-setting for local services
 
 * reset commit throttling for entry groups after a while
@@ -87,3 +85,4 @@ done:
 * allow resolving of services without name
 * add sever version check to avahi-client
 * Passive observation of failures
+* add option to disable SO_REUSEADDR to disallow binding of multiple processes to port 5353

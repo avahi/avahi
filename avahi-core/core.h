@@ -80,6 +80,7 @@ typedef struct AvahiServerConfig {
     int enable_wide_area;             /**< Enable wide area support */
     AvahiAddress wide_area_servers[AVAHI_MAX_WIDE_AREA_SERVERS]; /** Unicast DNS server to use for wide area lookup */
     unsigned n_wide_area_servers;     /**< Number of servers in wide_area_servers[] */
+    int disallow_other_stacks;        /**< Make sure that only one mDNS responder is run at the same time on the local machine. If this is enable Avahi will not set SO_REUSADDR on its sockets, effectively preventing other stacks from running on the local machine */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

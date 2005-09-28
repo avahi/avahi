@@ -393,6 +393,8 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.check_response_ttl = is_yes(p->value);
                 else if (strcasecmp(p->key, "use-iff-running") == 0)
                     c->server_config.use_iff_running = is_yes(p->value);
+                else if (strcasecmp(p->key, "disallow-other-stacks") == 0)
+                    c->server_config.disallow_other_stacks = is_yes(p->value);
                 else if (strcasecmp(p->key, "enable-dbus") == 0) {
 
                     if (*(p->value) == 'w' || *(p->value) == 'W') {
@@ -871,6 +873,7 @@ int main(int argc, char *argv[]) {
     init_rand_seed();
     
     avahi_server_config_init(&config.server_config);
+    config.server_config.disallow_other_stacks = 1;
     config.command = DAEMON_RUN;
     config.daemonize = 0;
     config.config_file = NULL;

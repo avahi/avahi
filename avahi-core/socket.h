@@ -32,8 +32,8 @@
 #define AVAHI_IPV4_MCAST_GROUP "224.0.0.251"
 #define AVAHI_IPV6_MCAST_GROUP "ff02::fb"
 
-int avahi_open_socket_ipv4(void);
-int avahi_open_socket_ipv6(void);
+int avahi_open_socket_ipv4(int no_reuse);
+int avahi_open_socket_ipv6(int no_reuse);
 
 int avahi_open_unicast_socket_ipv4(void);
 int avahi_open_unicast_socket_ipv6(void);

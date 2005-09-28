@@ -1324,8 +1324,8 @@ static int valid_server_config(const AvahiServerConfig *sc) {
 static int setup_sockets(AvahiServer *s) {
     assert(s);
     
-    s->fd_ipv4 = s->config.use_ipv4 ? avahi_open_socket_ipv4() : -1;
-    s->fd_ipv6 = s->config.use_ipv6 ? avahi_open_socket_ipv6() : -1;
+    s->fd_ipv4 = s->config.use_ipv4 ? avahi_open_socket_ipv4(s->config.disallow_other_stacks) : -1;
+    s->fd_ipv6 = s->config.use_ipv6 ? avahi_open_socket_ipv6(s->config.disallow_other_stacks) : -1;
     
     if (s->fd_ipv6 < 0 && s->fd_ipv4 < 0)
         return AVAHI_ERR_NO_NETWORK;
@@ -2446,6 +2446,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->add_service_cookie = 1;
     c->enable_wide_area = 0;
     c->n_wide_area_servers = 0;
+    c->disallow_other_stacks = 0;
     
     return c;
 }

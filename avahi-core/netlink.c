@@ -175,7 +175,7 @@ int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, unsigned *ret_seq) 
     m->nlmsg_flags |= NLM_F_ACK;
 
     if (send(nl->fd, m, m->nlmsg_len, 0) < 0) {
-        avahi_log_error(__FILE__": send(): %s\n", strerror(errno));
+        avahi_log_error(__FILE__": send(): %s", strerror(errno));
         return -1;
     }
 

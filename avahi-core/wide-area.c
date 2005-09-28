@@ -552,7 +552,7 @@ AvahiWideAreaLookupEngine *avahi_wide_area_engine_new(AvahiServer *s) {
     e->fd_ipv6 = avahi_open_unicast_socket_ipv6();
 
     if (e->fd_ipv4 < 0 && e->fd_ipv6 < 0) {
-        avahi_log_error(__FILE__": Failed to create wide area sockets: %s\n", strerror(errno));
+        avahi_log_error(__FILE__": Failed to create wide area sockets: %s", strerror(errno));
 
         if (e->fd_ipv6 >= 0)
             close(e->fd_ipv6);

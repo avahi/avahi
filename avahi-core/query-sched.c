@@ -363,7 +363,7 @@ int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immedi
 
         return 1;
     } else {
-/*         avahi_log_debug("Accepted new query job.\n"); */
+/*         avahi_log_debug("Accepted new query job."); */
 
         if (!(qj = job_new(s, key, 0)))
             return 0; /* OOM */

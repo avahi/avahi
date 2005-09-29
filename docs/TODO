@@ -3,13 +3,11 @@ for 0.6:
 * add subtype browsing
 * add simplification routine for adding services 
 
-* remove queries from queue if the browse object they were issued from is destroyed
+* remove outgoing queries from queue if the browse object they were issued from is destroyed
 
 * add API to allow user to tell the server that some service is not reachable
 
 * Add static host configuration like static services [lathiat]
-
-* reset commit throttling for entry groups after a while
 
 * consolidate browsing failure events and add an API to query the reason
 
@@ -90,3 +88,4 @@ done:
 * add option to disable SO_REUSEADDR to disallow binding of multiple processes to port 5353
 * add flags argument to disable cookies-setting for local services
 * add API to add addresses without reverse PTR record
+* reset commit throttling for entry groups after a while

@@ -88,6 +88,8 @@ struct AvahiSEntryGroup {
     unsigned n_register_try;
     struct timeval register_time;
     AvahiTimeEvent *register_time_event;
+
+    struct timeval established_at;
     
     AVAHI_LLIST_FIELDS(AvahiSEntryGroup, groups);
     AVAHI_LLIST_HEAD(AvahiEntry, entries);

@@ -195,10 +195,10 @@ static void record_browser_callback(
             int changed = 0;
             assert(record);
             
-            if (r->interface > 0 && interface != r->interface)
+            if (r->interface > 0 && interface > 0 &&  interface != r->interface)
                 return;
             
-            if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
+            if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
                 return;
             
             if (r->interface <= 0)
@@ -349,6 +349,24 @@ static void record_browser_callback(
         case AVAHI_BROWSER_NOT_FOUND:
         case AVAHI_BROWSER_FAILURE:
 
+            
+            if (rr == r->record_browser_a && r->record_browser_aaaa) {
+                /* We were looking for both AAAA and A, and the other query is still living, so we'll not die */
+                avahi_s_record_browser_free(r->record_browser_a);
+                r->record_browser_a = NULL;
+                break;
+            }
+
+            if (rr == r->record_browser_aaaa && r->record_browser_a) {
+                /* We were looking for both AAAA and A, and the other query is still living, so we'll not die */
+                avahi_s_record_browser_free(r->record_browser_aaaa);
+                r->record_browser_aaaa = NULL;
+                break;
+            }
+
+
+            /* Hmm, everything's lost, tell the user */
+            
             if (r->record_browser_srv)
                 avahi_s_record_browser_free(r->record_browser_srv);
             if (r->record_browser_txt)

@@ -2175,6 +2175,22 @@ void avahi_s_entry_group_change_state(AvahiSEntryGroup *g, AvahiEntryGroupState 
 
     assert(state <= AVAHI_ENTRY_GROUP_COLLISION);
 
+    if (g->state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
+
+        /* If the entry group was established for a time longer then
+         * 5s, reset the establishment trial counter */
+        
+        if (avahi_age(&g->established_at) > 5000000)
+            g->n_register_try = 0;
+    }
+    
+    if (state == AVAHI_ENTRY_GROUP_ESTABLISHED)
+
+        /* If the entry group is now established, remember the time
+         * this happened */
+        
+        gettimeofday(&g->established_at, NULL);
+    
     g->state = state;
     
     if (g->callback)

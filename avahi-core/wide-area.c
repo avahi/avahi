@@ -450,30 +450,31 @@ finish:
 static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, AvahiAddress *a) {
     AvahiWideAreaLookup *l = NULL;
     int i, r;
+
+    AvahiBrowserEvent final_event = AVAHI_BROWSER_ALL_FOR_NOW;
     
     assert(e);
     assert(p);
 
+    /* Some superficial validity tests */
     if (avahi_dns_packet_check_valid(p) < 0 || avahi_dns_packet_is_query(p)) {
         avahi_log_warn(__FILE__": Ignoring invalid response for wide area datagram.");
         goto finish;
     }
 
-/*     avahi_log_debug(__FILE__": Recieving unicast packet %u", avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID)); */
-    
-    if (!(l = find_lookup(e, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID)))) {
-/*         avahi_log_warn(__FILE__": Got response for query we didn't send."); */
+    /* Look for the lookup that issued this query */
+    if (!(l = find_lookup(e, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID))) || l->dead)
         goto finish;
-    }
 
-
-    if ((r = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & 15) != 0) {
-/*         avahi_log_debug(__FILE__": Response failed for wide area datagram: %i", r); */
+    /* Check whether this a packet indicating a failure */
+    if ((r = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & 15) != 0 ||
+        avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0) {
 
         /* Tell the user about the failure */
-        if (l->callback)
-            l->callback(e, r == 3 ? AVAHI_BROWSER_NOT_FOUND : AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
-        goto finish;
+        final_event = r == 3 ? AVAHI_BROWSER_NOT_FOUND : AVAHI_BROWSER_FAILURE;
+
+        /* We go on here, since some of the records contained in the
+           reply might be interesting in some way */
     }
 
     /* Skip over the question */
@@ -482,12 +483,14 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
         
         if (!(k = avahi_dns_packet_consume_key(p, NULL))) {
             avahi_log_warn(__FILE__": Wide area response packet too short.");
+            final_event = AVAHI_BROWSER_FAILURE;
             goto finish;
         }
 
         avahi_key_unref(k);
     }
 
+    /* Process responses */
     for (i = (int) avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) +
              (int) avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) +
              (int) avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT); i > 0; i--) {
@@ -496,21 +499,22 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
 
         if (!(rr = avahi_dns_packet_consume_record(p, NULL))) {
             avahi_log_warn(__FILE__": Wide area response packet too short (2).");
+            final_event = AVAHI_BROWSER_FAILURE;
             goto finish;
         }
 
         add_to_cache(e, rr);
-
         avahi_record_unref(rr);
     }
 
-    /** Inform the user that this is the last reply */
-    if (l->callback && !l->dead)
-        l->callback(e, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
-    
 finish:
-    if (l)
+    
+    if (l && !l->dead) {
+        if (l->callback)
+            l->callback(e, final_event, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
+
         lookup_stop(l);
+    }
 }
 
 static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *userdata) {

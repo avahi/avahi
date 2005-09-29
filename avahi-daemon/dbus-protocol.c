@@ -707,6 +707,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         }
 
         avahi_s_entry_group_reset(i->entry_group);
+	i->n_entries = 0;
         return respond_ok(c, m);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty")) {

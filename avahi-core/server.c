@@ -2297,25 +2297,22 @@ void avahi_s_entry_group_reset(AvahiSEntryGroup *g) {
     AvahiEntry *e;
     assert(g);
     
-    if (g->register_time_event) {
-        avahi_time_event_free(g->register_time_event);
-        g->register_time_event = NULL;
-    }
-    
     for (e = g->entries; e; e = e->by_group_next) {
         if (!e->dead) {
             avahi_goodbye_entry(g->server, e, 1);
             e->dead = 1;
         }
     }
+    g->server->need_entry_cleanup = 1;
 
     if (g->register_time_event) {
         avahi_time_event_free(g->register_time_event);
         g->register_time_event = NULL;
     }
     
-    g->server->need_entry_cleanup = 1;
     g->n_probing = 0;
+
+    gettimeofday(&g->register_time, NULL);
 
     avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_UNCOMMITED);
 }

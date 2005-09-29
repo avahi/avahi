@@ -222,7 +222,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                 avahi_server,
                 g->entry_group,
                 AVAHI_IF_UNSPEC, s->protocol,
-                0, 
+                s->host_name ? AVAHI_PUBLISH_IS_PROXY : 0, 
                 g->chosen_name, s->type, 
                 s->domain_name, s->host_name, s->port,
                 s->txt_records) < 0) {

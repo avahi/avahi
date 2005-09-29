@@ -156,11 +156,12 @@ typedef enum {
 typedef enum {
     AVAHI_PUBLISH_NULL = 0,          
     AVAHI_PUBLISH_UNIQUE = 1,           /**< For raw records: The RRset is intended to be unique */
-    AVAHI_PUBLISH_NO_PROBE = 2,          /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
-    AVAHI_PUBLISH_NO_ANNOUNCE = 4,       /**< For raw records: Do not announce this RR to other hosts */
-    AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,     /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
+    AVAHI_PUBLISH_NO_PROBE = 2,         /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
+    AVAHI_PUBLISH_NO_ANNOUNCE = 4,      /**< For raw records: Do not announce this RR to other hosts */
+    AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,   /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
     AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
-    AVAHI_PUBLISH_NO_COOKIE = 32        /**< For service records: do not implicitly add the local service cookie to TXT data */
+    AVAHI_PUBLISH_NO_COOKIE = 32,       /**< For service records: do not implicitly add the local service cookie to TXT data */
+    AVAHI_PUBLISH_IS_PROXY = 64         /**< For service records: this is a proxy for another host. This modifies behaviour of avahi_server_is_service_local() */
 } AvahiPublishFlags;
 
 /** Some flags for lookup functions */
@@ -186,7 +187,7 @@ typedef enum {
     AVAHI_BROWSER_REMOVE,            /**< The object has been removed from the network */
     AVAHI_BROWSER_CACHE_EXHAUSTED,   /**< One-time event, to notify the user that all entries from the caches have been send */
     AVAHI_BROWSER_ALL_FOR_NOW,       /**< One-time event, to notify the user that more records will probably not show up in the near future, i.e. all cache entries have been read and all static servers been queried */
-    AVAHI_BROWSER_NOT_FOUND,      /**< Issued when using wide area DNS-SD to inform that a record is not existing */
+    AVAHI_BROWSER_NOT_FOUND,         /**< Issued when using wide area DNS-SD to inform that a record is not existing */
     AVAHI_BROWSER_FAILURE            /**< Issued when using wide area DNS-SD to inform about server failures */
 } AvahiBrowserEvent;
 

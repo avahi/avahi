@@ -73,6 +73,7 @@ static void resolve_callback(
         case AVAHI_RESOLVER_FAILURE:
             fprintf(stderr, "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n", name, type, domain,
                     event == AVAHI_RESOLVER_TIMEOUT ? "TIMEOUT" : (event == AVAHI_RESOLVER_NOT_FOUND ? "NOT_FOUND" : "FAILURE"));
+            break;
 
         case AVAHI_RESOLVER_FOUND: {
             char a[128], *t;

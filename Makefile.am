@@ -165,7 +165,7 @@ endif
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 DISTCHECK_CONFIGURE_FLAGS = \
-	--disable-mono-docs
+	--disable-monodoc
 
 homepage:
 	$(MAKE) -C man

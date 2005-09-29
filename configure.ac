@@ -408,12 +408,12 @@ AC_ARG_ENABLE(mono,
         esac],
         [HAVE_MONO=yes])
 
-AC_ARG_ENABLE(mono-docs,
-        AS_HELP_STRING([--disable-mono-docs],[Disable documentation for mono bindings]),
+AC_ARG_ENABLE(monodoc,
+        AS_HELP_STRING([--disable-monodoc],[Disable documentation for mono bindings]),
         [case "${enableval}" in
                 yes) HAVE_MONODOC=yes ;;
                 no)  HAVE_MONODOC=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-mono-docs) ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-monodoc) ;;
         esac],
         [HAVE_MONODOC=yes])
 

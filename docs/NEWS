@@ -1,5 +1,13 @@
 $Id$
 
+Avahi 0.5.1
+===========
+
+ * This is a bug fix release, before the big changes coming in 0.6
+ * Fix reporting of the NO_DAEMON error
+ * Fix commit throttling algorithm for entry groups
+ * Fix counting of the number of resources in an entry group 
+
 Avahi 0.5, the 'Bom Dia' release
 ================================
 

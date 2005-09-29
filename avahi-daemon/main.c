@@ -873,7 +873,6 @@ int main(int argc, char *argv[]) {
     init_rand_seed();
     
     avahi_server_config_init(&config.server_config);
-    config.server_config.disallow_other_stacks = 1;
     config.command = DAEMON_RUN;
     config.daemonize = 0;
     config.config_file = NULL;

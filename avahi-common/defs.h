@@ -152,6 +152,17 @@ typedef enum {
     AVAHI_DOMAIN_BROWSER_MAX
 } AvahiDomainBrowserType;
 
+/** Some flags for publishing functions */
+typedef enum {
+    AVAHI_PUBLISH_NULL = 0,          
+    AVAHI_PUBLISH_UNIQUE = 1,           /**< For raw records: The RRset is intended to be unique */
+    AVAHI_PUBLISH_NO_PROBE = 2,          /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
+    AVAHI_PUBLISH_NO_ANNOUNCE = 4,       /**< For raw records: Do not announce this RR to other hosts */
+    AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,     /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
+    AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
+    AVAHI_PUBLISH_NO_COOKIE = 32        /**< For service records: do not implicitly add the local service cookie to TXT data */
+} AvahiPublishFlags;
+
 /** Some flags for lookup functions */
 typedef enum {
     AVAHI_LOOKUP_NULL = 0,

@@ -164,22 +164,22 @@ static void create_entries(int new_name) {
         service_name = n;
     }
     
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, service_name, "_http._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, service_name, "_http._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add HTTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, service_name, "_ftp._tcp", NULL, NULL, 21, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, service_name, "_ftp._tcp", NULL, NULL, 21, "foo", NULL) < 0) {
         avahi_log_error("Failed to add FTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, service_name, "_webdav._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0,service_name, "_webdav._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add WEBDAV service");
         goto fail;
     }
 
-    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a), 53) < 0) {
+    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a), 53) < 0) {
         avahi_log_error("Failed to add new DNS Server address");
         goto fail;
     }

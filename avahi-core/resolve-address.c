@@ -202,7 +202,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
         return NULL;
     }
 
-    if (!AVAHI_VALID_FLAGS(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
+    if (!AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
         return NULL;
     }

@@ -21,7 +21,7 @@
       <arg name="aprotocol" type="i" direction="out"/>
       <arg name="address" type="s" direction="out"/>
       <arg name="name" type="s" direction="out"/>
-      <arg name="flags" type="i" direction="out"/>
+      <arg name="flags" type="u" direction="out"/>
     </signal>
 
     <signal name="Timeout"/>

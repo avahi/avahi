@@ -61,28 +61,28 @@
       <arg name="protocol" type="i" direction="in"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="aprotocol" type="i" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="interface" type="i" direction="out"/>
       <arg name="protocol" type="i" direction="out"/>
       <arg name="name" type="s" direction="out"/>
       <arg name="aprotocol" type="i" direction="out"/>
       <arg name="address" type="s" direction="out"/>
-      <arg name="flags" type="i" direction="out"/>
+      <arg name="flags" type="u" direction="out"/>
     </method>
 
     <method name="ResolveAddress">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
       <arg name="address" type="s" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="interface" type="i" direction="out"/>
       <arg name="protocol" type="i" direction="out"/>
       <arg name="aprotocol" type="i" direction="out"/>
       <arg name="address" type="s" direction="out"/>
       <arg name="name" type="s" direction="out"/>
-      <arg name="flags" type="i" direction="out"/>
+      <arg name="flags" type="u" direction="out"/>
     </method>
 
     <method name="ResolveService">
@@ -92,7 +92,7 @@
       <arg name="type" type="s" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
       <arg name="aprotocol" type="i" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="interface" type="i" direction="out"/>
       <arg name="protocol" type="i" direction="out"/>
@@ -104,7 +104,7 @@
       <arg name="address" type="s" direction="out"/>
       <arg name="port" type="q" direction="out"/>
       <arg name="txt" type="aay" direction="out"/>
-      <arg name="flags" type="i" direction="out"/>
+      <arg name="flags" type="u" direction="out"/>
     </method>
 
     <method name="IsServiceLocal">
@@ -126,7 +126,7 @@
       <arg name="protocol" type="i" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
       <arg name="btype" type="i" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="path" type="o" direction="out"/>
     </method>
@@ -135,7 +135,7 @@
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="path" type="o" direction="out"/>
     </method>
@@ -145,7 +145,7 @@
       <arg name="protocol" type="i" direction="in"/>
       <arg name="type" type="s" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="path" type="o" direction="out"/>
     </method>
@@ -157,7 +157,7 @@
       <arg name="type" type="s" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
       <arg name="aprotocol" type="i" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="path" type="o" direction="out"/>
     </method>
@@ -167,7 +167,7 @@
       <arg name="protocol" type="i" direction="in"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="aprotocol" type="i" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="path" type="o" direction="out"/>
     </method>
@@ -176,7 +176,7 @@
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
       <arg name="address" type="s" direction="in"/>
-      <arg name="flags" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
 
       <arg name="path" type="o" direction="out"/>
     </method>

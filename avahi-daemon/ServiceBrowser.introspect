@@ -21,7 +21,7 @@
       <arg name="name" type="s"/>
       <arg name="type" type="s"/>
       <arg name="domain" type="s"/>
-      <arg name="flags" type="i"/>
+      <arg name="flags" type="u"/>
     </signal>
 
     <signal name="ItemRemove">
@@ -30,7 +30,7 @@
       <arg name="name" type="s"/>
       <arg name="type" type="s"/>
       <arg name="domain" type="s"/>
-      <arg name="flags" type="i"/>
+      <arg name="flags" type="u"/>
     </signal>
 
     <signal name="Failure"/>

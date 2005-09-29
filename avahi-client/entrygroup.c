@@ -334,6 +334,7 @@ int avahi_entry_group_add_service_strlst(
     AvahiEntryGroup *group,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *name,
     const char *type,
     const char *domain,
@@ -348,6 +349,7 @@ int avahi_entry_group_add_service_strlst(
     DBusError error;
     AvahiClient *client;
     int32_t i_interface, i_protocol;
+    uint32_t u_flags;
 
     assert(group);
     assert(name);
@@ -373,11 +375,13 @@ int avahi_entry_group_add_service_strlst(
 
     i_interface = (int32_t) interface;
     i_protocol = (int32_t) protocol;
+    u_flags = (uint32_t) flags;
 
     if (!dbus_message_append_args(
             message,
             DBUS_TYPE_INT32, &i_interface,
             DBUS_TYPE_INT32, &i_protocol,
+            DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_STRING, &name,
             DBUS_TYPE_STRING, &type,
             DBUS_TYPE_STRING, &domain,
@@ -460,6 +464,7 @@ int avahi_entry_group_add_service(
     AvahiEntryGroup *group,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *name,
     const char *type,
     const char *domain,
@@ -473,7 +478,7 @@ int avahi_entry_group_add_service(
     assert(group);
 
     va_start(va, port);
-    r = avahi_entry_group_add_service_va(group, interface, protocol, name, type, domain, host, port, va);
+    r = avahi_entry_group_add_service_va(group, interface, protocol, flags, name, type, domain, host, port, va);
     va_end(va);
     return r;
 }
@@ -482,6 +487,7 @@ int avahi_entry_group_add_service_va(
     AvahiEntryGroup *group,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *name,
     const char *type,
     const char *domain,
@@ -495,7 +501,7 @@ int avahi_entry_group_add_service_va(
     assert(group);
 
     txt = avahi_string_list_new_va(va);
-    r = avahi_entry_group_add_service_strlst(group, interface, protocol, name, type, domain, host, port, txt);
+    r = avahi_entry_group_add_service_strlst(group, interface, protocol, flags, name, type, domain, host, port, txt);
     avahi_string_list_free(txt);
 
     return r;

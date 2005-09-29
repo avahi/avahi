@@ -50,15 +50,6 @@ AVAHI_C_DECL_BEGIN
 /** Maximum number of defined DNS servers for wide area DNS */
 #define AVAHI_MAX_WIDE_AREA_SERVERS 4
 
-/** Flags for server entries */
-typedef enum {
-    AVAHI_ENTRY_NULL = 0,          /**< No special flags */
-    AVAHI_ENTRY_UNIQUE = 1,        /**< The RRset is intended to be unique */
-    AVAHI_ENTRY_NOPROBE = 2,       /**< Though the RRset is intended to be unique no probes shall be sent */
-    AVAHI_ENTRY_NOANNOUNCE = 4,    /**< Do not announce this RR to other hosts */
-    AVAHI_ENTRY_ALLOWMUTIPLE = 8   /**< Allow multiple local records of this type, even if they are intended to be unique */
-} AvahiEntryFlags;
-
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */
 typedef void (*AvahiServerCallback) (AvahiServer *s, AvahiServerState state, void* userdata);
 

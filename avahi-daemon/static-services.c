@@ -221,7 +221,8 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         if (avahi_server_add_service_strlst(
                 avahi_server,
                 g->entry_group,
-                -1, s->protocol,
+                AVAHI_IF_UNSPEC, s->protocol,
+                0, 
                 g->chosen_name, s->type, 
                 s->domain_name, s->host_name, s->port,
                 s->txt_records) < 0) {

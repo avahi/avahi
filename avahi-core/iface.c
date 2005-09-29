@@ -142,8 +142,8 @@ static void update_hw_interface_rr(AvahiInterfaceMonitor *m, AvahiHwInterface *h
             if (!name)
                 return; /* OOM */
             
-            if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
-                avahi_log_warn(__FILE__": avahi_server_add_service() failed.");
+            if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, 0, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
+                avahi_log_warn(__FILE__": avahi_server_add_service() failed: %s", avahi_strerror(m->server->error));
                 avahi_s_entry_group_free(hw->entry_group);
                 hw->entry_group = NULL;
             } else

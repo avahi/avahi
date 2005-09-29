@@ -93,8 +93,9 @@ int avahi_server_add(
     AvahiSEntryGroup *g,       /**< An entry group object if this new record shall be attached to one, or NULL. If you plan to remove the record sometime later you a required to pass an entry group object here. */
     AvahiIfIndex interface,   /**< A numeric index of a network interface to attach this record to, or AVAHI_IF_UNSPEC to attach this record to all interfaces */
     AvahiProtocol protocol,   /**< A protocol family to attach this record to. One of the AVAHI_PROTO_xxx constants. Use AVAHI_PROTO_UNSPEC to make this record available on all protocols (wich means on both IPv4 and IPv6). */
-    AvahiEntryFlags flags,    /**< Special flags for this record */
-    AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */   );
+    AvahiPublishFlags flags,    /**< Special flags for this record */
+    AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */);
+    
 
 /** Add a PTR RR to the server. See avahi_server_add() for more information. */
 int avahi_server_add_ptr(
@@ -102,7 +103,7 @@ int avahi_server_add_ptr(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    AvahiEntryFlags flags,
+    AvahiPublishFlags flags,
     uint32_t ttl,             /**< DNS TTL for this record */
     const char *name,       /**< PTR record name */
     const char *dest        /**< pointer destination */  );
@@ -113,7 +114,7 @@ int avahi_server_add_txt(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    AvahiEntryFlags flags,
+    AvahiPublishFlags flags,
     uint32_t ttl,             /**< DNS TTL for this record */
     const char *name,       /**< TXT record name */
     ... /**< Text record data, terminated by NULL */) AVAHI_GCC_SENTINEL;
@@ -126,7 +127,7 @@ int avahi_server_add_txt_va(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    AvahiEntryFlags flags,
+    AvahiPublishFlags flags,
     uint32_t ttl,
     const char *name,
     va_list va);
@@ -139,7 +140,7 @@ int avahi_server_add_txt_strlst(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    AvahiEntryFlags flags,
+    AvahiPublishFlags flags,
     uint32_t ttl,
     const char *name,
     AvahiStringList *strlst  /**< TXT decord data as a AvahiString. This routine makes a deep copy of this object. */ );
@@ -156,7 +157,7 @@ int avahi_server_add_address(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    AvahiEntryFlags flags,
+    AvahiPublishFlags flags,
     const char *name,
     AvahiAddress *a);
 
@@ -171,6 +172,7 @@ int avahi_server_add_service(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *name,         /**< Service name, e.g. "Lennart's Files" */
     const char *type,         /**< DNS-SD type, e.g. "_http._tcp" */
     const char *domain,       
@@ -184,6 +186,7 @@ int avahi_server_add_service_va(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *name,
     const char *type,
     const char *domain,
@@ -197,6 +200,7 @@ int avahi_server_add_service_strlst(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *name,
     const char *type,
     const char *domain,
@@ -218,6 +222,7 @@ int avahi_server_add_dns_server_address(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *domain,
     AvahiDNSServerType type,
     const AvahiAddress *address,
@@ -231,6 +236,7 @@ int avahi_server_add_dns_server_name(
     AvahiSEntryGroup *g,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
+    AvahiPublishFlags flags,
     const char *domain,
     AvahiDNSServerType type,
     const char *name,

@@ -60,6 +60,4 @@ void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b);
 void avahi_s_record_browser_restart(AvahiSRecordBrowser *b);
 void avahi_s_record_browser_cancel(AvahiSRecordBrowser *b);
 
-#define AVAHI_VALID_FLAGS(flags, max) (!((flags) & ~(max)))
-
 #endif

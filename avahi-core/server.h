@@ -42,6 +42,8 @@ typedef struct AvahiEntry AvahiEntry;
 
 #define AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS 100
 
+#define AVAHI_FLAGS_VALID(flags, max) (!((flags) & ~(max)))
+
 typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;
 
 struct AvahiLegacyUnicastReflectSlot {
@@ -61,7 +63,7 @@ struct AvahiEntry {
 
     int dead;
     
-    AvahiEntryFlags flags;
+    AvahiPublishFlags flags;
     AvahiRecord *record;
     AvahiIfIndex interface;
     AvahiProtocol protocol;

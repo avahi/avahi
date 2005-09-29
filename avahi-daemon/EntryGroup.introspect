@@ -30,6 +30,7 @@
     <method name="AddService">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="type" type="s" direction="in"/>
       <arg name="domain" type="s" direction="in"/>
@@ -41,6 +42,7 @@
     <method name="AddAddress">
       <arg name="interface" type="i" direction="in"/>
       <arg name="protocol" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="address" type="s" direction="in"/>
     </method>

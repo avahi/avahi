@@ -155,7 +155,7 @@ static void next_state(AvahiAnnouncement *a) {
 
     } else if (a->state == AVAHI_ANNOUNCING) {
 
-        if (a->entry->flags & AVAHI_ENTRY_UNIQUE)
+        if (a->entry->flags & AVAHI_PUBLISH_UNIQUE)
             /* Send the whole rrset at once */
             avahi_server_prepare_matching_responses(a->server, a->interface, a->entry->record->key, 0);
         else
@@ -212,9 +212,9 @@ static void go_to_initial_state(AvahiAnnouncement *a, int immediately) {
     assert(a);
     e = a->entry;
 
-    if ((e->flags & AVAHI_ENTRY_UNIQUE) && !(e->flags & AVAHI_ENTRY_NOPROBE))
+    if ((e->flags & AVAHI_PUBLISH_UNIQUE) && !(e->flags & AVAHI_PUBLISH_NO_PROBE))
         a->state = AVAHI_PROBING;
-    else if (!(e->flags & AVAHI_ENTRY_NOANNOUNCE)) {
+    else if (!(e->flags & AVAHI_PUBLISH_NO_ANNOUNCE)) {
 
         if (!e->group || e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED)
             a->state = AVAHI_ANNOUNCING;
@@ -336,7 +336,7 @@ int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) 
     return
         a->state == AVAHI_ANNOUNCING ||
         a->state == AVAHI_ESTABLISHED ||
-        (a->state == AVAHI_WAITING && !(e->flags & AVAHI_ENTRY_UNIQUE));
+        (a->state == AVAHI_WAITING && !(e->flags & AVAHI_PUBLISH_UNIQUE));
 }
 
 int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
@@ -354,7 +354,7 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     
     return
         a->state == AVAHI_PROBING ||
-        (a->state == AVAHI_WAITING && (e->flags & AVAHI_ENTRY_UNIQUE));
+        (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
 }
 
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
@@ -403,7 +403,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
     if (!avahi_interface_match(i, e->interface, e->protocol))
         return;
 
-    if (e->flags & AVAHI_ENTRY_NOANNOUNCE)
+    if (e->flags & AVAHI_PUBLISH_NO_ANNOUNCE)
         return;
 
     if (!avahi_entry_is_registered(m->server, e, i))
@@ -412,7 +412,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
     if (!(g = make_goodbye_record(e->record)))
         return; /* OOM */
     
-    avahi_interface_post_response(i, g, e->flags & AVAHI_ENTRY_UNIQUE, NULL, 1);
+    avahi_interface_post_response(i, g, e->flags & AVAHI_PUBLISH_UNIQUE, NULL, 1);
     avahi_record_unref(g);
 }
     

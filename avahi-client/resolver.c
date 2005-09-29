@@ -63,7 +63,8 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
 
     if (event == AVAHI_RESOLVER_FOUND) {
         int j;
-        int32_t interface, flags, protocol, aprotocol;
+        int32_t interface, protocol, aprotocol;
+        uint32_t flags;
         char *name, *type, *domain, *host, *address;
         uint16_t port;
         DBusMessageIter iter, sub;
@@ -130,8 +131,8 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
 
         dbus_message_iter_next(&iter);
 
-        if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_INT32) {
-            fprintf(stderr, "Failed to parse resolver event. XXX %i\n", dbus_message_iter_get_arg_type(&iter));
+        if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_UINT32) {
+            fprintf(stderr, "Failed to parse resolver event.\n");
             goto fail;
         }
 
@@ -175,7 +176,8 @@ AvahiServiceResolver * avahi_service_resolver_new(
     DBusError error;
     AvahiServiceResolver *r;
     DBusMessage *message = NULL, *reply = NULL;
-    int32_t i_interface, i_protocol, i_aprotocol, i_flags;
+    int32_t i_interface, i_protocol, i_aprotocol;
+    uint32_t u_flags;
     char *path;
     
     assert(client);
@@ -214,7 +216,7 @@ AvahiServiceResolver * avahi_service_resolver_new(
     i_interface = (int32_t) interface;
     i_protocol = (int32_t) protocol;
     i_aprotocol = (int32_t) aprotocol;
-    i_flags = (int32_t) flags;
+    u_flags = (uint32_t) flags;
 
     if (!(dbus_message_append_args(
               message,
@@ -224,7 +226,7 @@ AvahiServiceResolver * avahi_service_resolver_new(
               DBUS_TYPE_STRING, &type,
               DBUS_TYPE_STRING, &domain,
               DBUS_TYPE_INT32, &i_aprotocol,
-              DBUS_TYPE_INT32, &i_flags,
+              DBUS_TYPE_UINT32, &u_flags,
               DBUS_TYPE_INVALID))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -324,7 +326,8 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
         goto fail;
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        int32_t interface, protocol, aprotocol, flags;
+        int32_t interface, protocol, aprotocol;
+        uint32_t flags;
         char *name, *address;
         AvahiAddress a;
         
@@ -335,7 +338,7 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
                 DBUS_TYPE_STRING, &name,
                 DBUS_TYPE_INT32, &aprotocol,
                 DBUS_TYPE_STRING, &address,
-                DBUS_TYPE_INT32, &flags,
+                DBUS_TYPE_UINT32, &flags,
                 DBUS_TYPE_INVALID) ||
             dbus_error_is_set (&error)) {
             fprintf(stderr, "Failed to parse resolver event.\n");
@@ -348,7 +351,7 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
             goto fail;
         }
     
-        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, &a, flags, r->userdata);
+        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, &a, (AvahiLookupResultFlags) flags, r->userdata);
 
     } else
         r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, 0, r->userdata);
@@ -374,7 +377,8 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
     DBusError error;
     AvahiHostNameResolver *r;
     DBusMessage *message = NULL, *reply = NULL;
-    int32_t i_interface, i_protocol, i_aprotocol, i_flags;
+    int32_t i_interface, i_protocol, i_aprotocol;
+    uint32_t u_flags;
     char *path;
     
     assert(client);
@@ -407,7 +411,7 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
     i_interface = (int32_t) interface;
     i_protocol = (int32_t) protocol;
     i_aprotocol = (int32_t) aprotocol;
-    i_flags = (int32_t) flags;
+    u_flags = (uint32_t) flags;
 
     if (!(dbus_message_append_args(
               message,
@@ -415,7 +419,7 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
               DBUS_TYPE_INT32, &i_protocol,
               DBUS_TYPE_STRING, &name,
               DBUS_TYPE_INT32, &i_aprotocol,
-              DBUS_TYPE_INT32, &i_flags,
+              DBUS_TYPE_UINT32, &u_flags,
               DBUS_TYPE_INVALID))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -514,7 +518,8 @@ DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolv
         goto fail;
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        int32_t interface, protocol, aprotocol, flags;
+        int32_t interface, protocol, aprotocol;
+        uint32_t flags;
         char *name, *address;
         AvahiAddress a;
         
@@ -525,7 +530,7 @@ DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolv
                 DBUS_TYPE_INT32, &aprotocol,
                 DBUS_TYPE_STRING, &address,
                 DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_INT32, &flags,
+                DBUS_TYPE_UINT32, &flags,
                 DBUS_TYPE_INVALID) ||
             dbus_error_is_set (&error)) {
             fprintf(stderr, "Failed to parse resolver event.\n");
@@ -585,7 +590,8 @@ AvahiAddressResolver * avahi_address_resolver_new(
     DBusError error;
     AvahiAddressResolver *r;
     DBusMessage *message = NULL, *reply = NULL;
-    int32_t i_interface, i_protocol, i_flags;
+    int32_t i_interface, i_protocol;
+    uint32_t u_flags;
     char *path;
     
     assert(client);
@@ -616,14 +622,14 @@ AvahiAddressResolver * avahi_address_resolver_new(
 
     i_interface = (int32_t) interface;
     i_protocol = (int32_t) protocol;
-    i_flags = (int32_t) flags;
+    u_flags = (uint32_t) flags;
 
     if (!(dbus_message_append_args(
               message,
               DBUS_TYPE_INT32, &i_interface,
               DBUS_TYPE_INT32, &i_protocol,
               DBUS_TYPE_STRING, &address,
-              DBUS_TYPE_INT32, &i_flags,
+              DBUS_TYPE_UINT32, &u_flags,
               DBUS_TYPE_INVALID))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;

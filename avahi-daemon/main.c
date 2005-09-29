@@ -178,7 +178,7 @@ static AvahiSEntryGroup* add_dns_servers(AvahiServer *s, AvahiSEntryGroup* g, ch
         if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a))
             avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
         else
-            if (avahi_server_add_dns_server_address(s, g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
+            if (avahi_server_add_dns_server_address(s, g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
                 avahi_s_entry_group_free(g);
                 avahi_log_error("Failed to add DNS server address: %s", avahi_strerror(avahi_server_errno(s)));
                 return NULL;

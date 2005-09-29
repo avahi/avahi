@@ -410,7 +410,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
     if (!domain)
         domain = server->domain_name;
     
-    if (!AVAHI_VALID_FLAGS(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST|AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS)) {
+    if (!AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST|AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
         return NULL;
     }

@@ -189,7 +189,7 @@ static void test_entry_group_reset (AvahiTimeout *timeout, void* userdata)
     printf ("Resetting entry group\n");
     avahi_entry_group_reset (g);
 
-    avahi_entry_group_add_service (g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar2", NULL);
+    avahi_entry_group_add_service (g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar2", NULL);
 
     avahi_entry_group_commit (g);
 }
@@ -243,7 +243,7 @@ int main (int argc, char *argv[]) {
     
     printf("Sucessfully created entry group %p\n", (void*) group);
 
-    avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar", NULL);
+    avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar", NULL);
 
     avahi_entry_group_commit (group);
 

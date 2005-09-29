@@ -26,7 +26,7 @@
       <arg name="address" type="s" direction="out"/>
       <arg name="port" type="q" direction="out"/>
       <arg name="txt" type="aay" direction="out"/>
-      <arg name="flags" type="i" direction="out"/>
+      <arg name="flags" type="u" direction="out"/>
     </signal>
 
     <signal name="Timeout"/>

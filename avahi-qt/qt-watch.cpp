@@ -124,15 +124,17 @@ AvahiTimeout::AvahiTimeout(const struct timeval* tv, AvahiTimeoutCallback callba
 void AvahiTimeout::update(const struct timeval *tv)
 {
     m_timer.stop();
-    if (tv) {
-        struct timeval now;
-        gettimeofday(&now, 0);
+    if (tv) 
+	if (tv->tv_sec==0 && tv->tv_usec==0) timeout(); // absolute timeval they say ...
+	else {
+            struct timeval now;
+	    gettimeofday(&now, 0);
 #ifdef QT4
-        m_timer.start((tv->tv_sec-now.tv_sec)*1000+(tv->tv_usec-now.tv_usec)/1000);
+            m_timer.start((tv->tv_sec-now.tv_sec)*1000+(tv->tv_usec-now.tv_usec)/1000);
 #else
-        m_timer.start((tv->tv_sec-now.tv_sec)*1000+(tv->tv_usec-now.tv_usec)/1000,true);
+            m_timer.start((tv->tv_sec-now.tv_sec)*1000+(tv->tv_usec-now.tv_usec)/1000,true);
 #endif
-    }
+        }
 }
 
 void AvahiTimeout::timeout()

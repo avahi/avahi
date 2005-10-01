@@ -36,7 +36,7 @@ AVAHI_C_DECL_BEGIN
 /** An I/O watch object */
 typedef struct AvahiWatch AvahiWatch;
 
-/** An I/O watch object */
+/** A timeout watch object */
 typedef struct AvahiTimeout AvahiTimeout;
 
 /** An event polling abstraction object */

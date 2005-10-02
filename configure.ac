@@ -34,6 +34,7 @@ AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [2:0:1])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [0:1:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [0:0:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [0:0:0])
+AC_SUBST(LIBAVAHI_COMPAT_BONJOUR_VERSION_INFO, [0:0:0])
 
 if type -p stow > /dev/null && test -d /usr/local/stow ; then
     AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
@@ -52,6 +53,8 @@ AC_PROG_GCC_TRADITIONAL
 
 # libtool stuff
 AC_PROG_LIBTOOL
+
+ACX_PTHREAD(,AC_MSG_ERROR([Missing POSIX Threads support]))
 
 #
 # Detecting the linux distribution for specific things like init scripts.
@@ -552,6 +555,7 @@ man/Makefile
 tests/Makefile
 service-type-database/Makefile
 avahi-sharp/Makefile
+compat-bonjour/Makefile
 ])
 AC_OUTPUT
 

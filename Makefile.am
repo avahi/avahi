@@ -59,7 +59,8 @@ SUBDIRS = \
 	examples \
 	man \
 	tests \
-	service-type-database
+	service-type-database \
+	compat-bonjour 
 
 
 DX_INPUT = \

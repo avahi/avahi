@@ -65,10 +65,25 @@ int avahi_simple_poll_iterate(AvahiSimplePoll *s, int sleep_time);
 void avahi_simple_poll_quit(AvahiSimplePoll *s);
 
 /** Prototype for a poll() type function */
-typedef int (*AvahiPollFunc)(struct pollfd *ufds, unsigned int nfds, int timeout);
+typedef int (*AvahiPollFunc)(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata);
 
 /** Replace the internally used poll() function. By default the system's poll() will be used */
-void avahi_simple_poll_set_func(AvahiSimplePoll *s, AvahiPollFunc func);
+void avahi_simple_poll_set_func(AvahiSimplePoll *s, AvahiPollFunc func, void *userdata);
+
+/** The first stage of avahi_simple_poll_iterate(), use this function only if you know what you do */
+int avahi_simple_poll_prepare(AvahiSimplePoll *s, int timeout);
+
+/** The second stage of avahi_simple_poll_iterate(), use this function only if you know what you do */
+int avahi_simple_poll_run(AvahiSimplePoll *s);
+
+/** The third and final stage of avahi_simple_poll_iterate(), use this function only if you know what you do */
+int avahi_simple_poll_dispatch(AvahiSimplePoll *s);
+
+/** Call avahi_simple_poll_iterate() in a loop and return if it returns non-zero */
+int avahi_simple_poll_loop(AvahiSimplePoll *s);
+
+/** Wakeup the main loop. (for threaded environments) */
+void avahi_simple_poll_wakeup(AvahiSimplePoll *s);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

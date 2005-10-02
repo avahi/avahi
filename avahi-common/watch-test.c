@@ -78,9 +78,10 @@ int main(int argc, char *argv[]) {
     api->timeout_new(api, &tv, wakeup, NULL);
 
     /* Our main loop */
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
+
+
+    avahi_simple_poll_free(simple_poll);
     
     return 0;
 }

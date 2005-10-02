@@ -63,7 +63,7 @@ libavahi_common_la_SOURCES = \
 	rlist.h rlist.c
 
 libavahi_common_la_CFLAGS = $(AM_CFLAGS)
-libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMMON_VERSION_INFO) 1:0:1
+libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMMON_VERSION_INFO)
 
 strlst_test_SOURCES = \
 	strlst.c strlst.h \

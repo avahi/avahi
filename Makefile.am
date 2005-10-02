@@ -94,9 +94,13 @@ DX_EXAMPLE_PATH = $(srcdir)/examples
 DX_EXAMPLE_PATTERNS = *.c
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = avahi-core.pc
+pkgconfig_DATA = avahi-core.pc avahi-compat-bonjour.pc
 
 avahi-core.pc: avahi-core.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+avahi-compat-bonjour.pc: avahi-compat-bonjour.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 

@@ -72,6 +72,9 @@ unsigned avahi_domain_hash(const char *name);
 /** Returns 1 if the the end labels of domain are eqal to suffix */
 int avahi_domain_ends_with(const char *domain, const char *suffix);
 
+/** Construct a valid complete service name from a name, a type and a domain */
+int avahi_service_name_snprint(char *p, size_t size, const char *name, const char *type, const char *domain);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

@@ -30,12 +30,17 @@
 
 int main(int argc, char *argv[]) {
     char *s;
+    char t[256];
     
     printf("host name: %s\n", s = avahi_get_host_name());
     avahi_free(s);
 
     printf("%s\n", s = avahi_normalize_name("foo.foo."));
     avahi_free(s);
+
+    printf("%s\n", s = avahi_normalize_name("foo\.foo."));
+    avahi_free(s);
+
     
     printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
     avahi_free(s);
@@ -46,6 +51,15 @@ int main(int argc, char *argv[]) {
     printf("%i\n", avahi_domain_equal("a", "aaa"));
 
     printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\")); 
+
+
+    avahi_service_name_snprint(t, sizeof(t), "foo.foo.foo \.", "_http._tcp", "test.local");
+    printf("<%s>\n", t);
+
+
+    avahi_service_name_snprint(t, sizeof(t), NULL, "_http._tcp", "one.two\. .local");
+    printf("<%s>\n", t);
+
     
     return 0;
 }

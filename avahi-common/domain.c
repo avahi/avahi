@@ -35,6 +35,7 @@
 
 #include "domain.h"
 #include "malloc.h"
+#include "error.h"
 
 char *avahi_get_host_name(void) {
 #ifdef HOST_NAME_MAX
@@ -354,4 +355,70 @@ int avahi_domain_ends_with(const char *domain, const char *suffix) {
         if (!(avahi_unescape_label(&domain, dummy, sizeof(dummy))))
             return 0;
     } 
+}
+
+static void escape_service_name(char *d, size_t size, const char *s) {
+    assert(d);
+    assert(size);
+    assert(s);
+
+    while (*s && size >= 2) {
+        if (*s == '.' || *s == '\\') {
+            if (size < 3)
+                break;
+
+            *(d++) = '\\';
+            size--;
+        }
+            
+        *(d++) = *(s++);
+        size--;
+    }
+
+    assert(size > 0);
+    *(d++) = 0;
+}
+
+
+int avahi_service_name_snprint(char *p, size_t size, const char *name, const char *type, const char *domain) {
+    char *t = NULL, *d = NULL;
+    char ename[64];
+    int ret;
+    
+    assert(p);
+
+    if ((name && !avahi_is_valid_service_name(name))) {
+        ret = AVAHI_ERR_INVALID_SERVICE_NAME;
+        goto fail;
+    }
+
+    if (!avahi_is_valid_service_type(type)) {
+        ret = AVAHI_ERR_INVALID_SERVICE_TYPE;
+        goto fail;
+    }
+        
+    if (!avahi_is_valid_domain_name(domain)) {
+        ret = AVAHI_ERR_INVALID_DOMAIN_NAME;
+        goto fail;
+    }
+        
+    if (name)
+        escape_service_name(ename, sizeof(ename), name);
+    
+    if (!(d = avahi_normalize_name(domain)) ||
+        !(t = avahi_normalize_name(type))) {
+        ret = AVAHI_ERR_NO_MEMORY;
+        goto fail;
+    }
+
+    snprintf(p, size, "%s%s%s.%s", name ? ename : "", name ? "." : "", t, d);
+
+    ret = AVAHI_OK;
+    
+fail:
+
+    avahi_free(t);
+    avahi_free(d);
+
+    return ret;
 }

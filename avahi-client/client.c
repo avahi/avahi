@@ -465,10 +465,10 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
         goto fail;
     }
 
-    if (get_server_state(client, ret_error) < 0)
+    if (check_version(client, ret_error) < 0)
         goto fail;
 
-    if (check_version(client, ret_error) < 0)
+    if (get_server_state(client, ret_error) < 0)
         goto fail;
 
     return client;

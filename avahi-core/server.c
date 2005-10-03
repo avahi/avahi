@@ -1896,28 +1896,6 @@ int avahi_server_add_txt(
     return ret;
 }
 
-static void escape_service_name(char *d, size_t size, const char *s) {
-    assert(d);
-    assert(size);
-    assert(s);
-
-    while (*s && size >= 2) {
-        if (*s == '.' || *s == '\\') {
-            if (size < 3)
-                break;
-
-            *(d++) = '\\';
-            size--;
-        }
-            
-        *(d++) = *(s++);
-        size--;
-    }
-
-    assert(size > 0);
-    *(d++) = 0;
-}
-
 static AvahiStringList *add_magic_cookie(
     AvahiServer *s,
     AvahiStringList *strlst) {
@@ -1947,7 +1925,7 @@ static int server_add_service_strlst_nocopy(
     uint16_t port,
     AvahiStringList *strlst) {
 
-    char ptr_name[256], svc_name[256], ename[64], enum_ptr[256];
+    char ptr_name[256], svc_name[256], enum_ptr[256];
     char *t = NULL, *d = NULL, *h = NULL;
     AvahiRecord *r = NULL;
     int ret = AVAHI_OK;
@@ -1956,28 +1934,40 @@ static int server_add_service_strlst_nocopy(
     assert(type);
     assert(name);
 
-    if (!AVAHI_IF_VALID(interface))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_INTERFACE);
-
-    if (!AVAHI_PROTO_VALID(protocol))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PROTOCOL);
+    if (!AVAHI_IF_VALID(interface)) {
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_INTERFACE);
+        goto fail;
+    }
     
-    if (!AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_IS_PROXY))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_FLAGS);
+    if (!AVAHI_PROTO_VALID(protocol)) {
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_PROTOCOL);
+        goto fail;
+    }
+    
+    if (!AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_IS_PROXY)) {
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_FLAGS);
+        goto fail;
+    }
 
-    if (!avahi_is_valid_service_name(name))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
+    if (!avahi_is_valid_service_name(name)) {
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
+        goto fail;
+    }
 
-    if (!avahi_is_valid_service_type(type))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_TYPE);
+    if (!avahi_is_valid_service_type(type)) {
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_TYPE);
+        goto fail;
+    }
 
-    if (domain && !avahi_is_valid_domain_name(domain))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+    if (domain && !avahi_is_valid_domain_name(domain)) {
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+        goto fail;
+    }
 
-    if (host && !avahi_is_valid_domain_name(host))
+    if (host && !avahi_is_valid_domain_name(host)) {
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
-
-    escape_service_name(ename, sizeof(ename), name);
+        goto fail;
+    }
 
     if (!domain)
         domain = s->domain_name;
@@ -1992,8 +1982,11 @@ static int server_add_service_strlst_nocopy(
         goto fail;
     }
 
-    snprintf(ptr_name, sizeof(ptr_name), "%s.%s", t, d);
-    snprintf(svc_name, sizeof(svc_name), "%s.%s.%s", ename, t, d);
+    if ((ret = avahi_service_name_snprint(svc_name, sizeof(svc_name), name, t, d)) < 0 ||
+        (ret = avahi_service_name_snprint(ptr_name, sizeof(ptr_name), NULL, t, d)) < 0) {
+        avahi_server_set_errno(s, ret);
+        goto fail;
+    }
 
     if ((ret = avahi_server_add_ptr(s, g, interface, protocol, flags & AVAHI_PUBLISH_IS_PROXY, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
         goto fail;
@@ -2582,8 +2575,7 @@ uint32_t avahi_server_get_local_service_cookie(AvahiServer *s) {
 
 int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char*domain) {
     AvahiKey *key = NULL;
-    char *d, *t;
-    char ename[64], n[256];
+    char n[256];
     int ret;
     AvahiEntry *e;
     
@@ -2601,19 +2593,11 @@ int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiP
     if (domain && !avahi_is_valid_domain_name(domain))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    escape_service_name(ename, sizeof(ename), name);
-    
-    if (!(d = avahi_normalize_name(domain)) ||
-        !(t = avahi_normalize_name(type))) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
-        goto fail;
-    }
-    snprintf(n, sizeof(n), "%s.%s.%s", ename, t, d);
-    
-    if (!(key = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV))) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
-        goto fail;
-    }
+    if ((ret = avahi_service_name_snprint(n, sizeof(n), name, type, domain) < 0))
+        return avahi_server_set_errno(s, ret);
+        
+    if (!(key = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV)))
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
     ret = 0;
     
@@ -2629,21 +2613,6 @@ int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiP
     
     avahi_key_unref(key);
     
-    avahi_free(d);
-    avahi_free(t);
-
-    return ret;
-    
-fail:
-    if (d)
-        avahi_free(d);
-
-    if (t)
-        avahi_free(t);
-
-    if (key)
-        avahi_key_unref(key);
-
     return ret;
 }
 

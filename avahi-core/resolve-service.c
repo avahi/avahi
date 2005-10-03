@@ -398,6 +398,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
     AvahiSServiceResolver *r;
     AvahiKey *k;
     char t[256];
+    int ret;
     
     assert(server);
     assert(type);
@@ -450,23 +451,15 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
     r->interface = interface;
     r->protocol = protocol;
     r->user_flags = flags;
-
-    if (name) {
-        char *n;
-        size_t l;
-
-        n = t;
-        l = sizeof(t);
-        avahi_escape_label((const uint8_t*) name, strlen(name), &n, &l);
-        snprintf(n, l, ".%s.%s", r->service_type, r->domain_name);
-    } else
-        snprintf(t, sizeof(t), "%s.%s", r->service_type, r->domain_name);
-
+    r->record_browser_a = r->record_browser_aaaa = r->record_browser_srv = r->record_browser_txt = NULL;
     r->time_event = NULL;
-    
     AVAHI_LLIST_PREPEND(AvahiSServiceResolver, resolver, server->service_resolvers, r);
 
-    r->record_browser_a = r->record_browser_aaaa = r->record_browser_srv = r->record_browser_txt = NULL;
+    if ((ret = avahi_service_name_snprint(t, sizeof(t), name, r->service_type, r->domain_name)) < 0) {
+        avahi_server_set_errno(server, ret);
+        avahi_s_service_resolver_free(r);
+        return NULL;
+    }
     
     k = avahi_key_new(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
     r->record_browser_srv = avahi_s_record_browser_new(server, interface, protocol, k, flags & ~(AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS), record_browser_callback, r);

@@ -40,7 +40,7 @@ AVAHI_C_DECL_BEGIN
  * effectively a prepending to the linked list.  This object is used
  * primarily for storing DNS TXT record data. */
 typedef struct AvahiStringList {
-    struct AvahiStringList *next; /**< Pointe to the next linked list element */
+    struct AvahiStringList *next; /**< Pointer to the next linked list element */
     size_t size;  /**< Size of text[] */
     uint8_t text[1]; /**< Character data */
 } AvahiStringList;

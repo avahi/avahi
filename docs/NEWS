@@ -1,5 +1,12 @@
 $Id$
 
+Avahi 0.5.2
+===========
+
+ * Bug fix release.
+ * Fix browing in QT applications (was totally broken)
+ * Minor documentation update.
+
 Avahi 0.5.1
 ===========
 

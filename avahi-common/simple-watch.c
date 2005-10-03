@@ -153,6 +153,7 @@ static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event
 
     w->pollfd.fd = fd;
     w->pollfd.events = event;
+    w->pollfd.revents = 0;
 
     w->callback = callback;
     w->userdata = userdata;

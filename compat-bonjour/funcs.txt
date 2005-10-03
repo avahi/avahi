@@ -5,7 +5,7 @@ Supported:
 x DNSServiceRefSockFD
 x DNSServiceProcessResult
 x DNSServiceRefDeallocate
-DNSServiceEnumerateDomains
+x DNSServiceEnumerateDomains
 DNSServiceRegister
 x DNSServiceBrowse
 x DNSServiceResolve

@@ -26,18 +26,6 @@
 #include "dns_sd.h"
 #include "warn.h"
 
-DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
-    DNSServiceRef *sdRef,
-    DNSServiceFlags flags,
-    uint32_t interfaceIndex,
-    DNSServiceDomainEnumReply callBack,
-    void *context) {
-
-    AVAHI_WARN_UNSUPPORTED;
-    
-    return kDNSServiceErr_Unsupported;
-}
-
 DNSServiceErrorType DNSSD_API DNSServiceRegister (
     DNSServiceRef *sdRef,
     DNSServiceFlags flags,

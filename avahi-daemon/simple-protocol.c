@@ -164,7 +164,6 @@ static void client_output_printf(Client *c, const char *format, ...) {
     avahi_free(t);
 }
 
-
 static void host_name_resolver_callback(
     AvahiSHostNameResolver *r,
     AvahiIfIndex iface,

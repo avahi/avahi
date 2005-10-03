@@ -9,7 +9,7 @@ DNSServiceEnumerateDomains
 DNSServiceRegister
 x DNSServiceBrowse
 x DNSServiceResolve
-DNSServiceConstructFullName
+x DNSServiceConstructFullName
 
 x TXTRecordCreate
 x TXTRecordDeallocate

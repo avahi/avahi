@@ -35,6 +35,7 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+#include <avahi-common/domain.h>
 #include <avahi-client/client.h>
 
 #include "warn.h"
@@ -460,13 +461,18 @@ static void service_resolver_callback(
     switch (event) {
         case AVAHI_RESOLVER_FOUND: {
 
+            char full_name[kDNSServiceMaxDomainName];
+            int ret;
             char *p = NULL;
             size_t l = 0;
 
             if ((p = avahi_new0(char, (l = avahi_string_list_serialize(txt, NULL, 0))+1)))
                 avahi_string_list_serialize(txt, p, l);
+
+            ret = avahi_service_name_snprint(full_name, sizeof(full_name), name, type, domain);
+            assert(ret == AVAHI_OK);
             
-            sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoError, "blaa", host_name, htons(port), l, p, sdref->context);
+            sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoError, full_name, host_name, htons(port), l, p, sdref->context);
 
             avahi_free(p);
             break;
@@ -541,5 +547,23 @@ finish:
         DNSServiceRefDeallocate(sdref);
 
     return ret;
+}
+
+int DNSSD_API DNSServiceConstructFullName (
+    char *fullName,
+    const char *service,   
+    const char *regtype,
+    const char *domain) {
+
+    AVAHI_WARN_LINKAGE;
+
+    assert(fullName);
+    assert(regtype);
+    assert(domain);
+
+    if (avahi_service_name_snprint(fullName, kDNSServiceMaxDomainName, service, regtype, domain) < 0)
+        return -1;
+    
+    return 0;
 }
 

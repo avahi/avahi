@@ -57,17 +57,6 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     return kDNSServiceErr_Unsupported;
 }
 
-int DNSSD_API DNSServiceConstructFullName (
-    char *fullName,
-    const char *service,   
-    const char *regtype,
-    const char *domain) {
-
-    AVAHI_WARN_UNSUPPORTED;
-
-    return kDNSServiceErr_Unsupported;
-}
-
 DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord (
     DNSServiceRef sdRef,
     DNSRecordRef *RecordRef,

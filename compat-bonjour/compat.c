@@ -37,7 +37,7 @@
 #include <avahi-common/error.h>
 #include <avahi-client/client.h>
 
-
+#include "warn.h"
 #include "dns_sd.h"
 
 enum {
@@ -161,6 +161,7 @@ static void * thread_func(void *data) {
 static DNSServiceRef sdref_new(void) {
     int fd[2] = { -1, -1 };
     DNSServiceRef sdref = NULL;
+    pthread_mutexattr_t mutex_attr;
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) < 0)
         goto fail;
@@ -175,7 +176,9 @@ static DNSServiceRef sdref_new(void) {
     sdref->service_browser = NULL;
     sdref->service_resolver = NULL;
 
-    pthread_mutex_init(&sdref->mutex, NULL);
+    ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
+    pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+    ASSERT_SUCCESS(pthread_mutex_init(&sdref->mutex, NULL));
 
     sdref->thread_running = 0;
 
@@ -210,14 +213,17 @@ fail:
 int DNSSD_API DNSServiceRefSockFD(DNSServiceRef sdRef) {
     assert(sdRef);
 
+    AVAHI_WARN_LINKAGE;
+    
     return sdRef->main_fd;
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     DNSServiceErrorType ret = kDNSServiceErr_Unknown;
 
-    if (pthread_mutex_lock(&sdref->mutex) != 0)
-        return kDNSServiceErr_Unknown;
+    AVAHI_WARN_LINKAGE;
+
+    ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
     /* Cleanup notification socket */
     if (read_command(sdref->main_fd) != COMMAND_POLLED)
@@ -237,7 +243,7 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     
 finish:
 
-    pthread_mutex_unlock(&sdref->mutex);
+    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
     
     return ret;
 }
@@ -245,8 +251,8 @@ finish:
 void DNSSD_API DNSServiceRefDeallocate(DNSServiceRef sdref) {
     assert(sdref);
 
-    fprintf(stderr, "deallocating()\n");
-    
+    AVAHI_WARN_LINKAGE;
+
     if (sdref->thread_running) {
         write_command(sdref->main_fd, COMMAND_QUIT);
         avahi_simple_poll_wakeup(sdref->simple_poll);
@@ -387,6 +393,8 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
     DNSServiceRef sdref = NULL;
     AvahiIfIndex ifindex;
     
+    AVAHI_WARN_LINKAGE;
+    
     assert(ret_sdref);
     assert(regtype);
     assert(domain);
@@ -475,7 +483,6 @@ static void service_resolver_callback(
     }
 }
 
-
 DNSServiceErrorType DNSSD_API DNSServiceResolve(
     DNSServiceRef *ret_sdref,
     DNSServiceFlags flags,
@@ -490,6 +497,8 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve(
     int error;
     DNSServiceRef sdref = NULL;
     AvahiIfIndex ifindex;
+
+    AVAHI_WARN_LINKAGE;
 
     assert(ret_sdref);
     assert(name);

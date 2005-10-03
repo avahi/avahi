@@ -24,6 +24,7 @@
 #endif
 
 #include "dns_sd.h"
+#include "warn.h"
 
 DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
     DNSServiceRef *sdRef,
@@ -32,6 +33,8 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
     DNSServiceDomainEnumReply callBack,
     void *context) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 
@@ -49,6 +52,8 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     DNSServiceRegisterReply callBack,    
     void *context) {
 
+    AVAHI_WARN_UNSUPPORTED;
+
     return kDNSServiceErr_Unsupported;
 }
 
@@ -57,6 +62,8 @@ int DNSSD_API DNSServiceConstructFullName (
     const char *service,   
     const char *regtype,
     const char *domain) {
+
+    AVAHI_WARN_UNSUPPORTED;
 
     return kDNSServiceErr_Unsupported;
 }
@@ -75,6 +82,8 @@ DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord (
     DNSServiceRegisterRecordReply callBack,
     void *context) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 
@@ -88,6 +97,8 @@ DNSServiceErrorType DNSSD_API DNSServiceQueryRecord (
     DNSServiceQueryRecordReply callBack,
     void *context) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 
@@ -100,10 +111,14 @@ void DNSSD_API DNSServiceReconfirmRecord (
     uint16_t rdlen,
     const void *rdata) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return;
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(DNSServiceRef *sdRef) {
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 
@@ -116,6 +131,8 @@ DNSServiceErrorType DNSSD_API DNSServiceAddRecord(
     const void *rdata,
     uint32_t ttl) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 
@@ -127,6 +144,8 @@ DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(
     const void *rdata,
     uint32_t ttl) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 
@@ -135,6 +154,8 @@ DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord(
     DNSRecordRef RecordRef,
     DNSServiceFlags flags) {
 
+    AVAHI_WARN_UNSUPPORTED;
+    
     return kDNSServiceErr_Unsupported;
 }
 

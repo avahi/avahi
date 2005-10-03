@@ -82,7 +82,11 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
     
     assert(server);
     assert(callback);
-    assert(type >= AVAHI_DOMAIN_BROWSER_BROWSE && type <= AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY);
+
+    if (type >= AVAHI_DOMAIN_BROWSER_MAX) {
+        avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
+        return NULL;
+    }
 
     if (!AVAHI_IF_VALID(interface)) {
         avahi_server_set_errno(server, AVAHI_ERR_INVALID_INTERFACE);

@@ -125,12 +125,11 @@ void AvahiTimeout::update(const struct timeval *tv)
 {
     m_timer.stop();
     if (tv) {
-        struct timeval now;
-        gettimeofday(&now, 0);
+    AvahiUsec u = avahi_age(tv)/1000;
 #ifdef QT4
-        m_timer.start((tv->tv_sec-now.tv_sec)*1000+(tv->tv_usec-now.tv_usec)/1000);
+    m_timer.start( (u>0) ? 0 : -u);
 #else
-        m_timer.start((tv->tv_sec-now.tv_sec)*1000+(tv->tv_usec-now.tv_usec)/1000,true);
+    m_timer.start( (u>0) ? 0 : -u,true);
 #endif
     }
 }

@@ -160,7 +160,6 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-
 AvahiServiceResolver * avahi_service_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -174,7 +173,7 @@ AvahiServiceResolver * avahi_service_resolver_new(
     void *userdata) {
 
     DBusError error;
-    AvahiServiceResolver *r;
+    AvahiServiceResolver *r = NULL;
     DBusMessage *message = NULL, *reply = NULL;
     int32_t i_interface, i_protocol, i_aprotocol;
     uint32_t u_flags;
@@ -375,7 +374,7 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
     void *userdata) {
 
     DBusError error;
-    AvahiHostNameResolver *r;
+    AvahiHostNameResolver *r = NULL;
     DBusMessage *message = NULL, *reply = NULL;
     int32_t i_interface, i_protocol, i_aprotocol;
     uint32_t u_flags;
@@ -588,7 +587,7 @@ AvahiAddressResolver * avahi_address_resolver_new(
     void *userdata) {
 
     DBusError error;
-    AvahiAddressResolver *r;
+    AvahiAddressResolver *r = NULL;
     DBusMessage *message = NULL, *reply = NULL;
     int32_t i_interface, i_protocol;
     uint32_t u_flags;

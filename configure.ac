@@ -21,7 +21,7 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([avahi],[0.5.1],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.5.2],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
@@ -32,8 +32,8 @@ AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [2:0:2])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [2:1:1])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [2:1:1])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [0:1:0])
-AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [0:0:0])
-AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [0:0:0])
+AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [0:1:0])
+AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [0:1:0])
 
 if type -p stow > /dev/null && test -d /usr/local/stow ; then
     AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])

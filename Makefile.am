@@ -60,7 +60,7 @@ SUBDIRS = \
 	man \
 	tests \
 	service-type-database \
-	compat-libdns_sd
+	avahi-compat-libdns_sd
 
 
 DX_INPUT = \

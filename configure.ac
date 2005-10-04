@@ -555,7 +555,7 @@ man/Makefile
 tests/Makefile
 service-type-database/Makefile
 avahi-sharp/Makefile
-compat-bonjour/Makefile
+compat-libdns_sd/Makefile
 ])
 AC_OUTPUT
 

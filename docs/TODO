@@ -8,6 +8,7 @@ for 0.6:
 * add API to allow user to tell the server that some service is not reachable
 
 * Add static host configuration like static services [lathiat]
+* wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
 
 * consolidate browsing failure events and add an API to query the reason
 
@@ -23,8 +24,9 @@ later:
 * DNSSEC
 * Wide area DNS Update
 * long lived queries
-* wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
-  
+* libavahi-compat-libdns_sd: implement kDNSServiceFlagsNoAutoRename
+   and missing functions
+
 done:
 * drop glib from avahi-daemon
 * doxygen updates

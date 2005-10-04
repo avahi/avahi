@@ -145,6 +145,20 @@ static DNSServiceErrorType map_error(int error) {
     return kDNSServiceErr_Unknown;
 }
 
+static const char *add_trailing_dot(const char *s, char *buf, size_t buf_len) {
+    if (!s)
+        return NULL;
+
+    if (*s == 0)
+        return s;
+
+    if (s[strlen(s)-1] == '.')
+        return s;
+
+    snprintf(buf, buf_len, "%s.", s);
+    return buf;
+}
+
 static int read_command(int fd) {
     ssize_t r;
     char command;
@@ -415,11 +429,14 @@ static void service_browser_callback(
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
-
+    char type_fixed[AVAHI_DOMAIN_NAME_MAX], domain_fixed[AVAHI_DOMAIN_NAME_MAX];
     assert(b);
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
+    type = add_trailing_dot(type, type_fixed, sizeof(type_fixed));
+    domain  = add_trailing_dot(domain, domain_fixed, sizeof(domain_fixed));
+    
     switch (event) {
         case AVAHI_BROWSER_NEW:
             sdref->service_browser_callback(sdref, kDNSServiceFlagsAdd, interface, kDNSServiceErr_NoError, name, type, domain, sdref->context);
@@ -544,15 +561,18 @@ static void service_resolver_callback(
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
+    char host_name_fixed[AVAHI_DOMAIN_NAME_MAX];
 
     assert(r);
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
+    host_name = add_trailing_dot(host_name, host_name_fixed, sizeof(host_name_fixed));
+
     switch (event) {
         case AVAHI_RESOLVER_FOUND: {
 
-            char full_name[kDNSServiceMaxDomainName];
+            char full_name[AVAHI_DOMAIN_NAME_MAX];
             int ret;
             char *p = NULL;
             size_t l = 0;
@@ -562,6 +582,8 @@ static void service_resolver_callback(
 
             ret = avahi_service_name_snprint(full_name, sizeof(full_name), name, type, domain);
             assert(ret == AVAHI_OK);
+
+            strcat(full_name, ".");
             
             sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoError, full_name, host_name, htons(port), l, p, sdref->context);
 
@@ -668,10 +690,13 @@ static void domain_browser_callback(
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
+    static char domain_fixed[AVAHI_DOMAIN_NAME_MAX];
 
     assert(b);
     assert(sdref);
     assert(sdref->n_ref >= 1);
+
+    domain  = add_trailing_dot(domain, domain_fixed, sizeof(domain_fixed));
 
     switch (event) {
         case AVAHI_BROWSER_NEW:
@@ -753,16 +778,21 @@ finish:
 }
 
 static void reg_report_error(DNSServiceRef sdref, DNSServiceErrorType error) {
+    char regtype_fixed[AVAHI_DOMAIN_NAME_MAX], domain_fixed[AVAHI_DOMAIN_NAME_MAX];
+    const char *regtype, *domain;
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
     assert(sdref->service_register_callback);
 
+    regtype = add_trailing_dot(sdref->service_regtype, regtype_fixed, sizeof(regtype_fixed));
+    domain = add_trailing_dot(sdref->service_domain, domain_fixed, sizeof(domain_fixed));
+    
     sdref->service_register_callback(
         sdref, 0, error,
         sdref->service_name_chosen ? sdref->service_name_chosen : sdref->service_name,
-        sdref->service_regtype,
-        sdref->service_domain,
+        regtype,
+        domain,
         sdref->context);
 }
 
@@ -932,9 +962,9 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     sdref->service_register_callback = callback;
 
     sdref->service_name = avahi_strdup(name);
-    sdref->service_regtype = avahi_strdup(regtype);
-    sdref->service_domain = avahi_strdup(domain);
-    sdref->service_host = avahi_strdup(host);
+    sdref->service_regtype = regtype ? avahi_normalize_name(regtype) : NULL;
+    sdref->service_domain = domain ? avahi_normalize_name(domain) : NULL;
+    sdref->service_host = host ? avahi_normalize_name(host) : NULL;
     sdref->service_interface = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
     sdref->service_port = ntohs(port);
     sdref->service_txt = txtRecord ? avahi_string_list_parse(txtRecord, txtLen) : NULL;

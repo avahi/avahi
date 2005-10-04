@@ -36,6 +36,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
 #include <avahi-common/domain.h>
+#include <avahi-common/alternative.h>
 #include <avahi-client/client.h>
 
 #include "warn.h"
@@ -61,11 +62,19 @@ struct _DNSServiceRef_t {
     DNSServiceBrowseReply service_browser_callback;
     DNSServiceResolveReply service_resolver_callback;
     DNSServiceDomainEnumReply domain_browser_callback;
+    DNSServiceRegisterReply service_register_callback;
 
     AvahiClient *client;
     AvahiServiceBrowser *service_browser;
     AvahiServiceResolver *service_resolver;
     AvahiDomainBrowser *domain_browser;
+
+    char *service_name, *service_name_chosen, *service_regtype, *service_domain, *service_host;
+    uint16_t service_port;
+    AvahiIfIndex service_interface;
+    AvahiStringList *service_txt;
+
+    AvahiEntryGroup *entry_group;
 };
 
 #define ASSERT_SUCCESS(r) { int __ret = (r); assert(__ret == 0); }
@@ -179,6 +188,10 @@ static DNSServiceRef sdref_new(void) {
     sdref->service_browser = NULL;
     sdref->service_resolver = NULL;
     sdref->domain_browser = NULL;
+    sdref->entry_group = NULL;
+
+    sdref->service_name = sdref->service_name_chosen = sdref->service_regtype = sdref->service_domain = sdref->service_host = NULL;
+    sdref->service_txt = NULL;
 
     ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
@@ -276,6 +289,14 @@ void DNSSD_API DNSServiceRefDeallocate(DNSServiceRef sdref) {
         avahi_simple_poll_free(sdref->simple_poll);
 
     pthread_mutex_destroy(&sdref->mutex);
+
+    avahi_free(sdref->service_name);
+    avahi_free(sdref->service_name_chosen);
+    avahi_free(sdref->service_regtype);
+    avahi_free(sdref->service_domain);
+    avahi_free(sdref->service_host);
+
+    avahi_string_list_free(sdref->service_txt);
     
     avahi_free(sdref);
 }
@@ -648,6 +669,252 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
                                                            0, domain_browser_callback, sdref))) {
         ret = map_error(avahi_client_errno(sdref->client));
         goto finish;
+    }
+    
+    ret = kDNSServiceErr_NoError;
+    *ret_sdref = sdref;
+                                                              
+finish:
+
+    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
+    
+    if (ret != kDNSServiceErr_NoError)
+        DNSServiceRefDeallocate(sdref);
+
+    return ret;
+}
+
+static void reg_report_error(DNSServiceRef sdref, DNSServiceErrorType error) {
+    assert(sdref);
+
+    assert(sdref->service_register_callback);
+
+    sdref->service_register_callback(
+        sdref, 0, error,
+        sdref->service_name_chosen ? sdref->service_name_chosen : sdref->service_name,
+        sdref->service_regtype,
+        sdref->service_domain,
+        sdref->context);
+}
+
+static int reg_create_service(DNSServiceRef sdref) {
+    int ret;
+    assert(sdref);
+
+    if ((ret = avahi_entry_group_add_service_strlst(
+        sdref->entry_group,
+        sdref->service_interface,
+        AVAHI_PROTO_UNSPEC,
+        0,
+        sdref->service_name_chosen,
+        sdref->service_regtype,
+        sdref->service_domain,
+        sdref->service_host,
+        sdref->service_port,
+        sdref->service_txt)) < 0)
+        return ret;
+
+    if ((ret = avahi_entry_group_commit(sdref->entry_group)) < 0)
+        return ret;
+
+    return 0;
+}
+
+static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* userdata) {
+    DNSServiceRef sdref = userdata;
+
+    assert(s);
+
+    /* We've not been setup completely */
+    if (!sdref->entry_group)
+        return;
+    
+    switch (state) {
+        case AVAHI_CLIENT_DISCONNECTED: {
+
+            reg_report_error(sdref, kDNSServiceErr_NoError);
+            break;
+        }
+        
+        case AVAHI_CLIENT_S_RUNNING: {
+            int ret;
+
+            if (!sdref->service_name) {
+                const char *n;
+                /* If the service name is taken from the host name, copy that */
+
+                avahi_free(sdref->service_name_chosen);
+
+                if (!(n = avahi_client_get_host_name(sdref->client))) {
+                    reg_report_error(sdref, map_error(avahi_client_errno(sdref->client)));
+                    return;
+                }
+
+                if (!(sdref->service_name_chosen = avahi_strdup(n))) {
+                    reg_report_error(sdref, kDNSServiceErr_NoMemory);
+                    return;
+                }
+            }
+            
+            /* Register the service */
+
+            if ((ret = reg_create_service(sdref)) < 0) {
+                reg_report_error(sdref, map_error(ret));
+                return;
+            }
+            
+            break;
+        }
+            
+        case AVAHI_CLIENT_S_COLLISION:
+
+            /* Remove our entry */
+            avahi_entry_group_reset(sdref->entry_group);
+            
+            break;
+
+        case AVAHI_CLIENT_S_INVALID:
+        case AVAHI_CLIENT_S_REGISTERING:
+            /* Ignore */
+            break;
+    }
+
+}
+
+static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+    DNSServiceRef sdref = userdata;
+
+    assert(g);
+
+    switch (state) {
+        case AVAHI_ENTRY_GROUP_ESTABLISHED:
+            /* Inform the user */
+            reg_report_error(sdref, kDNSServiceErr_NoError);
+
+            break;
+
+        case AVAHI_ENTRY_GROUP_COLLISION: {
+            char *n;
+            int ret;
+            
+            /* Remove our entry */
+            avahi_entry_group_reset(sdref->entry_group);
+
+            assert(sdref->service_name_chosen);
+
+            /* Pick a new name */
+            if (!(n = avahi_alternative_service_name(sdref->service_name_chosen))) {
+                reg_report_error(sdref, kDNSServiceErr_NoMemory);
+                return;
+            }
+            avahi_free(sdref->service_name_chosen);
+            sdref->service_name_chosen = n;
+
+            /* Register the service with that new name */
+            if ((ret = reg_create_service(sdref)) < 0) {
+                reg_report_error(sdref, map_error(ret));
+                return;
+            }
+            
+            break;
+        }
+
+        case AVAHI_ENTRY_GROUP_REGISTERING:
+        case AVAHI_ENTRY_GROUP_UNCOMMITED:
+            /* Ignore */
+            break;
+    }
+}
+
+DNSServiceErrorType DNSSD_API DNSServiceRegister (
+    DNSServiceRef *ret_sdref,
+    DNSServiceFlags flags,
+    uint32_t interface,
+    const char *name,        
+    const char *regtype,
+    const char *domain,      
+    const char *host,        
+    uint16_t port,
+    uint16_t txtLen,
+    const void *txtRecord,   
+    DNSServiceRegisterReply callback,    
+    void *context) {
+
+    DNSServiceErrorType ret = kDNSServiceErr_Unknown;
+    int error;
+    DNSServiceRef sdref = NULL;
+
+    AVAHI_WARN_LINKAGE;
+
+    assert(ret_sdref);
+    assert(callback);
+    assert(regtype);
+
+    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags)
+        return kDNSServiceErr_Unsupported;
+
+    if (!(sdref = sdref_new()))
+        return kDNSServiceErr_Unknown;
+
+    sdref->context = context;
+    sdref->service_register_callback = callback;
+
+    sdref->service_name = avahi_strdup(name);
+    sdref->service_regtype = avahi_strdup(regtype);
+    sdref->service_domain = avahi_strdup(domain);
+    sdref->service_host = avahi_strdup(host);
+    sdref->service_interface = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
+    sdref->service_port = ntohs(port);
+    sdref->service_txt = txtRecord ? avahi_string_list_parse(txtRecord, txtLen) : NULL;
+    
+    ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
+    
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), reg_client_callback, sdref, &error))) {
+        ret =  map_error(error);
+        goto finish;
+    }
+
+    if (!sdref->service_domain) {
+        const char *d;
+
+        if (!(d = avahi_client_get_domain_name(sdref->client))) {
+            ret = map_error(avahi_client_errno(sdref->client));
+            goto finish;
+        }
+
+        if (!(sdref->service_domain = avahi_strdup(d))) {
+            ret = kDNSServiceErr_NoMemory;
+            goto finish;
+        }
+    }
+
+    if (!(sdref->entry_group = avahi_entry_group_new(sdref->client, reg_entry_group_callback, sdref))) {
+        ret = map_error(avahi_client_errno(sdref->client));
+        goto finish;
+    }
+
+    if (avahi_client_get_state(sdref->client) == AVAHI_CLIENT_S_RUNNING) {
+        const char *n;
+
+        if (sdref->service_name)
+            n = sdref->service_name;
+        else {
+            if (!(n = avahi_client_get_host_name(sdref->client))) {
+                ret = map_error(avahi_client_errno(sdref->client));
+                goto finish;
+            }
+        }
+
+        if (!(sdref->service_name_chosen = avahi_strdup(n))) {
+            ret = kDNSServiceErr_NoMemory;
+            goto finish;
+        }
+
+            
+        if ((error = reg_create_service(sdref)) < 0) {
+            ret = map_error(error);
+            goto finish;
+        }
     }
     
     ret = kDNSServiceErr_NoError;

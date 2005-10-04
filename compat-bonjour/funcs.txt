@@ -1,26 +1,24 @@
-Functions marked with "x" are implemented.
-
 Supported:
 
-x DNSServiceRefSockFD
-x DNSServiceProcessResult
-x DNSServiceRefDeallocate
-x DNSServiceEnumerateDomains
+DNSServiceRefSockFD
+DNSServiceProcessResult
+DNSServiceRefDeallocate
+DNSServiceEnumerateDomains
 DNSServiceRegister
-x DNSServiceBrowse
-x DNSServiceResolve
-x DNSServiceConstructFullName
+DNSServiceBrowse
+DNSServiceResolve
+DNSServiceConstructFullName
 
-x TXTRecordCreate
-x TXTRecordDeallocate
-x TXTRecordSetValue
-x TXTRecordRemoveValue
-x TXTRecordGetLength
-x TXTRecordGetBytesPtr
-x TXTRecordContainsKey
-x TXTRecordGetValuePtr
-x TXTRecordGetCount
-x TXTRecordGetItemAtIndex
+TXTRecordCreate
+TXTRecordDeallocate
+TXTRecordSetValue
+TXTRecordRemoveValue
+TXTRecordGetLength
+TXTRecordGetBytesPtr
+TXTRecordContainsKey
+TXTRecordGetValuePtr
+TXTRecordGetCount
+TXTRecordGetItemAtIndex
 
 Unsupported:
 

@@ -33,6 +33,17 @@
 AVAHI_C_DECL_BEGIN
 #endif
 
+/** The maximum length of a a fully escaped domain name C string. This
+ * is calculated like this: RFC1034 mandates maximum length of FQDNs
+ * is 255. The maximum label length is 63. To minimize the number of
+ * (non-escaped) dots, we comprise our maximum-length domain name of
+ * four labels á 63 characters plus three inner dots. Escaping the
+ * four labels quadruples their length at maximum. An escaped domain
+ * name has the therefore the maximum length of 63*4*4+3=1011. A
+ * trailing NUL and perhaps two unnecessary dots leading and trailing
+ * the string brings us to 1014. */
+#define AVAHI_DOMAIN_NAME_MAX 1014
+
 /** Normalize a domain name into canonical form. This drops trailing
  * dots and removes useless backslash escapes. avahi_free() the
  * result! */

@@ -757,7 +757,7 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
 
     ifindex = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
     
-    if (!(sdref->domain_browser = avahi_domain_browser_new(sdref->client, ifindex, AVAHI_PROTO_UNSPEC, NULL,
+    if (!(sdref->domain_browser = avahi_domain_browser_new(sdref->client, ifindex, AVAHI_PROTO_UNSPEC, "local",
                                                            flags == kDNSServiceFlagsRegistrationDomains ? AVAHI_DOMAIN_BROWSER_REGISTER : AVAHI_DOMAIN_BROWSER_BROWSE,
                                                            0, domain_browser_callback, sdref))) {
         ret = map_error(avahi_client_errno(sdref->client));

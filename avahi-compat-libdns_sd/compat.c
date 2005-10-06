@@ -509,8 +509,10 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
     assert(domain);
     assert(callback);
 
-    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0)
+    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {
+        AVAHI_WARN_UNSUPPORTED;
         return kDNSServiceErr_Unsupported;
+    }
 
     if (!(sdref = sdref_new()))
         return kDNSServiceErr_Unknown;
@@ -625,8 +627,10 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve(
     assert(domain);
     assert(callback);
 
-    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0)
+    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {
+        AVAHI_WARN_UNSUPPORTED;
         return kDNSServiceErr_Unsupported;
+    }
 
     if (!(sdref = sdref_new()))
         return kDNSServiceErr_Unknown;
@@ -739,8 +743,10 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
     assert(callback);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly ||
-        (flags != kDNSServiceFlagsBrowseDomains &&  flags != kDNSServiceFlagsRegistrationDomains))
+        (flags != kDNSServiceFlagsBrowseDomains &&  flags != kDNSServiceFlagsRegistrationDomains)) {
+        AVAHI_WARN_UNSUPPORTED;
         return kDNSServiceErr_Unsupported;
+    }
 
     if (!(sdref = sdref_new()))
         return kDNSServiceErr_Unknown;
@@ -952,8 +958,10 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     assert(callback);
     assert(regtype);
 
-    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags)
+    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags) {
+        AVAHI_WARN_UNSUPPORTED;
         return kDNSServiceErr_Unsupported;
+    }
 
     if (!(sdref = sdref_new()))
         return kDNSServiceErr_Unknown;

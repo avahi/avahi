@@ -78,7 +78,7 @@ void avahi_warn_unsupported(const char *function) {
     char exename[256];
     get_exe_name(exename, sizeof(exename));
 
-    fprintf(stderr, "*** WARNING: The application '%s' called '%s()' which is not supported in the Bonjour compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename, function);
+    fprintf(stderr, "*** WARNING: The application '%s' called '%s()' which is not supported (or only supported partially) in the Bonjour compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename, function);
 }
 
 

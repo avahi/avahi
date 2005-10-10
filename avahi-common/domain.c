@@ -37,65 +37,30 @@
 #include "malloc.h"
 #include "error.h"
 
-char *avahi_get_host_name(void) {
+char *avahi_get_host_name(char *ret_s, size_t size) {
 #ifdef HOST_NAME_MAX
     char t[HOST_NAME_MAX];
 #else
     char t[256];
 #endif
-    gethostname(t, sizeof(t));
-    t[sizeof(t)-1] = 0;
-    return avahi_normalize_name(t);
-}
-
-static char *unescape_uneeded(const char *src, char *ret_dest, size_t size) {
-    int escaped = 0;
     
-    assert(src);
-    assert(ret_dest);
+    assert(ret_s);
     assert(size > 0);
     
-    for (; *src; src++) {
-
-        if (!escaped && *src == '\\')
-            escaped = 1;
-        else if (escaped && (*src == '.' || *src == '\\')) {
-
-            if ((size -= 2) <= 1) break;
-            
-            *(ret_dest++) = '\\';
-            *(ret_dest++) = *src;
-            escaped = 0;
-        } else {
-            if (--size <= 1) break;
-
-            *(ret_dest++) = *src;
-            escaped = 0;
-        }
-
-    }
-
-    *ret_dest = 0;
+    gethostname(t, sizeof(t));
+    t[sizeof(t)-1] = 0;
     
-    return ret_dest;
+    return avahi_normalize_name(t, ret_s, size);
 }
 
-char *avahi_normalize_name(const char *s) {
-    char tmp[256];
-    size_t l;
-    
-    assert(s);
+char *avahi_get_host_name_strdup(void) {
+    char t[AVAHI_DOMAIN_NAME_MAX];
 
-    unescape_uneeded(s, tmp, sizeof(tmp));
+    if (!(avahi_get_host_name(t, sizeof(t))))
+        return NULL;
 
-    l = strlen(tmp);
-
-    while (l > 0 && tmp[l-1] == '.')
-        tmp[--l] = 0;
-
-    return avahi_strdup(tmp);
+    return avahi_strdup(t);
 }
-
 
 /* Read the first label from string *name, unescape "\" and write it to dest */
 char *avahi_unescape_label(const char **name, char *dest, size_t size) {
@@ -105,9 +70,6 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size) {
     assert(dest);
     assert(size > 0);
     assert(name);
-
-    if (!**name)
-        return NULL;
 
     d = dest;
     
@@ -124,14 +86,45 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size) {
             break;
         
         if (**name == '\\') {
+            /* Escaped character */
+
             (*name) ++;
-            
+
             if (**name == 0)
-                break;
+                /* Ending NUL */
+                return NULL;
+            
+            else if (**name == '\\' || **name == '.') {
+                /* Escaped backslash or dot */
+                *(d++) = *((*name) ++);
+                i++;
+            } else if (isdigit(**name)) {
+                int n;
+
+                /* Escaped literal ASCII character */
+                
+                if (!isdigit(*(*name+1)) || !isdigit(*(*name+2)))
+                    return NULL;
+
+                n = ((uint8_t) (**name - '0') * 100) + ((uint8_t) (*(*name+1) - '0') * 10) + ((uint8_t) (*(*name +2) - '0'));
+
+                if (n > 255 || n == 0)
+                    return NULL;
+                
+                *(d++) = (char) n;
+                i++;
+
+                (*name) += 3;
+            } else
+                return NULL;
+            
+        } else {
+
+            /* Normal character */
+            
+            *(d++) = *((*name) ++);
+            i++;
         }
-        
-        *(d++) = *((*name) ++);
-        i++;
     }
 
     assert(i < size);
@@ -142,7 +135,7 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size) {
 }
 
 /* Escape "\" and ".", append \0 */
-char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name, size_t *ret_size) {
+char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, size_t *ret_size) {
     char *r;
 
     assert(src);
@@ -155,18 +148,45 @@ char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name,
 
     while (src_length > 0) {
         if (*src == '.' || *src == '\\') {
+
+            /* Dot or backslash */
+            
             if (*ret_size < 3)
                 return NULL;
             
             *((*ret_name) ++) = '\\';
-            (*ret_size) --;
-        }
+            *((*ret_name) ++) = *src;
+            (*ret_size) -= 2;
+            
+        } else if (
+            *src == '_' ||
+            *src == '-' ||
+            (*src >= '0' && *src <= '9') ||
+            (*src >= 'a' && *src <= 'z') ||
+            (*src >= 'A' && *src <= 'Z')) {
 
-        if (*ret_size < 2)
-            return NULL;
+            /* Proper character */
+            
+            if (*ret_size < 2)
+                return NULL;
         
-        *((*ret_name)++) = *src;
-        (*ret_size) --;
+            *((*ret_name)++) = *src;
+            (*ret_size) --;
+            
+        } else {
+
+            /* Everything else */
+
+            if (*ret_size < 5)
+                return NULL;
+
+            *((*ret_name) ++) = '\\';
+            *((*ret_name) ++) = '0' + (char)  ((uint8_t) *src / 100);
+            *((*ret_name) ++) = '0' + (char) (((uint8_t) *src / 10) % 10);
+            *((*ret_name) ++) = '0' + (char)  ((uint8_t) *src % 10);
+            
+            (*ret_size) -= 4;
+        }
 
         src_length --;
         src++;
@@ -177,6 +197,53 @@ char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name,
     return r;
 }
 
+char *avahi_normalize_name(const char *s, char *ret_s, size_t size) {
+    int empty = 1;
+    char *r;
+    
+    assert(s);
+    assert(ret_s);
+    assert(size > 0);
+
+    r = ret_s;
+    while (*s) {
+        char label[AVAHI_LABEL_MAX];
+
+        if (!(avahi_unescape_label(&s, label, sizeof(label))))
+            return NULL;
+
+        if (strlen(label) > 0) {
+
+            if (!empty) {
+                if (size < 1)
+                    return NULL;
+
+                *(r++) = '.';
+                size--;
+
+            } else
+                empty = 0;
+            
+            avahi_escape_label(label, strlen(label), &r, &size);
+        }
+    }
+
+    if (empty)
+        return NULL;
+    
+    return ret_s;
+}
+
+char *avahi_normalize_name_strdup(const char *s) {
+    char t[AVAHI_DOMAIN_NAME_MAX];
+    assert(s);
+
+    if (!(avahi_normalize_name(s, t, sizeof(t))))
+        return NULL;
+
+    return avahi_strdup(t);
+}
+
 int avahi_domain_equal(const char *a, const char *b) {
     assert(a);
     assert(b);
@@ -185,18 +252,18 @@ int avahi_domain_equal(const char *a, const char *b) {
         return 1;
     
     for (;;) {
-        char ca[65], cb[65], *pa, *pb;
+        char ca[AVAHI_LABEL_MAX], cb[AVAHI_LABEL_MAX], *r;
 
-        pa = avahi_unescape_label(&a, ca, sizeof(ca));
-        pb = avahi_unescape_label(&b, cb, sizeof(cb));
+        r = avahi_unescape_label(&a, ca, sizeof(ca));
+        assert(r);
+        r = avahi_unescape_label(&b, cb, sizeof(cb));
+        assert(r);
 
-        if (!pa && !pb)
+        if (strcasecmp(ca, cb))
+            return 0;
+        
+        if (!*a && !*b)
             return 1;
-        else if ((pa && !pb) || (!pa && pb))
-            return 0;
-
-        if (strcasecmp(pa, pb))
-            return 0;
     }
 
     return 1;
@@ -210,113 +277,85 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
         return 0;
 
     for (;;) {
-        char ca[65], cb[65], *pa, *pb;
+        char ca[AVAHI_LABEL_MAX], cb[AVAHI_LABEL_MAX], *p;
         int r;
 
-        pa = avahi_unescape_label(&a, ca, sizeof(ca));
-        pb = avahi_unescape_label(&b, cb, sizeof(cb));
+        p = avahi_unescape_label(&a, ca, sizeof(ca));
+        assert(p);
+        p = avahi_unescape_label(&b, cb, sizeof(cb));
+        assert(p);
 
-        if (!pa && !pb)
-            return 0;
-        else if (pa && !pb)
-            return 1;
-        else if (!pa && pb)
-            return -1;
-        
-        if ((r = strcmp(pa, pb)))
+        if ((r = strcmp(ca, cb)))
             return r;
+        
+        if (!*a && !*b)
+            return 0;
     }
 }
 
 int avahi_is_valid_service_type(const char *t) {
-    const char *p;
     assert(t);
 
-    if (strlen(t) < 5)
-        return 0;
-    
-    if (*t != '_')
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
         return 0;
 
-    if (!(p = strchr(t, '.')))
-        return 0;
+    do {
+        char label[AVAHI_LABEL_MAX];
 
-    if (p - t > 63 || p - t < 2)
-        return 0;
+        if (!(avahi_unescape_label(&t, label, sizeof(label))))
+            return 0;
 
-    if (*(++p) != '_')
-        return 0;
+        if (strlen(label) <= 2 || label[0] != '_')
+            return 0;
+        
+    } while (*t);
 
-    if (strchr(p, '.'))
-        return 0;
-
-    if (strlen(p) > 63 || strlen(p) < 2)
-        return 0;
-    
     return 1;
 }
 
 int avahi_is_valid_domain_name(const char *t) {
-    const char *p, *dp;
-    int dot = 0;
-        
     assert(t);
 
-    if (*t == 0)
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
         return 0;
 
-    /* Domains may not start with a dot */
-    if (*t == '.')
-        return 0;
+    do {
+        char label[AVAHI_LABEL_MAX];
 
-    dp = t; 
+        if (!(avahi_unescape_label(&t, label, sizeof(label))))
+            return 0;
 
-    for (p = t; *p; p++) {
+        if (strlen(label) < 1)
+            return 0;
+        
+    } while (*t);
 
-        if (*p == '.') {
-            if (dot) /* Two subsequent dots */
-                return 0;
-
-            if (p - dp > 63)
-                return 0;
-
-            dot = 1;
-            dp = p + 1;
-        } else
-            dot = 0;
-
-    }
-
-    if (p - dp > 63)
-        return 0;
-
-    /* A trailing dot IS allowed */
-    
     return 1;
 }
 
 int avahi_is_valid_service_name(const char *t) {
     assert(t);
 
-    if (*t == 0)
+    if (strlen(t) >= AVAHI_LABEL_MAX || !*t)
         return 0;
-
-    if (strlen(t) > 63)
-        return 0;
-
+        
     return 1;
 }
 
 int avahi_is_valid_host_name(const char *t) {
+    char label[AVAHI_LABEL_MAX];
     assert(t);
 
-    if (*t == 0)
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
         return 0;
 
-    if (strlen(t) > 63)
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
         return 0;
 
-    if (strchr(t, '.'))
+    if (strlen(label) < 1)
+        return 0;
+
+    if (*t)
         return 0;
 
     return 1;
@@ -325,100 +364,166 @@ int avahi_is_valid_host_name(const char *t) {
 unsigned avahi_domain_hash(const char *s) {
     unsigned hash = 0;
     
-    for (;;) {
-        char c[65], *p;
+    while (*s) {
+        char c[AVAHI_LABEL_MAX], *p, *r;
 
-        if (!avahi_unescape_label(&s, c, sizeof(c)))
-            return hash;
-
-        if (!c[0])
-            continue;
+        r = avahi_unescape_label(&s, c, sizeof(c));
+        assert(r);
 
         for (p = c; *p; p++)
             hash = 31 * hash + tolower(*p);
     }
+
+    return hash;
 }
 
 int avahi_domain_ends_with(const char *domain, const char *suffix) {
     assert(domain);
     assert(suffix);
 
-    assert(avahi_is_valid_domain_name(domain));
-    assert(avahi_is_valid_domain_name(suffix));
-
     for (;;) {
-        char dummy[64];
+        char dummy[AVAHI_LABEL_MAX], *r;
+
+        if (*domain == 0)
+            return 0;
         
         if (avahi_domain_equal(domain, suffix))
             return 1;
 
-        if (!(avahi_unescape_label(&domain, dummy, sizeof(dummy))))
-            return 0;
+        r = avahi_unescape_label(&domain, dummy, sizeof(dummy));
+        assert(r);
     } 
 }
 
-static void escape_service_name(char *d, size_t size, const char *s) {
-    assert(d);
-    assert(size);
-    assert(s);
-
-    while (*s && size >= 2) {
-        if (*s == '.' || *s == '\\') {
-            if (size < 3)
-                break;
-
-            *(d++) = '\\';
-            size--;
-        }
-            
-        *(d++) = *(s++);
-        size--;
-    }
-
-    assert(size > 0);
-    *(d++) = 0;
-}
-
-
-int avahi_service_name_snprint(char *p, size_t size, const char *name, const char *type, const char *domain) {
-    char *t = NULL, *d = NULL;
-    char ename[64];
-    int ret;
+int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain) {
+    char escaped_name[AVAHI_LABEL_MAX];
+    char normalized_type[AVAHI_DOMAIN_NAME_MAX];
+    char normalized_domain[AVAHI_DOMAIN_NAME_MAX];
     
     assert(p);
 
-    if ((name && !avahi_is_valid_service_name(name))) {
-        ret = AVAHI_ERR_INVALID_SERVICE_NAME;
-        goto fail;
-    }
-
-    if (!avahi_is_valid_service_type(type)) {
-        ret = AVAHI_ERR_INVALID_SERVICE_TYPE;
-        goto fail;
-    }
-        
-    if (!avahi_is_valid_domain_name(domain)) {
-        ret = AVAHI_ERR_INVALID_DOMAIN_NAME;
-        goto fail;
-    }
-        
-    if (name)
-        escape_service_name(ename, sizeof(ename), name);
+    /* Validity checks */
     
-    if (!(d = avahi_normalize_name(domain)) ||
-        !(t = avahi_normalize_name(type))) {
-        ret = AVAHI_ERR_NO_MEMORY;
-        goto fail;
+    if ((name && !avahi_is_valid_service_name(name)))
+        return AVAHI_ERR_INVALID_SERVICE_NAME;
+
+    if (!avahi_is_valid_service_type(type))
+        return AVAHI_ERR_INVALID_SERVICE_TYPE;
+        
+    if (!avahi_is_valid_domain_name(domain))
+        return AVAHI_ERR_INVALID_DOMAIN_NAME;
+
+    /* Preparation */
+    
+    if (name) {
+        size_t l = sizeof(escaped_name);
+        char *e = escaped_name, *r;
+        r = avahi_escape_label(name, strlen(name), &e, &l);
+        assert(r);
     }
 
-    snprintf(p, size, "%s%s%s.%s", name ? ename : "", name ? "." : "", t, d);
+    if (!(avahi_normalize_name(type, normalized_type, sizeof(normalized_type))))
+        return AVAHI_ERR_INVALID_SERVICE_TYPE;
 
-    ret = AVAHI_OK;
+    if (!(avahi_normalize_name(domain, normalized_domain, sizeof(normalized_domain))))
+        return AVAHI_ERR_INVALID_DOMAIN_NAME;
+
+    /* Concatenation */
     
-fail:
+    snprintf(p, size, "%s%s%s.%s", name ? escaped_name : "", name ? "." : "", normalized_type, normalized_domain);
 
-    avahi_free(t);
-    avahi_free(d);
-
-    return ret;
+    return AVAHI_OK;
 }
+
+
+char *avahi_strlcpy(char *dest, const char *src, size_t n) {
+    assert(dest);
+    assert(src);
+
+    if (n == 0)
+        return dest;
+        
+    strncpy(dest, src, n-1);
+    dest[n-1] = 0;
+    return dest;
+}
+
+int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain, size_t domain_size) {
+    enum {
+        NAME,
+        TYPE,
+        DOMAIN
+    } state;
+    int type_empty = 1, domain_empty = 1;
+    
+    assert(p);
+    assert(type);
+    assert(type_size > 0);
+    assert(domain);
+    assert(domain_size > 0);
+
+    if (name) {
+        assert(name_size > 0);
+        *name = 0;
+        state = NAME;
+    } else
+        state = TYPE;
+    
+    *type = *domain = 0;
+    
+    while (*p) {
+        char buf[64];
+        
+        if (!(avahi_unescape_label(&p, buf, sizeof(buf))))
+            return -1;
+
+        switch (state) {
+            case NAME:
+                avahi_strlcpy(name, buf, name_size);
+                state = TYPE;
+                break;
+
+            case TYPE:
+
+                if (buf[0] == '_') {
+
+                    if (!type_empty) {
+                        if (!type_size)
+                            return AVAHI_ERR_NO_MEMORY;
+                        
+                        *(type++) = '.';
+                        type_size --;
+
+                    } else
+                        type_empty = 0;
+                    
+                    if (!(avahi_escape_label(buf, strlen(buf), &type, &type_size)))
+                        return AVAHI_ERR_NO_MEMORY;
+
+                    break;
+                } 
+
+                state = DOMAIN;
+                /* fall through */
+
+            case DOMAIN:
+
+                if (!domain_empty) {
+                    if (!domain_size)
+                        return AVAHI_ERR_NO_MEMORY;
+                    
+                    *(domain++) = '.';
+                    domain_size --;
+                } else
+                    domain_empty = 0;
+
+                if (!(avahi_escape_label(buf, strlen(buf), &domain, &domain_size)))
+                    return AVAHI_ERR_NO_MEMORY;
+
+                break;
+        }
+    }
+
+    return 0;
+}
+

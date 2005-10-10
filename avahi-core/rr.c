@@ -47,7 +47,7 @@ AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
         return NULL;
     }
     
-    if (!(k->name = avahi_normalize_name(name))) {
+    if (!(k->name = avahi_normalize_name_strdup(name))) {
         avahi_log_error("avahi_normalize_name() failed.");
         avahi_free(k);
         return NULL;
@@ -155,6 +155,7 @@ void avahi_record_unref(AvahiRecord *r) {
 
             case AVAHI_DNS_TYPE_PTR:
             case AVAHI_DNS_TYPE_CNAME:
+            case AVAHI_DNS_TYPE_NS:
                 avahi_free(r->data.ptr.name);
                 break;
 
@@ -212,6 +213,10 @@ const char *avahi_dns_type_to_string(uint16_t type) {
             return "SRV";
         case AVAHI_DNS_TYPE_ANY:
             return "ANY";
+        case AVAHI_DNS_TYPE_SOA:
+            return "SOA";
+        case AVAHI_DNS_TYPE_NS:
+            return "NS";
         default:
             return NULL;
     }
@@ -244,7 +249,8 @@ char *avahi_record_to_string(const AvahiRecord *r) {
             break;
             
         case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME :
+        case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
 
             t = r->data.ptr.name;
             break;
@@ -348,6 +354,7 @@ static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
 
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
             return avahi_domain_equal(a->data.ptr.name, b->data.ptr.name);
 
         case AVAHI_DNS_TYPE_HINFO:
@@ -399,6 +406,7 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
             if (!(copy->data.ptr.name = avahi_strdup(r->data.ptr.name)))
                 goto fail;
             break;
@@ -468,6 +476,7 @@ size_t avahi_record_get_estimate_size(AvahiRecord *r) {
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
             n += strlen(r->data.ptr.name) + 1;
             break;
 
@@ -543,6 +552,7 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
 
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
             return avahi_binary_domain_cmp(a->data.ptr.name, b->data.ptr.name);
 
         case AVAHI_DNS_TYPE_SRV: {
@@ -640,6 +650,7 @@ int avahi_record_is_valid(AvahiRecord *r) {
 
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
             return avahi_is_valid_domain_name(r->data.ptr.name);
 
         case AVAHI_DNS_TYPE_SRV:

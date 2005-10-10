@@ -35,7 +35,7 @@
 struct AvahiSServiceTypeBrowser {
     AvahiServer *server;
     char *domain_name;
-    
+
     AvahiSRecordBrowser *record_browser;
 
     AvahiSServiceTypeBrowserCallback callback;
@@ -54,46 +54,23 @@ static void record_browser_callback(
     void* userdata) {
     
     AvahiSServiceTypeBrowser *b = userdata;
-    char *n = NULL, *c = NULL;
 
     assert(rr);
     assert(b);
 
     if (record) {
-        char *e;
+        char type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
         
         assert(record->key->type == AVAHI_DNS_TYPE_PTR);
-        
-        n = avahi_normalize_name(record->data.ptr.name);
-        
-        if (*n != '_')
-            goto fail;
-        
-        for (c = e = n; *c == '_';) {
-            c += strcspn(c, ".");
-            
-            if (*c == 0)
-                goto fail;
-            
-            assert(*c == '.');
-            e = c;
-            c++;
-        }
-        
-        *e = 0;
-        
-        if (!avahi_domain_equal(c, b->domain_name))
-            goto fail;
-    }
-    
-    b->callback(b, interface, protocol, event, n, c, flags, b->userdata);
-    avahi_free(n);
-    
-    return;
 
-fail:
-    avahi_log_warn("Invalid service type '%s'", n);
-    avahi_free(n);
+        if (avahi_service_name_split(record->data.ptr.name, NULL, 0, type, sizeof(type), domain, sizeof(domain)) < 0) {
+            avahi_log_warn("Invalid service type '%s'", record->key->name);
+            return;
+        }
+
+        b->callback(b, interface, protocol, event, type, domain, flags, b->userdata);
+    } else
+        b->callback(b, interface, protocol, event, NULL, b->domain_name, flags, b->userdata);
 }
 
 AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(
@@ -106,48 +83,62 @@ AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(
     void* userdata) {
     
     AvahiSServiceTypeBrowser *b;
-    AvahiKey *k;
-    char *n = NULL;
+    AvahiKey *k = NULL;
+    char n[AVAHI_DOMAIN_NAME_MAX];
+    int r;
     
     assert(server);
     assert(callback);
 
-    if (domain && !avahi_is_valid_domain_name(domain)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
-        return NULL;
-    }
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
 
     if (!domain)
         domain = server->domain_name;
 
-    if (!AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
+    if ((r = avahi_service_name_join(n, sizeof(n), NULL, "_services._dns-sd._udp", domain)) < 0) {
+        avahi_server_set_errno(server, r);
         return NULL;
     }
-
+    
     if (!(b = avahi_new(AvahiSServiceTypeBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
     
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain);
     b->callback = callback;
     b->userdata = userdata;
-
+    b->record_browser = NULL;
+    
     AVAHI_LLIST_PREPEND(AvahiSServiceTypeBrowser, browser, server->service_type_browsers, b);
 
-    n = avahi_strdup_printf("_services._dns-sd._udp.%s", b->domain_name);
-    k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    avahi_free(n);
+    if (!(b->domain_name = avahi_normalize_name_strdup(domain))) {
+        avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
     
-    b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b);
+    if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR))) {
+        avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+    
+    if (!(b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b)))
+        goto fail;
+        
     avahi_key_unref(k);
 
-    if (!b->record_browser)
-        return NULL;
-    
     return b;
+
+fail:
+    if (k)
+        avahi_key_unref(k);
+
+    avahi_s_service_type_browser_free(b);
+    
+    return NULL;
 }
 
 void avahi_s_service_type_browser_free(AvahiSServiceTypeBrowser *b) {
@@ -157,7 +148,7 @@ void avahi_s_service_type_browser_free(AvahiSServiceTypeBrowser *b) {
 
     if (b->record_browser)
         avahi_s_record_browser_free(b->record_browser);
-    
+
     avahi_free(b->domain_name);
     avahi_free(b);
 }

@@ -582,7 +582,7 @@ static void service_resolver_callback(
             if ((p = avahi_new0(char, (l = avahi_string_list_serialize(txt, NULL, 0))+1)))
                 avahi_string_list_serialize(txt, p, l);
 
-            ret = avahi_service_name_snprint(full_name, sizeof(full_name), name, type, domain);
+            ret = avahi_service_name_join(full_name, sizeof(full_name), name, type, domain);
             assert(ret == AVAHI_OK);
 
             strcat(full_name, ".");
@@ -678,7 +678,7 @@ int DNSSD_API DNSServiceConstructFullName (
     assert(regtype);
     assert(domain);
 
-    if (avahi_service_name_snprint(fullName, kDNSServiceMaxDomainName, service, regtype, domain) < 0)
+    if (avahi_service_name_join(fullName, kDNSServiceMaxDomainName, service, regtype, domain) < 0)
         return -1;
     
     return 0;
@@ -970,9 +970,9 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     sdref->service_register_callback = callback;
 
     sdref->service_name = avahi_strdup(name);
-    sdref->service_regtype = regtype ? avahi_normalize_name(regtype) : NULL;
-    sdref->service_domain = domain ? avahi_normalize_name(domain) : NULL;
-    sdref->service_host = host ? avahi_normalize_name(host) : NULL;
+    sdref->service_regtype = regtype ? avahi_normalize_name_strdup(regtype) : NULL;
+    sdref->service_domain = domain ? avahi_normalize_name_strdup(domain) : NULL;
+    sdref->service_host = host ? avahi_normalize_name_strdup(host) : NULL;
     sdref->service_interface = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
     sdref->service_port = ntohs(port);
     sdref->service_txt = txtRecord ? avahi_string_list_parse(txtRecord, txtLen) : NULL;

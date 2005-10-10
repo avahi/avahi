@@ -245,7 +245,7 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     }
     
     r->server = server;
-    r->host_name = avahi_normalize_name(host_name);
+    r->host_name = avahi_normalize_name_strdup(host_name);
     r->callback = callback;
     r->userdata = userdata;
     r->address_record = NULL;

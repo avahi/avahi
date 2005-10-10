@@ -50,7 +50,6 @@ struct AvahiDNSServerInfo {
 
 struct AvahiSDNSServerBrowser {
     AvahiServer *server;
-    char *domain_name;
     
     AvahiSRecordBrowser *record_browser;
     AvahiSDNSServerBrowserCallback callback;
@@ -245,35 +244,41 @@ AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(
     AvahiLookupFlags flags,
     AvahiSDNSServerBrowserCallback callback,
     void* userdata) {
+
+    static const char * const type_table[AVAHI_DNS_SERVER_MAX] = {
+        "_domain._udp",
+        "_dns-update._udp"
+    };
     
     AvahiSDNSServerBrowser *b;
-    AvahiKey *k;
-    char *n = NULL;
+    AvahiKey *k = NULL;
+    char n[AVAHI_DOMAIN_NAME_MAX];
+    int r;
     
     assert(server);
     assert(callback);
-    assert(type == AVAHI_DNS_SERVER_RESOLVE || type == AVAHI_DNS_SERVER_UPDATE);
 
-    if (domain && !avahi_is_valid_domain_name(domain)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_DOMAIN_NAME);
-        return NULL;
-    }
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(aprotocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, type < AVAHI_DNS_SERVER_MAX, AVAHI_ERR_INVALID_FLAGS);
 
     if (!domain)
         domain = server->domain_name;
 
-    if (!AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
+    if ((r = avahi_service_name_join(n, sizeof(n), NULL, type_table[type], domain)) < 0) {
+        avahi_server_set_errno(server, r);
         return NULL;
     }
-
+    
     if (!(b = avahi_new(AvahiSDNSServerBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
     
     b->server = server;
-    b->domain_name = avahi_normalize_name(domain);
     b->callback = callback;
     b->userdata = userdata;
     b->aprotocol = aprotocol;
@@ -283,19 +288,25 @@ AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(
     AVAHI_LLIST_HEAD_INIT(AvahiDNSServerInfo, b->info);
     AVAHI_LLIST_PREPEND(AvahiSDNSServerBrowser, browser, server->dns_server_browsers, b);
     
-    n = avahi_strdup_printf("%s.%s",type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", b->domain_name);
-    k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
-    avahi_free(n);
-    
-    b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b);
-    avahi_key_unref(k);
-
-    if (!b->record_browser) {
-        avahi_s_dns_server_browser_free(b);
-        return NULL;
+    if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV))) {
+        avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
+        goto fail;
     }
     
+    if (!(b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b)))
+        goto fail;
+        
+    avahi_key_unref(k);
+
     return b;
+
+fail:
+
+    if (k)
+        avahi_key_unref(k);
+    
+    avahi_s_dns_server_browser_free(b);
+    return NULL;
 }
 
 void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b) {
@@ -308,7 +319,7 @@ void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b) {
 
     if (b->record_browser)
         avahi_s_record_browser_free(b->record_browser);
-    avahi_free(b->domain_name);
+
     avahi_free(b);
 }
 

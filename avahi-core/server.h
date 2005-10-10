@@ -175,4 +175,11 @@ void avahi_server_increase_host_rr_pending(AvahiServer *s);
 
 int avahi_server_set_errno(AvahiServer *s, int error);
 
+#define AVAHI_CHECK_VALIDITY_RETURN_NULL(server, expression, error) { \
+        if (!(expression)) { \
+            avahi_server_set_errno((server), (error)); \
+            return NULL; \
+        } \
+}
+
 #endif

@@ -44,13 +44,23 @@ AVAHI_C_DECL_BEGIN
  * the string brings us to 1014. */
 #define AVAHI_DOMAIN_NAME_MAX 1014
 
+/** Maxium size of an unescaped label */
+#define AVAHI_LABEL_MAX 64
+
+/** Normalize a domain name into canonical form. This drops trailing
+ * dots and removes useless backslash escapes. */
+char *avahi_normalize_name(const char *s, char *ret_s, size_t size);
+
 /** Normalize a domain name into canonical form. This drops trailing
  * dots and removes useless backslash escapes. avahi_free() the
  * result! */
-char *avahi_normalize_name(const char *s);
+char *avahi_normalize_name_strdup(const char *s);
+
+/** Return the local host name. */
+char *avahi_get_host_name(char *ret_s, size_t size); 
 
 /** Return the local host name. avahi_free() the result! */
-char *avahi_get_host_name(void); 
+char *avahi_get_host_name_strdup(void);
 
 /** Return 1 when the specified domain names are equal, 0 otherwise */
 int avahi_domain_equal(const char *a, const char *b);
@@ -63,7 +73,7 @@ int avahi_binary_domain_cmp(const char *a, const char *b);
 char *avahi_unescape_label(const char **name, char *dest, size_t size);
 
 /** Escape the domain name in *src and write it to *ret_name */
-char *avahi_escape_label(const uint8_t* src, size_t src_length, char **ret_name, size_t *ret_size);
+char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, size_t *ret_size);
 
 /** Return 1 when the specified string contains a valid service type, 0 otherwise */
 int avahi_is_valid_service_type(const char *t);
@@ -84,7 +94,13 @@ unsigned avahi_domain_hash(const char *name);
 int avahi_domain_ends_with(const char *domain, const char *suffix);
 
 /** Construct a valid complete service name from a name, a type and a domain */
-int avahi_service_name_snprint(char *p, size_t size, const char *name, const char *type, const char *domain);
+int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain);
+
+/** Split a full service name into name, type and domain */
+int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain, size_t domain_size);
+
+/** Just like OpenBSD strlcpy */
+char *avahi_strlcpy(char *dest, const char *src, size_t n);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

@@ -211,7 +211,8 @@ int avahi_server_add_service_strlst(
 /** The type of DNS server */
 typedef enum {
     AVAHI_DNS_SERVER_RESOLVE,         /**< Unicast DNS servers for normal resolves (_domain._udp)*/
-    AVAHI_DNS_SERVER_UPDATE           /**< Unicast DNS servers for updates (_dns-update._udp)*/
+    AVAHI_DNS_SERVER_UPDATE,           /**< Unicast DNS servers for updates (_dns-update._udp)*/
+    AVAHI_DNS_SERVER_MAX
 } AvahiDNSServerType;
 
 /** Publish the specified unicast DNS server address via mDNS. You may

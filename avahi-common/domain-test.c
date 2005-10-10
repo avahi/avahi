@@ -24,42 +24,73 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
 
 #include "domain.h"
 #include "malloc.h"
 
 int main(int argc, char *argv[]) {
     char *s;
-    char t[256];
+    char t[256], r[256];
+    const char *p;
+    size_t size;
+    char name[64], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
     
-    printf("host name: %s\n", s = avahi_get_host_name());
+    printf("host name: %s\n", s = avahi_get_host_name_strdup());
     avahi_free(s);
 
-    printf("%s\n", s = avahi_normalize_name("foo.foo."));
+    printf("%s\n", s = avahi_normalize_name_strdup("foo.foo\\046."));
     avahi_free(s);
 
-    printf("%s\n", s = avahi_normalize_name("foo\.foo."));
+    printf("%s\n", s = avahi_normalize_name_strdup("foo.foo\\.foo."));
     avahi_free(s);
 
     
-    printf("%s\n", s = avahi_normalize_name("\\f\\o\\\\o\\..\\f\\ \\o\\o."));
+    printf("%s\n", s = avahi_normalize_name_strdup("fo\\\\o\\..f oo."));
     avahi_free(s);
 
-    printf("%i\n", avahi_domain_equal("\\aaa bbb\\.cccc\\\\.dee.fff.", "aaa\\ bbb\\.cccc\\\\.dee.fff"));
-    printf("%i\n", avahi_domain_equal("\\A", "a"));
+    printf("%i\n", avahi_domain_equal("\\065aa bbb\\.\\046cc.cc\\\\.dee.fff.", "Aaa BBB\\.\\.cc.cc\\\\.dee.fff"));
+    printf("%i\n", avahi_domain_equal("A", "a"));
 
     printf("%i\n", avahi_domain_equal("a", "aaa"));
 
-    printf("%u = %u\n", avahi_domain_hash("\\Aaaab\\\\."), avahi_domain_hash("aaaa\\b\\\\")); 
+    printf("%u = %u\n", avahi_domain_hash("ccc\\065aa.aa\\.b\\\\."), avahi_domain_hash("cccAaa.aa\\.b\\\\"));
 
 
-    avahi_service_name_snprint(t, sizeof(t), "foo.foo.foo \.", "_http._tcp", "test.local");
+    avahi_service_name_join(t, sizeof(t), "foo.foo.foo \.", "_http._tcp", "test.local");
     printf("<%s>\n", t);
 
-
-    avahi_service_name_snprint(t, sizeof(t), NULL, "_http._tcp", "one.two\. .local");
-    printf("<%s>\n", t);
-
+    avahi_service_name_split(t, name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
+    printf("name: <%s>; type: <%s>; domain <%s>\n", name, type, domain);
     
+    avahi_service_name_join(t, sizeof(t), NULL, "_http._tcp", "one.two\. .local");
+    printf("<%s>\n", t);
+
+    avahi_service_name_split(t, NULL, 0, type, sizeof(type), domain, sizeof(domain));
+    printf("name: <>; type: <%s>; domain <%s>\n", type, domain);
+
+
+    p = "--:---\\\\\\123\\065_äöü\\064\\.\\\\sjöödfhh.sdfjhskjdf";
+    printf("unescaped: <%s>, rest: %s\n", avahi_unescape_label(&p, t, sizeof(t)), p);
+
+    size = sizeof(r);
+    s = r;
+    
+    printf("escaped: <%s>\n", avahi_escape_label(t, strlen(t), &s, &size));
+
+    p = r;
+    printf("unescaped: <%s>\n", avahi_unescape_label(&p, t, sizeof(t)));
+
+    assert(avahi_domain_ends_with("foo.bar.\\065\\\\\\.aaaa", "\\065\\\\\\.aaaa"));
+
+    assert(avahi_is_valid_service_type("_foo._bar._waldo"));
+    assert(!avahi_is_valid_service_type("_foo._bar.waldo"));
+    assert(!avahi_is_valid_service_type(""));
+
+    assert(!avahi_is_valid_host_name("sf.ooo."));
+    assert(avahi_is_valid_host_name("sfooo."));
+    assert(avahi_is_valid_host_name("sfooo"));
+
     return 0;
 }

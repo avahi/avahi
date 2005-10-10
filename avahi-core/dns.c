@@ -165,7 +165,6 @@ uint8_t* avahi_dns_packet_append_name(AvahiDnsPacket *p, const char *name) {
         const char *pname;
         char label[64], *u;
         
-
         /* Check whether we can compress this name. */
 
         if (p->name_table && (prev = avahi_hashmap_lookup(p->name_table, name))) {
@@ -366,7 +365,7 @@ static int consume_labels(AvahiDnsPacket *p, unsigned idx, char *ret_name, size_
             } else
                 first_label = 0;
 
-            if (!(avahi_escape_label(AVAHI_DNS_PACKET_DATA(p) + idx, n, &ret_name, &l)))
+            if (!(avahi_escape_label((char*) AVAHI_DNS_PACKET_DATA(p) + idx, n, &ret_name, &l)))
                 return -1;
 
             idx += n;
@@ -519,6 +518,7 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, int *ret_cache_f
     switch (type) {
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
 
 /*             avahi_log_debug("ptr"); */
             
@@ -678,8 +678,9 @@ uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int c
     switch (r->key->type) {
         
         case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME :
-
+        case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
+            
             if (!(avahi_dns_packet_append_name(p, r->data.ptr.name)))
                 goto fail;
             

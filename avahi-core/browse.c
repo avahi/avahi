@@ -502,13 +502,6 @@ void avahi_s_record_browser_restart(AvahiSRecordBrowser *b) {
     }
 }
 
-#define CHECK_VALIDITY_RETURN_NULL(server, expression, error) { \
-        if (!(expression)) { \
-            avahi_server_set_errno((server), (error)); \
-            return NULL; \
-        } \
-}
-
 AvahiSRecordBrowser *avahi_s_record_browser_new(
     AvahiServer *server,
     AvahiIfIndex interface,
@@ -524,11 +517,12 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     assert(key);
     assert(callback);
 
-    CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
-    CHECK_VALIDITY_RETURN_NULL(server, !avahi_key_is_pattern(key), AVAHI_ERR_IS_PATTERN);
-    CHECK_VALIDITY_RETURN_NULL(server, avahi_key_is_valid(key), AVAHI_ERR_INVALID_KEY);
-    CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
-    CHECK_VALIDITY_RETURN_NULL(server, !(flags & AVAHI_LOOKUP_USE_WIDE_AREA) || !(flags & AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS); 
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !avahi_key_is_pattern(key), AVAHI_ERR_IS_PATTERN);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_key_is_valid(key), AVAHI_ERR_INVALID_KEY);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !(flags & AVAHI_LOOKUP_USE_WIDE_AREA) || !(flags & AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS); 
     
     if (!(b = avahi_new(AvahiSRecordBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
@@ -543,7 +537,6 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     b->flags = flags;
     b->callback = callback;
     b->userdata = userdata;
-
     b->n_lookups = 0;
     AVAHI_LLIST_HEAD_INIT(AvahiSRBLookup, b->lookups);
     b->root_lookup = NULL;

@@ -1285,7 +1285,7 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
     withdraw_host_rrs(s);
 
     avahi_free(s->host_name);
-    s->host_name = host_name ? avahi_normalize_name(host_name) : avahi_get_host_name();
+    s->host_name = host_name ? avahi_normalize_name_strdup(host_name) : avahi_get_host_name_strdup();
     s->host_name[strcspn(s->host_name, ".")] = 0;
     update_fqdn(s);
 
@@ -1303,7 +1303,7 @@ int avahi_server_set_domain_name(AvahiServer *s, const char *domain_name) {
     withdraw_host_rrs(s);
 
     avahi_free(s->domain_name);
-    s->domain_name = domain_name ? avahi_normalize_name(domain_name) : avahi_strdup("local");
+    s->domain_name = domain_name ? avahi_normalize_name_strdup(domain_name) : avahi_strdup("local");
     update_fqdn(s);
 
     register_stuff(s);
@@ -1431,9 +1431,9 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
     } while (s->local_service_cookie == AVAHI_SERVICE_COOKIE_INVALID);
     
     /* Get host name */
-    s->host_name = s->config.host_name ? avahi_normalize_name(s->config.host_name) : avahi_get_host_name();
+    s->host_name = s->config.host_name ? avahi_normalize_name_strdup(s->config.host_name) : avahi_get_host_name_strdup();
     s->host_name[strcspn(s->host_name, ".")] = 0;
-    s->domain_name = s->config.domain_name ? avahi_normalize_name(s->config.domain_name) : avahi_strdup("local");
+    s->domain_name = s->config.domain_name ? avahi_normalize_name_strdup(s->config.domain_name) : avahi_strdup("local");
     s->host_name_fqdn = NULL;
     update_fqdn(s);
 
@@ -1702,7 +1702,7 @@ int avahi_server_add_ptr(
     if (!(r = avahi_record_new_full(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR, ttl)))
         return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         
-    r->data.ptr.name = avahi_normalize_name(dest);
+    r->data.ptr.name = avahi_normalize_name_strdup(dest);
     ret = avahi_server_add(s, g, interface, protocol, flags, r);
     avahi_record_unref(r);
     return ret;
@@ -1738,7 +1738,7 @@ int avahi_server_add_address(
     if (!name)
         name = s->host_name_fqdn;
     else {
-        if (!(n = avahi_normalize_name(name)))
+        if (!(n = avahi_normalize_name_strdup(name)))
             return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
         name = n;
@@ -1834,8 +1834,10 @@ static int server_add_txt_strlst_nocopy(
     
     assert(s);
 
-    if (!(r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT, ttl)))
+    if (!(r = avahi_record_new_full(name ? name : s->host_name_fqdn, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT, ttl))) {
+        avahi_string_list_free(strlst);
         return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
+    }
     
     r->data.txt.string_list = strlst;
     ret = avahi_server_add(s, g, interface, protocol, flags, r);
@@ -1925,8 +1927,7 @@ static int server_add_service_strlst_nocopy(
     uint16_t port,
     AvahiStringList *strlst) {
 
-    char ptr_name[256], svc_name[256], enum_ptr[256];
-    char *t = NULL, *d = NULL, *h = NULL;
+    char ptr_name[AVAHI_DOMAIN_NAME_MAX], svc_name[AVAHI_DOMAIN_NAME_MAX], enum_ptr[AVAHI_DOMAIN_NAME_MAX], *h = NULL;
     AvahiRecord *r = NULL;
     int ret = AVAHI_OK;
     
@@ -1965,7 +1966,7 @@ static int server_add_service_strlst_nocopy(
     }
 
     if (host && !avahi_is_valid_domain_name(host)) {
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
+        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
         goto fail;
     }
 
@@ -1975,18 +1976,15 @@ static int server_add_service_strlst_nocopy(
     if (!host)
         host = s->host_name_fqdn;
 
-    if (!(d = avahi_normalize_name(domain)) ||
-        !(t = avahi_normalize_name(type)) ||
-        !(h = avahi_normalize_name(host))) {
+    if (!(h = avahi_normalize_name_strdup(host))) {
         ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         goto fail;
     }
 
-    if ((ret = avahi_service_name_snprint(svc_name, sizeof(svc_name), name, t, d)) < 0 ||
-        (ret = avahi_service_name_snprint(ptr_name, sizeof(ptr_name), NULL, t, d)) < 0) {
-        avahi_server_set_errno(s, ret);
+    if ((ret = avahi_service_name_join(svc_name, sizeof(svc_name), name, type, domain)) < 0 ||
+        (ret = avahi_service_name_join(ptr_name, sizeof(ptr_name), NULL, type, domain)) < 0 ||
+        (ret = avahi_service_name_join(enum_ptr, sizeof(enum_ptr), NULL, "_services._dns-sd._udp", domain)) < 0)
         goto fail;
-    }
 
     if ((ret = avahi_server_add_ptr(s, g, interface, protocol, flags & AVAHI_PUBLISH_IS_PROXY, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
         goto fail;
@@ -2016,16 +2014,12 @@ static int server_add_service_strlst_nocopy(
     if (ret < 0)
         goto fail;
 
-    snprintf(enum_ptr, sizeof(enum_ptr), "_services._dns-sd._udp.%s", d);
     ret = avahi_server_add_ptr(s, g, interface, protocol, (flags & AVAHI_PUBLISH_IS_PROXY), AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
 fail:
     
-    avahi_free(d);
-    avahi_free(t);
-    avahi_free(h);
-
     avahi_string_list_free(strlst);
+    avahi_free(h);
     
     return ret;
 }
@@ -2061,7 +2055,7 @@ int avahi_server_add_service_va(
     const char *domain,
     const char *host,
     uint16_t port,
-    va_list va){
+    va_list va) {
 
     assert(s);
     assert(type);
@@ -2093,6 +2087,7 @@ int avahi_server_add_service(
     va_start(va, port);
     ret = avahi_server_add_service_va(s, g, interface, protocol, flags, name, type, domain, host, port, va);
     va_end(va);
+    
     return ret;
 }
 
@@ -2217,8 +2212,8 @@ int avahi_server_add_dns_server_name(
     if (!domain)
         domain = s->domain_name;
 
-    if (!(n = avahi_normalize_name(name)) ||
-        !(d = avahi_normalize_name(domain))) {
+    if (!(n = avahi_normalize_name_strdup(name)) ||
+        !(d = avahi_normalize_name_strdup(domain))) {
         avahi_free(n);
         avahi_free(d);
         return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
@@ -2593,7 +2588,7 @@ int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiP
     if (domain && !avahi_is_valid_domain_name(domain))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    if ((ret = avahi_service_name_snprint(n, sizeof(n), name, type, domain) < 0))
+    if ((ret = avahi_service_name_join(n, sizeof(n), name, type, domain) < 0))
         return avahi_server_set_errno(s, ret);
         
     if (!(key = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV)))

@@ -16,8 +16,6 @@ for 0.6:
 
 * rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
 
-* don't send goodbye packets for records which exist multiple times locally
-
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

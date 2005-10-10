@@ -617,4 +617,5 @@ echo "
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
     Building avahi-sharp:               ${HAVE_MONO}
+    Building avahi-compat-libdns_sd:    ${BUILD_CLIENT}
 "

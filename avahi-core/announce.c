@@ -391,6 +391,26 @@ static AvahiRecord *make_goodbye_record(AvahiRecord *r) {
     return g;
 }
 
+static int is_duplicate_entry(AvahiServer *s, AvahiEntry *e) {
+    AvahiEntry *i;
+    
+    assert(s);
+    assert(e);
+
+    for (i = avahi_hashmap_lookup(s->entries_by_key, e->record->key); i; i = i->by_key_next) {
+
+        if (i == e)
+            continue;
+
+        if (!avahi_record_equal_no_ttl(i->record, e->record))
+            continue;
+        
+        return 1;
+    }
+
+    return 0;
+}
+
 static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
     AvahiEntry *e = userdata;
     AvahiRecord *g;
@@ -407,6 +427,9 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
         return;
 
     if (!avahi_entry_is_registered(m->server, e, i))
+        return;
+
+    if (is_duplicate_entry(m->server, e))
         return;
     
     if (!(g = make_goodbye_record(e->record)))

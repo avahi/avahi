@@ -22,6 +22,8 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+if HAVE_DBUS
+
 avahi_compat_libdns_sddir=$(includedir)/avahi-compat-libdns_sd
 
 avahi_compat_libdns_sd_HEADERS = dns_sd.h
@@ -57,3 +59,5 @@ libdns_sd-test: libdns_sd-test.c libavahi-compat-libdns_sd.la
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(PTHREAD_CFLAGS) -o libdns_sd-test libdns_sd-test.o $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la libavahi-compat-libdns_sd.la 
 
 CLEANFILES = libdns_sd-test.o libdns_sd-test
+
+endif

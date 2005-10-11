@@ -17,6 +17,8 @@ for 0.6:
 
 * add support for subtypes in static services
 
+* split linux specific parts from iface.c 
+
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

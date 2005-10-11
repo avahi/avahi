@@ -17,8 +17,6 @@ for 0.6:
 
 * add support for subtypes in static services
 
-* split linux specific parts from iface.c 
-
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
@@ -96,3 +94,4 @@ done:
 * reset commit throttling for entry groups after a while
 * wrap subtype support for avahi-client
 * add subtype browsing
+* split linux specific parts from iface.c 

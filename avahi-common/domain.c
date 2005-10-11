@@ -293,7 +293,7 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
     }
 }
 
-int avahi_is_valid_service_type(const char *t) {
+int avahi_is_valid_service_type_generic(const char *t) {
     assert(t);
 
     if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
@@ -311,6 +311,101 @@ int avahi_is_valid_service_type(const char *t) {
     } while (*t);
 
     return 1;
+}
+
+int avahi_is_valid_service_type_strict(const char *t) {
+    char label[AVAHI_LABEL_MAX];
+    assert(t);
+
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
+        return 0;
+
+    /* Application name */
+    
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
+        return 0;
+
+    if (strlen(label) <= 2 || label[0] != '_')
+        return 0;
+
+    if (!*t)
+        return 0;
+
+    /* _tcp or _udp boilerplate */
+    
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
+        return 0;
+
+    if (strcasecmp(label, "_tcp") && strcasecmp(label, "_udp"))
+        return 0;
+
+    if (*t)
+        return 0;
+    
+    return 1;
+}
+
+const char *avahi_get_type_from_subtype(const char *t) {
+    char label[AVAHI_LABEL_MAX];
+    const char *ret;
+    assert(t);
+
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
+        return NULL;
+
+    /* Subtype name */
+    
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
+        return NULL;
+
+    if (strlen(label) <= 2 || label[0] != '_')
+        return NULL;
+
+    if (!*t)
+        return NULL;
+
+    /* String "_sub" */
+    
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
+        return NULL;
+
+    if (strcasecmp(label, "_sub"))
+        return NULL;
+
+    if (!*t)
+        return NULL;
+
+    ret = t;
+    
+    /* Application name */
+
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
+        return NULL;
+
+    if (strlen(label) <= 2 || label[0] != '_')
+        return NULL;
+
+    if (!*t)
+        return NULL;
+    
+    /* _tcp or _udp boilerplate */
+    
+    if (!(avahi_unescape_label(&t, label, sizeof(label))))
+        return NULL;
+
+    if (strcasecmp(label, "_tcp") && strcasecmp(label, "_udp"))
+        return NULL;
+
+    if (*t)
+        return NULL;
+
+    return ret;
+}
+
+int avahi_is_valid_service_subtype(const char *t) {
+    assert(t);
+
+    return !!avahi_get_type_from_subtype(t);
 }
 
 int avahi_is_valid_domain_name(const char *t) {
@@ -407,7 +502,7 @@ int avahi_service_name_join(char *p, size_t size, const char *name, const char *
     if ((name && !avahi_is_valid_service_name(name)))
         return AVAHI_ERR_INVALID_SERVICE_NAME;
 
-    if (!avahi_is_valid_service_type(type))
+    if (!avahi_is_valid_service_type_generic(type))
         return AVAHI_ERR_INVALID_SERVICE_TYPE;
         
     if (!avahi_is_valid_domain_name(domain))

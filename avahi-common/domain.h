@@ -75,8 +75,21 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size);
 /** Escape the domain name in *src and write it to *ret_name */
 char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, size_t *ret_size);
 
-/** Return 1 when the specified string contains a valid service type, 0 otherwise */
-int avahi_is_valid_service_type(const char *t);
+/** Return 1 when the specified string contains a valid generic
+ * service type (i.e. a series of words starting with "_"), 0
+ * otherwise */
+int avahi_is_valid_service_type_generic(const char *t);
+
+/** Return 1 when the specified string contains a valid strict service
+ * type (i.e. consisting of only two words, the latter being either
+ * _udp or _tcp), 0 otherwise */
+int avahi_is_valid_service_type_strict(const char *t);
+
+/** Return 1 when the specified string contains a valid service subtype, 0 otherwise */
+int avahi_is_valid_service_subtype(const char *t);
+
+/** Return a pointer to the type section of a subtype i.e. _foo._sub._bar._tcp => _bar._tcp */
+const char *avahi_get_type_from_subtype(const char *t);
 
 /** Return 1 when the specified string contains a valid domain name, 0 otherwise */
 int avahi_is_valid_domain_name(const char *t);

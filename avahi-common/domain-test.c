@@ -84,9 +84,27 @@ int main(int argc, char *argv[]) {
 
     assert(avahi_domain_ends_with("foo.bar.\\065\\\\\\.aaaa", "\\065\\\\\\.aaaa"));
 
-    assert(avahi_is_valid_service_type("_foo._bar._waldo"));
-    assert(!avahi_is_valid_service_type("_foo._bar.waldo"));
-    assert(!avahi_is_valid_service_type(""));
+    assert(avahi_is_valid_service_type_generic("_foo._bar._waldo"));
+    assert(!avahi_is_valid_service_type_strict("_foo._bar._waldo"));
+    assert(!avahi_is_valid_service_subtype("_foo._bar._waldo"));
+
+    assert(avahi_is_valid_service_type_generic("_foo._tcp"));
+    assert(avahi_is_valid_service_type_strict("_foo._tcp"));
+    assert(!avahi_is_valid_service_subtype("_foo._tcp"));
+
+    assert(!avahi_is_valid_service_type_generic("_foo._bar.waldo"));
+    assert(!avahi_is_valid_service_type_strict("_foo._bar.waldo"));
+    assert(!avahi_is_valid_service_subtype("_foo._bar.waldo"));
+    
+    assert(!avahi_is_valid_service_type_generic(""));
+    assert(!avahi_is_valid_service_type_strict(""));
+    assert(!avahi_is_valid_service_subtype(""));
+
+    assert(avahi_is_valid_service_type_generic("_foo._sub._bar._tcp"));
+    assert(!avahi_is_valid_service_type_strict("_foo._sub._bar._tcp"));
+    assert(avahi_is_valid_service_subtype("_foo._sub._bar._tcp"));
+
+    printf("%s\n", avahi_get_type_from_subtype("_foo._sub._bar._tcp"));
 
     assert(!avahi_is_valid_host_name("sf.ooo."));
     assert(avahi_is_valid_host_name("sfooo."));

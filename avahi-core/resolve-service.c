@@ -409,7 +409,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(aprotocol), AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !name || avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_is_valid_service_type(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST|AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS), AVAHI_ERR_INVALID_FLAGS);
 
     if (!domain)

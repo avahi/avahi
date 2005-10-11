@@ -859,10 +859,45 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         if (avahi_server_add_service_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, host, port, strlst) < 0) {
             avahi_string_list_free(strlst);
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-        } else
-            i->n_entries ++;
-        
+        }
+
+        i->n_entries ++;
         avahi_string_list_free(strlst);
+        
+        return respond_ok(c, m);
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddServiceSubtype")) {
+
+        int32_t interface, protocol;
+        uint32_t flags;
+        char *type, *name, *domain, *subtype;
+        
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_UINT32, &flags,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_STRING, &type,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_STRING, &subtype,
+                DBUS_TYPE_INVALID) || !type || !name || !subtype) {
+            avahi_log_warn("Error parsing EntryGroup::AddServiceSubtype message");
+            goto fail;
+        }
+
+        if (i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
+            avahi_log_warn("Too many entries per entry group, client request failed.");
+            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
+        }
+
+        if (domain && !*domain)
+            domain = NULL;
+
+        if (avahi_server_add_service_subtype(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, subtype) < 0) 
+            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+
+        i->n_entries ++;
         
         return respond_ok(c, m);
         
@@ -895,11 +930,11 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
 
         if (avahi_server_add_address(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, &a) < 0)
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-        else
-            i->n_entries ++;
+
+        i->n_entries ++;
         
         return respond_ok(c, m);
-    }
+    } 
     
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

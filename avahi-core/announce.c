@@ -445,7 +445,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int goodbye) {
 
 /*     avahi_log_debug("goodbye interface: %s.%u", i->hardware->name, i->protocol); */
 
-    if (goodbye && avahi_interface_relevant(i)) {
+    if (goodbye && avahi_interface_is_relevant(i)) {
         AvahiEntry *e;
         
         for (e = s->entries; e; e = e->entries_next)

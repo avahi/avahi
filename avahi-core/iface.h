@@ -31,7 +31,6 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include <avahi-common/address.h>
 
 #include "server.h"
-#include "netlink.h"
 #include "cache.h"
 #include "response-sched.h"
 #include "query-sched.h"
@@ -40,33 +39,30 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include "announce.h"
 #include "browse.h"
 #include "querier.h"
+#include "iface-linux.h"
 
 #define AVAHI_MAX_MAC_ADDRESS 32
 
 struct AvahiInterfaceMonitor {
     AvahiServer *server;
-    AvahiNetlink *netlink;
     AvahiHashmap *hashmap;
 
     AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
     AVAHI_LLIST_HEAD(AvahiHwInterface, hw_interfaces);
-    
-    unsigned query_addr_seq, query_link_seq;
-    
-    enum {
-        LIST_IFACE,
-        LIST_ADDR,
-        LIST_DONE
-    } list;
+
+    int list_complete;
+    AvahiInterfaceMonitorOSDep osdep;
 };
 
 struct AvahiHwInterface {
-    AVAHI_LLIST_FIELDS(AvahiHwInterface, hardware);
     AvahiInterfaceMonitor *monitor;
+
+    AVAHI_LLIST_FIELDS(AvahiHwInterface, hardware);
 
     char *name;
     AvahiIfIndex index;
-    unsigned flags;
+    int flags_ok;
+    
     unsigned mtu;
 
     uint8_t mac_address[AVAHI_MAX_MAC_ADDRESS];
@@ -78,11 +74,12 @@ struct AvahiHwInterface {
 };
 
 struct AvahiInterface {
+    AvahiInterfaceMonitor *monitor;
+    AvahiHwInterface *hardware;
+
     AVAHI_LLIST_FIELDS(AvahiInterface, interface);
     AVAHI_LLIST_FIELDS(AvahiInterface, by_hardware);
-    AvahiInterfaceMonitor *monitor;
     
-    AvahiHwInterface *hardware;
     AvahiProtocol protocol;
     int announcing;
 
@@ -100,25 +97,35 @@ struct AvahiInterface {
 };
 
 struct AvahiInterfaceAddress {
-    AVAHI_LLIST_FIELDS(AvahiInterfaceAddress, address);
     AvahiInterfaceMonitor *monitor;
-    
-    unsigned char flags;
-    unsigned char scope;
-    unsigned char prefix_len;
+    AvahiInterface *interface;
+
+    AVAHI_LLIST_FIELDS(AvahiInterfaceAddress, address);
+
     AvahiAddress address;
+    unsigned prefix_len;
+
+    int global_scope;
     
     AvahiSEntryGroup *entry_group;
-    AvahiInterface *interface;
 };
 
 AvahiInterfaceMonitor *avahi_interface_monitor_new(AvahiServer *server);
 void avahi_interface_monitor_free(AvahiInterfaceMonitor *m);
 
+int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m);
+void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m);
+
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m);
 
-AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol);
-AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, int idx);
+/* AvahiInterface */
+
+AvahiInterface* avahi_interface_new(AvahiInterfaceMonitor *m, AvahiHwInterface *hw, AvahiProtocol protocol);
+void avahi_interface_free(AvahiInterface *i, int send_goodbye);
+
+void avahi_interface_update_rrs(AvahiInterface *i, int remove_rrs);
+void avahi_interface_check_relevant(AvahiInterface *i);
+int avahi_interface_is_relevant(AvahiInterface *i);
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port);
@@ -127,23 +134,44 @@ int avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, int immediately);
 int avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately);
 int avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, int immediately);
 
-int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata);
-
-int avahi_interface_relevant(AvahiInterface *i);
-int avahi_interface_address_relevant(AvahiInterfaceAddress *a);
-
 int avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol);
+int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a);
+int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, const AvahiAddress *a);
+
+AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol);
+
+/* AvahiHwInterface */
+
+AvahiHwInterface *avahi_hw_interface_new(AvahiInterfaceMonitor *m, AvahiIfIndex idx);
+void avahi_hw_interface_free(AvahiHwInterface *hw, int send_goodbye);
+
+void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs);
+void avahi_hw_interface_check_relevant(AvahiHwInterface *hw);
+
+    AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, int idx);
+
+/* AvahiInterfaceAddress */
+
+AvahiInterfaceAddress *avahi_interface_address_new(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *addr, unsigned prefix_len);
+void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs);
+void avahi_interface_address_free(AvahiInterfaceAddress *a);
+int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a);
+AvahiInterfaceAddress* avahi_interface_monitor_get_address(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr);
+
+
+
+
+int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata);
 
 typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata);
     
 void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, void* userdata);
 
-void avahi_update_host_rrs(AvahiInterfaceMonitor *m, int remove_rrs);
+void avahi_interface_monitor_update_rrs(AvahiInterfaceMonitor *m, int remove_rrs);
 
 int avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
 
-int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a);
+void avahi_interface_monitor_check_relevant(AvahiInterfaceMonitor *m);
 
-int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, const AvahiAddress *a);
 
 #endif

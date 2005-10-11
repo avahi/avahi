@@ -1,5 +1,5 @@
-#ifndef foonetlinkhfoo
-#define foonetlinkhfoo
+#ifndef fooifacelinuxhfoo
+#define fooifacelinuxhfoo
 
 /* $Id$ */
 
@@ -22,20 +22,21 @@
   USA.
 ***/
 
-#include <sys/socket.h>
-#include <asm/types.h>
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
+typedef struct AvahiInterfaceMonitorOSDep AvahiInterfaceMonitorOSDep;
 
-#include <avahi-common/watch.h>
+#include "netlink.h"
 
-typedef struct AvahiNetlink AvahiNetlink;
+struct AvahiInterfaceMonitorOSDep {
+    AvahiNetlink *netlink;
+        
+    unsigned query_addr_seq, query_link_seq;
+    
+    enum {
+        LIST_IFACE,
+        LIST_ADDR,
+        LIST_DONE
+    } list;
+};
 
-typedef void (*AvahiNetlinkCallback)(AvahiNetlink *n, struct nlmsghdr *m, void* userdata);
-
-AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, AvahiNetlinkCallback callback, void* userdata);
-void avahi_netlink_free(AvahiNetlink *n);
-int avahi_netlink_send(AvahiNetlink *n, struct nlmsghdr *m, unsigned *ret_seq);
-int avahi_netlink_work(AvahiNetlink *n, int block);
 
 #endif

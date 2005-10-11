@@ -850,7 +850,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->id);
     
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (avahi_interface_relevant(j) &&
+        if (avahi_interface_is_relevant(j) &&
             j != i &&
             (s->config.reflect_ipv || j->protocol == i->protocol)) {
 
@@ -934,7 +934,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
     assert(iface > 0);
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, avahi_af_to_proto(sa->sa_family))) ||
-        !avahi_interface_relevant(i)) {
+        !avahi_interface_is_relevant(i)) {
         avahi_log_warn("Recieved packet from invalid interface.");
         return;
     }
@@ -1027,7 +1027,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
     assert(iface > 0);
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, avahi_af_to_proto(sa->sa_family))) ||
-        !avahi_interface_relevant(i)) {
+        !avahi_interface_is_relevant(i)) {
         avahi_log_warn("Recieved packet from invalid interface.");
         return;
     }
@@ -1051,7 +1051,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
     }
 
     if (!(j = avahi_interface_monitor_get_interface(s->monitor, slot->interface, slot->address.proto)) ||
-        !avahi_interface_relevant(j))
+        !avahi_interface_is_relevant(j))
         return;
 
     /* Patch the original ID into this response */
@@ -1133,7 +1133,7 @@ static void withdraw_host_rrs(AvahiServer *s) {
     if (s->browse_domain_entry_group)
         avahi_s_entry_group_reset(s->browse_domain_entry_group);
 
-    avahi_update_host_rrs(s->monitor, 1);
+    avahi_interface_monitor_update_rrs(s->monitor, 1);
     s->n_host_rr_pending = 0;
 }
 
@@ -1253,7 +1253,7 @@ static void register_stuff(AvahiServer *s) {
 
     register_hinfo(s);
     register_browse_domain(s);
-    avahi_update_host_rrs(s->monitor, 0);
+    avahi_interface_monitor_update_rrs(s->monitor, 0);
 
     s->n_host_rr_pending --;
     

@@ -155,7 +155,7 @@ static void browse_callback(
 
 int main(int argc, char*argv[]) {
     AvahiServerConfig config;
-    AvahiSServiceBrowser *sb;
+    AvahiSServiceBrowser *sb = NULL;
     int error;
     int ret = 1;
 

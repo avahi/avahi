@@ -115,8 +115,25 @@ void avahi_interface_monitor_free(AvahiInterfaceMonitor *m);
 
 int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m);
 void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m);
-
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m);
+
+typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata);
+void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, void* userdata);
+int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata);
+
+void avahi_interface_monitor_update_rrs(AvahiInterfaceMonitor *m, int remove_rrs);
+int avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
+void avahi_interface_monitor_check_relevant(AvahiInterfaceMonitor *m);
+
+/* AvahiHwInterface */
+
+AvahiHwInterface *avahi_hw_interface_new(AvahiInterfaceMonitor *m, AvahiIfIndex idx);
+void avahi_hw_interface_free(AvahiHwInterface *hw, int send_goodbye);
+
+void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs);
+void avahi_hw_interface_check_relevant(AvahiHwInterface *hw);
+
+AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, int idx);
 
 /* AvahiInterface */
 
@@ -140,38 +157,14 @@ int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, co
 
 AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol);
 
-/* AvahiHwInterface */
-
-AvahiHwInterface *avahi_hw_interface_new(AvahiInterfaceMonitor *m, AvahiIfIndex idx);
-void avahi_hw_interface_free(AvahiHwInterface *hw, int send_goodbye);
-
-void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs);
-void avahi_hw_interface_check_relevant(AvahiHwInterface *hw);
-
-    AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, int idx);
-
 /* AvahiInterfaceAddress */
 
 AvahiInterfaceAddress *avahi_interface_address_new(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *addr, unsigned prefix_len);
-void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs);
 void avahi_interface_address_free(AvahiInterfaceAddress *a);
+
+void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs);
 int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a);
+
 AvahiInterfaceAddress* avahi_interface_monitor_get_address(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr);
-
-
-
-
-int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata);
-
-typedef void (*AvahiInterfaceMonitorWalkCallback)(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata);
-    
-void avahi_interface_monitor_walk(AvahiInterfaceMonitor *m, AvahiIfIndex idx, AvahiProtocol protocol, AvahiInterfaceMonitorWalkCallback callback, void* userdata);
-
-void avahi_interface_monitor_update_rrs(AvahiInterfaceMonitor *m, int remove_rrs);
-
-int avahi_address_is_local(AvahiInterfaceMonitor *m, const AvahiAddress *a);
-
-void avahi_interface_monitor_check_relevant(AvahiInterfaceMonitor *m);
-
 
 #endif

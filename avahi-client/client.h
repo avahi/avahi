@@ -219,6 +219,17 @@ int avahi_entry_group_add_service_va(
     uint16_t port,
     va_list va);
 
+/** Add a subtype for a service */
+int avahi_entry_group_add_service_subtype(
+    AvahiEntryGroup *group,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *subtype);
+
 /** Browse for domains on the local network */
 AvahiDomainBrowser* avahi_domain_browser_new (
     AvahiClient *client,

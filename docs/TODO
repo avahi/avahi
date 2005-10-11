@@ -16,6 +16,10 @@ for 0.6:
 
 * rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
 
+* add support for subtypes in static services
+
+* wrap subtype support for avahi-client
+
 later:
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

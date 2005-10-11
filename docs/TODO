@@ -1,6 +1,5 @@
 for 0.6:
 * Add sensible record updating API
-* add subtype browsing
 * add simplification routine for adding services 
 
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
@@ -17,8 +16,6 @@ for 0.6:
 * rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
 
 * add support for subtypes in static services
-
-* wrap subtype support for avahi-client
 
 later:
 * support for special domain PTR records based on local IP subnet address
@@ -95,3 +92,5 @@ done:
 * add flags argument to disable cookies-setting for local services
 * add API to add addresses without reverse PTR record
 * reset commit throttling for entry groups after a while
+* wrap subtype support for avahi-client
+* add subtype browsing

@@ -48,7 +48,7 @@ enum {
 
 /** Special values for AvahiIfIndex */
 enum {
-    AVAHI_IF_UNSPEC = -1,       /**< Unspecified/all interface(s) */
+    AVAHI_IF_UNSPEC = -1       /**< Unspecified/all interface(s) */
 };
 
 /** Return TRUE if the specified interface index is valid */

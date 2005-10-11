@@ -178,7 +178,7 @@ typedef enum {
     AVAHI_LOOKUP_RESULT_NULL = 0,
     AVAHI_LOOKUP_RESULT_CACHED = 1,      /**< This response originates from the cache */
     AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,   /**< This response originates from wide area DNS */
-    AVAHI_LOOKUP_RESULT_MULTICAST = 4,   /**< This response originates from multicast DNS */
+    AVAHI_LOOKUP_RESULT_MULTICAST = 4    /**< This response originates from multicast DNS */
 } AvahiLookupResultFlags;
 
 /** Type of callback event when browsing */
@@ -196,7 +196,7 @@ typedef enum {
     AVAHI_RESOLVER_FOUND,          /**< RR found, resolving successful */
     AVAHI_RESOLVER_TIMEOUT,        /**< Noone responded within the timeout, resolving failed */
     AVAHI_RESOLVER_NOT_FOUND,      /**< Query was done using wide area DNS-SD and the server told us that the entry is nto available */
-    AVAHI_RESOLVER_FAILURE,        /**< Query was done using wide area DNS-SD and the server failed */
+    AVAHI_RESOLVER_FAILURE         /**< Query was done using wide area DNS-SD and the server failed */
 } AvahiResolverEvent;
 
 /** States of a server object */

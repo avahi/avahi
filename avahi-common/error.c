@@ -60,7 +60,8 @@ const char *avahi_strerror(int error) {
         "Invalid flags",
         "Not found",
         "Invalid configuration",
-        "Version mismatch"
+        "Version mismatch",
+        "Invalid service subtype"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

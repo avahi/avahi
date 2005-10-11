@@ -1935,40 +1935,13 @@ static int server_add_service_strlst_nocopy(
     assert(type);
     assert(name);
 
-    if (!AVAHI_IF_VALID(interface)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_INTERFACE);
-        goto fail;
-    }
-    
-    if (!AVAHI_PROTO_VALID(protocol)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_PROTOCOL);
-        goto fail;
-    }
-    
-    if (!AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_IS_PROXY)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_FLAGS);
-        goto fail;
-    }
-
-    if (!avahi_is_valid_service_name(name)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
-        goto fail;
-    }
-
-    if (!avahi_is_valid_service_type(type)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_TYPE);
-        goto fail;
-    }
-
-    if (domain && !avahi_is_valid_domain_name(domain)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
-        goto fail;
-    }
-
-    if (host && !avahi_is_valid_domain_name(host)) {
-        ret = avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
-        goto fail;
-    }
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(interface), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_IS_PROXY), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !host || avahi_is_valid_domain_name(host), AVAHI_ERR_INVALID_HOST_NAME);
 
     if (!domain)
         domain = s->domain_name;
@@ -1983,12 +1956,18 @@ static int server_add_service_strlst_nocopy(
 
     if ((ret = avahi_service_name_join(svc_name, sizeof(svc_name), name, type, domain)) < 0 ||
         (ret = avahi_service_name_join(ptr_name, sizeof(ptr_name), NULL, type, domain)) < 0 ||
-        (ret = avahi_service_name_join(enum_ptr, sizeof(enum_ptr), NULL, "_services._dns-sd._udp", domain)) < 0)
+        (ret = avahi_service_name_join(enum_ptr, sizeof(enum_ptr), NULL, "_services._dns-sd._udp", domain)) < 0) {
+        avahi_server_set_errno(s, ret);
         goto fail;
+    }
 
+    /* Add service enumeration PTR record */
+    
     if ((ret = avahi_server_add_ptr(s, g, interface, protocol, flags & AVAHI_PUBLISH_IS_PROXY, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
         goto fail;
 
+    /* Add SRV record */
+    
     if (!(r = avahi_record_new_full(svc_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME))) {
         ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -2005,6 +1984,8 @@ static int server_add_service_strlst_nocopy(
     if (ret < 0)
         goto fail;
 
+    /* Add TXT record */
+
     if (!(flags & AVAHI_PUBLISH_NO_COOKIE))
         strlst = add_magic_cookie(s, strlst);
     
@@ -2014,6 +1995,8 @@ static int server_add_service_strlst_nocopy(
     if (ret < 0)
         goto fail;
 
+    /* Add service type enumeration record */
+    
     ret = avahi_server_add_ptr(s, g, interface, protocol, (flags & AVAHI_PUBLISH_IS_PROXY), AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
 fail:
@@ -2023,6 +2006,8 @@ fail:
     
     return ret;
 }
+
+
 
 int avahi_server_add_service_strlst(
     AvahiServer *s,
@@ -2087,6 +2072,49 @@ int avahi_server_add_service(
     va_start(va, port);
     ret = avahi_server_add_service_va(s, g, interface, protocol, flags, name, type, domain, host, port, va);
     va_end(va);
+    
+    return ret;
+}
+
+int avahi_server_add_service_subtype(
+    AvahiServer *s,
+    AvahiSEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,        
+    const char *type,        
+    const char *domain,      
+    const char *subtype) {
+
+    int ret = AVAHI_OK;
+    char svc_name[AVAHI_DOMAIN_NAME_MAX], ptr_name[AVAHI_DOMAIN_NAME_MAX];
+    
+    assert(name);
+    assert(type);
+    assert(subtype);
+
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(interface), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_IS_PROXY), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type(subtype), AVAHI_ERR_INVALID_SERVICE_SUBTYPE);
+
+    if (!domain)
+        domain = s->domain_name;
+
+    if ((ret = avahi_service_name_join(svc_name, sizeof(svc_name), name, type, domain)) < 0 ||
+        (ret = avahi_service_name_join(ptr_name, sizeof(ptr_name), NULL, subtype, domain)) < 0) {
+        avahi_server_set_errno(s, ret);
+        goto fail;
+    }
+
+    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, flags & AVAHI_PUBLISH_IS_PROXY, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
+        goto fail;
+
+fail:
     
     return ret;
 }

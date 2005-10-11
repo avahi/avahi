@@ -182,4 +182,11 @@ int avahi_server_set_errno(AvahiServer *s, int error);
         } \
 }
 
+#define AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(server, expression, error) {\
+    if (!(expression)) { \
+        ret = avahi_server_set_errno((server), (error)); \
+        goto fail; \
+    } \
+}
+
 #endif

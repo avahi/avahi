@@ -74,6 +74,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_NOT_FOUND "org.freedesktop.Avahi.NotFoundError"
 #define AVAHI_DBUS_ERR_INVALID_CONFIG "org.freedesktop.Avahi.InvalidConfigurationError"
 #define AVAHI_DBUS_ERR_VERSION_MISMATCH "org.freedesktop.Avahi.VersionMismatchError"
+#define AVAHI_DBUS_ERR_INVALID_SERVICE_SUBTYPE "org.freedesktop.Avahi.InvalidServiceSubtypeError"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

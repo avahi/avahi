@@ -99,6 +99,7 @@ static DNSServiceErrorType map_error(int error) {
         case AVAHI_ERR_INVALID_PORT:
         case AVAHI_ERR_INVALID_KEY:
         case AVAHI_ERR_INVALID_ADDRESS:
+        case AVAHI_ERR_INVALID_SERVICE_SUBTYPE:
             return kDNSServiceErr_BadParam;
 
 

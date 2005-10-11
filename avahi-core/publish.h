@@ -208,6 +208,18 @@ int avahi_server_add_service_strlst(
     uint16_t port,
     AvahiStringList *strlst);
 
+/** Add a subtype for an already existing service */
+int avahi_server_add_service_subtype(
+    AvahiServer *s,
+    AvahiSEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,         /**< Specify the name of main service you already added here */
+    const char *type,         /**< Specify the main type of the service you already added here */
+    const char *domain,       /**< Specify the main type of the service you already added here */
+    const char *subtype       /**< The new subtype for the specified service */ );
+
 /** The type of DNS server */
 typedef enum {
     AVAHI_DNS_SERVER_RESOLVE,         /**< Unicast DNS servers for normal resolves (_domain._udp)*/

@@ -96,6 +96,12 @@ static void create_services(AvahiServer *s) {
         goto fail;
     }
 
+    /* Add an additional (hypothetic) subtype */
+    if ((ret = avahi_server_add_service_subtype(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp") < 0)) {
+        fprintf(stderr, "Failed to add subtype _magic._sub._printer._tcp: %s\n", avahi_strerror(ret));
+        goto fail;
+    }
+
     /* Tell the server to register the service */
     if ((ret = avahi_s_entry_group_commit(group)) < 0) {
         fprintf(stderr, "Failed to commit entry_group: %s\n", avahi_strerror(ret));

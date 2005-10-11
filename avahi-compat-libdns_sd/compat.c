@@ -805,21 +805,42 @@ static void reg_report_error(DNSServiceRef sdref, DNSServiceErrorType error) {
 
 static int reg_create_service(DNSServiceRef sdref) {
     int ret;
+    const char *real_type;
+    
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
+    real_type = avahi_get_type_from_subtype(sdref->service_regtype);
+    
     if ((ret = avahi_entry_group_add_service_strlst(
         sdref->entry_group,
         sdref->service_interface,
         AVAHI_PROTO_UNSPEC,
         0,
         sdref->service_name_chosen,
-        sdref->service_regtype,
+        real_type ? real_type : sdref->service_regtype,
         sdref->service_domain,
         sdref->service_host,
         sdref->service_port,
         sdref->service_txt)) < 0)
         return ret;
+
+    
+    if (real_type) {
+        /* Create a subtype entry */
+
+        if (avahi_entry_group_add_service_subtype(
+                sdref->entry_group,
+                sdref->service_interface,
+                AVAHI_PROTO_UNSPEC,
+                0,
+                sdref->service_name_chosen,
+                real_type,
+                sdref->service_domain,
+                sdref->service_regtype) < 0)
+            return ret;
+
+    }
 
     if ((ret = avahi_entry_group_commit(sdref->entry_group)) < 0)
         return ret;

@@ -74,7 +74,6 @@ case "$host" in
     ;;
   *-linux*)
     AC_DEFINE([LINUX],[],[ Support for GNU/Linux])
-    AC_DEFINE([HAVE_NETLINK],[],[ Support for netlink.h])
     avahi_platform=linux
     ;;
   *-freebsd* | *-kfreebsd*-gnu)
@@ -87,7 +86,15 @@ case "$host" in
     ;;
 esac
 
-AM_CONDITIONAL(HAVE_NETLINK, [ test x"$avahi_platform" = xlinux ])
+AC_CHECK_HEADER(linux/netlink.h, 
+HAVE_NETLINK=yes
+AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
+, [], [
+#include <sys/socket.h>
+#include <asm/types.h>
+])
+
+AM_CONDITIONAL(HAVE_NETLINK, [ test x"$HAVE_NETLINK" = xyes ])
 
 #
 # Detecting the linux distribution for specific things like init scripts.

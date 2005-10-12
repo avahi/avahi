@@ -1,21 +1,13 @@
 for 0.6:
 * Add sensible record updating API
 * add simplification routine for adding services 
-
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
-
 * add API to allow user to tell the server that some service is not reachable
-
+* generate local CNAME responses
+* rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
+* add support for subtypes in static services
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
-
-* consolidate browsing failure events and add an API to query the reason
-
-* generate local CNAME responses
-
-* rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
-
-* add support for subtypes in static services
 
 later:
 * support for special domain PTR records based on local IP subnet address
@@ -95,3 +87,4 @@ done:
 * wrap subtype support for avahi-client
 * add subtype browsing
 * split linux specific parts from iface.c 
+* consolidate browsing failure events and add an API to query the reason

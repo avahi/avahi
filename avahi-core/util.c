@@ -36,7 +36,7 @@ void avahi_hexdump(const void* p, size_t size) {
     const uint8_t *c = p;
     assert(p);
 
-    printf("Dumping %u bytes from %p:\n", size, p);
+    printf("Dumping %lu bytes from %p:\n", (unsigned long) size, p);
     
     while (size > 0) {
         unsigned i;

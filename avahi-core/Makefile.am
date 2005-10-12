@@ -44,11 +44,16 @@ noinst_PROGRAMS = \
 	hashmap-test \
 	querier-test
 
+if HAVE_NETLINK
+NETLINK = \
+       iface-linux.c iface-linux.h \
+       netlink.c netlink.h
+endif
+
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
 	iface.c iface.h \
-	iface-linux.c iface-linux.h \
-	netlink.c netlink.h \
+	$(NETLINK) \
 	server.c server.h \
 	prioq.c prioq.h \
 	cache.c cache.h\
@@ -76,6 +81,7 @@ libavahi_core_la_SOURCES = \
 	wide-area.c wide-area.h \
 	multicast-lookup.c multicast-lookup.h \
 	querier.c querier.h
+
 
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)
 libavahi_core_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la

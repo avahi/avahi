@@ -57,6 +57,39 @@ AC_PROG_LIBTOOL
 ACX_PTHREAD(,AC_MSG_ERROR([Missing POSIX Threads support]))
 
 #
+# Host specific stuffs
+#
+case "$host" in
+  *-netbsd* | *-knetbsd*-gnu)
+    AC_DEFINE([NETBSD],[],[ Support for NetBSD])
+    avahi_platform=netbsd
+    ;;
+  *-openbsd*)
+    AC_DEFINE([OPENBSD],[],[ Support for OpenBSD])
+    avahi_platform=openbsd
+    ;;
+  *-solaris*)
+    AC_DEFINE([SOLARIS],[],[ Support for Sun Solaris])
+    avahi_platform=solaris
+    ;;
+  *-linux*)
+    AC_DEFINE([LINUX],[],[ Support for GNU/Linux])
+    AC_DEFINE([HAVE_NETLINK],[],[ Support for netlink.h])
+    avahi_platform=linux
+    ;;
+  *-freebsd* | *-kfreebsd*-gnu)
+    AC_DEFINE([FREEBSD],[],[ Support for FreeBSD])
+    avahi_platform=freebsd
+    ;;
+  *-apple-darwin*)
+    AC_DEFINE([DARWIN],[],[ Support for AppleDarwin])
+    avahi_platform=darwin
+    ;;
+esac
+
+AM_CONDITIONAL(HAVE_NETLINK, [ test x"$avahi_platform" = xlinux ])
+
+#
 # Detecting the linux distribution for specific things like init scripts.
 #
 AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, gentoo, archlinux or none]))

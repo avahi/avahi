@@ -39,7 +39,10 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include "announce.h"
 #include "browse.h"
 #include "querier.h"
+
+#ifdef HAVE_NETLINK
 #include "iface-linux.h"
+#endif
 
 #define AVAHI_MAX_MAC_ADDRESS 32
 

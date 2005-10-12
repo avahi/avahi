@@ -42,6 +42,8 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 
 #ifdef HAVE_NETLINK
 #include "iface-linux.h"
+#else
+#error "No network configuration notification system available"
 #endif
 
 #define AVAHI_MAX_MAC_ADDRESS 32

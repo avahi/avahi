@@ -408,7 +408,7 @@ static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, Avahi
 
 static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiRecord *r) {
     AvahiKey *k;
-    AvahiSRBLookup *n;
+    AvahiSRBLookup *n = NULL;
     AvahiRList *rl;
 
     assert(r->key->clazz == AVAHI_DNS_CLASS_IN);

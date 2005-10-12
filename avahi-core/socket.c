@@ -211,6 +211,36 @@ static int bind_with_warn(int fd, const struct sockaddr *sa, socklen_t l) {
     return 0;
 }
 
+static int ip_pktinfo (int fd, int yes)
+{
+    int ret = -1;
+
+#if IP_PKTINFO
+    if ((ret = setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes))) < 0) {
+        avahi_log_warn("IP_PKTINFO failed: %s", strerror(errno));
+    }
+#else
+#ifdef IP_RECVINTERFACE
+    if ((ret = setsockopt (fd, IPPROTO_IP, IP_RECVINTERFACE, &yes, sizeof (yes))) < 0) {
+        avahi_log_warn("IP_RECVINTERFACE failed: %s", strerror(errno));
+    }
+#else
+#ifdef IP_RECVIF
+    if ((ret = setsockopt (fd, IPPROTO_IP, IP_RECVIF, &yes, sizeof (yes))) < 0) {
+        avahi_log_warn("IP_RECVIF failed: %s", strerror(errno));
+    }
+#endif /* IP_RECVIF */
+#endif /* IP_RECVINTERFACE */
+#if defined (IP_RECVDSTADDR) /* && !defined(solaris) */
+    if ((ret = setsockopt (fd, IPPROTO_IP, IP_RECVDSTADDR, &yes, sizeof (yes))) < 0) {
+        avahi_log_warn("IP_RECVDSTADDR failed: %s", strerror(errno));
+    }
+#endif /* IP_RECVDSTADDR */
+#endif /* IP_PKTINFO */
+
+    return (ret);
+}
+
 int avahi_open_socket_ipv4(int no_reuse) {
     struct sockaddr_in local;
     int fd = -1, ttl, yes, r;
@@ -257,11 +287,10 @@ int avahi_open_socket_ipv4(int no_reuse) {
     }
 
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
-        avahi_log_warn("IP_PKTINFO failed: %s", strerror(errno));
-        goto fail;
+    if (ip_pktinfo (fd, yes) < 0) {
+         goto fail;
     }
-    
+
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
         goto fail;
@@ -673,11 +702,10 @@ int avahi_open_unicast_socket_ipv4(void) {
     }
 
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
-        avahi_log_warn("IP_PKTINFO failed: %s", strerror(errno));
-        goto fail;
+    if (ip_pktinfo (fd, yes) < 0) {
+         goto fail;
     }
-    
+
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
         goto fail;

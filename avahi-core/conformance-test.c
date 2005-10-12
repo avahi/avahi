@@ -107,6 +107,14 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void* userda
     if (state == AVAHI_SERVER_RUNNING) {
         create_service("gurke");
         avahi_server_dump(avahi, dump_line, NULL);
+    } else if (state == AVAHI_SERVER_COLLISION) {
+        char *n;
+        
+        n = avahi_alternative_host_name(avahi_server_get_host_name(s));
+        avahi_log_warn("Host name conflict, retrying with <%s>", n);
+        avahi_server_set_host_name(s, n);
+        avahi_free(n);
+
     }
 }
 
@@ -114,11 +122,18 @@ int main(int argc, char *argv[]) {
     int error;
     AvahiSimplePoll *simple_poll;
     struct timeval tv;
+    struct AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
-    
-    avahi = avahi_server_new(poll_api, NULL, server_callback, NULL, &error);
+
+    avahi_server_config_init(&config);
+    config.publish_workstation = 0;
+    config.use_ipv6 = 0;
+    config.publish_domain = 0;
+    config.publish_hinfo = 0;
+    avahi = avahi_server_new(poll_api, &config, server_callback, NULL, &error);
+    avahi_server_config_free(&config);
 
     avahi_elapse_time(&tv, 5000, 0);
     poll_api->timeout_new(poll_api, &tv, dump_timeout_callback, avahi);

@@ -19,6 +19,11 @@
   USA.
 ***/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+
 #include <avahi-common/address.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/cdecl.h>
@@ -30,6 +35,7 @@
 #include <avahi-common/gccmacro.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/rlist.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/strlst.h>
 #include <avahi-common/timeval.h>
@@ -41,11 +47,16 @@
 #include <avahi-core/dns.h>
 #include <avahi-core/fdutil.h>
 #include <avahi-core/hashmap.h>
+#include <avahi-core/iface-linux.h>
 #include <avahi-core/iface.h>
 #include <avahi-core/log.h>
+#include <avahi-core/lookup.h>
+#include <avahi-core/multicast-lookup.h>
 #include <avahi-core/netlink.h>
 #include <avahi-core/prioq.h>
 #include <avahi-core/probe-sched.h>
+#include <avahi-core/publish.h>
+#include <avahi-core/querier.h>
 #include <avahi-core/query-sched.h>
 #include <avahi-core/response-sched.h>
 #include <avahi-core/rr.h>
@@ -54,6 +65,7 @@
 #include <avahi-core/socket.h>
 #include <avahi-core/timeeventq.h>
 #include <avahi-core/util.h>
+#include <avahi-core/wide-area.h>
 #include <avahi-client/client.h>
 #include <avahi-client/internal.h>
 #include <avahi-glib/glib-malloc.h>

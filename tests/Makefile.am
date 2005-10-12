@@ -22,6 +22,7 @@ AM_CFLAGS= \
 
 if HAVE_GLIB
 if HAVE_DBUS
+if HAVE_NETLINK
 
 noinst_PROGRAMS = c-plus-plus-test
 
@@ -41,7 +42,7 @@ c_plus_plus_test_LDADD = \
 	$(GLIB20_LIBS) \
 	$(DBUS_LIBS)
 
-
+endif
 endif
 endif
 

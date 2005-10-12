@@ -83,7 +83,7 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
     void *userdata) {
     
     AvahiMulticastLookup *l, *t;
-    struct timeval ctime;
+    struct timeval tv;
         
     assert(e);
     assert(AVAHI_IF_VALID(interface));
@@ -109,13 +109,13 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
 
     AVAHI_LLIST_PREPEND(AvahiMulticastLookup, lookups, e->lookups, l);
 
-    avahi_querier_add_for_all(e->server, interface, protocol, l->key, &ctime);
+    avahi_querier_add_for_all(e->server, interface, protocol, l->key, &tv);
     l->queriers_added = 1;
 
     /* add a second */
-    avahi_timeval_add(&ctime, 1000000);
+    avahi_timeval_add(&tv, 1000000);
 
-    l->all_for_now_event = avahi_time_event_new(e->server->time_event_queue, &ctime, all_for_now_callback, l);
+    l->all_for_now_event = avahi_time_event_new(e->server->time_event_queue, &tv, all_for_now_callback, l);
     
     return l;
 }

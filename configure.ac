@@ -86,6 +86,9 @@ case "$host" in
     ;;
 esac
 
+#
+# Check for netlink.h
+#
 AC_CHECK_HEADER(linux/netlink.h, 
 HAVE_NETLINK=yes
 AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
@@ -95,6 +98,34 @@ AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
 ])
 
 AM_CONDITIONAL(HAVE_NETLINK, [ test x"$HAVE_NETLINK" = xyes ])
+
+#
+# Check for struct ip_mreqn
+#
+AC_MSG_CHECKING(for struct ip_mreqn)
+AC_TRY_COMPILE([#include <netinet/in.h>], [
+	struct ip_mreqn mreq;
+	mreq.imr_address.s_addr = 0;
+], [
+	# Yes, we have it...
+	AC_MSG_RESULT(yes)
+	AC_DEFINE([HAVE_STRUCT_IP_MREQN],[],[Support for struct ip_mreqn])
+], [
+	# We'll just have to try and use struct ip_mreq
+	AC_MSG_RESULT(no)
+	AC_MSG_CHECKING(for struct ip_mreq)
+	AC_TRY_COMPILE([#include <netinet/in.h>], [
+		struct ip_mreq mreq;
+		mreq.imr_interface.s_addr = 0;
+	], [
+		# Yes, we have it...
+		AC_MSG_RESULT(yes)
+		AC_DEFINE([HAVE_STRUCT_IP_MREQ],[],[Support for struct ip_mreq])
+	], [
+		# No multicast support
+			AC_MSG_RESULT(no)
+	])
+])
 
 #
 # Detecting the linux distribution for specific things like init scripts.

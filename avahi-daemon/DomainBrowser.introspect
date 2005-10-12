@@ -29,9 +29,9 @@
       <arg name="flags" type="u"/>
     </signal>
 
-    <signal name="Failure"/>
-
-    <signal name="NotFound"/>
+    <signal name="Failure">
+      <arg name="error" type="s"/>
+    </signal>
 
     <signal name="AllForNow"/>
 

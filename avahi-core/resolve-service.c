@@ -81,8 +81,6 @@ static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
     
     switch (event) {
         case AVAHI_RESOLVER_FAILURE:
-        case AVAHI_RESOLVER_NOT_FOUND:
-        case AVAHI_RESOLVER_TIMEOUT:
             
             r->callback(
                 r,
@@ -151,9 +149,8 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     assert(e);
     assert(r);
 
-    avahi_log_debug("timeout");
-    
-    finish(r, AVAHI_RESOLVER_TIMEOUT);
+    avahi_server_set_errno(r->server, AVAHI_ERR_TIMEOUT);
+    finish(r, AVAHI_RESOLVER_FAILURE);
 }
 
 static void start_timeout(AvahiSServiceResolver *r) {
@@ -346,9 +343,7 @@ static void record_browser_callback(
         case AVAHI_BROWSER_ALL_FOR_NOW:
             break;
 
-        case AVAHI_BROWSER_NOT_FOUND:
         case AVAHI_BROWSER_FAILURE:
-
             
             if (rr == r->record_browser_a && r->record_browser_aaaa) {
                 /* We were looking for both AAAA and A, and the other query is still living, so we'll not die */
@@ -364,7 +359,6 @@ static void record_browser_callback(
                 break;
             }
 
-
             /* Hmm, everything's lost, tell the user */
             
             if (r->record_browser_srv)
@@ -378,7 +372,7 @@ static void record_browser_callback(
 
             r->record_browser_srv = r->record_browser_txt = r->record_browser_a = r->record_browser_aaaa = NULL;
 
-            finish(r, event == AVAHI_BROWSER_FAILURE ? AVAHI_RESOLVER_FAILURE : AVAHI_RESOLVER_NOT_FOUND);
+            finish(r, AVAHI_RESOLVER_FAILURE);
             break;
     }
 }

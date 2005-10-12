@@ -42,6 +42,7 @@ enum {
     AVAHI_ERR_IS_PATTERN = -7,               /**< RR key is pattern */
     AVAHI_ERR_LOCAL_COLLISION = -8,          /**< Local name collision */
     AVAHI_ERR_INVALID_RECORD = -9,           /**< Invalid RR */
+
     AVAHI_ERR_INVALID_SERVICE_NAME = -10,    /**< Invalid service name */
     AVAHI_ERR_INVALID_SERVICE_TYPE = -11,    /**< Invalid service type */
     AVAHI_ERR_INVALID_PORT = -12,            /**< Invalid port number */
@@ -52,6 +53,7 @@ enum {
     AVAHI_ERR_TOO_MANY_OBJECTS = -17,        /**< Too many objects */
     AVAHI_ERR_TOO_MANY_ENTRIES = -18,        /**< Too many entries */
     AVAHI_ERR_OS = -19,                      /**< OS error */
+
     AVAHI_ERR_ACCESS_DENIED = -20,           /**< Access denied */
     AVAHI_ERR_INVALID_OPERATION = -21,       /**< Invalid operation */
     AVAHI_ERR_DBUS_ERROR = -22,              /**< An unexpected DBUS error occured */
@@ -62,11 +64,25 @@ enum {
     AVAHI_ERR_INVALID_INTERFACE = -27,       /**< Invalid interface */
     AVAHI_ERR_INVALID_PROTOCOL = -28,        /**< Invalid protocol */
     AVAHI_ERR_INVALID_FLAGS = -29,           /**< Invalid flags */
+
     AVAHI_ERR_NOT_FOUND = -30,               /**< Not found */
     AVAHI_ERR_INVALID_CONFIG = -31,          /**< Configuration error */
     AVAHI_ERR_VERSION_MISMATCH = -32,        /**< Verson mismatch */
     AVAHI_ERR_INVALID_SERVICE_SUBTYPE = -33, /**< Invalid service subtype */
+    AVAHI_ERR_INVALID_PACKET = -34,          /**< Invalid packet */
+    AVAHI_ERR_INVALID_DNS_ERROR = -35,       /**< Invlaid DNS return code */
+    AVAHI_ERR_DNS_FORMERR = -36,
+    AVAHI_ERR_DNS_SERVFAIL = -37,
+    AVAHI_ERR_DNS_NXDOMAIN = -38,
+    AVAHI_ERR_DNS_NOTIMP = -39,
 
+    AVAHI_ERR_DNS_REFUSED = -40,
+    AVAHI_ERR_DNS_YXDOMAIN = -41,
+    AVAHI_ERR_DNS_YXRRSET = -42,
+    AVAHI_ERR_DNS_NXRRSET = -43,
+    AVAHI_ERR_DNS_NOTAUTH = -44,
+    AVAHI_ERR_DNS_NOTZONE = -45,
+    
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
      ****    IT TO THE STRING ARRAY IN avahi_strerror() IN error.c AND
@@ -75,7 +91,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -34
+    AVAHI_ERR_MAX = -46
 };
 
 /** Return a human readable error string for the specified error code */

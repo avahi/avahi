@@ -89,8 +89,6 @@ static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
 
         }
             
-        case AVAHI_RESOLVER_TIMEOUT:
-        case AVAHI_RESOLVER_NOT_FOUND:
         case AVAHI_RESOLVER_FAILURE:
             
             r->callback(r, r->interface, r->protocol, event, r->host_name, NULL, r->flags, r->userdata);
@@ -104,7 +102,8 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     assert(e);
     assert(r);
 
-    finish(r, AVAHI_RESOLVER_TIMEOUT);
+    avahi_server_set_errno(r->server, AVAHI_ERR_TIMEOUT);
+    finish(r, AVAHI_RESOLVER_FAILURE);
 }
 
 static void start_timeout(AvahiSHostNameResolver *r) {
@@ -188,7 +187,6 @@ static void record_browser_callback(
             break;
 
         case AVAHI_BROWSER_FAILURE:
-        case AVAHI_BROWSER_NOT_FOUND:
 
             /* Stop browsers */
             
@@ -200,7 +198,7 @@ static void record_browser_callback(
             r->record_browser_a = r->record_browser_aaaa = NULL;
             r->flags = flags;
             
-            finish(r, event == AVAHI_BROWSER_FAILURE ? AVAHI_RESOLVER_FAILURE : AVAHI_RESOLVER_NOT_FOUND);
+            finish(r, AVAHI_RESOLVER_FAILURE);
             break;
     }
 }

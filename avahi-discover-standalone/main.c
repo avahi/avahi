@@ -30,10 +30,14 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+
 #include <avahi-core/core.h>
 #include <avahi-core/lookup.h>
+
 #include <avahi-common/strlst.h>
 #include <avahi-common/domain.h>
+#include <avahi-common/error.h>
+
 #include <avahi-glib/glib-watch.h>
 #include <avahi-glib/glib-malloc.h>
 
@@ -312,13 +316,11 @@ static void service_resolver_callback(
         return;
     }
 
-    if (event == AVAHI_RESOLVER_TIMEOUT)
-        gtk_label_set_markup(info_label, "<i>Failed to resolve: Timeout.</i>");
-    else if (event == AVAHI_RESOLVER_FAILURE)
-        gtk_label_set_markup(info_label, "<i>Failed to resolve: Failure.</i>");
-    else if (event == AVAHI_RESOLVER_NOT_FOUND)
-        gtk_label_set_markup(info_label, "<i>Failed to resolve: Not found.</i>");
-    else if (event == AVAHI_RESOLVER_FOUND)
+    if (event == AVAHI_RESOLVER_FAILURE) {
+        char t[256];
+        snprintf(t, sizeof(t), "<i>Failed to resolve: %s.</i>", avahi_strerror(avahi_server_errno(server)));
+        gtk_label_set_markup(info_label, t);
+    } else if (event == AVAHI_RESOLVER_FOUND)
         update_label(s, host_name, a, port, txt);
 }
 

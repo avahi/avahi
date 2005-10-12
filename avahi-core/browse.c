@@ -222,7 +222,6 @@ static void lookup_wide_area_callback(
             abort();
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
-        case AVAHI_BROWSER_NOT_FOUND:
         case AVAHI_BROWSER_FAILURE:
 
             b->callback(b, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, flags, b->userdata);
@@ -292,7 +291,6 @@ static void lookup_multicast_callback(
             break;
 
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
-        case AVAHI_BROWSER_NOT_FOUND:
         case AVAHI_BROWSER_FAILURE:
             /* Not defined for multicast DNS */
             abort();
@@ -463,6 +461,8 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
 
     if (n < 0) {
         /* sending of the initial query failed */
+
+        avahi_server_set_errno(b->server, AVAHI_ERR_FAILURE);
 
         b->callback(
             b, b->interface, b->protocol, AVAHI_BROWSER_FAILURE, NULL,

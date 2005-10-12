@@ -38,6 +38,7 @@ const char *avahi_strerror(int error) {
         "Resource record key is pattern",
         "Local name collision",
         "Invalid record",
+
         "Invalid service name",
         "Invalid service type",
         "Invalid port number",
@@ -48,6 +49,7 @@ const char *avahi_strerror(int error) {
         "Too many objects",
         "Too many entries",
         "OS Error",
+
         "Access denied",
         "Invalid operation",
         "An unexpected DBUS error occured",
@@ -58,10 +60,24 @@ const char *avahi_strerror(int error) {
         "Invalid interface index",
         "Invalid protocol specification",
         "Invalid flags",
+
         "Not found",
         "Invalid configuration",
         "Version mismatch",
-        "Invalid service subtype"
+        "Invalid service subtype",
+        "Invalid packet",
+        "Invalid DNS return code",
+        "DNS failure: FORMERR",
+        "DNS failure: SERVFAIL",
+        "DNS failure: NXDOMAIN",
+        "DNS failure: NOTIMP",
+
+        "DNS failure: REFUSED",
+        "DNS failure: YXDOMAIN",
+        "DNS failure: YXRRSET",
+        "DNS failure: NXRRSET",
+        "DNS failure: NOTAUTH",
+        "DNS failure: NOTZONE"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

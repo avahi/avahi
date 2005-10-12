@@ -448,11 +448,7 @@ static void service_browser_callback(
             break;
 
         case AVAHI_BROWSER_FAILURE:
-            sdref->service_browser_callback(sdref, 0, interface, kDNSServiceErr_Unknown, NULL, NULL, NULL, sdref->context);
-            break;
-            
-        case AVAHI_BROWSER_NOT_FOUND:
-            sdref->service_browser_callback(sdref, 0, interface, kDNSServiceErr_NoSuchName, NULL, NULL, NULL, sdref->context);
+            sdref->service_browser_callback(sdref, 0, interface, map_error(avahi_client_errno(sdref->client)), NULL, NULL, NULL, sdref->context);
             break;
             
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
@@ -594,13 +590,8 @@ static void service_resolver_callback(
             break;
         }
 
-        case AVAHI_RESOLVER_TIMEOUT:
-        case AVAHI_RESOLVER_NOT_FOUND:
-            sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoSuchName, NULL, NULL, 0, 0, NULL, sdref->context);
-            break;
-            
         case AVAHI_RESOLVER_FAILURE:
-            sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_Unknown, NULL, NULL, 0, 0, NULL, sdref->context);
+            sdref->service_resolver_callback(sdref, 0, interface, map_error(avahi_client_errno(sdref->client)), NULL, NULL, 0, 0, NULL, sdref->context);
             
     }
 }
@@ -713,11 +704,7 @@ static void domain_browser_callback(
             break;
 
         case AVAHI_BROWSER_FAILURE:
-            sdref->domain_browser_callback(sdref, 0, interface, kDNSServiceErr_Unknown, domain, sdref->context);
-            break;
-            
-        case AVAHI_BROWSER_NOT_FOUND:
-            sdref->domain_browser_callback(sdref, 0, interface, kDNSServiceErr_NoSuchName, domain, sdref->context);
+            sdref->domain_browser_callback(sdref, 0, interface, map_error(avahi_client_errno(sdref->client)), domain, sdref->context);
             break;
             
         case AVAHI_BROWSER_CACHE_EXHAUSTED:

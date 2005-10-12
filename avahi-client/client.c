@@ -178,8 +178,6 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         return avahi_domain_browser_event(client, AVAHI_BROWSER_CACHE_EXHAUSTED, message);
     else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "AllForNow")) 
         return avahi_domain_browser_event(client, AVAHI_BROWSER_ALL_FOR_NOW, message);
-    else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "NotFound")) 
-        return avahi_domain_browser_event(client, AVAHI_BROWSER_NOT_FOUND, message);
     else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Failure")) 
         return avahi_domain_browser_event(client, AVAHI_BROWSER_FAILURE, message);
 
@@ -191,8 +189,6 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_CACHE_EXHAUSTED, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "AllForNow")) 
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_ALL_FOR_NOW, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "NotFound")) 
-        return avahi_service_type_browser_event (client, AVAHI_BROWSER_NOT_FOUND, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Failure")) 
         return avahi_service_type_browser_event (client, AVAHI_BROWSER_FAILURE, message);
 
@@ -204,35 +200,21 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         return avahi_service_browser_event (client, AVAHI_BROWSER_CACHE_EXHAUSTED, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "AllForNow")) 
         return avahi_service_browser_event (client, AVAHI_BROWSER_ALL_FOR_NOW, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "NotFound")) 
-        return avahi_service_browser_event (client, AVAHI_BROWSER_NOT_FOUND, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Failure")) 
         return avahi_service_browser_event (client, AVAHI_BROWSER_FAILURE, message);
 
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Found")) 
         return avahi_service_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Timeout")) 
-        return avahi_service_resolver_event (client, AVAHI_RESOLVER_TIMEOUT, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "NotFound")) 
-        return avahi_service_resolver_event (client, AVAHI_RESOLVER_NOT_FOUND, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Failure")) 
         return avahi_service_resolver_event (client, AVAHI_RESOLVER_FAILURE, message);
 
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Found")) 
         return avahi_host_name_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Timeout")) 
-        return avahi_host_name_resolver_event (client, AVAHI_RESOLVER_TIMEOUT, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "NotFound")) 
-        return avahi_host_name_resolver_event (client, AVAHI_RESOLVER_NOT_FOUND, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Failure")) 
         return avahi_host_name_resolver_event (client, AVAHI_RESOLVER_FAILURE, message);
 
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Found")) 
         return avahi_address_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Timeout")) 
-        return avahi_address_resolver_event (client, AVAHI_RESOLVER_TIMEOUT, message);
-    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "NotFound")) 
-        return avahi_address_resolver_event (client, AVAHI_RESOLVER_NOT_FOUND, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Failure")) 
         return avahi_address_resolver_event (client, AVAHI_RESOLVER_FAILURE, message);
     

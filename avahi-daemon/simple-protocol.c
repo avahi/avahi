@@ -178,12 +178,8 @@ static void host_name_resolver_callback(
     
     assert(c);
 
-    if (event == AVAHI_RESOLVER_TIMEOUT)
-        client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
-    else if (event == AVAHI_RESOLVER_FAILURE)
-        client_output_printf(c, "%+i Query failed\n", AVAHI_ERR_FAILURE);
-    else if (event == AVAHI_RESOLVER_NOT_FOUND)
-        client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_NOT_FOUND);
+    if (event == AVAHI_RESOLVER_FAILURE)
+        client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
     else if (event == AVAHI_RESOLVER_FOUND) {
         char t[64];
         avahi_address_snprint(t, sizeof(t), a);
@@ -207,12 +203,8 @@ static void address_resolver_callback(
     
     assert(c);
 
-    if (event == AVAHI_RESOLVER_TIMEOUT)
-        client_output_printf(c, "%+i Query timed out\n", AVAHI_ERR_TIMEOUT);
-    else if (event == AVAHI_RESOLVER_FAILURE)
-        client_output_printf(c, "%+i Query failed\n", AVAHI_ERR_FAILURE);
-    else if (event == AVAHI_RESOLVER_NOT_FOUND)
-        client_output_printf(c, "%+i Not found\n", AVAHI_ERR_NOT_FOUND);
+    if (event == AVAHI_RESOLVER_FAILURE)
+        client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
     else if (event == AVAHI_RESOLVER_FOUND)
         client_output_printf(c, "+ %i %u %s\n", iface, protocol, hostname);
 
@@ -240,12 +232,7 @@ static void dns_server_browser_callback(
 
     switch (event) {
         case AVAHI_BROWSER_FAILURE:
-            client_output_printf(c, "%+i Query failed\n", AVAHI_ERR_FAILURE);
-            c->state = CLIENT_DEAD;
-            break;
-
-        case AVAHI_BROWSER_NOT_FOUND:
-            client_output_printf(c, "%+i Not found\n", AVAHI_ERR_FAILURE);
+            client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
             c->state = CLIENT_DEAD;
             break;
 

@@ -139,7 +139,7 @@ typedef enum {
     AVAHI_ENTRY_GROUP_UNCOMMITED,    /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
     AVAHI_ENTRY_GROUP_REGISTERING,   /**< The entries of the group are currently being registered */
     AVAHI_ENTRY_GROUP_ESTABLISHED,   /**< The entries have successfully been established */
-    AVAHI_ENTRY_GROUP_COLLISION      /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */ 
+    AVAHI_ENTRY_GROUP_COLLISION,     /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */
 } AvahiEntryGroupState;
 
 /** The type of domain to browse for */
@@ -187,16 +187,13 @@ typedef enum {
     AVAHI_BROWSER_REMOVE,            /**< The object has been removed from the network */
     AVAHI_BROWSER_CACHE_EXHAUSTED,   /**< One-time event, to notify the user that all entries from the caches have been send */
     AVAHI_BROWSER_ALL_FOR_NOW,       /**< One-time event, to notify the user that more records will probably not show up in the near future, i.e. all cache entries have been read and all static servers been queried */
-    AVAHI_BROWSER_NOT_FOUND,         /**< Issued when using wide area DNS-SD to inform that a record is not existing */
-    AVAHI_BROWSER_FAILURE            /**< Issued when using wide area DNS-SD to inform about server failures */
+    AVAHI_BROWSER_FAILURE            /**< Browsing failed due to some reason which can be retrieved using avahi_server_errno()/avahi_client_errno() */
 } AvahiBrowserEvent;
 
 /** Type of callback event when resolving */
 typedef enum {
     AVAHI_RESOLVER_FOUND,          /**< RR found, resolving successful */
-    AVAHI_RESOLVER_TIMEOUT,        /**< Noone responded within the timeout, resolving failed */
-    AVAHI_RESOLVER_NOT_FOUND,      /**< Query was done using wide area DNS-SD and the server told us that the entry is nto available */
-    AVAHI_RESOLVER_FAILURE         /**< Query was done using wide area DNS-SD and the server failed */
+    AVAHI_RESOLVER_FAILURE         /**< Resolving failed due to some reason which can be retrieved using avahi_server_errno()/avahi_client_errno() */
 } AvahiResolverEvent;
 
 /** States of a server object */

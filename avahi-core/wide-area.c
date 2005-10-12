@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 #include <avahi-common/malloc.h>
+#include <avahi-common/error.h>
 
 #include "server.h"
 #include "browse.h"
@@ -173,6 +174,7 @@ static void sender_timeout_callback(AvahiTimeEvent *e, void *userdata) {
     
     if (l->n_send >= 6) {
         avahi_log_warn(__FILE__": Query timed out.");
+        avahi_server_set_errno(l->engine->server, AVAHI_ERR_TIMEOUT);
         l->callback(l->engine, AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
         avahi_wide_area_lookup_free(l);
         return;
@@ -447,6 +449,31 @@ finish:
         run_callbacks(e, r);
 }
 
+static int map_dns_error(uint16_t error) {
+    static const int table[16] = {
+        AVAHI_OK,
+        AVAHI_ERR_DNS_FORMERR,
+        AVAHI_ERR_DNS_SERVFAIL,
+        AVAHI_ERR_DNS_NXDOMAIN,
+        AVAHI_ERR_DNS_NOTIMP,
+        AVAHI_ERR_DNS_REFUSED,
+        AVAHI_ERR_DNS_YXDOMAIN,
+        AVAHI_ERR_DNS_YXRRSET,
+        AVAHI_ERR_DNS_NXRRSET,
+        AVAHI_ERR_DNS_NOTAUTH,
+        AVAHI_ERR_DNS_NOTZONE,
+        AVAHI_ERR_INVALID_DNS_ERROR,
+        AVAHI_ERR_INVALID_DNS_ERROR,
+        AVAHI_ERR_INVALID_DNS_ERROR,
+        AVAHI_ERR_INVALID_DNS_ERROR,
+        AVAHI_ERR_INVALID_DNS_ERROR
+    };
+
+    assert(error <= 15);
+
+    return table[error];
+}
+
 static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, AvahiAddress *a) {
     AvahiWideAreaLookup *l = NULL;
     int i, r;
@@ -470,8 +497,9 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
     if ((r = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & 15) != 0 ||
         avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0) {
 
+        avahi_server_set_errno(e->server, r == 0 ? AVAHI_ERR_NOT_FOUND : map_dns_error(r));
         /* Tell the user about the failure */
-        final_event = r == 3 ? AVAHI_BROWSER_NOT_FOUND : AVAHI_BROWSER_FAILURE;
+        final_event = AVAHI_BROWSER_FAILURE;
 
         /* We go on here, since some of the records contained in the
            reply might be interesting in some way */
@@ -483,6 +511,7 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
         
         if (!(k = avahi_dns_packet_consume_key(p, NULL))) {
             avahi_log_warn(__FILE__": Wide area response packet too short.");
+            avahi_server_set_errno(e->server, AVAHI_ERR_INVALID_PACKET);
             final_event = AVAHI_BROWSER_FAILURE;
             goto finish;
         }
@@ -499,6 +528,7 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, Avahi
 
         if (!(rr = avahi_dns_packet_consume_record(p, NULL))) {
             avahi_log_warn(__FILE__": Wide area response packet too short (2).");
+            avahi_server_set_errno(e->server, AVAHI_ERR_INVALID_PACKET);
             final_event = AVAHI_BROWSER_FAILURE;
             goto finish;
         }

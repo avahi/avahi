@@ -71,8 +71,7 @@ static void avahi_service_resolver_callback(
     
     char addr[64];
     char *txtr;
-    if (event == AVAHI_RESOLVER_TIMEOUT)
-    {
+    if (event == AVAHI_RESOLVER_FAILURE) {
         printf ("SERVICE-RESOLVER: ServiceResolver %p timed out (%s %s)\n", (void*) r, name, type);
         return;
     }
@@ -129,8 +128,7 @@ static void avahi_address_resolver_callback (
     void *userdata) {
     
     char addr[64];
-    if (event == AVAHI_RESOLVER_TIMEOUT)
-    {
+    if (event == AVAHI_RESOLVER_FAILURE) {
         printf ("ADDRESS-RESOLVER: Callback on AddressResolver, timed out.\n");
         return;
     }
@@ -152,8 +150,7 @@ static void avahi_host_name_resolver_callback (
     AvahiAddressResolver *ar;
     char addr[64];
     
-    if (event == AVAHI_RESOLVER_TIMEOUT)
-    {
+    if (event == AVAHI_RESOLVER_FAILURE) {
         printf ("HOST-NAME-RESOLVER: Callback on HostNameResolver, timed out.\n");
         return;
     }

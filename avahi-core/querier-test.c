@@ -49,7 +49,6 @@ static const char *browser_event_to_string(AvahiBrowserEvent event) {
         case AVAHI_BROWSER_CACHE_EXHAUSTED : return "CACHE_EXHAUSTED";
         case AVAHI_BROWSER_ALL_FOR_NOW : return "ALL_FOR_NOW";
         case AVAHI_BROWSER_FAILURE : return "FAILURE";
-        case AVAHI_BROWSER_NOT_FOUND : return "NOT_FOUND";
     }
 
     abort();

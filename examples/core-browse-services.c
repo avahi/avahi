@@ -68,17 +68,14 @@ static void resolve_callback(
     /* Called whenever a service has been resolved successfully or timed out */
 
     switch (event) {
-        case AVAHI_RESOLVER_TIMEOUT:
-        case AVAHI_RESOLVER_NOT_FOUND:
         case AVAHI_RESOLVER_FAILURE:
-            fprintf(stderr, "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n", name, type, domain,
-                    event == AVAHI_RESOLVER_TIMEOUT ? "TIMEOUT" : (event == AVAHI_RESOLVER_NOT_FOUND ? "NOT_FOUND" : "FAILURE"));
+            fprintf(stderr, "(Resolver) Failed to resolve service '%s' of type '%s' in domain '%s': %s\n", name, type, domain, avahi_strerror(avahi_server_errno(server)));
             break;
 
         case AVAHI_RESOLVER_FOUND: {
             char a[128], *t;
             
-            fprintf(stderr, "Service '%s' of type '%s' in domain '%s':\n", name, type, domain);
+            fprintf(stderr, "(Resolver) Service '%s' of type '%s' in domain '%s':\n", name, type, domain);
             
             avahi_address_snprint(a, sizeof(a), address);
             t = avahi_string_list_to_string(txt);
@@ -123,9 +120,8 @@ static void browse_callback(
     switch (event) {
 
         case AVAHI_BROWSER_FAILURE:
-        case AVAHI_BROWSER_NOT_FOUND:
             
-            fprintf(stderr, "(Browser) %s\n", event == AVAHI_BROWSER_FAILURE ? "FAILURE" : "NOT_FOUND");
+            fprintf(stderr, "(Browser) %s\n", avahi_strerror(avahi_server_errno(server)));
             avahi_simple_poll_quit(simple_poll);
             return;
 

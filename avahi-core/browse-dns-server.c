@@ -128,9 +128,7 @@ static void host_name_resolver_callback(
             break;
         }
 
-        case AVAHI_RESOLVER_NOT_FOUND:
         case AVAHI_RESOLVER_FAILURE:
-        case AVAHI_RESOLVER_TIMEOUT:
             /* Ignore */
             break;
     }
@@ -215,7 +213,6 @@ static void record_browser_callback(
         }
 
         case AVAHI_BROWSER_FAILURE:
-        case AVAHI_BROWSER_NOT_FOUND:
         case AVAHI_BROWSER_ALL_FOR_NOW:
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
 

@@ -24,11 +24,9 @@
       <arg name="flags" type="u" direction="out"/>
     </signal>
 
-    <signal name="Timeout"/>
-
-    <signal name="NotFound"/>
-
-    <signal name="Failure"/>
+    <signal name="Failure">
+      <arg name="error" type="s"/>
+    </signal>
 
   </interface> 
 </node>

@@ -194,17 +194,42 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
     if (!db)
         goto fail;
 
-    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
-        if (!dbus_message_get_args(
-                message, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_INVALID) ||
-            dbus_error_is_set (&error)) {
-            fprintf(stderr, "Failed to parse browser event.\n");
-            goto fail;
+    switch (event) {
+        case AVAHI_BROWSER_NEW:
+        case AVAHI_BROWSER_REMOVE:
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_STRING, &domain,
+                    DBUS_TYPE_UINT32, &flags,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+
+            break;
+            
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            break;
+
+        case AVAHI_BROWSER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+            
+            avahi_client_set_errno(db->client, avahi_error_dbus_to_number(etxt));
+            break;
         }
     }
 
@@ -369,19 +394,41 @@ DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBr
 
     if (!b)
         goto fail;
+    switch (event) {
+        case AVAHI_BROWSER_NEW:
+        case AVAHI_BROWSER_REMOVE:
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_STRING, &type,
+                    DBUS_TYPE_STRING, &domain,
+                    DBUS_TYPE_UINT32, &flags,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set(&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+            break;
+            
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            break;
 
-    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
-        if (!dbus_message_get_args(
-                message, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_INVALID) ||
-            dbus_error_is_set(&error)) {
-            fprintf(stderr, "Failed to parse browser event.\n");
-            goto fail;
+        case AVAHI_BROWSER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+            
+            avahi_client_set_errno(b->client, avahi_error_dbus_to_number(etxt));
+            break;
         }
     }
 
@@ -528,7 +575,7 @@ int avahi_service_browser_free (AvahiServiceBrowser *b) {
 }
 
 
-DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
+DBusHandlerResult avahi_service_browser_event(AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
     AvahiServiceBrowser *b = NULL;
     DBusError error;
     const char *path;
@@ -548,19 +595,43 @@ DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowser
     if (!b)
         goto fail;
 
-    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
-        if (!dbus_message_get_args (
-                message, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_INVALID) ||
-            dbus_error_is_set(&error)) {
-            fprintf(stderr, "Failed to parse browser event.\n");
-            goto fail;
+    switch (event) {
+        case AVAHI_BROWSER_NEW:
+        case AVAHI_BROWSER_REMOVE:
+            
+            if (!dbus_message_get_args (
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_STRING, &name,
+                    DBUS_TYPE_STRING, &type,
+                    DBUS_TYPE_STRING, &domain,
+                    DBUS_TYPE_UINT32, &flags,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set(&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+            break;
+
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            break;
+
+        case AVAHI_BROWSER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+            
+            avahi_client_set_errno(b->client, avahi_error_dbus_to_number(etxt));
+            break;
         }
     }
 

@@ -430,7 +430,7 @@ static DBusHandlerResult respond_error(DBusConnection *c, DBusMessage *m, int er
     if (!text)
         text = avahi_strerror(error);
     
-    reply = dbus_message_new_error(m, avahi_error_number_to_dbus (error), text);
+    reply = dbus_message_new_error(m, avahi_error_number_to_dbus(error), text);
     dbus_connection_send(c, reply, NULL);
     dbus_message_unref(reply);
 
@@ -504,6 +504,17 @@ static DBusHandlerResult respond_path(DBusConnection *c, DBusMessage *m, const c
     return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static void append_server_error(DBusMessage *reply) {
+    const char *t;
+
+    t = avahi_error_number_to_dbus(avahi_server_errno(avahi_server));
+    
+    dbus_message_append_args(
+        reply,
+        DBUS_TYPE_STRING, &t,
+        DBUS_TYPE_INVALID);
+}
+
 static char *file_get_contents(char *fname) {
     int fd = -1;
     struct stat st;
@@ -560,7 +571,6 @@ static const char *map_browse_signal_name(AvahiBrowserEvent e) {
         case AVAHI_BROWSER_NEW : return "ItemNew";
         case AVAHI_BROWSER_REMOVE : return "ItemRemove";
         case AVAHI_BROWSER_FAILURE : return "Failure";
-        case AVAHI_BROWSER_NOT_FOUND : return "NotFound";
         case AVAHI_BROWSER_CACHE_EXHAUSTED : return "CacheExhausted";
         case AVAHI_BROWSER_ALL_FOR_NOW : return "AllForNow";
     }
@@ -571,25 +581,12 @@ static const char *map_browse_signal_name(AvahiBrowserEvent e) {
 static const char *map_resolve_signal_name(AvahiResolverEvent e) {
     switch (e) {
         case AVAHI_RESOLVER_FOUND : return "Found";
-        case AVAHI_RESOLVER_TIMEOUT : return "Timeout";
         case AVAHI_RESOLVER_FAILURE : return "Failure";
-        case AVAHI_RESOLVER_NOT_FOUND : return "NotFound";
     }
 
     abort();
 }
 
-static int map_resolve_error(AvahiResolverEvent e) {
-
-    switch(e) {
-        case AVAHI_RESOLVER_FOUND : abort();
-        case AVAHI_RESOLVER_TIMEOUT : return AVAHI_ERR_TIMEOUT;
-        case AVAHI_RESOLVER_FAILURE : return AVAHI_ERR_FAILURE;
-        case AVAHI_RESOLVER_NOT_FOUND : return AVAHI_ERR_NOT_FOUND;
-    }
-
-    abort();
-}
 
 static DBusHandlerResult handle_introspect(DBusConnection *c, DBusMessage *m, const char *fname) {
     char *path, *contents;
@@ -979,8 +976,10 @@ static void sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfI
 
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);
-    } else
-        respond_error(server->bus, i->message, map_resolve_error(event), NULL);
+    } else {
+        assert(event == AVAHI_RESOLVER_FAILURE);
+        respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
+    }
 
     sync_host_name_resolver_free(i);
 }
@@ -1019,8 +1018,10 @@ static void sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInde
 
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);
-    } else
-        respond_error(server->bus, i->message, map_resolve_error(event), NULL);
+    } else {
+        assert(event == AVAHI_RESOLVER_FAILURE);
+        respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
+    }
 
     sync_address_resolver_free(i);
 }
@@ -1093,7 +1094,8 @@ static void domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interfa
             DBUS_TYPE_STRING, &domain,
             DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_INVALID);
-    }
+    } else if (event == AVAHI_BROWSER_FAILURE)
+        append_server_error(m);
     
     dbus_message_set_destination(m, i->client->name);   
     dbus_connection_send(server->bus, m, NULL);
@@ -1170,7 +1172,8 @@ static void service_type_browser_callback(AvahiSServiceTypeBrowser *b, AvahiIfIn
             DBUS_TYPE_STRING, &domain,
             DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_INVALID);
-    }
+    } else if (event == AVAHI_BROWSER_FAILURE)
+        append_server_error(m);
         
     dbus_message_set_destination(m, i->client->name);   
     dbus_connection_send(server->bus, m, NULL);
@@ -1250,7 +1253,8 @@ static void service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex inter
             DBUS_TYPE_STRING, &domain,
             DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_INVALID);
-    }
+    } else if (event == AVAHI_BROWSER_FAILURE)
+        append_server_error(m);
     
     dbus_message_set_destination(m, i->client->name);   
     dbus_connection_send(server->bus, m, NULL);
@@ -1340,8 +1344,12 @@ static void sync_service_resolver_callback(
 
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);
-    } else
-        respond_error(server->bus, i->message, map_resolve_error(event), NULL);
+        
+    } else {
+        assert(event == AVAHI_RESOLVER_FAILURE);
+        
+        respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
+    }
 
     sync_service_resolver_free(i);
 }
@@ -1353,7 +1361,7 @@ static void async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInd
     assert(r);
     assert(i);
 
-    reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, map_browse_signal_name(event));
+    reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, map_resolve_signal_name(event));
     
     if (event == AVAHI_RESOLVER_FOUND) {
         char t[256], *pt = t;
@@ -1379,6 +1387,9 @@ static void async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInd
             DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_INVALID);
 
+    }  else {
+        assert(event == AVAHI_RESOLVER_FAILURE);
+        append_server_error(reply);
     }
 
     dbus_message_set_destination(reply, i->client->name);  
@@ -1462,6 +1473,9 @@ static void async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIf
             DBUS_TYPE_STRING, &pt,
             DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_INVALID);
+    }  else {
+        assert(event == AVAHI_RESOLVER_FAILURE);
+        append_server_error(reply);
     }
 
     dbus_message_set_destination(reply, i->client->name);  
@@ -1574,6 +1588,9 @@ static void async_service_resolver_callback(
             reply,
             DBUS_TYPE_UINT32, &u_flags,
             DBUS_TYPE_INVALID);
+    }  else {
+        assert(event == AVAHI_RESOLVER_FAILURE);
+        append_server_error(reply);
     }
 
     dbus_message_set_destination(reply, i->client->name);  

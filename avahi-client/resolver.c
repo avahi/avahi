@@ -61,95 +61,113 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
     if (!r)
         goto fail;
 
-    if (event == AVAHI_RESOLVER_FOUND) {
-        int j;
-        int32_t interface, protocol, aprotocol;
-        uint32_t flags;
-        char *name, *type, *domain, *host, *address;
-        uint16_t port;
-        DBusMessageIter iter, sub;
-        AvahiAddress a;
-        
-        if (!dbus_message_get_args(
-                message, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_STRING, &host,
-                DBUS_TYPE_INT32, &aprotocol,
-                DBUS_TYPE_STRING, &address,
-                DBUS_TYPE_UINT16, &port,
-                DBUS_TYPE_INVALID) ||
-            dbus_error_is_set (&error)) {
+    switch (event) {
+        case AVAHI_RESOLVER_FOUND: {
+            int j;
+            int32_t interface, protocol, aprotocol;
+            uint32_t flags;
+            char *name, *type, *domain, *host, *address;
+            uint16_t port;
+            DBusMessageIter iter, sub;
+            AvahiAddress a;
             
-            fprintf(stderr, "Failed to parse resolver event.\n");
-            goto fail;
-        }
-        
-        dbus_message_iter_init(message, &iter);
-        
-        for (j = 0; j < 9; j++)
-            dbus_message_iter_next(&iter);
-        
-        if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
-            dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_ARRAY) {
-            fprintf(stderr, "Error parsing service resolving message\n");
-            goto fail;
-        }
-        
-        strlst = NULL;
-        dbus_message_iter_recurse(&iter, &sub);
-        
-        for (;;) {
-            DBusMessageIter sub2;
-            int at;
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_STRING, &name,
+                    DBUS_TYPE_STRING, &type,
+                    DBUS_TYPE_STRING, &domain,
+                    DBUS_TYPE_STRING, &host,
+                    DBUS_TYPE_INT32, &aprotocol,
+                    DBUS_TYPE_STRING, &address,
+                    DBUS_TYPE_UINT16, &port,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
             
-            if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
-                break;
-            
-            assert(at == DBUS_TYPE_ARRAY);
-            
-            if (dbus_message_iter_get_element_type(&sub) != DBUS_TYPE_BYTE) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
+            }
+        
+            dbus_message_iter_init(message, &iter);
+        
+            for (j = 0; j < 9; j++)
+                dbus_message_iter_next(&iter);
+        
+            if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
+                dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_ARRAY) {
                 fprintf(stderr, "Error parsing service resolving message\n");
                 goto fail;
             }
+        
+            strlst = NULL;
+            dbus_message_iter_recurse(&iter, &sub);
+        
+            for (;;) {
+                DBusMessageIter sub2;
+                int at;
             
-            dbus_message_iter_recurse(&sub, &sub2);
+                if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
+                    break;
+            
+                assert(at == DBUS_TYPE_ARRAY);
+            
+                if (dbus_message_iter_get_element_type(&sub) != DBUS_TYPE_BYTE) {
+                    fprintf(stderr, "Error parsing service resolving message\n");
+                    goto fail;
+                }
+            
+                dbus_message_iter_recurse(&sub, &sub2);
 
-            if (dbus_message_iter_get_array_len(&sub2) > 0) {
-                uint8_t *k;
-                int n;
+                if (dbus_message_iter_get_array_len(&sub2) > 0) {
+                    uint8_t *k;
+                    int n;
                 
-                dbus_message_iter_get_fixed_array(&sub2, &k, &n);
-                strlst = avahi_string_list_add_arbitrary(strlst, k, n);
+                    dbus_message_iter_get_fixed_array(&sub2, &k, &n);
+                    strlst = avahi_string_list_add_arbitrary(strlst, k, n);
+                }
+            
+                dbus_message_iter_next(&sub);
+            }
+
+            dbus_message_iter_next(&iter);
+
+            if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_UINT32) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
+            }
+
+            dbus_message_iter_get_basic(&iter, &flags);
+                                    
+            assert(address);
+            if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
+                fprintf(stderr, "Failed to parse address\n");
+                goto fail;
+            }
+    
+            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, type, domain, host, &a, port, strlst, (AvahiLookupResultFlags) flags, r->userdata);
+        
+            avahi_string_list_free(strlst);
+            break;
+        }
+            
+        case AVAHI_RESOLVER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
             }
             
-            dbus_message_iter_next(&sub);
+            avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
+            r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, r->userdata);
+            break;
         }
-
-        dbus_message_iter_next(&iter);
-
-        if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_UINT32) {
-            fprintf(stderr, "Failed to parse resolver event.\n");
-            goto fail;
-        }
-
-        dbus_message_iter_get_basic(&iter, &flags);
-                                    
-        assert(address);
-        if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
-            fprintf(stderr, "Failed to parse address\n");
-            goto fail;
-        }
-    
-        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, type, domain, host, &a, port, strlst, (AvahiLookupResultFlags) flags, r->userdata);
-        
-        avahi_string_list_free(strlst);
-
-    } else
-        r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, r->userdata);
+    }
 
     return DBUS_HANDLER_RESULT_HANDLED;
 
@@ -324,36 +342,54 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
     if (!r)
         goto fail;
 
-    if (event == AVAHI_RESOLVER_FOUND) {
-        int32_t interface, protocol, aprotocol;
-        uint32_t flags;
-        char *name, *address;
-        AvahiAddress a;
-        
-        if (!dbus_message_get_args(
-                message, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_INT32, &aprotocol,
-                DBUS_TYPE_STRING, &address,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_INVALID) ||
-            dbus_error_is_set (&error)) {
-            fprintf(stderr, "Failed to parse resolver event.\n");
-            goto fail;
+    switch (event) {
+        case AVAHI_RESOLVER_FOUND: {
+            int32_t interface, protocol, aprotocol;
+            uint32_t flags;
+            char *name, *address;
+            AvahiAddress a;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_STRING, &name,
+                    DBUS_TYPE_INT32, &aprotocol,
+                    DBUS_TYPE_STRING, &address,
+                    DBUS_TYPE_UINT32, &flags,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
+            }
+            
+            assert(address);
+            if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
+                fprintf(stderr, "Failed to parse address\n");
+                goto fail;
+            }
+            
+            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, &a, (AvahiLookupResultFlags) flags, r->userdata);
+            break;
         }
-        
-        assert(address);
-        if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
-            fprintf(stderr, "Failed to parse address\n");
-            goto fail;
+            
+        case AVAHI_RESOLVER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
+            }
+            
+            avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
+            r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, 0, r->userdata);
+            break;
         }
-    
-        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, &a, (AvahiLookupResultFlags) flags, r->userdata);
-
-    } else
-        r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, 0, r->userdata);
+    }
 
     return DBUS_HANDLER_RESULT_HANDLED;
     
@@ -516,35 +552,54 @@ DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolv
     if (!r)
         goto fail;
 
-    if (event == AVAHI_RESOLVER_FOUND) {
-        int32_t interface, protocol, aprotocol;
-        uint32_t flags;
-        char *name, *address;
-        AvahiAddress a;
-        
-        if (!dbus_message_get_args(
-                message, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_INT32, &aprotocol,
-                DBUS_TYPE_STRING, &address,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_INVALID) ||
-            dbus_error_is_set (&error)) {
-            fprintf(stderr, "Failed to parse resolver event.\n");
-            goto fail;
+    switch (event) {
+        case AVAHI_RESOLVER_FOUND: {
+            int32_t interface, protocol, aprotocol;
+            uint32_t flags;
+            char *name, *address;
+            AvahiAddress a;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_INT32, &aprotocol,
+                    DBUS_TYPE_STRING, &address,
+                    DBUS_TYPE_STRING, &name,
+                    DBUS_TYPE_UINT32, &flags,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
+            }
+            
+            assert(address);
+            if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
+                fprintf(stderr, "Failed to parse address\n");
+                goto fail;
+            }
+            
+            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, (AvahiProtocol) aprotocol, &a, name, (AvahiLookupResultFlags) flags, r->userdata);
+            break;
         }
-        
-        assert(address);
-        if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
-            fprintf(stderr, "Failed to parse address\n");
-            goto fail;
+
+        case AVAHI_RESOLVER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse resolver event.\n");
+                goto fail;
+            }
+            
+            avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
+            r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, AVAHI_PROTO_UNSPEC, NULL, NULL, 0, r->userdata);
+            break;
         }
-    
-        r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, (AvahiProtocol) aprotocol, &a, name, (AvahiLookupResultFlags) flags, r->userdata);
-    } else
-        r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, AVAHI_PROTO_UNSPEC, NULL, NULL, 0, r->userdata);
+    }
 
     return DBUS_HANDLER_RESULT_HANDLED;
     

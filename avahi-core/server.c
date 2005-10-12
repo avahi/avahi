@@ -881,7 +881,7 @@ static int originates_from_local_legacy_unicast_socket(AvahiServer *s, const str
         struct sockaddr_in lsa;
         socklen_t l = sizeof(lsa);
         
-        if (getsockname(s->fd_legacy_unicast_ipv4, &lsa, &l) != 0)
+        if (getsockname(s->fd_legacy_unicast_ipv4, (struct sockaddr*) &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
             return lsa.sin_port == ((const struct sockaddr_in*) sa)->sin_port;
@@ -892,7 +892,7 @@ static int originates_from_local_legacy_unicast_socket(AvahiServer *s, const str
         struct sockaddr_in6 lsa;
         socklen_t l = sizeof(lsa);
 
-        if (getsockname(s->fd_legacy_unicast_ipv6, &lsa, &l) != 0)
+        if (getsockname(s->fd_legacy_unicast_ipv6, (struct sockaddr*) &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
             return lsa.sin6_port == ((const struct sockaddr_in6*) sa)->sin6_port;

@@ -35,6 +35,7 @@ AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [0:1:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [0:0:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [0:0:0])
 AC_SUBST(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO, [1:0:0])
+AC_SUBST(LIBAVAHI_COMPAT_HOWL_VERSION_INFO, [0:0:0])
 
 if type -p stow > /dev/null && test -d /usr/local/stow ; then
     AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
@@ -627,6 +628,7 @@ tests/Makefile
 service-type-database/Makefile
 avahi-sharp/Makefile
 avahi-compat-libdns_sd/Makefile
+avahi-compat-howl/Makefile
 ])
 AC_OUTPUT
 
@@ -689,4 +691,5 @@ echo "
     Building libavahi-qt4:              ${HAVE_QT4}
     Building avahi-sharp:               ${HAVE_MONO}
     Building avahi-compat-libdns_sd:    ${BUILD_CLIENT}
+    Building avahi-compat-howl:         ${BUILD_CLIENT}
 "

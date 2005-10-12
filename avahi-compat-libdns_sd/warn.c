@@ -30,8 +30,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdarg.h>
+#include <syslog.h>
 
 #include "warn.h"
+
+#ifndef COMPAT_LAYER
+#define COMPAT_LAYER "Apple Bonjour"
+#endif 
 
 static pthread_mutex_t linkage_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int linkage_warning = 0;
@@ -58,6 +64,24 @@ static void get_exe_name(char *t, size_t l) {
     }
 }
 
+static void warning(const char *ident, const char *fmt, ...) {
+    va_list ap, ap2;
+    
+    assert(ident);
+    assert(fmt);
+
+    va_start(ap, fmt);
+    va_copy(ap2, ap);
+    
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+
+    openlog(ident, LOG_PID, LOG_USER);
+    vsyslog(LOG_WARNING, fmt, ap2);
+    closelog();
+    va_end(ap2);
+}
+
 void avahi_warn_linkage(void) {
     int w;
     
@@ -66,11 +90,12 @@ void avahi_warn_linkage(void) {
     linkage_warning = 1;
     pthread_mutex_unlock(&linkage_mutex);
 
-    if (!w && !getenv("AVAHI_BONJOUR_NOWARN")) {
+    if (!w && !getenv("AVAHI_COMPAT_NOWARN")) {
         char exename[256];
+
         get_exe_name(exename, sizeof(exename));
-        
-        fprintf(stderr, "*** WARNING: The application '%s' uses the Bonjour compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename);
+
+        warning(exename, "*** WARNING: The application '%s' uses the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename);
     }
 }
 
@@ -78,7 +103,7 @@ void avahi_warn_unsupported(const char *function) {
     char exename[256];
     get_exe_name(exename, sizeof(exename));
 
-    fprintf(stderr, "*** WARNING: The application '%s' called '%s()' which is not supported (or only supported partially) in the Bonjour compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename, function);
+    warning(exename, "*** WARNING: The application '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename, function);
 }
 
 

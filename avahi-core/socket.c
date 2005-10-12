@@ -42,6 +42,19 @@
 #include "socket.h"
 #include "log.h"
 
+/* this is a portability hack */
+#ifndef IPV6_ADD_MEMBERSHIP
+#ifdef  IPV6_JOIN_GROUP
+#define IPV6_ADD_MEMBERSHIP IPV6_JOIN_GROUP
+#endif
+#endif
+
+#ifndef IPV6_DROP_MEMBERSHIP
+#ifdef  IPV6_LEAVE_GROUP
+#define IPV6_DROP_MEMBERSHIP IPV6_LEAVE_GROUP
+#endif
+#endif
+
 static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     assert(ret_sa);
 

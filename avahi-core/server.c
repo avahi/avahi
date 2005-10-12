@@ -1360,7 +1360,7 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
     AvahiServer *s;
     int e;
     
-    if ((e = valid_server_config(sc)) < 0) {
+    if (sc && (e = valid_server_config(sc)) < 0) {
         if (error)
             *error = e;
         return NULL;

@@ -144,6 +144,9 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
                 fprintf(stderr, "Failed to parse address\n");
                 goto fail;
             }
+
+            if (address[0] == 0)
+                address = NULL;
     
             r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, type, domain, host, &a, port, strlst, (AvahiLookupResultFlags) flags, r->userdata);
         

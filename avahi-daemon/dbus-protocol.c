@@ -1558,8 +1558,10 @@ static void async_service_resolver_callback(
 
 /*         avahi_log_debug(__FILE__": [%s] Successfully resolved service <%s.%s.%s>", i->path, name, type, domain); */
         
-        assert(a);
-        avahi_address_snprint(t, sizeof(t), a);
+        if (a)
+            avahi_address_snprint(t, sizeof(t), a);
+        else
+            t[0] = 0;
 
         if (!name)
             name = "";

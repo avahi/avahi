@@ -31,19 +31,19 @@ sw_text_record_string_iterator_init
 sw_text_record_string_iterator_fina
 sw_text_record_string_iterator_next
 
-sw_ipv4_address_any
-sw_ipv4_address_loopback
-sw_ipv4_address_init
-sw_ipv4_address_init_from_saddr
-sw_ipv4_address_init_from_name
-sw_ipv4_address_init_from_address
-sw_ipv4_address_init_from_this_host
-sw_ipv4_address_fina
-sw_ipv4_address_is_any
-sw_ipv4_address_saddr
-sw_ipv4_address_name
-sw_ipv4_address_decompose
-sw_ipv4_address_equals
+x sw_ipv4_address_any
+x sw_ipv4_address_loopback
+x sw_ipv4_address_init
+x sw_ipv4_address_init_from_saddr
+x sw_ipv4_address_init_from_name
+x sw_ipv4_address_init_from_address
+x sw_ipv4_address_init_from_this_host
+x sw_ipv4_address_fina
+x sw_ipv4_address_is_any
+x sw_ipv4_address_saddr
+x sw_ipv4_address_name
+x sw_ipv4_address_decompose
+x sw_ipv4_address_equals
 
 sw_salt_step
 

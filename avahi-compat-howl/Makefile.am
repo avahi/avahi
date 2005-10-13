@@ -49,22 +49,24 @@ avahi_compat_howl_HEADERS = \
 
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
-#noinst_PROGRAMS = txt-test
+noinst_PROGRAMS = address-test
 
 libavahi_compat_howl_la_SOURCES = \
 	$(avahi_compat_howl_HEADERS) \
 	warn.c warn.h \
-	unsupported.c
+	unsupported.c \
+	address.c \
+	text.c
 libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 libavahi_compat_howl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
-#txt_test_SOURCES = \
-#	dns_sd.h \
-#	txt.c \
-#	txt-test.c \
-#	warn.c warn.h
-#txt_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
-#txt_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+address_test_SOURCES = \
+	$(avahi_compat_howl_HEADERS) \
+	address.c \
+	address-test.c \
+	warn.c warn.h 
+address_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+address_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 
 # You can test the compatibility layer by sticking in mDNSResponder's
 # dns-sd.c source here, naming it "libdns_sd-test.c" and running "make

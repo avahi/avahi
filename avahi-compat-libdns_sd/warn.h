@@ -28,5 +28,6 @@ void avahi_warn_linkage(void);
 
 #define AVAHI_WARN_LINKAGE { avahi_warn_linkage(); }
 #define AVAHI_WARN_UNSUPPORTED { avahi_warn_linkage(); avahi_warn_unsupported(__FUNCTION__); }
+#define AVAHI_WARN_UNSUPPORTED_ABORT { AVAHI_WARN_UNSUPPORTED; abort(); }
 
 #endif

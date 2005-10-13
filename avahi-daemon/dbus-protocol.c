@@ -1568,7 +1568,10 @@ static void async_service_resolver_callback(
 
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->proto;
+        if (a) 
+	    i_aprotocol = (int32_t) a->proto;
+	else 
+	    i_aprotocol = AVAHI_PROTO_UNSPEC;
         u_flags = (uint32_t) flags;
 
         dbus_message_append_args(

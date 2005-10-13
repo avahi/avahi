@@ -66,27 +66,27 @@ sw_const_string sw_strerror(/* howl sucks */) {
 
 sw_result sw_timer_init(sw_timer * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_timer_fina(sw_timer self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_time_init(sw_time * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_time_init_now(sw_time * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_time_fina(sw_time self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_time sw_time_add(
@@ -112,12 +112,12 @@ sw_result sw_salt_init(
     int argc,
     char ** argv) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_fina(sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_register_socket(
@@ -128,14 +128,14 @@ sw_result sw_salt_register_socket(
     sw_socket_handler_func func,
     sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_socket(
     sw_salt self,
     struct _sw_socket * socket) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 
@@ -147,14 +147,14 @@ sw_result sw_salt_register_timer(
     sw_timer_handler_func func,
     sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_timer(
     sw_salt self,
     struct _sw_timer * timer) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_register_network_interface(
@@ -164,12 +164,12 @@ sw_result sw_salt_register_network_interface(
     sw_network_interface_handler_func func,
     sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_network_interface_handler(sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_register_signal(
@@ -180,7 +180,7 @@ sw_result sw_salt_register_signal(
     sw_opaque extra) {
 
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_signal(
@@ -188,32 +188,32 @@ sw_result sw_salt_unregister_signal(
     struct _sw_signal * signal) {
 
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_lock(sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unlock(sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_step(sw_salt self, sw_uint32 * msec) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_run(sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_stop_run(sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 void sw_print_assert(
@@ -234,31 +234,31 @@ void sw_print_debug(
 
 sw_result sw_tcp_socket_init(sw_socket * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_tcp_socket_init_with_desc(
     sw_socket * self,
     sw_sockdesc_t desc) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_udp_socket_init(
     sw_socket * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_multicast_socket_init(
     sw_socket * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_fina(sw_socket self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_bind(
@@ -266,7 +266,7 @@ sw_result sw_socket_bind(
     sw_ipv4_address address,
     sw_port port) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_join_multicast_group(
@@ -275,19 +275,19 @@ sw_result sw_socket_join_multicast_group(
     sw_ipv4_address multicast_address,
     sw_uint32 ttl) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_leave_multicast_group(sw_socket self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_listen(
     sw_socket self,
     int qsize) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_connect(
@@ -295,14 +295,14 @@ sw_result sw_socket_connect(
     sw_ipv4_address address,
     sw_port port) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_accept(
     sw_socket self,
     sw_socket * socket) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_send(
@@ -311,7 +311,7 @@ sw_result sw_socket_send(
     sw_size_t len,
     sw_size_t * bytesWritten) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_sendto(
@@ -322,7 +322,7 @@ sw_result sw_socket_sendto(
     sw_ipv4_address to,
     sw_port port) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_recv(
@@ -331,7 +331,7 @@ sw_result sw_socket_recv(
     sw_size_t max,
     sw_size_t * len) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_recvfrom(
@@ -344,21 +344,21 @@ sw_result sw_socket_recvfrom(
     sw_ipv4_address * dest,
     sw_uint32 * interface_index) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_set_blocking_mode(
     sw_socket self,
     sw_bool blocking_mode) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_set_options(
     sw_socket self,
     sw_socket_options options) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_ipv4_address sw_socket_ipv4_address(sw_socket self) {
@@ -375,45 +375,45 @@ sw_sockdesc_t sw_socket_desc(sw_socket self) {
 
 sw_result sw_socket_close(sw_socket self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_init(sw_socket_options * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_fina(sw_socket_options self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_debug(
     sw_socket_options self,
     sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_nodelay(
     sw_socket_options self,
     sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_dontroute(
     sw_socket_options self,
     sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_keepalive(
     sw_socket_options self,
     sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_linger(
@@ -421,28 +421,28 @@ sw_result sw_socket_options_set_linger(
     sw_bool onoff,
     sw_uint32 linger) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_reuseaddr(
     sw_socket_options self,
     sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_rcvbuf(
     sw_socket_options self,
     sw_uint32 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_sndbuf(
     sw_socket_options self,
     sw_uint32 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 int sw_socket_error_code(void) {
@@ -457,12 +457,12 @@ sw_result sw_corby_orb_init(
     sw_corby_orb_observer_func func,
     sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_fina(sw_corby_orb self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_register_servant(
@@ -473,28 +473,28 @@ sw_result sw_corby_orb_register_servant(
     struct _sw_corby_object ** object,
     sw_const_string protocol_name) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_unregister_servant(
     sw_corby_orb self,
     sw_const_string oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_register_bidirectional_object(
     sw_corby_orb self,
     struct _sw_corby_object * object) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_register_channel(
     sw_corby_orb self,
     struct _sw_corby_channel * channel) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_corby_orb_delegate sw_corby_orb_get_delegate(sw_corby_orb self) {
@@ -505,7 +505,7 @@ sw_result sw_corby_orb_set_delegate(
     sw_corby_orb self,
     sw_corby_orb_delegate delegate) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_set_observer(
@@ -514,7 +514,7 @@ sw_result sw_corby_orb_set_observer(
     sw_corby_orb_observer_func func,
     sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_protocol_to_address(
@@ -523,7 +523,7 @@ sw_result sw_corby_orb_protocol_to_address(
     sw_string addr,
     sw_port * port) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_protocol_to_url(
@@ -533,14 +533,14 @@ sw_result sw_corby_orb_protocol_to_url(
     sw_string url,
     sw_size_t url_len) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_read_channel(
     sw_corby_orb self,
     struct _sw_corby_channel * channel) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_dispatch_message(
@@ -550,29 +550,29 @@ sw_result sw_corby_orb_dispatch_message(
     struct _sw_corby_buffer * buffer,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_message_init(sw_corby_message * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_message_fina(sw_corby_message self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init(sw_corby_buffer * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init_with_size(
     sw_corby_buffer * self,
     sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init_with_delegate(
@@ -582,7 +582,7 @@ sw_result sw_corby_buffer_init_with_delegate(
     sw_corby_buffer_underflow_func underflow,
     sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init_with_size_and_delegate(
@@ -593,12 +593,12 @@ sw_result sw_corby_buffer_init_with_size_and_delegate(
     sw_corby_buffer_underflow_func underflow,
     sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_fina(sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }    
 
 void sw_corby_buffer_reset(sw_corby_buffer self) {
@@ -610,7 +610,7 @@ sw_result sw_corby_buffer_set_octets(
     sw_octets octets,
     sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_octets sw_corby_buffer_octets(sw_corby_buffer self) {
@@ -630,42 +630,42 @@ sw_size_t sw_corby_buffer_size(sw_corby_buffer self) {
 
 sw_result sw_corby_buffer_put_int8(sw_corby_buffer self, sw_int8 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_uint8(
     sw_corby_buffer self,
     sw_uint8 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_int16(
     sw_corby_buffer self,
     sw_int16 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_uint16(
     sw_corby_buffer self,
     sw_uint16 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_int32(
     sw_corby_buffer self,
     sw_int32 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_uint32(
     sw_corby_buffer self,
     sw_uint32 val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_octets(
@@ -673,7 +673,7 @@ sw_result sw_corby_buffer_put_octets(
     sw_const_octets val,
     sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_sized_octets(
@@ -681,42 +681,42 @@ sw_result sw_corby_buffer_put_sized_octets(
     sw_const_octets val,
     sw_uint32 len) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_buffer_put_cstring(
     sw_corby_buffer self,
     sw_const_string val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_object(
     sw_corby_buffer self,
     const struct _sw_corby_object * object) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_pad(
     sw_corby_buffer self,
     sw_corby_buffer_pad pad) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_int8(
     sw_corby_buffer self,
     sw_int8 * val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_uint8(
     sw_corby_buffer self,
     sw_uint8 * val) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_int16(
@@ -724,7 +724,7 @@ sw_result sw_corby_buffer_get_int16(
     sw_int16 * val,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_buffer_get_uint16(
@@ -732,7 +732,7 @@ sw_result sw_corby_buffer_get_uint16(
     sw_uint16 * val,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_buffer_get_int32(
@@ -740,7 +740,7 @@ sw_result sw_corby_buffer_get_int32(
     sw_int32 * val,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_uint32(
@@ -748,7 +748,7 @@ sw_result sw_corby_buffer_get_uint32(
     sw_uint32 * val,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_octets(
@@ -756,7 +756,7 @@ sw_result sw_corby_buffer_get_octets(
     sw_octets octets,
     sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_allocate_and_get_sized_octets(
@@ -765,7 +765,7 @@ sw_result sw_corby_buffer_allocate_and_get_sized_octets(
     sw_uint32 * size,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_zerocopy_sized_octets(
@@ -774,7 +774,7 @@ sw_result sw_corby_buffer_get_zerocopy_sized_octets(
     sw_uint32 * size,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_sized_octets(
@@ -783,7 +783,7 @@ sw_result sw_corby_buffer_get_sized_octets(
     sw_uint32 * len,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_allocate_and_get_cstring(
@@ -792,7 +792,7 @@ sw_result sw_corby_buffer_allocate_and_get_cstring(
     sw_uint32 * len,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_zerocopy_cstring(
@@ -801,7 +801,7 @@ sw_result sw_corby_buffer_get_zerocopy_cstring(
     sw_uint32 * len,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_cstring(
@@ -810,7 +810,7 @@ sw_result sw_corby_buffer_get_cstring(
     sw_uint32 * len,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_object(
@@ -818,7 +818,7 @@ sw_result sw_corby_buffer_get_object(
     struct _sw_corby_object ** object,
     sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_start_request(
@@ -829,7 +829,7 @@ sw_result sw_corby_channel_start_request(
     sw_uint32 oplen,
     sw_bool reply_expected) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_channel_start_reply(
@@ -838,7 +838,7 @@ sw_result sw_corby_channel_start_reply(
     sw_uint32 request_id,
     sw_corby_reply_status status) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_send(
@@ -848,7 +848,7 @@ sw_result sw_corby_channel_send(
     sw_corby_buffer_written_func func,
     sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_recv(
@@ -862,7 +862,7 @@ sw_result sw_corby_channel_recv(
     sw_uint8 * endian,
     sw_bool block) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_last_recv_from(
@@ -870,31 +870,31 @@ sw_result sw_corby_channel_last_recv_from(
     sw_ipv4_address * from,
     sw_port * from_port) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_ff(
     sw_corby_channel self,
     struct _sw_corby_buffer * buffer) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_socket sw_corby_channel_socket(sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_retain(sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_set_delegate(
     sw_corby_channel self,
     sw_corby_channel_delegate delegate) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }    
 
 sw_corby_channel_delegate sw_corby_channel_get_delegate(
@@ -914,7 +914,7 @@ sw_opaque sw_corby_channel_get_app_data(sw_corby_channel self) {
 
 sw_result sw_corby_channel_fina(sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_init_from_url(
@@ -924,13 +924,13 @@ sw_result sw_corby_object_init_from_url(
     sw_socket_options options,
     sw_uint32 bufsize) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_fina(
     sw_corby_object self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_start_request(
@@ -940,7 +940,7 @@ sw_result sw_corby_object_start_request(
     sw_bool reply_expected,
     sw_corby_buffer * buffer) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_send(
@@ -950,7 +950,7 @@ sw_result sw_corby_object_send(
     sw_corby_buffer_written_func func,
     sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_object_recv(
@@ -960,39 +960,39 @@ sw_result sw_corby_object_recv(
     sw_uint8 * endian,
     sw_bool block) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_channel(
     sw_corby_object self,
     sw_corby_channel * channel) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_set_channel(
     sw_corby_object self,
     sw_corby_channel channel) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_init(
     sw_discovery * self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_init_with_flags(
     sw_discovery * self,
     sw_discovery_init_flags flags) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_fina(sw_discovery self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_publish_host(
@@ -1005,7 +1005,7 @@ sw_result sw_discovery_publish_host(
     sw_opaque extra,
     sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_publish(
@@ -1022,7 +1022,7 @@ sw_result sw_discovery_publish(
     sw_opaque extra,
     sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_publish_update(
@@ -1031,7 +1031,7 @@ sw_result sw_discovery_publish_update(
     sw_octets text_record,
     sw_uint32 text_record_len) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_browse_domains(
@@ -1041,7 +1041,7 @@ sw_result sw_discovery_browse_domains(
     sw_opaque extra,
     sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_browse(
@@ -1053,7 +1053,7 @@ sw_result sw_discovery_browse(
     sw_opaque extra,
     sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_resolve(
@@ -1066,7 +1066,7 @@ sw_result sw_discovery_resolve(
     sw_opaque extra,
     sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_query_record(
@@ -1080,26 +1080,26 @@ sw_result sw_discovery_query_record(
     sw_opaque extra,
     sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_cancel(
     sw_discovery self,
     sw_discovery_oid oid) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_run(
     sw_discovery self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_stop_run(
     sw_discovery self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 int sw_discovery_socket(sw_discovery self) {
@@ -1108,13 +1108,33 @@ int sw_discovery_socket(sw_discovery self) {
 
 sw_result sw_discovery_read_socket(sw_discovery self) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_salt(
     sw_discovery self,
     sw_salt * salt) {
     AVAHI_WARN_UNSUPPORTED;
-    return SW_DISCOVERY_E_NOT_SUPPORTED;
+    return SW_E_NO_IMPL;
 }
 
+sw_result sw_text_record_string_iterator_init(
+    sw_text_record_string_iterator * self,
+    sw_const_string text_record_string) {
+    AVAHI_WARN_UNSUPPORTED;
+    return SW_E_NO_IMPL;
+}
+
+sw_result sw_text_record_string_iterator_fina(
+    sw_text_record_string_iterator self) {
+    AVAHI_WARN_UNSUPPORTED;
+    return SW_E_NO_IMPL;
+}    
+
+sw_result sw_text_record_string_iterator_next(
+    sw_text_record_string_iterator self,
+    char key[255],
+    char val[255]) {
+    AVAHI_WARN_UNSUPPORTED;
+    return SW_E_NO_IMPL;
+}

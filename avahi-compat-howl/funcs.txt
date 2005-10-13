@@ -1,4 +1,6 @@
-Relevant:
+Functions marked with "x" are already implemented.
+
+Supported:
 
 sw_discovery_init
 sw_discovery_init_with_flags
@@ -17,19 +19,16 @@ sw_discovery_socket
 sw_discovery_read_socket
 sw_discovery_salt
 
-sw_text_record_init
-sw_text_record_fina
-sw_text_record_add_string
-sw_text_record_add_key_and_string_value
-sw_text_record_add_key_and_binary_value
-sw_text_record_bytes
-sw_text_record_len
-sw_text_record_iterator_init
-sw_text_record_iterator_fina
-sw_text_record_iterator_next
-sw_text_record_string_iterator_init
-sw_text_record_string_iterator_fina
-sw_text_record_string_iterator_next
+x sw_text_record_init
+x sw_text_record_fina
+x sw_text_record_add_string
+x sw_text_record_add_key_and_string_value
+x sw_text_record_add_key_and_binary_value
+x sw_text_record_bytes
+x sw_text_record_len
+x sw_text_record_iterator_init
+x sw_text_record_iterator_fina
+x sw_text_record_iterator_next
 
 x sw_ipv4_address_any
 x sw_ipv4_address_loopback
@@ -47,7 +46,7 @@ x sw_ipv4_address_equals
 
 sw_salt_step
 
-Irrelevant:
+Unsupported:
 
 sw_strdup
 sw_strerror
@@ -177,3 +176,6 @@ sw_corby_object_send
 sw_corby_object_recv
 sw_corby_object_channel
 sw_corby_object_set_channel
+sw_text_record_string_iterator_init
+sw_text_record_string_iterator_fina
+sw_text_record_string_iterator_next

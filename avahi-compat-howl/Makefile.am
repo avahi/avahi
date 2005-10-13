@@ -49,7 +49,7 @@ avahi_compat_howl_HEADERS = \
 
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
-noinst_PROGRAMS = address-test
+noinst_PROGRAMS = address-test text-test
 
 libavahi_compat_howl_la_SOURCES = \
 	$(avahi_compat_howl_HEADERS) \
@@ -67,6 +67,15 @@ address_test_SOURCES = \
 	warn.c warn.h 
 address_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 address_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+
+text_test_SOURCES = \
+	$(avahi_compat_howl_HEADERS) \
+	text.c \
+	text-test.c \
+	warn.c warn.h 
+text_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+text_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+
 
 # You can test the compatibility layer by sticking in mDNSResponder's
 # dns-sd.c source here, naming it "libdns_sd-test.c" and running "make

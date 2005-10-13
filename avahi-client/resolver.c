@@ -140,12 +140,13 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
             dbus_message_iter_get_basic(&iter, &flags);
                                     
             assert(address);
-            avahi_address_parse(address, (AvahiProtocol) aprotocol, &a);
 
             if (address[0] == 0)
                 address = NULL;
+	    else
+            	avahi_address_parse(address, (AvahiProtocol) aprotocol, &a);
     
-            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, type, domain, host, &a, port, strlst, (AvahiLookupResultFlags) flags, r->userdata);
+            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, name, type, domain, host, address ? &a : NULL, port, strlst, (AvahiLookupResultFlags) flags, r->userdata);
         
             avahi_string_list_free(strlst);
             break;

@@ -53,8 +53,9 @@ lib_LTLIBRARIES = libavahi-compat-howl.la
 
 libavahi_compat_howl_la_SOURCES = \
 	$(avahi_compat_howl_HEADERS) \
-	warn.c warn.h
-libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
+	warn.c warn.h \
+	unsupported.c
+libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 libavahi_compat_howl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 #txt_test_SOURCES = \

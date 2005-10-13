@@ -140,10 +140,7 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
             dbus_message_iter_get_basic(&iter, &flags);
                                     
             assert(address);
-            if (!avahi_address_parse(address, (AvahiProtocol) aprotocol, &a)) {
-                fprintf(stderr, "Failed to parse address\n");
-                goto fail;
-            }
+            avahi_address_parse(address, (AvahiProtocol) aprotocol, &a);
 
             if (address[0] == 0)
                 address = NULL;

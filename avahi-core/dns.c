@@ -176,11 +176,12 @@ uint8_t* avahi_dns_packet_append_name(AvahiDnsPacket *p, const char *name) {
             assert(idx < p->size);
 
             if (idx < 0x4000) {
-                uint16_t *t;
-                if (!(t = (uint16_t*) avahi_dns_packet_extend(p, sizeof(uint16_t))))
+                uint8_t *t;
+                if (!(t = (uint8_t*) avahi_dns_packet_extend(p, sizeof(uint16_t))))
                     return NULL;
 
-                *t = htons((0xC000 | idx));
+		t[0] = (uint8_t) ((0xC000 | idx) >> 8);
+		t[1] = (uint8_t) idx;
                 return saved_ptr;
             }
         }
@@ -222,7 +223,8 @@ uint8_t* avahi_dns_packet_append_uint16(AvahiDnsPacket *p, uint16_t v) {
     if (!(d = avahi_dns_packet_extend(p, sizeof(uint16_t))))
         return NULL;
     
-    *((uint16_t*) d) = htons(v);
+    d[0] = (uint8_t) (v >> 8);
+    d[1] = (uint8_t) v;
     return d;
 }
 
@@ -233,7 +235,10 @@ uint8_t *avahi_dns_packet_append_uint32(AvahiDnsPacket *p, uint32_t v) {
     if (!(d = avahi_dns_packet_extend(p, sizeof(uint32_t))))
         return NULL;
     
-    *((uint32_t*) d) = htonl(v);
+    d[0] = (uint8_t) (v >> 24);
+    d[1] = (uint8_t) (v >> 16);
+    d[2] = (uint8_t) (v >> 8);
+    d[3] = (uint8_t) v;
 
     return d;
 }
@@ -400,26 +405,32 @@ int avahi_dns_packet_consume_name(AvahiDnsPacket *p, char *ret_name, size_t l) {
 }
 
 int avahi_dns_packet_consume_uint16(AvahiDnsPacket *p, uint16_t *ret_v) {
+    uint8_t *d;
+
     assert(p);
     assert(ret_v);
 
     if (p->rindex + sizeof(uint16_t) > p->size)
         return -1;
 
-    *ret_v = ntohs(*((uint16_t*) (AVAHI_DNS_PACKET_DATA(p) + p->rindex)));
+    d = (uint8_t*) (AVAHI_DNS_PACKET_DATA(p) + p->rindex);
+    *ret_v = (d[0] << 8) | d[1];
     p->rindex += sizeof(uint16_t);
 
     return 0;
 }
 
 int avahi_dns_packet_consume_uint32(AvahiDnsPacket *p, uint32_t *ret_v) {
+    uint8_t* d;
+
     assert(p);
     assert(ret_v);
 
     if (p->rindex + sizeof(uint32_t) > p->size)
         return -1;
 
-    *ret_v = ntohl(*((uint32_t*) (AVAHI_DNS_PACKET_DATA(p) + p->rindex)));
+    d = (uint8_t*) (AVAHI_DNS_PACKET_DATA(p) + p->rindex);
+    *ret_v = (d[0] << 24) | (d[1] << 16) | (d[2] << 8) | d[3];
     p->rindex += sizeof(uint32_t);
     
     return 0;
@@ -751,7 +762,8 @@ uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int c
 
 /*     avahi_log_debug("appended %u", size); */
 
-    * (uint16_t*) l = htons((uint16_t) size);
+    l[0] = (uint8_t) ((uint16_t) size >> 8);
+    l[1] = (uint8_t) ((uint16_t) size);
     
     return t;
 

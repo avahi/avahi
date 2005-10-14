@@ -37,6 +37,10 @@
 #include <sys/ioctl.h>
 #include <assert.h>
 
+#ifdef IP_RECVIF
+#include <net/if_dl.h>
+#endif
+
 #include "dns.h"
 #include "fdutil.h"
 #include "socket.h"
@@ -96,15 +100,36 @@ static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv
 }
 
 int avahi_mdns_mcast_join_ipv4(int fd, int idx) {
-    struct ip_mreqn mreq; 
+/*  FIXME: sebest : we must factorize this part of the code */
     struct sockaddr_in sa;
-
-    mdns_mcast_group_ipv4 (&sa);
+#ifdef HAVE_STRUCT_IP_MREQN
+    struct ip_mreqn mreq; 
  
     memset(&mreq, 0, sizeof(mreq));
-    mreq.imr_multiaddr = sa.sin_addr;
     mreq.imr_ifindex = idx;
- 
+#else
+    struct ip_mreq mreq; 
+    struct ifreq ifreq;
+
+    memset(&mreq, 0, sizeof(mreq));
+
+    if ((!if_indextoname(idx, ifreq.ifr_name))) {
+      avahi_log_warn("Can't find iface name for iface index %i:%s\n", idx, strerror(errno));
+      return -1;
+    }
+
+    if (ioctl(fd, SIOCGIFADDR, &ifreq) < 0) {
+      avahi_log_warn("SIOCGIFADDR failed: %s", strerror(errno));
+      return -1;
+    }
+
+    memcpy(&mreq.imr_interface,
+	   &((struct sockaddr_in *) &ifreq.ifr_addr)->sin_addr,
+	   sizeof(struct in_addr));
+#endif
+    mdns_mcast_group_ipv4 (&sa);
+    mreq.imr_multiaddr = sa.sin_addr;
+
     if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         avahi_log_warn("IP_ADD_MEMBERSHIP failed: %s", strerror(errno));
         return -1;
@@ -132,15 +157,36 @@ int avahi_mdns_mcast_join_ipv6(int fd, int idx) {
 }
 
 int avahi_mdns_mcast_leave_ipv4(int fd, int idx) {
-    struct ip_mreqn mreq; 
+/*  FIXME: sebest : we must factorize this part of the code */
     struct sockaddr_in sa;
-    
-    mdns_mcast_group_ipv4 (&sa);
+#ifdef HAVE_STRUCT_IP_MREQN
+    struct ip_mreqn mreq; 
  
     memset(&mreq, 0, sizeof(mreq));
-    mreq.imr_multiaddr = sa.sin_addr;
     mreq.imr_ifindex = idx;
- 
+#else
+    struct ip_mreq mreq; 
+    struct ifreq ifreq;
+
+    memset(&mreq, 0, sizeof(mreq));
+
+    if ((!if_indextoname(idx, ifreq.ifr_name))) {
+      avahi_log_warn("Can't find iface name for iface index %i:%s\n", idx, strerror(errno));
+      return -1;
+    }
+
+    if (ioctl(fd, SIOCGIFADDR, &ifreq) < 0) {
+      avahi_log_warn("SIOCGIFADDR failed: %s", strerror(errno));
+      return -1;
+    }
+
+    memcpy(&mreq.imr_interface,
+	   &((struct sockaddr_in *) &ifreq.ifr_addr)->sin_addr,
+	   sizeof(struct in_addr));
+#endif
+    mdns_mcast_group_ipv4 (&sa);
+    mreq.imr_multiaddr = sa.sin_addr;
+
     if (setsockopt(fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         avahi_log_warn("IP_DROP_MEMBERSHIP failed: %s", strerror(errno));
         return -1;
@@ -215,7 +261,7 @@ static int ip_pktinfo (int fd, int yes)
 {
     int ret = -1;
 
-#if IP_PKTINFO
+#ifdef IP_PKTINFO
     if ((ret = setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes))) < 0) {
         avahi_log_warn("IP_PKTINFO failed: %s", strerror(errno));
     }
@@ -414,7 +460,13 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
     struct msghdr msg;
     struct iovec io;
     struct cmsghdr *cmsg;
+#ifdef IP_PKTINFO
     uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct in_pktinfo)];
+#elif IP_RECVIF
+    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct sockaddr_dl)];
+#elif IP_RECVINTERFACE
+    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(u_short)];
+#endif
 
     assert(fd >= 0);
     assert(p);
@@ -438,17 +490,36 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
     msg.msg_flags = 0;
 
     if (interface >= 0) {
-        struct in_pktinfo *pkti;
         
         memset(cmsg_data, 0, sizeof(cmsg_data));
         cmsg = (struct cmsghdr*) cmsg_data;
         cmsg->cmsg_len = sizeof(cmsg_data);
         cmsg->cmsg_level = IPPROTO_IP;
-        cmsg->cmsg_type = IP_PKTINFO;
-        
-        pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
-        pkti->ipi_ifindex = interface;
+#ifdef IP_PKTINFO
+	{
+	  struct in_pktinfo *pkti;
 
+	  cmsg->cmsg_type = IP_PKTINFO;
+	  pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
+	  pkti->ipi_ifindex = interface;
+	}
+#elif IP_RECVIF
+	{
+	  struct sockaddr_dl *pkti;
+
+	  cmsg->cmsg_type = IP_RECVIF;
+	  pkti = (struct sockaddr_dl*) (cmsg_data + sizeof(struct cmsghdr));
+	  pkti->sdl_index = interface;
+	}
+#elif IP_RECVINTERFACE
+	{
+	  u_short *i;
+
+	  cmsg->cmsg_type = IP_RECVINTERFACE;
+	  i = (u_short *) (cmsg_data + sizeof(u_short));
+	  memcpy(&i, CMSG_DATA (cmsg), sizeof(u_short));
+	}
+#endif
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     } else {
@@ -516,7 +587,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
     uint8_t aux[1024];
     ssize_t l;
     struct cmsghdr *cmsg;
-    int found_ttl = 0, found_iface = 0;
+    int found_ttl = 0, found_iface = 0, found_addr = 0;
     int ms;
 
     assert(fd >= 0);
@@ -567,25 +638,49 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
     for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 
         if (cmsg->cmsg_level == IPPROTO_IP) {
-            
-            if (cmsg->cmsg_type == IP_TTL) {
-                if (ret_ttl)
-                    *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
-                found_ttl = 1;
-            } else if (cmsg->cmsg_type == IP_PKTINFO) {
-                struct in_pktinfo *i = (struct in_pktinfo*) CMSG_DATA(cmsg);
+	  switch (cmsg->cmsg_type) {
+	  case IP_TTL:
+	    if (ret_ttl)
+	      *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
+	    found_ttl = 1;
+	    break;
+#ifdef IP_PKTINFO
+	  case IP_PKTINFO:
+	    {
+	      struct in_pktinfo *i = (struct in_pktinfo*) CMSG_DATA(cmsg);
+	      
+	      if (ret_iface)
+		*ret_iface = (int) i->ipi_ifindex;
+	      
+	      if (ret_dest_address)
+		ret_dest_address->address = i->ipi_addr.s_addr;
+	      found_addr = found_iface = 1;
+	    }
+	    break;
+#elif IP_RECVIF
+	  case IP_RECVIF:
+	    {
+	      struct sockaddr_dl *sdl = (struct sockaddr_dl *) CMSG_DATA (cmsg);
 
-                if (ret_iface)
-                    *ret_iface = (int) i->ipi_ifindex;
-
-                if (ret_dest_address)
-                    ret_dest_address->address = i->ipi_addr.s_addr;
-                found_iface = 1;
-            }
+	      if (ret_iface)
+		*ret_iface = (int) sdl->sdl_index;
+	      found_iface = 1;
+	    }
+	    break;
+#endif 
+#ifdef IP_RECVDSTADDR
+	  case IP_RECVDSTADDR:
+	    if (ret_dest_address)
+	      memcpy (&ret_dest_address->address, CMSG_DATA (cmsg), 4);
+	    found_addr = 1;
+	    break;
+#endif
+	  }
         }
     }
 
     assert(found_iface);
+    assert(found_addr);
     assert(found_ttl);
 
     return p;

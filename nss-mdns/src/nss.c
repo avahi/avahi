@@ -456,6 +456,9 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     result->h_addrtype = af;
     result->h_length = address_length;
     
+    if (idx%sizeof(char*))
+        idx+=(sizeof(char*)-idx%sizeof(char*)); /* Align on 32 bit boundary */
+    
     /* Check if there's enough space for the addresses */
     if (buflen < idx+u.data_len+sizeof(char*)*(u.count+1)) {
         *errnop = ERANGE;

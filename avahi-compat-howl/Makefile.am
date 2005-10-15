@@ -25,19 +25,31 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 if HAVE_DBUS
 
 avahi_compat_howldir=$(includedir)/avahi-compat-howl
+avahi_compat_howl_rendezvousdir=$(avahi_compat_howldir)/rendezvous
+avahi_compat_howl_corbydir=$(avahi_compat_howldir)/corby
+avahi_compat_howl_discoverydir=$(avahi_compat_howldir)/discovery
+avahi_compat_howl_saltdir=$(avahi_compat_howldir)/salt
 
 avahi_compat_howl_HEADERS = \
-	include/howl.h \
+	include/howl.h
+
+avahi_compat_howl_rendezvous_HEADERS = \
 	include/rendezvous/rendezvous.h \
-	include/rendezvous/text_record.h \
+	include/rendezvous/text_record.h
+
+avahi_compat_howl_corby_HEADERS = \
 	include/corby/message.h \
 	include/corby/object.h \
 	include/corby/orb.h \
 	include/corby/corby.h \
 	include/corby/channel.h \
-	include/corby/buffer.h \
+	include/corby/buffer.h
+
+avahi_compat_howl_discovery_HEADERS = \
 	include/discovery/discovery.h \
-	include/discovery/text_record.h \
+	include/discovery/text_record.h
+
+avahi_compat_howl_salt_HEADERS = \
 	include/salt/socket.h \
 	include/salt/address.h \
 	include/salt/platform.h \
@@ -47,12 +59,19 @@ avahi_compat_howl_HEADERS = \
 	include/salt/time.h \
 	include/salt/debug.h
 
+HOWLHEADERS = \
+	$(avahi_compat_howl_HEADERS) \
+	$(avahi_compat_howl_rendezvous_HEADERS) \
+	$(avahi_compat_howl_corby_HEADERS) \
+	$(avahi_compat_howl_discovery_HEADERS) \
+	$(avahi_compat_howl_salt_HEADERS)
+
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
 noinst_PROGRAMS = address-test text-test samples/browse samples/resolve samples/publish samples/query
 
 libavahi_compat_howl_la_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	warn.c warn.h \
 	unsupported.c \
 	address.c \
@@ -62,7 +81,7 @@ libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/inc
 libavahi_compat_howl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 address_test_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	address.c \
 	address-test.c \
 	warn.c warn.h 
@@ -70,7 +89,7 @@ address_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 address_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 
 text_test_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	text.c \
 	text-test.c \
 	warn.c warn.h 
@@ -78,40 +97,27 @@ text_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 text_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 
 samples_browse_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	samples/browse.c
 samples_browse_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 samples_browse_LDADD = $(AM_LDADD) libavahi-compat-howl.la
 
 samples_resolve_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	samples/resolve.c
 samples_resolve_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 samples_resolve_LDADD = $(AM_LDADD) libavahi-compat-howl.la
 
 samples_publish_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	samples/publish.c
 samples_publish_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 samples_publish_LDADD = $(AM_LDADD) libavahi-compat-howl.la
 
 samples_query_SOURCES = \
-	$(avahi_compat_howl_HEADERS) \
+	$(HOWLHEADERS) \
 	samples/query.c
 samples_query_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 samples_query_LDADD = $(AM_LDADD) libavahi-compat-howl.la
-
-
-
-# You can test the compatibility layer by sticking in mDNSResponder's
-# dns-sd.c source here, naming it "libdns_sd-test.c" and running "make
-# libdns_sd-test" manually. We do not distribute that file due to
-# licensing restrictions.
-
-#libdns_sd-test: libdns_sd-test.c libavahi-compat-libdns_sd.la
-#	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) $(PTHREAD_CFLAGS) -o libdns_sd-test.o -c libdns_sd-test.c 
-#	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(PTHREAD_CFLAGS) -o libdns_sd-test libdns_sd-test.o $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la libavahi-compat-libdns_sd.la 
-
-#CLEANFILES = libdns_sd-test.o libdns_sd-test
 
 endif

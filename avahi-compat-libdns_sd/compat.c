@@ -274,7 +274,7 @@ static DNSServiceRef sdref_new(void) {
 
     ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-    ASSERT_SUCCESS(pthread_mutex_init(&sdref->mutex, NULL));
+    ASSERT_SUCCESS(pthread_mutex_init(&sdref->mutex, &mutex_attr));
 
     sdref->thread_running = 0;
 
@@ -558,21 +558,21 @@ static void service_resolver_callback(
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
-    char host_name_fixed[AVAHI_DOMAIN_NAME_MAX];
 
     assert(r);
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
-    host_name = add_trailing_dot(host_name, host_name_fixed, sizeof(host_name_fixed));
-
     switch (event) {
         case AVAHI_RESOLVER_FOUND: {
 
+            char host_name_fixed[AVAHI_DOMAIN_NAME_MAX];
             char full_name[AVAHI_DOMAIN_NAME_MAX];
             int ret;
             char *p = NULL;
             size_t l = 0;
+
+            host_name = add_trailing_dot(host_name, host_name_fixed, sizeof(host_name_fixed));
 
             if ((p = avahi_new0(char, (l = avahi_string_list_serialize(txt, NULL, 0))+1)))
                 avahi_string_list_serialize(txt, p, l);
@@ -590,7 +590,7 @@ static void service_resolver_callback(
 
         case AVAHI_RESOLVER_FAILURE:
             sdref->service_resolver_callback(sdref, 0, interface, map_error(avahi_client_errno(sdref->client)), NULL, NULL, 0, 0, NULL, sdref->context);
-            
+            break;
     }
 }
 

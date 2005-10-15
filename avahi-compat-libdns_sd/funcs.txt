@@ -1,4 +1,4 @@
-Supported:
+-- Supported --
 
 DNSServiceRefSockFD
 DNSServiceProcessResult
@@ -20,7 +20,7 @@ TXTRecordGetValuePtr
 TXTRecordGetCount
 TXTRecordGetItemAtIndex
 
-Unsupported:
+-- Unsupported but Relevant --
 
 DNSServiceRegisterRecord
 DNSServiceQueryRecord
@@ -29,4 +29,9 @@ DNSServiceCreateConnection
 DNSServiceAddRecord
 DNSServiceUpdateRecord
 DNSServiceRemoveRecord
+
+-- Unsupported and Irrelevant --
+
 DNSServiceSetDefaultDomainForUser
+
+$Id$

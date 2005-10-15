@@ -845,11 +845,10 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
         return;
     
     switch (state) {
-        case AVAHI_CLIENT_DISCONNECTED: {
+        case AVAHI_CLIENT_DISCONNECTED: 
 
             reg_report_error(sdref, kDNSServiceErr_NoError);
             break;
-        }
         
         case AVAHI_CLIENT_S_RUNNING: {
             int ret;
@@ -859,6 +858,7 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
                 /* If the service name is taken from the host name, copy that */
 
                 avahi_free(sdref->service_name_chosen);
+                sdref->service_name_chosen = NULL;
 
                 if (!(n = avahi_client_get_host_name(sdref->client))) {
                     reg_report_error(sdref, map_error(avahi_client_errno(sdref->client)));
@@ -982,7 +982,9 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     sdref->service_host = host ? avahi_normalize_name_strdup(host) : NULL;
     sdref->service_interface = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
     sdref->service_port = ntohs(port);
-    sdref->service_txt = txtRecord ? avahi_string_list_parse(txtRecord, txtLen) : NULL;
+    sdref->service_txt = txtRecord && txtLen > 0 ? avahi_string_list_parse(txtRecord, txtLen) : NULL;
+
+    /* Some OOM checking would be cool here */
     
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     

@@ -56,10 +56,10 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
             if ((bytes = recv(nl->fd, nl->buffer, nl->buffer_length, block ? 0 : MSG_DONTWAIT)) < 0) {
 
                 if (errno == EAGAIN || errno == EINTR)
-                    return 1;
+                    return 0;
                 
                 avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
-                return 0;
+                return -1;
             }
 
             break;
@@ -71,7 +71,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
             for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
                 if (!NLMSG_OK(p, (size_t) bytes)) {
                     avahi_log_warn(__FILE__": packet truncated");
-                    return 0;
+                    return -1;
                 }
 
                 nl->callback(nl, p, nl->userdata);

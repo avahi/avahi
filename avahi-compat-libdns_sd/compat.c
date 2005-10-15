@@ -43,9 +43,9 @@
 #include "dns_sd.h"
 
 enum {
-    COMMAND_POLL = 'P',
-    COMMAND_QUIT = 'Q',
-    COMMAND_POLLED = 'D'
+    COMMAND_POLL = 'p',
+    COMMAND_QUIT = 'q',
+    COMMAND_POLL_DONE = 'P'
 };
 
 struct _DNSServiceRef_t {
@@ -225,7 +225,6 @@ static void * thread_func(void *data) {
             case COMMAND_POLL:
 
                 ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
-                    
                 
                 if (avahi_simple_poll_run(sdref->simple_poll) < 0) {
                     fprintf(stderr, __FILE__": avahi_simple_poll_run() failed.\n");
@@ -233,12 +232,10 @@ static void * thread_func(void *data) {
                     break;
                 }
 
-                if (write_command(sdref->thread_fd, COMMAND_POLLED) < 0) {
-                    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
-                    break;
-                }
-
                 ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
+
+                if (write_command(sdref->thread_fd, COMMAND_POLL_DONE) < 0)
+                    break;
                 
                 break;
 
@@ -290,7 +287,7 @@ static DNSServiceRef sdref_new(void) {
     if (avahi_simple_poll_prepare(sdref->simple_poll, -1) < 0)
         goto fail;
 
-    /* Queue a initiall POLL command for the thread */
+    /* Queue an initial POLL command for the thread */
     if (write_command(sdref->main_fd, COMMAND_POLL) < 0)
         goto fail;
     
@@ -313,13 +310,17 @@ static void sdref_free(DNSServiceRef sdref) {
     assert(sdref);
     
     if (sdref->thread_running) {
-        write_command(sdref->main_fd, COMMAND_QUIT);
+        ASSERT_SUCCESS(write_command(sdref->main_fd, COMMAND_QUIT));
         avahi_simple_poll_wakeup(sdref->simple_poll);
-        pthread_join(sdref->thread, NULL);
+        ASSERT_SUCCESS(pthread_join(sdref->thread, NULL));
     }
 
     if (sdref->client)
         avahi_client_free(sdref->client);
+
+    if (sdref->simple_poll)
+        avahi_simple_poll_free(sdref->simple_poll);
+
 
     if (sdref->thread_fd >= 0)
         close(sdref->thread_fd);
@@ -327,10 +328,7 @@ static void sdref_free(DNSServiceRef sdref) {
     if (sdref->main_fd >= 0)
         close(sdref->main_fd);
 
-    if (sdref->simple_poll)
-        avahi_simple_poll_free(sdref->simple_poll);
-
-    pthread_mutex_destroy(&sdref->mutex);
+    ASSERT_SUCCESS(pthread_mutex_destroy(&sdref->mutex));
 
     avahi_free(sdref->service_name);
     avahi_free(sdref->service_name_chosen);
@@ -380,7 +378,7 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
     /* Cleanup notification socket */
-    if (read_command(sdref->main_fd) != COMMAND_POLLED)
+    if (read_command(sdref->main_fd) != COMMAND_POLL_DONE)
         goto finish;
     
     if (avahi_simple_poll_dispatch(sdref->simple_poll) < 0)
@@ -542,7 +540,8 @@ finish:
         DNSServiceRefDeallocate(sdref);
 
     return ret;
-}
+xb
+    }
 
 static void service_resolver_callback(
     AvahiServiceResolver *r,

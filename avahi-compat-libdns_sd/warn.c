@@ -95,7 +95,7 @@ void avahi_warn_linkage(void) {
 
         get_exe_name(exename, sizeof(exename));
 
-        warning(exename, "*** WARNING: The application '%s' uses the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename);
+        warning(exename, "*** WARNING: The application '%s' uses the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix your application to use the native API of Avahi! ***\n", exename);
     }
 }
 
@@ -103,7 +103,7 @@ void avahi_warn_unsupported(const char *function) {
     char exename[256];
     get_exe_name(exename, sizeof(exename));
 
-    warning(exename, "*** WARNING: The application '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix it to use the native API! ***\n", exename, function);
+    warning(exename, "*** WARNING: The application '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix your application to use the native API of Avahi! ***\n", exename, function);
 }
 
 

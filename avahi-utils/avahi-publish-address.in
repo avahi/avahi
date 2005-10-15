@@ -59,7 +59,7 @@ def add_address():
     print "Adding address '%s' for '%s' ..." % (name, address)
     group = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.EntryGroupNew()), avahi.DBUS_INTERFACE_ENTRY_GROUP)
     group.connect_to_signal('StateChanged', entry_group_state_changed)
-    group.AddAddress(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, name, address)
+    group.AddAddress(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, dbus.UInt32(0), name, address)
     group.Commit()
 
 def entry_group_state_changed(state):

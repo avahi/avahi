@@ -71,7 +71,7 @@ class AvahiBookmarks(resource.Resource):
 
         global domain
 
-        browser = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, stype, domain, 0)), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+        browser = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, stype, domain, dbus.UInt32(0))), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         browser.connect_to_signal('ItemNew', self.new_service)
         browser.connect_to_signal('ItemRemove', self.remove_service)
 
@@ -116,7 +116,7 @@ class AvahiBookmarks(resource.Resource):
 
     def new_service(self, interface, protocol, name, type, domain, flags):
 
-        interface, protocol, name, type, domain, host, aprotocol, address, port, txt, flags = self.server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, 0)
+        interface, protocol, name, type, domain, host, aprotocol, address, port, txt, flags = self.server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0))
 
         if use_host_names:
             h = host

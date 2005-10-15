@@ -101,7 +101,7 @@ def new_service(interface, protocol, name, stype, domain, flags):
     print "Found service '%s' of type '%s' (%s) in domain '%s' on %s.%i." % (name, stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
 
     # Asynchronous resolving
-    server.ResolveService(interface, protocol, name, stype, domain, avahi.PROTO_UNSPEC, 0, reply_handler=service_resolved, error_handler=print_error)
+    server.ResolveService(interface, protocol, name, stype, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0), reply_handler=service_resolved, error_handler=print_error)
 
 def remove_service(interface, protocol, name, stype, domain, flags):
     print "Service '%s' of type '%s' (%s) in domain '%s' on %s.%i disappeared." % (name, stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
@@ -115,7 +115,7 @@ def new_service_type(interface, protocol, stype, domain, flags):
 
     print "Browsing for services of type '%s' (%s) in domain '%s' on %s.%i ..." % (stype, lookup_service_type(stype), domain, siocgifname(interface), protocol)
     
-    b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceBrowserNew(interface, protocol, stype, domain, 0)), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+    b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceBrowserNew(interface, protocol, stype, domain, dbus.UInt32(0))), avahi.DBUS_INTERFACE_SERVICE_BROWSER)
     b.connect_to_signal('ItemNew', new_service)
     b.connect_to_signal('ItemRemove', remove_service)
 
@@ -131,12 +131,12 @@ def browse_domain(interface, protocol, domain):
     if stype is None:
         print "Browsing domain '%s' on %s.%i ..." % (domain, siocgifname(interface), protocol)
 
-        b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceTypeBrowserNew(interface, protocol, domain, 0)), avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
+        b = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.ServiceTypeBrowserNew(interface, protocol, domain, dbus.UInt32(0))), avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
         b.connect_to_signal('ItemNew', new_service_type)
 
         service_type_browsers[(interface, protocol, domain)] = b
     else:
-        new_service_type(interface, protocol, stype, domain, 0)
+        new_service_type(interface, protocol, stype, domain, dbus.UInt32(0))
 
 def new_domain(interface, protocol, domain, flags):
 
@@ -153,7 +153,7 @@ if domain is None:
     browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
 
     # Browse for other browsable domains
-    db = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE, 0)), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
+    db = dbus.Interface(bus.get_object(avahi.DBUS_NAME, server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE, dbus.UInt32(0))), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
     db.connect_to_signal('ItemNew', new_domain)
 
 else:

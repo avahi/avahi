@@ -52,7 +52,7 @@ class Main_window(SimpleGladeApp):
             self.info_label.set_markup("<i>No service currently selected.</i>")
             return
         #Asynchronous resolving
-        self.server.ResolveService( int(interface), int(protocol), name, stype, domain, avahi.PROTO_UNSPEC, 0, reply_handler=self.service_resolved, error_handler=self.print_error)
+        self.server.ResolveService( int(interface), int(protocol), name, stype, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0), reply_handler=self.service_resolved, error_handler=self.print_error)
 
 
     def protoname(self,protocol):
@@ -141,7 +141,7 @@ class Main_window(SimpleGladeApp):
         
         print "Browsing for services of type '%s' in domain '%s' on %i.%i ..." % (stype, domain, interface, protocol)
         
-        b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(interface, protocol, stype, domain, 0)),  avahi.DBUS_INTERFACE_SERVICE_BROWSER)
+        b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(interface, protocol, stype, domain, dbus.UInt32(0))),  avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         b.connect_to_signal('ItemNew', self.new_service)
         b.connect_to_signal('ItemRemove', self.remove_service)
 
@@ -157,7 +157,7 @@ class Main_window(SimpleGladeApp):
         if self.stype is None:
             print "Browsing domain '%s' on %i.%i ..." % (domain, interface, protocol)
         
-            b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceTypeBrowserNew(interface, protocol, domain, 0)),  avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
+            b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceTypeBrowserNew(interface, protocol, domain, dbus.UInt32(0))),  avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
             b.connect_to_signal('ItemNew', self.new_service_type)
 
             service_type_browsers[(interface, protocol, domain)] = b
@@ -211,7 +211,7 @@ class Main_window(SimpleGladeApp):
             self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
                         
             # Browse for other browsable domains
-            db = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE, 0)), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
+            db = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE, dbus.UInt32(0))), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
             db.connect_to_signal('ItemNew', self.new_domain)
         else:
             # Just browse the domain the user wants us to browse

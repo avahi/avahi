@@ -36,6 +36,7 @@ AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [0:0:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [0:0:0])
 AC_SUBST(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO, [1:0:0])
 AC_SUBST(LIBAVAHI_COMPAT_HOWL_VERSION_INFO, [0:0:0])
+AC_SUBST(HOWL_COMPAT_VERSION, [0.9.8])
 
 if type -p stow > /dev/null && test -d /usr/local/stow ; then
     AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])

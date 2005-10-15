@@ -119,7 +119,7 @@ avahi-compat-libdns_sd.pc: avahi-compat-libdns_sd.pc.in
 
 avahi-compat-howl.pc: avahi-compat-howl.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
-	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+	    -e 's,@HOWL_COMPAT_VERSION\@,$(HOWL_COMPAT_VERSION),g' $< > $@
 
 CLEANFILES += avahi-client.pc avahi-compat-libdns_sd.pc avahi-compat-howl.pc
 

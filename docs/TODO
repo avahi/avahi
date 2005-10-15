@@ -10,6 +10,7 @@ for 0.6:
 * wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
 
 later:
+* implement avahi-utils in C
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec
@@ -17,8 +18,8 @@ later:
 * DNSSEC
 * Wide area DNS Update
 * long lived queries
-* libavahi-compat-libdns_sd: implement kDNSServiceFlagsNoAutoRename
-   and missing functions
+* libavahi-compat-libdns_sd: implement kDNSServiceFlagsNoAutoRename and missing functions
+* libavahi-compat-howl: implement missing functions
 
 done:
 * drop glib from avahi-daemon

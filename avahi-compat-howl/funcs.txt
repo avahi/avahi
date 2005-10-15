@@ -1,48 +1,53 @@
-Functions marked with "x" are already implemented.
+-- Supported --
 
-Supported:
-
-x sw_discovery_init
-x sw_discovery_fina
+sw_discovery_init
+sw_discovery_init_with_flags
+sw_discovery_fina
 sw_discovery_publish
-x sw_discovery_browse_domains
-x sw_discovery_browse
-x sw_discovery_resolve
-x sw_discovery_cancel
-x sw_discovery_run
-x sw_discovery_stop_run
-x sw_discovery_socket
-x sw_discovery_read_socket
-x sw_discovery_salt
+sw_discovery_browse_domains
+sw_discovery_browse
+sw_discovery_resolve
+sw_discovery_cancel
+sw_discovery_run
+sw_discovery_stop_run
+sw_discovery_socket
+sw_discovery_read_socket
+sw_discovery_salt
 
-x sw_text_record_init
-x sw_text_record_fina
-x sw_text_record_add_string
-x sw_text_record_add_key_and_string_value
-x sw_text_record_add_key_and_binary_value
-x sw_text_record_bytes
-x sw_text_record_len
-x sw_text_record_iterator_init
-x sw_text_record_iterator_fina
-x sw_text_record_iterator_next
+sw_text_record_init
+sw_text_record_fina
+sw_text_record_add_string
+sw_text_record_add_key_and_string_value
+sw_text_record_add_key_and_binary_value
+sw_text_record_bytes
+sw_text_record_len
+sw_text_record_iterator_init
+sw_text_record_iterator_fina
+sw_text_record_iterator_next
 
-x sw_ipv4_address_any
-x sw_ipv4_address_loopback
-x sw_ipv4_address_init
-x sw_ipv4_address_init_from_saddr
-x sw_ipv4_address_init_from_name
-x sw_ipv4_address_init_from_address
-x sw_ipv4_address_init_from_this_host
-x sw_ipv4_address_fina
-x sw_ipv4_address_is_any
-x sw_ipv4_address_saddr
-x sw_ipv4_address_name
-x sw_ipv4_address_decompose
-x sw_ipv4_address_equals
+sw_ipv4_address_any
+sw_ipv4_address_loopback
+sw_ipv4_address_init
+sw_ipv4_address_init_from_saddr
+sw_ipv4_address_init_from_name
+sw_ipv4_address_init_from_address
+sw_ipv4_address_init_from_this_host
+sw_ipv4_address_fina
+sw_ipv4_address_is_any
+sw_ipv4_address_saddr
+sw_ipv4_address_name
+sw_ipv4_address_decompose
+sw_ipv4_address_equals
 
-x sw_salt_step
+sw_salt_step
 
-Unsupported:
+-- Unsupported but Relevant --
+
+sw_discovery_publish_update
+sw_discovery_publish_host
+sw_discovery_query_record
+
+-- Unsupported and Irrelevant --
 
 sw_strdup
 sw_strerror
@@ -172,10 +177,8 @@ sw_corby_object_send
 sw_corby_object_recv
 sw_corby_object_channel
 sw_corby_object_set_channel
-sw_discovery_init_with_flags
-sw_discovery_publish_update
-sw_discovery_publish_host
-sw_discovery_query_record
 sw_text_record_string_iterator_init
 sw_text_record_string_iterator_fina
 sw_text_record_string_iterator_next
+
+$Id$

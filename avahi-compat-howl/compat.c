@@ -32,6 +32,7 @@
 #include <avahi-common/domain.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
+#include <avahi-common/llist.h>
 #include <avahi-client/client.h>
 
 #include "howl.h"
@@ -53,13 +54,25 @@ typedef enum {
     OID_ENTRY_GROUP
 } oid_type;
 
+typedef struct service_data service_data;
+
 typedef struct oid_data {
     oid_type type;
     sw_opaque extra;
     sw_discovery discovery;
     void *object;
     sw_result (*reply)(void);
+    service_data *service_data;
 } oid_data;
+
+
+struct service_data {
+    char *name, *regtype, *domain, *host;
+    uint16_t port;
+    AvahiIfIndex interface;
+    AvahiStringList *txt;
+    AVAHI_LLIST_FIELDS(service_data, services);
+};
 
 struct _sw_discovery {
     int n_ref;
@@ -76,11 +89,15 @@ struct _sw_discovery {
 
     pthread_mutex_t mutex;
 
+    AVAHI_LLIST_HEAD(service_data, services);
 };
 
 #define ASSERT_SUCCESS(r) { int __ret = (r); assert(__ret == 0); }
 
 #define OID_GET_INDEX(data) ((sw_discovery_oid) (((data) - ((data)->discovery->oid_table))))
+
+static sw_discovery discovery_ref(sw_discovery self);
+static void discovery_unref(sw_discovery self);
 
 static const char *add_trailing_dot(const char *s, char *buf, size_t buf_len) {
     if (!s)
@@ -229,6 +246,7 @@ static void oid_release(sw_discovery self, sw_discovery_oid oid) {
     self->oid_table[oid].reply = NULL;
     self->oid_table[oid].object = NULL;
     self->oid_table[oid].extra = NULL;
+    self->oid_table[oid].service_data = NULL;
 }
 
 static oid_data* oid_get(sw_discovery self, sw_discovery_oid oid) {
@@ -241,6 +259,67 @@ static oid_data* oid_get(sw_discovery self, sw_discovery_oid oid) {
         return NULL;
     
     return &self->oid_table[oid];
+}
+
+static service_data* service_data_new(sw_discovery self) {
+    service_data *sdata;
+    
+    assert(self);
+
+    if (!(sdata = avahi_new0(service_data, 1)))
+        return NULL;
+
+    AVAHI_LLIST_PREPEND(service_data, services, self->services, sdata);
+    
+    return sdata;
+    
+}
+
+static void service_data_free(sw_discovery self, service_data* sdata) {
+    assert(self);
+    assert(sdata);
+
+    AVAHI_LLIST_REMOVE(service_data, services, self->services, sdata);
+    
+    avahi_free(sdata->name);
+    avahi_free(sdata->regtype);
+    avahi_free(sdata->domain);
+    avahi_free(sdata->host);
+    avahi_string_list_free(sdata->txt);
+    avahi_free(sdata);
+}
+
+static void reg_client_callback(oid_data *data, AvahiClientState state);
+
+static void client_callback(AvahiClient *s, AvahiClientState state, void* userdata) {
+    sw_discovery self = userdata;
+    sw_discovery_oid oid;
+    
+    assert(s);
+    assert(self);
+
+    discovery_ref(self);
+    
+    for (oid = 0; oid < OID_MAX; oid++) {
+
+        switch (self->oid_table[oid].type) {
+
+            case OID_ENTRY_GROUP:
+                reg_client_callback(&self->oid_table[oid], state);
+                break;
+
+            case OID_DOMAIN_BROWSER:
+            case OID_SERVICE_BROWSER:
+                ((sw_discovery_browse_reply) self->oid_table[oid].reply)(self, oid, SW_DISCOVERY_BROWSE_INVALID, 0, NULL, NULL, NULL, self->oid_table[oid].extra);
+                break;
+
+            case OID_SERVICE_RESOLVER:
+            case OID_UNUSED:
+                ;
+        }
+    }
+
+    discovery_unref(self);
 }
 
 sw_result sw_discovery_init(sw_discovery * self) {
@@ -275,6 +354,8 @@ sw_result sw_discovery_init(sw_discovery * self) {
     
     (*self)->thread_running = 0;
 
+    AVAHI_LLIST_HEAD_INIT(service_info, (*self)->services);
+
     ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
     ASSERT_SUCCESS(pthread_mutex_init(&(*self)->mutex, &mutex_attr));
@@ -284,7 +365,7 @@ sw_result sw_discovery_init(sw_discovery * self) {
 
     avahi_simple_poll_set_func((*self)->simple_poll, poll_func, *self);
 
-    if (!((*self)->client = avahi_client_new(avahi_simple_poll_get((*self)->simple_poll), NULL, *self, &error))) {
+    if (!((*self)->client = avahi_client_new(avahi_simple_poll_get((*self)->simple_poll), client_callback, *self, &error))) {
         result = map_error(error);
         goto fail;
     }
@@ -328,7 +409,7 @@ static int stop_thread(sw_discovery self) {
     return 0;
 }
 
-static sw_discovery discover_ref(sw_discovery self) {
+static sw_discovery discovery_ref(sw_discovery self) {
     assert(self);
     assert(self->n_ref >= 1);
 
@@ -337,7 +418,7 @@ static sw_discovery discover_ref(sw_discovery self) {
     return self;
 }
 
-static void discover_unref(sw_discovery self) {
+static void discovery_unref(sw_discovery self) {
     assert(self);
     assert(self->n_ref >= 1);
 
@@ -359,6 +440,9 @@ static void discover_unref(sw_discovery self) {
         close(self->main_fd);
 
     ASSERT_SUCCESS(pthread_mutex_destroy(&self->mutex));
+
+    while (self->services)
+        service_data_free(self, self->services);
     
     avahi_free(self);
 }
@@ -369,7 +453,7 @@ sw_result sw_discovery_fina(sw_discovery self) {
     AVAHI_WARN_LINKAGE;
 
     stop_thread(self);
-    discover_unref(self);
+    discovery_unref(self);
     
     return SW_OKAY;
 }
@@ -403,7 +487,7 @@ sw_result sw_discovery_read_socket(sw_discovery self) {
     
     assert(self);
 
-    discover_ref(self);
+    discovery_ref(self);
 
     ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
     
@@ -432,7 +516,7 @@ finish:
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
 
-    discover_unref(self);
+    discovery_unref(self);
     
     return result;
 }
@@ -507,6 +591,124 @@ sw_result sw_salt_stop_run(sw_salt self) {
     return SW_OKAY;
 }
 
+static void reg_report_status(oid_data *data, sw_discovery_publish_status status) {
+    sw_discovery_publish_reply reply;
+
+    assert(data);
+    
+    reply = (sw_discovery_publish_reply) data->reply;
+    
+    reply(data->discovery,
+          OID_GET_INDEX(data),
+          status,
+          data->extra);
+}
+
+static int reg_create_service(oid_data *data) {
+    int ret;
+    const char *real_type;
+    
+    assert(data);
+
+    real_type = avahi_get_type_from_subtype(data->service_data->regtype);
+    
+    if ((ret = avahi_entry_group_add_service_strlst(
+             data->object,
+             data->service_data->interface,
+             AVAHI_PROTO_INET,
+             0,
+             data->service_data->name,
+             real_type ? real_type : data->service_data->regtype,
+             data->service_data->domain,
+             data->service_data->host,
+             data->service_data->port,
+             data->service_data->txt)) < 0)
+        return ret;
+    
+    if (real_type) {
+        /* Create a subtype entry */
+
+        if (avahi_entry_group_add_service_subtype(
+                data->object,
+                data->service_data->interface,
+                AVAHI_PROTO_INET,
+                0,
+                data->service_data->name,
+                real_type,
+                data->service_data->domain,
+                data->service_data->regtype) < 0)
+            return ret;
+
+    }
+
+    if ((ret = avahi_entry_group_commit(data->object)) < 0)
+        return ret;
+
+    return 0;
+}
+
+static void reg_client_callback(oid_data *data, AvahiClientState state) {
+    assert(data);
+
+    /* We've not been setup completely */
+    if (!data->object)
+        return;
+    
+    switch (state) {
+        case AVAHI_CLIENT_DISCONNECTED:
+            reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
+            break;
+        
+        case AVAHI_CLIENT_S_RUNNING: {
+            int ret;
+
+            /* Register the service */
+            if ((ret = reg_create_service(data)) < 0) {
+                reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
+                return;
+            }
+            
+            break;
+        }
+            
+        case AVAHI_CLIENT_S_COLLISION:
+
+            /* Remove our entry */
+            avahi_entry_group_reset(data->object);
+            break;
+
+        case AVAHI_CLIENT_S_INVALID:
+        case AVAHI_CLIENT_S_REGISTERING:
+            /* Ignore */
+            break;
+    }
+
+}
+
+static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+    oid_data *data = userdata;
+
+    assert(g);
+    assert(data);
+
+    switch (state) {
+        case AVAHI_ENTRY_GROUP_ESTABLISHED:
+
+            reg_report_status(data, SW_DISCOVERY_PUBLISH_STARTED);
+            break;
+
+        case AVAHI_ENTRY_GROUP_COLLISION:
+
+            reg_report_status(data, SW_DISCOVERY_PUBLISH_NAME_COLLISION);
+            break;
+
+        case AVAHI_ENTRY_GROUP_REGISTERING:
+        case AVAHI_ENTRY_GROUP_UNCOMMITED:
+            /* Ignore */
+            break;
+    }
+}
+
 sw_result sw_discovery_publish(
     sw_discovery self,
     sw_uint32 interface_index,
@@ -520,8 +722,70 @@ sw_result sw_discovery_publish(
     sw_discovery_publish_reply reply,
     sw_opaque extra,
     sw_discovery_oid * oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
+
+    oid_data *data;
+    sw_result result = SW_E_UNKNOWN;
+    service_data *sdata;
+    
+    assert(self);
+    assert(name);
+    assert(type);
+    assert(reply);
+    assert(oid);
+    
+    AVAHI_WARN_LINKAGE;
+
+    if ((*oid = oid_alloc(self, OID_ENTRY_GROUP)) == (sw_discovery_oid) -1)
+        return SW_E_UNKNOWN;
+
+    if (!(sdata = service_data_new(self))) {
+        oid_release(self, *oid);
+        return SW_E_MEM;
+    }
+
+    data = oid_get(self, *oid);
+    assert(data);
+    data->reply = (sw_result (*)(void)) reply;
+    data->extra = extra;
+    data->service_data = sdata;
+
+    sdata->interface = interface_index == 0 ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface_index;
+    sdata->name = avahi_strdup(name);
+    sdata->regtype = type ? avahi_normalize_name_strdup(type) : NULL;
+    sdata->domain = domain ? avahi_normalize_name_strdup(domain) : NULL;
+    sdata->host = host ? avahi_normalize_name_strdup(host) : NULL;
+    sdata->port = port;
+    sdata->txt = text_record && text_record_len > 0 ? avahi_string_list_parse(text_record, text_record_len) : NULL;
+
+    /* Some OOM checking would be cool here */
+
+    ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
+
+    if (!(data->object = avahi_entry_group_new(self->client, reg_entry_group_callback, data))) {
+        result = map_error(avahi_client_errno(self->client));
+        goto finish;
+    }
+
+    if (avahi_client_get_state(self->client) == AVAHI_CLIENT_S_RUNNING) {
+        int error;
+        
+        if ((error = reg_create_service(data)) < 0) {
+            result = map_error(error);
+            goto finish;
+        }
+    }
+
+    result = SW_OKAY;
+
+finish:
+
+    ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
+    
+    if (result != SW_OKAY) 
+        if (*oid != (sw_discovery_oid) -1)
+            sw_discovery_cancel(self, *oid);
+
+    return result;
 }
 
 static void domain_browser_callback(
@@ -605,7 +869,7 @@ finish:
     
     if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
-            oid_release(self, *oid);
+            sw_discovery_cancel(self, *oid);
 
     return result;
 }
@@ -714,7 +978,7 @@ finish:
     
     if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
-            oid_release(self, *oid);
+            sw_discovery_cancel(self, *oid);
 
     return result;
 }
@@ -806,7 +1070,7 @@ finish:
     
     if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
-            oid_release(self, *oid);
+            sw_discovery_cancel(self, *oid);
 
     return result;
 }
@@ -820,28 +1084,49 @@ sw_result sw_discovery_cancel(sw_discovery self, sw_discovery_oid oid) {
     if (!(data = oid_get(self, oid)))
         return SW_E_UNKNOWN;
 
-    switch (data->type) {
-        case OID_SERVICE_BROWSER:
-            avahi_service_browser_free(data->object);
-            break;
-
-        case OID_SERVICE_RESOLVER:
-            avahi_service_resolver_free(data->object);
-            break;
-
-        case OID_DOMAIN_BROWSER:
-            avahi_domain_browser_free(data->object);
-            break;
-
-        case OID_ENTRY_GROUP:
-            avahi_entry_group_free(data->object);
-            break;
-            
-        case OID_UNUSED:
+    if (data->object) {
+        switch (data->type) {
+            case OID_SERVICE_BROWSER:
+                avahi_service_browser_free(data->object);
+                break;
+                
+            case OID_SERVICE_RESOLVER:
+                avahi_service_resolver_free(data->object);
+                break;
+                
+            case OID_DOMAIN_BROWSER:
+                avahi_domain_browser_free(data->object);
+                break;
+                
+            case OID_ENTRY_GROUP:
+                avahi_entry_group_free(data->object);
+                break;
+                
+            case OID_UNUSED:
             ;
+        }
+    }
+
+    if (data->service_data) {
+        assert(data->type == OID_ENTRY_GROUP);
+        service_data_free(self, data->service_data);
     }
 
     oid_release(self, oid);
     
     return SW_OKAY;
+}
+
+sw_result sw_discovery_init_with_flags(
+    sw_discovery * self,
+    sw_discovery_init_flags flags) {
+
+    assert(self);
+
+    AVAHI_WARN_LINKAGE;
+
+    if (flags != SW_DISCOVERY_USE_SHARED_SERVICE)
+        return SW_E_NO_IMPL;
+
+    return sw_discovery_init(self);
 }

@@ -962,13 +962,6 @@ sw_result sw_corby_object_set_channel(
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_discovery_init_with_flags(
-    sw_discovery * self,
-    sw_discovery_init_flags flags) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
 sw_result sw_discovery_publish_host(
     sw_discovery self,
     sw_uint32 interface_index,

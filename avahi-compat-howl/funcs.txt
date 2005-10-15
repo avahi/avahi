@@ -5,7 +5,7 @@ Supported:
 x sw_discovery_init
 x sw_discovery_fina
 sw_discovery_publish
-sw_discovery_browse_domains
+x sw_discovery_browse_domains
 x sw_discovery_browse
 x sw_discovery_resolve
 x sw_discovery_cancel

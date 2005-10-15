@@ -2,22 +2,18 @@ Functions marked with "x" are already implemented.
 
 Supported:
 
-sw_discovery_init
-sw_discovery_init_with_flags
-sw_discovery_fina
-sw_discovery_publish_host
+x sw_discovery_init
+x sw_discovery_fina
 sw_discovery_publish
-sw_discovery_publish_update
 sw_discovery_browse_domains
-sw_discovery_browse
+x sw_discovery_browse
 sw_discovery_resolve
-sw_discovery_query_record
-sw_discovery_cancel
-sw_discovery_run
-sw_discovery_stop_run
-sw_discovery_socket
-sw_discovery_read_socket
-sw_discovery_salt
+x sw_discovery_cancel
+x sw_discovery_run
+x sw_discovery_stop_run
+x sw_discovery_socket
+x sw_discovery_read_socket
+x sw_discovery_salt
 
 x sw_text_record_init
 x sw_text_record_fina
@@ -44,7 +40,7 @@ x sw_ipv4_address_name
 x sw_ipv4_address_decompose
 x sw_ipv4_address_equals
 
-sw_salt_step
+x sw_salt_step
 
 Unsupported:
 
@@ -176,6 +172,10 @@ sw_corby_object_send
 sw_corby_object_recv
 sw_corby_object_channel
 sw_corby_object_set_channel
+sw_discovery_init_with_flags
+sw_discovery_publish_update
+sw_discovery_publish_host
+sw_discovery_query_record
 sw_text_record_string_iterator_init
 sw_text_record_string_iterator_fina
 sw_text_record_string_iterator_next

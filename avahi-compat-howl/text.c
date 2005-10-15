@@ -25,12 +25,11 @@
 
 #include <assert.h>
 
-#include <howl.h>
-
 #include <avahi-common/strlst.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/domain.h>
 
+#include "howl.h"
 #include "warn.h"
 
 struct _sw_text_record {

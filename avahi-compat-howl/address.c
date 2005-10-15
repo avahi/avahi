@@ -31,8 +31,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 
-#include <howl.h>
-
+#include "howl.h"
 #include "warn.h"
 
 sw_ipv4_address sw_ipv4_address_any(void) {

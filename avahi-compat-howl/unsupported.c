@@ -23,8 +23,7 @@
 #include <config.h>
 #endif
 
-#include <howl.h>
-
+#include "howl.h"
 #include "warn.h"
 
 sw_string sw_strdup(sw_const_string str) {
@@ -201,20 +200,6 @@ sw_result sw_salt_unlock(sw_salt self) {
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_salt_step(sw_salt self, sw_uint32 * msec) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_salt_run(sw_salt self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_salt_stop_run(sw_salt self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
 
 void sw_print_assert(
     int code,
@@ -977,20 +962,9 @@ sw_result sw_corby_object_set_channel(
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_discovery_init(
-    sw_discovery * self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
 sw_result sw_discovery_init_with_flags(
     sw_discovery * self,
     sw_discovery_init_flags flags) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_fina(sw_discovery self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
@@ -1008,63 +982,11 @@ sw_result sw_discovery_publish_host(
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_discovery_publish(
-    sw_discovery self,
-    sw_uint32 interface_index,
-    sw_const_string name,
-    sw_const_string type,
-    sw_const_string domain,
-    sw_const_string host,
-    sw_port port,
-    sw_octets text_record,
-    sw_uint32 text_record_len,
-    sw_discovery_publish_reply reply,
-    sw_opaque extra,
-    sw_discovery_oid * oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
 sw_result sw_discovery_publish_update(
     sw_discovery self,
     sw_discovery_oid oid,
     sw_octets text_record,
     sw_uint32 text_record_len) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_browse_domains(
-    sw_discovery self,
-    sw_uint32 interface_index,
-    sw_discovery_browse_reply reply,
-    sw_opaque extra,
-    sw_discovery_oid * oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_browse(
-    sw_discovery self,
-    sw_uint32 interface_index,
-    sw_const_string type,
-    sw_const_string domain,
-    sw_discovery_browse_reply reply,
-    sw_opaque extra,
-    sw_discovery_oid * oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_resolve(
-    sw_discovery self,
-    sw_uint32 interface_index,
-    sw_const_string name,
-    sw_const_string type,
-    sw_const_string domain,
-    sw_discovery_resolve_reply reply,
-    sw_opaque extra,
-    sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
@@ -1079,41 +1001,6 @@ sw_result sw_discovery_query_record(
     sw_discovery_query_record_reply reply,
     sw_opaque extra,
     sw_discovery_oid * oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_cancel(
-    sw_discovery self,
-    sw_discovery_oid oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_run(
-    sw_discovery self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_stop_run(
-    sw_discovery self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-int sw_discovery_socket(sw_discovery self) {
-    AVAHI_WARN_UNSUPPORTED_ABORT;
-}
-
-sw_result sw_discovery_read_socket(sw_discovery self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_discovery_salt(
-    sw_discovery self,
-    sw_salt * salt) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }

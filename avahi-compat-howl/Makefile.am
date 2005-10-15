@@ -49,14 +49,15 @@ avahi_compat_howl_HEADERS = \
 
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
-noinst_PROGRAMS = address-test text-test
+noinst_PROGRAMS = address-test text-test samples/browse samples/resolve samples/publish samples/query
 
 libavahi_compat_howl_la_SOURCES = \
 	$(avahi_compat_howl_HEADERS) \
 	warn.c warn.h \
 	unsupported.c \
 	address.c \
-	text.c
+	text.c \
+	compat.c
 libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 libavahi_compat_howl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
@@ -75,6 +76,31 @@ text_test_SOURCES = \
 	warn.c warn.h 
 text_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 text_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+
+samples_browse_SOURCES = \
+	$(avahi_compat_howl_HEADERS) \
+	samples/browse.c
+samples_browse_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+samples_browse_LDADD = $(AM_LDADD) libavahi-compat-howl.la
+
+samples_resolve_SOURCES = \
+	$(avahi_compat_howl_HEADERS) \
+	samples/resolve.c
+samples_resolve_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+samples_resolve_LDADD = $(AM_LDADD) libavahi-compat-howl.la
+
+samples_publish_SOURCES = \
+	$(avahi_compat_howl_HEADERS) \
+	samples/publish.c
+samples_publish_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+samples_publish_LDADD = $(AM_LDADD) libavahi-compat-howl.la
+
+samples_query_SOURCES = \
+	$(avahi_compat_howl_HEADERS) \
+	samples/query.c
+samples_query_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+samples_query_LDADD = $(AM_LDADD) libavahi-compat-howl.la
+
 
 
 # You can test the compatibility layer by sticking in mDNSResponder's

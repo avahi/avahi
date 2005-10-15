@@ -6,5 +6,5 @@ includedir=${prefix}/include/avahi-compat-libdns_sd/
 Name: avahi-compat-libdns_sd
 Description: Avahi Multicast DNS Responder (libdns_sd Compatibility)
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lavahi-common -lavahi-client -lavahi-compat-libdns_sd
+Libs: -L${libdir} -lavahi-compat-libdns_sd
 Cflags: -D_REENTRANT -I${includedir}

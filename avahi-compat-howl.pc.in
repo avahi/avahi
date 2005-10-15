@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/avahi-compat-howl/
+
+Name: avahi-compat-howl
+Description: Avahi Multicast DNS Responder (HOWL) Compatibility)
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lavahi-compat-howl
+Cflags: -D_REENTRANT -I${includedir}

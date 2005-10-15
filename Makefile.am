@@ -95,13 +95,9 @@ DX_EXAMPLE_PATH = $(srcdir)/examples
 DX_EXAMPLE_PATTERNS = *.c
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = avahi-core.pc avahi-compat-libdns_sd.pc
+pkgconfig_DATA = avahi-core.pc
 
 avahi-core.pc: avahi-core.pc.in
-	sed -e 's,@prefix\@,$(prefix),g' \
-	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
-
-avahi-compat-libdns_sd.pc: avahi-compat-libdns_sd.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
@@ -109,13 +105,21 @@ CLEANFILES = avahi-core.pc
 
 if HAVE_DBUS
 
-pkgconfig_DATA += avahi-client.pc
+pkgconfig_DATA += avahi-client.pc avahi-compat-libdns_sd.pc  avahi-compat-howl.pc
 
 avahi-client.pc: avahi-client.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
-CLEANFILES += avahi-client.pc
+avahi-compat-libdns_sd.pc: avahi-compat-libdns_sd.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+avahi-compat-howl.pc: avahi-compat-howl.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-client.pc avahi-compat-libdns_sd.pc.in avahi-compat-howl.pc.in
 
 endif
 

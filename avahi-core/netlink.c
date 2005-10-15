@@ -145,9 +145,7 @@ fail:
         close(fd);
 
     if (nl) {
-        if (nl->buffer)
-            avahi_free(nl);
-        
+        avahi_free(nl->buffer);
         avahi_free(nl);
     }
 

@@ -540,8 +540,7 @@ finish:
         DNSServiceRefDeallocate(sdref);
 
     return ret;
-xb
-    }
+}
 
 static void service_resolver_callback(
     AvahiServiceResolver *r,

@@ -524,14 +524,90 @@ sw_result sw_discovery_publish(
     return SW_E_NO_IMPL;
 }
 
+static void domain_browser_callback(
+    AvahiDomainBrowser *b,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiBrowserEvent event,
+    const char *domain,
+    AvahiLookupResultFlags flags,
+    void *userdata) {
+
+    oid_data* data = userdata;
+    sw_discovery_browse_reply reply;
+    static char domain_fixed[AVAHI_DOMAIN_NAME_MAX];
+
+    assert(b);
+    assert(data);
+
+    reply = (sw_discovery_browse_reply) data->reply;
+
+    domain  = add_trailing_dot(domain, domain_fixed, sizeof(domain_fixed));
+
+    switch (event) {
+        case AVAHI_BROWSER_NEW:
+            reply(data->discovery, OID_GET_INDEX(data), SW_DISCOVERY_BROWSE_ADD_DOMAIN, interface, NULL, NULL, domain, data->extra);
+            break;
+
+        case AVAHI_BROWSER_REMOVE:
+            reply(data->discovery, OID_GET_INDEX(data), SW_DISCOVERY_BROWSE_REMOVE_DOMAIN, interface, NULL, NULL, domain, data->extra);
+            break;
+
+        case AVAHI_BROWSER_FAILURE:
+            reply(data->discovery, OID_GET_INDEX(data), SW_DISCOVERY_BROWSE_INVALID, interface, NULL, NULL, domain, data->extra);
+            break;
+            
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            break;
+    }
+}
+
 sw_result sw_discovery_browse_domains(
     sw_discovery self,
     sw_uint32 interface_index,
     sw_discovery_browse_reply reply,
     sw_opaque extra,
     sw_discovery_oid * oid) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
+    
+    oid_data *data;
+    AvahiIfIndex ifindex;
+    sw_result result = SW_E_UNKNOWN;
+    
+    assert(self);
+    assert(reply);
+    assert(oid);
+    
+    AVAHI_WARN_LINKAGE;
+
+    if ((*oid = oid_alloc(self, OID_DOMAIN_BROWSER)) == (sw_discovery_oid) -1)
+        return SW_E_UNKNOWN;
+
+    data = oid_get(self, *oid);
+    assert(data);
+    data->reply = (sw_result (*)(void)) reply;
+    data->extra = extra;
+    
+    ifindex = interface_index == 0 ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface_index;
+
+    ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
+    
+    if (!(data->object = avahi_domain_browser_new(self->client, ifindex, AVAHI_PROTO_INET, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, 0, domain_browser_callback, data))) {
+        result = map_error(avahi_client_errno(self->client));
+        goto finish;
+    }
+
+    result = SW_OKAY;
+
+finish:
+
+    ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
+    
+    if (result != SW_OKAY)
+        if (*oid != (sw_discovery_oid) -1)
+            oid_release(self, *oid);
+
+    return result;
 }
 
 static void service_resolver_callback(
@@ -753,6 +829,14 @@ sw_result sw_discovery_cancel(sw_discovery self, sw_discovery_oid oid) {
             avahi_service_resolver_free(data->object);
             break;
 
+        case OID_DOMAIN_BROWSER:
+            avahi_domain_browser_free(data->object);
+            break;
+
+        case OID_ENTRY_GROUP:
+            avahi_entry_group_free(data->object);
+            break;
+            
         case OID_UNUSED:
             ;
     }

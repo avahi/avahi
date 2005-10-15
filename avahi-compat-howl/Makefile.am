@@ -70,7 +70,7 @@ HOWLHEADERS = \
 
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
-noinst_PROGRAMS = address-test text-test
+noinst_PROGRAMS = address-test text-test browse-domain-test
 
 libavahi_compat_howl_la_SOURCES = \
 	$(HOWLHEADERS) \
@@ -97,5 +97,11 @@ text_test_SOURCES = \
 	warn.c warn.h 
 text_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 text_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+
+browse_domain_test_SOURCES = \
+	$(HOWLHEADERS) \
+	browse-domain-test.c
+browse_domain_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+browse_domain_test_LDADD = $(AM_LDADD) libavahi-compat-howl.la
 
 endif

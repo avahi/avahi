@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <howl.h>
+#include "howl.h"
 
 #define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); assert(_r == SW_OKAY); }
 #define ASSERT_NOT_NULL(t) { const void* _r; r = (t); assert(_r); }

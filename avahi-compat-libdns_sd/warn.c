@@ -42,44 +42,56 @@
 static pthread_mutex_t linkage_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int linkage_warning = 0;
 
-static void get_exe_name(char *t, size_t l) {
-    int k;
-    char fn[1024];
+const char *avahi_exe_name(void) {
+    static char exe_name[1024] = "";
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-    /* Yes, I know, this is not portable. But who cares? It's
-     * for cosmetics only, anyway. */
+    /* Yes, I know, this is not portable. But who cares? It's for
+     * cosmetics only, anyway. */
     
-    snprintf(fn, sizeof(fn), "/proc/%lu/exe", (unsigned long) getpid());
+    pthread_mutex_lock(&mutex);
 
-    if ((k = readlink(fn, t, l-1)) < 0)
-        snprintf(t, l, "(unknown)");
-    else {
-        char *slash;
-
-        assert((size_t) k <= l-1);
-        t[k] = 0;
-
-        if ((slash = strrchr(t, '/')))
-            memmove(t, slash+1, strlen(slash)+1);
+    if (exe_name[0] == 0) {
+        int k;
+        char fn[64];
+        
+        snprintf(fn, sizeof(fn), "/proc/%lu/exe", (unsigned long) getpid());
+        
+        if ((k = readlink(fn, exe_name, sizeof(exe_name)-1)) < 0)
+            snprintf(exe_name, sizeof(exe_name), "(unknown)");
+        else {
+            char *slash;
+            
+            assert((size_t) k <= sizeof(exe_name)-1);
+            exe_name[k] = 0;
+            
+            if ((slash = strrchr(exe_name, '/')))
+                memmove(exe_name, slash+1, strlen(slash)+1);
+        }
     }
+    
+    pthread_mutex_unlock(&mutex);
+
+    return exe_name;
 }
 
-static void warning(const char *ident, const char *fmt, ...) {
-    va_list ap, ap2;
+void avahi_warn(const char *fmt, ...) {
+    char msg[512]  = "*** WARNING *** ";
+    va_list ap;
+    size_t n;
     
-    assert(ident);
     assert(fmt);
-
+                
     va_start(ap, fmt);
-    va_copy(ap2, ap);
-    
-    vfprintf(stderr, fmt, ap);
+    n = strlen(msg);
+    vsnprintf(msg + n, sizeof(msg) - n, fmt, ap);
     va_end(ap);
+    
+    fprintf(stderr, "%s\n", msg);
 
-    openlog(ident, LOG_PID, LOG_USER);
-    vsyslog(LOG_WARNING, fmt, ap2);
+    openlog(avahi_exe_name(), LOG_PID, LOG_USER);
+    syslog(LOG_WARNING, "%s", msg);
     closelog();
-    va_end(ap2);
 }
 
 void avahi_warn_linkage(void) {
@@ -90,20 +102,16 @@ void avahi_warn_linkage(void) {
     linkage_warning = 1;
     pthread_mutex_unlock(&linkage_mutex);
 
-    if (!w && !getenv("AVAHI_COMPAT_NOWARN")) {
-        char exename[256];
-
-        get_exe_name(exename, sizeof(exename));
-
-        warning(exename, "*** WARNING: The application '%s' uses the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix your application to use the native API of Avahi! ***\n", exename);
-    }
+    if (!w && !getenv("AVAHI_COMPAT_NOWARN"))
+        avahi_warn("The programme '%s' uses the "COMPAT_LAYER" compatiblity layer of Avahi. "
+                   "Please fix your application to use the native API of Avahi!",
+                   avahi_exe_name());
 }
 
 void avahi_warn_unsupported(const char *function) {
-    char exename[256];
-    get_exe_name(exename, sizeof(exename));
-
-    warning(exename, "*** WARNING: The application '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatiblity layer of Avahi. Please fix your application to use the native API of Avahi! ***\n", exename, function);
+    avahi_warn("The programme '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatiblity layer of Avahi. "
+               "Please fix your application to use the native API of Avahi!",
+               avahi_exe_name(), function);
 }
 
 

@@ -22,6 +22,8 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+SUBDIRS = . samples
+
 if HAVE_DBUS
 
 avahi_compat_howldir=$(includedir)/avahi-compat-howl
@@ -68,7 +70,7 @@ HOWLHEADERS = \
 
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
-noinst_PROGRAMS = address-test text-test samples/browse samples/resolve samples/publish samples/query
+noinst_PROGRAMS = address-test text-test
 
 libavahi_compat_howl_la_SOURCES = \
 	$(HOWLHEADERS) \
@@ -95,29 +97,5 @@ text_test_SOURCES = \
 	warn.c warn.h 
 text_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 text_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
-
-samples_browse_SOURCES = \
-	$(HOWLHEADERS) \
-	samples/browse.c
-samples_browse_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-samples_browse_LDADD = $(AM_LDADD) libavahi-compat-howl.la
-
-samples_resolve_SOURCES = \
-	$(HOWLHEADERS) \
-	samples/resolve.c
-samples_resolve_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-samples_resolve_LDADD = $(AM_LDADD) libavahi-compat-howl.la
-
-samples_publish_SOURCES = \
-	$(HOWLHEADERS) \
-	samples/publish.c
-samples_publish_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-samples_publish_LDADD = $(AM_LDADD) libavahi-compat-howl.la
-
-samples_query_SOURCES = \
-	$(HOWLHEADERS) \
-	samples/query.c
-samples_query_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-samples_query_LDADD = $(AM_LDADD) libavahi-compat-howl.la
 
 endif

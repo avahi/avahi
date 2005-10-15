@@ -629,6 +629,7 @@ service-type-database/Makefile
 avahi-sharp/Makefile
 avahi-compat-libdns_sd/Makefile
 avahi-compat-howl/Makefile
+avahi-compat-howl/samples/Makefile
 ])
 AC_OUTPUT
 

@@ -7,7 +7,7 @@ x sw_discovery_fina
 sw_discovery_publish
 sw_discovery_browse_domains
 x sw_discovery_browse
-sw_discovery_resolve
+x sw_discovery_resolve
 x sw_discovery_cancel
 x sw_discovery_run
 x sw_discovery_stop_run

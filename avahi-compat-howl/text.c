@@ -205,8 +205,8 @@ sw_result sw_text_record_iterator_fina(sw_text_record_iterator self) {
 
 sw_result sw_text_record_iterator_next(
     sw_text_record_iterator self,
-    char key[255],
-    sw_uint8 val[255],
+    char key[SW_TEXT_RECORD_MAX_LEN],
+    sw_uint8 val[SW_TEXT_RECORD_MAX_LEN],
     sw_uint32 * val_len) {
 
     char *mkey = NULL, *mvalue = NULL;
@@ -223,7 +223,8 @@ sw_result sw_text_record_iterator_next(
     if (avahi_string_list_get_pair(self->index, &mkey, &mvalue, &msize) < 0)
         return SW_E_UNKNOWN;
 
-    avahi_strlcpy(key, mkey, 255);
+    avahi_strlcpy(key, mkey, SW_TEXT_RECORD_MAX_LEN);
+    memset(val, 0, SW_TEXT_RECORD_MAX_LEN);
     memcpy(val, mvalue, msize);
     *val_len = msize;
     

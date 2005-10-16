@@ -88,7 +88,7 @@ struct _sw_discovery {
     pthread_t thread;
     int thread_running;
 
-    pthread_mutex_t mutex;
+    pthread_mutex_t mutex, salt_mutex;
 
     AVAHI_LLIST_HEAD(service_data, services);
 };
@@ -370,6 +370,7 @@ sw_result sw_discovery_init(sw_discovery * self) {
     ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
     ASSERT_SUCCESS(pthread_mutex_init(&(*self)->mutex, &mutex_attr));
+    ASSERT_SUCCESS(pthread_mutex_init(&(*self)->salt_mutex, &mutex_attr));
 
     if (!((*self)->simple_poll = avahi_simple_poll_new()))
         goto fail;
@@ -451,6 +452,7 @@ static void discovery_unref(sw_discovery self) {
         close(self->main_fd);
 
     ASSERT_SUCCESS(pthread_mutex_destroy(&self->mutex));
+    ASSERT_SUCCESS(pthread_mutex_destroy(&self->salt_mutex));
 
     while (self->services)
         service_data_free(self, self->services);
@@ -610,7 +612,7 @@ sw_result sw_salt_lock(sw_salt self) {
     AVAHI_WARN_LINKAGE;
 
     assert(self);
-    ASSERT_SUCCESS(pthread_mutex_lock(&((sw_discovery) self)->mutex));
+    ASSERT_SUCCESS(pthread_mutex_lock(&((sw_discovery) self)->salt_mutex));
 
     return SW_OKAY;
 }
@@ -620,7 +622,7 @@ sw_result sw_salt_unlock(sw_salt self) {
     
     AVAHI_WARN_LINKAGE;
 
-    ASSERT_SUCCESS(pthread_mutex_unlock(&((sw_discovery) self)->mutex));
+    ASSERT_SUCCESS(pthread_mutex_unlock(&((sw_discovery) self)->salt_mutex));
 
     return SW_OKAY;
 }

@@ -43,7 +43,8 @@
 enum {
     COMMAND_POLL = 'p',
     COMMAND_QUIT = 'q',
-    COMMAND_POLL_DONE = 'P'
+    COMMAND_POLL_DONE = 'P',
+    COMMAND_POLL_FAILED = 'F'
 };
 
 typedef enum {
@@ -183,22 +184,32 @@ static void * thread_func(void *data) {
         
         switch (command) {
 
-            case COMMAND_POLL:
+            case COMMAND_POLL: {
+                int ret;
 
                 ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
+
+                for (;;) {
+                    errno = 0;
                 
-                if (avahi_simple_poll_run(self->simple_poll) < 0) {
-                    fprintf(stderr, __FILE__": avahi_simple_poll_run() failed.\n");
-                    ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
+                    if ((ret = avahi_simple_poll_run(self->simple_poll)) < 0) {
+                        
+                        if (errno == EINTR)
+                            continue;
+                        
+                        fprintf(stderr, __FILE__": avahi_simple_poll_run() failed: %s\n", strerror(errno));
+                    }
+
                     break;
                 }
-
+                    
                 ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
                 
-                if (write_command(self->thread_fd, COMMAND_POLL_DONE) < 0)
+                if (write_command(self->thread_fd, ret < 0 ? COMMAND_POLL_FAILED : COMMAND_POLL_DONE) < 0)
                     break;
                 
                 break;
+            }
 
             case COMMAND_QUIT:
                 return NULL;
@@ -574,8 +585,10 @@ sw_result sw_salt_step(sw_salt self, sw_uint32 * msec) {
 
 sw_result sw_salt_run(sw_salt self) {
     sw_result ret;
-    
+
     AVAHI_WARN_LINKAGE;
+
+    assert(self);
     
     for (;;)
         if ((ret = sw_salt_step(self, NULL)) != SW_OKAY)
@@ -585,8 +598,29 @@ sw_result sw_salt_run(sw_salt self) {
 sw_result sw_salt_stop_run(sw_salt self) {
     AVAHI_WARN_LINKAGE;
 
+    assert(self);
+
     if (stop_thread((sw_discovery) self) < 0)
         return SW_E_UNKNOWN;
+
+    return SW_OKAY;
+}
+
+sw_result sw_salt_lock(sw_salt self) {
+    AVAHI_WARN_LINKAGE;
+
+    assert(self);
+    ASSERT_SUCCESS(pthread_mutex_lock(&((sw_discovery) self)->mutex));
+
+    return SW_OKAY;
+}
+
+sw_result sw_salt_unlock(sw_salt self) {
+    assert(self);
+    
+    AVAHI_WARN_LINKAGE;
+
+    ASSERT_SUCCESS(pthread_mutex_unlock(&((sw_discovery) self)->mutex));
 
     return SW_OKAY;
 }

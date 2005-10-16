@@ -40,6 +40,10 @@ sw_ipv4_address_decompose
 sw_ipv4_address_equals
 
 sw_salt_step
+sw_salt_lock
+sw_salt_unlock
+sw_salt_run
+sw_salt_stop_run
 
 -- Unsupported but Relevant --
 
@@ -69,10 +73,6 @@ sw_salt_register_network_interface
 sw_salt_unregister_network_interface_handler
 sw_salt_register_signal
 sw_salt_unregister_signal
-sw_salt_lock
-sw_salt_unlock
-sw_salt_run
-sw_salt_stop_run
 sw_print_assert
 sw_print_debug
 sw_tcp_socket_init

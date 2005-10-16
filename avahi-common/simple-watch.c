@@ -519,7 +519,7 @@ finish:
 
 int avahi_simple_poll_run(AvahiSimplePoll *s) {
     assert(s);
-    assert(s->state == STATE_PREPARED);
+    assert(s->state == STATE_PREPARED || s->state == STATE_FAILURE);
     
     s->state = STATE_RUNNING;
 

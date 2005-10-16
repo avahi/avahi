@@ -190,17 +190,6 @@ sw_result sw_salt_unregister_signal(
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_salt_lock(sw_salt self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-sw_result sw_salt_unlock(sw_salt self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
-}
-
-
 void sw_print_assert(
     int code,
     sw_const_string assert_string,

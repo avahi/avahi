@@ -45,7 +45,8 @@
 enum {
     COMMAND_POLL = 'p',
     COMMAND_QUIT = 'q',
-    COMMAND_POLL_DONE = 'P'
+    COMMAND_POLL_DONE = 'P',
+    COMMAND_POLL_FAILED = 'F'
 };
 
 struct _DNSServiceRef_t {
@@ -222,22 +223,32 @@ static void * thread_func(void *data) {
         
         switch (command) {
 
-            case COMMAND_POLL:
+            case COMMAND_POLL: {
+                int ret;
 
                 ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
-                
-                if (avahi_simple_poll_run(sdref->simple_poll) < 0) {
-                    fprintf(stderr, __FILE__": avahi_simple_poll_run() failed.\n");
-                    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
+
+                for (;;) {
+                    errno = 0;
+                    
+                    if ((ret = avahi_simple_poll_run(sdref->simple_poll)) < 0) {
+
+                        if (errno == EINTR)
+                            continue;
+                        
+                        fprintf(stderr, __FILE__": avahi_simple_poll_run() failed: %s\n", strerror(errno));
+                    }
+
                     break;
                 }
 
                 ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
 
-                if (write_command(sdref->thread_fd, COMMAND_POLL_DONE) < 0)
+                if (write_command(sdref->thread_fd, ret < 0 ? COMMAND_POLL_FAILED : COMMAND_POLL_DONE) < 0)
                     break;
                 
                 break;
+            }
 
             case COMMAND_QUIT:
                 return NULL;

@@ -26,5 +26,6 @@
 #include "warn.h"
 
 #define COMPAT_LAYER "HOWL"
+#define CGI_SUBSYSTEM "howl"
 
 #include "../avahi-compat-libdns_sd/warn.c"

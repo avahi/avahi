@@ -361,9 +361,7 @@ int main(int argc, char *argv[]) {
     avahi_elapse_time(&tv, 1000*60, 0);
     poll_api->timeout_new(poll_api, &tv, quit_timeout_callback, simple_poll);
 
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
 
     avahi_s_record_browser_free(r);
     avahi_s_host_name_resolver_free(hnr);

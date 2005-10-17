@@ -186,7 +186,7 @@ void avahi_interface_free(AvahiInterface *i, int send_goodbye) {
     assert(i);
 
     /* Handle goodbyes and remove announcers */
-    avahi_goodbye_interface(i->monitor->server, i, send_goodbye);
+    avahi_goodbye_interface(i->monitor->server, i, send_goodbye, 1);
     avahi_response_scheduler_force(i->response_scheduler);
     assert(!i->announcements);
 
@@ -358,7 +358,7 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
         if (i->protocol == AVAHI_PROTO_INET6)
             avahi_mdns_mcast_leave_ipv6(m->server->fd_ipv6, i->hardware->index);
 
-        avahi_goodbye_interface(m->server, i, 0);
+        avahi_goodbye_interface(m->server, i, 0, 1);
         avahi_querier_free_all(i);
 
         avahi_response_scheduler_clear(i->response_scheduler);

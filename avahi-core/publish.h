@@ -220,6 +220,43 @@ int avahi_server_add_service_subtype(
     const char *domain,       /**< Specify the main type of the service you already added here */
     const char *subtype       /**< The new subtype for the specified service */ );
 
+
+/** Update the TXT record for a service with the data from the specified string list */
+int avahi_server_update_service_txt_strlst(
+    AvahiServer *s,
+    AvahiSEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,     
+    const char *type,     
+    const char *domain,   
+    AvahiStringList *strlst);
+
+/** Update the TXT record for a service with the NULL terminated list of strings of the va_list. */
+int avahi_server_update_service_txt_va(
+    AvahiServer *s,
+    AvahiSEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,     
+    const char *type,     
+    const char *domain,   
+    va_list va);
+
+/** Update the TXT record for a service with the NULL termonate list of strings */
+int avahi_server_update_service_txt(
+    AvahiServer *s,
+    AvahiSEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,     
+    const char *type,     
+    const char *domain,   
+    ...) AVAHI_GCC_SENTINEL;
+
 /** The type of DNS server */
 typedef enum {
     AVAHI_DNS_SERVER_RESOLVE,         /**< Unicast DNS servers for normal resolves (_domain._udp)*/

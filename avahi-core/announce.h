@@ -63,11 +63,12 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately);
 int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
-void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye);
-void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye);
-
-void avahi_goodbye_all(AvahiServer *s, int send_goodbye);
+void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int rem);
+void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int rem);
+void avahi_goodbye_all(AvahiServer *s, int send_goodbye, int rem);
 
 AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+
+void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e);
 
 #endif

@@ -42,7 +42,8 @@ noinst_PROGRAMS = \
 	dns-test \
 	timeeventq-test \
 	hashmap-test \
-	querier-test
+	querier-test \
+	update-test
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -74,7 +75,7 @@ libavahi_core_la_SOURCES = \
 	wide-area.c wide-area.h \
 	multicast-lookup.c multicast-lookup.h \
 	querier.c querier.h
-	
+
 if HAVE_NETLINK
 libavahi_core_la_SOURCES += \
        iface-linux.c iface-linux.h \
@@ -96,6 +97,10 @@ avahi_test_SOURCES = \
 avahi_test_CFLAGS = $(AM_CFLAGS)
 avahi_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
 
+update_test_SOURCES = \
+	update-test.c
+update_test_CFLAGS = $(AM_CFLAGS)
+update_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
 
 querier_test_SOURCES = \
 	querier-test.c

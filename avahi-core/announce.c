@@ -230,13 +230,11 @@ static void go_to_initial_state(AvahiAnnouncement *a, int immediately) {
     if (a->state == AVAHI_PROBING && e->group)
         e->group->n_probing++;
 
-    if (a->state == AVAHI_PROBING) {
-        avahi_elapse_time(&tv, 0, immediately ? 0 : AVAHI_PROBE_JITTER_MSEC);
-        set_timeout(a, &tv);
-    } else if (a->state == AVAHI_ANNOUNCING) {
-        avahi_elapse_time(&tv, 0, immediately ? 0 : AVAHI_ANNOUNCEMENT_JITTER_MSEC);
-        set_timeout(a, &tv);
-    } else
+    if (a->state == AVAHI_PROBING) 
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC));
+    else if (a->state == AVAHI_ANNOUNCING) 
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC));
+    else
         set_timeout(a, NULL);
 }
 
@@ -438,55 +436,123 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
     avahi_interface_post_response(i, g, e->flags & AVAHI_PUBLISH_UNIQUE, NULL, 1);
     avahi_record_unref(g);
 }
+
+static void reannounce(AvahiAnnouncement *a) {
+    AvahiEntry *e;
+    struct timeval tv;
+        
+    assert(a);
+    e = a->entry;
+
+    /* If the group this entry belongs to is not even commited, there's nothing to reannounce */
+    if (e->group && (e->group->state == AVAHI_ENTRY_GROUP_UNCOMMITED || e->group->state == AVAHI_ENTRY_GROUP_COLLISION))
+        return;
+
+    /* Because we might change state we decrease the probing counter first */
+    if (a->state == AVAHI_PROBING && a->entry->group)
+        a->entry->group->n_probing--;
     
-void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int goodbye) {
+    if (a->state == AVAHI_PROBING ||
+        (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE) && !(e->flags & AVAHI_PUBLISH_NO_PROBE)))
+
+        /* We were probing or waiting after probe, so we restart probing from the beginning here */
+        
+        a->state = AVAHI_PROBING;
+    else if (a->state == AVAHI_WAITING)
+
+        /* We were waiting, but were not probing before, so we continue waiting  */
+        a->state = AVAHI_WAITING;
+
+    else if (e->flags & AVAHI_PUBLISH_NO_ANNOUNCE)
+        
+        /* No announcement needed */
+        a->state = AVAHI_ESTABLISHED;
+
+    else {
+        
+        /* Ok, let's restart announcing */
+        a->state = AVAHI_ANNOUNCING;
+    } 
+        
+    /* Now let's increase the probing counter again */
+    if (a->state == AVAHI_PROBING && e->group)
+        e->group->n_probing++;
+    
+    a->n_iteration = 1;
+    a->sec_delay = 1;
+
+    if (a->state == AVAHI_PROBING)
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC));
+    else if (a->state == AVAHI_ANNOUNCING) 
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC));
+    else
+        set_timeout(a, NULL);
+}
+
+
+static void reannounce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
+    AvahiEntry *e = userdata;
+    AvahiAnnouncement *a;
+    
+    assert(m);
+    assert(i);
+    assert(e);
+    assert(!e->dead);
+
+    if (!(a = avahi_get_announcement(m->server, e, i)))
+        return;
+
+    reannounce(a);
+}
+
+void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e) {
+
+    assert(s);
+    assert(e);
+    assert(!e->dead);
+
+    avahi_interface_monitor_walk(s->monitor, e->interface, e->protocol, reannounce_walk_callback, e);
+}
+    
+void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int remove) {
     assert(s);
     assert(i);
 
-/*     avahi_log_debug("goodbye interface: %s.%u", i->hardware->name, i->protocol); */
+    if (send_goodbye)
+        if (avahi_interface_is_relevant(i)) {
+            AvahiEntry *e;
+            
+            for (e = s->entries; e; e = e->entries_next)
+                if (!e->dead)
+                    send_goodbye_callback(s->monitor, i, e);
+        }
 
-    if (goodbye && avahi_interface_is_relevant(i)) {
-        AvahiEntry *e;
-        
-        for (e = s->entries; e; e = e->entries_next)
-            if (!e->dead)
-                send_goodbye_callback(s->monitor, i, e);
-    }
-
-    while (i->announcements)
-        remove_announcement(s, i->announcements);
-
-/*     avahi_log_debug("goodbye interface done: %s.%u", i->hardware->name, i->protocol); */
+    if (remove)
+        while (i->announcements)
+            remove_announcement(s, i->announcements);
 }
 
-void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int goodbye) {
+void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int remove) {
     assert(s);
     assert(e);
     
-/*     avahi_log_debug("goodbye entry: %p", e); */
-    
-    if (goodbye && !e->dead)
-        avahi_interface_monitor_walk(s->monitor, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, send_goodbye_callback, e);
+    if (send_goodbye)
+        if (!e->dead)
+            avahi_interface_monitor_walk(s->monitor, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, send_goodbye_callback, e);
 
-    while (e->announcements)
-        remove_announcement(s, e->announcements);
-
-/*     avahi_log_debug("goodbye entry done: %p", e); */
-
+    if (remove)
+        while (e->announcements)
+            remove_announcement(s, e->announcements);
 }
 
-void avahi_goodbye_all(AvahiServer *s, int goodbye) {
+void avahi_goodbye_all(AvahiServer *s, int send_goodbye, int remove) {
     AvahiEntry *e;
     
     assert(s);
 
-/*     avahi_log_debug("goodbye all"); */
-
     for (e = s->entries; e; e = e->entries_next)
         if (!e->dead)
-            avahi_goodbye_entry(s, e, goodbye);
-
-/*     avahi_log_debug("goodbye all done"); */
+            avahi_goodbye_entry(s, e, send_goodbye, remove);
 
 }
 

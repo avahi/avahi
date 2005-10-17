@@ -161,7 +161,8 @@ typedef enum {
     AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,   /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
     AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
     AVAHI_PUBLISH_NO_COOKIE = 32,       /**< For service records: do not implicitly add the local service cookie to TXT data */
-    AVAHI_PUBLISH_IS_PROXY = 64         /**< For service records: this is a proxy for another host. This modifies behaviour of avahi_server_is_service_local() */
+    AVAHI_PUBLISH_IS_PROXY = 64,        /**< For service records: this is a proxy for another host. This modifies behaviour of avahi_server_is_service_local() */
+    AVAHI_PUBLISH_UPDATE = 128          /**< Update existing records instead of adding new ones */
 } AvahiPublishFlags;
 
 /** Some flags for lookup functions */

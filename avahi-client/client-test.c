@@ -45,6 +45,11 @@ static void avahi_entry_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState
     printf ("ENTRY-GROUP: Callback on %p, state -> %d, data -> %s\n", (void*) g, state, (char*)userdata);
 }
 
+static void avahi_entry_group2_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+    printf ("ENTRY-GROUP2: Callback on %p, state -> %d, data -> %s\n", (void*) g, state, (char*)userdata);
+}
+
+
 static void avahi_domain_browser_callback(
     AvahiDomainBrowser *b,
     AvahiIfIndex interface,
@@ -209,11 +214,12 @@ static void terminate(AvahiTimeout *timeout, void *userdata) {
 
 int main (int argc, char *argv[]) {
     AvahiClient *avahi;
-    AvahiEntryGroup *group;
+    AvahiEntryGroup *group, *group2;
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
     AvahiHostNameResolver *hnr;
+    AvahiAddress *aar;
     const char *ret;
     int error;
     uint32_t cookie;
@@ -279,6 +285,22 @@ int main (int argc, char *argv[]) {
         printf ("Failed to create hostname resolver object\n");
     else
         printf ("Successfully created hostname resolver object\n");
+
+    aar = avahi_address_parse ("224.0.0.251", AF_UNSPEC, aar);
+    if (aar == NULL) {
+        printf ("failed to create address object\n");
+    } else {
+        group2 = avahi_entry_group_new (avahi, avahi_entry_group2_callback, "omghai222");
+        if ((error = avahi_entry_group_add_address (group2, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "test-mdns.local.", aar)) < 0)
+        {
+            printf ("*** failed to add address to entry group: %s\n", avahi_strerror (ret));
+            avahi_entry_group_free (group2);
+        } else {
+            printf ("*** success, added address\n");
+            avahi_entry_group_commit (group2);
+        }
+        
+    }
 
 
     avahi_elapse_time(&tv, 8000, 0);

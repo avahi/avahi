@@ -997,7 +997,7 @@ static void sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfI
     assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[256], *pt = t;
+        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
         DBusMessage *reply;
@@ -1039,7 +1039,7 @@ static void sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInde
     assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[256], *pt = t;
+        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
         DBusMessage *reply;
@@ -1350,7 +1350,7 @@ static void sync_service_resolver_callback(
     assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[256], *pt = t;
+        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
         DBusMessage *reply;
@@ -1411,7 +1411,7 @@ static void async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfInd
     reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, map_resolve_signal_name(event));
     
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[256], *pt = t;
+        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
 
@@ -1498,7 +1498,7 @@ static void async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIf
     reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, map_resolve_signal_name(event));
     
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[256], *pt = t;
+        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
 
@@ -1597,7 +1597,7 @@ static void async_service_resolver_callback(
     reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, map_resolve_signal_name(event));
     
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[256], *pt = t;
+        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
     

@@ -51,6 +51,9 @@ enum {
     AVAHI_IF_UNSPEC = -1       /**< Unspecified/all interface(s) */
 };
 
+/** Maximum size of an address in string form */
+#define AVAHI_ADDRESS_STR_MAX 40 /* IPv6 Max = 4*8 + 7 + 1 for NUL */
+
 /** Return TRUE if the specified interface index is valid */
 #define AVAHI_IF_VALID(ifindex) (((ifindex) >= 0) || ((ifindex) == AVAHI_PROTO_UNSPEC))
 
@@ -85,7 +88,7 @@ size_t avahi_address_get_size(const AvahiAddress *a);
 /** Compare two addresses. Returns 0 when equal, a negative value when a < b, a positive value when a > b. */
 int avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b);
 
-/** Convert the specified address *a to a human readable character string */
+/** Convert the specified address *a to a human readable character string, use AVAHI_ADDRESS_STR_MAX to allocate an array of the right size */
 char *avahi_address_snprint(char *ret_s, size_t length, const AvahiAddress *a);
 
 /** Convert the specifeid human readable character string to an

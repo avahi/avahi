@@ -200,7 +200,7 @@ static void hnr_callback(
     const AvahiAddress *a,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    char t[64];
+    char t[AVAHI_ADDRESS_STR_MAX];
 
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
@@ -217,7 +217,7 @@ static void ar_callback(
     const char *hostname,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    char t[64];
+    char t[AVAHI_ADDRESS_STR_MAX];
 
     avahi_address_snprint(t, sizeof(t), a);
 
@@ -280,7 +280,7 @@ static void sr_callback(
     if (event != AVAHI_RESOLVER_FOUND)
         avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain_name, resolver_event_to_string(event));
     else {
-        char t[64], *s;
+        char t[AVAHI_ADDRESS_STR_MAX], *s;
         
         avahi_address_snprint(t, sizeof(t), a);
 
@@ -301,7 +301,7 @@ static void dsb_callback(
     AvahiLookupResultFlags flags,
     void* userdata) {
     
-    char t[64] = "n/a";
+    char t[AVAHI_ADDRESS_STR_MAX] = "n/a";
     
     if (a)
         avahi_address_snprint(t, sizeof(t), a);

@@ -242,7 +242,7 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
     gchar t[512], address[64], *txt_s;
 
     if (a && hostname) {
-        char na[256];
+        char na[AVAHI_ADDRESS_STR_MAX];
         avahi_address_snprint(na, sizeof(na), a);
         snprintf(address, sizeof(address), "%s/%s:%u", hostname, na, port);
 

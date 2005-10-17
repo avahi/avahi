@@ -18,4 +18,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-CFLAGS="$CFLAGS -g -O0" exec ./autogen.sh --sysconfdir=/etc --localstatedir=/var "$@"
+FLAGS="--sysconfdir=/etc --localstatedir=/var"
+
+# Feel free to add your own custom flags in here -Lathiat
+case "$USER" in
+    lathiat|sebest)
+        FLAGS="$FLAGS --disable-monodoc"
+    ;;
+esac
+
+CFLAGS="$CFLAGS -g -O0" exec ./autogen.sh $FLAGS "$@"

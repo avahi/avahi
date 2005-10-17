@@ -62,7 +62,7 @@ static void resolve_callback(
             break;
 
         case AVAHI_RESOLVER_FOUND: {
-            char a[128], *t;
+            char a[AVAHI_ADDRESS_STR_MAX], *t;
             
             fprintf(stderr, "Service '%s' of type '%s' in domain '%s':\n", name, type, domain);
             

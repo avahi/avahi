@@ -618,7 +618,7 @@ AvahiAddressResolver * avahi_address_resolver_new_a(
     AvahiAddressResolverCallback callback,
     void *userdata) {
 
-    char addr[64];
+    char addr[AVAHI_ADDRESS_STR_MAX];
 
     assert (a);
 

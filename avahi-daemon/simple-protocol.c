@@ -181,7 +181,7 @@ static void host_name_resolver_callback(
     if (event == AVAHI_RESOLVER_FAILURE)
         client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
     else if (event == AVAHI_RESOLVER_FOUND) {
-        char t[64];
+        char t[AVAHI_ADDRESS_STR_MAX];
         avahi_address_snprint(t, sizeof(t), a);
         client_output_printf(c, "+ %i %u %s %s\n", iface, protocol, hostname, t);
     }
@@ -223,7 +223,7 @@ static void dns_server_browser_callback(
     void* userdata) {
     
     Client *c = userdata;
-    char t[64];
+    char t[AVAHI_ADDRESS_STR_MAX];
     
     assert(c);
 

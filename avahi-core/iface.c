@@ -63,7 +63,7 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
             return;
         
         if (avahi_s_entry_group_is_empty(a->entry_group)) {
-            char t[64];
+            char t[AVAHI_ADDRESS_STR_MAX];
             avahi_address_snprint(t, sizeof(t), &a->address);
 
             avahi_log_info("Registering new address %s on %s.", t, a->interface->hardware->name);
@@ -82,7 +82,7 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
         /* Clear the entry group */
 
         if (a->entry_group && !avahi_s_entry_group_is_empty(a->entry_group)) {
-            char t[64];
+            char t[AVAHI_ADDRESS_STR_MAX];
             avahi_address_snprint(t, sizeof(t), &a->address);
 
             if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING &&
@@ -471,7 +471,7 @@ AvahiInterfaceAddress* avahi_interface_monitor_get_address(AvahiInterfaceMonitor
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port) {
     assert(i);
     assert(p);
-/*     char t[64]; */
+/*     char t[AVAHI_ADDRESS_STR_MAX]; */
 
     if (!avahi_interface_is_relevant(i))
         return;

@@ -153,6 +153,15 @@ int avahi_entry_group_update_service_txt_va(
     const char *domain,   
     va_list va);
 
+/** Add a host/address pair */
+int avahi_entry_group_add_address(
+    AvahiEntryGroup *group,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,
+    const AvahiAddress *a);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

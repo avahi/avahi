@@ -4,6 +4,7 @@ for 0.6:
 * add API to allow user to tell the server that some service is not reachable
 * generate local CNAME responses
 * add support for subtypes in static services
+* drop partially created created entries on failure
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
 

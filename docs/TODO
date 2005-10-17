@@ -1,5 +1,4 @@
 for 0.6:
-* Add sensible record updating API
 * add simplification routine for adding services 
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
@@ -89,3 +88,4 @@ done:
 * add subtype browsing
 * split linux specific parts from iface.c 
 * consolidate browsing failure events and add an API to query the reason
+* Add sensible record updating API

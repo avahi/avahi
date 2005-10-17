@@ -38,6 +38,8 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
     struct nlmsghdr *n;
     struct rtgenmsg *gen;
     uint8_t req[1024];
+
+    /* Issue a wild dump NETLINK request */
     
     memset(&req, 0, sizeof(req));
     n = (struct nlmsghdr*) req;
@@ -55,17 +57,23 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
 
 static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdata) {
     AvahiInterfaceMonitor *m = userdata;
+
+    /* This routine is called for every RTNETLINK response packet */
     
     assert(m);
     assert(n);
     assert(m->osdep.netlink == nl);
 
     if (n->nlmsg_type == RTM_NEWLINK) {
+
+        /* A new interface appeared or an existing one has been modified */
+        
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
         AvahiHwInterface *hw;
         struct rtattr *a = NULL;
         size_t l;
-        
+
+        /* A (superfluous?) sanity check */
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
 
@@ -140,9 +148,13 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         avahi_hw_interface_update_rrs(hw, 0);
         
     } else if (n->nlmsg_type == RTM_DELLINK) {
+
+        /* An interface has been removed */
+
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
         AvahiHwInterface *hw;
 
+        /* A (superfluous?) sanity check */
         if (ifinfomsg->ifi_family != AF_UNSPEC)
             return;
 
@@ -155,6 +167,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
+        /* An address has been added, modified or removed */
+        
         struct ifaddrmsg *ifaddrmsg = NLMSG_DATA(n);
         AvahiInterface *i;
         struct rtattr *a = NULL;
@@ -304,12 +318,12 @@ int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
     if (!(m->osdep.netlink = avahi_netlink_new(m->server->poll_api, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, netlink_callback, m)))
         goto fail;
 
+    /* Set the initial state. */
+    m->osdep.list = LIST_IFACE;
+
     /* Start the wild dump for the interfaces */
     if (netlink_list_items(m->osdep.netlink, RTM_GETLINK, &m->osdep.query_link_seq) < 0)
         goto fail;
-
-    /* Set the initial state. */
-    m->osdep.list = LIST_IFACE;
 
     return 0;
 

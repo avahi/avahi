@@ -1,5 +1,5 @@
-#ifndef fooserverhfoo
-#define fooserverhfoo
+#ifndef foointernalhfoo
+#define foointernalhfoo
 
 /* $Id$ */
 

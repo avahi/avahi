@@ -26,7 +26,7 @@ typedef struct AvahiCache AvahiCache;
 
 #include <avahi-common/llist.h>
 #include "prioq.h"
-#include "server.h"
+#include "internal.h"
 #include "timeeventq.h"
 #include "hashmap.h"
 

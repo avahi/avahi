@@ -44,11 +44,13 @@
 #include <avahi-core/browse.h>
 #include <avahi-core/cache.h>
 #include <avahi-core/core.h>
+#include <avahi-core/dns-srv-rr.h>
 #include <avahi-core/dns.h>
 #include <avahi-core/fdutil.h>
 #include <avahi-core/hashmap.h>
 #include <avahi-core/iface-linux.h>
 #include <avahi-core/iface.h>
+#include <avahi-core/internal.h>
 #include <avahi-core/log.h>
 #include <avahi-core/lookup.h>
 #include <avahi-core/multicast-lookup.h>
@@ -61,13 +63,14 @@
 #include <avahi-core/response-sched.h>
 #include <avahi-core/rr.h>
 #include <avahi-core/rrlist.h>
-#include <avahi-core/server.h>
 #include <avahi-core/socket.h>
 #include <avahi-core/timeeventq.h>
 #include <avahi-core/util.h>
 #include <avahi-core/wide-area.h>
 #include <avahi-client/client.h>
 #include <avahi-client/internal.h>
+#include <avahi-client/lookup.h>
+#include <avahi-client/publish.h>
 #include <avahi-glib/glib-malloc.h>
 #include <avahi-glib/glib-watch.h>
 

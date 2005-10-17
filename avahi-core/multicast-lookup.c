@@ -26,7 +26,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
 
-#include "server.h"
+#include "internal.h"
 #include "browse.h"
 #include "socket.h"
 #include "log.h"

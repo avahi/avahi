@@ -26,7 +26,7 @@
 
 #include "core.h"
 #include "timeeventq.h"
-#include "server.h"
+#include "internal.h"
 #include "dns.h"
 #include "lookup.h"
 

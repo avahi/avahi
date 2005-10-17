@@ -30,7 +30,7 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #include <avahi-common/llist.h>
 #include <avahi-common/address.h>
 
-#include "server.h"
+#include "internal.h"
 #include "cache.h"
 #include "response-sched.h"
 #include "query-sched.h"

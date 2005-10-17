@@ -38,7 +38,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
 
-#include "server.h"
+#include "internal.h"
 #include "iface.h"
 #include "socket.h"
 #include "browse.h"

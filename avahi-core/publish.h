@@ -41,7 +41,7 @@ typedef struct AvahiSEntryGroup AvahiSEntryGroup;
 AVAHI_C_DECL_END
 #endif
 
-#include "core.h"
+#include <avahi-core/core.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN

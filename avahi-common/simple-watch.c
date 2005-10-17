@@ -31,9 +31,9 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-#include <avahi-common/llist.h>
-#include <avahi-common/malloc.h>
-
+#include "llist.h"
+#include "malloc.h"
+#include "timeval.h"
 #include "simple-watch.h"
 
 struct AvahiWatch {

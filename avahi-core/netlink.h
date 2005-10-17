@@ -24,6 +24,8 @@
 
 #include <sys/socket.h>
 #include <asm/types.h>
+#include <inttypes.h>
+
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 

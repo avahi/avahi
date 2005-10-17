@@ -25,9 +25,9 @@
 /** \file watch.h Simplistic main loop abstraction */
 
 #include <sys/poll.h>
-#include <avahi-common/cdecl.h>
+#include <sys/time.h>
 
-#include "timeval.h"
+#include <avahi-common/cdecl.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN

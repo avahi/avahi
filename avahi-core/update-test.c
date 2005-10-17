@@ -30,6 +30,7 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/alternative.h>
+#include <avahi-common/timeval.h>
 
 #include <avahi-core/core.h>
 #include <avahi-core/log.h>

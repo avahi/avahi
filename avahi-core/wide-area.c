@@ -30,6 +30,7 @@
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+#include <avahi-common/timeval.h>
 
 #include "server.h"
 #include "browse.h"

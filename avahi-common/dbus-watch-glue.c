@@ -22,8 +22,8 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <avahi-common/malloc.h>
-
+#include "malloc.h"
+#include "timeval.h"
 #include "dbus-watch-glue.h"
 
 static AvahiWatchEvent translate_dbus_to_avahi(unsigned int f) {

@@ -26,8 +26,7 @@
 
 #include <sys/poll.h>
 #include <avahi-common/cdecl.h>
-
-#include "watch.h"
+#include <avahi-common/watch.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN

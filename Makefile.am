@@ -87,7 +87,6 @@ DX_INPUT = \
 	$(srcdir)/avahi-glib/glib-watch.h \
 	$(srcdir)/avahi-glib/glib-malloc.h \
 	$(srcdir)/avahi-common/timeval.h \
-	$(srcdir)/avahi-common/dbus.h \
 	$(srcdir)/avahi-qt/qt-watch.h
 
 DX_EXAMPLE_PATH = $(srcdir)/examples

@@ -24,12 +24,12 @@
 
 /** \file rr.h Functions and definitions for manipulating DNS resource record (RR) data. */
 
+#include <inttypes.h>
+#include <sys/types.h>
+
 #include <avahi-common/strlst.h>
 #include <avahi-common/address.h>
 #include <avahi-common/cdecl.h>
-
-#include <inttypes.h>
-#include <sys/types.h>
 
 AVAHI_C_DECL_BEGIN
 

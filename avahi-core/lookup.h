@@ -64,8 +64,8 @@ typedef struct AvahiSDNSServerBrowser AvahiSDNSServerBrowser;
 AVAHI_C_DECL_END
 #endif
 
-#include "core.h"
-#include "publish.h"
+#include <avahi-core/core.h>
+#include <avahi-core/publish.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN

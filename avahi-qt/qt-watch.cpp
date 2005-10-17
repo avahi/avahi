@@ -29,6 +29,7 @@
 #include <qobject.h>
 #include <qtimer.h>
 #endif
+#include <avahi-common/timeval.h>
 #include "qt-watch.h"
 
 class AvahiWatch : public QObject 

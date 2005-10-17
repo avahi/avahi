@@ -483,58 +483,6 @@ static int server_add_txt_strlst_nocopy(
     return ret;
 }
 
-int avahi_server_add_txt_strlst(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    AvahiStringList *strlst) {
-
-    assert(s);
-
-    return server_add_txt_strlst_nocopy(s, g, interface, protocol, flags, ttl, name, avahi_string_list_copy(strlst));
-}
-
-int avahi_server_add_txt_va(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    va_list va) {
-
-    assert(s);
-
-    return server_add_txt_strlst_nocopy(s, g, interface, protocol, flags, ttl, name, avahi_string_list_new_va(va));
-}
-
-int avahi_server_add_txt(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    ...) {
-
-    va_list va;
-    int ret;
-    
-    assert(s);
-
-    va_start(va, name);
-    ret = avahi_server_add_txt_va(s, g, interface, protocol, flags, ttl, name, va);
-    va_end(va);
-
-    return ret;
-}
-
 static AvahiStringList *add_magic_cookie(
     AvahiServer *s,
     AvahiStringList *strlst) {

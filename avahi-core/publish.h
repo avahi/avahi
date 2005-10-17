@@ -96,16 +96,6 @@ int avahi_server_add(
     AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */);
     
 
-/** Add a PTR RR to the server. See avahi_server_add() for more information. */
-int avahi_server_add_ptr(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,             /**< DNS TTL for this record */
-    const char *name,       /**< PTR record name */
-    const char *dest        /**< pointer destination */  );
 
 /** Add a PTR RR to the server. See avahi_server_add() for more information. */
 int avahi_server_add_txt(

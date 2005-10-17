@@ -180,6 +180,17 @@ void avahi_server_increase_host_rr_pending(AvahiServer *s);
 
 int avahi_server_set_errno(AvahiServer *s, int error);
 
+int avahi_server_add_ptr(
+    AvahiServer *s,
+    AvahiSEntryGroup *g,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    uint32_t ttl,          
+    const char *name,      
+    const char *dest);
+
+
 #define AVAHI_CHECK_VALIDITY_RETURN_NULL(server, expression, error) { \
         if (!(expression)) { \
             avahi_server_set_errno((server), (error)); \

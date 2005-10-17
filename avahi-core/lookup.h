@@ -22,7 +22,7 @@
   USA.
 ***/
 
-/** \file lookup.h Functions for browsing/resolving services and other RRs */
+/** \file avahi-core/lookup.h Functions for browsing/resolving services and other RRs */
 
 /** \example core-browse-services.c Example how to browse for DNS-SD
  * services using an embedded mDNS stack. */

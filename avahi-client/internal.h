@@ -23,7 +23,10 @@
 ***/
 
 #include <dbus/dbus.h>
+
 #include "client.h"
+#include "lookup.h"
+#include "publish.h"
 
 struct AvahiClient {
     const AvahiPoll *poll_api;

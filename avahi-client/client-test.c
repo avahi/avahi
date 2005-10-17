@@ -27,6 +27,9 @@
 #include <assert.h>
 
 #include <avahi-client/client.h>
+#include <avahi-client/lookup.h>
+#include <avahi-client/publish.h>
+
 #include <avahi-common/error.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
@@ -191,6 +194,14 @@ static void test_entry_group_reset (AvahiTimeout *timeout, void* userdata)
     avahi_entry_group_commit (g);
 }
 
+static void test_entry_group_update(AvahiTimeout *timeout, void* userdata) {
+    AvahiEntryGroup *g = userdata;
+
+    printf ("Updating entry group\n");
+
+    avahi_entry_group_update_service_txt(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, "foo=bar3", NULL);
+}
+
 static void terminate(AvahiTimeout *timeout, void *userdata) {
 
     avahi_simple_poll_quit(simple_poll);
@@ -272,6 +283,8 @@ int main (int argc, char *argv[]) {
 
     avahi_elapse_time(&tv, 8000, 0);
     poll_api->timeout_new(poll_api, &tv, test_entry_group_reset, group);
+    avahi_elapse_time(&tv, 15000, 0);
+    poll_api->timeout_new(poll_api, &tv, test_entry_group_update, group);
     avahi_elapse_time(&tv, 20000, 0);
     poll_api->timeout_new(poll_api, &tv, test_free_entry_group, group);
     avahi_elapse_time(&tv, 25000, 0);

@@ -33,7 +33,10 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
 #include <avahi-common/llist.h>
+
 #include <avahi-client/client.h>
+#include <avahi-client/publish.h>
+#include <avahi-client/lookup.h>
 
 #include "howl.h"
 #include "warn.h"

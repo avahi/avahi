@@ -697,6 +697,58 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
     dbus_message_unref(m);
 }
 
+static int read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
+    DBusMessageIter iter, sub;
+    int j;
+    AvahiStringList *strlst = NULL;
+
+    assert(m);
+    assert(l);
+    
+    dbus_message_iter_init(m, &iter);
+
+    for (j = 0; j < idx; j++)
+        dbus_message_iter_next(&iter);
+    
+    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
+        dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_ARRAY)
+        goto fail;
+
+    dbus_message_iter_recurse(&iter, &sub);
+        
+    for (;;) {
+        DBusMessageIter sub2;
+        int at, n;
+        uint8_t *k;
+        
+        if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
+            break;
+        
+        assert(at == DBUS_TYPE_ARRAY);
+        
+        if (dbus_message_iter_get_element_type(&sub) != DBUS_TYPE_BYTE)
+            goto fail;
+
+        dbus_message_iter_recurse(&sub, &sub2);
+        dbus_message_iter_get_fixed_array(&sub2, &k, &n);
+        strlst = avahi_string_list_add_arbitrary(strlst, k, n);
+        
+        dbus_message_iter_next(&sub);
+    }
+
+    *l = strlst;
+    
+    return 0;
+    
+fail:
+    avahi_log_warn("Error parsing TXT data");
+
+    avahi_string_list_free(strlst);
+    *l = NULL;
+    return -1;
+}
+
+
 static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
     DBusError error;
     EntryGroupInfo *i = userdata;
@@ -786,9 +838,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         uint32_t flags;
         char *type, *name, *domain, *host;
         uint16_t port;
-        AvahiStringList *strlst;
-        DBusMessageIter iter, sub;
-        int j;
+        AvahiStringList *strlst = NULL;
         
         if (!dbus_message_get_args(
                 m, &error,
@@ -800,50 +850,15 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
                 DBUS_TYPE_STRING, &domain,
                 DBUS_TYPE_STRING, &host,
                 DBUS_TYPE_UINT16, &port, 
-                DBUS_TYPE_INVALID) || !type || !name) {
+                DBUS_TYPE_INVALID) ||
+            !type || !name ||
+            read_strlst(m, 8, &strlst) < 0) {
             avahi_log_warn("Error parsing EntryGroup::AddService message");
             goto fail;
         }
 
-        dbus_message_iter_init(m, &iter);
-
-        for (j = 0; j < 8; j++)
-            dbus_message_iter_next(&iter);
-        
-        if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
-            dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_ARRAY) {
-            avahi_log_warn("Error parsing EntryGroup::AddService message 2");
-            goto fail;
-        }
-
-        strlst = NULL;
-        dbus_message_iter_recurse(&iter, &sub);
-        
-        for (;;) {
-            DBusMessageIter sub2;
-            int at, n;
-            uint8_t *k;
-
-            if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
-                break;
-
-            assert(at == DBUS_TYPE_ARRAY);
-            
-            if (dbus_message_iter_get_element_type(&sub) != DBUS_TYPE_BYTE) {
-                avahi_log_warn("Error parsing EntryGroup::AddService message");
-                goto fail;
-            }
-
-            dbus_message_iter_recurse(&sub, &sub2);
-            dbus_message_iter_get_fixed_array(&sub2, &k, &n);
-            strlst = avahi_string_list_add_arbitrary(strlst, k, n);
-            
-            dbus_message_iter_next(&sub);
-        }
-
-        if (i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
             avahi_string_list_free(strlst);
-            avahi_log_warn("Too many entries per entry group, client request failed.");
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
         }
 
@@ -858,7 +873,9 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
 
-        i->n_entries ++;
+        if (!(flags & AVAHI_PUBLISH_UPDATE))
+            i->n_entries ++;
+            
         avahi_string_list_free(strlst);
         
         return respond_ok(c, m);
@@ -883,10 +900,8 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        if (i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
-            avahi_log_warn("Too many entries per entry group, client request failed.");
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP)
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
-        }
 
         if (domain && !*domain)
             domain = NULL;
@@ -894,7 +909,41 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         if (avahi_server_add_service_subtype(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, subtype) < 0) 
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
 
-        i->n_entries ++;
+        if (!(flags & AVAHI_PUBLISH_UPDATE))
+            i->n_entries ++;
+        
+        return respond_ok(c, m);
+
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "UpdateServiceTxt")) {
+        int32_t interface, protocol;
+        uint32_t flags;
+        char *type, *name, *domain;
+        AvahiStringList *strlst;
+        
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_UINT32, &flags,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_STRING, &type,
+                DBUS_TYPE_STRING, &domain,
+                DBUS_TYPE_INVALID) ||
+            !type || !name ||
+            read_strlst(m, 6, &strlst)) {
+            avahi_log_warn("Error parsing EntryGroup::UpdateServiceTxt message");
+            goto fail;
+        }
+
+        if (domain && !*domain)
+            domain = NULL;
+
+        if (avahi_server_update_service_txt_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, strlst) < 0) {
+            avahi_string_list_free(strlst);
+            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        }
+
+        avahi_string_list_free(strlst);
         
         return respond_ok(c, m);
         
@@ -916,19 +965,17 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        if (i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
-            avahi_log_warn("Too many entries per entry group, client request failed.");
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP)
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
-        }
         
-        if (!(avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a))) {
+        if (!(avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a)))
             return respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
-        }
 
         if (avahi_server_add_address(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, &a) < 0)
             return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
 
-        i->n_entries ++;
+        if (!(flags & AVAHI_PUBLISH_UPDATE))
+            i->n_entries ++;
         
         return respond_ok(c, m);
     } 

@@ -78,6 +78,8 @@ DX_INPUT = \
 	$(srcdir)/avahi-core/log.h \
 	$(srcdir)/avahi-common/defs.h \
 	$(srcdir)/avahi-client/client.h \
+	$(srcdir)/avahi-client/lookup.h \
+	$(srcdir)/avahi-client/publish.h \
 	$(srcdir)/avahi-common/error.h \
 	$(srcdir)/avahi-common/malloc.h \
 	$(srcdir)/avahi-common/domain.h \

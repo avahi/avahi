@@ -37,7 +37,10 @@
 #include <avahi-common/error.h>
 #include <avahi-common/domain.h>
 #include <avahi-common/alternative.h>
+
 #include <avahi-client/client.h>
+#include <avahi-client/publish.h>
+#include <avahi-client/lookup.h>
 
 #include "warn.h"
 #include "dns_sd.h"

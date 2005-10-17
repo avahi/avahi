@@ -22,12 +22,11 @@
   USA.
 ***/
 
-/** \file publish.h Functions for publising local services and RRs */
+/** \file core/publish.h Functions for publising local services and RRs */
 
 /** \example core-publish-service.c Example how to register a DNS-SD
  * service using an embedded mDNS stack. It behaves like a network
  * printer registering both an IPP and a BSD LPR service. */
-
 
 #include <avahi-common/cdecl.h>
 
@@ -219,7 +218,6 @@ int avahi_server_add_service_subtype(
     const char *type,         /**< Specify the main type of the service you already added here */
     const char *domain,       /**< Specify the main type of the service you already added here */
     const char *subtype       /**< The new subtype for the specified service */ );
-
 
 /** Update the TXT record for a service with the data from the specified string list */
 int avahi_server_update_service_txt_strlst(

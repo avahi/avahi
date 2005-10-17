@@ -3,7 +3,6 @@ for 0.6:
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
 * generate local CNAME responses
-* rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
 * add support for subtypes in static services
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
@@ -89,3 +88,4 @@ done:
 * split linux specific parts from iface.c 
 * consolidate browsing failure events and add an API to query the reason
 * Add sensible record updating API
+* rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)

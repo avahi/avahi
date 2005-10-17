@@ -1662,7 +1662,7 @@ int avahi_server_add(
         e->flags = flags;
         e->dead = 0;
         
-        AVAHI_LLIST_HEAD_INIT(AvahiAnnouncement, e->announcements);
+        AVAHI_LLIST_HEAD_INIT(AvahiAnnouncer, e->announcers);
         
         AVAHI_LLIST_PREPEND(AvahiEntry, entries, s->entries, e);
         

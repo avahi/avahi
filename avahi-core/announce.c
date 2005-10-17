@@ -33,22 +33,22 @@
 #define AVAHI_PROBE_JITTER_MSEC 250
 #define AVAHI_PROBE_INTERVAL_MSEC 250
 
-static void remove_announcement(AvahiServer *s, AvahiAnnouncement *a) {
+static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     assert(s);
     assert(a);
 
     if (a->time_event)
         avahi_time_event_free(a->time_event);
 
-    AVAHI_LLIST_REMOVE(AvahiAnnouncement, by_interface, a->interface->announcements, a);
-    AVAHI_LLIST_REMOVE(AvahiAnnouncement, by_entry, a->entry->announcements, a);
+    AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_interface, a->interface->announcers, a);
+    AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_entry, a->entry->announcers, a);
     
     avahi_free(a);
 }
 
 static void elapse_announce(AvahiTimeEvent *e, void *userdata);
 
-static void set_timeout(AvahiAnnouncement *a, const struct timeval *tv) {
+static void set_timeout(AvahiAnnouncer *a, const struct timeval *tv) {
     assert(a);
 
     if (!tv) {
@@ -65,7 +65,7 @@ static void set_timeout(AvahiAnnouncement *a, const struct timeval *tv) {
     }
 }
 
-static void next_state(AvahiAnnouncement *a);
+static void next_state(AvahiAnnouncer *a);
 
 void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
     AvahiEntry *e;
@@ -83,9 +83,9 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
         return;
     
     for (e = g->entries; e; e = e->entries_next) {
-        AvahiAnnouncement *a;
+        AvahiAnnouncer *a;
         
-        for (a = e->announcements; a; a = a->by_entry_next) {
+        for (a = e->announcers; a; a = a->by_entry_next) {
 
             if (a->state != AVAHI_WAITING)
                 continue;
@@ -107,7 +107,7 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
     }
 }
 
-static void next_state(AvahiAnnouncement *a) {
+static void next_state(AvahiAnnouncer *a) {
     assert(a);
 
 /*     avahi_log_debug("%i -- %u", a->state, a->n_iteration);   */
@@ -191,21 +191,21 @@ static void elapse_announce(AvahiTimeEvent *e, void *userdata) {
     next_state(userdata);
 }
 
-AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
-    AvahiAnnouncement *a;
+AvahiAnnouncer *avahi_get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
+    AvahiAnnouncer *a;
     
     assert(s);
     assert(e);
     assert(i);
 
-    for (a = e->announcements; a; a = a->by_entry_next)
+    for (a = e->announcers; a; a = a->by_entry_next)
         if (a->interface == i)
             return a;
 
     return NULL;
 }
 
-static void go_to_initial_state(AvahiAnnouncement *a, int immediately) {
+static void go_to_initial_state(AvahiAnnouncer *a, int immediately) {
     AvahiEntry *e;
     struct timeval tv;
         
@@ -238,8 +238,8 @@ static void go_to_initial_state(AvahiAnnouncement *a, int immediately) {
         set_timeout(a, NULL);
 }
 
-static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
-    AvahiAnnouncement *a;
+static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
+    AvahiAnnouncer *a;
 /*     char *t;  */
 
     assert(s);
@@ -247,17 +247,17 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     assert(e);
     assert(!e->dead);
 
-/*     avahi_log_debug("NEW ANNOUNCEMENT: %s.%i [%s]", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record)); */
+/*     avahi_log_debug("NEW ANNOUNCER: %s.%i [%s]", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record)); */
 /*     avahi_free(t); */
     
     if (!avahi_interface_match(i, e->interface, e->protocol) || !i->announcing || !avahi_entry_is_commited(e))
         return;
 
-    /* We don't want duplicate announcements */
-    if (avahi_get_announcement(s, e, i))
+    /* We don't want duplicate announcers */
+    if (avahi_get_announcer(s, e, i))
         return;    
 
-    if ((!(a = avahi_new(AvahiAnnouncement, 1)))) {
+    if ((!(a = avahi_new(AvahiAnnouncer, 1)))) {
         avahi_log_error(__FILE__": Out of memory.");
         return;
     }
@@ -267,12 +267,12 @@ static void new_announcement(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     a->entry = e;
     a->time_event = NULL;
 
-    AVAHI_LLIST_PREPEND(AvahiAnnouncement, by_interface, i->announcements, a);
-    AVAHI_LLIST_PREPEND(AvahiAnnouncement, by_entry, e->announcements, a);
+    AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_interface, i->announcers, a);
+    AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_entry, e->announcers, a);
 
     go_to_initial_state(a, 0);
     
-/*     avahi_log_debug("New announcement on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
+/*     avahi_log_debug("New announcer on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
 /*     avahi_free(t); */
 }
 
@@ -287,7 +287,7 @@ void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {
 
     for (e = s->entries; e; e = e->entries_next)
         if (!e->dead)
-            new_announcement(s, i, e);
+            new_announcer(s, i, e);
 }
 
 static void announce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
@@ -298,7 +298,7 @@ static void announce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, 
     assert(e);
     assert(!e->dead);
 
-    new_announcement(m->server, i, e);
+    new_announcer(m->server, i, e);
 }
 
 void avahi_announce_entry(AvahiServer *s, AvahiEntry *e) {
@@ -321,14 +321,14 @@ void avahi_announce_group(AvahiServer *s, AvahiSEntryGroup *g) {
 }
 
 int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
-    AvahiAnnouncement *a;
+    AvahiAnnouncer *a;
 
     assert(s);
     assert(e);
     assert(i);
     assert(!e->dead);
 
-    if (!(a = avahi_get_announcement(s, e, i)))
+    if (!(a = avahi_get_announcer(s, e, i)))
         return 0;
     
     return
@@ -338,14 +338,14 @@ int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) 
 }
 
 int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
-    AvahiAnnouncement *a;
+    AvahiAnnouncer *a;
 
     assert(s);
     assert(e);
     assert(i);
     assert(!e->dead);
 
-    if (!(a = avahi_get_announcement(s, e, i)))
+    if (!(a = avahi_get_announcer(s, e, i)))
         return 0;
 
 /*     avahi_log_debug("state: %i", a->state); */
@@ -356,13 +356,13 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
 }
 
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
-    AvahiAnnouncement *a;
+    AvahiAnnouncer *a;
     
     assert(s);
     assert(e);
     assert(i);
 
-    if (!(a = avahi_get_announcement(s, e, i)))
+    if (!(a = avahi_get_announcer(s, e, i)))
         return;
 
     if (a->state == AVAHI_PROBING && a->entry->group)
@@ -437,7 +437,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
     avahi_record_unref(g);
 }
 
-static void reannounce(AvahiAnnouncement *a) {
+static void reannounce(AvahiAnnouncer *a) {
     AvahiEntry *e;
     struct timeval tv;
         
@@ -465,7 +465,7 @@ static void reannounce(AvahiAnnouncement *a) {
 
     else if (e->flags & AVAHI_PUBLISH_NO_ANNOUNCE)
         
-        /* No announcement needed */
+        /* No announcer needed */
         a->state = AVAHI_ESTABLISHED;
 
     else {
@@ -492,14 +492,14 @@ static void reannounce(AvahiAnnouncement *a) {
 
 static void reannounce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
     AvahiEntry *e = userdata;
-    AvahiAnnouncement *a;
+    AvahiAnnouncer *a;
     
     assert(m);
     assert(i);
     assert(e);
     assert(!e->dead);
 
-    if (!(a = avahi_get_announcement(m->server, e, i)))
+    if (!(a = avahi_get_announcer(m->server, e, i)))
         return;
 
     reannounce(a);
@@ -528,8 +528,8 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye
         }
 
     if (remove)
-        while (i->announcements)
-            remove_announcement(s, i->announcements);
+        while (i->announcers)
+            remove_announcer(s, i->announcers);
 }
 
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int remove) {
@@ -541,8 +541,8 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int re
             avahi_interface_monitor_walk(s->monitor, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, send_goodbye_callback, e);
 
     if (remove)
-        while (e->announcements)
-            remove_announcement(s, e->announcements);
+        while (e->announcers)
+            remove_announcer(s, e->announcers);
 }
 
 void avahi_goodbye_all(AvahiServer *s, int send_goodbye, int remove) {

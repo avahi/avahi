@@ -72,7 +72,7 @@ struct AvahiEntry {
     AVAHI_LLIST_FIELDS(AvahiEntry, by_key);
     AVAHI_LLIST_FIELDS(AvahiEntry, by_group);
     
-    AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
+    AVAHI_LLIST_HEAD(AvahiAnnouncer, announcers);
 };
 
 struct AvahiSEntryGroup {

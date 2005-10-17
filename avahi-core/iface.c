@@ -188,7 +188,7 @@ void avahi_interface_free(AvahiInterface *i, int send_goodbye) {
     /* Handle goodbyes and remove announcers */
     avahi_goodbye_interface(i->monitor->server, i, send_goodbye, 1);
     avahi_response_scheduler_force(i->response_scheduler);
-    assert(!i->announcements);
+    assert(!i->announcers);
 
     /* Remove queriers */
     avahi_querier_free_all(i);
@@ -245,7 +245,7 @@ AvahiInterface* avahi_interface_new(AvahiInterfaceMonitor *m, AvahiHwInterface *
     i->announcing = 0;
 
     AVAHI_LLIST_HEAD_INIT(AvahiInterfaceAddress, i->addresses);
-    AVAHI_LLIST_HEAD_INIT(AvahiAnnouncement, i->announcements);
+    AVAHI_LLIST_HEAD_INIT(AvahiAnnouncer, i->announcers);
 
     AVAHI_LLIST_HEAD_INIT(AvahiQuerier, i->queriers);
     i->queriers_by_key = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, NULL, NULL);

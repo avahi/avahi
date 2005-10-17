@@ -95,7 +95,7 @@ struct AvahiInterface {
     AvahiProbeScheduler *probe_scheduler;
 
     AVAHI_LLIST_HEAD(AvahiInterfaceAddress, addresses);
-    AVAHI_LLIST_HEAD(AvahiAnnouncement, announcements);
+    AVAHI_LLIST_HEAD(AvahiAnnouncer, announcers);
 
     AvahiHashmap *queriers_by_key;
     AVAHI_LLIST_HEAD(AvahiQuerier, queriers);

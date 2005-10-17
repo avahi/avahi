@@ -22,7 +22,7 @@
   USA.
 ***/
 
-typedef struct AvahiAnnouncement AvahiAnnouncement;
+typedef struct AvahiAnnouncer AvahiAnnouncer;
 
 #include <avahi-common/llist.h>
 #include "iface.h"
@@ -31,25 +31,25 @@ typedef struct AvahiAnnouncement AvahiAnnouncement;
 #include "publish.h"
 
 typedef enum {
-    AVAHI_PROBING,
+    AVAHI_PROBING,         /* probing phase */
     AVAHI_WAITING,         /* wait for other records in group */
-    AVAHI_ANNOUNCING,
-    AVAHI_ESTABLISHED
-} AvahiAnnouncementState;
+    AVAHI_ANNOUNCING,      /* announcing phase */
+    AVAHI_ESTABLISHED      /* we'e established */
+} AvahiAnnouncerState;
 
-struct AvahiAnnouncement {
+struct AvahiAnnouncer {
     AvahiServer *server;
     AvahiInterface *interface;
     AvahiEntry *entry;
 
     AvahiTimeEvent *time_event;
 
-    AvahiAnnouncementState state;
+    AvahiAnnouncerState state;
     unsigned n_iteration;
     unsigned sec_delay;
 
-    AVAHI_LLIST_FIELDS(AvahiAnnouncement, by_interface);
-    AVAHI_LLIST_FIELDS(AvahiAnnouncement, by_entry);
+    AVAHI_LLIST_FIELDS(AvahiAnnouncer, by_interface);
+    AVAHI_LLIST_FIELDS(AvahiAnnouncer, by_entry);
 };
 
 void avahi_announce_interface(AvahiServer *s, AvahiInterface *i);
@@ -67,7 +67,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int rem);
 void avahi_goodbye_all(AvahiServer *s, int send_goodbye, int rem);
 
-AvahiAnnouncement *avahi_get_announcement(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+AvahiAnnouncer *avahi_get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
 void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e);
 

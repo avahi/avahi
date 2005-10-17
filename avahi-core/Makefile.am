@@ -48,7 +48,7 @@ noinst_PROGRAMS = \
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
 	iface.c iface.h \
-	server.c server.h \
+	server.c server.h entry.c \
 	prioq.c prioq.h \
 	cache.c cache.h \
 	socket.c socket.h \

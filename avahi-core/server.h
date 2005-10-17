@@ -44,6 +44,10 @@ typedef struct AvahiEntry AvahiEntry;
 
 #define AVAHI_FLAGS_VALID(flags, max) (!((flags) & ~(max)))
 
+#define AVAHI_RR_HOLDOFF_MSEC 1000
+#define AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT 60000
+#define AVAHI_RR_RATE_LIMIT_COUNT 15
+
 typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;
 
 struct AvahiLegacyUnicastReflectSlot {
@@ -154,9 +158,10 @@ struct AvahiServer {
     AvahiWideAreaLookupEngine *wide_area_lookup_engine;
 };
 
-int avahi_server_entry_match_interface(AvahiEntry *e, AvahiInterface *i);
+void avahi_entry_free(AvahiServer*s, AvahiEntry *e);
+void avahi_entry_group_free(AvahiServer *s, AvahiSEntryGroup *g);
 
-void avahi_server_post_query(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key);
+void avahi_cleanup_dead_entries(AvahiServer *s);
 
 void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, int unicast_response, int auxiliary);
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, int unicast_response);

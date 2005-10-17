@@ -102,6 +102,19 @@ AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
 AM_CONDITIONAL(HAVE_NETLINK, [ test x"$HAVE_NETLINK" = xyes ])
 
 #
+# Check for net/route.h
+#
+AC_CHECK_HEADER(net/route.h, 
+HAVE_PF_ROUTE=yes
+AC_DEFINE([HAVE_PF_ROUTE],[],[Support for PF_ROUTE])
+, [], [
+#include <sys/types.h>
+#include <sys/socket.h>
+])
+
+AM_CONDITIONAL(HAVE_PF_ROUTE, [ test x"$HAVE_PF_ROUTE" = xyes ])
+
+#
 # Check for struct ip_mreqn
 #
 AC_MSG_CHECKING(for struct ip_mreqn)

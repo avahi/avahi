@@ -80,6 +80,11 @@ if HAVE_NETLINK
 libavahi_core_la_SOURCES += \
        iface-linux.c iface-linux.h \
        netlink.c netlink.h
+else
+if HAVE_PF_ROUTE 
+libavahi_core_la_SOURCES += \
+	iface-pfroute.c iface-pfroute.h
+endif
 endif
 
 libavahi_core_la_CFLAGS = $(AM_CFLAGS)

@@ -42,6 +42,8 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 
 #ifdef HAVE_NETLINK
 #include "iface-linux.h"
+#elif defined(HAVE_PF_ROUTE)
+#include "iface-pfroute.h"
 #else
 #error "No network configuration notification system available"
 #endif

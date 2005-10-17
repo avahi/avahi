@@ -45,7 +45,4 @@ AvahiTimeEvent* avahi_time_event_new(
 void avahi_time_event_free(AvahiTimeEvent *e);
 void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval);
 
-AvahiTimeEvent* avahi_time_event_queue_root(AvahiTimeEventQueue *q);
-AvahiTimeEvent* avahi_time_event_next(AvahiTimeEvent *e);
-
 #endif

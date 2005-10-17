@@ -77,9 +77,6 @@ struct AvahiCache {
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *interface);
 void avahi_cache_free(AvahiCache *c);
 
-AvahiCacheEntry *avahi_cache_lookup_key(AvahiCache *c, AvahiKey *k);
-AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r);
-
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const AvahiAddress *a);
 
 int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void* userdata);

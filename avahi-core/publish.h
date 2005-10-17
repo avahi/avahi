@@ -28,19 +28,10 @@
  * service using an embedded mDNS stack. It behaves like a network
  * printer registering both an IPP and a BSD LPR service. */
 
-#include <avahi-common/cdecl.h>
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-AVAHI_C_DECL_BEGIN
-#endif
-
 /** A group of locally registered DNS RRs */
 typedef struct AvahiSEntryGroup AvahiSEntryGroup;
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-AVAHI_C_DECL_END
-#endif
-
+#include <avahi-common/cdecl.h>
 #include <avahi-core/core.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -205,42 +196,6 @@ int avahi_server_update_service_txt(
     const char *type,     
     const char *domain,   
     ...) AVAHI_GCC_SENTINEL;
-
-/** The type of DNS server */
-typedef enum {
-    AVAHI_DNS_SERVER_RESOLVE,         /**< Unicast DNS servers for normal resolves (_domain._udp)*/
-    AVAHI_DNS_SERVER_UPDATE,           /**< Unicast DNS servers for updates (_dns-update._udp)*/
-    AVAHI_DNS_SERVER_MAX
-} AvahiDNSServerType;
-
-/** Publish the specified unicast DNS server address via mDNS. You may
- * browse for records create this way wit
- * avahi_s_dns_server_browser_new(). */
-int avahi_server_add_dns_server_address(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *domain,
-    AvahiDNSServerType type,
-    const AvahiAddress *address,
-    uint16_t port /** should be 53 */);
-
-/** Similar to avahi_server_add_dns_server_address(), but specify a
-host name instead of an address. The specified host name should be
-resolvable via mDNS */
-int avahi_server_add_dns_server_name(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *domain,
-    AvahiDNSServerType type,
-    const char *name,
-    uint16_t port /** should be 53 */);
-
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

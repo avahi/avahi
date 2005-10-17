@@ -58,6 +58,5 @@ void avahi_browser_cleanup(AvahiServer *server);
 
 void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b);
 void avahi_s_record_browser_restart(AvahiSRecordBrowser *b);
-void avahi_s_record_browser_cancel(AvahiSRecordBrowser *b);
 
 #endif

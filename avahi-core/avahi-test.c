@@ -39,6 +39,7 @@
 #include <avahi-core/log.h>
 #include <avahi-core/publish.h>
 #include <avahi-core/lookup.h>
+#include <avahi-core/dns-srv-rr.h>
 
 static AvahiSEntryGroup *group = NULL;
 static AvahiServer *server = NULL;

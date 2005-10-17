@@ -79,7 +79,6 @@ static void transport_flags_from_domain(AvahiServer *s, AvahiLookupFlags *flags,
         *flags |= AVAHI_LOOKUP_USE_WIDE_AREA;
 }
 
-
 static AvahiSRBLookup* lookup_new(
     AvahiSRecordBrowser *b,
     AvahiIfIndex interface,
@@ -179,6 +178,21 @@ static AvahiSRBLookup *lookup_find(
 
     return NULL;
 }
+
+static void browser_cancel(AvahiSRecordBrowser *b) {
+    assert(b);
+
+    if (b->root_lookup) {
+        lookup_unref(b->root_lookup);
+        b->root_lookup = NULL;
+    }
+
+    if (b->defer_time_event) {
+        avahi_time_event_free(b->defer_time_event);
+        b->defer_time_event = NULL;
+    }
+}
+
 
 static void lookup_wide_area_callback(
     AvahiWideAreaLookupEngine *e,
@@ -469,7 +483,7 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
             b->flags & AVAHI_LOOKUP_USE_WIDE_AREA ? AVAHI_LOOKUP_RESULT_WIDE_AREA : AVAHI_LOOKUP_RESULT_MULTICAST,
             b->userdata);
         
-        avahi_s_record_browser_cancel(b);
+        browser_cancel(b);
         return;
     }
     
@@ -493,7 +507,7 @@ void avahi_s_record_browser_restart(AvahiSRecordBrowser *b) {
     assert(b);
     assert(!b->dead);
 
-    avahi_s_record_browser_cancel(b);
+    browser_cancel(b);
 
     /* Request a new iteration of the cache scanning */
     if (!b->defer_time_event) {
@@ -550,20 +564,6 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     return b;
 }
 
-void avahi_s_record_browser_cancel(AvahiSRecordBrowser *b) {
-    assert(b);
-
-    if (b->root_lookup) {
-        lookup_unref(b->root_lookup);
-        b->root_lookup = NULL;
-    }
-
-    if (b->defer_time_event) {
-        avahi_time_event_free(b->defer_time_event);
-        b->defer_time_event = NULL;
-    }
-}
-
 void avahi_s_record_browser_free(AvahiSRecordBrowser *b) {
     assert(b);
     assert(!b->dead);
@@ -571,13 +571,13 @@ void avahi_s_record_browser_free(AvahiSRecordBrowser *b) {
     b->dead = 1;
     b->server->need_browser_cleanup = 1;
 
-    avahi_s_record_browser_cancel(b);
+    browser_cancel(b);
 }
 
 void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b) {
     assert(b);
 
-    avahi_s_record_browser_cancel(b);
+    browser_cancel(b);
     
     AVAHI_LLIST_REMOVE(AvahiSRecordBrowser, browser, b->server->record_browsers, b);
 

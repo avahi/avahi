@@ -49,8 +49,10 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
 #include <avahi-common/alternative.h>
+
 #include <avahi-core/core.h>
 #include <avahi-core/publish.h>
+#include <avahi-core/dns-srv-rr.h>
 #include <avahi-core/log.h>
 
 #include "main.h"

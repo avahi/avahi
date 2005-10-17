@@ -124,20 +124,6 @@ void* avahi_hashmap_lookup(AvahiHashmap *m, const void *key) {
     return e->value;
 }
 
-void* avahi_hashmap_steal(AvahiHashmap *m, const void *key) {
-    Entry *e;
-    void *v;
-    
-    assert(m);
-
-    if (!(e = entry_get(m, key)))
-        return NULL;
-
-    v = e->value;
-    entry_free(m, e, 1);
-    return v;
-}
-
 int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value) {
     unsigned idx;
     Entry *e;

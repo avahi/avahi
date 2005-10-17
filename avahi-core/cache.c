@@ -101,7 +101,7 @@ void avahi_cache_free(AvahiCache *c) {
     avahi_free(c);
 }
 
-AvahiCacheEntry *avahi_cache_lookup_key(AvahiCache *c, AvahiKey *k) {
+static AvahiCacheEntry *lookup_key(AvahiCache *c, AvahiKey *k) {
     assert(c);
     assert(k);
 
@@ -131,7 +131,7 @@ void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback 
     } else {
         AvahiCacheEntry *e, *n;
 
-        for (e = avahi_cache_lookup_key(c, pattern); e; e = n) {
+        for (e = lookup_key(c, pattern); e; e = n) {
             n = e->by_key_next;
                 
             if ((ret = cb(c, pattern, e, userdata)))
@@ -153,7 +153,7 @@ static void* lookup_record_callback(AvahiCache *c, AvahiKey *pattern, AvahiCache
     return NULL;
 }
 
-AvahiCacheEntry *avahi_cache_lookup_record(AvahiCache *c, AvahiRecord *r) {
+static AvahiCacheEntry *lookup_record(AvahiCache *c, AvahiRecord *r) {
     assert(c);
     assert(r);
 
@@ -279,7 +279,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
         AvahiCacheEntry *e;
 
-        if ((e = avahi_cache_lookup_record(c, r)))
+        if ((e = lookup_record(c, r)))
             expire_in_one_second(c, e, AVAHI_CACHE_GOODBYE_FINAL);
 
     } else {
@@ -290,7 +290,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
         /* This is an update request */
 
-        if ((first = avahi_cache_lookup_key(c, r->key))) {
+        if ((first = lookup_key(c, r->key))) {
             
             if (cache_flush) {
 
@@ -480,7 +480,7 @@ void avahi_cache_stop_poof(AvahiCache *c, AvahiRecord *record, const AvahiAddres
     assert(record);
     assert(a);
 
-    if (!(e = avahi_cache_lookup_record(c, record)))
+    if (!(e = lookup_record(c, record)))
         return;
 
     /* This function is called for each response suppression

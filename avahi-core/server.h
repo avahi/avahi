@@ -22,11 +22,11 @@
   USA.
 ***/
 
-#include <avahi-common/llist.h>
-#include <avahi-common/watch.h>
-
 /** A locally registered DNS resource record */
 typedef struct AvahiEntry AvahiEntry;
+
+#include <avahi-common/llist.h>
+#include <avahi-common/watch.h>
 
 #include "core.h"
 #include "iface.h"
@@ -39,6 +39,7 @@ typedef struct AvahiEntry AvahiEntry;
 #include "hashmap.h"
 #include "wide-area.h"
 #include "multicast-lookup.h"
+#include "dns-srv-rr.h"
 
 #define AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS 100
 
@@ -176,7 +177,6 @@ void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, Avahi
 void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata);
 
 void avahi_server_decrease_host_rr_pending(AvahiServer *s);
-void avahi_server_increase_host_rr_pending(AvahiServer *s);
 
 int avahi_server_set_errno(AvahiServer *s, int error);
 

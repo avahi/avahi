@@ -27,13 +27,6 @@
 /** \example core-browse-services.c Example how to browse for DNS-SD
  * services using an embedded mDNS stack. */
 
-#include <avahi-common/cdecl.h>
-#include <avahi-common/defs.h>
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-AVAHI_C_DECL_BEGIN
-#endif
-
 /** A browsing object for arbitrary RRs */
 typedef struct AvahiSRecordBrowser AvahiSRecordBrowser;
 
@@ -55,22 +48,13 @@ typedef struct AvahiSServiceBrowser AvahiSServiceBrowser;
 /** A DNS-SD service resolver.  Use this to retrieve addres, port and TXT data for a DNS-SD service */
 typedef struct AvahiSServiceResolver AvahiSServiceResolver;
 
-/** A domain service browser object. Use this to browse for
- * conventional unicast DNS servers which may be used to resolve
- * conventional domain names */
-typedef struct AvahiSDNSServerBrowser AvahiSDNSServerBrowser;
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-AVAHI_C_DECL_END
-#endif
-
+#include <avahi-common/cdecl.h>
+#include <avahi-common/defs.h>
 #include <avahi-core/core.h>
-#include <avahi-core/publish.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
 #endif
-
 
 /** Callback prototype for AvahiSRecordBrowser events */
 typedef void (*AvahiSRecordBrowserCallback)(
@@ -249,33 +233,6 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
 
 /** Free an AvahiSServiceResolver object */
 void avahi_s_service_resolver_free(AvahiSServiceResolver *r);
-
-/** Callback prototype for AvahiSDNSServerBrowser events */
-typedef void (*AvahiSDNSServerBrowserCallback)(
-    AvahiSDNSServerBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *host_name,       /**< Host name of the DNS server, probably useless */
-    const AvahiAddress *a,        /**< Address of the DNS server */
-    uint16_t port,                 /**< Port number of the DNS servers, probably 53 */
-    AvahiLookupResultFlags flags,  /**< Lookup flags */
-    void* userdata);
-
-/** Create a new AvahiSDNSServerBrowser object */
-AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *domain,
-    AvahiDNSServerType type,
-    AvahiProtocol aprotocol,  /**< Address protocol for the DNS server */ 
-    AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSDNSServerBrowserCallback callback,
-    void* userdata);
-
-/** Free an AvahiSDNSServerBrowser object */
-void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END

@@ -6,7 +6,9 @@ for 0.6:
 * add support for subtypes in static services
 * drop partially created created entries on failure
 * Add static host configuration like static services [lathiat]
-* wrap avahi_server_add_record() via DBUS and in avahi-client  [lathiat]
+* wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
+* remove AVAHI_PUBLISH_IS_PROXY
+* replace avahi_server_is_service_local() by AVAHI_PUBLISH flag
 
 later:
 * implement avahi-utils in C

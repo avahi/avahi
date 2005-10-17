@@ -44,6 +44,7 @@
 #include "browse.h"
 #include "log.h"
 #include "util.h"
+#include "dns-srv-rr.h"
 
 static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const char *name, uint16_t type, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata) {
     AvahiKey *k;
@@ -1075,19 +1076,13 @@ void avahi_server_decrease_host_rr_pending(AvahiServer *s) {
         server_set_state(s, AVAHI_SERVER_RUNNING);
 }
 
-void avahi_server_increase_host_rr_pending(AvahiServer *s) {
-    assert(s);
-
-    s->n_host_rr_pending ++;
-}
-
 void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
     assert(s);
     assert(g);
 
     if (state == AVAHI_ENTRY_GROUP_REGISTERING &&
         s->state == AVAHI_SERVER_REGISTERING)
-        avahi_server_increase_host_rr_pending(s);
+        s->n_host_rr_pending ++;
     
     else if (state == AVAHI_ENTRY_GROUP_COLLISION &&
         (s->state == AVAHI_SERVER_REGISTERING || s->state == AVAHI_SERVER_RUNNING)) {
@@ -1178,7 +1173,7 @@ static void register_stuff(AvahiServer *s) {
     assert(s);
 
     server_set_state(s, AVAHI_SERVER_REGISTERING);
-    s->n_host_rr_pending ++;  /** Make sure that the state isn't changed tp AVAHI_SERVER_RUNNING too early */
+    s->n_host_rr_pending ++; /** Make sure that the state isn't changed tp AVAHI_SERVER_RUNNING too early */
 
     register_hinfo(s);
     register_browse_domain(s);

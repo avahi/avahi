@@ -35,8 +35,10 @@
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+
 #include <avahi-core/log.h>
 #include <avahi-core/lookup.h>
+#include <avahi-core/dns-srv-rr.h>
 
 #include "simple-protocol.h"
 #include "main.h"

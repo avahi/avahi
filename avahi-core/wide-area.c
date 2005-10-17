@@ -657,11 +657,9 @@ void avahi_wide_area_clear_cache(AvahiWideAreaLookupEngine *e) {
     assert(e->cache_n_entries == 0);
 }
 
-
 void avahi_wide_area_set_servers(AvahiWideAreaLookupEngine *e, const AvahiAddress *a, unsigned n) {
     assert(e);
 
-    
     if (a) {
         for (e->n_dns_servers = 0; n > 0 && e->n_dns_servers < AVAHI_MAX_WIDE_AREA_SERVERS; a++, n--) 
             if ((a->proto == AVAHI_PROTO_INET && e->fd_ipv4 >= 0) || (a->proto == AVAHI_PROTO_INET6 && e->fd_ipv6 >= 0))

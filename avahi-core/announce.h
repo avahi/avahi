@@ -65,9 +65,6 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
 void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int rem);
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int rem);
-void avahi_goodbye_all(AvahiServer *s, int send_goodbye, int rem);
-
-AvahiAnnouncer *avahi_get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 
 void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e);
 

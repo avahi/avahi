@@ -191,7 +191,7 @@ static void elapse_announce(AvahiTimeEvent *e, void *userdata) {
     next_state(userdata);
 }
 
-AvahiAnnouncer *avahi_get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
+static AvahiAnnouncer *get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     AvahiAnnouncer *a;
     
     assert(s);
@@ -254,7 +254,7 @@ static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
         return;
 
     /* We don't want duplicate announcers */
-    if (avahi_get_announcer(s, e, i))
+    if (get_announcer(s, e, i))
         return;    
 
     if ((!(a = avahi_new(AvahiAnnouncer, 1)))) {
@@ -328,7 +328,7 @@ int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) 
     assert(i);
     assert(!e->dead);
 
-    if (!(a = avahi_get_announcer(s, e, i)))
+    if (!(a = get_announcer(s, e, i)))
         return 0;
     
     return
@@ -345,7 +345,7 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     assert(i);
     assert(!e->dead);
 
-    if (!(a = avahi_get_announcer(s, e, i)))
+    if (!(a = get_announcer(s, e, i)))
         return 0;
 
 /*     avahi_log_debug("state: %i", a->state); */
@@ -362,7 +362,7 @@ void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInt
     assert(e);
     assert(i);
 
-    if (!(a = avahi_get_announcer(s, e, i)))
+    if (!(a = get_announcer(s, e, i)))
         return;
 
     if (a->state == AVAHI_PROBING && a->entry->group)
@@ -499,7 +499,7 @@ static void reannounce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i
     assert(e);
     assert(!e->dead);
 
-    if (!(a = avahi_get_announcer(m->server, e, i)))
+    if (!(a = get_announcer(m->server, e, i)))
         return;
 
     reannounce(a);
@@ -543,16 +543,5 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int re
     if (remove)
         while (e->announcers)
             remove_announcer(s, e->announcers);
-}
-
-void avahi_goodbye_all(AvahiServer *s, int send_goodbye, int remove) {
-    AvahiEntry *e;
-    
-    assert(s);
-
-    for (e = s->entries; e; e = e->entries_next)
-        if (!e->dead)
-            avahi_goodbye_entry(s, e, send_goodbye, remove);
-
 }
 

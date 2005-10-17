@@ -36,9 +36,10 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/timeval.h>
 
-#include "core.h"
-#include "log.h"
-#include "lookup.h"
+#include <avahi-core/core.h>
+#include <avahi-core/log.h>
+#include <avahi-core/lookup.h>
+#include <avahi-core/publish.h>
 
 static char *name = NULL;
 static AvahiSEntryGroup *group = NULL;

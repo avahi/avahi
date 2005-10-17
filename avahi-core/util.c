@@ -92,17 +92,6 @@ char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
     return r;
 }
 
-char *avahi_strdown(char *s) {
-    char *c;
-    
-    assert(s);
-
-    for (c = s; *c; c++)
-        *c = (char) tolower(*c);
-
-    return s;
-}
-
 char *avahi_strup(char *s) {
     char *c;
     assert(s);

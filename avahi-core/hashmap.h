@@ -36,7 +36,6 @@ AvahiHashmap* avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_fu
 
 void avahi_hashmap_free(AvahiHashmap *m);
 void* avahi_hashmap_lookup(AvahiHashmap *m, const void *key);
-void* avahi_hashmap_steal(AvahiHashmap *m, const void *key);
 int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value);
 int avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value);
 void avahi_hashmap_remove(AvahiHashmap *m, const void *key);

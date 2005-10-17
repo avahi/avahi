@@ -44,6 +44,7 @@
 #include "browse.h"
 #include "log.h"
 #include "util.h"
+#include "dns-srv-rr.h"
 
 void avahi_entry_free(AvahiServer*s, AvahiEntry *e) {
     AvahiEntry *t;

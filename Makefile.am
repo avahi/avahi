@@ -67,7 +67,6 @@ SUBDIRS = \
 
 
 DX_INPUT = \
-	$(srcdir)/avahi-common/cdecl.h \
 	$(srcdir)/avahi-core/core.h \
 	$(srcdir)/avahi-core/lookup.h \
 	$(srcdir)/avahi-core/publish.h \
@@ -83,10 +82,7 @@ DX_INPUT = \
 	$(srcdir)/avahi-common/error.h \
 	$(srcdir)/avahi-common/malloc.h \
 	$(srcdir)/avahi-common/domain.h \
-	$(srcdir)/avahi-common/gccmacro.h \
 	$(srcdir)/avahi-common/watch.h \
-	$(srcdir)/avahi-common/llist.h \
-	$(srcdir)/avahi-common/rlist.h \
 	$(srcdir)/avahi-common/simple-watch.h \
 	$(srcdir)/avahi-glib/glib-watch.h \
 	$(srcdir)/avahi-glib/glib-malloc.h \

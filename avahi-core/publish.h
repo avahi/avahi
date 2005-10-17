@@ -95,45 +95,6 @@ int avahi_server_add(
     AvahiPublishFlags flags,    /**< Special flags for this record */
     AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */);
     
-
-
-/** Add a PTR RR to the server. See avahi_server_add() for more information. */
-int avahi_server_add_txt(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,             /**< DNS TTL for this record */
-    const char *name,       /**< TXT record name */
-    ... /**< Text record data, terminated by NULL */) AVAHI_GCC_SENTINEL;
-
-/** Add a PTR RR to the server. Mostly identical to
- * avahi_server_add_text but takes a va_list instead of a variable
- * number of arguments */
-int avahi_server_add_txt_va(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    va_list va);
-
-/** Add a PTR RR to the server. Mostly identical to 
- * avahi_server_add_text but takes an AvahiStringList record instead of a variable
- * number of arguments. */
-int avahi_server_add_txt_strlst(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    AvahiStringList *strlst  /**< TXT decord data as a AvahiString. This routine makes a deep copy of this object. */ );
-
 /** Add an IP address mapping to the server. This will add both the
  * host-name-to-address and the reverse mapping to the server. See
  * avahi_server_add() for more information. If adding one of the RRs

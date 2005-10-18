@@ -1,5 +1,4 @@
 for 0.6:
-* add simplification routine for adding services 
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
 * generate local CNAME responses
@@ -9,6 +8,7 @@ for 0.6:
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 
 later:
+* add simplification routine for adding services 
 * implement avahi-utils in C
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:

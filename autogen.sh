@@ -22,9 +22,7 @@ VERSION=1.9
 
 run_versioned() {
     local P
-    type -p "$1-$2" &> /dev/null && P="$1-$2" \
-	|| type -p "$1`echo $2 | tr -d '.'`" &> /dev/null && P="$1`echo $2 | tr -d '.'`" \
-	|| local P="$1"
+    type -p "$1-$2" &> /dev/null && P="$1-$2" || local P="$1"
 
     shift 2
     "$P" "$@"
@@ -39,10 +37,10 @@ else
     rm -rf autom4te.cache
     rm -f config.cache
 
-    run_versioned libtoolize 1.5 -c --force
+    libtoolize -c --force
     run_versioned aclocal "$VERSION" -I common
-    run_versioned autoconf 2.59 -Wall
-    run_versioned autoheader 2.59
+    autoconf -Wall
+    autoheader
     run_versioned automake "$VERSION" -a -c --foreign
 
     if test "x$NOCONFIGURE" = "x"; then
@@ -50,8 +48,3 @@ else
         make clean
     fi
 fi
-
-# on FreeBSD i must copy this file
-# cp /usr/local/share/aclocal/libtool15.m4 common/
-# cp /usr/local/share/aclocal/pkg.m4 common/
-#./configure --disable-qt3 --disable-qt4 --disable-mono --disable-monodoc --disable-python --disable-dbus --disable-glib --disable-expat --disable-libdaemon --with-distro=none --disable-gtk --disable-xmltoman

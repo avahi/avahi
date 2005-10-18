@@ -3,12 +3,10 @@ for 0.6:
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
 * generate local CNAME responses
-* add support for subtypes in static services
 * drop partially created created entries on failure
+* add support for subtypes in static services
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
-* remove AVAHI_PUBLISH_IS_PROXY
-* replace avahi_server_is_service_local() by AVAHI_PUBLISH flag
 
 later:
 * implement avahi-utils in C
@@ -92,3 +90,5 @@ done:
 * consolidate browsing failure events and add an API to query the reason
 * Add sensible record updating API
 * rename AvahiAnnouncement to AvahiAnnouncer (to match AvahiQuerier)
+* remove AVAHI_PUBLISH_IS_PROXY
+* replace avahi_server_is_service_local() by AVAHI_PUBLISH flag

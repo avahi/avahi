@@ -59,7 +59,10 @@ char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
     assert(length);
     assert(a);
     
-    return (char*) inet_ntop(avahi_proto_to_af(a->proto), a->data.data, s, length);
+    if (!(inet_ntop(avahi_proto_to_af(a->proto), a->data.data, s, length)))
+        return NULL;
+    
+    return s;
 }
 
 char* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a) {
@@ -69,9 +72,9 @@ char* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a) {
     return avahi_strdup_printf("%u.%u.%u.%u.in-addr.arpa", n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
 }
 
-static char *reverse_lookup_name_ipv6(const AvahiIPv6Address *a, const char *suffix) {
+char *avahi_reverse_lookup_name_ipv6(const AvahiIPv6Address *a) {
     
-    return avahi_strdup_printf("%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%s",
+    return avahi_strdup_printf("%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.arpa",
                            a->address[15] & 0xF,
                            a->address[15] >> 4,
                            a->address[14] & 0xF,
@@ -103,16 +106,7 @@ static char *reverse_lookup_name_ipv6(const AvahiIPv6Address *a, const char *suf
                            a->address[1] & 0xF,
                            a->address[1] >> 4,
                            a->address[0] & 0xF,
-                           a->address[0] >> 4,
-                           suffix);
-}
-
-char *avahi_reverse_lookup_name_ipv6_arpa(const AvahiIPv6Address *a) {
-    return reverse_lookup_name_ipv6(a, "ip6.arpa");
-}
-
-char *avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a) {
-    return reverse_lookup_name_ipv6(a, "ip6.int");
+                           a->address[0] >> 4);
 }
 
 AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol proto, AvahiAddress *ret_addr) {

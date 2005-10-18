@@ -106,10 +106,7 @@ uint16_t avahi_port_from_sockaddr(const struct sockaddr* sa);
 char* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a);
 
 /** Generate the modern DNS reverse lookup name for an IPv6 address, ending in ipv6.arpa. avahi_free() the result! */
-char* avahi_reverse_lookup_name_ipv6_arpa(const AvahiIPv6Address *a);
-
-/** Generate the historic DNS reverse lookup name for an IPv6 address, ending in ipv6.int. avahi_free() the result! */
-char* avahi_reverse_lookup_name_ipv6_int(const AvahiIPv6Address *a);
+char* avahi_reverse_lookup_name_ipv6(const AvahiIPv6Address *a);
 
 /** Check whether the specified IPv6 address is in fact an
  * encapsulated IPv4 address, returns 1 if yes, 0 otherwise */

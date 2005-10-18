@@ -205,7 +205,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     if (address->proto == AVAHI_PROTO_INET)
         n = avahi_reverse_lookup_name_ipv4(&address->data.ipv4);
     else 
-        n = avahi_reverse_lookup_name_ipv6_arpa(&address->data.ipv6);
+        n = avahi_reverse_lookup_name_ipv6(&address->data.ipv6);
 
     if (!n) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);

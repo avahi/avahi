@@ -428,18 +428,7 @@ int avahi_server_add_address(
         if (!(flags & AVAHI_PUBLISH_NO_REVERSE)) {
             char *reverse;
 
-            if (!(reverse = avahi_reverse_lookup_name_ipv6_arpa(&a->data.ipv6))) {
-                ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
-                goto fail;
-            }
-            
-            ret = avahi_server_add_ptr(s, g, interface, protocol, flags | AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse, name);
-            avahi_free(reverse);
-            
-            if (ret < 0)
-                goto fail;
-            
-            if (!(reverse = avahi_reverse_lookup_name_ipv6_int(&a->data.ipv6))) {
+            if (!(reverse = avahi_reverse_lookup_name_ipv6(&a->data.ipv6))) {
                 ret = avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
                 goto fail;
             }

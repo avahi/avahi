@@ -111,38 +111,72 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   char *cp = (char *)(ifam + 1);
   int addrs = ifam->ifam_addrs;
   int i;
+  struct sockaddr *sa  =NULL;
+  struct sockaddr *addr  =NULL;
+  struct sockaddr *mask  =NULL;
 
-  if(addrs == 0)
-    return;
-
-  for(i = 1; i; i <<=1)
+  for(i = 0; addrs != 0 && i < RTAX_MAX; addrs &= ~(1<<i), i++)
     {
-      struct sockaddr *sa;
+      if (!(addrs & 1<<i))
+	continue;
       sa = (struct sockaddr *)cp;
-
-      /* interface addr sockaddr present */
-      if (i & addrs && i & RTA_BRD)
-	{
-	  if(sa->sa_family == AF_INET)
-	    {
-	      struct in_addr in = ((struct sockaddr_in *)sa)->sin_addr;
-	      printf("\n%s\n",
-		     inet_ntoa(in)); 
-	    }
-	  else
-	    if(sa->sa_family == AF_INET6)
-	      {
-		/* 	    struct sockaddr_in6 sin6; */
-		
-	      }
-#ifdef SA_SIZE
-	  cp += SA_SIZE(sa);
-#else
-	  ADVANCE(cp, sa);
-#endif
-
+      if (sa->sa_len == 0) 
+	continue;
+      switch(sa->sa_family) {
+      case AF_INET:
+	switch (1<<i) {
+	case RTA_NETMASK:
+	  mask = sa;
+	  break;
+	case RTA_IFA:
+	  addr = sa;
+	default:
+	  break;
 	}
+      case AF_INET6:
+	break;
+      default:
+	break;
+      }
+#ifdef SA_SIZE
+      cp += SA_SIZE(sa);
+#else
+      ADVANCE(cp, sa);
+#endif
     }
+
+  if(addr)
+    {
+      struct in_addr in = ((struct sockaddr_in *)addr)->sin_addr;
+      printf("\nRTA_IFA %s\n", inet_ntoa(in)); 
+    }
+  if(mask)
+    {
+      struct in_addr in = ((struct sockaddr_in *)mask)->sin_addr;
+      printf("\nRTA_NETMASK %s\n", inet_ntoa(in)); 
+    }
+
+
+/*   if(rtm->rtm_type == RTM_NEWADDR) */
+/*     { */
+/*       AvahiInterfaceAddress *addr; */
+/*       if (!(addr = avahi_interface_monitor_get_address(m, i, &raddr))) */
+/* 	if (!(addr = avahi_interface_address_new(m, i, &raddr, ifaddrmsg->ifa_prefixlen))) */
+/* 	  return; /\* OOM *\/ */
+      
+/*       addr->global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE; */
+/*     } */
+/*   else */
+/*     { */
+/*       AvahiInterfaceAddress *addr; */
+/*       assert(rtm->rtm_type == RTM_DELADDR); */
+/*       if (!(addr = avahi_interface_monitor_get_address(m, i, &raddr))) */
+/* 	return; */
+/*       avahi_interface_address_free(addr); */
+/*     } */
+  
+/*   avahi_interface_check_relevant(iface); */
+/*   avahi_interface_update_rrs(iface, 0); */
 }
 
 static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor *m)
@@ -226,7 +260,7 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *user
 	return;
       }
 
-      (void) printf("\ngot message of size %d on %s", bytes, ctime(&now));
+      (void) printf("\ngot message of size %d on %s", (int)bytes, ctime(&now));
       printf("parse_rtmsg\n");
       parse_rtmsg((struct rt_msghdr *)msg, bytes ,m);
     }
@@ -295,6 +329,8 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
     assert(m);
 
     wild_dump_interfaces(m);
-
+    m->list_complete = 1;
+    avahi_interface_monitor_update_rrs(m, 0);
+    avahi_log_info("Network interface enumeration completed.");
 }
 

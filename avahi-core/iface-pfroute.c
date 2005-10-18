@@ -189,7 +189,7 @@ static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor
   assert(rtm);
   
   if (rtm->rtm_version != RTM_VERSION) {
-    avahi_log_warn("routing message version %d not understood\n",
+    avahi_log_warn("routing message version %d not understood",
 		   rtm->rtm_version);
     return;
   }
@@ -227,7 +227,7 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *user
 	return;
       }
 
-      avahi_log_debug("\ngot message of size %d on %s", (int)bytes, ctime(&now));
+      avahi_log_debug("socket_event: got message of size %d on %s", (int)bytes, ctime(&now));
       parse_rtmsg((struct rt_msghdr *)msg, bytes ,m);
     }
     while (bytes > 0);

@@ -265,7 +265,7 @@ fail:
 
     if (m->osdep.pfroute) {
       if (m->osdep.pfroute->watch)
-        m->osdep.pfroute->poll_api->watch_free(m->osdep.pfroute->watch);
+        m->server->poll_api->watch_free(m->osdep.pfroute->watch);
       
       if (fd >= 0)
         close(fd);
@@ -281,7 +281,7 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
 
     if (m->osdep.pfroute) {
       if (m->osdep.pfroute->watch)
-        m->osdep.pfroute->poll_api->watch_free(m->osdep.pfroute->watch);
+        m->server->poll_api->watch_free(m->osdep.pfroute->watch);
       
       if (m->osdep.pfroute->fd >= 0)
         close(m->osdep.pfroute->fd);

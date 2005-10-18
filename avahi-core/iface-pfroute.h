@@ -26,7 +26,6 @@
 typedef struct AvahiPfRoute AvahiPfRoute;
 struct AvahiPfRoute {
   int fd;
-  const AvahiPoll *poll_api;
   AvahiWatch *watch;
   AvahiInterfaceMonitor *m;
 };

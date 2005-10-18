@@ -25,30 +25,34 @@
 
 #include <avahi-common/malloc.h>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <err.h>
-#include <sysexits.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
-
 #include <sys/sysctl.h>
+
 #include <net/route.h>
 #include <net/if.h>
-#include <netinet/in.h>
 #include <net/if_dl.h>
-
-#include <arpa/inet.h>
-
+#include <netinet/in.h>
 
 #include "log.h"
 #include "iface.h"
 #include "iface-pfroute.h"
 #include "util.h"
+
+static int bitcount (unsigned int n)  
+{  
+  int count=0 ;
+  while (n)
+    {
+      count++ ;
+      n &= (n - 1) ;
+    }
+  return count ;
+}
 
 static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 {
@@ -88,11 +92,11 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   
   memcpy(hw->mac_address, sdl->sdl_data + sdl->sdl_nlen, hw->mac_address_size);
   
-  printf("======\n name: %s\n index:%d\n mtu:%d\n mac:%s\n flags_ok:%d\n======", 
-	 hw->name, hw->index, 
-	 hw->mtu, 
-	 avahi_format_mac_address(hw->mac_address, hw->mac_address_size),
-	 hw->flags_ok);
+  avahi_log_debug("======\n name: %s\n index:%d\n mtu:%d\n mac:%s\n flags_ok:%d\n======", 
+		  hw->name, hw->index, 
+		  hw->mtu, 
+		  avahi_format_mac_address(hw->mac_address, hw->mac_address_size),
+		  hw->flags_ok);
   
   avahi_hw_interface_check_relevant(hw);
   avahi_hw_interface_update_rrs(hw, 0);
@@ -111,10 +115,17 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   char *cp = (char *)(ifam + 1);
   int addrs = ifam->ifam_addrs;
   int i;
+  int prefixlen = 0;
   struct sockaddr *sa  =NULL;
-  struct sockaddr *addr  =NULL;
-  struct sockaddr *mask  =NULL;
 
+  if(((struct sockaddr *)cp)->sa_family != AF_INET && ((struct sockaddr *)cp)->sa_family != AF_INET6)
+    return;
+
+  if (!(iface = avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifam->ifam_index, avahi_af_to_proto(((struct sockaddr *)cp)->sa_family))))
+    return;
+
+  raddr.proto = avahi_af_to_proto(((struct sockaddr *)cp)->sa_family);
+  
   for(i = 0; addrs != 0 && i < RTAX_MAX; addrs &= ~(1<<i), i++)
     {
       if (!(addrs & 1<<i))
@@ -126,10 +137,11 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
       case AF_INET:
 	switch (1<<i) {
 	case RTA_NETMASK:
-	  mask = sa;
+	  prefixlen = bitcount(((struct sockaddr_in *)sa)->sin_addr.s_addr);
 	  break;
 	case RTA_IFA:
-	  addr = sa;
+	  memcpy(raddr.data.data, &((struct sockaddr_in *)sa)->sin_addr,  sizeof(struct in_addr));
+	  raddr_valid = 1;
 	default:
 	  break;
 	}
@@ -145,38 +157,30 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 #endif
     }
 
-  if(addr)
-    {
-      struct in_addr in = ((struct sockaddr_in *)addr)->sin_addr;
-      printf("\nRTA_IFA %s\n", inet_ntoa(in)); 
-    }
-  if(mask)
-    {
-      struct in_addr in = ((struct sockaddr_in *)mask)->sin_addr;
-      printf("\nRTA_NETMASK %s\n", inet_ntoa(in)); 
-    }
+  if (!raddr_valid)
+    return;
 
-
-/*   if(rtm->rtm_type == RTM_NEWADDR) */
-/*     { */
-/*       AvahiInterfaceAddress *addr; */
-/*       if (!(addr = avahi_interface_monitor_get_address(m, i, &raddr))) */
-/* 	if (!(addr = avahi_interface_address_new(m, i, &raddr, ifaddrmsg->ifa_prefixlen))) */
-/* 	  return; /\* OOM *\/ */
-      
-/*       addr->global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE; */
-/*     } */
-/*   else */
-/*     { */
-/*       AvahiInterfaceAddress *addr; */
-/*       assert(rtm->rtm_type == RTM_DELADDR); */
-/*       if (!(addr = avahi_interface_monitor_get_address(m, i, &raddr))) */
-/* 	return; */
-/*       avahi_interface_address_free(addr); */
-/*     } */
+  if(rtm->rtm_type == RTM_NEWADDR)
+    {
+      AvahiInterfaceAddress *addriface;
+      if (!(addriface = avahi_interface_monitor_get_address(m, iface, &raddr)))
+	if (!(addriface = avahi_interface_address_new(m, iface, &raddr, prefixlen)))
+	  return; /* OOM */
+      /*       FIXME */
+      /*       addriface->global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE; */
+      addriface->global_scope = 1;
+    }
+  else
+    {
+      AvahiInterfaceAddress *addriface;
+      assert(rtm->rtm_type == RTM_DELADDR);
+      if (!(addriface = avahi_interface_monitor_get_address(m, iface, &raddr)))
+	return;
+      avahi_interface_address_free(addriface);
+    }
   
-/*   avahi_interface_check_relevant(iface); */
-/*   avahi_interface_update_rrs(iface, 0); */
+  avahi_interface_check_relevant(iface);
+  avahi_interface_update_rrs(iface, 0);
 }
 
 static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor *m)
@@ -186,7 +190,7 @@ static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor
   
   if (rtm->rtm_version != RTM_VERSION) {
     avahi_log_warn("routing message version %d not understood\n",
-		      rtm->rtm_version);
+		   rtm->rtm_version);
     return;
   }
 
@@ -198,46 +202,9 @@ static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor
   case RTM_DELADDR:
     rtm_addr(rtm,m);
     break;
-    
   default:
     break;
   }
-}
-
-
-static int wild_dump_interfaces(AvahiInterfaceMonitor *m)
-{
-  size_t needed;
-  int mib[6];
-  char *buf, *lim, *next, count = 0;
-  struct rt_msghdr *rtm;
-
- retry2:
-  mib[0] = CTL_NET;
-  mib[1] = PF_ROUTE;
-  mib[2] = 0;             /* protocol */
-  mib[3] = 0;             /* wildcard address family */
-  mib[4] = NET_RT_IFLIST;
-  mib[5] = 0;             /* no flags */
-  if (sysctl(mib, 6, NULL, &needed, NULL, 0) < 0)
-    err(EX_OSERR, "route-sysctl-estimate");
-  if ((buf = malloc(needed)) == NULL)
-    errx(EX_OSERR, "malloc failed");
-  if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
-    if (errno == ENOMEM && count++ < 10) {
-      warnx("Routing table grew, retrying");
-      sleep(1);
-      free(buf);
-      goto retry2;
-    }
-    err(EX_OSERR, "actual retrieval of interface table");
-  }
-  lim = buf + needed;
-  for (next = buf; next < lim; next += rtm->rtm_msglen) {
-    rtm = (struct rt_msghdr *)next;
-    parse_rtmsg(rtm, rtm->rtm_msglen, m);
-  }
-  return 0;
 }
 
 static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *userdata) {
@@ -260,8 +227,7 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *user
 	return;
       }
 
-      (void) printf("\ngot message of size %d on %s", (int)bytes, ctime(&now));
-      printf("parse_rtmsg\n");
+      avahi_log_debug("\ngot message of size %d on %s", (int)bytes, ctime(&now));
       parse_rtmsg((struct rt_msghdr *)msg, bytes ,m);
     }
     while (bytes > 0);
@@ -293,7 +259,6 @@ int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
       goto fail;
     }
     
-    printf("avahi_interface_monitor_init_osdep\n");
     return 0;
 
 fail:
@@ -327,12 +292,39 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
 }
 
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
-    assert(m);
+  size_t needed;
+  int mib[6];
+  char *buf, *lim, *next, count = 0;
+  struct rt_msghdr *rtm;
 
-    wild_dump_interfaces(m);
-    m->list_complete = 1;
-    avahi_interface_monitor_check_relevant(m);
-    avahi_interface_monitor_update_rrs(m, 0);
-    avahi_log_info("Network interface enumeration completed.");
+  assert(m);
+  
+ retry2:
+  mib[0] = CTL_NET;
+  mib[1] = PF_ROUTE;
+  mib[2] = 0;             /* protocol */
+  mib[3] = 0;             /* wildcard address family */
+  mib[4] = NET_RT_IFLIST;
+  mib[5] = 0;             /* no flags */
+  if (sysctl(mib, 6, NULL, &needed, NULL, 0) < 0)
+    return;
+  if ((buf = avahi_malloc(needed)) == NULL)
+    return;
+  if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
+    if (errno == ENOMEM && count++ < 10) {
+      sleep(1);
+      avahi_free(buf);
+      goto retry2;
+    }
+  }
+  lim = buf + needed;
+  for (next = buf; next < lim; next += rtm->rtm_msglen) {
+    rtm = (struct rt_msghdr *)next;
+    parse_rtmsg(rtm, rtm->rtm_msglen, m);
+  }
+  
+  m->list_complete = 1;
+  avahi_interface_monitor_check_relevant(m);
+  avahi_interface_monitor_update_rrs(m, 0);
+  avahi_log_info("Network interface enumeration completed.");
 }
-

@@ -320,7 +320,8 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
       
       if (m->osdep.pfroute->fd >= 0)
         close(m->osdep.pfroute->fd);
-      
+
+      avahi_free(m->osdep.pfroute);
       m->osdep.pfroute = NULL;
     }
 }
@@ -330,6 +331,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
 
     wild_dump_interfaces(m);
     m->list_complete = 1;
+    avahi_interface_monitor_check_relevant(m);
     avahi_interface_monitor_update_rrs(m, 0);
     avahi_log_info("Network interface enumeration completed.");
 }

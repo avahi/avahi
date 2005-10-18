@@ -33,6 +33,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/timeval.h>
 
 static const AvahiPoll *poll_api = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
@@ -129,7 +130,6 @@ static void avahi_address_resolver_callback (
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
-    AvahiProtocol aprotocol,
     const AvahiAddress *address,
     const char *name,
     AvahiLookupResultFlags flags,
@@ -141,7 +141,7 @@ static void avahi_address_resolver_callback (
         return;
     }
     avahi_address_snprint (addr, sizeof (addr), address);
-    printf ("ADDRESS-RESOLVER: Callback on AddressResolver, interface (%d), protocol (%d), even (%d), aprotocol (%d), address (%s), name (%s), data(%s)\n", interface, protocol, event, aprotocol, addr, name, (char*) userdata);
+    printf ("ADDRESS-RESOLVER: Callback on AddressResolver, interface (%d), protocol (%d), even (%d), address (%s), name (%s), data(%s)\n", interface, protocol, event, addr, name, (char*) userdata);
 }
 
 static void avahi_host_name_resolver_callback (
@@ -163,7 +163,7 @@ static void avahi_host_name_resolver_callback (
         return;
     }
     client = avahi_host_name_resolver_get_client (r);
-    ar = avahi_address_resolver_new_a (client, interface, protocol, a, 0, avahi_address_resolver_callback, "omghai6u");
+    ar = avahi_address_resolver_new(client, interface, protocol, a, 0, avahi_address_resolver_callback, "omghai6u");
     if (ar)
     {
         printf ("Succesfully created address resolver object\n");
@@ -293,7 +293,7 @@ int main (int argc, char *argv[]) {
         group2 = avahi_entry_group_new (avahi, avahi_entry_group2_callback, "omghai222");
         if ((error = avahi_entry_group_add_address (group2, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "test-mdns.local.", aar)) < 0)
         {
-            printf ("*** failed to add address to entry group: %s\n", avahi_strerror (ret));
+            printf ("*** failed to add address to entry group: %s\n", avahi_strerror (error));
             avahi_entry_group_free (group2);
         } else {
             printf ("*** success, added address\n");

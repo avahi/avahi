@@ -107,16 +107,6 @@
       <arg name="flags" type="u" direction="out"/>
     </method>
 
-    <method name="IsServiceLocal">
-      <arg name="interface" type="i" direction="in"/>
-      <arg name="protocol" type="i" direction="in"/>
-      <arg name="name" type="s" direction="in"/>
-      <arg name="type" type="s" direction="in"/>
-      <arg name="domain" type="s" direction="in"/>
-
-      <arg name="is_local" type="b" direction="out"/>
-    </method>
-
     <method name="EntryGroupNew">
       <arg name="path" type="o" direction="out"/>
     </method>

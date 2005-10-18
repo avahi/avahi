@@ -77,6 +77,8 @@ AvahiDomainBrowser* avahi_domain_browser_new(
     db->callback = callback;
     db->userdata = userdata;
     db->path = NULL;
+    db->interface = interface;
+    db->protocol = protocol;
 
     AVAHI_LLIST_PREPEND(AvahiDomainBrowser, domain_browsers, client->domain_browsers, db);
 
@@ -147,8 +149,7 @@ fail:
     return NULL;
 }
 
-AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *b)
-{
+AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *b) {
     assert(b);
     return b->client;
 }
@@ -176,7 +177,7 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
     DBusError error;
     const char *path;
     char *domain = NULL;
-    int32_t interface = AVAHI_IF_UNSPEC, protocol = AVAHI_PROTO_UNSPEC;
+    int32_t interface, protocol;
     uint32_t flags = 0;
 
     assert(client);
@@ -193,6 +194,9 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
 
     if (!db)
         goto fail;
+
+    interface = db->interface;
+    protocol = db->protocol;
 
     switch (event) {
         case AVAHI_BROWSER_NEW:
@@ -281,9 +285,18 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new(
     b->callback = callback;
     b->userdata = userdata;
     b->path = NULL;
+    b->domain = NULL;
+    b->interface = interface;
+    b->protocol = protocol;
 
     AVAHI_LLIST_PREPEND(AvahiServiceTypeBrowser, service_type_browsers, client->service_type_browsers, b);
 
+    if (domain[0])
+        if (!(b->domain = avahi_strdup(domain))) {
+            avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+            goto fail;
+        }
+          
     if (!(message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "ServiceTypeBrowserNew"))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -349,8 +362,7 @@ fail:
     return NULL;
 }
 
-AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *b)
-{
+AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *b) {
     assert(b);
     return b->client;
 }
@@ -368,6 +380,7 @@ int avahi_service_type_browser_free (AvahiServiceTypeBrowser *b) {
     AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, service_type_browsers, b->client->service_type_browsers, b);
 
     avahi_free(b->path);
+    avahi_free(b->domain);
     avahi_free(b);
     return r;
 }
@@ -376,8 +389,8 @@ DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBr
     AvahiServiceTypeBrowser *b = NULL;
     DBusError error;
     const char *path;
-    char *domain = NULL, *type = NULL;
-    int32_t interface = AVAHI_IF_UNSPEC, protocol = AVAHI_PROTO_UNSPEC;
+    char *domain, *type = NULL;
+    int32_t interface, protocol;
     uint32_t flags = 0;
 
     assert(client);
@@ -394,6 +407,11 @@ DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBr
 
     if (!b)
         goto fail;
+
+    domain = b->domain;
+    interface = b->interface;
+    protocol = b->protocol;
+    
     switch (event) {
         case AVAHI_BROWSER_NEW:
         case AVAHI_BROWSER_REMOVE:
@@ -483,9 +501,23 @@ AvahiServiceBrowser* avahi_service_browser_new(
     b->callback = callback;
     b->userdata = userdata;
     b->path = NULL;
+    b->type = b->domain = NULL;
+    b->interface = interface;
+    b->protocol = protocol;
 
     AVAHI_LLIST_PREPEND(AvahiServiceBrowser, service_browsers, client->service_browsers, b);
 
+    if (!(b->type = avahi_strdup(type))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+    
+    if (domain && domain[0])
+        if (!(b->domain = avahi_strdup(domain))) {
+            avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+            goto fail;
+        }
+    
     if (!(message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "ServiceBrowserNew"))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -551,8 +583,7 @@ fail:
     return NULL;
 }
 
-AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *b)
-{
+AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *b) {
     assert(b);
     return b->client;
 }
@@ -570,17 +601,18 @@ int avahi_service_browser_free (AvahiServiceBrowser *b) {
     AVAHI_LLIST_REMOVE(AvahiServiceBrowser, service_browsers, b->client->service_browsers, b);
 
     avahi_free(b->path);
+    avahi_free(b->type);
+    avahi_free(b->domain);
     avahi_free(b);
     return r;
 }
-
 
 DBusHandlerResult avahi_service_browser_event(AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
     AvahiServiceBrowser *b = NULL;
     DBusError error;
     const char *path;
-    char *name = NULL, *type = NULL, *domain = NULL;
-    int32_t interface = AVAHI_IF_UNSPEC, protocol = AVAHI_PROTO_UNSPEC;
+    char *name = NULL, *type, *domain;
+    int32_t interface, protocol;
     uint32_t flags = 0;
 
     dbus_error_init (&error);
@@ -594,6 +626,11 @@ DBusHandlerResult avahi_service_browser_event(AvahiClient *client, AvahiBrowserE
 
     if (!b)
         goto fail;
+
+    type = b->type;
+    domain = b->domain;
+    interface = b->interface;
+    protocol = b->protocol;
 
     switch (event) {
         case AVAHI_BROWSER_NEW:

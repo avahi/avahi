@@ -66,6 +66,9 @@ struct AvahiDomainBrowser {
     AvahiDomainBrowserCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiDomainBrowser, domain_browsers);
+
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 };
 
 struct AvahiServiceBrowser {
@@ -74,6 +77,10 @@ struct AvahiServiceBrowser {
     AvahiServiceBrowserCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiServiceBrowser, service_browsers);
+
+    char *type, *domain;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 };
 
 struct AvahiServiceTypeBrowser {
@@ -82,6 +89,10 @@ struct AvahiServiceTypeBrowser {
     AvahiServiceTypeBrowserCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiServiceTypeBrowser, service_type_browsers);
+
+    char *domain;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 };
 
 struct AvahiServiceResolver {
@@ -90,6 +101,10 @@ struct AvahiServiceResolver {
     AvahiServiceResolverCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiServiceResolver, service_resolvers);
+
+    char *name, *type, *domain;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 };
 
 struct AvahiHostNameResolver {
@@ -98,6 +113,10 @@ struct AvahiHostNameResolver {
     AvahiHostNameResolverCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiHostNameResolver, host_name_resolvers);
+
+    char *host_name;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 };
 
 struct AvahiAddressResolver {
@@ -106,6 +125,10 @@ struct AvahiAddressResolver {
     AvahiAddressResolverCallback callback;
     void *userdata;
     AVAHI_LLIST_FIELDS(AvahiAddressResolver, address_resolvers);
+
+    AvahiAddress address;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
 };
 
 int avahi_client_set_errno (AvahiClient *client, int error);

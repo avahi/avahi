@@ -72,12 +72,11 @@ static void create_services(AvahiServer *s) {
     assert(s);
 
     /* If this is the first time we're called, let's create a new entry group */
-    if (!group) {
+    if (!group)
         if (!(group = avahi_s_entry_group_new(s, entry_group_callback, NULL))) {
             fprintf(stderr, "avahi_entry_group_new() failed: %s\n", avahi_strerror(avahi_server_errno(s)));
             goto fail;
         }
-    }
     
     fprintf(stderr, "Adding service '%s'\n", name);
 
@@ -120,12 +119,14 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void * userd
 
     /* Called whenever the server state changes */
 
-    if (state == AVAHI_SERVER_RUNNING)
+    if (state == AVAHI_SERVER_RUNNING) {
         /* The serve has startup successfully and registered its host
          * name on the network, so it's time to create our services */
-        create_services(s);
+
+        if (group)
+            create_services(s);
     
-    else if (state == AVAHI_SERVER_COLLISION) {
+    } else if (state == AVAHI_SERVER_COLLISION) {
         char *n;
         int r;
         
@@ -183,19 +184,15 @@ int main(int argc, char*argv[]) {
         fprintf(stderr, "Failed to create server: %s\n", avahi_strerror(error));
         goto fail;
     }
-    
+
     /* Run the main loop */
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
     
     ret = 0;
     
 fail:
     
     /* Cleanup things */
-    if (group)
-        avahi_s_entry_group_free(group);
 
     if (server)
         avahi_server_free(server);

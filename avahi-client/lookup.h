@@ -102,12 +102,10 @@ typedef void (*AvahiAddressResolverCallback) (
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
-    AvahiProtocol aprotocol,
     const AvahiAddress *a,
     const char *name,
     AvahiLookupResultFlags flags, 
     void *userdata);
-
 
 /** Browse for domains on the local network */
 AvahiDomainBrowser* avahi_domain_browser_new (
@@ -195,18 +193,8 @@ AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *);
 /** Free a hostname resolver object */
 int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 
-/** Create a new address resolver object from an address string.  Set aprotocol to AF_UNSPEC for protocol detection. */
-AvahiAddressResolver * avahi_address_resolver_new(
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *address,
-    AvahiLookupFlags flags,
-    AvahiAddressResolverCallback callback,
-    void *userdata);
-
 /** Create a new address resolver object from an AvahiAddress object */
-AvahiAddressResolver* avahi_address_resolver_new_a(
+AvahiAddressResolver* avahi_address_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
     AvahiProtocol protocol,

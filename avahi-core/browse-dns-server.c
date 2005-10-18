@@ -151,6 +151,8 @@ static void record_browser_callback(
     assert(rr);
     assert(b);
 
+    /* Filter flags */
+    flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
 
     switch (event) {
         case AVAHI_BROWSER_NEW: {

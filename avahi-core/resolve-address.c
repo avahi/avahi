@@ -108,7 +108,6 @@ static void record_browser_callback(
     assert(rr);
     assert(r);
 
-
     switch (event) {
         case AVAHI_BROWSER_NEW: 
             assert(record);

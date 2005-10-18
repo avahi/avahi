@@ -805,22 +805,13 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
         return respond_ok(c, m);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty")) {
-        DBusMessage *reply;
-        int b;
-        
+
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
             avahi_log_warn("Error parsing EntryGroup::IsEmpty message");
             goto fail;
         }
 
-        b = !!avahi_s_entry_group_is_empty(i->entry_group);
-
-        reply = dbus_message_new_method_return(m);
-        dbus_message_append_args(reply, DBUS_TYPE_BOOLEAN, &b, DBUS_TYPE_INVALID);
-        dbus_connection_send(c, reply, NULL);
-        dbus_message_unref(reply);
-        
-        return DBUS_HANDLER_RESULT_HANDLED;
+        return respond_boolean(c, m, !!avahi_s_entry_group_is_empty(i->entry_group));
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "GetState")) {
         AvahiEntryGroupState state;
@@ -1271,6 +1262,21 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
+static int is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {
+    AvahiSEntryGroup *g;
+        
+
+    if (avahi_server_get_group_of_service(avahi_server, interface, protocol, name, type, domain, &g) == AVAHI_OK) {
+        EntryGroupInfo *egi;
+
+        for (egi = c->entry_groups; egi; egi = egi->entry_groups_next)
+            if (egi->entry_group == g)
+                return 1;
+    }
+
+    return 0;
+}
+
 static void service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata) {
     ServiceBrowserInfo *i = userdata;
     DBusMessage *m;
@@ -1286,6 +1292,13 @@ static void service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex inter
 
     m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, map_browse_signal_name(event));
 
+    if (event == AVAHI_BROWSER_NEW) {
+        /* Patch in AVAHI_LOOKUP_RESULT_OUR_OWN */
+
+        if (is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
+            flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
+    }
+    
     if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
         assert(name);
         assert(type);
@@ -1359,13 +1372,23 @@ static void sync_service_resolver_callback(
 
         if (!name)
             name = "";
-        
-        assert(a);
-        avahi_address_snprint(t, sizeof(t), a);
 
+        if (a) 
+            avahi_address_snprint(t, sizeof(t), a);
+        else
+            t[0] = 0;
+
+        /* Patch in AVAHI_LOOKUP_RESULT_OUR_OWN */
+
+        if (is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
+            flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
+        
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->proto;
+        if (a) 
+	    i_aprotocol = (int32_t) a->proto;
+	else 
+	    i_aprotocol = AVAHI_PROTO_UNSPEC;
         u_flags = (uint32_t) flags;
 
         reply = dbus_message_new_method_return(i->message);
@@ -1391,7 +1414,6 @@ static void sync_service_resolver_callback(
 
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);
-        
     } else {
         assert(event == AVAHI_RESOLVER_FAILURE);
         
@@ -1613,6 +1635,9 @@ static void async_service_resolver_callback(
         if (!name)
             name = "";
 
+        if (is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
+            flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
+
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
         if (a) 
@@ -1761,28 +1786,6 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
         
         return respond_uint32(c, m, avahi_server_get_local_service_cookie(avahi_server));
-
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "IsServiceLocal")) {
-        int32_t interface, protocol;
-        char *name, *type, *domain;
-        int b;
-        
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_INVALID) || !name || !type || !domain) {
-            avahi_log_warn("Error parsing Server::IsServiceLocal message");
-            goto fail;
-        }
-
-        if ((b = avahi_server_is_service_local(avahi_server, interface, protocol, name, type, domain)) < 0)
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);            
-        
-        return respond_boolean(c, m, b);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;

@@ -280,6 +280,9 @@ static void lookup_multicast_callback(
                 /* It's a normal record, so let's call the user callback */
                 assert(avahi_key_equal(b->key, l->key));
 
+                if (avahi_server_is_record_local(b->server, interface, protocol, r))
+                    flags |= AVAHI_LOOKUP_RESULT_LOCAL;
+                
                 b->callback(b, interface, protocol, event, r, flags, b->userdata);
             }
             break;

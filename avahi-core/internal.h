@@ -180,6 +180,9 @@ void avahi_server_decrease_host_rr_pending(AvahiServer *s);
 
 int avahi_server_set_errno(AvahiServer *s, int error);
 
+int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name);
+int avahi_server_is_record_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *record);
+
 int avahi_server_add_ptr(
     AvahiServer *s,
     AvahiSEntryGroup *g,
@@ -189,6 +192,8 @@ int avahi_server_add_ptr(
     uint32_t ttl,          
     const char *name,      
     const char *dest);
+
+
 
 
 #define AVAHI_CHECK_VALIDITY_RETURN_NULL(server, expression, error) { \

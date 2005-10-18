@@ -59,10 +59,16 @@ static void record_browser_callback(
     assert(rr);
     assert(b);
 
+    /* Filter flags */
+    flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
+    
     if (record) {
         char service[AVAHI_LABEL_MAX], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
 
         assert(record->key->type == AVAHI_DNS_TYPE_PTR);
+
+        if (event == AVAHI_BROWSER_NEW && avahi_server_is_service_local(b->server, interface, protocol, record->data.ptr.name))
+            flags |= AVAHI_LOOKUP_RESULT_LOCAL;
 
         if (avahi_service_name_split(record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) < 0) {
             avahi_log_warn("Failed to split '%s'", record->key->name);

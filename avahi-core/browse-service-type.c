@@ -58,6 +58,9 @@ static void record_browser_callback(
     assert(rr);
     assert(b);
 
+    /* Filter flags */
+    flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
+
     if (record) {
         char type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
         

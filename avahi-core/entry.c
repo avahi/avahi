@@ -172,7 +172,6 @@ int avahi_server_add(
             AVAHI_PUBLISH_NO_PROBE|
             AVAHI_PUBLISH_UNIQUE|
             AVAHI_PUBLISH_ALLOW_MULTIPLE|
-            AVAHI_PUBLISH_IS_PROXY|
             AVAHI_PUBLISH_UPDATE))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_FLAGS);
     
@@ -523,7 +522,7 @@ static int server_add_service_strlst_nocopy(
 
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_IS_PROXY|AVAHI_PUBLISH_UPDATE), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE|AVAHI_PUBLISH_UPDATE), AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -549,7 +548,7 @@ static int server_add_service_strlst_nocopy(
 
     /* Add service enumeration PTR record */
     
-    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, flags & AVAHI_PUBLISH_IS_PROXY, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
+    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, 0, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
         goto fail;
 
     /* Add SRV record */
@@ -564,7 +563,7 @@ static int server_add_service_strlst_nocopy(
     r->data.srv.port = port;
     r->data.srv.name = h;
     h = NULL;
-    ret = avahi_server_add(s, g, interface, protocol, (flags & AVAHI_PUBLISH_IS_PROXY) | AVAHI_PUBLISH_UNIQUE, r);
+    ret = avahi_server_add(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE, r);
     avahi_record_unref(r);
 
     if (ret < 0)
@@ -575,7 +574,7 @@ static int server_add_service_strlst_nocopy(
     if (!(flags & AVAHI_PUBLISH_NO_COOKIE))
         strlst = add_magic_cookie(s, strlst);
     
-    ret = server_add_txt_strlst_nocopy(s, g, interface, protocol, (flags & AVAHI_PUBLISH_IS_PROXY) | AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    ret = server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
     strlst = NULL;
 
     if (ret < 0)
@@ -583,7 +582,7 @@ static int server_add_service_strlst_nocopy(
 
     /* Add service type enumeration record */
     
-    ret = avahi_server_add_ptr(s, g, interface, protocol, (flags & AVAHI_PUBLISH_IS_PROXY), AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
+    ret = avahi_server_add_ptr(s, g, interface, protocol, 0, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name);
 
 fail:
     
@@ -676,7 +675,7 @@ static int server_update_service_txt_strlst_nocopy(
 
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_IS_PROXY|AVAHI_PUBLISH_NO_COOKIE), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE), AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -693,7 +692,7 @@ static int server_update_service_txt_strlst_nocopy(
     if (!(flags & AVAHI_PUBLISH_NO_COOKIE))
         strlst = add_magic_cookie(s, strlst);
     
-    ret = server_add_txt_strlst_nocopy(s, g, interface, protocol, (flags & AVAHI_PUBLISH_IS_PROXY) | AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_UPDATE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    ret = server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_UPDATE, AVAHI_DEFAULT_TTL, svc_name, strlst);
     strlst = NULL;
 
 fail:
@@ -789,7 +788,7 @@ int avahi_server_add_service_subtype(
         goto fail;
     }
 
-    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, flags & AVAHI_PUBLISH_IS_PROXY, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
+    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, 0, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
         goto fail;
 
 fail:

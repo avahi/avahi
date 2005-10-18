@@ -197,6 +197,9 @@ int avahi_server_update_service_txt(
     const char *domain,   
     ...) AVAHI_GCC_SENTINEL;
 
+/** Check if there is a service locally defined and return the entry group it is attached to. Returns NULL if the service isn't local*/
+int avahi_server_get_group_of_service(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, AvahiSEntryGroup** ret_group);
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
 #endif

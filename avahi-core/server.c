@@ -1566,17 +1566,40 @@ uint32_t avahi_server_get_local_service_cookie(AvahiServer *s) {
     return s->local_service_cookie;
 }
 
-int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char*domain) {
-    AvahiKey *key = NULL;
-    char n[256];
-    int ret;
+static AvahiEntry *find_entry(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiKey *key) {
     AvahiEntry *e;
+    
+    assert(s);
+    assert(key);
+
+    for (e = avahi_hashmap_lookup(s->entries_by_key, key); e; e = e->by_key_next)
+
+        if ((e->interface == interface || e->interface <= 0 || interface <= 0) &&
+            (e->protocol == protocol || e->protocol == AVAHI_PROTO_UNSPEC || protocol == AVAHI_PROTO_UNSPEC) &&
+            (!e->group || e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED || e->group->state == AVAHI_ENTRY_GROUP_REGISTERING))
+
+            return e;
+
+    return NULL;
+}
+
+int avahi_server_get_group_of_service(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, AvahiSEntryGroup** ret_group) {
+    AvahiKey *key = NULL;
+    AvahiEntry *e;
+    int ret;
+    char n[AVAHI_DOMAIN_NAME_MAX];
     
     assert(s);
     assert(name);
     assert(type);
-    assert(domain);
+    assert(ret_group);
 
+    if (!AVAHI_IF_VALID(interface))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_INTERFACE);
+
+    if (!AVAHI_IF_VALID(protocol))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PROTOCOL);
+    
     if (!avahi_is_valid_service_name(name))
         return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
 
@@ -1592,21 +1615,54 @@ int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiP
     if (!(key = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV)))
         return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
-    ret = 0;
+    e = find_entry(s, interface, protocol, key);
+    avahi_key_unref(key);
+
+    if (e) {
+        *ret_group = e->group;
+        return AVAHI_OK;
+    }
+
+    return avahi_server_set_errno(s, AVAHI_ERR_NOT_FOUND);
+}
+
+int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name) {
+    AvahiKey *key = NULL;
+    AvahiEntry *e;
+
+    assert(s);
+    assert(name);
+
+    if (!s->host_name_fqdn)
+        return 0;
     
-    for (e = avahi_hashmap_lookup(s->entries_by_key, key); e; e = e->by_key_next) {
+    if (!(key = avahi_key_new(name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV)))
+        return 0;
+
+    e = find_entry(s, interface, protocol, key);
+    avahi_key_unref(key);
+
+    if (!e)
+        return 0;
+    
+    return avahi_domain_equal(s->host_name_fqdn, e->record->data.srv.name);
+}
+
+int avahi_server_is_record_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *record) {
+    AvahiEntry *e;
+
+    assert(s);
+    assert(record);
+    
+    for (e = avahi_hashmap_lookup(s->entries_by_key, record->key); e; e = e->by_key_next)
 
         if ((e->interface == interface || e->interface <= 0 || interface <= 0) &&
             (e->protocol == protocol || e->protocol == AVAHI_PROTO_UNSPEC || protocol == AVAHI_PROTO_UNSPEC) &&
-            !(e->flags & AVAHI_PUBLISH_IS_PROXY)) {
-            ret = 1;
-            break;
-        }
-    }
-    
-    avahi_key_unref(key);
-    
-    return ret;
+            (!e->group || e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED || e->group->state == AVAHI_ENTRY_GROUP_REGISTERING) &&
+            avahi_record_equal_no_ttl(record, e->record))
+            return 1;
+
+    return 0;
 }
 
 /** Set the wide area DNS servers */

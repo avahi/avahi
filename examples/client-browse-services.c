@@ -73,13 +73,15 @@ static void resolve_callback(
                     "\tTXT=%s\n"
                     "\tcookie is %u\n"
                     "\tis_local: %i\n"
+                    "\tour_own: %i\n"
                     "\twide_area: %i\n"
                     "\tmulticast: %i\n"
                     "\tcached: %i\n",
                     host_name, port, a,
                     t,
                     avahi_string_list_get_service_cookie(txt),
-                    avahi_client_is_service_local(avahi_service_resolver_get_client(r), interface, protocol, name, type, domain),
+                    !!(flags & AVAHI_LOOKUP_RESULT_LOCAL),
+                    !!(flags & AVAHI_LOOKUP_RESULT_OUR_OWN),
                     !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA),
                     !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
                     !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
@@ -176,11 +178,9 @@ int main(int argc, char*argv[]) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
         goto fail;
     }
-    
+
     /* Run the main loop */
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
     
     ret = 0;
     

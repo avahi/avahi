@@ -161,8 +161,7 @@ typedef enum {
     AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,   /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
     AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
     AVAHI_PUBLISH_NO_COOKIE = 32,       /**< For service records: do not implicitly add the local service cookie to TXT data */
-    AVAHI_PUBLISH_IS_PROXY = 64,        /**< For service records: this is a proxy for another host. This modifies behaviour of avahi_server_is_service_local() */
-    AVAHI_PUBLISH_UPDATE = 128          /**< Update existing records instead of adding new ones */
+    AVAHI_PUBLISH_UPDATE = 64           /**< Update existing records instead of adding new ones */
 } AvahiPublishFlags;
 
 /** Some flags for lookup functions */
@@ -177,9 +176,11 @@ typedef enum {
 /** Some flags for lookup callback functions */
 typedef enum {
     AVAHI_LOOKUP_RESULT_NULL = 0,
-    AVAHI_LOOKUP_RESULT_CACHED = 1,      /**< This response originates from the cache */
-    AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,   /**< This response originates from wide area DNS */
-    AVAHI_LOOKUP_RESULT_MULTICAST = 4    /**< This response originates from multicast DNS */
+    AVAHI_LOOKUP_RESULT_CACHED = 1,         /**< This response originates from the cache */
+    AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,      /**< This response originates from wide area DNS */
+    AVAHI_LOOKUP_RESULT_MULTICAST = 4,      /**< This response originates from multicast DNS */
+    AVAHI_LOOKUP_RESULT_LOCAL = 8,          /**< This record/service resides on and was announced by the local host. Only available in service and record browsers and only on AVAHI_BROWSER_NEW. */
+    AVAHI_LOOKUP_RESULT_OUR_OWN = 16        /**< This service belongs to the same local client as the browser object. Only available in avahi-client, and only for service browsers and only on AVAHI_BROWSER_NEW. */
 } AvahiLookupResultFlags;
 
 /** Type of callback event when browsing */

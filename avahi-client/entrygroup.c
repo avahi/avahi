@@ -336,7 +336,6 @@ static int append_string_list(DBusMessage *message, AvahiStringList *txt) {
     AvahiStringList *p;
 
     assert(message);
-    assert(txt);
 
     dbus_message_iter_init_append(message, &iter);
 

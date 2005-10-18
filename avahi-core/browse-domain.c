@@ -54,6 +54,9 @@ static void record_browser_callback(
 
     assert(rr);
     assert(b);
+
+    /* Filter flags */
+    flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
     
     if (record) {
         assert(record->key->type == AVAHI_DNS_TYPE_PTR);
@@ -62,7 +65,6 @@ static void record_browser_callback(
         
     b->callback(b, interface, protocol, event, n, flags, b->userdata);
 }
-
 
 AvahiSDomainBrowser *avahi_s_domain_browser_new(
     AvahiServer *server,

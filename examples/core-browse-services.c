@@ -90,7 +90,7 @@ static void resolve_callback(
                     host_name, port, a,
                     t,
                     avahi_string_list_get_service_cookie(txt),
-                    avahi_server_is_service_local(server, interface, protocol, name, type, domain),
+                    !!(flags & AVAHI_LOOKUP_RESULT_LOCAL),
                     !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA),
                     !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
                     !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
@@ -195,9 +195,7 @@ int main(int argc, char*argv[]) {
     }
     
     /* Run the main loop */
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
     
     ret = 0;
     

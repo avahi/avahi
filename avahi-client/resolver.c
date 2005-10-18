@@ -165,7 +165,7 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
             }
             
             avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
-            r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, r->userdata);
+            r->callback(r, r->interface, r->protocol, event, r->name, r->type, r->domain, NULL, NULL, 0, NULL, 0, r->userdata);
             break;
         }
     }
@@ -223,9 +223,30 @@ AvahiServiceResolver * avahi_service_resolver_new(
     r->callback = callback;
     r->userdata = userdata;
     r->path = NULL;
+    r->name = r->type = r->domain = NULL;
+    r->interface = interface;
+    r->protocol = protocol;
     
     AVAHI_LLIST_PREPEND(AvahiServiceResolver, service_resolvers, client->service_resolvers, r);
 
+    if (name && name[0])
+        if (!(r->name = avahi_strdup(name))) {
+            avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+            goto fail;
+        }
+
+    if (!(r->type = avahi_strdup(type))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    if (domain && domain[0])
+        if (!(r->domain = avahi_strdup(domain))) {
+            avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+            goto fail;
+        }
+    
+    
     if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "ServiceResolverNew"))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -316,6 +337,9 @@ int avahi_service_resolver_free(AvahiServiceResolver *r) {
     AVAHI_LLIST_REMOVE(AvahiServiceResolver, service_resolvers, client->service_resolvers, r);
 
     avahi_free(r->path);
+    avahi_free(r->name);
+    avahi_free(r->type);
+    avahi_free(r->domain);
     avahi_free(r);
 
     return ret;
@@ -387,7 +411,7 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
             }
             
             avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
-            r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, NULL, NULL, 0, r->userdata);
+            r->callback(r, r->interface, r->protocol, event, r->host_name, NULL, 0, r->userdata);
             break;
         }
     }
@@ -436,8 +460,16 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
     r->callback = callback;
     r->userdata = userdata;
     r->path = NULL;
+    r->interface = interface;
+    r->protocol = protocol;
+    r->host_name = NULL;
     
     AVAHI_LLIST_PREPEND(AvahiHostNameResolver, host_name_resolvers, client->host_name_resolvers, r);
+
+    if (!(r->host_name = avahi_strdup(name))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
 
     if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "HostNameResolverNew"))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
@@ -520,6 +552,7 @@ int avahi_host_name_resolver_free(AvahiHostNameResolver *r) {
     AVAHI_LLIST_REMOVE(AvahiHostNameResolver, host_name_resolvers, client->host_name_resolvers, r);
 
     avahi_free(r->path);
+    avahi_free(r->host_name);
     avahi_free(r);
 
     return ret;
@@ -580,7 +613,7 @@ DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolv
                 goto fail;
             }
             
-            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, (AvahiProtocol) aprotocol, &a, name, (AvahiLookupResultFlags) flags, r->userdata);
+            r->callback(r, (AvahiIfIndex) interface, (AvahiProtocol) protocol, AVAHI_RESOLVER_FOUND, &a, name, (AvahiLookupResultFlags) flags, r->userdata);
             break;
         }
 
@@ -597,7 +630,7 @@ DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolv
             }
             
             avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
-            r->callback(r, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, event, AVAHI_PROTO_UNSPEC, NULL, NULL, 0, r->userdata);
+            r->callback(r, r->interface, r->protocol, event, &r->address, NULL, 0, r->userdata);
             break;
         }
     }
@@ -609,35 +642,11 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-AvahiAddressResolver * avahi_address_resolver_new_a(
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const AvahiAddress *a,
-    AvahiLookupFlags flags,
-    AvahiAddressResolverCallback callback,
-    void *userdata) {
-
-    char addr[AVAHI_ADDRESS_STR_MAX];
-
-    assert (a);
-
-    if (!avahi_address_snprint (addr, sizeof (addr), a)) {
-        avahi_client_set_errno(client, AVAHI_ERR_INVALID_ADDRESS);
-        return NULL;
-    }
-
-    return avahi_address_resolver_new(
-        client, interface, protocol,
-        addr, flags,
-        callback, userdata);
-}
-
 AvahiAddressResolver * avahi_address_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
-    const char *address,
+    const AvahiAddress *a,
     AvahiLookupFlags flags, 
     AvahiAddressResolverCallback callback,
     void *userdata) {
@@ -648,10 +657,17 @@ AvahiAddressResolver * avahi_address_resolver_new(
     int32_t i_interface, i_protocol;
     uint32_t u_flags;
     char *path;
-    
+    char addr[AVAHI_ADDRESS_STR_MAX], *address = addr;
+
     assert(client);
+    assert(a);
 
     dbus_error_init (&error);
+
+    if (!avahi_address_snprint (addr, sizeof(addr), a)) {
+        avahi_client_set_errno(client, AVAHI_ERR_INVALID_ADDRESS);
+        return NULL;
+    }
 
     if (client->state == AVAHI_CLIENT_DISCONNECTED) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
@@ -667,6 +683,9 @@ AvahiAddressResolver * avahi_address_resolver_new(
     r->callback = callback;
     r->userdata = userdata;
     r->path = NULL;
+    r->interface = interface;
+    r->protocol = protocol;
+    r->address = *a;
     
     AVAHI_LLIST_PREPEND(AvahiAddressResolver, address_resolvers, client->address_resolvers, r);
 

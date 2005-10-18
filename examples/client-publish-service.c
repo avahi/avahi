@@ -72,15 +72,14 @@ static void create_services(AvahiClient *c) {
     assert(c);
 
     /* If this is the first time we're called, let's create a new entry group */
-    if (!group) {
+    if (!group)
         if (!(group = avahi_entry_group_new(c, entry_group_callback, NULL))) {
             fprintf(stderr, "avahi_entry_group_new() failed: %s\n", avahi_strerror(avahi_client_errno(c)));
             goto fail;
         }
-    }
     
     fprintf(stderr, "Adding service '%s'\n", name);
-
+    
     /* Create some random TXT data */
     snprintf(r, sizeof(r), "random=%i", rand());
 
@@ -120,12 +119,15 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void * userd
 
     /* Called whenever the client or server state changes */
 
-    if (state == AVAHI_CLIENT_S_RUNNING)
-        /* The serve has startup successfully and registered its host
+    if (state == AVAHI_CLIENT_S_RUNNING) {
+        
+        /* The server has startup successfully and registered its host
          * name on the network, so it's time to create our services */
-        create_services(c);
+        if (group)
+            create_services(c);
     
-    else if (state == AVAHI_CLIENT_S_COLLISION) {
+    } else if (state == AVAHI_CLIENT_S_COLLISION) {
+        
         /* Let's drop our registered services. When the server is back
          * in AVAHI_SERVER_RUNNING state we will register them
          * again with the new host name. */
@@ -160,19 +162,15 @@ int main(int argc, char*argv[]) {
         fprintf(stderr, "Failed to create client: %s\n", avahi_strerror(error));
         goto fail;
     }
-    
+
     /* Run the main loop */
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
     
     ret = 0;
     
 fail:
     
     /* Cleanup things */
-    if (group)
-        avahi_entry_group_free(group);
 
     if (client)
         avahi_client_free(client);

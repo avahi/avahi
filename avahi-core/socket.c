@@ -639,6 +639,9 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
 
         if (cmsg->cmsg_level == IPPROTO_IP) {
 	  switch (cmsg->cmsg_type) {
+#ifdef IP_RECVTTL
+	  case IP_RECVTTL:
+#endif
 	  case IP_TTL:
 	    if (ret_ttl)
 	      *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
@@ -675,6 +678,9 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
 	    found_addr = 1;
 	    break;
 #endif
+	  default:
+	    avahi_log_warn("Unhandled cmsg_type : %d\n",cmsg->cmsg_type);
+	    break;
 	  }
         }
     }

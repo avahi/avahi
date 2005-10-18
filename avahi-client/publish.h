@@ -96,19 +96,6 @@ int avahi_entry_group_add_service_strlst(
     uint16_t port,
     AvahiStringList *txt);
 
-/** Add a service, takes a NULL terminated va_list for text records */
-int avahi_entry_group_add_service_va(
-    AvahiEntryGroup *group,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    va_list va);
-
 /** Add a subtype for a service */
 int avahi_entry_group_add_service_subtype(
     AvahiEntryGroup *group,
@@ -141,17 +128,6 @@ int avahi_entry_group_update_service_txt_strlst(
     const char *type,     
     const char *domain,   
     AvahiStringList *strlst);
-
-/** Update a TXT record for an existing service */
-int avahi_entry_group_update_service_txt_va(
-    AvahiEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
-    va_list va);
 
 /** Add a host/address pair */
 int avahi_entry_group_add_address(

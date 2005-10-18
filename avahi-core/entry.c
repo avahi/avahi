@@ -612,26 +612,6 @@ int avahi_server_add_service_strlst(
     return server_add_service_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_copy(strlst));
 }
 
-int avahi_server_add_service_va(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    va_list va) {
-
-    assert(s);
-    assert(type);
-    assert(name);
-
-    return server_add_service_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_new_va(va));
-}
-
 int avahi_server_add_service(
     AvahiServer *s,
     AvahiSEntryGroup *g,
@@ -649,7 +629,7 @@ int avahi_server_add_service(
     int ret;
     
     va_start(va, port);
-    ret = avahi_server_add_service_va(s, g, interface, protocol, flags, name, type, domain, host, port, va);
+    ret = server_add_service_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_new_va(va));
     va_end(va);
     
     return ret;
@@ -716,21 +696,6 @@ int avahi_server_update_service_txt_strlst(
     return server_update_service_txt_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, avahi_string_list_copy(strlst));
 }
 
-/** Update the TXT record for a service with the NULL terminated list of strings of the va_list. */
-int avahi_server_update_service_txt_va(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
-    va_list va) {
-
-    return server_update_service_txt_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, avahi_string_list_new_va(va));
-}
-
 /** Update the TXT record for a service with the NULL termonate list of strings */
 int avahi_server_update_service_txt(
     AvahiServer *s,
@@ -747,7 +712,7 @@ int avahi_server_update_service_txt(
     int ret;
     
     va_start(va, domain);
-    ret = avahi_server_update_service_txt_va(s, g, interface, protocol, flags, name, type, domain, va);
+    ret = server_update_service_txt_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, avahi_string_list_new_va(va));
     va_end(va);
     
     return ret;

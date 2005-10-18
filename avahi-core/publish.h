@@ -121,20 +121,6 @@ int avahi_server_add_service(
     uint16_t port,              /**< Port number of the service */
     ...  /**< Text records, terminated by NULL */) AVAHI_GCC_SENTINEL;
 
-/** Mostly identical to avahi_server_add_service(), but takes an va_list for the TXT records. */
-int avahi_server_add_service_va(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    va_list va);
-
 /** Mostly identical to avahi_server_add_service(), but takes an AvahiStringList object for the TXT records.  The AvahiStringList object is copied. */
 int avahi_server_add_service_strlst(
     AvahiServer *s,
@@ -172,18 +158,6 @@ int avahi_server_update_service_txt_strlst(
     const char *type,     
     const char *domain,   
     AvahiStringList *strlst);
-
-/** Update the TXT record for a service with the NULL terminated list of strings of the va_list. */
-int avahi_server_update_service_txt_va(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
-    va_list va);
 
 /** Update the TXT record for a service with the NULL termonate list of strings */
 int avahi_server_update_service_txt(

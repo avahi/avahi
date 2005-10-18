@@ -477,36 +477,15 @@ int avahi_entry_group_add_service(
     
     va_list va;
     int r;
-
-    assert(group);
-
-    va_start(va, port);
-    r = avahi_entry_group_add_service_va(group, interface, protocol, flags, name, type, domain, host, port, va);
-    va_end(va);
-    return r;
-}
-
-int avahi_entry_group_add_service_va(
-    AvahiEntryGroup *group,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    va_list va) {
-
-    int r;
     AvahiStringList *txt;
 
     assert(group);
 
+    va_start(va, port);
     txt = avahi_string_list_new_va(va);
     r = avahi_entry_group_add_service_strlst(group, interface, protocol, flags, name, type, domain, host, port, txt);
     avahi_string_list_free(txt);
-
+    va_end(va);
     return r;
 }
 
@@ -611,30 +590,13 @@ int avahi_entry_group_update_service_txt(
 
     va_list va;
     int r;
-
-    va_start(va, domain);
-    r = avahi_entry_group_update_service_txt_va(group, interface, protocol, flags, name, type, domain, va);
-    va_end(va);
-    return r;
-}
-
-int avahi_entry_group_update_service_txt_va(
-    AvahiEntryGroup *group,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
-    va_list va) {
-
-    int r;
     AvahiStringList *txt;
 
+    va_start(va, domain);
     txt = avahi_string_list_new_va(va);
     r = avahi_entry_group_update_service_txt_strlst(group, interface, protocol, flags, name, type, domain, txt);
     avahi_string_list_free(txt);
-
+    va_end(va);
     return r;
 }
 

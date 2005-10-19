@@ -39,6 +39,22 @@ struct _sw_text_record {
     int buffer_valid;
 };
 
+#ifndef HAVE_STRLCPY
+
+static size_t strlcpy(char *dest, const char *src, size_t n) {
+    assert(dest);
+    assert(src);
+    
+    if (n > 0) {
+        strncpy(dest, src, n-1);
+        dest[n-1] = 0;
+    }
+    
+    return strlen(src);
+}
+
+#endif
+
 sw_result sw_text_record_init(sw_text_record *self) {
     assert(self);
 
@@ -223,7 +239,7 @@ sw_result sw_text_record_iterator_next(
     if (avahi_string_list_get_pair(self->index, &mkey, &mvalue, &msize) < 0)
         return SW_E_UNKNOWN;
 
-    avahi_strlcpy(key, mkey, SW_TEXT_RECORD_MAX_LEN);
+    strlcpy(key, mkey, SW_TEXT_RECORD_MAX_LEN);
     memset(val, 0, SW_TEXT_RECORD_MAX_LEN);
     memcpy(val, mvalue, msize);
     *val_len = msize;

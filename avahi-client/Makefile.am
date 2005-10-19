@@ -29,9 +29,13 @@ avahi_clientinclude_HEADERS = client.h
 
 noinst_HEADERS = internal.h
 
+if ENABLE_TESTS
+
 noinst_PROGRAMS = \
 	client-test \
 	srv-test
+
+endif
 
 lib_LTLIBRARIES = libavahi-client.la 
 

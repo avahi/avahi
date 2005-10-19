@@ -25,6 +25,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 SUBDIRS = . samples
 
 if HAVE_DBUS
+if ENABLE_COMPAT_HOWL
 
 avahi_compat_howldir=$(includedir)/avahi-compat-howl
 avahi_compat_howl_rendezvousdir=$(avahi_compat_howldir)/rendezvous
@@ -70,7 +71,9 @@ HOWLHEADERS = \
 
 lib_LTLIBRARIES = libavahi-compat-howl.la 
 
+if ENABLE_TESTS
 noinst_PROGRAMS = address-test text-test browse-domain-test
+endif
 
 libavahi_compat_howl_la_SOURCES = \
 	$(HOWLHEADERS) \
@@ -104,4 +107,5 @@ browse_domain_test_SOURCES = \
 browse_domain_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 browse_domain_test_LDADD = $(AM_LDADD) libavahi-compat-howl.la
 
+endif
 endif

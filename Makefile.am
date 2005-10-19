@@ -63,7 +63,7 @@ SUBDIRS = \
 	tests \
 	service-type-database \
 	avahi-compat-libdns_sd \
-	avahi-compat-howl
+	avahi-compat-howl 
 
 
 DX_INPUT = \

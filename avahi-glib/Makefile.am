@@ -33,8 +33,12 @@ avahiinclude_HEADERS = \
 lib_LTLIBRARIES = \
 	libavahi-glib.la 
 
+if ENABLE_TESTS
+
 noinst_PROGRAMS = \
 	glib-watch-test
+
+endif
 
 libavahi_glib_la_SOURCES = \
 	glib-watch.c glib-watch.h \

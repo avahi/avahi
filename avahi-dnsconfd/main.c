@@ -61,8 +61,6 @@ static enum {
     BROWSING
 } state = ACKWAIT;
 
-static int quit = 0;
-
 static enum {
     DAEMON_RUN,
     DAEMON_KILL,
@@ -72,7 +70,12 @@ static enum {
     DAEMON_CHECK
 } command = DAEMON_RUN;
 
+static int quit = 0;
 static int daemonize = 0;
+
+#if !HAVE_DECL_ENVIRON
+extern char **environ;
+#endif
 
 typedef struct DNSServerInfo DNSServerInfo;
 
@@ -213,37 +216,6 @@ static char *concat_dns_servers(AvahiIfIndex interface) {
     return r;
 }
 
-static char *getifname(AvahiIfIndex interface, char *name, size_t len) {
-    int fd = -1;
-    char *ret = NULL;
-    struct ifreq ifr;
-
-    assert(interface >= 0);
-    
-    if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0) {
-        daemon_log(LOG_ERR, "socket(): %s", strerror(errno));
-        goto finish;
-    }
-
-    memset(&ifr, 0, sizeof(ifr));
-    ifr.ifr_ifindex = (int) interface;
-    
-    if (ioctl(fd, SIOCGIFNAME, &ifr) < 0) {
-        daemon_log(LOG_ERR, "SIOCGIFNAME: %s\n", strerror(errno));
-        goto finish;
-    }
-
-    strncpy(name, ifr.ifr_name, len-1);
-    name[len-1] = 0;
-    ret = name;
-    
-finish:
-    if (fd >= 0)
-        close(fd);
-    
-    return ret;
-}
-
 static void set_env(const char *name, const char *value) {
     char **e;
     size_t l;
@@ -274,11 +246,11 @@ static void run_script(int new, AvahiIfIndex interface, AvahiProtocol protocol, 
     char *p;
     int ret;
     char ia[16], pa[16];
-    char name[IFNAMSIZ+1];
+    char name[IF_NAMESIZE];
 
     assert(interface > 0);
 
-    if (!getifname(interface, name, sizeof(name))) 
+    if (!if_indextoname(interface, name)) 
         return;
     
     p = concat_dns_servers(interface);

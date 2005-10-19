@@ -34,6 +34,7 @@ avahiinclude_HEADERS = \
 lib_LTLIBRARIES = \
 	libavahi-core.la 
 
+if ENABLE_TESTS
 noinst_PROGRAMS = \
 	prioq-test \
 	avahi-test \
@@ -44,6 +45,7 @@ noinst_PROGRAMS = \
 	hashmap-test \
 	querier-test \
 	update-test
+endif  
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\

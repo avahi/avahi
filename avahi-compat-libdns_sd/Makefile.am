@@ -23,6 +23,7 @@ AM_CFLAGS=-I$(top_srcdir)
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_DBUS
+if ENABLE_COMPAT_LIBDNS_SD
 
 avahi_compat_libdns_sddir=$(includedir)/avahi-compat-libdns_sd
 
@@ -30,7 +31,9 @@ avahi_compat_libdns_sd_HEADERS = dns_sd.h
 
 lib_LTLIBRARIES = libavahi-compat-libdns_sd.la 
 
+if ENABLE_TESTS
 noinst_PROGRAMS = txt-test
+endif
 
 libavahi_compat_libdns_sd_la_SOURCES = \
 	dns_sd.h \
@@ -60,4 +63,5 @@ libdns_sd-test: libdns_sd-test.c libavahi-compat-libdns_sd.la
 
 CLEANFILES = libdns_sd-test.o libdns_sd-test
 
+endif
 endif

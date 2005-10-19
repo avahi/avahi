@@ -24,7 +24,9 @@ if HAVE_GLIB
 if HAVE_DBUS
 if HAVE_NETLINK
 
+if ENABLE_TESTS
 noinst_PROGRAMS = c-plus-plus-test
+endif
 
 c_plus_plus_test_SOURCES = c-plus-plus-test.cc
 

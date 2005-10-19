@@ -40,12 +40,14 @@ avahi_commoninclude_HEADERS = \
 	llist.h \
 	rlist.h
 
+if ENABLE_TESTS
 noinst_PROGRAMS = \
 	strlst-test \
 	domain-test \
 	alternative-test \
 	timeval-test \
 	watch-test
+endif
 
 lib_LTLIBRARIES = \
 	libavahi-common.la 

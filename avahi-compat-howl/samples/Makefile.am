@@ -23,8 +23,11 @@ AM_CFLAGS=-I$(top_srcdir) -I$(top_srcdir)/avahi-compat-howl/include
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_DBUS
+if ENABLE_COMPAT_HOWL
 
+if ENABLE_TESTS
 noinst_PROGRAMS = browse resolve publish query
+endif
 
 browse_SOURCES = \
 	browse.c
@@ -46,4 +49,5 @@ query_SOURCES = \
 query_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 query_LDADD = $(AM_LDADD) ../libavahi-compat-howl.la
 
+endif
 endif

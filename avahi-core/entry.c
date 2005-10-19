@@ -890,7 +890,7 @@ int avahi_server_add_dns_server_name(
     r->data.srv.weight = 0;
     r->data.srv.port = port;
     r->data.srv.name = n;
-    ret = avahi_server_add(s, g, interface, protocol, AVAHI_PUBLISH_NULL, r);
+    ret = avahi_server_add(s, g, interface, protocol, 0, r);
     avahi_record_unref(r);
 
     return ret;

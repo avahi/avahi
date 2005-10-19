@@ -154,7 +154,6 @@ typedef enum {
 
 /** Some flags for publishing functions */
 typedef enum {
-    AVAHI_PUBLISH_NULL = 0,          
     AVAHI_PUBLISH_UNIQUE = 1,           /**< For raw records: The RRset is intended to be unique */
     AVAHI_PUBLISH_NO_PROBE = 2,         /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
     AVAHI_PUBLISH_NO_ANNOUNCE = 4,      /**< For raw records: Do not announce this RR to other hosts */
@@ -166,7 +165,6 @@ typedef enum {
 
 /** Some flags for lookup functions */
 typedef enum {
-    AVAHI_LOOKUP_NULL = 0,
     AVAHI_LOOKUP_USE_WIDE_AREA = 1,    /**< Force lookup via wide area DNS */
     AVAHI_LOOKUP_USE_MULTICAST = 2,    /**< Force lookup via multicast DNS */
     AVAHI_LOOKUP_NO_TXT = 4,           /**< When doing service resolving, don't lookup TXT record */
@@ -175,7 +173,6 @@ typedef enum {
 
 /** Some flags for lookup callback functions */
 typedef enum {
-    AVAHI_LOOKUP_RESULT_NULL = 0,
     AVAHI_LOOKUP_RESULT_CACHED = 1,         /**< This response originates from the cache */
     AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,      /**< This response originates from wide area DNS */
     AVAHI_LOOKUP_RESULT_MULTICAST = 4,      /**< This response originates from multicast DNS */

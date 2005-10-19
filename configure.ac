@@ -229,12 +229,14 @@ AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid strcasecmp gettimeofday putenv strncasecmp])
+AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid strcasecmp gettimeofday putenv strncasecmp strclpy])
 
 AC_FUNC_CHOWN
 AC_FUNC_STAT
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
+
+AC_CHECK_DECLS(environ)
 
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.
@@ -339,8 +341,6 @@ if test "x$HAVE_GTK" = "xyes" ; then
         AC_SUBST(GLADE20_LIBS)
 fi
 AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
-
-
 
 #
 # D-BUS
@@ -567,7 +567,6 @@ avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
 
-
 #
 # Avahi interfaces dir
 #
@@ -575,7 +574,6 @@ if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes"; then
 	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
 	AC_SUBST(interfacesdir)
 fi
-
 
 #
 # Doxygen
@@ -615,6 +613,49 @@ if test x$xmltoman = xyes ; then
 fi
 
 AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
+
+#
+# Conditionally compile test and example programs
+#
+AC_ARG_ENABLE(tests,
+        AS_HELP_STRING([--enable-tests],[Enable building of tests and examples]),
+        [case "${enableval}" in
+                yes) ENABLE_TESTS=yes ;;
+                no)  ENABLE_TESTS=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-tests) ;;
+        esac],
+        [ENABLE_TESTS=no])
+
+AM_CONDITIONAL([ENABLE_TESTS], [test "x$ENABLE_TESTS" = "xyes"])
+
+#
+# Optionally enable libdns_sd compatibility support
+#
+AC_ARG_ENABLE(compat-libdns_sd,
+        AS_HELP_STRING([--enable-compat-libdns_sd],[Enable compatibility layer for libdns_sd]),
+        [case "${enableval}" in
+                yes) ENABLE_COMPAT_LIBDNS_SD=yes ;;
+                no)  ENABLE_COMPAT_LIBDNS_SD=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-compat-libdns_sd) ;;
+        esac],
+        [ENABLE_COMPAT_LIBDNS_SD=no])
+
+AM_CONDITIONAL([ENABLE_COMPAT_LIBDNS_SD], [test "x$ENABLE_COMPAT_LIBDNS_SD" = "xyes"])
+
+#
+# Optionally enable HOWL compatibility support
+#
+AC_ARG_ENABLE(compat-howl,
+        AS_HELP_STRING([--enable-compat-howl],[Enable compatibility layer for HOWL]),
+        [case "${enableval}" in
+                yes) ENABLE_COMPAT_HOWL=yes ;;
+                no)  ENABLE_COMPAT_HOWL=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-compat-howl) ;;
+        esac],
+        [ENABLE_COMPAT_HOWL=no])
+
+AM_CONDITIONAL([ENABLE_COMPAT_HOWL], [test "x$ENABLE_COMPAT_HOWL" = "xyes"])
+
 
 # ==========================================================================
 AC_CONFIG_FILES([
@@ -694,6 +735,14 @@ if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" ; then
     BUILD_CLIENT=yes
 fi
 
+if test "x$ENABLE_COMPAT_LIBDNS_SD" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
+   AC_MSG_ERROR([building avahi-compat-libdns_sd without building libavahi-client doesn't work])
+fi
+if test "x$ENABLE_COMPAT_HOWL" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
+   AC_MSG_ERROR([building avahi-compat-howl without building libavahi-client doesn't work])
+fi
+
+
 echo "
     Building libavahi-core              yes
     Building avahi-daemon:              ${BUILD_DAEMON}
@@ -705,6 +754,7 @@ echo "
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
     Building avahi-sharp:               ${HAVE_MONO}
-    Building avahi-compat-libdns_sd:    ${BUILD_CLIENT}
-    Building avahi-compat-howl:         ${BUILD_CLIENT}
+    Building avahi-compat-libdns_sd:    ${ENABLE_COMPAT_LIBDNS_SD}
+    Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}
+    Building tests:                     ${ENABLE_TESTS}
 "

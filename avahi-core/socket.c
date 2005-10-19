@@ -114,7 +114,7 @@ int avahi_mdns_mcast_join_ipv4(int fd, int idx) {
     memset(&mreq, 0, sizeof(mreq));
 
     if ((!if_indextoname(idx, ifreq.ifr_name))) {
-      avahi_log_warn("Can't find iface name for iface index %i:%s\n", idx, strerror(errno));
+      avahi_log_warn("if_indextoname failed: %s", strerror(errno));
       return -1;
     }
 
@@ -171,7 +171,7 @@ int avahi_mdns_mcast_leave_ipv4(int fd, int idx) {
     memset(&mreq, 0, sizeof(mreq));
 
     if ((!if_indextoname(idx, ifreq.ifr_name))) {
-      avahi_log_warn("Can't find iface name for iface index %i:%s\n", idx, strerror(errno));
+      avahi_log_warn("if_indextoname failed: %s", strerror(errno));
       return -1;
     }
 

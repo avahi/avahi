@@ -1791,7 +1791,8 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;
         int fd;
-        struct ifreq ifr;
+	char name[IF_NAMESIZE];
+
         
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INT32, &idx, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetNetworkInterfaceNameByIndex message");
@@ -1809,11 +1810,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
                 return respond_error(c, m, AVAHI_ERR_OS, txt);
             }
 
-        memset(&ifr, 0, sizeof(ifr));
-
-        ifr.ifr_ifindex = idx;
-
-        if (ioctl(fd, SIOCGIFNAME, &ifr) < 0) {
+        if ((!if_indextoname(idx, name))) {
             char txt[256];
             snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
             close(fd);
@@ -1822,13 +1819,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 
         close(fd);
         
-        return respond_string(c, m, ifr.ifr_name);
+        return respond_string(c, m, name);
 #endif
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceIndexByName")) {
         char *n;
         int fd;
-        struct ifreq ifr;
+        int32_t idx;
         
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &n, DBUS_TYPE_INVALID)) || !n) {
             avahi_log_warn("Error parsing Server::GetNetworkInterfaceIndexByName message");
@@ -1845,10 +1842,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
                 return respond_error(c, m, AVAHI_ERR_OS, txt);
             }
 
-        memset(&ifr, 0, sizeof(ifr));
-        snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", n);
-
-        if (ioctl(fd, SIOCGIFINDEX, &ifr) < 0) {
+        if (!(idx = if_nametoindex(n))) {
             char txt[256];
             snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
             close(fd);
@@ -1857,7 +1851,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
 
         close(fd);
         
-        return respond_int32(c, m, ifr.ifr_ifindex);
+        return respond_int32(c, m, idx);
 #endif
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAlternativeHostName")) {

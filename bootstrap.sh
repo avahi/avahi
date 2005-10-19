@@ -21,9 +21,23 @@
 FLAGS="--sysconfdir=/etc --localstatedir=/var --enable-tests --enable-compat-howl --enable-compat-libdns_sd"
 
 # Feel free to add your own custom flags in here -Lathiat
+
+case "$MACHTYPE" in
+    powerpc-apple-darwin8.0)
+    export LIBTOOLIZE=/opt/local/bin/glibtoolize
+    export CFLAGS="-I/opt/local/include"
+    export LDFLAGS="-L/opt/local/lib"
+    export PKG_CONFIG_PATH="/opt/local/lib/pkgconfig"
+    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --disable-python --disable-glib --disable-gtk --disable-xmltoman --disable-dbus --prefix=/opt --with-distro=none"
+    ;;
+esac
+
 case "$USER" in
-    lathiat|sebest)
-        FLAGS="$FLAGS --disable-monodoc"
+    lathiat)
+    FLAGS="$FLAGS --disable-monodoc"
+    ;;
+    sebest)
+    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4"
     ;;
 esac
 

@@ -560,30 +560,43 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 
 #
-# XMLTOMAN manpage generation
+# Build and Install man pages
 #
-AC_ARG_ENABLE(xmltoman,
-        AS_HELP_STRING([--disable-xmltoman],[Disable rebuilding of man pages with xmltoman]),
+AC_ARG_ENABLE(manpages,
+        AS_HELP_STRING([--disable-manpages],[Disable building and installation of man pages]),
 [case "${enableval}" in
-  yes) xmltoman=yes ;;
-  no)  xmltoman=no ;;
-  *) AC_MSG_ERROR([bad value ${enableval} for --disable-xmltoman]) ;;
-esac],[xmltoman=yes])
+  yes) manpages=yes ;;
+  no)  manpages=no ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --disable-manpages]) ;;
+esac],[manpages=yes])
 
-if test x$xmltoman = xyes ; then
-    AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
- 
-    if test x$have_xmltoman = xno ; then
-        if ! test -e man/avahi-daemon.8 ; then
-            AC_MSG_ERROR([*** xmltoman was not found, it is required to build the manpages and they have not been pre-built])
-            exit 1
+if test x$manpages = xyes ; then
+    #
+    # XMLTOMAN manpage generation
+    #
+    AC_ARG_ENABLE(xmltoman,
+    AS_HELP_STRING([--disable-xmltoman],[Disable rebuilding of man pages with xmltoman]),
+    [case "${enableval}" in
+      yes) xmltoman=yes ;;
+      no)  xmltoman=no ;;
+      *) AC_MSG_ERROR([bad value ${enableval} for --disable-xmltoman]) ;;
+    esac],[xmltoman=yes])
+    
+    if test x$xmltoman = xyes ; then
+        AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
+     
+        if test x$have_xmltoman = xno ; then
+            if ! test -e man/avahi-daemon.8 ; then
+                AC_MSG_ERROR([*** xmltoman was not found, it is required to build the manpages and they have not been pre-built])
+                exit 1
+            fi
+            AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
+            xmltoman=no
         fi
-        AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
-        xmltoman=no
     fi
 fi
-
 AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
+AM_CONDITIONAL([BUILD_MANPAGES], [test "x$manpages" = xyes])
 
 #
 # Conditionally compile test and example programs

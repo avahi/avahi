@@ -20,6 +20,25 @@
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
 
+noinst_DATA = \
+	avahi-browse.1.xml \
+	avahi-publish-service.1.xml \
+	avahi-publish-address.1.xml \
+	avahi-resolve-address.1.xml \
+	avahi-resolve-host-name.1.xml \
+	avahi-daemon.8.xml \
+	avahi-discover.1.xml \
+	avahi-bookmarks.1.xml \
+	avahi-dnsconfd.8.xml \
+	avahi-daemon.conf.5.xml \
+	avahi-dnsconfd.action.8.xml \
+	avahi.service.5.xml
+
+CLEANFILES = \
+	$(noinst_DATA)
+
+if BUILD_MANPAGES
+
 man_MANS = \
 	avahi-daemon.8 \
 	avahi-dnsconfd.8 \
@@ -41,41 +60,6 @@ man_MANS += \
 
 endif
 endif
-
-noinst_DATA = \
-	avahi-browse.1.xml \
-	avahi-publish-service.1.xml \
-	avahi-publish-address.1.xml \
-	avahi-resolve-address.1.xml \
-	avahi-resolve-host-name.1.xml \
-	avahi-daemon.8.xml \
-	avahi-discover.1.xml \
-	avahi-bookmarks.1.xml \
-	avahi-dnsconfd.8.xml \
-	avahi-daemon.conf.5.xml \
-	avahi-dnsconfd.action.8.xml \
-	avahi.service.5.xml
-
-EXTRA_DIST = \
-	$(man_MANS) \
-	avahi-browse.1.xml.in \
-	avahi-publish-service.1.xml.in \
-	avahi-publish-address.1.xml.in \
-	avahi-resolve-address.1.xml.in \
-	avahi-resolve-host-name.1.xml.in \
-	avahi-daemon.8.xml.in \
-	avahi-discover.1.xml.in \
-	avahi-bookmarks.1.xml.in \
-	avahi-dnsconfd.8.xml.in \
-	avahi-daemon.conf.5.xml.in \
-	avahi-dnsconfd.action.8.xml.in \
-	avahi.service.5.xml.in \
-	xmltoman.css \
-	xmltoman.xsl \
-	xmltoman.dtd
-
-CLEANFILES = \
-	$(noinst_DATA)
 
 avahi-browse.1.xml: avahi-browse.1.xml.in Makefile
 	sed -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
@@ -180,3 +164,23 @@ xmllint: $(noinst_DATA)
 	done
 
 endif
+
+endif
+
+EXTRA_DIST = \
+	$(man_MANS) \
+	avahi-browse.1.xml.in \
+	avahi-publish-service.1.xml.in \
+	avahi-publish-address.1.xml.in \
+	avahi-resolve-address.1.xml.in \
+	avahi-resolve-host-name.1.xml.in \
+	avahi-daemon.8.xml.in \
+	avahi-discover.1.xml.in \
+	avahi-bookmarks.1.xml.in \
+	avahi-dnsconfd.8.xml.in \
+	avahi-daemon.conf.5.xml.in \
+	avahi-dnsconfd.action.8.xml.in \
+	avahi.service.5.xml.in \
+	xmltoman.css \
+	xmltoman.xsl \
+	xmltoman.dtd

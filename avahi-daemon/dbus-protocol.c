@@ -25,6 +25,7 @@
 
 #include <string.h>
 #include <sys/ioctl.h>
+#include <netinet/in.h>
 #include <net/if.h>
 #include <errno.h>
 #include <unistd.h>
@@ -1809,6 +1810,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             }
 
         memset(&ifr, 0, sizeof(ifr));
+
         ifr.ifr_ifindex = idx;
 
         if (ioctl(fd, SIOCGIFNAME, &ifr) < 0) {

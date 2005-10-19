@@ -28,7 +28,7 @@ case "$MACHTYPE" in
     export CFLAGS="-I/opt/local/include"
     export LDFLAGS="-L/opt/local/lib"
     export PKG_CONFIG_PATH="/opt/local/lib/pkgconfig"
-    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --disable-python --disable-glib --disable-gtk --disable-xmltoman --disable-dbus --prefix=/opt --with-distro=none"
+    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --disable-xmltoman --prefix=/opt --with-distro=none --disable-python"
     ;;
 esac
 

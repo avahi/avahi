@@ -22,7 +22,17 @@ VERSION=1.9
 
 run_versioned() {
     local P
-    type -p "$1-$2" &> /dev/null && P="$1-$2" || local P="$1"
+    local V
+
+    V=$(echo "$VERSION" | sed -e 's,\.,,g')
+    
+    if type -p "$1$V" &> /dev/null ; then
+    	P="$1$V" 
+    elif type -p "$1-$2" &> /dev/null ; then
+    	P="$1-$2" 
+    else
+    	P="$1"
+    fi
 
     shift 2
     "$P" "$@"

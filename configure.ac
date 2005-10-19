@@ -59,36 +59,6 @@ AC_PROG_LIBTOOL
 ACX_PTHREAD(,AC_MSG_ERROR([Missing POSIX Threads support]))
 
 #
-# Host specific stuffs
-#
-case "$host" in
-  *-netbsd* | *-knetbsd*-gnu)
-    AC_DEFINE([NETBSD],[],[ Support for NetBSD])
-    avahi_platform=netbsd
-    ;;
-  *-openbsd*)
-    AC_DEFINE([OPENBSD],[],[ Support for OpenBSD])
-    avahi_platform=openbsd
-    ;;
-  *-solaris*)
-    AC_DEFINE([SOLARIS],[],[ Support for Sun Solaris])
-    avahi_platform=solaris
-    ;;
-  *-linux*)
-    AC_DEFINE([LINUX],[],[ Support for GNU/Linux])
-    avahi_platform=linux
-    ;;
-  *-freebsd* | *-kfreebsd*-gnu)
-    AC_DEFINE([FREEBSD],[],[ Support for FreeBSD])
-    avahi_platform=freebsd
-    ;;
-  *-apple-darwin*)
-    AC_DEFINE([DARWIN],[],[ Support for AppleDarwin])
-    avahi_platform=darwin
-    ;;
-esac
-
-#
 # Check for netlink.h
 #
 AC_CHECK_HEADER(linux/netlink.h, 
@@ -216,7 +186,8 @@ fi
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h limits.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h limits.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h netdb.h syslog.h])
+AC_HEADER_STDBOOL
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -229,7 +200,7 @@ AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid strcasecmp gettimeofday putenv strncasecmp strclpy])
+AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid strcasecmp gettimeofday putenv strncasecmp strclpy gethostbyname])
 
 AC_FUNC_CHOWN
 AC_FUNC_STAT

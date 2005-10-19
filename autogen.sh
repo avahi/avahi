@@ -47,7 +47,9 @@ else
     rm -rf autom4te.cache
     rm -f config.cache
 
-    libtoolize -c --force
+    test "x$LIBTOOLIZE" = "x" && LIBTOOLIZE=libtoolize
+
+    "$LIBTOOLIZE" -c --force
     run_versioned aclocal "$VERSION" -I common
     autoconf -Wall
     autoheader

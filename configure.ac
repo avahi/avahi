@@ -584,15 +584,15 @@ if test x$manpages = xyes ; then
     
     if test x$xmltoman = xyes ; then
         AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
-     
-        if test x$have_xmltoman = xno ; then
-            if ! test -e man/avahi-daemon.8 ; then
-                AC_MSG_ERROR([*** xmltoman was not found, it is required to build the manpages and they have not been pre-built])
-                exit 1
-            fi
-            AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
-            xmltoman=no
+    fi
+
+    if test x$have_xmltoman = xno -o x$xmltoman = xno; then
+        if ! test -e man/avahi-daemon.8 ; then
+            AC_MSG_ERROR([*** xmltoman was not found or was disabled, it is required to build the manpages as they have not been pre-built, install xmltoman, pass --disable-manpages or dont pass --disable-xmltoman])
+            exit 1
         fi
+        AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
+        xmltoman=no
     fi
 fi
 AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])

@@ -20,6 +20,15 @@
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
 
+if BUILD_MANPAGES
+
+man_MANS = \
+	avahi-daemon.8 \
+	avahi-dnsconfd.8 \
+	avahi-daemon.conf.5 \
+	avahi-dnsconfd.action.8 \
+	avahi.service.5
+
 noinst_DATA = \
 	avahi-browse.1.xml \
 	avahi-publish-service.1.xml \
@@ -36,15 +45,6 @@ noinst_DATA = \
 
 CLEANFILES = \
 	$(noinst_DATA)
-
-if BUILD_MANPAGES
-
-man_MANS = \
-	avahi-daemon.8 \
-	avahi-dnsconfd.8 \
-	avahi-daemon.conf.5 \
-	avahi-dnsconfd.action.8 \
-	avahi.service.5
 
 if HAVE_PYTHON
 if HAVE_DBUS

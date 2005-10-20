@@ -403,17 +403,39 @@ int avahi_open_socket_ipv6(int no_reuse) {
     if (r < 0)
         goto fail;
 
+#ifdef IPV6_RECVHOPS
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_RECVHOPS, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_RECVHOPS failed: %s", strerror(errno));
+        goto fail;
+    }
+#elif IPV6_RECVHOPLIMIT
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_RECVHOPLIMIT, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_RECVHOPLIMIT failed: %s", strerror(errno));
+        goto fail;
+    }
+#elif IPV6_HOPLIMIT
     yes = 1;
     if (setsockopt(fd, IPPROTO_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IPV6_HOPLIMIT failed: %s", strerror(errno));
         goto fail;
     }
+#endif
 
+#ifdef IPV6_RECVPKTINFO
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_RECVPKTINFO failed: %s", strerror(errno));
+        goto fail;
+    }
+#elif IPV6_PKTINFO
     yes = 1;
     if (setsockopt(fd, IPPROTO_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IPV6_PKTINFO failed: %s", strerror(errno));
         goto fail;
     }
+#endif
     
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
@@ -679,7 +701,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
 	    break;
 #endif
 	  default:
-	    avahi_log_warn("Unhandled cmsg_type : %d\n",cmsg->cmsg_type);
+	    avahi_log_warn("Unhandled cmsg_type : %d",cmsg->cmsg_type);
 	    break;
 	  }
         }
@@ -843,17 +865,39 @@ int avahi_open_unicast_socket_ipv6(void) {
         goto fail;
     }
 
+#ifdef IPV6_RECVHOPS
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_RECVHOPS, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_RECVHOPS failed: %s", strerror(errno));
+        goto fail;
+    }
+#elif IPV6_RECVHOPLIMIT
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_RECVHOPLIMIT, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_RECVHOPLIMIT failed: %s", strerror(errno));
+        goto fail;
+    }
+#elif IPV6_HOPLIMIT
     yes = 1;
     if (setsockopt(fd, IPPROTO_IPV6, IPV6_HOPLIMIT, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IPV6_HOPLIMIT failed: %s", strerror(errno));
         goto fail;
     }
+#endif
 
+#ifdef IPV6_RECVPKTINFO
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_RECVPKTINFO failed: %s", strerror(errno));
+        goto fail;
+    }
+#elif IPV6_PKTINFO
     yes = 1;
     if (setsockopt(fd, IPPROTO_IPV6, IPV6_PKTINFO, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IPV6_PKTINFO failed: %s", strerror(errno));
         goto fail;
     }
+#endif
     
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));

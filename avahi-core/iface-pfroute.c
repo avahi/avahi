@@ -145,7 +145,18 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 	default:
 	  break;
 	}
+	break;
       case AF_INET6:
+	switch (1<<i) {
+	case RTA_NETMASK:
+	  prefixlen = bitcount(((struct sockaddr_in6 *)sa)->sin6_addr.s6_addr);
+	  break;
+	case RTA_IFA:
+	  memcpy(raddr.data.data, &((struct sockaddr_in6 *)sa)->sin6_addr,  sizeof(struct in6_addr));
+	  raddr_valid = 1;
+	default:
+	  break;
+	}
 	break;
       default:
 	break;

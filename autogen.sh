@@ -24,7 +24,7 @@ run_versioned() {
     local P
     local V
 
-    V=$(echo "$VERSION" | sed -e 's,\.,,g')
+    V=$(echo "$2" | sed -e 's,\.,,g')
     
     if type -p "$1$V" &> /dev/null ; then
     	P="$1$V" 
@@ -51,8 +51,8 @@ else
 
     "$LIBTOOLIZE" -c --force
     run_versioned aclocal "$VERSION" -I common
-    autoconf -Wall
-    autoheader
+    run_versioned autoconf 2.59 -Wall
+    run_versioned autoheader 2.59
     run_versioned automake "$VERSION" -a -c --foreign
 
     if test "x$NOCONFIGURE" = "x"; then

@@ -505,18 +505,18 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
 	}
 #elif IP_RECVIF
 	{
-	  struct sockaddr_dl *pkti;
+	  struct sockaddr_dl *sdl;
 
 	  cmsg->cmsg_type = IP_RECVIF;
-	  pkti = (struct sockaddr_dl*) (cmsg_data + sizeof(struct cmsghdr));
-	  pkti->sdl_index = interface;
+	  sdl = (struct sockaddr_dl*) (cmsg_data + sizeof(struct cmsghdr));
+	  sdl->sdl_index = interface;
 	}
 #elif IP_RECVINTERFACE
 	{
 	  u_short *i;
 
 	  cmsg->cmsg_type = IP_RECVINTERFACE;
-	  i = (u_short *) (cmsg_data + sizeof(u_short));
+	  i = (u_short *) (cmsg_data + sizeof(struct cmsghdr));
 	  memcpy(&i, CMSG_DATA (cmsg), sizeof(u_short));
 	}
 #endif

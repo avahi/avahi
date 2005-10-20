@@ -99,46 +99,37 @@ static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv
     memcpy(&ret_sa->sin6_addr, a, sizeof(AvahiIPv6Address));
 }
 
-int avahi_mdns_mcast_join_ipv4(int fd, int idx) {
-/*  FIXME: sebest : we must factorize this part of the code */
-    struct sockaddr_in sa;
 #ifdef HAVE_STRUCT_IP_MREQN
-    struct ip_mreqn mreq; 
- 
+int avahi_mdns_mcast_join_ipv4(int fd, int idx, int join) {
+    struct ip_mreqn mreq;
+#else
+int avahi_mdns_mcast_join_ipv4(int fd, const AvahiAddress *a, int join) {
+    struct ip_mreq mreq;
+#endif
+        
+    struct sockaddr_in sa;
     memset(&mreq, 0, sizeof(mreq));
+
+#ifdef HAVE_STRUCT_IP_MREQN
     mreq.imr_ifindex = idx;
 #else
-    struct ip_mreq mreq; 
-    struct ifreq ifreq;
-
-    memset(&mreq, 0, sizeof(mreq));
-
-    if ((!if_indextoname(idx, ifreq.ifr_name))) {
-      avahi_log_warn("if_indextoname failed: %s", strerror(errno));
-      return -1;
-    }
-
-    if (ioctl(fd, SIOCGIFADDR, &ifreq) < 0) {
-      avahi_log_warn("SIOCGIFADDR failed: %s", strerror(errno));
-      return -1;
-    }
-
-    memcpy(&mreq.imr_interface,
-	   &((struct sockaddr_in *) &ifreq.ifr_addr)->sin_addr,
-	   sizeof(struct in_addr));
+    assert(a);
+    assert(a->proto == AVAHI_PROTO_INET);
+    mreq.imr_interface.s_addr = htonl(a->data.ipv4.address);
 #endif
-    mdns_mcast_group_ipv4 (&sa);
+    
+    mdns_mcast_group_ipv4(&sa);
     mreq.imr_multiaddr = sa.sin_addr;
 
-    if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        avahi_log_warn("IP_ADD_MEMBERSHIP failed: %s", strerror(errno));
+    if (setsockopt(fd, IPPROTO_IP, join ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
+        avahi_log_warn("%s failed: %s", join ? "IP_ADD_MEMBERSHIP" : "IP_DROP_MEMBERSHIP", strerror(errno));
         return -1;
     } 
 
     return 0;
 }
 
-int avahi_mdns_mcast_join_ipv6(int fd, int idx) {
+int avahi_mdns_mcast_join_ipv6(int fd, int idx, int join) {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
 
@@ -148,65 +139,8 @@ int avahi_mdns_mcast_join_ipv6(int fd, int idx) {
     mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
     mreq6.ipv6mr_interface = idx;
 
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
-        avahi_log_warn("IPV6_ADD_MEMBERSHIP failed: %s", strerror(errno));
-        return -1;
-    }
-
-    return 0;
-}
-
-int avahi_mdns_mcast_leave_ipv4(int fd, int idx) {
-/*  FIXME: sebest : we must factorize this part of the code */
-    struct sockaddr_in sa;
-#ifdef HAVE_STRUCT_IP_MREQN
-    struct ip_mreqn mreq; 
- 
-    memset(&mreq, 0, sizeof(mreq));
-    mreq.imr_ifindex = idx;
-#else
-    struct ip_mreq mreq; 
-    struct ifreq ifreq;
-
-    memset(&mreq, 0, sizeof(mreq));
-
-    if ((!if_indextoname(idx, ifreq.ifr_name))) {
-      avahi_log_warn("if_indextoname failed: %s", strerror(errno));
-      return -1;
-    }
-
-    if (ioctl(fd, SIOCGIFADDR, &ifreq) < 0) {
-      avahi_log_warn("SIOCGIFADDR failed: %s", strerror(errno));
-      return -1;
-    }
-
-    memcpy(&mreq.imr_interface,
-	   &((struct sockaddr_in *) &ifreq.ifr_addr)->sin_addr,
-	   sizeof(struct in_addr));
-#endif
-    mdns_mcast_group_ipv4 (&sa);
-    mreq.imr_multiaddr = sa.sin_addr;
-
-    if (setsockopt(fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        avahi_log_warn("IP_DROP_MEMBERSHIP failed: %s", strerror(errno));
-        return -1;
-    }
-
-    return 0;
-}
-
-int avahi_mdns_mcast_leave_ipv6(int fd, int idx) {
-    struct ipv6_mreq mreq6; 
-    struct sockaddr_in6 sa6;
-
-    mdns_mcast_group_ipv6 (&sa6);
-
-    memset(&mreq6, 0, sizeof(mreq6));
-    mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
-    mreq6.ipv6mr_interface = idx;
-
-    if (setsockopt(fd, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
-        avahi_log_warn("IPV6_DROP_MEMBERSHIP failed: %s", strerror(errno));
+    if (setsockopt(fd, IPPROTO_IPV6, join ? IPV6_ADD_MEMBERSHIP : IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(mreq6)) < 0) {
+        avahi_log_warn("%s failed: %s", join ? "IPV6_ADD_MEMBERSHIP" : "IPV6_DROP_MEMBERSHIP", strerror(errno));
         return -1;
     }
 

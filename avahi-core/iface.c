@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
@@ -330,6 +331,30 @@ AvahiInterfaceAddress *avahi_interface_address_new(AvahiInterfaceMonitor *m, Ava
     return a;
 }
 
+static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
+
+    if (i->protocol == AVAHI_PROTO_INET6)
+        return avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, join);
+    else if (i->protocol == AVAHI_PROTO_INET) {
+
+#ifdef HAVE_STRUCT_IP_MREQN
+        return avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, join);
+
+#else
+        AvahiInterfaceAddress *ia;
+        int r = 0;
+
+        for (ia = i->addresses; ia; ia = ia->address_next)
+            r  |= avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &ia->address, join);
+
+        return r;
+#endif
+    }
+
+    abort();
+}
+
+
 void avahi_interface_check_relevant(AvahiInterface *i) {
     int b;
     AvahiInterfaceMonitor *m;
@@ -342,10 +367,7 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
     if (m->list_complete && b && !i->announcing) {
         avahi_log_info("New relevant interface %s.%s.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
-        if (i->protocol == AVAHI_PROTO_INET)
-            avahi_mdns_mcast_join_ipv4(m->server->fd_ipv4, i->hardware->index);
-        if (i->protocol == AVAHI_PROTO_INET6)
-            avahi_mdns_mcast_join_ipv6(m->server->fd_ipv6, i->hardware->index);
+        interface_mdns_mcast_join(i, 1);
 
         i->announcing = 1;
         avahi_announce_interface(m->server, i);
@@ -353,10 +375,7 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
     } else if (!b && i->announcing) {
         avahi_log_info("Interface %s.%s no longer relevant.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
-        if (i->protocol == AVAHI_PROTO_INET)
-            avahi_mdns_mcast_leave_ipv4(m->server->fd_ipv4, i->hardware->index);
-        if (i->protocol == AVAHI_PROTO_INET6)
-            avahi_mdns_mcast_leave_ipv6(m->server->fd_ipv6, i->hardware->index);
+        interface_mdns_mcast_join(i, 0);
 
         avahi_goodbye_interface(m->server, i, 0, 1);
         avahi_querier_free_all(i);

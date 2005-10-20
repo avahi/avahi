@@ -44,10 +44,12 @@ int avahi_send_dns_packet_ipv6(int fd, int iface, AvahiDnsPacket *p, const Avahi
 AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in*ret_sa, AvahiIPv4Address *ret_dest_address, int *ret_iface, uint8_t *ret_ttl);
 AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6*ret_sa, AvahiIPv6Address *ret_dest_address, int *ret_iface, uint8_t *ret_ttl);
 
-int avahi_mdns_mcast_join_ipv4(int fd, int idx);
-int avahi_mdns_mcast_join_ipv6(int fd, int idx);
+#ifdef HAVE_STRUCT_IP_MREQN
+int avahi_mdns_mcast_join_ipv4(int fd, int idx, int join);
+#else
+int avahi_mdns_mcast_join_ipv4(int fd, const AvahiAddress *a, int join);
+#endif
 
-int avahi_mdns_mcast_leave_ipv4(int fd, int idx);
-int avahi_mdns_mcast_leave_ipv6(int fd, int idx);
+int avahi_mdns_mcast_join_ipv6(int fd, int idx, int join);
 
 #endif

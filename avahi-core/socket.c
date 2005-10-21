@@ -415,13 +415,9 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
     struct sockaddr_in sa;
     struct msghdr msg;
     struct iovec io;
-    struct cmsghdr *cmsg;
 #ifdef IP_PKTINFO
+    struct cmsghdr *cmsg;
     uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct in_pktinfo)];
-#elif IP_RECVIF
-    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct sockaddr_dl)];
-#elif IP_RECVINTERFACE
-    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(u_short)];
 #endif
 
     assert(fd >= 0);
@@ -445,13 +441,12 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
     msg.msg_iovlen = 1;
     msg.msg_flags = 0;
 
+#ifdef IP_PKTINFO
     if (interface >= 0) {
-        
         memset(cmsg_data, 0, sizeof(cmsg_data));
         cmsg = (struct cmsghdr*) cmsg_data;
         cmsg->cmsg_len = sizeof(cmsg_data);
         cmsg->cmsg_level = IPPROTO_IP;
-#ifdef IP_PKTINFO
 	{
 	  struct in_pktinfo *pkti;
 
@@ -459,29 +454,13 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
 	  pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
 	  pkti->ipi_ifindex = interface;
 	}
-#elif IP_RECVIF
-	{
-	  struct sockaddr_dl *sdl;
-
-	  cmsg->cmsg_type = IP_RECVIF;
-	  sdl = (struct sockaddr_dl*) (cmsg_data + sizeof(struct cmsghdr));
-	  sdl->sdl_index = interface;
-	}
-#elif IP_RECVINTERFACE
-	{
-	  u_short *i;
-
-	  cmsg->cmsg_type = IP_RECVINTERFACE;
-	  i = (u_short *) (cmsg_data + sizeof(struct cmsghdr));
-	  memcpy(&i, CMSG_DATA (cmsg), sizeof(u_short));
-	}
-#endif
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     } else {
         msg.msg_control = NULL;
         msg.msg_controllen = 0;
     }
+#endif
 
     return sendmsg_loop(fd, &msg, 0);
 }

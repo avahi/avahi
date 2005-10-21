@@ -491,7 +491,7 @@ int avahi_domain_ends_with(const char *domain, const char *suffix) {
 }
 
 int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain) {
-    char escaped_name[AVAHI_LABEL_MAX];
+    char escaped_name[AVAHI_LABEL_MAX*4];
     char normalized_type[AVAHI_DOMAIN_NAME_MAX];
     char normalized_domain[AVAHI_DOMAIN_NAME_MAX];
     

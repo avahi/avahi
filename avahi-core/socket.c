@@ -171,6 +171,14 @@ static int bind_with_warn(int fd, const struct sockaddr *sa, socklen_t l) {
             return -1;
         }
 
+#ifdef SO_REUSEPORT
+        yes = 1;
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) < 0) {
+            avahi_log_warn("SO_REUSEPORT failed: %s", strerror(errno));
+            return -1;
+        }
+#endif
+
         if (bind(fd, sa, l) < 0) {
             avahi_log_warn("bind() failed: %s", strerror(errno));
             return -1;

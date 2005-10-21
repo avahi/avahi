@@ -230,15 +230,12 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *user
     assert(fd == nl->fd);
 
     do {
-      time_t now = time(NULL);
       if((bytes = recv(nl->fd, msg, 2048, MSG_DONTWAIT)) < 0) {
 	if (errno == EAGAIN || errno == EINTR)
 	  return;
 	avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
 	return;
       }
-
-      avahi_log_debug("socket_event: got message of size %d on %s", (int)bytes, ctime(&now));
       parse_rtmsg((struct rt_msghdr *)msg, bytes ,m);
     }
     while (bytes > 0);

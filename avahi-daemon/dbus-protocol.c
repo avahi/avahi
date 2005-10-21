@@ -25,6 +25,7 @@
 
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
 #include <errno.h>

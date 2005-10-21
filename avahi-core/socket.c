@@ -115,7 +115,7 @@ int avahi_mdns_mcast_join_ipv4(int fd, const AvahiAddress *a, int join) {
 #else
     assert(a);
     assert(a->proto == AVAHI_PROTO_INET);
-    mreq.imr_interface.s_addr = htonl(a->data.ipv4.address);
+    mreq.imr_interface.s_addr = a->data.ipv4.address;
 #endif
     
     mdns_mcast_group_ipv4(&sa);

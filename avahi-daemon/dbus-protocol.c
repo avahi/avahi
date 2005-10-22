@@ -68,7 +68,7 @@ typedef struct ServiceBrowserInfo ServiceBrowserInfo;
 typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
 typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
 
-#define MAX_CLIENTS 20
+#define MAX_CLIENTS 256
 #define MAX_OBJECTS_PER_CLIENT 50
 #define MAX_ENTRIES_PER_ENTRY_GROUP 20
 

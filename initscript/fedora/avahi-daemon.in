@@ -1,0 +1,87 @@
+#! /bin/sh
+#
+# avahi-daemon:       Starts the Avahi Daemon
+#
+# chkconfig: 345 34 66
+# description: This is a daemon which runs on client machines to perform \
+#              Zeroconf service discovery on a network. avahi-daemon must be \
+#              running on systems  that use Avahi for service discovery. \
+#              Avahi-daemon should not be running otherwise.
+# processname: avahi-daemon
+# config: 
+
+OTHER_AVAHI_OPTS=""
+
+# Source function library.
+. /etc/init.d/functions
+
+. /etc/sysconfig/network
+
+# Check that networking is configured.
+[ ${NETWORKING} = "no" ] && exit 0
+
+AVAHI_BIN=@sbindir@/avahi-daemon
+test -x $AVAHI_BIN || exit 5
+
+start() {
+	echo -n $"Starting Avahi daemon... "
+        $AVAHI_BIN -D
+	RETVAL=$?
+	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
+	echo
+	return $RETVAL
+}
+
+stop() {
+        echo -n "Shutting down Avahi daemon: "
+        $AVAHI_BIN -k
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+reload() {
+        echo -n "Reloading Avahi daemon... "
+        $AVAHI_BIN -r
+	RETVAL=$?
+	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
+	echo
+	return $RETVAL
+}
+
+
+restart() {
+	stop
+	start
+}
+
+RETVAL=0
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+        $AVAHI_BIN -c
+	[ $? = 0 ] && echo "Avahi daemon is running" || echo "Avahi daemon is not running"
+	;;
+  restart)
+	restart
+	;;
+  reload)
+        reload 
+	;;
+  condrestart)
+        $AVAHI_BIN -c
+        [ $? = 0 ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+	exit 1
+esac
+
+exit $?

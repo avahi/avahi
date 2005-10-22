@@ -1,0 +1,87 @@
+#! /bin/sh
+#
+# avahi-daemon:       Starts the Avahi dns configuration daemon
+#
+# chkconfig: - 34 66
+# description: avahi-dnsconfd connects to a running avahi-daemon and runs  the  script
+#       /etc/avahi/dnsconf.action for each unicast DNS server that is announced
+#       on the local LAN. This is useful for configuring unicast DNS servers in
+#       a DHCP-like fashion with mDNS.
+# processname: avahi-dnsconfd
+# config: 
+
+OTHER_AVAHI_OPTS=""
+
+# Source function library.
+. /etc/init.d/functions
+
+. /etc/sysconfig/network
+
+# Check that networking is configured.
+[ ${NETWORKING} = "no" ] && exit 0
+
+AVAHI_BIN=@sbindir@/avahi-dnsconfd
+test -x $AVAHI_BIN || exit 5
+
+start() {
+	echo -n $"Starting Avahi DNS daemon... "
+        $AVAHI_BIN -D
+	RETVAL=$?
+	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
+	echo
+	return $RETVAL
+}
+
+stop() {
+        echo -n "Shutting down Avahi DNS daemon: "
+        $AVAHI_BIN -k
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+reload() {
+        echo -n "Reloading Avahi DNS daemon... "
+        $AVAHI_BIN -r
+	RETVAL=$?
+	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
+	echo
+	return $RETVAL
+}
+
+
+restart() {
+	stop
+	start
+}
+
+RETVAL=0
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+        $AVAHI_BIN -c
+	[ $? = 0 ] && echo "Avahi DNS daemon is running" || echo "Avahi DNS daemon is not running"
+	;;
+  restart)
+	restart
+	;;
+  reload)
+        reload 
+	;;
+  condrestart)
+        $AVAHI_BIN -c
+        [ $? = 0 ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+	exit 1
+esac
+
+exit $?

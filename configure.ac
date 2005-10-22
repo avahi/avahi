@@ -121,6 +121,7 @@ if test "z$with_distro" = "z"; then
     AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
     AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
     AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
+    AC_CHECK_FILE(/etc/redhat-release,with_distro="fedora")
 fi
 with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
 
@@ -129,7 +130,7 @@ if test "z$with_distro" = "z"; then
     exit 1
 else
 case $with_distro in
-    debian|gentoo|archlinux|suse|none)
+    debian|gentoo|archlinux|suse|fedora|none)
      ;;
     *)
      AC_MSG_ERROR([Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome), you can specify --with-distro=none to skip this check])
@@ -141,6 +142,7 @@ AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
 AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
 AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
 AM_CONDITIONAL(TARGET_ARCHLINUX, test x"$with_distro" = xarchlinux)
+AM_CONDITIONAL(TARGET_FEDORA, test x"$with_distro" = xfedora)
 
 test_gcc_flag() {
     AC_LANG_CONFTEST([int main() {}])
@@ -657,6 +659,7 @@ initscript/debian/Makefile
 initscript/gentoo/Makefile
 initscript/archlinux/Makefile
 initscript/suse/Makefile
+initscript/fedora/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-utils/avahi/Makefile

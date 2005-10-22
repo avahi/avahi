@@ -17,24 +17,18 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-SUBDIRS = 
+initddir = $(sysconfdir)/init.d
 
-if TARGET_DEBIAN
-SUBDIRS += debian
-endif
+EXTRA_DIST = avahi-daemon.in avahi-dnsconfd.in
 
-if TARGET_ARCHLINUX
-SUBDIRS += archlinux
-endif
+initd_SCRIPTS = avahi-daemon avahi-dnsconfd
 
-if TARGET_GENTOO
-SUBDIRS += gentoo
-endif
+CLEANFILES = avahi-daemon avahi-dnsconfd
 
-if TARGET_SUSE
-SUBDIRS += suse
-endif
+avahi-daemon: avahi-daemon.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@
 
-if TARGET_FEDORA
-SUBDIRS += fedora
-endif
+avahi-dnsconfd: avahi-dnsconfd.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@

@@ -64,7 +64,7 @@ struct _DNSServiceRef_t {
     int thread_running;
 
     pthread_mutex_t mutex;
-
+    
     void *context;
     DNSServiceBrowseReply service_browser_callback;
     DNSServiceResolveReply service_resolver_callback;
@@ -336,7 +336,6 @@ static void sdref_free(DNSServiceRef sdref) {
     if (sdref->simple_poll)
         avahi_simple_poll_free(sdref->simple_poll);
 
-
     if (sdref->thread_fd >= 0)
         close(sdref->thread_fd);
 
@@ -388,9 +387,9 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     
     AVAHI_WARN_LINKAGE;
 
-    sdref_ref(sdref);
-
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
+
+    sdref_ref(sdref);
     
     /* Cleanup notification socket */
     if (read_command(sdref->main_fd) != COMMAND_POLL_DONE)
@@ -415,9 +414,9 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     
 finish:
 
-    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
-
     sdref_unref(sdref);
+
+    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
     
     return ret;
 }

@@ -157,23 +157,27 @@ if test "x$GCC" = "xyes" ; then
 
     DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wlarger-than-4000 -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
 
-    # Test whether rtnetlink.h can be included when compiled with -std=c99
-    # some distributions (e.g. archlinux) have broken headers that dont
-    # define __u64 with -std=c99
-    AC_MSG_CHECKING([checking whether rtnetlink.h can be included with -std=c99])
-    OLDCFLAGS="$CFLAGS"
-    CFLAGS="-std=c99"
-    AC_TRY_COMPILE([#include <linux/rtnetlink.h>], [],
-        use_stdc99=yes, use_stdc99=no)
+    if test "x$HAVE_NETLINK" = "xyes" ; then
+        # Test whether rtnetlink.h can be included when compiled with -std=c99
+        # some distributions (e.g. archlinux) have broken headers that dont
+        # define __u64 with -std=c99
+        AC_MSG_CHECKING([checking whether rtnetlink.h can be included with -std=c99])
+        OLDCFLAGS="$CFLAGS"
+        CFLAGS="-std=c99"
+        AC_TRY_COMPILE([#include <linux/rtnetlink.h>], [],
+            use_stdc99=yes, use_stdc99=no)
 
-    if test x"$use_stdc99" = xyes; then
-        DESIRED_FLAGS="-std=c99 $DESIRED_FLAGS"
-        AC_MSG_RESULT([yes])
+        if test x"$use_stdc99" = xyes; then
+            DESIRED_FLAGS="-std=c99 $DESIRED_FLAGS"
+            AC_MSG_RESULT([yes])
+        else
+            AC_MSG_RESULT([no])
+        fi
+
+        CFLAGS="$OLDCFLAGS"
     else
-        AC_MSG_RESULT([no])
+        DESIRED_FLAGS="-std=c99 $DESIRED_FLAGS"
     fi
-
-    CFLAGS="$OLDCFLAGS"
 
     for flag in $DESIRED_FLAGS ; do
         AC_MSG_CHECKING([whether $CC accepts $flag])

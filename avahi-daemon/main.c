@@ -727,11 +727,13 @@ static int drop_root(void) {
 
 #if defined(HAVE_SETRESGID)
     r = setresgid(gr->gr_gid, gr->gr_gid, gr->gr_gid);
+#elif defined(HAVE_SETEGID)
+    if ((r = setgid(gr->gr_gid)) >= 0)
+        r = setegid(gr->gr_gid);
 #elif defined(HAVE_SETREGID)
     r = setregid(gr->gr_gid, gr->gr_gid);
 #else
-    if ((r = setgid(gr->gr_gid)) >= 0)
-        r = setegid(gr->gr_gid);
+#error "No API to drop priviliges"
 #endif
 
     if (r < 0) {
@@ -741,11 +743,13 @@ static int drop_root(void) {
 
 #if defined(HAVE_SETRESUID)
     r = setresuid(pw->pw_uid, pw->pw_uid, pw->pw_uid);
+#elif defined(HAVE_SETEUID)
+    if ((r = setuid(pw->pw_uid)) >= 0)
+        r = seteuid(pw->pw_uid);
 #elif defined(HAVE_SETREUID)
     r = setreuid(pw->pw_uid, pw->pw_uid);
 #else
-    if ((r = setuid(pw->pw_uid)) >= 0)
-        r = seteuid(pw->pw_uid);
+#error "No API to drop priviliges"
 #endif
 
     if (r < 0) {

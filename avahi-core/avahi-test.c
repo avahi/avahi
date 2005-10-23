@@ -124,7 +124,8 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void* userdata) {
 
-     avahi_log_debug("server state: %i", state); 
+    server = s;
+    avahi_log_debug("server state: %i", state); 
     
     if (state == AVAHI_SERVER_RUNNING) {
         avahi_log_debug("Server startup complete. Host name is <%s>. Service cookie is %u", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));

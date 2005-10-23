@@ -102,11 +102,8 @@ AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddres
 /** Return the port number of a sockaddr structure (either IPv4 or IPv6) */
 uint16_t avahi_port_from_sockaddr(const struct sockaddr* sa);
 
-/** Generate the DNS reverse lookup name for an IPv4 address. avahi_free() the result! */
-char* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a);
-
-/** Generate the modern DNS reverse lookup name for an IPv6 address, ending in ipv6.arpa. avahi_free() the result! */
-char* avahi_reverse_lookup_name_ipv6(const AvahiIPv6Address *a);
+/** Generate the DNS reverse lookup name for an IPv4 or IPv6 address. */
+char* avahi_reverse_lookup_name(char *ret_s, size_t length, const AvahiAddress *a);
 
 /** Check whether the specified IPv6 address is in fact an
  * encapsulated IPv4 address, returns 1 if yes, 0 otherwise */

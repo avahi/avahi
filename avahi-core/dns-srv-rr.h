@@ -59,20 +59,6 @@ int avahi_server_add_dns_server_address(
     const AvahiAddress *address,
     uint16_t port /** should be 53 */);
 
-/** Similar to avahi_server_add_dns_server_address(), but specify a
-host name instead of an address. The specified host name should be
-resolvable via mDNS */
-int avahi_server_add_dns_server_name(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *domain,
-    AvahiDNSServerType type,
-    const char *name,
-    uint16_t port /** should be 53 */);
-
 /** Callback prototype for AvahiSDNSServerBrowser events */
 typedef void (*AvahiSDNSServerBrowserCallback)(
     AvahiSDNSServerBrowser *b,

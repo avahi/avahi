@@ -110,5 +110,12 @@ int main(int argc, char *argv[]) {
     assert(avahi_is_valid_host_name("sfooo."));
     assert(avahi_is_valid_host_name("sfooo"));
 
+    assert(avahi_is_valid_domain_name("."));
+    assert(avahi_is_valid_domain_name(""));
+
+    assert(avahi_normalize_name(".", t, sizeof(t)));
+    assert(avahi_normalize_name("", t, sizeof(t)));
+
+    
     return 0;
 }

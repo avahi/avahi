@@ -206,31 +206,35 @@ char *avahi_normalize_name(const char *s, char *ret_s, size_t size) {
     assert(size > 0);
 
     r = ret_s;
+    *ret_s = 0;
+
     while (*s) {
         char label[AVAHI_LABEL_MAX];
 
         if (!(avahi_unescape_label(&s, label, sizeof(label))))
             return NULL;
 
-        if (strlen(label) > 0) {
+        if (label[0] == 0) {
 
-            if (!empty) {
-                if (size < 1)
-                    return NULL;
+            if (*s == 0 && empty)
+                return ret_s;
 
-                *(r++) = '.';
-                size--;
-
-            } else
-                empty = 0;
-            
-            avahi_escape_label(label, strlen(label), &r, &size);
+            return NULL;
         }
+        
+        if (!empty) {
+            if (size < 1)
+                return NULL;
+            
+            *(r++) = '.';
+            size--;
+            
+        } else
+            empty = 0;
+            
+        avahi_escape_label(label, strlen(label), &r, &size);
     }
 
-    if (empty)
-        return NULL;
-    
     return ret_s;
 }
 
@@ -409,9 +413,10 @@ int avahi_is_valid_service_subtype(const char *t) {
 }
 
 int avahi_is_valid_domain_name(const char *t) {
+    int is_first = 1;
     assert(t);
 
-    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX || !*t)
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX)
         return 0;
 
     do {
@@ -420,7 +425,13 @@ int avahi_is_valid_domain_name(const char *t) {
         if (!(avahi_unescape_label(&t, label, sizeof(label))))
             return 0;
 
-        if (strlen(label) < 1)
+        /* Explicitly allow the root domain name */
+        if (is_first && label[0] == 0 && *t == 0)
+            return 1;
+        
+        is_first = 0;
+        
+        if (label[0] == 0)
             return 0;
         
     } while (*t);

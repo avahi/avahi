@@ -119,33 +119,34 @@ static AvahiWideAreaLookup* find_lookup(AvahiWideAreaLookupEngine *e, uint16_t i
     return l;
 }
 
-static int send_to_dns_server(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p) {
+static int send_to_dns_server(AvahiWideAreaLookup *l, AvahiDnsPacket *p) {
     AvahiAddress *a;
     
-    assert(e);
+    assert(l);
     assert(p);
 
-    if (e->n_dns_servers <= 0)
+    if (l->engine->n_dns_servers <= 0)
         return -1;
 
-    assert(e->current_dns_server < e->n_dns_servers);
+    assert(l->engine->current_dns_server < l->engine->n_dns_servers);
 
-    a = &e->dns_servers[e->current_dns_server];
+    a = &l->engine->dns_servers[l->engine->current_dns_server];
+    l->dns_server_used = *a;
     
     if (a->proto == AVAHI_PROTO_INET) {
 
-        if (e->fd_ipv4 < 0)
+        if (l->engine->fd_ipv4 < 0)
             return -1;
         
-        return avahi_send_dns_packet_ipv4(e->fd_ipv4, AVAHI_IF_UNSPEC, p, &a->data.ipv4, AVAHI_DNS_PORT);
+        return avahi_send_dns_packet_ipv4(l->engine->fd_ipv4, AVAHI_IF_UNSPEC, p, &a->data.ipv4, AVAHI_DNS_PORT);
         
     } else {
         assert(a->proto == AVAHI_PROTO_INET6);
 
-        if (e->fd_ipv6 < 0)
+        if (l->engine->fd_ipv6 < 0)
             return -1;
         
-        return avahi_send_dns_packet_ipv6(e->fd_ipv6, AVAHI_IF_UNSPEC, p, &a->data.ipv6, AVAHI_DNS_PORT);
+        return avahi_send_dns_packet_ipv6(l->engine->fd_ipv6, AVAHI_IF_UNSPEC, p, &a->data.ipv6, AVAHI_DNS_PORT);
     }
 }
 
@@ -182,7 +183,7 @@ static void sender_timeout_callback(AvahiTimeEvent *e, void *userdata) {
     }
 
     assert(l->packet);
-    send_to_dns_server(l->engine, l->packet);
+    send_to_dns_server(l, l->packet);
     l->n_send++;
 
     avahi_time_event_update(e, avahi_elapse_time(&tv, 1000, 0));
@@ -231,7 +232,7 @@ AvahiWideAreaLookup *avahi_wide_area_lookup_new(
     
     avahi_dns_packet_set_field(l->packet, AVAHI_DNS_FIELD_QDCOUNT, 1);
 
-    if (send_to_dns_server(e, l->packet) < 0) {
+    if (send_to_dns_server(l, l->packet) < 0) {
         avahi_log_error(__FILE__": Failed to send packet.");
         avahi_dns_packet_free(l->packet);
         avahi_key_unref(l->key);

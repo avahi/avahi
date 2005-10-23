@@ -72,7 +72,6 @@ AvahiKey *avahi_key_new_cname(AvahiKey *key) {
     return avahi_key_new(key->name, key->clazz, AVAHI_DNS_TYPE_CNAME);
 }
 
-
 AvahiKey *avahi_key_ref(AvahiKey *k) {
     assert(k);
     assert(k->ref >= 1);

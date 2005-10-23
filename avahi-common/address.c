@@ -29,6 +29,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "address.h"
 #include "malloc.h"
@@ -65,48 +66,42 @@ char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
     return s;
 }
 
-char* avahi_reverse_lookup_name_ipv4(const AvahiIPv4Address *a) {
-    uint32_t n = ntohl(a->address);
+char* avahi_reverse_lookup_name(char *ret_s, size_t length, const AvahiAddress *a) {
+    assert(ret_s);
+    assert(length > 0);
     assert(a);
 
-    return avahi_strdup_printf("%u.%u.%u.%u.in-addr.arpa", n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
-}
+    if (a->proto == AVAHI_PROTO_INET) {
+        uint32_t n = ntohl(a->data.ipv4.address);
+        snprintf(
+            ret_s, length,
+            "%u.%u.%u.%u.in-addr.arpa",
+            n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
+    } else {
+        assert(a->proto == AVAHI_PROTO_INET6);
 
-char *avahi_reverse_lookup_name_ipv6(const AvahiIPv6Address *a) {
-    
-    return avahi_strdup_printf("%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.arpa",
-                           a->address[15] & 0xF,
-                           a->address[15] >> 4,
-                           a->address[14] & 0xF,
-                           a->address[14] >> 4,
-                           a->address[13] & 0xF,
-                           a->address[13] >> 4,
-                           a->address[12] & 0xF,
-                           a->address[12] >> 4,
-                           a->address[11] & 0xF,
-                           a->address[11] >> 4,
-                           a->address[10] & 0xF,
-                           a->address[10] >> 4,
-                           a->address[9] & 0xF,
-                           a->address[9] >> 4,
-                           a->address[8] & 0xF,
-                           a->address[8] >> 4,
-                           a->address[7] & 0xF,
-                           a->address[7] >> 4,
-                           a->address[6] & 0xF,
-                           a->address[6] >> 4,
-                           a->address[5] & 0xF,
-                           a->address[5] >> 4,
-                           a->address[4] & 0xF,
-                           a->address[4] >> 4,
-                           a->address[3] & 0xF,
-                           a->address[3] >> 4,
-                           a->address[2] & 0xF,
-                           a->address[2] >> 4,
-                           a->address[1] & 0xF,
-                           a->address[1] >> 4,
-                           a->address[0] & 0xF,
-                           a->address[0] >> 4);
+        snprintf(
+            ret_s, length,
+            "%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.arpa",
+            a->data.ipv6.address[15] & 0xF, a->data.ipv6.address[15] >> 4,
+            a->data.ipv6.address[14] & 0xF, a->data.ipv6.address[14] >> 4,
+            a->data.ipv6.address[13] & 0xF, a->data.ipv6.address[13] >> 4,
+            a->data.ipv6.address[12] & 0xF, a->data.ipv6.address[12] >> 4,
+            a->data.ipv6.address[11] & 0xF, a->data.ipv6.address[11] >> 4,
+            a->data.ipv6.address[10] & 0xF, a->data.ipv6.address[10] >> 4,
+            a->data.ipv6.address[ 9] & 0xF, a->data.ipv6.address[ 9] >> 4,
+            a->data.ipv6.address[ 8] & 0xF, a->data.ipv6.address[ 8] >> 4,
+            a->data.ipv6.address[ 7] & 0xF, a->data.ipv6.address[ 7] >> 4,
+            a->data.ipv6.address[ 6] & 0xF, a->data.ipv6.address[ 6] >> 4,
+            a->data.ipv6.address[ 5] & 0xF, a->data.ipv6.address[ 5] >> 4,
+            a->data.ipv6.address[ 4] & 0xF, a->data.ipv6.address[ 4] >> 4,
+            a->data.ipv6.address[ 3] & 0xF, a->data.ipv6.address[ 3] >> 4,
+            a->data.ipv6.address[ 2] & 0xF, a->data.ipv6.address[ 2] >> 4,
+            a->data.ipv6.address[ 1] & 0xF, a->data.ipv6.address[ 1] >> 4,
+            a->data.ipv6.address[ 0] & 0xF, a->data.ipv6.address[ 0] >> 4);
+    }
+
+    return ret_s;
 }
 
 AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol proto, AvahiAddress *ret_addr) {

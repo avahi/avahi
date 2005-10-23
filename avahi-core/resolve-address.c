@@ -26,6 +26,7 @@
 #include <avahi-common/timeval.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+#include <avahi-common/domain.h>
 
 #include "browse.h"
 
@@ -184,7 +185,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     
     AvahiSAddressResolver *r;
     AvahiKey *k;
-    char *n;
+    char n[AVAHI_DOMAIN_NAME_MAX];
 
     assert(server);
     assert(address);
@@ -202,20 +203,9 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
         return NULL;
     }
 
-    if (address->proto == AVAHI_PROTO_INET)
-        n = avahi_reverse_lookup_name_ipv4(&address->data.ipv4);
-    else 
-        n = avahi_reverse_lookup_name_ipv6(&address->data.ipv6);
+    avahi_reverse_lookup_name(n, sizeof(n), address);
 
-    if (!n) {
-        avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
-        return NULL;
-    }
-
-    k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
-    avahi_free(n);
-
-    if (!k) {
+    if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }

@@ -194,7 +194,10 @@ int avahi_server_add_ptr(
     const char *dest);
 
 
-
+#define AVAHI_CHECK_VALIDITY(server, expression, error) { \
+        if (!(expression)) \
+            return avahi_server_set_errno((server), (error)); \
+}
 
 #define AVAHI_CHECK_VALIDITY_RETURN_NULL(server, expression, error) { \
         if (!(expression)) { \
@@ -208,6 +211,16 @@ int avahi_server_add_ptr(
         ret = avahi_server_set_errno((server), (error)); \
         goto fail; \
     } \
+}
+
+#define AVAHI_ASSERT_TRUE(expression) { \
+    int __tmp = !!(expression); \
+    assert(__tmp); \
+}
+
+#define AVAHI_ASSERT_SUCCESS(expression) { \
+    int __tmp = (expression); \
+    assert(__tmp == 0); \
 }
 
 #endif

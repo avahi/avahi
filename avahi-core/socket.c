@@ -451,17 +451,17 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
 
 #ifdef IP_PKTINFO
     if (interface >= 0) {
+        struct in_pktinfo *pkti;
+        
         memset(cmsg_data, 0, sizeof(cmsg_data));
         cmsg = (struct cmsghdr*) cmsg_data;
         cmsg->cmsg_len = sizeof(cmsg_data);
         cmsg->cmsg_level = IPPROTO_IP;
-	{
-	  struct in_pktinfo *pkti;
+        cmsg->cmsg_type = IP_PKTINFO;
 
-	  cmsg->cmsg_type = IP_PKTINFO;
-	  pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
-	  pkti->ipi_ifindex = interface;
-	}
+        pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
+        pkti->ipi_ifindex = interface;
+
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     } else {

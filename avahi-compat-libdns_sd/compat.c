@@ -452,12 +452,10 @@ finish:
 }
 
 void DNSSD_API DNSServiceRefDeallocate(DNSServiceRef sdref) {
-    assert(sdref);
-    assert(sdref->n_ref >= 1);
-
     AVAHI_WARN_LINKAGE;
 
-    sdref_unref(sdref);
+    if (sdref)
+        sdref_unref(sdref);
 }
 
 static void service_browser_callback(

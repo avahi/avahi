@@ -47,7 +47,6 @@
 #include "dns_sd.h"
 
 enum {
-    COMMAND_COME_AGAIN = 0,
     COMMAND_POLL = 'p',
     COMMAND_QUIT = 'q',
     COMMAND_POLL_DONE = 'P',
@@ -173,10 +172,6 @@ static int read_command(int fd) {
     assert(fd >= 0);
     
     if ((r = read(fd, &command, 1)) != 1) {
-
-        if (errno == EAGAIN)
-            return COMMAND_COME_AGAIN;
-        
         fprintf(stderr, __FILE__": read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
         return -1;
     }
@@ -194,21 +189,6 @@ static int write_command(int fd, char reply) {
 
     return 0;
 }
-
-static int set_nonblock(int fd) {
-    int n;
-
-    assert(fd >= 0);
-
-    if ((n = fcntl(fd, F_GETFL)) < 0)
-        return -1;
-
-    if (n & O_NONBLOCK)
-        return 0;
-
-    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
-}
-
 
 static int poll_func(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata) {
     DNSServiceRef sdref = userdata;
@@ -276,9 +256,6 @@ static void * thread_func(void *data) {
 
             case COMMAND_QUIT:
                 return NULL;
-
-            case COMMAND_COME_AGAIN:
-                break;
         }
         
     }
@@ -300,8 +277,6 @@ static DNSServiceRef sdref_new(void) {
     sdref->n_ref = 1;
     sdref->thread_fd = fd[0];
     sdref->main_fd = fd[1];
-
-    set_nonblock(sdref->main_fd);
 
     sdref->client = NULL;
     sdref->service_browser = NULL;
@@ -407,7 +382,6 @@ int DNSSD_API DNSServiceRefSockFD(DNSServiceRef sdref) {
 
 DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     DNSServiceErrorType ret = kDNSServiceErr_Unknown;
-    int t;
 
     assert(sdref);
     assert(sdref->n_ref >= 1);
@@ -419,11 +393,8 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
     /* Cleanup notification socket */
-    if ((t = read_command(sdref->main_fd)) != COMMAND_POLL_DONE) {
-        if (t == COMMAND_COME_AGAIN)
-            ret = kDNSServiceErr_Unknown;
+    if (read_command(sdref->main_fd) != COMMAND_POLL_DONE)
         goto finish;
-    }
     
     if (avahi_simple_poll_dispatch(sdref->simple_poll) < 0)
         goto finish;

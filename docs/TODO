@@ -14,8 +14,8 @@ later:
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec
   * Defer unicast responses the same way as multicast responses 
-* DNSSEC
-* Wide area DNS Update
+* DNSSEC [federico]
+* Wide area DNS Update [federico]
 * long lived queries
 * libavahi-compat-libdns_sd: implement kDNSServiceFlagsNoAutoRename and missing functions
 * libavahi-compat-howl: implement missing functions

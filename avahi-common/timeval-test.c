@@ -38,4 +38,6 @@ int main(int argc, char *argv[]) {
     printf("%li.%li\n", a.tv_sec, a.tv_usec);
 
     printf("%lli\n", avahi_timeval_diff(&a, &b));
+
+    return 0;
 }

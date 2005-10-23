@@ -58,13 +58,13 @@ int main(int argc, char *argv[]) {
     printf("%u = %u\n", avahi_domain_hash("ccc\\065aa.aa\\.b\\\\."), avahi_domain_hash("cccAaa.aa\\.b\\\\"));
 
 
-    avahi_service_name_join(t, sizeof(t), "foo.foo.foo \.", "_http._tcp", "test.local");
+    avahi_service_name_join(t, sizeof(t), "foo.foo.foo \\.", "_http._tcp", "test.local");
     printf("<%s>\n", t);
 
     avahi_service_name_split(t, name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
     printf("name: <%s>; type: <%s>; domain <%s>\n", name, type, domain);
     
-    avahi_service_name_join(t, sizeof(t), NULL, "_http._tcp", "one.two\. .local");
+    avahi_service_name_join(t, sizeof(t), NULL, "_http._tcp", "one.two\\. .local");
     printf("<%s>\n", t);
 
     avahi_service_name_split(t, NULL, 0, type, sizeof(type), domain, sizeof(domain));

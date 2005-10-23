@@ -31,6 +31,14 @@
 
 #include "malloc.h"
 
+#ifndef va_copy
+#ifdef __va_copy
+#define va_copy(DEST,SRC) __va_copy((DEST),(SRC))
+#else
+#define va_copy(DEST,SRC) memcpy(&(DEST), &(SRC), sizeof(va_list))
+#endif
+#endif
+
 static const AvahiAllocator *allocator = NULL;
 
 static void oom(void) AVAHI_GCC_NORETURN;
@@ -206,9 +214,7 @@ char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
         va_list ap2;
 
         va_copy (ap2, ap);
-        
         n = vsnprintf(buf, len, fmt, ap2);
-
         va_end (ap2);
 
         if (n >= 0 && n < (int) len)

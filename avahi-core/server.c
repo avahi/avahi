@@ -1313,18 +1313,21 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
         
         return NULL;
     }
-
     
     s->n_host_rr_pending = 0;
     s->need_entry_cleanup = 0;
     s->need_group_cleanup = 0;
     s->need_browser_cleanup = 0;
-    
-    s->time_event_queue = avahi_time_event_queue_new(poll_api);
-    
+    s->hinfo_entry_group = NULL;
+    s->browse_domain_entry_group = NULL;
+    s->error = AVAHI_OK;
+    s->state = AVAHI_SERVER_INVALID;
+
     s->callback = callback;
     s->userdata = userdata;
-    
+
+    s->time_event_queue = avahi_time_event_queue_new(poll_api);
+
     s->entries_by_key = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, NULL, NULL);
     AVAHI_LLIST_HEAD_INIT(AvahiEntry, s->entries);
     AVAHI_LLIST_HEAD_INIT(AvahiGroup, s->groups);
@@ -1342,17 +1345,7 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
     s->legacy_unicast_reflect_slots = NULL;
     s->legacy_unicast_reflect_id = 0;
 
-    if (s->config.enable_wide_area) {
-        s->wide_area_lookup_engine = avahi_wide_area_engine_new(s);
-        avahi_wide_area_set_servers(s->wide_area_lookup_engine, s->config.wide_area_servers, s->config.n_wide_area_servers);
-    } else
-        s->wide_area_lookup_engine = NULL;
-
-    s->multicast_lookup_engine = avahi_multicast_lookup_engine_new(s);
-
-    do {
-        s->local_service_cookie = (uint32_t) rand() * (uint32_t) rand();
-    } while (s->local_service_cookie == AVAHI_SERVICE_COOKIE_INVALID);
+    s->record_list = avahi_record_list_new();
     
     /* Get host name */
     s->host_name = s->config.host_name ? avahi_normalize_name_strdup(s->config.host_name) : avahi_get_host_name_strdup();
@@ -1361,20 +1354,23 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
     s->host_name_fqdn = NULL;
     update_fqdn(s);
 
-    s->record_list = avahi_record_list_new();
+    do {
+        s->local_service_cookie = (uint32_t) rand() * (uint32_t) rand();
+    } while (s->local_service_cookie == AVAHI_SERVICE_COOKIE_INVALID);
 
-    s->state = AVAHI_SERVER_INVALID;
+    if (s->config.enable_wide_area) {
+        s->wide_area_lookup_engine = avahi_wide_area_engine_new(s);
+        avahi_wide_area_set_servers(s->wide_area_lookup_engine, s->config.wide_area_servers, s->config.n_wide_area_servers);
+    } else
+        s->wide_area_lookup_engine = NULL;
 
+    s->multicast_lookup_engine = avahi_multicast_lookup_engine_new(s);
+    
     s->monitor = avahi_interface_monitor_new(s);
     avahi_interface_monitor_sync(s->monitor);
 
     register_localhost(s);
-
-    s->hinfo_entry_group = NULL;
-    s->browse_domain_entry_group = NULL;
     register_stuff(s);
-
-    s->error = AVAHI_OK;
     
     return s;
 }

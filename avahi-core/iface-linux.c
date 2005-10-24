@@ -352,10 +352,9 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
     /* Let's handle netlink events until we are done with wild
      * dumping */
     
-    while (m->osdep.list != LIST_DONE) {
+    while (!m->list_complete)
         if (!avahi_netlink_work(m->osdep.netlink, 1) == 0)
             break;
-    }
 
     /* At this point Avahi knows about all local interfaces and
      * addresses in existance. */

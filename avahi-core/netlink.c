@@ -46,41 +46,34 @@ struct AvahiNetlink {
 };
 
 int avahi_netlink_work(AvahiNetlink *nl, int block) {
+    ssize_t bytes;
+    struct nlmsghdr *p;
+    
     assert(nl);
-
-    for (;;) {
-        ssize_t bytes;
-        struct nlmsghdr *p;
-
-        for (;;) {
-            if ((bytes = recv(nl->fd, nl->buffer, nl->buffer_length, block ? 0 : MSG_DONTWAIT)) < 0) {
-
-                if (errno == EAGAIN || errno == EINTR)
-                    return 0;
-                
-                avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
-                return -1;
-            }
-
-            break;
-        }
-
-        p = (struct nlmsghdr *) nl->buffer;
+    
+    if ((bytes = recv(nl->fd, nl->buffer, nl->buffer_length, block ? 0 : MSG_DONTWAIT)) < 0) {
         
-        if (nl->callback) {
-            for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
-                if (!NLMSG_OK(p, (size_t) bytes)) {
-                    avahi_log_warn(__FILE__": packet truncated");
-                    return -1;
-                }
-
-                nl->callback(nl, p, nl->userdata);
-            }
-        }
-
-        if (block)
-            return 1;
+        if (errno == EAGAIN || errno == EINTR)
+            return 0;
+        
+        avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
+        return -1;
     }
+
+    p = (struct nlmsghdr *) nl->buffer;
+    
+    assert(nl->callback);
+    
+    for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
+        if (!NLMSG_OK(p, (size_t) bytes)) {
+            avahi_log_warn(__FILE__": packet truncated");
+            return -1;
+        }
+        
+        nl->callback(nl, p, nl->userdata);
+    }
+    
+    return 0;
 }
 
 static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {

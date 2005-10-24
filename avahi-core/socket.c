@@ -307,7 +307,7 @@ fail:
 int avahi_open_socket_ipv6(int no_reuse) {
     struct sockaddr_in6 sa, local;
     int fd = -1, yes, r;
-    uint8_t ttl;
+    int ttl;
 
     mdns_mcast_group_ipv6(&sa);
         

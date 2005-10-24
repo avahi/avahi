@@ -292,7 +292,7 @@ static int ipv6_pktinfo(int fd) {
 
 int avahi_open_socket_ipv4(int no_reuse) {
     struct sockaddr_in local;
-    int fd = -1, r;
+    int fd = -1, r, ittl;
     uint8_t ttl, cyes;
         
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -306,8 +306,8 @@ int avahi_open_socket_ipv4(int no_reuse) {
         goto fail;
     }
 
-    ttl = 255;
-    if (setsockopt(fd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
+    ittl = 255;
+    if (setsockopt(fd, IPPROTO_IP, IP_TTL, &ittl, sizeof(ittl)) < 0) {
         avahi_log_warn("IP_TTL failed: %s", strerror(errno));
         goto fail;
     }

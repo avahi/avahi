@@ -26,12 +26,14 @@ run_versioned() {
 
     V=$(echo "$2" | sed -e 's,\.,,g')
     
-    if type -p "$1$V" &> /dev/null ; then
+    if [ -e "`which $1$V`" ] ; then
     	P="$1$V" 
-    elif type -p "$1-$2" &> /dev/null ; then
-    	P="$1-$2" 
     else
-    	P="$1"
+	if [ -e "`which $1-$2`" ] ; then
+	    P="$1-$2" 
+	else
+	    P="$1"
+	fi
     fi
 
     shift 2

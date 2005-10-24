@@ -39,6 +39,13 @@ case `uname -s` in
     export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
     FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --disable-xmltoman --prefix=/opt --with-distro=none --disable-python --disable-dbus --disable-glib --disable-gtk --disable-manpages"
     ;;
+    NetBSD)
+    export LIBTOOLIZE=libtoolize
+    export CFLAGS="-I/usr/pkg/include"
+    export LDFLAGS="-L/usr/pkg/lib"
+    export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
+    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --disable-xmltoman --prefix=/opt --with-distro=none --disable-python --disable-dbus --disable-glib --disable-gtk --disable-manpages --disable-dbus"
+    ;;
     Linux)
     ;;
 esac

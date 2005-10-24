@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/socket.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -842,9 +843,10 @@ static void set_one_rlimit(int resource, rlim_t limit, const char *name) {
 }
 
 static void enforce_rlimits(void) {
-
+#ifdef RLIMIT_AS
     if (config.rlimit_as_set)
         set_one_rlimit(RLIMIT_AS, config.rlimit_as, "RLIMIT_AS");
+#endif
     if (config.rlimit_core_set)
         set_one_rlimit(RLIMIT_CORE, config.rlimit_core, "RLIMIT_CORE");
     if (config.rlimit_data_set)

@@ -140,7 +140,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void * userd
             /* The serve has startup successfully and registered its host
              * name on the network, so it's time to create our services */
             
-            if (group)
+            if (!group)
                 create_services(s);
 
             break;

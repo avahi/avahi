@@ -25,7 +25,7 @@
 #include "rr.h"
 #include "hashmap.h"
 
-#define AVAHI_DNS_PACKET_MAX_SIZE 9000
+#define AVAHI_DNS_PACKET_SIZE_MAX 9000
 #define AVAHI_DNS_PACKET_HEADER_SIZE 12
 #define AVAHI_DNS_PACKET_EXTRA_SIZE 48
 

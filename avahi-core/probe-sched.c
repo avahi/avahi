@@ -247,8 +247,8 @@ static void elapse_callback(AvahiTimeEvent *e, void* data) {
             avahi_record_get_estimate_size(pj->record) +
             AVAHI_DNS_PACKET_HEADER_SIZE;
         
-        if (size > AVAHI_DNS_PACKET_MAX_SIZE)
-            size = AVAHI_DNS_PACKET_MAX_SIZE;
+        if (size > AVAHI_DNS_PACKET_SIZE_MAX)
+            size = AVAHI_DNS_PACKET_SIZE_MAX;
 
         if (!(p = avahi_dns_packet_new_query(size)))
             return; /* OOM */

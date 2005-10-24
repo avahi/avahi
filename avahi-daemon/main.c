@@ -130,9 +130,9 @@ static int load_resolv_conf(const DaemonConfig *c) {
         goto finish;
     }
 
-    resolv_conf = avahi_new0(char*, AVAHI_MAX_WIDE_AREA_SERVERS+1);
+    resolv_conf = avahi_new0(char*, AVAHI_WIDE_AREA_SERVERS_MAX+1);
 
-    while (!feof(f) && i < AVAHI_MAX_WIDE_AREA_SERVERS) {
+    while (!feof(f) && i < AVAHI_WIDE_AREA_SERVERS_MAX) {
         char ln[128];
         char *p;
 
@@ -204,11 +204,11 @@ static void remove_dns_server_entry_groups(void) {
 }
 
 static void update_wide_area_servers(void) {
-    AvahiAddress a[AVAHI_MAX_WIDE_AREA_SERVERS];
+    AvahiAddress a[AVAHI_WIDE_AREA_SERVERS_MAX];
     unsigned n = 0;
     char **p;
 
-    for (p = resolv_conf; *p && n < AVAHI_MAX_WIDE_AREA_SERVERS; p++) {
+    for (p = resolv_conf; *p && n < AVAHI_WIDE_AREA_SERVERS_MAX; p++) {
         if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a[n]))
             avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
         else
@@ -987,7 +987,7 @@ int main(int argc, char *argv[]) {
                 /** Parent **/
 
                 if ((ret = daemon_retval_wait(20)) < 0) {
-                    avahi_log_error("Could not recieve return value from daemon process.");
+                    avahi_log_error("Could not receive return value from daemon process.");
                     goto finish;
                 }
 

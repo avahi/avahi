@@ -41,7 +41,7 @@ typedef struct AvahiEntry AvahiEntry;
 #include "multicast-lookup.h"
 #include "dns-srv-rr.h"
 
-#define AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS 100
+#define AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX 100
 
 #define AVAHI_FLAGS_VALID(flags, max) (!((flags) & ~(max)))
 

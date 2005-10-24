@@ -39,7 +39,7 @@
 #include "hashmap.h"
 #include "wide-area.h"
 
-#define MAX_CACHE_ENTRIES 500
+#define CACHE_ENTRIES_MAX 500
 
 typedef struct AvahiWideAreaCacheEntry AvahiWideAreaCacheEntry;
 
@@ -97,7 +97,7 @@ struct AvahiWideAreaLookupEngine {
 
     int cleanup_dead;
 
-    AvahiAddress dns_servers[AVAHI_MAX_WIDE_AREA_SERVERS];
+    AvahiAddress dns_servers[AVAHI_WIDE_AREA_SERVERS_MAX];
     unsigned n_dns_servers;
     unsigned current_dns_server;
 };
@@ -416,7 +416,7 @@ static void add_to_cache(AvahiWideAreaLookupEngine *e, AvahiRecord *r) {
         is_new = 1;
 
         /* Enforce cache size */
-        if (e->cache_n_entries >= MAX_CACHE_ENTRIES)
+        if (e->cache_n_entries >= CACHE_ENTRIES_MAX)
             /* Eventually we should improve the caching algorithm here */
             goto finish;
         
@@ -662,7 +662,7 @@ void avahi_wide_area_set_servers(AvahiWideAreaLookupEngine *e, const AvahiAddres
     assert(e);
 
     if (a) {
-        for (e->n_dns_servers = 0; n > 0 && e->n_dns_servers < AVAHI_MAX_WIDE_AREA_SERVERS; a++, n--) 
+        for (e->n_dns_servers = 0; n > 0 && e->n_dns_servers < AVAHI_WIDE_AREA_SERVERS_MAX; a++, n--) 
             if ((a->proto == AVAHI_PROTO_INET && e->fd_ipv4 >= 0) || (a->proto == AVAHI_PROTO_INET6 && e->fd_ipv6 >= 0))
                 e->dns_servers[e->n_dns_servers++] = *a;
     } else {

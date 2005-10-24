@@ -41,7 +41,7 @@ AvahiDnsPacket* avahi_dns_packet_new(unsigned mtu) {
     size_t max_size;
 
     if (mtu <= 0)
-        max_size = AVAHI_DNS_PACKET_MAX_SIZE;
+        max_size = AVAHI_DNS_PACKET_SIZE_MAX;
     else if (mtu >= AVAHI_DNS_PACKET_EXTRA_SIZE)
         max_size = mtu - AVAHI_DNS_PACKET_EXTRA_SIZE;
     else

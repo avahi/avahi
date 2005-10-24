@@ -48,7 +48,7 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #error "No network configuration notification system available"
 #endif
 
-#define AVAHI_MAX_MAC_ADDRESS 32
+#define AVAHI_MAC_ADDRESS_MAX 32
 
 struct AvahiInterfaceMonitor {
     AvahiServer *server;
@@ -72,7 +72,7 @@ struct AvahiHwInterface {
     
     unsigned mtu;
 
-    uint8_t mac_address[AVAHI_MAX_MAC_ADDRESS];
+    uint8_t mac_address[AVAHI_MAC_ADDRESS_MAX];
     size_t mac_address_size;
 
     AvahiSEntryGroup *entry_group;

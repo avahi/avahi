@@ -244,8 +244,8 @@ static void send_response_packet(AvahiResponseScheduler *s, AvahiResponseJob *rj
         /* OK, the packet was too small, so create one that fits */
         size = avahi_record_get_estimate_size(rj->record) + AVAHI_DNS_PACKET_HEADER_SIZE;
 
-        if (size > AVAHI_DNS_PACKET_MAX_SIZE)
-            size = AVAHI_DNS_PACKET_MAX_SIZE;
+        if (size > AVAHI_DNS_PACKET_SIZE_MAX)
+            size = AVAHI_DNS_PACKET_SIZE_MAX;
         
         if (!(p = avahi_dns_packet_new_response(size, 1)))
             return; /* OOM */

@@ -36,7 +36,7 @@
 #include "log.h"
 #include "querier.h"
 
-#define AVAHI_MAX_LOOKUPS_PER_BROWSER 15
+#define AVAHI_LOOKUPS_PER_BROWSER_MAX 15
 
 struct AvahiSRBLookup {
     AvahiSRecordBrowser *record_browser;
@@ -92,7 +92,7 @@ static AvahiSRBLookup* lookup_new(
     assert(AVAHI_IF_VALID(interface));
     assert(AVAHI_PROTO_VALID(protocol));
 
-    if (b->n_lookups >= AVAHI_MAX_LOOKUPS_PER_BROWSER)
+    if (b->n_lookups >= AVAHI_LOOKUPS_PER_BROWSER_MAX)
         /* We don't like cyclic CNAMEs */
         return NULL;
     

@@ -87,8 +87,8 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   hw->mtu = ifm->ifm_data.ifi_mtu;
   
   hw->mac_address_size = sdl->sdl_alen;
-  if (hw->mac_address_size > AVAHI_MAX_MAC_ADDRESS)
-    hw->mac_address_size = AVAHI_MAX_MAC_ADDRESS;
+  if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)
+    hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
   
   memcpy(hw->mac_address, sdl->sdl_data + sdl->sdl_nlen, hw->mac_address_size);
   

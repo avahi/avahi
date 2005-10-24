@@ -409,8 +409,8 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
 
                         avahi_dns_packet_free(reply);
                         size = avahi_record_get_estimate_size(r) + AVAHI_DNS_PACKET_HEADER_SIZE;
-                        if (size > AVAHI_DNS_PACKET_MAX_SIZE)
-                            size = AVAHI_DNS_PACKET_MAX_SIZE;
+                        if (size > AVAHI_DNS_PACKET_SIZE_MAX)
+                            size = AVAHI_DNS_PACKET_SIZE_MAX;
 
                         if (!(reply = avahi_dns_packet_new_reply(p, size, 0, 1)))
                             break; /* OOM */
@@ -652,10 +652,10 @@ static AvahiLegacyUnicastReflectSlot* allocate_slot(AvahiServer *s) {
     assert(s);
 
     if (!s->legacy_unicast_reflect_slots)
-        s->legacy_unicast_reflect_slots = avahi_new0(AvahiLegacyUnicastReflectSlot*, AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS);
+        s->legacy_unicast_reflect_slots = avahi_new0(AvahiLegacyUnicastReflectSlot*, AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX);
 
-    for (n = 0; n < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; n++, s->legacy_unicast_reflect_id++) {
-        idx = s->legacy_unicast_reflect_id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+    for (n = 0; n < AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX; n++, s->legacy_unicast_reflect_id++) {
+        idx = s->legacy_unicast_reflect_id % AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX;
         
         if (!s->legacy_unicast_reflect_slots[idx])
             break;
@@ -680,7 +680,7 @@ static void deallocate_slot(AvahiServer *s, AvahiLegacyUnicastReflectSlot *slot)
     assert(s);
     assert(slot);
 
-    idx = slot->id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+    idx = slot->id % AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX;
 
     assert(s->legacy_unicast_reflect_slots[idx] == slot);
 
@@ -697,7 +697,7 @@ static void free_slots(AvahiServer *s) {
     if (!s->legacy_unicast_reflect_slots)
         return;
 
-    for (idx = 0; idx < AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS; idx ++)
+    for (idx = 0; idx < AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX; idx ++)
         if (s->legacy_unicast_reflect_slots[idx])
             deallocate_slot(s, s->legacy_unicast_reflect_slots[idx]);
 
@@ -713,7 +713,7 @@ static AvahiLegacyUnicastReflectSlot* find_slot(AvahiServer *s, uint16_t id) {
     if (!s->legacy_unicast_reflect_slots)
         return NULL;
     
-    idx = id % AVAHI_MAX_LEGACY_UNICAST_REFLECT_SLOTS;
+    idx = id % AVAHI_LEGACY_UNICAST_REFLECT_SLOTS_MAX;
 
     if (!s->legacy_unicast_reflect_slots[idx] || s->legacy_unicast_reflect_slots[idx]->id != id)
         return NULL;
@@ -862,7 +862,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         return;
     }
 
-/*     avahi_log_debug("new packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
+/*     avahi_log_debug("new packet received on interface '%s.%i'.", i->hardware->name, i->protocol); */
 
     port = avahi_port_from_sockaddr(sa);
     avahi_address_from_sockaddr(sa, &a);
@@ -923,7 +923,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
 
         if (!is_mdns_mcast_address(dest) &&
             !avahi_interface_address_on_link(i, &a)) {
-            avahi_log_warn("Recivied non-local response on interface '%s.%i'.", i->hardware->name, i->protocol);
+            avahi_log_warn("Received non-local response on interface '%s.%i'.", i->hardware->name, i->protocol);
             return;
         }
         
@@ -955,7 +955,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, co
         return;
     }
 
-/*     avahi_log_debug("new legacy unicast packet recieved on interface '%s.%i'.", i->hardware->name, i->protocol); */
+/*     avahi_log_debug("new legacy unicast packet received on interface '%s.%i'.", i->hardware->name, i->protocol); */
 
     avahi_address_from_sockaddr(sa, &a);
     

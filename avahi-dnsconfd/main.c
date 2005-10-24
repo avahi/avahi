@@ -588,7 +588,7 @@ int main(int argc, char *argv[]) {
                 /** Parent **/
 
                 if ((ret = daemon_retval_wait(20)) < 0) {
-                    daemon_log(LOG_ERR, "Could not recieve return value from daemon process.");
+                    daemon_log(LOG_ERR, "Could not receive return value from daemon process.");
                     goto finish;
                 }
 

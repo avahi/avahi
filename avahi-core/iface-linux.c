@@ -124,8 +124,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
                     /* Fill in hardware (MAC) address */
                     hw->mac_address_size = RTA_PAYLOAD(a);
-                    if (hw->mac_address_size > AVAHI_MAX_MAC_ADDRESS)
-                        hw->mac_address_size = AVAHI_MAX_MAC_ADDRESS;
+                    if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)
+                        hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
                     
                     memcpy(hw->mac_address, RTA_DATA(a), hw->mac_address_size);
                     break;

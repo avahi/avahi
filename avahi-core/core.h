@@ -48,7 +48,7 @@ AVAHI_C_DECL_BEGIN
 #endif
 
 /** Maximum number of defined DNS servers for wide area DNS */
-#define AVAHI_MAX_WIDE_AREA_SERVERS 4
+#define AVAHI_WIDE_AREA_SERVERS_MAX 4
 
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */
 typedef void (*AvahiServerCallback) (AvahiServer *s, AvahiServerState state, void* userdata);
@@ -69,7 +69,7 @@ typedef struct AvahiServerConfig {
     int reflect_ipv;                  /**< if enable_reflector is 1, enable/disable reflecting between IPv4 and IPv6 */
     int add_service_cookie;           /**< Add magic service cookie to all locally generated records implicitly */
     int enable_wide_area;             /**< Enable wide area support */
-    AvahiAddress wide_area_servers[AVAHI_MAX_WIDE_AREA_SERVERS]; /** Unicast DNS server to use for wide area lookup */
+    AvahiAddress wide_area_servers[AVAHI_WIDE_AREA_SERVERS_MAX]; /** Unicast DNS server to use for wide area lookup */
     unsigned n_wide_area_servers;     /**< Number of servers in wide_area_servers[] */
     int disallow_other_stacks;        /**< Make sure that only one mDNS responder is run at the same time on the local machine. If this is enable Avahi will not set SO_REUSADDR on its sockets, effectively preventing other stacks from running on the local machine */
 } AvahiServerConfig;

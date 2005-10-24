@@ -68,9 +68,9 @@ typedef struct ServiceBrowserInfo ServiceBrowserInfo;
 typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
 typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
 
-#define MAX_CLIENTS 256
-#define MAX_OBJECTS_PER_CLIENT 50
-#define MAX_ENTRIES_PER_ENTRY_GROUP 20
+#define CLIENTS_MAX 256
+#define OBJECTS_PER_CLIENT_MAX 50
+#define ENTRIES_PER_ENTRY_GROUP_MAX 20
 
 /* #define VALGRIND_WORKAROUND 1 */
 
@@ -394,7 +394,7 @@ static Client *client_get(const char *name, int create) {
     if (!create)
         return NULL;
 
-    if (server->n_clients >= MAX_CLIENTS)
+    if (server->n_clients >= CLIENTS_MAX)
         return NULL;
     
     /* If not existant yet, create a new entry */
@@ -863,7 +863,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP) {
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX) {
             avahi_string_list_free(strlst);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
         }
@@ -906,7 +906,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP)
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
 
         if (domain && !*domain)
@@ -971,7 +971,7 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= MAX_ENTRIES_PER_ENTRY_GROUP)
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
         
         if (!(avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a)))
@@ -1918,7 +1918,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -1963,7 +1963,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2008,7 +2008,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2058,7 +2058,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2113,7 +2113,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
 
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2169,7 +2169,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
         }
 
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2218,7 +2218,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
         
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2276,7 +2276,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2336,7 +2336,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -2391,7 +2391,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= MAX_OBJECTS_PER_CLIENT) {
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
             return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }

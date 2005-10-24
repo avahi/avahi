@@ -67,11 +67,12 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
                 dbus_connection_unref(client->bus);
                 client->bus = NULL;
             }
-
+            
             /* Fall through */
-
+            
         case AVAHI_CLIENT_S_COLLISION:
         case AVAHI_CLIENT_S_REGISTERING:
+        case AVAHI_CLIENT_S_FAILURE:
 
             /* Clear cached strings */
             avahi_free(client->host_name);
@@ -139,15 +140,21 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
 
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged")) {
         int32_t state;
+        char *e;
+        int c;
         
         if (!(dbus_message_get_args(
                   message, &error,
                   DBUS_TYPE_INT32, &state,
+                  DBUS_TYPE_STRING, &e,
                   DBUS_TYPE_INVALID) || dbus_error_is_set (&error))) {
             fprintf(stderr, "WARNING: Failed to parse Server.StateChanged signal: %s\n", error.message);
             goto fail;
         }
-            
+
+        if ((c = avahi_error_dbus_to_number(e)) != AVAHI_OK)
+            avahi_client_set_errno(client, c);
+        
         client_set_state(client, (AvahiClientState) state);
 
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged")) {
@@ -161,11 +168,21 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         
         if (g) {
             int32_t state;
-            if (!(dbus_message_get_args (message, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID)) ||
+            char *e;
+            int c;
+            
+            if (!(dbus_message_get_args(
+                      message, &error,
+                      DBUS_TYPE_INT32, &state,
+                      DBUS_TYPE_STRING, &e,
+                      DBUS_TYPE_INVALID)) ||
                 dbus_error_is_set(&error)) {
                 fprintf(stderr, "WARNING: Failed to parse EntryGroup.StateChanged signal: %s\n", error.message);
                 goto fail;
             }
+
+            if ((c = avahi_error_dbus_to_number(e)) != AVAHI_OK)
+                avahi_client_set_errno(client, c);
             
             avahi_entry_group_set_state(g, state);
         }

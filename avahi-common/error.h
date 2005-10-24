@@ -40,7 +40,7 @@ enum {
     AVAHI_ERR_NO_NETWORK = -5,               /**< No suitable network protocol available */
     AVAHI_ERR_INVALID_TTL = -6,              /**< Invalid DNS TTL */
     AVAHI_ERR_IS_PATTERN = -7,               /**< RR key is pattern */
-    AVAHI_ERR_LOCAL_COLLISION = -8,          /**< Local name collision */
+    AVAHI_ERR_COLLISION = -8,                /**< Name collision */
     AVAHI_ERR_INVALID_RECORD = -9,           /**< Invalid RR */
 
     AVAHI_ERR_INVALID_SERVICE_NAME = -10,    /**< Invalid service name */

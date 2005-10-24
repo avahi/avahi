@@ -6,6 +6,8 @@ for 0.6:
 * add support for subtypes in static services
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
+* make sure that all limit definitions end with _MAX
+* unify argument oder of functions returning a string in a user supplied buffer 
 
 later:
 * add simplification routine for adding services 

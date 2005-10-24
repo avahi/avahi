@@ -23,7 +23,10 @@
 ***/
 
 #include <avahi-core/core.h>
+#include <avahi-common/simple-watch.h>
 
 extern AvahiServer *avahi_server;
+extern AvahiSimplePoll *simple_poll_api;
+
 
 #endif

@@ -65,6 +65,7 @@
 #endif
 
 AvahiServer *avahi_server = NULL;
+AvahiSimplePoll *simple_poll_api = NULL;
 
 typedef enum {
     DAEMON_RUN,
@@ -214,7 +215,6 @@ static void update_wide_area_servers(void) {
     }
 
     avahi_server_set_wide_area_servers(avahi_server, a, n);
-    
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
@@ -223,7 +223,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     assert(s);
     assert(c);
 
-    /** This function is possibly called before the global variable
+    /* This function is possibly called before the global variable
      * avahi_server has been set, therefore we do it explicitly */
 
     avahi_server = s;
@@ -233,31 +233,46 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         dbus_protocol_server_state_changed(state);
 #endif
 
-    if (state == AVAHI_SERVER_RUNNING) {
-        avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
-        static_service_add_to_server();
+    switch (state) {
+        case AVAHI_SERVER_RUNNING:
+            avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
+            static_service_add_to_server();
+            
+            remove_dns_server_entry_groups();
+            
+            if (c->publish_resolv_conf && resolv_conf && resolv_conf[0])
+                resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf);
+            
+            if (c->publish_dns_servers && c->publish_dns_servers[0])
+                dns_servers_entry_group = add_dns_servers(s, dns_servers_entry_group, c->publish_dns_servers);
+            
+            simple_protocol_restart_queries();
+            break;
+            
+        case AVAHI_SERVER_COLLISION: {
+            char *n;
+            
+            static_service_remove_from_server();
+            
+            remove_dns_server_entry_groups();
+            
+            n = avahi_alternative_host_name(avahi_server_get_host_name(s));
+            avahi_log_warn("Host name conflict, retrying with <%s>", n);
+            avahi_server_set_host_name(s, n);
+            avahi_free(n);
+            break;
+        }
 
-        remove_dns_server_entry_groups();
+        case AVAHI_SERVER_FAILURE:
 
-        if (c->publish_resolv_conf && resolv_conf && resolv_conf[0])
-            resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf);
+            avahi_log_error("Server error: %s", avahi_strerror(avahi_server_errno(s)));
+            avahi_simple_poll_quit(simple_poll_api);
+            break;
 
-        if (c->publish_dns_servers && c->publish_dns_servers[0])
-            dns_servers_entry_group = add_dns_servers(s, dns_servers_entry_group, c->publish_dns_servers);
-
-        simple_protocol_restart_queries();
-        
-    } else if (state == AVAHI_SERVER_COLLISION) {
-        char *n;
-
-        static_service_remove_from_server();
-
-        remove_dns_server_entry_groups();
-
-        n = avahi_alternative_host_name(avahi_server_get_host_name(s));
-        avahi_log_warn("Host name conflict, retrying with <%s>", n);
-        avahi_server_set_host_name(s, n);
-        avahi_free(n);
+        case AVAHI_SERVER_REGISTERING:
+        case AVAHI_SERVER_INVALID:
+            break;
+            
     }
 }
 
@@ -546,7 +561,6 @@ static void dump(const char *text, void* userdata) {
 
 static void signal_callback(AvahiWatch *watch, int fd, AvahiWatchEvent event, void *userdata) {
     int sig;
-    AvahiSimplePoll *simple_poll_api = userdata;
     const AvahiPoll *poll_api;
     
     assert(watch);
@@ -602,7 +616,6 @@ static void signal_callback(AvahiWatch *watch, int fd, AvahiWatchEvent event, vo
 static int run_server(DaemonConfig *c) {
     int r = -1;
     int error;
-    AvahiSimplePoll *simple_poll_api;
     const AvahiPoll *poll_api;
     AvahiWatch *sig_watch;
 
@@ -684,16 +697,20 @@ finish:
         dbus_protocol_shutdown();
 #endif
 
-    if (avahi_server)
+    if (avahi_server) {
         avahi_server_free(avahi_server);
+        avahi_server = NULL;
+    }
 
     daemon_signal_done();
 
     if (sig_watch)
         poll_api->watch_free(sig_watch);
 
-    if (simple_poll_api)
+    if (simple_poll_api) {
         avahi_simple_poll_free(simple_poll_api);
+        simple_poll_api = NULL;
+    }
 
     if (r != 0 && c->daemonize)
         daemon_retval_send(1);

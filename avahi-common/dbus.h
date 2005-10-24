@@ -42,6 +42,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER AVAHI_DBUS_NAME".HostNameResolver"
 #define AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER AVAHI_DBUS_NAME".ServiceResolver"
 
+#define AVAHI_DBUS_ERR_OK "org.freedesktop.Avahi.Success"
 #define AVAHI_DBUS_ERR_FAILURE "org.freedesktop.Avahi.Failure"
 #define AVAHI_DBUS_ERR_BAD_STATE "org.freedesktop.Avahi.BadStateError"
 #define AVAHI_DBUS_ERR_INVALID_HOST_NAME "org.freedesktop.Avahi.InvalidHostNameError"
@@ -49,7 +50,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_NO_NETWORK "org.freedesktop.Avahi.NoNetworkError"
 #define AVAHI_DBUS_ERR_INVALID_TTL "org.freedesktop.Avahi.InvalidTTLError"
 #define AVAHI_DBUS_ERR_IS_PATTERN "org.freedesktop.Avahi.IsPatternError"
-#define AVAHI_DBUS_ERR_LOCAL_COLLISION "org.freedesktop.Avahi.LocalCollisionError"
+#define AVAHI_DBUS_ERR_COLLISION "org.freedesktop.Avahi.CollisionError"
 #define AVAHI_DBUS_ERR_INVALID_RECORD "org.freedesktop.Avahi.InvalidRecordError"
 #define AVAHI_DBUS_ERR_INVALID_SERVICE_NAME "org.freedesktop.Avahi.InvalidServiceNameError"
 #define AVAHI_DBUS_ERR_INVALID_SERVICE_TYPE "org.freedesktop.Avahi.InvalidServiceTypeError"

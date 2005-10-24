@@ -108,7 +108,7 @@ static DNSServiceErrorType map_error(int error) {
             return kDNSServiceErr_BadParam;
 
 
-        case AVAHI_ERR_LOCAL_COLLISION:
+        case AVAHI_ERR_COLLISION:
             return kDNSServiceErr_NameConflict;
 
         case AVAHI_ERR_TOO_MANY_CLIENTS:
@@ -469,23 +469,29 @@ static void service_browser_callback(
 
 static void generic_client_callback(AvahiClient *s, AvahiClientState state, void* userdata) {
     DNSServiceRef sdref = userdata;
-
+    int error = kDNSServiceErr_Unknown;
+        
     assert(s);
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
     switch (state) {
-        case AVAHI_CLIENT_DISCONNECTED: {
+        case AVAHI_CLIENT_S_FAILURE:
+
+            error = map_error(avahi_client_errno(s));
+
+            /* Fall through */
+            
+        case AVAHI_CLIENT_DISCONNECTED:
 
             if (sdref->service_browser_callback)
-                sdref->service_browser_callback(sdref, 0, 0, kDNSServiceErr_Unknown, NULL, NULL, NULL, sdref->context);
+                sdref->service_browser_callback(sdref, 0, 0, error, NULL, NULL, NULL, sdref->context);
             else if (sdref->service_resolver_callback)
-                sdref->service_resolver_callback(sdref, 0, 0, kDNSServiceErr_Unknown, NULL, NULL, 0, 0, NULL, sdref->context);
+                sdref->service_resolver_callback(sdref, 0, 0, error, NULL, NULL, 0, 0, NULL, sdref->context);
             else if (sdref->domain_browser_callback)
-                sdref->domain_browser_callback(sdref, 0, 0, kDNSServiceErr_Unknown, NULL, sdref->context);
+                sdref->domain_browser_callback(sdref, 0, 0, error, NULL, sdref->context);
 
             break;
-        }
 
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_S_COLLISION:
@@ -857,9 +863,12 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
         return;
     
     switch (state) {
-        case AVAHI_CLIENT_DISCONNECTED: 
+        case AVAHI_CLIENT_DISCONNECTED:
+            reg_report_error(sdref, kDNSServiceErr_Unknown);
+            break;
 
-            reg_report_error(sdref, kDNSServiceErr_NoError);
+        case AVAHI_CLIENT_S_FAILURE:
+            reg_report_error(sdref, map_error(avahi_client_errno(s)));
             break;
         
         case AVAHI_CLIENT_S_RUNNING: {
@@ -950,6 +959,12 @@ static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState st
         case AVAHI_ENTRY_GROUP_UNCOMMITED:
             /* Ignore */
             break;
+
+        case AVAHI_ENTRY_GROUP_FAILURE:
+            /* Inform the user */
+            reg_report_error(sdref, map_error(avahi_client_errno(sdref->client)));
+            break;
+            
     }
 }
 

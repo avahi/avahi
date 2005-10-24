@@ -224,7 +224,7 @@ static AvahiEntry * server_add_internal(
         /* Add a new record */
     
         if (check_record_conflict(s, interface, protocol, r, flags) < 0) {
-            avahi_server_set_errno(s, AVAHI_ERR_LOCAL_COLLISION);
+            avahi_server_set_errno(s, AVAHI_ERR_COLLISION);
             return NULL;
         }
 

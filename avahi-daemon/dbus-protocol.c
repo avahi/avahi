@@ -686,14 +686,27 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
     EntryGroupInfo *i = userdata;
     DBusMessage *m;
     int32_t t;
+    const char *e;
     
     assert(s);
     assert(g);
     assert(i);
 
     m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged");
+    
     t = (int32_t) state;
-    dbus_message_append_args(m, DBUS_TYPE_INT32, &t, DBUS_TYPE_INVALID);
+    if (state == AVAHI_ENTRY_GROUP_FAILURE)
+        e = avahi_error_number_to_dbus(avahi_server_errno(s));
+    else if (state == AVAHI_ENTRY_GROUP_COLLISION)
+        e = AVAHI_DBUS_ERR_COLLISION;
+    else
+        e = AVAHI_DBUS_ERR_OK;
+        
+    dbus_message_append_args(
+        m,
+        DBUS_TYPE_INT32, &t,
+        DBUS_TYPE_STRING, &e,
+        DBUS_TYPE_INVALID);
     dbus_message_set_destination(m, i->client->name);  
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);
@@ -2411,12 +2424,21 @@ fail:
 void dbus_protocol_server_state_changed(AvahiServerState state) {
     DBusMessage *m;
     int32_t t;
+    const char *e;
     
     if (!server)
         return;
 
     m = dbus_message_new_signal(AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged");
     t = (int32_t) state;
+
+    if (state == AVAHI_SERVER_COLLISION)
+        e = AVAHI_DBUS_ERR_COLLISION;
+    else if (state == AVAHI_SERVER_FAILURE)
+        e = avahi_error_number_to_dbus(avahi_server_errno(avahi_server));
+    else
+        e = AVAHI_DBUS_ERR_OK;
+    
     dbus_message_append_args(m, DBUS_TYPE_INT32, &t, DBUS_TYPE_INVALID);
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);

@@ -47,22 +47,36 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
 
     /* Called whenever the entry group state changes */
 
-    if (state == AVAHI_ENTRY_GROUP_ESTABLISHED)
-        /* The entry group has been established successfully */
-        fprintf(stderr, "Service '%s' successfully established.\n", name);
-    
-    else if (state == AVAHI_ENTRY_GROUP_COLLISION) {
-        char *n;
+    switch (state) {
+        case AVAHI_ENTRY_GROUP_ESTABLISHED :
+            /* The entry group has been established successfully */
+            fprintf(stderr, "Service '%s' successfully established.\n", name);
+            break;
 
-        /* A service name collision happened. Let's pick a new name */
-        n = avahi_alternative_service_name(name);
-        avahi_free(name);
-        name = n;
+        case AVAHI_ENTRY_GROUP_COLLISION : {
+            char *n;
+            
+            /* A service name collision happened. Let's pick a new name */
+            n = avahi_alternative_service_name(name);
+            avahi_free(name);
+            name = n;
+            
+            fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+            
+            /* And recreate the services */
+            create_services(avahi_entry_group_get_client(g));
+            break;
+        }
 
-        fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+        case AVAHI_ENTRY_GROUP_FAILURE :
 
-        /* And recreate the services */
-        create_services(avahi_entry_group_get_client(g));
+            /* Some kind of failure happened while we were registering our services */
+            avahi_simple_poll_quit(simple_poll);
+            break;
+
+        case AVAHI_ENTRY_GROUP_UNCOMMITED:
+        case AVAHI_ENTRY_GROUP_REGISTERING:
+            ;
     }
 }
 
@@ -111,7 +125,6 @@ static void create_services(AvahiClient *c) {
 
 fail:
     avahi_simple_poll_quit(simple_poll);
-    return;
 }
 
 static void client_callback(AvahiClient *c, AvahiClientState state, void * userdata) {
@@ -119,25 +132,35 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void * userd
 
     /* Called whenever the client or server state changes */
 
-    if (state == AVAHI_CLIENT_S_RUNNING) {
+    switch (state) {
+        case AVAHI_CLIENT_S_RUNNING:
         
-        /* The server has startup successfully and registered its host
-         * name on the network, so it's time to create our services */
-        if (group)
-            create_services(c);
-    
-    } else if (state == AVAHI_CLIENT_S_COLLISION) {
-        
-        /* Let's drop our registered services. When the server is back
-         * in AVAHI_SERVER_RUNNING state we will register them
-         * again with the new host name. */
-        if (group)
-            avahi_entry_group_reset(group);
-        
-    } else if (state == AVAHI_CLIENT_DISCONNECTED) {
+            /* The server has startup successfully and registered its host
+             * name on the network, so it's time to create our services */
+            if (!group)
+                create_services(c);
+            break;
 
-        fprintf(stderr, "Server connection terminated.\n");
-        avahi_simple_poll_quit(simple_poll);
+        case AVAHI_CLIENT_S_COLLISION:
+        
+            /* Let's drop our registered services. When the server is back
+             * in AVAHI_SERVER_RUNNING state we will register them
+             * again with the new host name. */
+            if (group)
+                avahi_entry_group_reset(group);
+            break;
+            
+        case AVAHI_CLIENT_DISCONNECTED:
+
+            fprintf(stderr, "Server connection terminated.\n");
+            avahi_simple_poll_quit(simple_poll);
+
+            break;
+
+        case AVAHI_CLIENT_S_FAILURE:
+        case AVAHI_CLIENT_S_INVALID:
+        case AVAHI_CLIENT_S_REGISTERING:
+            ;
     }
 }
 

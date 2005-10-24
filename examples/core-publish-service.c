@@ -47,22 +47,38 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
 
     /* Called whenever the entry group state changes */
 
-    if (state == AVAHI_ENTRY_GROUP_ESTABLISHED)
-        /* The entry group has been established successfully */
-        fprintf(stderr, "Service '%s' successfully established.\n", name);
-    
-    else if (state == AVAHI_ENTRY_GROUP_COLLISION) {
-        char *n;
+    switch (state) {
+        
+        case AVAHI_ENTRY_GROUP_ESTABLISHED:
 
-        /* A service name collision happened. Let's pick a new name */
-        n = avahi_alternative_service_name(name);
-        avahi_free(name);
-        name = n;
+            /* The entry group has been established successfully */
+            fprintf(stderr, "Service '%s' successfully established.\n", name);
+            break;
 
-        fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+        case AVAHI_ENTRY_GROUP_COLLISION: {
+            char *n;
+            
+            /* A service name collision happened. Let's pick a new name */
+            n = avahi_alternative_service_name(name);
+            avahi_free(name);
+            name = n;
+            
+            fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+            
+            /* And recreate the services */
+            create_services(s);
+            break;
+        }
+            
+        case AVAHI_ENTRY_GROUP_FAILURE :
 
-        /* And recreate the services */
-        create_services(s);
+            /* Some kind of failure happened while we were registering our services */
+            avahi_simple_poll_quit(simple_poll);
+            break;
+
+        case AVAHI_ENTRY_GROUP_UNCOMMITED:
+        case AVAHI_ENTRY_GROUP_REGISTERING:
+            ;
     }
 }
 
@@ -111,7 +127,6 @@ static void create_services(AvahiServer *s) {
 
 fail:
     avahi_simple_poll_quit(simple_poll);
-    return;
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void * userdata) {
@@ -119,35 +134,54 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void * userd
 
     /* Called whenever the server state changes */
 
-    if (state == AVAHI_SERVER_RUNNING) {
-        /* The serve has startup successfully and registered its host
-         * name on the network, so it's time to create our services */
+    switch (state) {
 
-        if (group)
-            create_services(s);
-    
-    } else if (state == AVAHI_SERVER_COLLISION) {
-        char *n;
-        int r;
-        
-        /* A host name collision happened. Let's pick a new name for the server */
-        n = avahi_alternative_host_name(avahi_server_get_host_name(s));
-        fprintf(stderr, "Host name collision, retrying with '%s'\n", n);
-        r = avahi_server_set_host_name(s, n);
-        avahi_free(n);
+        case AVAHI_SERVER_RUNNING:
+            /* The serve has startup successfully and registered its host
+             * name on the network, so it's time to create our services */
+            
+            if (group)
+                create_services(s);
 
-        if (r < 0) {
-            fprintf(stderr, "Failed to set new host name: %s\n", avahi_strerror(r));
+            break;
 
-            avahi_simple_poll_quit(simple_poll);
-            return;
+        case AVAHI_SERVER_COLLISION: {
+            char *n;
+            int r;
+            
+            /* A host name collision happened. Let's pick a new name for the server */
+            n = avahi_alternative_host_name(avahi_server_get_host_name(s));
+            fprintf(stderr, "Host name collision, retrying with '%s'\n", n);
+            r = avahi_server_set_host_name(s, n);
+            avahi_free(n);
+            
+            if (r < 0) {
+                fprintf(stderr, "Failed to set new host name: %s\n", avahi_strerror(r));
+                
+                avahi_simple_poll_quit(simple_poll);
+                return;
+            }
+
+            /* Let's drop our registered services. When the server is back
+             * in AVAHI_SERVER_RUNNING state we will register them
+             * again with the new host name. */
+            if (group)
+                avahi_s_entry_group_reset(group);
+
+            break;
         }
 
-        /* Let's drop our registered services. When the server is back
-         * in AVAHI_SERVER_RUNNING state we will register them
-         * again with the new host name. */
-        if (group)
-            avahi_s_entry_group_reset(group);
+        case AVAHI_SERVER_FAILURE:
+            
+            /* Terminate on failure */
+            
+            fprintf(stderr, "Server failure: %s\n", avahi_strerror(avahi_server_errno(s)));
+            avahi_simple_poll_quit(simple_poll);
+            break;
+
+        case AVAHI_SERVER_INVALID:
+        case AVAHI_SERVER_REGISTERING:
+            ;
     }
 }
 

@@ -29,8 +29,10 @@
     <method name="GetState">
       <arg name="state" type="i" direction="out"/>
     </method>
+
     <signal name="StateChanged">
       <arg name="state" type="i"/>
+      <arg name="error" type="s"/>
     </signal>
 
     <method name="GetLocalServiceCookie">

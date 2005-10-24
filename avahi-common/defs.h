@@ -139,7 +139,8 @@ typedef enum {
     AVAHI_ENTRY_GROUP_UNCOMMITED,    /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
     AVAHI_ENTRY_GROUP_REGISTERING,   /**< The entries of the group are currently being registered */
     AVAHI_ENTRY_GROUP_ESTABLISHED,   /**< The entries have successfully been established */
-    AVAHI_ENTRY_GROUP_COLLISION      /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */
+    AVAHI_ENTRY_GROUP_COLLISION,     /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */
+    AVAHI_ENTRY_GROUP_FAILURE        /**< Some kind of failure happened, the entries have been withdrawn */
 } AvahiEntryGroupState;
 
 /** The type of domain to browse for */
@@ -200,7 +201,8 @@ typedef enum {
     AVAHI_SERVER_INVALID,          /**< Invalid state (initial) */ 
     AVAHI_SERVER_REGISTERING,      /**< Host RRs are being registered */
     AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
-    AVAHI_SERVER_COLLISION         /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
+    AVAHI_SERVER_COLLISION,        /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
+    AVAHI_SERVER_FAILURE           /**< Some fatal failure happened, the server is unable to proceed */
 } AvahiServerState;
 
 /** For every service a special TXT item is implicitly added, which

@@ -694,6 +694,7 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
         return;
     
     switch (state) {
+        case AVAHI_CLIENT_S_FAILURE:
         case AVAHI_CLIENT_DISCONNECTED:
             reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
             break;
@@ -745,6 +746,11 @@ static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState st
         case AVAHI_ENTRY_GROUP_UNCOMMITED:
             /* Ignore */
             break;
+
+        case AVAHI_ENTRY_GROUP_FAILURE:
+            reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
+            break;
+            
     }
 }
 

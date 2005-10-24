@@ -590,9 +590,8 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
             switch (cmsg->cmsg_type) {
 #ifdef IP_RECVTTL
                 case IP_RECVTTL:
-#else
-                case IP_TTL:
 #endif
+                case IP_TTL:
                     if (ret_ttl)
                         *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
 
@@ -634,7 +633,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
 #endif
                     
                 default:
-                    avahi_log_warn("Unhandled cmsg_type : %d",cmsg->cmsg_type);
+                    avahi_log_warn("Unhandled cmsg_type : %d", cmsg->cmsg_type);
                     break;
             }
         }

@@ -7,7 +7,6 @@ for 0.6:
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 * make sure that all limit definitions end with _MAX
 * unify argument oder of functions returning a string in a user   supplied buffer 
-* defer AVAHI_SERVER_RUNNING a little
 
 later:
 * add simplification routine for adding services 

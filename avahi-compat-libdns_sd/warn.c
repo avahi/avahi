@@ -46,6 +46,8 @@
 static pthread_mutex_t linkage_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int linkage_warning = 0;
 
+#ifdef __linux__
+
 const char *avahi_exe_name(void) {
     static char exe_name[1024] = "";
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -78,6 +80,18 @@ const char *avahi_exe_name(void) {
 
     return exe_name;
 }
+
+#else
+
+#ifdef __GNUC__
+#warning "avahi_exe_name() needs to be implemented for your operating system"
+#endif
+
+const char *avahi_exe_name(void) {
+    return "(unknown)";
+}
+
+#endif
 
 void avahi_warn(const char *fmt, ...) {
     char msg[512]  = "*** WARNING *** ";

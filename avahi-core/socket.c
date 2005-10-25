@@ -491,10 +491,11 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     }
+#else
+#ifdef __GNUC__
+#warning "FIXME: We need some code to set the outgoing interface here if IP_PKTINFO is not available"
 #endif
-
-    /** FIXME: We need some code to set the outgoing interface here if
-     * IP_PKTINFO is not available */
+#endif
     
     return sendmsg_loop(fd, &msg, 0);
 }

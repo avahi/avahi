@@ -31,6 +31,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/param.h>
 #include <sys/sysctl.h>
 
 #include <net/route.h>
@@ -117,6 +118,11 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   int i;
   int prefixlen = 0;
   struct sockaddr *sa  =NULL;
+
+#ifdef __NetBSD__  
+  if(((struct sockaddr *)cp)->sa_family == AF_UNSPEC)
+    ((struct sockaddr *)cp)->sa_family = AF_INET;
+#endif
 
   if(((struct sockaddr *)cp)->sa_family != AF_INET && ((struct sockaddr *)cp)->sa_family != AF_INET6)
     return;

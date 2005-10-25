@@ -32,9 +32,10 @@
 typedef struct AvahiDnsPacket {
     size_t size, rindex, max_size;
     AvahiHashmap *name_table; /* for name compression */
+    uint8_t *data;
 } AvahiDnsPacket;
 
-#define AVAHI_DNS_PACKET_DATA(p) (((uint8_t*) p) + sizeof(AvahiDnsPacket))
+#define AVAHI_DNS_PACKET_DATA(p) ((p)->data ? (p)->data : ((uint8_t*) p) + sizeof(AvahiDnsPacket))
 
 AvahiDnsPacket* avahi_dns_packet_new(unsigned mtu);
 AvahiDnsPacket* avahi_dns_packet_new_query(unsigned mtu);
@@ -103,6 +104,8 @@ size_t avahi_dns_packet_space(AvahiDnsPacket *p);
 #define AVAHI_MDNS_SUFFIX_LOCAL "local"
 #define AVAHI_MDNS_SUFFIX_ADDR_IPV4 "254.169.in-addr.arpa"
 #define AVAHI_MDNS_SUFFIX_ADDR_IPV6 "0.8.e.f.ip6.arpa"
+
+#define AVAHI_DNS_RDATA_MAX 65535
 
 #endif
 

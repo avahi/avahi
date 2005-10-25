@@ -208,6 +208,12 @@ int avahi_key_is_valid(AvahiKey *k);
 /** Check whether the specified record is valid */
 int avahi_record_is_valid(AvahiRecord *r);
 
+/** Parse a binary rdata object and fill it into *record. This function is actually implemented in dns.c */
+int avahi_rdata_parse(AvahiRecord *record, const void* rdata, size_t size);
+
+/** Serialize an AvahiRecord object into binary rdata. This function is actually implemented in dns.c */
+size_t avahi_rdata_serialize(AvahiRecord *record, void *rdata, size_t max_size);
+
 AVAHI_C_DECL_END
 
 #endif

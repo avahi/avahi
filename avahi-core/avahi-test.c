@@ -149,6 +149,7 @@ static void remove_entries(void) {
 
 static void create_entries(int new_name) {
     AvahiAddress a;
+    AvahiRecord *r;
 
     remove_entries();
 
@@ -182,6 +183,14 @@ static void create_entries(int new_name) {
 
     if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a), 53) < 0) {
         avahi_log_error("Failed to add new DNS Server address");
+        goto fail;
+    }
+
+    r = avahi_record_new_full("cname.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, AVAHI_DEFAULT_TTL);
+    r->data.cname.name = avahi_strdup("cocaine.local");
+    
+    if (avahi_server_add(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, r) < 0) {
+        avahi_log_error("Failed to add CNAME record");
         goto fail;
     }
 
@@ -345,7 +354,7 @@ int main(int argc, char *argv[]) {
     r = avahi_s_record_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, k, 0, record_browser_callback, NULL);
     avahi_key_unref(k);
 
-    hnr = avahi_s_host_name_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "cocaine.local", AVAHI_PROTO_UNSPEC, 0, hnr_callback, NULL);
+    hnr = avahi_s_host_name_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "cname.local", AVAHI_PROTO_UNSPEC, 0, hnr_callback, NULL);
 
     ar = avahi_s_address_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, avahi_address_parse("192.168.50.1", AVAHI_PROTO_INET, &a), 0, ar_callback, NULL);
 

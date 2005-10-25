@@ -98,7 +98,7 @@ typedef struct  {
 
         struct {
             char *name;
-        } ptr; /**< Data for PTR an CNAME records */
+        } ptr, ns, cname; /**< Data for PTR, NS and CNAME records */
 
         struct {
             char *cpu;

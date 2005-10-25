@@ -34,7 +34,7 @@
 #include "address.h"
 #include "malloc.h"
 
-size_t avahi_address_get_size(const AvahiAddress *a) {
+static size_t address_get_size(const AvahiAddress *a) {
     assert(a);
 
     if (a->proto == AVAHI_PROTO_INET)
@@ -52,7 +52,7 @@ int avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b) {
     if (a->proto != b->proto)
         return -1;
 
-    return memcmp(a->data.data, b->data.data, avahi_address_get_size(a));
+    return memcmp(a->data.data, b->data.data, address_get_size(a));
 }
 
 char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
@@ -124,49 +124,6 @@ AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol proto, AvahiAddre
     }
     
     return ret_addr;
-}
-
-AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddress *ret_addr) {
-    assert(sa);
-    assert(ret_addr);
-
-    assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
-
-    ret_addr->proto = avahi_af_to_proto(sa->sa_family);
-
-    if (sa->sa_family == AF_INET)
-        memcpy(&ret_addr->data.ipv4, &((const struct sockaddr_in*) sa)->sin_addr, sizeof(ret_addr->data.ipv4));
-    else
-        memcpy(&ret_addr->data.ipv6, &((const struct sockaddr_in6*) sa)->sin6_addr, sizeof(ret_addr->data.ipv6));
-
-    return ret_addr;
-}
-
-uint16_t avahi_port_from_sockaddr(const struct sockaddr* sa) {
-    assert(sa);
-
-    assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
-
-    if (sa->sa_family == AF_INET)
-        return ntohs(((const struct sockaddr_in*) sa)->sin_port);
-    else
-        return ntohs(((const struct sockaddr_in6*) sa)->sin6_port);
-}
-
-int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
-
-    static const uint8_t ipv4_in_ipv6[] = {
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0xFF, 0xFF, 0xFF, 0xFF
-    };
-    
-    assert(a);
-
-    if (a->proto != AVAHI_PROTO_INET6)
-        return 0;
-
-    return memcmp(a->data.ipv6.address, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0;
 }
 
 int avahi_proto_to_af(AvahiProtocol proto) {

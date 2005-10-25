@@ -679,7 +679,6 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6 *ret_sa, 
     uint8_t aux[64];
     ssize_t l;
     int ms;
-    
     struct cmsghdr *cmsg;
     int found_ttl = 0, found_iface = 0;
 

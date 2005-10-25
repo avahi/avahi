@@ -38,6 +38,7 @@
 #include "log.h"
 #include "hashmap.h"
 #include "wide-area.h"
+#include "addr-util.h"
 
 #define CACHE_ENTRIES_MAX 500
 

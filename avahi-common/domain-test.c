@@ -37,9 +37,6 @@ int main(int argc, char *argv[]) {
     size_t size;
     char name[64], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
     
-    printf("host name: %s\n", s = avahi_get_host_name_strdup());
-    avahi_free(s);
-
     printf("%s\n", s = avahi_normalize_name_strdup("foo.foo\\046."));
     avahi_free(s);
 
@@ -81,8 +78,6 @@ int main(int argc, char *argv[]) {
 
     p = r;
     printf("unescaped: <%s>\n", avahi_unescape_label(&p, t, sizeof(t)));
-
-    assert(avahi_domain_ends_with("foo.bar.\\065\\\\\\.aaaa", "\\065\\\\\\.aaaa"));
 
     assert(avahi_is_valid_service_type_generic("_foo._bar._waldo"));
     assert(!avahi_is_valid_service_type_strict("_foo._bar._waldo"));

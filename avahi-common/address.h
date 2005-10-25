@@ -24,8 +24,8 @@
 
 /** \file address.h Definitions and functions to manipulate IP addresses. */
 
-#include <sys/socket.h>
 #include <inttypes.h>
+#include <sys/types.h>
 
 #include <avahi-common/cdecl.h>
 
@@ -65,7 +65,6 @@ typedef struct {
     uint32_t address; /**< Address data in network byte order. */
 } AvahiIPv4Address;
 
-
 /** An IPv6 address */
 typedef struct {
     uint8_t address[16]; /**< Address data */
@@ -78,12 +77,9 @@ typedef struct {
     union {
         AvahiIPv6Address ipv6;  /** Address when IPv6 */
         AvahiIPv4Address ipv4;  /** Address when IPv4 */
-        uint8_t data[1];         /** Type independant data field */
+        uint8_t data[1];        /** Type independant data field */
     } data;
 } AvahiAddress;
-
-/** Return the address data size of the specified address. (4 for IPv4, 16 for IPv6) */
-size_t avahi_address_get_size(const AvahiAddress *a);
 
 /** Compare two addresses. Returns 0 when equal, a negative value when a < b, a positive value when a > b. */
 int avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b);
@@ -96,18 +92,8 @@ char *avahi_address_snprint(char *ret_s, size_t length, const AvahiAddress *a);
  * family detection. */
 AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol af, AvahiAddress *ret_addr);
 
-/** Make an address structture of a sockaddr structure */
-AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddress *ret_addr);
-
-/** Return the port number of a sockaddr structure (either IPv4 or IPv6) */
-uint16_t avahi_port_from_sockaddr(const struct sockaddr* sa);
-
 /** Generate the DNS reverse lookup name for an IPv4 or IPv6 address. */
 char* avahi_reverse_lookup_name(char *ret_s, size_t length, const AvahiAddress *a);
-
-/** Check whether the specified IPv6 address is in fact an
- * encapsulated IPv4 address, returns 1 if yes, 0 otherwise */
-int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a);
 
 /** Map AVAHI_PROTO_xxx constants to Unix AF_xxx constants */
 int avahi_proto_to_af(AvahiProtocol proto);

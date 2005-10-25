@@ -37,31 +37,6 @@
 #include "malloc.h"
 #include "error.h"
 
-char *avahi_get_host_name(char *ret_s, size_t size) {
-#ifdef HOST_NAME_MAX
-    char t[HOST_NAME_MAX];
-#else
-    char t[256];
-#endif
-    
-    assert(ret_s);
-    assert(size > 0);
-    
-    gethostname(t, sizeof(t));
-    t[sizeof(t)-1] = 0;
-    
-    return avahi_normalize_name(t, ret_s, size);
-}
-
-char *avahi_get_host_name_strdup(void) {
-    char t[AVAHI_DOMAIN_NAME_MAX];
-
-    if (!(avahi_get_host_name(t, sizeof(t))))
-        return NULL;
-
-    return avahi_strdup(t);
-}
-
 /* Read the first label from string *name, unescape "\" and write it to dest */
 char *avahi_unescape_label(const char **name, char *dest, size_t size) {
     unsigned i = 0;
@@ -273,30 +248,6 @@ int avahi_domain_equal(const char *a, const char *b) {
     return 1;
 }
 
-int avahi_binary_domain_cmp(const char *a, const char *b) {
-    assert(a);
-    assert(b);
-
-    if (a == b)
-        return 0;
-
-    for (;;) {
-        char ca[AVAHI_LABEL_MAX], cb[AVAHI_LABEL_MAX], *p;
-        int r;
-
-        p = avahi_unescape_label(&a, ca, sizeof(ca));
-        assert(p);
-        p = avahi_unescape_label(&b, cb, sizeof(cb));
-        assert(p);
-
-        if ((r = strcmp(ca, cb)))
-            return r;
-        
-        if (!*a && !*b)
-            return 0;
-    }
-}
-
 int avahi_is_valid_service_type_generic(const char *t) {
     assert(t);
 
@@ -481,24 +432,6 @@ unsigned avahi_domain_hash(const char *s) {
     }
 
     return hash;
-}
-
-int avahi_domain_ends_with(const char *domain, const char *suffix) {
-    assert(domain);
-    assert(suffix);
-
-    for (;;) {
-        char dummy[AVAHI_LABEL_MAX], *r;
-
-        if (*domain == 0)
-            return 0;
-        
-        if (avahi_domain_equal(domain, suffix))
-            return 1;
-
-        r = avahi_unescape_label(&domain, dummy, sizeof(dummy));
-        assert(r);
-    } 
 }
 
 int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain) {

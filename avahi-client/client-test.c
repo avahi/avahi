@@ -286,7 +286,7 @@ int main (int argc, char *argv[]) {
     else
         printf ("Successfully created hostname resolver object\n");
 
-    aar = avahi_address_parse ("224.0.0.251", AF_UNSPEC, aar);
+    aar = avahi_address_parse ("224.0.0.251", AVAHI_PROTO_UNSPEC, aar);
     if (aar == NULL) {
         printf ("failed to create address object\n");
     } else {
@@ -299,9 +299,7 @@ int main (int argc, char *argv[]) {
             printf ("*** success, added address\n");
             avahi_entry_group_commit (group2);
         }
-        
     }
-
 
     avahi_elapse_time(&tv, 8000, 0);
     poll_api->timeout_new(poll_api, &tv, test_entry_group_reset, group);

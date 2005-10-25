@@ -35,6 +35,7 @@
 #include "browse.h"
 #include "log.h"
 #include "querier.h"
+#include "domain-util.h"
 
 #define AVAHI_LOOKUPS_PER_BROWSER_MAX 15
 
@@ -278,7 +279,6 @@ static void lookup_multicast_callback(
                 lookup_handle_cname(l, interface, protocol, b->flags, r);
             else {
                 /* It's a normal record, so let's call the user callback */
-                assert(avahi_key_equal(b->key, l->key));
 
                 if (avahi_server_is_record_local(b->server, interface, protocol, r))
                     flags |= AVAHI_LOOKUP_RESULT_LOCAL;

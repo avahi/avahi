@@ -76,7 +76,9 @@ libavahi_core_la_SOURCES = \
 	hashmap.c hashmap.h \
 	wide-area.c wide-area.h \
 	multicast-lookup.c multicast-lookup.h \
-	querier.c querier.h
+	querier.c querier.h \
+	addr-util.h addr-util.c \
+	domain-util.h domain-util.c
 
 if HAVE_NETLINK
 libavahi_core_la_SOURCES += \
@@ -130,7 +132,8 @@ dns_test_SOURCES = \
 	log.c log.h \
 	util.c util.h \
 	rr.c rr.h \
-	hashmap.c hashmap.h
+	hashmap.c hashmap.h \
+	domain-util.c domain-util.h
 dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 

@@ -24,6 +24,7 @@
 #endif
 
 #include <assert.h>
+#include <stdlib.h>
 
 #include <avahi-common/error.h>
 #include <avahi-common/watch.h>

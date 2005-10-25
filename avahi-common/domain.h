@@ -44,7 +44,7 @@ AVAHI_C_DECL_BEGIN
  * the string brings us to 1014. */
 #define AVAHI_DOMAIN_NAME_MAX 1014
 
-/** Maxium size of an unescaped label */
+/** Maximum size of an unescaped label */
 #define AVAHI_LABEL_MAX 64
 
 /** Normalize a domain name into canonical form. This drops trailing
@@ -56,17 +56,8 @@ char *avahi_normalize_name(const char *s, char *ret_s, size_t size);
  * result! */
 char *avahi_normalize_name_strdup(const char *s);
 
-/** Return the local host name. */
-char *avahi_get_host_name(char *ret_s, size_t size); 
-
-/** Return the local host name. avahi_free() the result! */
-char *avahi_get_host_name_strdup(void);
-
 /** Return 1 when the specified domain names are equal, 0 otherwise */
 int avahi_domain_equal(const char *a, const char *b);
-
-/** Do a binary comparison of to specified domain names, return -1, 0, or 1, depending on the order. */
-int avahi_binary_domain_cmp(const char *a, const char *b);
 
 /** Read the first label from the textual domain name *name, unescape
  * it and write it to dest, *name is changed to point to the next label*/
@@ -74,6 +65,9 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size);
 
 /** Escape the domain name in *src and write it to *ret_name */
 char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, size_t *ret_size);
+
+/** Return a pointer to the type section of a subtype i.e. _foo._sub._bar._tcp => _bar._tcp */
+const char *avahi_get_type_from_subtype(const char *t);
 
 /** Return 1 when the specified string contains a valid generic
  * service type (i.e. a series of words starting with "_"), 0
@@ -88,9 +82,6 @@ int avahi_is_valid_service_type_strict(const char *t);
 /** Return 1 when the specified string contains a valid service subtype, 0 otherwise */
 int avahi_is_valid_service_subtype(const char *t);
 
-/** Return a pointer to the type section of a subtype i.e. _foo._sub._bar._tcp => _bar._tcp */
-const char *avahi_get_type_from_subtype(const char *t);
-
 /** Return 1 when the specified string contains a valid domain name, 0 otherwise */
 int avahi_is_valid_domain_name(const char *t);
 
@@ -102,9 +93,6 @@ int avahi_is_valid_host_name(const char *t);
 
 /** Return some kind of hash value for the domain, useful for using domains as hash table keys. */
 unsigned avahi_domain_hash(const char *name);
-
-/** Returns 1 if the the end labels of domain are eqal to suffix */
-int avahi_domain_ends_with(const char *domain, const char *suffix);
 
 /** Construct a valid complete service name from a name, a type and a domain */
 int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain);

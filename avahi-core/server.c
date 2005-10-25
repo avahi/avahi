@@ -45,26 +45,38 @@
 #include "log.h"
 #include "util.h"
 #include "dns-srv-rr.h"
+#include "addr-util.h"
+#include "domain-util.h"
 
 static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const char *name, uint16_t type, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata) {
-    AvahiKey *k;
-    AvahiEntry *e;
-
     assert(s);
     assert(i);
     assert(name);
     assert(callback);
 
-    assert(type != AVAHI_DNS_TYPE_ANY);
+    if (type == AVAHI_DNS_TYPE_ANY) {
+        AvahiEntry *e;
+        
+        for (e = s->entries; e; e = e->entries_next)
+            if (!e->dead &&
+                avahi_entry_is_registered(s, e, i) &&
+                e->record->key->clazz == AVAHI_DNS_CLASS_IN &&
+                avahi_domain_equal(name, e->record->key->name))
+                callback(s, e->record, e->flags & AVAHI_PUBLISH_UNIQUE, userdata);
 
-    if (!(k = avahi_key_new(name, AVAHI_DNS_CLASS_IN, type)))
-        return; /** OOM */
-
-    for (e = avahi_hashmap_lookup(s->entries_by_key, k); e; e = e->by_key_next)
-        if (!e->dead && avahi_entry_is_registered(s, e, i)) 
-            callback(s, e->record, e->flags & AVAHI_PUBLISH_UNIQUE, userdata);
-
-    avahi_key_unref(k);
+    } else {
+        AvahiEntry *e;
+        AvahiKey *k;
+        
+        if (!(k = avahi_key_new(name, AVAHI_DNS_CLASS_IN, type)))
+            return; /** OOM */
+        
+        for (e = avahi_hashmap_lookup(s->entries_by_key, k); e; e = e->by_key_next)
+            if (!e->dead && avahi_entry_is_registered(s, e, i)) 
+                callback(s, e->record, e->flags & AVAHI_PUBLISH_UNIQUE, userdata);
+        
+        avahi_key_unref(k);
+    }
 }
 
 void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata) {
@@ -72,6 +84,8 @@ void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, Avahi
     assert(i);
     assert(r);
     assert(callback);
+
+    /* Call the specified callback far all records referenced by the one specified in *r */
     
     if (r->key->clazz == AVAHI_DNS_CLASS_IN) {
         if (r->key->type == AVAHI_DNS_TYPE_PTR) {
@@ -80,7 +94,8 @@ void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, Avahi
         } else if (r->key->type == AVAHI_DNS_TYPE_SRV) {
             enum_aux_records(s, i, r->data.srv.name, AVAHI_DNS_TYPE_A, callback, userdata);
             enum_aux_records(s, i, r->data.srv.name, AVAHI_DNS_TYPE_AAAA, callback, userdata);
-        }
+        } else if (r->key->type == AVAHI_DNS_TYPE_CNAME)
+            enum_aux_records(s, i, r->data.cname.name, AVAHI_DNS_TYPE_ANY, callback, userdata);
     }
 }
 
@@ -93,17 +108,14 @@ void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry
 }
 
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, int unicast_response) {
-    AvahiEntry *e;
-/*     char *txt; */
-    
     assert(s);
     assert(i);
     assert(k);
 
-/*     avahi_log_debug("Posting responses matching [%s]", txt = avahi_key_to_string(k)); */
-/*     avahi_free(txt); */
+    /* Push all records that match the specified key to the record list */
 
     if (avahi_key_is_pattern(k)) {
+        AvahiEntry *e;
 
         /* Handle ANY query */
         
@@ -112,6 +124,7 @@ void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, 
                 avahi_server_prepare_response(s, i, e, unicast_response, 0);
 
     } else {
+        AvahiEntry *e;
 
         /* Handle all other queries */
         
@@ -119,21 +132,40 @@ void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, 
             if (!e->dead && avahi_entry_is_registered(s, e, i))
                 avahi_server_prepare_response(s, i, e, unicast_response, 0);
     }
+
+    /* Look for CNAME records */
+
+    if ((k->clazz == AVAHI_DNS_CLASS_IN || k->clazz == AVAHI_DNS_CLASS_ANY)
+        && k->type != AVAHI_DNS_TYPE_CNAME && k->type != AVAHI_DNS_TYPE_ANY) {
+
+        AvahiKey *cname_key;
+
+        if (!(cname_key = avahi_key_new(k->name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME)))
+            return;
+        
+        avahi_server_prepare_matching_responses(s, i, cname_key, unicast_response);
+        avahi_key_unref(cname_key);
+    }
 }
 
 static void withdraw_entry(AvahiServer *s, AvahiEntry *e) {
     assert(s);
     assert(e);
+
+    /* Withdraw the specified entry, and if is part of an entry group,
+     * put that into COLLISION state */
+
+    if (e->dead)
+        return;
     
     if (e->group) {
         AvahiEntry *k;
         
-        for (k = e->group->entries; k; k = k->by_group_next) {
+        for (k = e->group->entries; k; k = k->by_group_next) 
             if (!k->dead) {
                 avahi_goodbye_entry(s, k, 0, 1);
                 k->dead = 1;
             }
-        }
 
         e->group->n_probing = 0;
 
@@ -152,24 +184,22 @@ static void withdraw_rrset(AvahiServer *s, AvahiKey *key) {
     assert(s);
     assert(key);
 
-   for (e = avahi_hashmap_lookup(s->entries_by_key, key); e; e = e->by_key_next)
-       if (!e->dead)
-           withdraw_entry(s, e);
+    /* Withdraw an entry RRSset */
+    
+    for (e = avahi_hashmap_lookup(s->entries_by_key, key); e; e = e->by_key_next)
+        withdraw_entry(s, e);
 }
 
 static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i) {
     AvahiEntry *e, *n;
-    char *t;
     int ours = 0, won = 0, lost = 0;
     
     assert(s);
     assert(record);
     assert(i);
 
-    t = avahi_record_to_string(record);
-
-/*     avahi_log_debug("incoming_probe()");  */
-
+    /* Handle incoming probes and check if they conflict our own probes */
+    
     for (e = avahi_hashmap_lookup(s->entries_by_key, record->key); e; e = n) {
         int cmp;
         n = e->by_key_next;
@@ -192,17 +222,17 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     }
 
     if (!ours) {
-
+        char *t = avahi_record_to_string(record);
+        
         if (won)
             avahi_log_debug("Recieved conflicting probe [%s]. Local host won.", t);
         else if (lost) {
             avahi_log_debug("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
             withdraw_rrset(s, record->key);
-        }/*  else */
-/*             avahi_log_debug("Not conflicting probe"); */
+        }
+        
+        avahi_free(t);
     }
-
-    avahi_free(t);
 }
 
 static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, int unique, const AvahiAddress *a) {
@@ -213,9 +243,8 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
     assert(i);
     assert(record);
 
-
-/*     avahi_log_debug("CHECKING FOR CONFLICT: [%s]", t);   */
-
+    /* Check whether an incoming record conflicts with one of our own */
+    
     for (e = avahi_hashmap_lookup(s->entries_by_key, record->key); e; e = n) {
         n = e->by_key_next;
 
@@ -285,8 +314,6 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
             }
         }
     }
-
-/*     avahi_log_debug("ours=%i conflict=%i", ours, conflict); */
 
     if (!ours && conflict) {
         char *t;

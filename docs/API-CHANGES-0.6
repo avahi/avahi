@@ -11,11 +11,10 @@ A terse list of API changes between 0.5.2 and 0.6:
  
  * avahi-core/core.h has been split into core.h publish.h lookup.h
 
- * avahi_client_is_service_local() has been removed. The special flags
-   AVAHI_LOOKUP_RESULT_LOCAL and AVAHI_LOOKUP_RESULT_OUR_OWN which are
-   set when resolving or browsing for
-   services. AVAHI_LOOKUP_RESULT_OUR_OWN is what most people should
-   use.
+ * avahi_client_is_service_local() has been removed. Use instead the special
+   flags AVAHI_LOOKUP_RESULT_LOCAL and AVAHI_LOOKUP_RESULT_OUR_OWN which are
+   set when resolving or browsing for services. AVAHI_LOOKUP_RESULT_OUR_OWN is
+   what most people should use.
 
  * AVAHI_RESOLVER_TIMEOUT and AVAHI_RESOLVER_NOT_FOUND have been
    removed. Instead AVAHI_RESOLVER_FAILURE is used and the exact error
@@ -53,5 +52,7 @@ A terse list of API changes between 0.5.2 and 0.6:
 
  * The functions avahi_service_name_join() and
    avahi_service_name_split() have been introduced.
+ 
+ * AVAHI_ERR_LOCAL_COLLISION has been renamed to AVAHI_ERR_COLLSION
 
 $Id$

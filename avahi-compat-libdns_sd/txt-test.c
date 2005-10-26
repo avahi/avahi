@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <avahi-common/gccmacro.h>
 #include "dns_sd.h"
 
 static void hexdump(const void* p, size_t size) {
@@ -64,7 +65,7 @@ static void hexdump(const void* p, size_t size) {
 }
 
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     const char *r;
     TXTRecordRef ref;
     uint8_t l;

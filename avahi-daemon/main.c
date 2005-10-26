@@ -230,7 +230,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     avahi_server = s;
     
 #ifdef HAVE_DBUS
-    if (c->enable_dbus)
+    if (c->enable_dbus && state != AVAHI_SERVER_INVALID && state != AVAHI_SERVER_FAILURE)
         dbus_protocol_server_state_changed(state);
 #endif
 
@@ -556,11 +556,11 @@ static void log_function(AvahiLogLevel level, const char *txt) {
     daemon_log(log_level_map[level], "%s", txt);
 }
 
-static void dump(const char *text, void* userdata) {
+static void dump(const char *text, AVAHI_GCC_UNUSED void* userdata) {
     avahi_log_info("%s", text);
 }
 
-static void signal_callback(AvahiWatch *watch, int fd, AvahiWatchEvent event, void *userdata) {
+static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
     int sig;
     const AvahiPoll *poll_api;
     

@@ -35,7 +35,7 @@
 #include "log.h"
 #include "util.h"
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     char t[AVAHI_DOMAIN_NAME_MAX];
     const char *a, *b, *c, *d;
     AvahiDnsPacket *p;

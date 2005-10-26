@@ -300,7 +300,7 @@ static gboolean check_func(GSource *source) {
     return FALSE;
 }
 
-static gboolean dispatch_func(GSource *source, GSourceFunc callback, gpointer userdata) {
+static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc callback, AVAHI_GCC_UNUSED gpointer userdata) {
     AvahiGLibPoll* g = (AvahiGLibPoll*) source;
     AvahiWatch *w;
     AvahiTimeout *next_timeout;

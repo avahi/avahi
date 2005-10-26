@@ -28,7 +28,7 @@
 #include "alternative.h"
 #include "malloc.h"
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     char *r = NULL;
     int i, k;
 

@@ -59,6 +59,13 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_GCC_NORETURN
 #endif
 
+#ifdef __GNUC__
+#define AVAHI_GCC_UNUSED __attribute__ ((unused))
+#else
+/** Macro for not used parameter */
+#define AVAHI_GCC_UNUSED
+#endif
+
 AVAHI_C_DECL_END
 
 #endif

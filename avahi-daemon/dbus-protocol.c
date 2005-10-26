@@ -627,7 +627,7 @@ fail:
 
 }
 
-static DBusHandlerResult msg_signal_filter_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
+static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection *c, DBusMessage *m, void *userdata) {
     DBusError error;
 
     dbus_error_init(&error);
@@ -1733,7 +1733,7 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
+static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata) {
     DBusError error;
 
     dbus_error_init(&error);
@@ -2439,7 +2439,7 @@ void dbus_protocol_server_state_changed(AvahiServerState state) {
     else
         e = AVAHI_DBUS_ERR_OK;
     
-    dbus_message_append_args(m, DBUS_TYPE_INT32, &t, DBUS_TYPE_INVALID);
+    dbus_message_append_args(m, DBUS_TYPE_INT32, &t, DBUS_TYPE_STRING, &e, DBUS_TYPE_INVALID);
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);
 }

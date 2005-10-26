@@ -65,11 +65,11 @@ static void sb_callback(
     const char *service_type,
     const char *domain,
     AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED void* userdata) {
     avahi_log_debug("SB%i: (%i.%s) <%s> as <%s> in <%s> [%s] cached=%i", b == service_browser1 ? 1 : 2, iface, avahi_proto_to_string(protocol), name, service_type, domain, browser_event_to_string(event), !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
 }
 
-static void create_second_service_browser(AvahiTimeout *timeout, void* userdata) {
+static void create_second_service_browser(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* userdata) {
 
     service_browser2 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
     assert(service_browser2);
@@ -77,11 +77,11 @@ static void create_second_service_browser(AvahiTimeout *timeout, void* userdata)
     poll_api->timeout_free(timeout);
 }
 
-static void quit(AvahiTimeout *timeout, void *userdata) {
+static void quit(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
     avahi_simple_poll_quit(simple_poll);
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct timeval tv;
     AvahiServerConfig config;
     

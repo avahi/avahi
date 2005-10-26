@@ -45,7 +45,7 @@ static void callback(AvahiTimeEvent*e, void* userdata) {
     avahi_time_event_update(e, &tv);
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct timeval tv;
     AvahiSimplePoll *s;
 

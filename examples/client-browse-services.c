@@ -39,8 +39,8 @@ static AvahiSimplePoll *simple_poll = NULL;
 
 static void resolve_callback(
     AvahiServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *name,
     const char *type,
@@ -50,7 +50,7 @@ static void resolve_callback(
     uint16_t port,
     AvahiStringList *txt,
     AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED void* userdata) {
 
     assert(r);
 
@@ -101,7 +101,7 @@ static void browse_callback(
     const char *name,
     const char *type,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
     
     AvahiClient *c = userdata;
@@ -137,11 +137,10 @@ static void browse_callback(
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
             fprintf(stderr, "(Browser) %s\n", event == AVAHI_BROWSER_CACHE_EXHAUSTED ? "CACHE_EXHAUSTED" : "ALL_FOR_NOW");
             break;
-
     }
 }
 
-static void client_callback(AvahiClient *c, AvahiClientState state, void * userdata) {
+static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
     assert(c);
 
     /* Called whenever the client or server state changes */
@@ -152,7 +151,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void * userd
     }
 }
 
-int main(int argc, char*argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiClient *client = NULL;
     AvahiServiceBrowser *sb = NULL;
     int error;

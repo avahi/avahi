@@ -33,24 +33,24 @@
 #include <avahi-common/malloc.h>
 
 static void callback(
-    AvahiServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiServiceResolver *r,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *name,
     const char *type,
     const char *domain,
     const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AvahiStringList *txt,
-    AvahiLookupResultFlags flags,
-    void *userdata) {
+    AVAHI_GCC_UNUSED const AvahiAddress *a,
+    AVAHI_GCC_UNUSED uint16_t port,
+    AVAHI_GCC_UNUSED AvahiStringList *txt,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void *userdata) {
 
     fprintf(stderr, "%i name=%s type=%s domain=%s host=%s\n", event, name, type, domain, host_name);
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     AvahiSimplePoll *simple_poll;
     const AvahiPoll *poll_api;

@@ -47,13 +47,13 @@ static char *service_name = NULL;
 
 static const AvahiPoll *poll_api;
 
-static void quit_timeout_callback(AvahiTimeout *timeout, void* userdata) {
+static void quit_timeout_callback(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata) {
     AvahiSimplePoll *simple_poll = userdata;
 
     avahi_simple_poll_quit(simple_poll);
 }
 
-static void dump_line(const char *text, void* userdata) {
+static void dump_line(const char *text, AVAHI_GCC_UNUSED void* userdata) {
     printf("%s\n", text);
 }
 
@@ -93,8 +93,8 @@ static void record_browser_callback(
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     AvahiRecord *record,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
     char *t;
     
     assert(r);
@@ -110,7 +110,7 @@ static void record_browser_callback(
 static void remove_entries(void);
 static void create_entries(int new_name);
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
+static void entry_group_callback(AVAHI_GCC_UNUSED AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void* userdata) {
     avahi_log_debug("entry group state: %i", state); 
 
     if (state == AVAHI_ENTRY_GROUP_COLLISION) {
@@ -122,7 +122,7 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
     }
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, void* userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void* userdata) {
 
     server = s;
     avahi_log_debug("server state: %i", state); 
@@ -205,14 +205,14 @@ fail:
 }
 
 static void hnr_callback(
-    AvahiSHostNameResolver *r,
+    AVAHI_GCC_UNUSED AvahiSHostNameResolver *r,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *hostname,
     const AvahiAddress *a,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
     char t[AVAHI_ADDRESS_STR_MAX];
 
     if (a)
@@ -222,14 +222,14 @@ static void hnr_callback(
 }
 
 static void ar_callback(
-    AvahiSAddressResolver *r,
+    AVAHI_GCC_UNUSED AvahiSAddressResolver *r,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
     const AvahiAddress *a,
     const char *hostname,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
     char t[AVAHI_ADDRESS_STR_MAX];
 
     avahi_address_snprint(t, sizeof(t), a);
@@ -238,45 +238,45 @@ static void ar_callback(
 }
 
 static void db_callback(
-    AvahiSDomainBrowser *b,
+    AVAHI_GCC_UNUSED AvahiSDomainBrowser *b,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *domain,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
 
     avahi_log_debug("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, browser_event_to_string(event));
 }
 
 static void stb_callback(
-    AvahiSServiceTypeBrowser *b,
+    AVAHI_GCC_UNUSED AvahiSServiceTypeBrowser *b,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *service_type,
     const char *domain,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
 
     avahi_log_debug("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, browser_event_to_string(event));
 }
 
 static void sb_callback(
-    AvahiSServiceBrowser *b,
+    AVAHI_GCC_UNUSED AvahiSServiceBrowser *b,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *name,
     const char *service_type,
     const char *domain,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
     avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, browser_event_to_string(event));
 }
 
 static void sr_callback(
-    AvahiSServiceResolver *r,
+    AVAHI_GCC_UNUSED AvahiSServiceResolver *r,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
@@ -287,8 +287,8 @@ static void sr_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags, 
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, 
+    AVAHI_GCC_UNUSED void* userdata) {
 
     if (event != AVAHI_RESOLVER_FOUND)
         avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain_name, resolver_event_to_string(event));
@@ -304,15 +304,15 @@ static void sr_callback(
 }
 
 static void dsb_callback(
-    AvahiSDNSServerBrowser *b,
+    AVAHI_GCC_UNUSED AvahiSDNSServerBrowser *b,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char*hostname,
     const AvahiAddress *a,
     uint16_t port,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
     
     char t[AVAHI_ADDRESS_STR_MAX] = "n/a";
     
@@ -322,7 +322,7 @@ static void dsb_callback(
     avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname, t, port, browser_event_to_string(event));
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiSRecordBrowser *r;
     AvahiSHostNameResolver *hnr;
     AvahiSAddressResolver *ar;

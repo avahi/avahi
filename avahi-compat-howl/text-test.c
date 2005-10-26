@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <avahi-common/gccmacro.h>
 #include "howl.h"
 
 #define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); assert(_r == SW_OKAY); }
@@ -65,7 +66,7 @@ static void hexdump(const void* p, size_t size) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     sw_text_record r;
     sw_text_record_iterator it;
     char key[255];

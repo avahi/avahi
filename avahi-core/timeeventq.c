@@ -75,7 +75,7 @@ static void update_timeout(AvahiTimeEventQueue *q) {
         q->poll_api->timeout_update(q->timeout, NULL);
 }
 
-static void expiration_event(AvahiTimeout *timeout, void *userdata) {
+static void expiration_event(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *userdata) {
     AvahiTimeEventQueue *q = userdata;
     AvahiTimeEvent *e;
 

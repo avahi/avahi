@@ -694,7 +694,6 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
         return;
     
     switch (state) {
-        case AVAHI_CLIENT_S_FAILURE:
         case AVAHI_CLIENT_DISCONNECTED:
             reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
             break;
@@ -717,7 +716,6 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
             avahi_entry_group_reset(data->object);
             break;
 
-        case AVAHI_CLIENT_S_INVALID:
         case AVAHI_CLIENT_S_REGISTERING:
             /* Ignore */
             break;
@@ -836,10 +834,10 @@ finish:
 static void domain_browser_callback(
     AvahiDomainBrowser *b,
     AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
 
     oid_data* data = userdata;
@@ -922,7 +920,7 @@ finish:
 static void service_resolver_callback(
     AvahiServiceResolver *r,
     AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *name,
     const char *type,
@@ -931,7 +929,7 @@ static void service_resolver_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
 
     oid_data* data = userdata;
@@ -1031,12 +1029,12 @@ finish:
 static void service_browser_callback(
     AvahiServiceBrowser *b,
     AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *name,
     const char *type,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
 
     oid_data* data = userdata;

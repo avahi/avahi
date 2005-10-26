@@ -167,13 +167,13 @@ static void client_output_printf(Client *c, const char *format, ...) {
 }
 
 static void host_name_resolver_callback(
-    AvahiSHostNameResolver *r,
+    AVAHI_GCC_UNUSED AvahiSHostNameResolver *r,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *hostname,
     const AvahiAddress *a,
-    AvahiLookupResultFlags flags, 
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, 
     void* userdata) {
 
     Client *c = userdata;
@@ -192,13 +192,13 @@ static void host_name_resolver_callback(
 }
 
 static void address_resolver_callback(
-    AvahiSAddressResolver *r,
+    AVAHI_GCC_UNUSED AvahiSAddressResolver *r,
     AvahiIfIndex iface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
-    const AvahiAddress *a,
+    AVAHI_GCC_UNUSED const AvahiAddress *a,
     const char *hostname,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
     
     Client *c = userdata;
@@ -214,14 +214,14 @@ static void address_resolver_callback(
 }
 
 static void dns_server_browser_callback(
-    AvahiSDNSServerBrowser *b,
+    AVAHI_GCC_UNUSED AvahiSDNSServerBrowser *b,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
-    const char *host_name,
+    AVAHI_GCC_UNUSED const char *host_name,
     const AvahiAddress *a,
     uint16_t port,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
     
     Client *c = userdata;
@@ -370,7 +370,7 @@ static void handle_input(Client *c) {
     }
 }
 
-static void client_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
+static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEvent events, void *userdata) {
     Client *c = userdata;
 
     assert(c);
@@ -418,7 +418,7 @@ static void client_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void 
         (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
 
-static void server_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
+static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
     Server *s = userdata;
 
     assert(s);

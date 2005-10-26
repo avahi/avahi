@@ -43,11 +43,9 @@ typedef struct AvahiClient AvahiClient;
 
 /** States of a client object, a superset of AvahiServerState */
 typedef enum {
-    AVAHI_CLIENT_S_INVALID = AVAHI_SERVER_INVALID,
     AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,
     AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,
     AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,
-    AVAHI_CLIENT_S_FAILURE = AVAHI_SERVER_FAILURE,
     AVAHI_CLIENT_DISCONNECTED = 100 /**< Lost DBUS connection to the Avahi daemon */
 } AvahiClientState;
 

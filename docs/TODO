@@ -4,6 +4,7 @@ for 0.6:
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 * always set source address for outgoing packets
+* introduce AVAHI_CLIENT_FAILURE
 
 later:
 * add simplification routine for adding services 

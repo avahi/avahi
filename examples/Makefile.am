@@ -33,7 +33,6 @@ core_browse_services_SOURCES = core-browse-services.c
 core_browse_services_CFLAGS = $(AM_CFLAGS)
 core_browse_services_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
-
 if HAVE_DBUS
 if ENABLE_TESTS
 

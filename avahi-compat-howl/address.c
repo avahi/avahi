@@ -31,6 +31,8 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 
+#include <avahi-common/gccmacro.h>
+
 #include "howl.h"
 #include "warn.h"
 
@@ -137,7 +139,7 @@ sw_result sw_ipv4_address_init_from_this_host(sw_ipv4_address *self) {
     return SW_OKAY;
 }
 
-sw_result sw_ipv4_address_fina(sw_ipv4_address self) {
+sw_result sw_ipv4_address_fina(AVAHI_GCC_UNUSED sw_ipv4_address self) {
 
     AVAHI_WARN_LINKAGE;
 

@@ -25,7 +25,7 @@
 
 #include "ini-file-parser.h"
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     AvahiIniFile *f;
     AvahiIniFileGroup *g;

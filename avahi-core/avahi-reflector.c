@@ -31,7 +31,7 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-core/core.h>
 
-int main(int argc, char*argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiServer *server;
     AvahiServerConfig config;
     int error;

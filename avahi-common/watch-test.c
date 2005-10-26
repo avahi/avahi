@@ -32,11 +32,12 @@
 #include "watch.h"
 #include "simple-watch.h"
 #include "timeval.h"
+#include "gccmacro.h"
 
 static const AvahiPoll *api = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 
-static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {
+static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
 
     if (event & AVAHI_WATCH_IN) {
         ssize_t r;
@@ -52,7 +53,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdat
     }
 }
 
-static void wakeup(AvahiTimeout *t, void *userdata) {
+static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
     static int i = 0;
     struct timeval tv;
 
@@ -66,7 +67,7 @@ static void wakeup(AvahiTimeout *t, void *userdata) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct timeval tv;
     
     simple_poll = avahi_simple_poll_new();

@@ -431,12 +431,12 @@ void DNSSD_API DNSServiceRefDeallocate(DNSServiceRef sdref) {
 static void service_browser_callback(
     AvahiServiceBrowser *b,
     AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *name,
     const char *type,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
@@ -476,11 +476,6 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
     assert(sdref->n_ref >= 1);
 
     switch (state) {
-        case AVAHI_CLIENT_S_FAILURE:
-
-            error = map_error(avahi_client_errno(s));
-
-            /* Fall through */
             
         case AVAHI_CLIENT_DISCONNECTED:
 
@@ -495,7 +490,6 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
 
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_S_COLLISION:
-        case AVAHI_CLIENT_S_INVALID:
         case AVAHI_CLIENT_S_REGISTERING:
             break;
     }
@@ -563,16 +557,16 @@ finish:
 static void service_resolver_callback(
     AvahiServiceResolver *r,
     AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *name,
     const char *type,
     const char *domain,
     const char *host_name,
-    const AvahiAddress *a,
+    AVAHI_GCC_UNUSED const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
@@ -695,10 +689,10 @@ int DNSSD_API DNSServiceConstructFullName (
 static void domain_browser_callback(
     AvahiDomainBrowser *b,
     AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
@@ -867,10 +861,6 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
             reg_report_error(sdref, kDNSServiceErr_Unknown);
             break;
 
-        case AVAHI_CLIENT_S_FAILURE:
-            reg_report_error(sdref, map_error(avahi_client_errno(s)));
-            break;
-        
         case AVAHI_CLIENT_S_RUNNING: {
             int ret;
 
@@ -909,7 +899,6 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
             
             break;
 
-        case AVAHI_CLIENT_S_INVALID:
         case AVAHI_CLIENT_S_REGISTERING:
             /* Ignore */
             break;

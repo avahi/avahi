@@ -50,8 +50,8 @@ static AvahiServer *server = NULL;
 
 static void resolve_callback(
     AvahiSServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *name,
     const char *type,
@@ -61,7 +61,7 @@ static void resolve_callback(
     uint16_t port,
     AvahiStringList *txt,
     AvahiLookupResultFlags flags,
-    void* userdata) {
+    AVAHI_GCC_UNUSED void* userdata) {
     
     assert(r);
 
@@ -109,7 +109,7 @@ static void browse_callback(
     const char *name,
     const char *type,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
     
     AvahiServer *s = userdata;
@@ -149,7 +149,7 @@ static void browse_callback(
     }
 }
 
-int main(int argc, char*argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiServerConfig config;
     AvahiSServiceBrowser *sb = NULL;
     int error;

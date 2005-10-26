@@ -96,8 +96,8 @@ static void server_info_free(AvahiSDNSServerBrowser *b, AvahiDNSServerInfo *i) {
 
 static void host_name_resolver_callback(
     AvahiSHostNameResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiResolverEvent event,
     const char *host_name,
     const AvahiAddress *a,

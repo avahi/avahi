@@ -214,7 +214,7 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
     return 1;
 }
 
-static void elapse_callback(AvahiTimeEvent *e, void* data) {
+static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     AvahiProbeJob *pj = data, *next;
     AvahiProbeScheduler *s;
     AvahiDnsPacket *p;

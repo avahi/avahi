@@ -26,20 +26,21 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <avahi-common/gccmacro.h>
 #include "howl.h"
 
 #define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); assert(_r == SW_OKAY); }
 #define ASSERT_NOT_NULL(t) { const void* _r; r = (t); assert(_r); }
 
 static sw_result reply(
-    sw_discovery discovery,
-    sw_discovery_oid oid,
+    AVAHI_GCC_UNUSED sw_discovery discovery,
+    AVAHI_GCC_UNUSED sw_discovery_oid oid,
     sw_discovery_browse_status status,
-    sw_uint32 interface_index,
-    sw_const_string name,
-    sw_const_string type,
+    AVAHI_GCC_UNUSED sw_uint32 interface_index,
+    AVAHI_GCC_UNUSED sw_const_string name,
+    AVAHI_GCC_UNUSED sw_const_string type,
     sw_const_string domain,
-    sw_opaque extra) {
+    AVAHI_GCC_UNUSED sw_opaque extra) {
 
     switch (status) {
         case SW_DISCOVERY_BROWSE_ADD_DOMAIN:
@@ -61,7 +62,7 @@ static sw_result reply(
     return SW_OKAY;
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     sw_discovery discovery;
     sw_discovery_oid oid;
     

@@ -1104,7 +1104,7 @@ void avahi_server_decrease_host_rr_pending(AvahiServer *s) {
         server_set_state(s, AVAHI_SERVER_RUNNING);
 }
 
-void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
     assert(s);
     assert(g);
 

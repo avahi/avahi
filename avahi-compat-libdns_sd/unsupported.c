@@ -23,22 +23,24 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/gccmacro.h>
+
 #include "dns_sd.h"
 #include "warn.h"
 
 DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord (
-    DNSServiceRef sdRef,
-    DNSRecordRef *RecordRef,
-    DNSServiceFlags flags,
-    uint32_t interfaceIndex,
-    const char *fullname,
-    uint16_t rrtype,
-    uint16_t rrclass,
-    uint16_t rdlen,
-    const void *rdata,
-    uint32_t ttl,
-    DNSServiceRegisterRecordReply callBack,
-    void *context) {
+    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
+    AVAHI_GCC_UNUSED DNSRecordRef *RecordRef,
+    AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    AVAHI_GCC_UNUSED uint32_t interfaceIndex,
+    AVAHI_GCC_UNUSED const char *fullname,
+    AVAHI_GCC_UNUSED uint16_t rrtype,
+    AVAHI_GCC_UNUSED uint16_t rrclass,
+    AVAHI_GCC_UNUSED uint16_t rdlen,
+    AVAHI_GCC_UNUSED const void *rdata,
+    AVAHI_GCC_UNUSED uint32_t ttl,
+    AVAHI_GCC_UNUSED DNSServiceRegisterRecordReply callBack,
+    AVAHI_GCC_UNUSED void *context) {
 
     AVAHI_WARN_UNSUPPORTED;
     
@@ -46,14 +48,14 @@ DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord (
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceQueryRecord (
-    DNSServiceRef *sdRef,
-    DNSServiceFlags flags,
-    uint32_t interfaceIndex,
-    const char *fullname,
-    uint16_t rrtype,
-    uint16_t rrclass,
-    DNSServiceQueryRecordReply callBack,
-    void *context) {
+    AVAHI_GCC_UNUSED DNSServiceRef *sdRef,
+    AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    AVAHI_GCC_UNUSED uint32_t interfaceIndex,
+    AVAHI_GCC_UNUSED const char *fullname,
+    AVAHI_GCC_UNUSED uint16_t rrtype,
+    AVAHI_GCC_UNUSED uint16_t rrclass,
+    AVAHI_GCC_UNUSED DNSServiceQueryRecordReply callBack,
+    AVAHI_GCC_UNUSED void *context) {
 
     AVAHI_WARN_UNSUPPORTED;
     
@@ -61,33 +63,33 @@ DNSServiceErrorType DNSSD_API DNSServiceQueryRecord (
 }
 
 void DNSSD_API DNSServiceReconfirmRecord (
-    DNSServiceFlags flags,
-    uint32_t interfaceIndex,
-    const char *fullname,
-    uint16_t rrtype,
-    uint16_t rrclass,
-    uint16_t rdlen,
-    const void *rdata) {
+    AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    AVAHI_GCC_UNUSED uint32_t interfaceIndex,
+    AVAHI_GCC_UNUSED const char *fullname,
+    AVAHI_GCC_UNUSED uint16_t rrtype,
+    AVAHI_GCC_UNUSED uint16_t rrclass,
+    AVAHI_GCC_UNUSED uint16_t rdlen,
+    AVAHI_GCC_UNUSED const void *rdata) {
 
     AVAHI_WARN_UNSUPPORTED;
     
     return;
 }
 
-DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(DNSServiceRef *sdRef) {
+DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(AVAHI_GCC_UNUSED DNSServiceRef *sdRef) {
     AVAHI_WARN_UNSUPPORTED;
     
     return kDNSServiceErr_Unsupported;
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceAddRecord(
-    DNSServiceRef sdRef,
-    DNSRecordRef *RecordRef,
-    DNSServiceFlags flags,
-    uint16_t rrtype,
-    uint16_t rdlen,
-    const void *rdata,
-    uint32_t ttl) {
+    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
+    AVAHI_GCC_UNUSED DNSRecordRef *RecordRef,
+    AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    AVAHI_GCC_UNUSED uint16_t rrtype,
+    AVAHI_GCC_UNUSED uint16_t rdlen,
+    AVAHI_GCC_UNUSED const void *rdata,
+    AVAHI_GCC_UNUSED uint32_t ttl) {
 
     AVAHI_WARN_UNSUPPORTED;
     
@@ -95,12 +97,12 @@ DNSServiceErrorType DNSSD_API DNSServiceAddRecord(
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(
-    DNSServiceRef sdRef,
-    DNSRecordRef RecordRef,     
-    DNSServiceFlags flags,
-    uint16_t rdlen,
-    const void *rdata,
-    uint32_t ttl) {
+    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
+    AVAHI_GCC_UNUSED DNSRecordRef RecordRef,     
+    AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    AVAHI_GCC_UNUSED uint16_t rdlen,
+    AVAHI_GCC_UNUSED const void *rdata,
+    AVAHI_GCC_UNUSED uint32_t ttl) {
 
     AVAHI_WARN_UNSUPPORTED;
     
@@ -108,9 +110,9 @@ DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord(
-    DNSServiceRef sdRef,
-    DNSRecordRef RecordRef,
-    DNSServiceFlags flags) {
+    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
+    AVAHI_GCC_UNUSED DNSRecordRef RecordRef,
+    AVAHI_GCC_UNUSED DNSServiceFlags flags) {
 
     AVAHI_WARN_UNSUPPORTED;
     

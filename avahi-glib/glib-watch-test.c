@@ -31,12 +31,14 @@
 
 #include <avahi-common/watch.h>
 #include <avahi-common/timeval.h>
+#include <avahi-common/gccmacro.h>
+
 #include "glib-watch.h"
 
 static const AvahiPoll *api = NULL;
 static GMainLoop *loop = NULL;
 
-static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {
+static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
 
     if (event & AVAHI_WATCH_IN) {
         ssize_t r;
@@ -52,7 +54,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdat
     }
 }
 
-static void wakeup(AvahiTimeout *t, void *userdata) {
+static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
     struct timeval tv;
     static int i = 0;
 
@@ -65,7 +67,7 @@ static void wakeup(AvahiTimeout *t, void *userdata) {
     api->timeout_update(t, &tv);
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiGLibPoll *g;
     struct timeval tv;
     

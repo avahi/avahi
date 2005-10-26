@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <avahi-common/gccmacro.h>
+
 #include "prioq.h"
 
 #define POINTER_TO_INT(p) ((int) (p))
@@ -80,7 +82,7 @@ static void rec(AvahiPrioQueueNode *n) {
     rec(n->right);
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiPrioQueue *q, *q2;
     int i;
 

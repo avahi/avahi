@@ -41,7 +41,7 @@ static char *name = NULL;
 
 static void create_services(AvahiServer *s);
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
     assert(s);
     assert(g == group);
 
@@ -129,7 +129,7 @@ fail:
     avahi_simple_poll_quit(simple_poll);
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, void * userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void * userdata) {
     assert(s);
 
     /* Called whenever the server state changes */
@@ -185,7 +185,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void * userd
     }
 }
 
-int main(int argc, char*argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiServerConfig config;
     AvahiServer *server = NULL;
     int error;

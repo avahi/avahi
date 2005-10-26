@@ -551,7 +551,7 @@ finish:
     }
 }
 
-static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *userdata) {
+static void socket_event(AVAHI_GCC_UNUSED AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent events, void *userdata) {
     AvahiWideAreaLookupEngine *e = userdata;
     AvahiAddress a;
     AvahiDnsPacket *p = NULL;

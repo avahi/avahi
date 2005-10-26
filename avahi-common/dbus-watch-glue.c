@@ -106,8 +106,9 @@ static void dispatch_timeout_callback(AvahiTimeout *t, void *userdata) {
     connection_data_unref(d);
 }
 
-static void watch_callback(AvahiWatch *avahi_watch, int fd, AvahiWatchEvent events, void *userdata) {
+static void watch_callback(AvahiWatch *avahi_watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEvent events, void *userdata) {
     DBusWatch *dbus_watch = userdata;
+    
     assert(avahi_watch);
     assert(dbus_watch);
 
@@ -286,7 +287,7 @@ static void remove_timeout(DBusTimeout *dbus_timeout, void *userdata) {
     timeout->avahi_timeout = NULL;
 }
 
-static void timeout_toggled(DBusTimeout *dbus_timeout, void *userdata) {
+static void timeout_toggled(DBusTimeout *dbus_timeout, AVAHI_GCC_UNUSED void *userdata) {
     TimeoutData *timeout;
 
     assert(dbus_timeout);
@@ -296,7 +297,7 @@ static void timeout_toggled(DBusTimeout *dbus_timeout, void *userdata) {
     update_timeout(timeout);
 }
 
-static void dispatch_status(DBusConnection *connection, DBusDispatchStatus new_status, void *userdata) {
+static void dispatch_status(AVAHI_GCC_UNUSED DBusConnection *connection, DBusDispatchStatus new_status, void *userdata) {
     ConnectionData *d = userdata;
     
     if (new_status == DBUS_DISPATCH_DATA_REMAINS)

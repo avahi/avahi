@@ -20,7 +20,6 @@
 EXTRA_DIST = \
 	avahi-publish-address.in \
 	avahi-publish-service.in \
-	avahi-browse.in \
 	avahi-bookmarks.in \
 	avahi-resolve-host-name.in \
 	avahi-resolve-address.in \
@@ -36,7 +35,6 @@ if HAVE_PYGTK
 pythonscripts = \
 	avahi-publish-address \
 	avahi-publish-service \
-	avahi-browse \
 	avahi-bookmarks \
 	avahi-resolve-host-name \
 	avahi-resolve-address \
@@ -62,10 +60,6 @@ avahi-publish-service: avahi-publish-service.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
-avahi-browse: avahi-browse.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
-	chmod +x $@
-
 avahi-bookmarks: avahi-bookmarks.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
@@ -83,4 +77,14 @@ CLEANFILES = $(pythonscripts) $(desktop_DATA)
 
 endif
 endif
+endif
+
+if HAVE_DBUS
+
+bin_PROGRAMS = avahi-browse
+
+avahi_browse_SOURCES = avahi-browse.c sigint.c
+avahi_browse_CFLAGS = $(AM_CFLAGS)
+avahi_browse_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
+
 endif

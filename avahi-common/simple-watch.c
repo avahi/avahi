@@ -619,7 +619,7 @@ const AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s) {
     return &s->api;
 }
 
-static int system_poll(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata) {
+static int system_poll(struct pollfd *ufds, unsigned int nfds, int timeout, AVAHI_GCC_UNUSED void *userdata) {
     return poll(ufds, nfds, timeout);
 }
 
@@ -640,5 +640,6 @@ int avahi_simple_poll_loop(AvahiSimplePoll *s) {
     
     for (;;)
         if ((r = avahi_simple_poll_iterate(s, -1)) != 0)
-            return r;
+            if (r >= 0 || errno != EINTR)
+                return r;
 }

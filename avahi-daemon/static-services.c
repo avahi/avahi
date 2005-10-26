@@ -175,7 +175,7 @@ static void static_service_group_free(StaticServiceGroup *g) {
     avahi_free(g);
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *eg, AvahiEntryGroupState state, void* userdata) {
+static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *eg, AvahiEntryGroupState state, void* userdata) {
     StaticServiceGroup *g = userdata;
     
     assert(s);
@@ -402,7 +402,7 @@ invalid_attr:
     return;
 }
     
-static void XMLCALL xml_end(void *data, const char *el) {
+static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
     struct xml_userdata *u = data;
     assert(u);
 

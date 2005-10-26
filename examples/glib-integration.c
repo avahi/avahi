@@ -33,7 +33,7 @@
 
 /* Callback for Avahi API Timeout Event */
 static void
-avahi_timeout_event (AvahiTimeout *timeout, void *userdata)
+avahi_timeout_event (AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata)
 {
     g_message ("Avahi API Timeout reached!");
 }
@@ -54,7 +54,7 @@ avahi_timeout_event_glib (void *userdata)
 
 /* Callback for state changes on the Client */
 static void
-avahi_client_callback (AvahiClient *client, AvahiClientState state, void *userdata)
+avahi_client_callback (AVAHI_GCC_UNUSED AvahiClient *client, AvahiClientState state, void *userdata)
 {
     GMainLoop *loop = userdata;
 
@@ -71,7 +71,7 @@ avahi_client_callback (AvahiClient *client, AvahiClientState state, void *userda
 }
 
 int
-main (int argc, char *argv[])
+main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[])
 {
     GMainLoop *loop = NULL;
     const AvahiPoll *poll_api;

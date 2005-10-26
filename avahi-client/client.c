@@ -72,7 +72,6 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
             
         case AVAHI_CLIENT_S_COLLISION:
         case AVAHI_CLIENT_S_REGISTERING:
-        case AVAHI_CLIENT_S_FAILURE:
 
             /* Clear cached strings */
             avahi_free(client->host_name);
@@ -84,7 +83,6 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
             client->domain_name = NULL;
             break;
 
-        case AVAHI_CLIENT_S_INVALID:
         case AVAHI_CLIENT_S_RUNNING:
             break;
             
@@ -119,12 +117,12 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
     } if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
         char *name, *old, *new;
         
-        if (!(dbus_message_get_args(
+        if (!dbus_message_get_args(
                   message, &error,
                   DBUS_TYPE_STRING, &name,
                   DBUS_TYPE_STRING, &old,
                   DBUS_TYPE_STRING, &new,
-                  DBUS_TYPE_INVALID) || dbus_error_is_set (&error))) {
+                  DBUS_TYPE_INVALID) || dbus_error_is_set (&error)) {
 
             fprintf(stderr, "WARNING: Failed to parse NameOwnerChanged signal: %s\n", error.message);
             goto fail;
@@ -140,14 +138,14 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
 
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged")) {
         int32_t state;
-        char *e;
+        char *e = NULL;
         int c;
         
-        if (!(dbus_message_get_args(
+        if (!dbus_message_get_args(
                   message, &error,
                   DBUS_TYPE_INT32, &state,
                   DBUS_TYPE_STRING, &e,
-                  DBUS_TYPE_INVALID) || dbus_error_is_set (&error))) {
+                  DBUS_TYPE_INVALID) || dbus_error_is_set (&error)) {
             fprintf(stderr, "WARNING: Failed to parse Server.StateChanged signal: %s\n", error.message);
             goto fail;
         }
@@ -171,11 +169,11 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
             char *e;
             int c;
             
-            if (!(dbus_message_get_args(
+            if (!dbus_message_get_args(
                       message, &error,
                       DBUS_TYPE_INT32, &state,
                       DBUS_TYPE_STRING, &e,
-                      DBUS_TYPE_INVALID)) ||
+                      DBUS_TYPE_INVALID) ||
                 dbus_error_is_set(&error)) {
                 fprintf(stderr, "WARNING: Failed to parse EntryGroup.StateChanged signal: %s\n", error.message);
                 goto fail;
@@ -261,7 +259,7 @@ static int get_server_state(AvahiClient *client, int *ret_error) {
     if (!reply || dbus_error_is_set (&error))
         goto fail;
 
-    if (!(dbus_message_get_args(reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID)) ||
+    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID) ||
         dbus_error_is_set (&error))
         goto fail;
 

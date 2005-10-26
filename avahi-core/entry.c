@@ -1017,7 +1017,7 @@ static void entry_group_commit_real(AvahiSEntryGroup *g) {
     }
 }
 
-static void entry_group_register_time_event_callback(AvahiTimeEvent *e, void* userdata) {
+static void entry_group_register_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* userdata) {
     AvahiSEntryGroup *g = userdata;
     assert(g);
 

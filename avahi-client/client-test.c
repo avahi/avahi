@@ -57,7 +57,7 @@ static void avahi_domain_browser_callback(
     AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
     printf ("DOMAIN-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, domain, (char*)userdata);
@@ -75,7 +75,7 @@ static void avahi_service_resolver_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
     char addr[64];
@@ -98,7 +98,7 @@ static void avahi_service_browser_callback (
     const char *name,
     const char *type,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
     AvahiServiceResolver *sr;
@@ -119,20 +119,20 @@ static void avahi_service_type_browser_callback (
     AvahiBrowserEvent event,
     const char *type,
     const char *domain,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
     printf ("SERVICE-TYPE-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, type, domain, (char*)userdata);
 }
 
 static void avahi_address_resolver_callback (
-    AvahiAddressResolver *r,
+    AVAHI_GCC_UNUSED AvahiAddressResolver *r,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
     const AvahiAddress *address,
     const char *name,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
     char addr[64];
@@ -151,7 +151,7 @@ static void avahi_host_name_resolver_callback (
     AvahiResolverEvent event,
     const char *name,
     const AvahiAddress *a,
-    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
     AvahiClient *client;
@@ -173,21 +173,21 @@ static void avahi_host_name_resolver_callback (
     avahi_address_snprint (addr, sizeof (addr), a);
     printf ("HOST-NAME-RESOLVER: Callback on HostNameResolver, interface (%d), protocol (%d), event (%d), name (%s), address (%s), data (%s)\n", interface, protocol, event, name, addr, (char*)userdata);
 }
-static void test_free_domain_browser(AvahiTimeout *timeout, void* userdata)
+static void test_free_domain_browser(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata)
 {
     AvahiServiceBrowser *b = userdata;
     printf ("Freeing domain browser\n");
     avahi_service_browser_free (b);
 }
 
-static void test_free_entry_group (AvahiTimeout *timeout, void* userdata)
+static void test_free_entry_group (AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata)
 {
     AvahiEntryGroup *g = userdata;
     printf ("Freeing entry group\n");
     avahi_entry_group_free (g);
 }
 
-static void test_entry_group_reset (AvahiTimeout *timeout, void* userdata)
+static void test_entry_group_reset (AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata)
 {
     AvahiEntryGroup *g = userdata;
 
@@ -199,7 +199,7 @@ static void test_entry_group_reset (AvahiTimeout *timeout, void* userdata)
     avahi_entry_group_commit (g);
 }
 
-static void test_entry_group_update(AvahiTimeout *timeout, void* userdata) {
+static void test_entry_group_update(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata) {
     AvahiEntryGroup *g = userdata;
 
     printf ("Updating entry group\n");
@@ -207,12 +207,12 @@ static void test_entry_group_update(AvahiTimeout *timeout, void* userdata) {
     avahi_entry_group_update_service_txt(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, "foo=bar3", NULL);
 }
 
-static void terminate(AvahiTimeout *timeout, void *userdata) {
+static void terminate(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
 
     avahi_simple_poll_quit(simple_poll);
 }
 
-int main (int argc, char *argv[]) {
+int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiClient *avahi;
     AvahiEntryGroup *group, *group2;
     AvahiDomainBrowser *domain;

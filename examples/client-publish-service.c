@@ -42,7 +42,7 @@ static char *name = NULL;
 
 static void create_services(AvahiClient *c);
 
-static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
+static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
     assert(g == group);
 
     /* Called whenever the entry group state changes */
@@ -127,7 +127,7 @@ fail:
     avahi_simple_poll_quit(simple_poll);
 }
 
-static void client_callback(AvahiClient *c, AvahiClientState state, void * userdata) {
+static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
     assert(c);
 
     /* Called whenever the client or server state changes */
@@ -157,14 +157,12 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void * userd
 
             break;
 
-        case AVAHI_CLIENT_S_FAILURE:
-        case AVAHI_CLIENT_S_INVALID:
         case AVAHI_CLIENT_S_REGISTERING:
             ;
     }
 }
 
-int main(int argc, char*argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiClient *client = NULL;
     int error;
     int ret = 1;

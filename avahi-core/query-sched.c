@@ -254,7 +254,7 @@ static void append_known_answers_and_send(AvahiQueryScheduler *s, AvahiDnsPacket
     avahi_dns_packet_free(p);
 }
 
-static void elapse_callback(AvahiTimeEvent *e, void* data) {
+static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     AvahiQueryJob *qj = data;
     AvahiQueryScheduler *s;
     AvahiDnsPacket *p;

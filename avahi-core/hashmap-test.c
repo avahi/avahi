@@ -31,7 +31,7 @@
 #include "hashmap.h"
 #include "util.h"
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     unsigned n;
     AvahiHashmap *m;
     const char *t;

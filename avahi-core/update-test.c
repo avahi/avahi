@@ -40,7 +40,7 @@
 
 static AvahiSEntryGroup *group = NULL;
 
-static void server_callback(AvahiServer *s, AvahiServerState state, void* userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void* userdata) {
 
     avahi_log_debug("server state: %i", state); 
     
@@ -57,7 +57,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void* userda
     }
 }
 
-static void modify_txt_callback(AvahiTimeout *e, void *userdata) {
+static void modify_txt_callback(AVAHI_GCC_UNUSED AvahiTimeout *e, void *userdata) {
     int ret;
     AvahiServer *s = userdata;
 
@@ -65,7 +65,7 @@ static void modify_txt_callback(AvahiTimeout *e, void *userdata) {
     assert(ret == AVAHI_OK);
 }
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiSimplePoll *simple_poll;
     const AvahiPoll *poll_api;
     AvahiServer *server;

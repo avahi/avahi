@@ -454,7 +454,7 @@ static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiPr
     }
 }
 
-static void defer_callback(AvahiTimeEvent *e, void *userdata) {
+static void defer_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
     AvahiSRecordBrowser *b = userdata;
     int n;
 

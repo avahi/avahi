@@ -58,7 +58,7 @@ void avahi_querier_free(AvahiQuerier *q) {
     avahi_free(q);
 }
 
-static void querier_elapse_callback(AvahiTimeEvent *e, void *userdata) {
+static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
     AvahiQuerier *q = userdata;
     struct timeval tv;
     

@@ -188,7 +188,7 @@ void avahi_response_scheduler_clear(AvahiResponseScheduler *s) {
         job_free(s, s->suppressed);
 }
 
-static void enumerate_aux_records_callback(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata) {
+static void enumerate_aux_records_callback(AVAHI_GCC_UNUSED AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata) {
     AvahiResponseJob *rj = userdata;
     
     assert(r);
@@ -265,7 +265,7 @@ static void send_response_packet(AvahiResponseScheduler *s, AvahiResponseJob *rj
     avahi_dns_packet_free(p);
 }
 
-static void elapse_callback(AvahiTimeEvent *e, void* data) {
+static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     AvahiResponseJob *rj = data;
 
     assert(rj);

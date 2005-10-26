@@ -29,7 +29,7 @@
 #include "strlst.h"
 #include "malloc.h"
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     char *t, *v;
     uint8_t data[1024];
     AvahiStringList *a = NULL, *b, *p;

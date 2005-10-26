@@ -23,987 +23,999 @@
 #include <config.h>
 #endif
 
+#include <avahi-common/gccmacro.h>
+
 #include "howl.h"
 #include "warn.h"
 
-sw_string sw_strdup(sw_const_string str) {
+AVAHI_GCC_NORETURN
+sw_string sw_strdup(AVAHI_GCC_UNUSED sw_const_string str) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
-    return NULL;
 }
 
+AVAHI_GCC_NORETURN
 sw_opaque _sw_debug_malloc(
-    sw_size_t size,
-    sw_const_string function,
-    sw_const_string file,
-    sw_uint32 line) {
+    AVAHI_GCC_UNUSED sw_size_t size,
+    AVAHI_GCC_UNUSED sw_const_string function,
+    AVAHI_GCC_UNUSED sw_const_string file,
+    AVAHI_GCC_UNUSED sw_uint32 line) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
-    return NULL;
 }
 
+AVAHI_GCC_NORETURN
 sw_opaque _sw_debug_realloc(
-   sw_opaque_t mem,
-   sw_size_t size,
-   sw_const_string function,
-   sw_const_string file,
-   sw_uint32 line) {
+    AVAHI_GCC_UNUSED sw_opaque_t mem,
+    AVAHI_GCC_UNUSED sw_size_t size,
+    AVAHI_GCC_UNUSED sw_const_string function,
+    AVAHI_GCC_UNUSED sw_const_string file,
+    AVAHI_GCC_UNUSED sw_uint32 line) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
-    return NULL;
 }
 
 void _sw_debug_free(
-    sw_opaque_t mem,
-    sw_const_string function,
-    sw_const_string file,
-    sw_uint32 line) {
+    AVAHI_GCC_UNUSED sw_opaque_t mem,
+    AVAHI_GCC_UNUSED sw_const_string function,
+    AVAHI_GCC_UNUSED sw_const_string file,
+    AVAHI_GCC_UNUSED sw_uint32 line) {
     AVAHI_WARN_UNSUPPORTED;
 }
 
+AVAHI_GCC_NORETURN
 sw_const_string sw_strerror(/* howl sucks */) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
-    return NULL;
 }
 
-sw_result sw_timer_init(sw_timer * self) {
+sw_result sw_timer_init(AVAHI_GCC_UNUSED sw_timer * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_timer_fina(sw_timer self) {
+sw_result sw_timer_fina(AVAHI_GCC_UNUSED sw_timer self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_time_init(sw_time * self) {
+sw_result sw_time_init(AVAHI_GCC_UNUSED sw_time * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_time_init_now(sw_time * self) {
+sw_result sw_time_init_now(AVAHI_GCC_UNUSED sw_time * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_time_fina(sw_time self) {
+sw_result sw_time_fina(AVAHI_GCC_UNUSED sw_time self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
+AVAHI_GCC_NORETURN
 sw_time sw_time_add(
-    sw_time self,
-    sw_time y) {
+    AVAHI_GCC_UNUSED sw_time self,
+    AVAHI_GCC_UNUSED sw_time y) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
+AVAHI_GCC_NORETURN 
 sw_time sw_time_sub(
-  sw_time self,
-  sw_time y) {
+    AVAHI_GCC_UNUSED sw_time self,
+    AVAHI_GCC_UNUSED sw_time y) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
+AVAHI_GCC_NORETURN 
 sw_int32 sw_time_cmp(
-  sw_time self,
-  sw_time y) {
+    AVAHI_GCC_UNUSED sw_time self,
+    AVAHI_GCC_UNUSED sw_time y) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
 sw_result sw_salt_init(
-    sw_salt * self,
-    int argc,
-    char ** argv) {
+    AVAHI_GCC_UNUSED sw_salt * self,
+    AVAHI_GCC_UNUSED int argc,
+    AVAHI_GCC_UNUSED char ** argv) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_salt_fina(sw_salt self) {
+sw_result sw_salt_fina(AVAHI_GCC_UNUSED sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_register_socket(
-    sw_salt self,
-    struct _sw_socket * socket,
-    sw_socket_event events,
-    sw_socket_handler handler,
-    sw_socket_handler_func func,
-    sw_opaque extra) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_socket * _socket,
+    AVAHI_GCC_UNUSED sw_socket_event events,
+    AVAHI_GCC_UNUSED sw_socket_handler handler,
+    AVAHI_GCC_UNUSED sw_socket_handler_func func,
+    AVAHI_GCC_UNUSED sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_socket(
-    sw_salt self,
-    struct _sw_socket * socket) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_socket * _socket) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 
 sw_result sw_salt_register_timer(
-    sw_salt self,
-    struct _sw_timer * timer,
-    sw_time timeout,
-    sw_timer_handler handler,
-    sw_timer_handler_func func,
-    sw_opaque extra) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_timer * timer,
+    AVAHI_GCC_UNUSED sw_time timeout,
+    AVAHI_GCC_UNUSED sw_timer_handler handler,
+    AVAHI_GCC_UNUSED sw_timer_handler_func func,
+    AVAHI_GCC_UNUSED sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_timer(
-    sw_salt self,
-    struct _sw_timer * timer) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_timer * timer) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_register_network_interface(
-    sw_salt self,
-    struct _sw_network_interface * netif,
-    sw_network_interface_handler handler,
-    sw_network_interface_handler_func func,
-    sw_opaque extra) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_network_interface * netif,
+    AVAHI_GCC_UNUSED sw_network_interface_handler handler,
+    AVAHI_GCC_UNUSED sw_network_interface_handler_func func,
+    AVAHI_GCC_UNUSED sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_salt_unregister_network_interface_handler(sw_salt self) {
+sw_result sw_salt_unregister_network_interface_handler(AVAHI_GCC_UNUSED sw_salt self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_register_signal(
-    sw_salt self,
-    struct _sw_signal * signal,
-    sw_signal_handler handler,
-    sw_signal_handler_func func,
-    sw_opaque extra) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_signal * _signal,
+    AVAHI_GCC_UNUSED sw_signal_handler handler,
+    AVAHI_GCC_UNUSED sw_signal_handler_func func,
+    AVAHI_GCC_UNUSED sw_opaque extra) {
 
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_salt_unregister_signal(
-    sw_salt self,
-    struct _sw_signal * signal) {
+    AVAHI_GCC_UNUSED sw_salt self,
+    AVAHI_GCC_UNUSED struct _sw_signal * _signal) {
 
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 void sw_print_assert(
-    int code,
-    sw_const_string assert_string,
-    sw_const_string file,
-    sw_const_string func,
-    int line) {
+    AVAHI_GCC_UNUSED int code,
+    AVAHI_GCC_UNUSED sw_const_string assert_string,
+    AVAHI_GCC_UNUSED sw_const_string file,
+    AVAHI_GCC_UNUSED sw_const_string func,
+    AVAHI_GCC_UNUSED int line) {
     AVAHI_WARN_UNSUPPORTED;
 }
 
 void sw_print_debug(
-    int level,
-    sw_const_string format,
+    AVAHI_GCC_UNUSED int level,
+    AVAHI_GCC_UNUSED sw_const_string format,
     ...) {
     AVAHI_WARN_UNSUPPORTED;
 }
 
-sw_result sw_tcp_socket_init(sw_socket * self) {
+sw_result sw_tcp_socket_init(AVAHI_GCC_UNUSED sw_socket * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_tcp_socket_init_with_desc(
-    sw_socket * self,
-    sw_sockdesc_t desc) {
+    AVAHI_GCC_UNUSED sw_socket * self,
+    AVAHI_GCC_UNUSED sw_sockdesc_t desc) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_udp_socket_init(
-    sw_socket * self) {
+sw_result sw_udp_socket_init(AVAHI_GCC_UNUSED sw_socket * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_multicast_socket_init(
-    sw_socket * self) {
+sw_result sw_multicast_socket_init(AVAHI_GCC_UNUSED sw_socket * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_socket_fina(sw_socket self) {
+sw_result sw_socket_fina(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_bind(
-    sw_socket self,
-    sw_ipv4_address address,
-    sw_port port) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_ipv4_address address,
+    AVAHI_GCC_UNUSED sw_port port) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_join_multicast_group(
-    sw_socket self,
-    sw_ipv4_address local_address,
-    sw_ipv4_address multicast_address,
-    sw_uint32 ttl) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_ipv4_address local_address,
+    AVAHI_GCC_UNUSED sw_ipv4_address multicast_address,
+    AVAHI_GCC_UNUSED sw_uint32 ttl) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_socket_leave_multicast_group(sw_socket self) {
+sw_result sw_socket_leave_multicast_group(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_listen(
-    sw_socket self,
-    int qsize) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED int qsize) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_connect(
-    sw_socket self,
-    sw_ipv4_address address,
-    sw_port port) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_ipv4_address address,
+    AVAHI_GCC_UNUSED sw_port port) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_accept(
-    sw_socket self,
-    sw_socket * socket) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_socket * _socket) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_send(
-    sw_socket self,
-    sw_octets buffer,
-    sw_size_t len,
-    sw_size_t * bytesWritten) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_octets buffer,
+    AVAHI_GCC_UNUSED sw_size_t len,
+    AVAHI_GCC_UNUSED sw_size_t * bytesWritten) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_sendto(
-    sw_socket self,
-    sw_octets buffer,
-    sw_size_t len,
-    sw_size_t * bytesWritten,
-    sw_ipv4_address to,
-    sw_port port) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_octets buffer,
+    AVAHI_GCC_UNUSED sw_size_t len,
+    AVAHI_GCC_UNUSED sw_size_t * bytesWritten,
+    AVAHI_GCC_UNUSED sw_ipv4_address to,
+    AVAHI_GCC_UNUSED sw_port port) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_recv(
-    sw_socket self,
-    sw_octets buffer,
-    sw_size_t max,
-    sw_size_t * len) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_octets buffer,
+    AVAHI_GCC_UNUSED sw_size_t max,
+    AVAHI_GCC_UNUSED sw_size_t * len) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_recvfrom(
-    sw_socket self,
-    sw_octets buffer,
-    sw_size_t max,
-    sw_size_t * len,
-    sw_ipv4_address * from,
-    sw_port * port,
-    sw_ipv4_address * dest,
-    sw_uint32 * interface_index) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_octets buffer,
+    AVAHI_GCC_UNUSED sw_size_t max,
+    AVAHI_GCC_UNUSED sw_size_t * len,
+    AVAHI_GCC_UNUSED sw_ipv4_address * from,
+    AVAHI_GCC_UNUSED sw_port * port,
+    AVAHI_GCC_UNUSED sw_ipv4_address * dest,
+    AVAHI_GCC_UNUSED sw_uint32 * interface_index) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_set_blocking_mode(
-    sw_socket self,
-    sw_bool blocking_mode) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_bool blocking_mode) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_set_options(
-    sw_socket self,
-    sw_socket_options options) {
+    AVAHI_GCC_UNUSED sw_socket self,
+    AVAHI_GCC_UNUSED sw_socket_options options) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_ipv4_address sw_socket_ipv4_address(sw_socket self) {
+AVAHI_GCC_NORETURN 
+sw_ipv4_address sw_socket_ipv4_address(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-sw_port sw_socket_port(sw_socket self) {
+AVAHI_GCC_NORETURN 
+sw_port sw_socket_port(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-sw_sockdesc_t sw_socket_desc(sw_socket self) {
+AVAHI_GCC_NORETURN 
+sw_sockdesc_t sw_socket_desc(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-sw_result sw_socket_close(sw_socket self) {
+sw_result sw_socket_close(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_socket_options_init(sw_socket_options * self) {
+sw_result sw_socket_options_init(AVAHI_GCC_UNUSED sw_socket_options * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_socket_options_fina(sw_socket_options self) {
+sw_result sw_socket_options_fina(AVAHI_GCC_UNUSED sw_socket_options self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_debug(
-    sw_socket_options self,
-    sw_bool val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_nodelay(
-    sw_socket_options self,
-    sw_bool val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_dontroute(
-    sw_socket_options self,
-    sw_bool val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_keepalive(
-    sw_socket_options self,
-    sw_bool val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_linger(
-    sw_socket_options self,
-    sw_bool onoff,
-    sw_uint32 linger) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_bool onoff,
+    AVAHI_GCC_UNUSED sw_uint32 linger) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_reuseaddr(
-    sw_socket_options self,
-    sw_bool val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_bool val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_rcvbuf(
-    sw_socket_options self,
-    sw_uint32 val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_uint32 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_socket_options_set_sndbuf(
-    sw_socket_options self,
-    sw_uint32 val) {
+    AVAHI_GCC_UNUSED sw_socket_options self,
+    AVAHI_GCC_UNUSED sw_uint32 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
+AVAHI_GCC_NORETURN 
 int sw_socket_error_code(void) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
 sw_result sw_corby_orb_init(
-    sw_corby_orb * self,
-    sw_salt salt,
-    const sw_corby_orb_config * config,
-    sw_corby_orb_observer observer,
-    sw_corby_orb_observer_func func,
-    sw_opaque_t extra) {
+    AVAHI_GCC_UNUSED sw_corby_orb * self,
+    AVAHI_GCC_UNUSED sw_salt salt,
+    AVAHI_GCC_UNUSED const sw_corby_orb_config * config,
+    AVAHI_GCC_UNUSED sw_corby_orb_observer observer,
+    AVAHI_GCC_UNUSED sw_corby_orb_observer_func func,
+    AVAHI_GCC_UNUSED sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_corby_orb_fina(sw_corby_orb self) {
+sw_result sw_corby_orb_fina(AVAHI_GCC_UNUSED sw_corby_orb self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_register_servant(
-    sw_corby_orb self,
-    sw_corby_servant servant,
-    sw_corby_servant_cb cb,
-    sw_const_string oid,
-    struct _sw_corby_object ** object,
-    sw_const_string protocol_name) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED sw_corby_servant servant,
+    AVAHI_GCC_UNUSED sw_corby_servant_cb cb,
+    AVAHI_GCC_UNUSED sw_const_string oid,
+    AVAHI_GCC_UNUSED struct _sw_corby_object ** object,
+    AVAHI_GCC_UNUSED sw_const_string protocol_name) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_unregister_servant(
-    sw_corby_orb self,
-    sw_const_string oid) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED sw_const_string oid) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_register_bidirectional_object(
-    sw_corby_orb self,
-    struct _sw_corby_object * object) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED struct _sw_corby_object * object) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_register_channel(
-    sw_corby_orb self,
-    struct _sw_corby_channel * channel) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED struct _sw_corby_channel * channel) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_corby_orb_delegate sw_corby_orb_get_delegate(sw_corby_orb self) {
+AVAHI_GCC_NORETURN 
+sw_corby_orb_delegate sw_corby_orb_get_delegate(AVAHI_GCC_UNUSED sw_corby_orb self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
 sw_result sw_corby_orb_set_delegate(
-    sw_corby_orb self,
-    sw_corby_orb_delegate delegate) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED sw_corby_orb_delegate delegate) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_set_observer(
-    sw_corby_orb self,
-    sw_corby_orb_observer observer,
-    sw_corby_orb_observer_func func,
-    sw_opaque_t extra) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED sw_corby_orb_observer observer,
+    AVAHI_GCC_UNUSED sw_corby_orb_observer_func func,
+    AVAHI_GCC_UNUSED sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_protocol_to_address(
-    sw_corby_orb self,
-    sw_const_string tag,
-    sw_string addr,
-    sw_port * port) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED sw_const_string tag,
+    AVAHI_GCC_UNUSED sw_string addr,
+    AVAHI_GCC_UNUSED sw_port * port) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_protocol_to_url(
-    sw_corby_orb self,
-    sw_const_string tag,
-    sw_const_string name,
-    sw_string url,
-    sw_size_t url_len) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED sw_const_string tag,
+    AVAHI_GCC_UNUSED sw_const_string name,
+    AVAHI_GCC_UNUSED sw_string url,
+    AVAHI_GCC_UNUSED sw_size_t url_len) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_read_channel(
-    sw_corby_orb self,
-    struct _sw_corby_channel * channel) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED struct _sw_corby_channel * channel) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_orb_dispatch_message(
-    sw_corby_orb self,
-    struct _sw_corby_channel * channel,
-    struct _sw_corby_message * message,
-    struct _sw_corby_buffer * buffer,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_orb self,
+    AVAHI_GCC_UNUSED struct _sw_corby_channel * channel,
+    AVAHI_GCC_UNUSED struct _sw_corby_message * message,
+    AVAHI_GCC_UNUSED struct _sw_corby_buffer * buffer,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_corby_message_init(sw_corby_message * self) {
+sw_result sw_corby_message_init(AVAHI_GCC_UNUSED sw_corby_message * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_corby_message_fina(sw_corby_message self) {
+sw_result sw_corby_message_fina(AVAHI_GCC_UNUSED sw_corby_message self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_corby_buffer_init(sw_corby_buffer * self) {
+sw_result sw_corby_buffer_init(AVAHI_GCC_UNUSED sw_corby_buffer * self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init_with_size(
-    sw_corby_buffer * self,
-    sw_size_t size) {
+    AVAHI_GCC_UNUSED sw_corby_buffer * self,
+    AVAHI_GCC_UNUSED sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init_with_delegate(
-    sw_corby_buffer * self,
-    sw_corby_buffer_delegate delegate,
-    sw_corby_buffer_overflow_func overflow,
-    sw_corby_buffer_underflow_func underflow,
-    sw_opaque_t extra) {
+    AVAHI_GCC_UNUSED sw_corby_buffer * self,
+    AVAHI_GCC_UNUSED sw_corby_buffer_delegate delegate,
+    AVAHI_GCC_UNUSED sw_corby_buffer_overflow_func overflow,
+    AVAHI_GCC_UNUSED sw_corby_buffer_underflow_func underflow,
+    AVAHI_GCC_UNUSED sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_init_with_size_and_delegate(
-    sw_corby_buffer * self,
-    sw_size_t size,
-    sw_corby_buffer_delegate delegate,
-    sw_corby_buffer_overflow_func overflow,
-    sw_corby_buffer_underflow_func underflow,
-    sw_opaque_t extra) {
+    AVAHI_GCC_UNUSED sw_corby_buffer * self,
+    AVAHI_GCC_UNUSED sw_size_t size,
+    AVAHI_GCC_UNUSED sw_corby_buffer_delegate delegate,
+    AVAHI_GCC_UNUSED sw_corby_buffer_overflow_func overflow,
+    AVAHI_GCC_UNUSED sw_corby_buffer_underflow_func underflow,
+    AVAHI_GCC_UNUSED sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_result sw_corby_buffer_fina(sw_corby_buffer self) {
+sw_result sw_corby_buffer_fina(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }    
 
-void sw_corby_buffer_reset(sw_corby_buffer self) {
+void sw_corby_buffer_reset(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
 }
 
 sw_result sw_corby_buffer_set_octets(
-    sw_corby_buffer self,
-    sw_octets octets,
-    sw_size_t size) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_octets octets,
+    AVAHI_GCC_UNUSED sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_octets sw_corby_buffer_octets(sw_corby_buffer self) {
+sw_octets sw_corby_buffer_octets(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
     return NULL;
 }
 
-sw_size_t sw_corby_buffer_bytes_used(sw_corby_buffer self) {
+sw_size_t sw_corby_buffer_bytes_used(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
     return 0;
 }
 
-sw_size_t sw_corby_buffer_size(sw_corby_buffer self) {
+sw_size_t sw_corby_buffer_size(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
     return 0;
 }
 
-sw_result sw_corby_buffer_put_int8(sw_corby_buffer self, sw_int8 val) {
+sw_result sw_corby_buffer_put_int8(
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_int8 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_uint8(
-    sw_corby_buffer self,
-    sw_uint8 val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_uint8 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_int16(
-    sw_corby_buffer self,
-    sw_int16 val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_int16 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_uint16(
-    sw_corby_buffer self,
-    sw_uint16 val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_uint16 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_int32(
-    sw_corby_buffer self,
-    sw_int32 val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_int32 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_uint32(
-    sw_corby_buffer self,
-    sw_uint32 val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_uint32 val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_octets(
-    sw_corby_buffer self,
-    sw_const_octets val,
-    sw_size_t size) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_const_octets val,
+    AVAHI_GCC_UNUSED sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_sized_octets(
-    sw_corby_buffer self,
-    sw_const_octets val,
-    sw_uint32 len) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_const_octets val,
+    AVAHI_GCC_UNUSED sw_uint32 len) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_buffer_put_cstring(
-    sw_corby_buffer self,
-    sw_const_string val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_const_string val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_object(
-    sw_corby_buffer self,
-    const struct _sw_corby_object * object) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED const struct _sw_corby_object * object) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_put_pad(
-    sw_corby_buffer self,
-    sw_corby_buffer_pad pad) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_corby_buffer_pad pad) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_int8(
-    sw_corby_buffer self,
-    sw_int8 * val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_int8 * val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_uint8(
-    sw_corby_buffer self,
-    sw_uint8 * val) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_uint8 * val) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_int16(
-    sw_corby_buffer self,
-    sw_int16 * val,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_int16 * val,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_buffer_get_uint16(
-    sw_corby_buffer self,
-    sw_uint16 * val,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_uint16 * val,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_buffer_get_int32(
-    sw_corby_buffer self,
-    sw_int32 * val,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_int32 * val,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_uint32(
-    sw_corby_buffer self,
-    sw_uint32 * val,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_uint32 * val,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_octets(
-    sw_corby_buffer self,
-    sw_octets octets,
-    sw_size_t size) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_octets octets,
+    AVAHI_GCC_UNUSED sw_size_t size) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_allocate_and_get_sized_octets(
-    sw_corby_buffer self,
-    sw_octets * val,
-    sw_uint32 * size,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_octets * val,
+    AVAHI_GCC_UNUSED sw_uint32 * size,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_zerocopy_sized_octets(
-    sw_corby_buffer self,
-    sw_octets * val,
-    sw_uint32 * size,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_octets * val,
+    AVAHI_GCC_UNUSED sw_uint32 * size,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_sized_octets(
-    sw_corby_buffer self,
-    sw_octets val,
-    sw_uint32 * len,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_octets val,
+    AVAHI_GCC_UNUSED sw_uint32 * len,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_allocate_and_get_cstring(
-    sw_corby_buffer self,
-    sw_string * val,
-    sw_uint32 * len,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_string * val,
+    AVAHI_GCC_UNUSED sw_uint32 * len,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_zerocopy_cstring(
-    sw_corby_buffer self,
-    sw_string * val,
-    sw_uint32 * len,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_string * val,
+    AVAHI_GCC_UNUSED sw_uint32 * len,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_cstring(
-    sw_corby_buffer self,
-    sw_string val,
-    sw_uint32 * len,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED sw_string val,
+    AVAHI_GCC_UNUSED sw_uint32 * len,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_buffer_get_object(
-    sw_corby_buffer self,
-    struct _sw_corby_object ** object,
-    sw_uint8 endian) {
+    AVAHI_GCC_UNUSED sw_corby_buffer self,
+    AVAHI_GCC_UNUSED struct _sw_corby_object ** object,
+    AVAHI_GCC_UNUSED sw_uint8 endian) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_start_request(
-    sw_corby_channel self,
-    sw_const_corby_profile profile,
-    struct _sw_corby_buffer ** buffer,
-    sw_const_string op,
-    sw_uint32 oplen,
-    sw_bool reply_expected) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED sw_const_corby_profile profile,
+    AVAHI_GCC_UNUSED struct _sw_corby_buffer ** buffer,
+    AVAHI_GCC_UNUSED sw_const_string op,
+    AVAHI_GCC_UNUSED sw_uint32 oplen,
+    AVAHI_GCC_UNUSED sw_bool reply_expected) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_channel_start_reply(
-    sw_corby_channel self,
-    struct _sw_corby_buffer ** buffer,
-    sw_uint32 request_id,
-    sw_corby_reply_status status) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED struct _sw_corby_buffer ** buffer,
+    AVAHI_GCC_UNUSED sw_uint32 request_id,
+    AVAHI_GCC_UNUSED sw_corby_reply_status status) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_send(
-    sw_corby_channel self,
-    struct _sw_corby_buffer * buffer,
-    sw_corby_buffer_observer observer,
-    sw_corby_buffer_written_func func,
-    sw_opaque_t extra) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED struct _sw_corby_buffer * buffer,
+    AVAHI_GCC_UNUSED sw_corby_buffer_observer observer,
+    AVAHI_GCC_UNUSED sw_corby_buffer_written_func func,
+    AVAHI_GCC_UNUSED sw_opaque_t extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_recv(
-    sw_corby_channel self,
-    sw_salt * salt,
-    struct _sw_corby_message ** message,
-    sw_uint32 * request_id,
-    sw_string * op,
-    sw_uint32 * op_len,
-    struct _sw_corby_buffer ** buffer,
-    sw_uint8 * endian,
-    sw_bool block) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED sw_salt * salt,
+    AVAHI_GCC_UNUSED struct _sw_corby_message ** message,
+    AVAHI_GCC_UNUSED sw_uint32 * request_id,
+    AVAHI_GCC_UNUSED sw_string * op,
+    AVAHI_GCC_UNUSED sw_uint32 * op_len,
+    AVAHI_GCC_UNUSED struct _sw_corby_buffer ** buffer,
+    AVAHI_GCC_UNUSED sw_uint8 * endian,
+    AVAHI_GCC_UNUSED sw_bool block) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_last_recv_from(
-    sw_corby_channel self,
-    sw_ipv4_address * from,
-    sw_port * from_port) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED sw_ipv4_address * from,
+    AVAHI_GCC_UNUSED sw_port * from_port) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_ff(
-    sw_corby_channel self,
-    struct _sw_corby_buffer * buffer) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED struct _sw_corby_buffer * buffer) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
-sw_socket sw_corby_channel_socket(sw_corby_channel self) {
-    AVAHI_WARN_UNSUPPORTED;
-    return SW_E_NO_IMPL;
+AVAHI_GCC_NORETURN
+sw_socket sw_corby_channel_socket(AVAHI_GCC_UNUSED sw_corby_channel self) {
+    AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-sw_result sw_corby_channel_retain(sw_corby_channel self) {
+sw_result sw_corby_channel_retain(AVAHI_GCC_UNUSED sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_channel_set_delegate(
-    sw_corby_channel self,
-    sw_corby_channel_delegate delegate) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED sw_corby_channel_delegate delegate) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }    
 
+AVAHI_GCC_NORETURN 
 sw_corby_channel_delegate sw_corby_channel_get_delegate(
-    sw_corby_channel self) {
+    AVAHI_GCC_UNUSED sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
 void sw_corby_channel_set_app_data(
-    sw_corby_channel self,
-    sw_opaque app_data) {
+    AVAHI_GCC_UNUSED sw_corby_channel self,
+    AVAHI_GCC_UNUSED sw_opaque app_data) {
     AVAHI_WARN_UNSUPPORTED;
 }
 
-sw_opaque sw_corby_channel_get_app_data(sw_corby_channel self) {
+AVAHI_GCC_NORETURN 
+sw_opaque sw_corby_channel_get_app_data(AVAHI_GCC_UNUSED sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-sw_result sw_corby_channel_fina(sw_corby_channel self) {
+sw_result sw_corby_channel_fina(AVAHI_GCC_UNUSED sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_init_from_url(
-    sw_corby_object * self,
-    struct _sw_corby_orb * orb,
-    sw_const_string url,
-    sw_socket_options options,
-    sw_uint32 bufsize) {
+    AVAHI_GCC_UNUSED sw_corby_object * self,
+    AVAHI_GCC_UNUSED struct _sw_corby_orb * orb,
+    AVAHI_GCC_UNUSED sw_const_string url,
+    AVAHI_GCC_UNUSED sw_socket_options options,
+    AVAHI_GCC_UNUSED sw_uint32 bufsize) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_fina(
-    sw_corby_object self) {
+    AVAHI_GCC_UNUSED sw_corby_object self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_start_request(
-    sw_corby_object self,
-    sw_const_string op,
-    sw_uint32 op_len,
-    sw_bool reply_expected,
-    sw_corby_buffer * buffer) {
+    AVAHI_GCC_UNUSED sw_corby_object self,
+    AVAHI_GCC_UNUSED sw_const_string op,
+    AVAHI_GCC_UNUSED sw_uint32 op_len,
+    AVAHI_GCC_UNUSED sw_bool reply_expected,
+    AVAHI_GCC_UNUSED sw_corby_buffer * buffer) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_send(
-    sw_corby_object self,
-    sw_corby_buffer buffer,
-    sw_corby_buffer_observer observer,
-    sw_corby_buffer_written_func func,
-    sw_opaque extra) {
+    AVAHI_GCC_UNUSED sw_corby_object self,
+    AVAHI_GCC_UNUSED sw_corby_buffer buffer,
+    AVAHI_GCC_UNUSED sw_corby_buffer_observer observer,
+    AVAHI_GCC_UNUSED sw_corby_buffer_written_func func,
+    AVAHI_GCC_UNUSED sw_opaque extra) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
     
 sw_result sw_corby_object_recv(
-    sw_corby_object self,
-    sw_corby_message * message,
-    sw_corby_buffer * buffer,
-    sw_uint8 * endian,
-    sw_bool block) {
+    AVAHI_GCC_UNUSED sw_corby_object self,
+    AVAHI_GCC_UNUSED sw_corby_message * message,
+    AVAHI_GCC_UNUSED sw_corby_buffer * buffer,
+    AVAHI_GCC_UNUSED sw_uint8 * endian,
+    AVAHI_GCC_UNUSED sw_bool block) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_channel(
-    sw_corby_object self,
-    sw_corby_channel * channel) {
+    AVAHI_GCC_UNUSED sw_corby_object self,
+    AVAHI_GCC_UNUSED sw_corby_channel * channel) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_corby_object_set_channel(
-    sw_corby_object self,
-    sw_corby_channel channel) {
+    AVAHI_GCC_UNUSED sw_corby_object self,
+    AVAHI_GCC_UNUSED sw_corby_channel channel) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_publish_host(
-    sw_discovery self,
-    sw_uint32 interface_index,
-    sw_const_string name,
-    sw_const_string domain,
-    sw_ipv4_address address,
-    sw_discovery_publish_reply reply,
-    sw_opaque extra,
-    sw_discovery_oid * oid) {
+    AVAHI_GCC_UNUSED sw_discovery self,
+    AVAHI_GCC_UNUSED sw_uint32 interface_index,
+    AVAHI_GCC_UNUSED sw_const_string name,
+    AVAHI_GCC_UNUSED sw_const_string domain,
+    AVAHI_GCC_UNUSED sw_ipv4_address address,
+    AVAHI_GCC_UNUSED sw_discovery_publish_reply reply,
+    AVAHI_GCC_UNUSED sw_opaque extra,
+    AVAHI_GCC_UNUSED sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_publish_update(
-    sw_discovery self,
-    sw_discovery_oid oid,
-    sw_octets text_record,
-    sw_uint32 text_record_len) {
+    AVAHI_GCC_UNUSED sw_discovery self,
+    AVAHI_GCC_UNUSED sw_discovery_oid oid,
+    AVAHI_GCC_UNUSED sw_octets text_record,
+    AVAHI_GCC_UNUSED sw_uint32 text_record_len) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_discovery_query_record(
-    sw_discovery self,
-    sw_uint32 interface_index,
-    sw_uint32 flags,
-    sw_const_string fullname,
-    sw_uint16 rrtype,
-    sw_uint16 rrclass,
-    sw_discovery_query_record_reply reply,
-    sw_opaque extra,
-    sw_discovery_oid * oid) {
+    AVAHI_GCC_UNUSED sw_discovery self,
+    AVAHI_GCC_UNUSED sw_uint32 interface_index,
+    AVAHI_GCC_UNUSED sw_uint32 flags,
+    AVAHI_GCC_UNUSED sw_const_string fullname,
+    AVAHI_GCC_UNUSED sw_uint16 rrtype,
+    AVAHI_GCC_UNUSED sw_uint16 rrclass,
+    AVAHI_GCC_UNUSED sw_discovery_query_record_reply reply,
+    AVAHI_GCC_UNUSED sw_opaque extra,
+    AVAHI_GCC_UNUSED sw_discovery_oid * oid) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_text_record_string_iterator_init(
-    sw_text_record_string_iterator * self,
-    sw_const_string text_record_string) {
+    AVAHI_GCC_UNUSED sw_text_record_string_iterator * self,
+    AVAHI_GCC_UNUSED sw_const_string text_record_string) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
 
 sw_result sw_text_record_string_iterator_fina(
-    sw_text_record_string_iterator self) {
+    AVAHI_GCC_UNUSED sw_text_record_string_iterator self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }    
 
 sw_result sw_text_record_string_iterator_next(
-    sw_text_record_string_iterator self,
-    char key[255],
-    char val[255]) {
+    AVAHI_GCC_UNUSED sw_text_record_string_iterator self,
+    AVAHI_GCC_UNUSED char key[255],
+    AVAHI_GCC_UNUSED char val[255]) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }

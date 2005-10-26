@@ -76,7 +76,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     return 0;
 }
 
-static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata) {
+static void socket_event(AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event, void *userdata) {
     AvahiNetlink *nl = userdata;
 
     assert(w);

@@ -30,7 +30,7 @@
 #include "domain.h"
 #include "malloc.h"
 
-int main(int argc, char *argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     char *s;
     char t[256], r[256];
     const char *p;

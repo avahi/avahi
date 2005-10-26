@@ -29,7 +29,7 @@ namespace Avahi
 {
 
     internal delegate void AddressResolverCallback (IntPtr resolver, int iface, Protocol proto,
-                                                    ResolverEvent revent, Protocol aproto, IntPtr address,
+                                                    ResolverEvent revent, IntPtr address,
                                                     IntPtr hostname, LookupResultFlags flags, IntPtr userdata);
 
     public delegate void HostAddressHandler (object o, string host, IPAddress address);
@@ -124,7 +124,7 @@ namespace Avahi
                 (foundListeners.Count == 0 && timeoutListeners.Count == 0))
                 return;
 
-            IntPtr addrPtr = Utility.StringToPtr (address.ToString ());
+            IntPtr addrPtr = Utility.AddressToPtr (address);
 
             lock (client) {
                 handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr, flags,
@@ -147,7 +147,7 @@ namespace Avahi
         }
 
         private void OnAddressResolverCallback (IntPtr resolver, int iface, Protocol proto,
-                                                ResolverEvent revent, Protocol aproto, IntPtr address,
+                                                ResolverEvent revent, IntPtr address,
                                                 IntPtr hostname, LookupResultFlags flags, IntPtr userdata)
         {
             switch (revent) {
@@ -158,15 +158,8 @@ namespace Avahi
                 foreach (HostAddressHandler handler in foundListeners)
                     handler (this, currentHost, currentAddress);
                 break;
-            case ResolverEvent.Timeout:
-                currentAddress = null;
-                currentHost = null;
-                
-                foreach (EventHandler handler in timeoutListeners)
-                    handler (this, new EventArgs ());
-                break;
-            default:
-                EmitResolverEvent (revent);
+            case ResolverEvent.Failure:
+                EmitFailure (client.LastError);
                 break;
             }
         }

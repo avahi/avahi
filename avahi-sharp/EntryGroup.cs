@@ -26,11 +26,24 @@ using System.Runtime.InteropServices;
 namespace Avahi
 {
 
+    [Flags]
+    public enum PublishFlags {
+        None = 0,
+        Unique = 1,
+        NoProbe = 2,
+        NoAnnounce = 4,
+        AllowMultiple = 8,
+        NoReverse = 16,
+        NoCookie = 32,
+        Update = 64
+    }
+    
     public enum EntryGroupState {
         Uncommited,
         Registering,
         Established,
-        Collision
+        Collision,
+        Failure
     }
 
     internal delegate void EntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata);
@@ -59,8 +72,9 @@ namespace Avahi
 
         [DllImport ("avahi-client")]
         private static extern void avahi_entry_group_add_service_strlst (IntPtr group, int iface, Protocol proto,
-                                                                         IntPtr name, IntPtr type, IntPtr domain,
-                                                                         IntPtr host, UInt16 port, IntPtr strlst);
+                                                                         PublishFlags flags, IntPtr name, IntPtr type,
+                                                                         IntPtr domain, IntPtr host, UInt16 port,
+                                                                         IntPtr strlst);
         
         [DllImport ("avahi-client")]
         private static extern void avahi_entry_group_free (IntPtr group);
@@ -142,10 +156,16 @@ namespace Avahi
         public void AddService (string name, string type, string domain,
                                 UInt16 port, params string[] txt)
         {
-            AddService (-1, Protocol.Unspecified, name, type, domain, null, port, txt);
+            AddService (PublishFlags.None, name, type, domain, port, txt);
         }
 
-        public void AddService (int iface, Protocol proto, string name, string type, string domain,
+        public void AddService (PublishFlags flags, string name, string type, string domain,
+                                UInt16 port, params string[] txt)
+        {
+            AddService (-1, Protocol.Unspecified, flags, name, type, domain, null, port, txt);
+        }
+
+        public void AddService (int iface, Protocol proto, PublishFlags flags, string name, string type, string domain,
                                 string host, UInt16 port, params string[] txt)
         {
             IntPtr list = avahi_string_list_new (IntPtr.Zero);
@@ -164,7 +184,7 @@ namespace Avahi
             IntPtr hostPtr = Utility.StringToPtr (host);
 
             lock (client) {
-                avahi_entry_group_add_service_strlst (handle, iface, proto, namePtr, typePtr, domainPtr,
+                avahi_entry_group_add_service_strlst (handle, iface, proto, flags, namePtr, typePtr, domainPtr,
                                                       hostPtr, port, list);
             }
             

@@ -25,23 +25,12 @@ namespace Avahi
 {
     public abstract class ResolverBase
     {
-        public event EventHandler NotFound;
-        public event EventHandler Failed;
+        public event ErrorCodeHandler Failed;
 
-        internal void EmitResolverEvent (ResolverEvent revent)
+        internal void EmitFailure (ErrorCode code)
         {
-            switch (revent) {
-            case ResolverEvent.NotFound:
-                if (NotFound != null)
-                    NotFound (this, new EventArgs ());
-                break;
-            case ResolverEvent.Failure:
-                if (Failed != null)
-                    Failed (this, new EventArgs ());
-                break;
-            default:
-                break;
-            }
+            if (Failed != null)
+                Failed (this, code);
         }
     }
 }

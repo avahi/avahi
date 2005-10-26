@@ -207,14 +207,8 @@ namespace Avahi
                 foreach (ServiceInfoHandler handler in foundListeners)
                     handler (this, info);
                 break;
-            case ResolverEvent.Timeout:
-                currentInfo = ServiceInfo.Zero;
-                
-                foreach (EventHandler handler in timeoutListeners)
-                    handler (this, new EventArgs ());
-                break;
-            default:
-                EmitResolverEvent (revent);
+            case ResolverEvent.Failure:
+                EmitFailure (client.LastError);
                 break;
             }
         }

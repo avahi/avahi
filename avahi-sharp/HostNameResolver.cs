@@ -159,15 +159,8 @@ namespace Avahi
                 foreach (HostAddressHandler handler in foundListeners)
                     handler (this, currentHost, currentAddress);
                 break;
-            case ResolverEvent.Timeout:
-                currentAddress = null;
-                currentHost = null;
-                
-                foreach (EventHandler handler in timeoutListeners)
-                    handler (this, new EventArgs ());
-                break;
-            default:
-                EmitResolverEvent (revent);
+            case ResolverEvent.Failure:
+                EmitFailure (client.LastError);
                 break;
             }
         }

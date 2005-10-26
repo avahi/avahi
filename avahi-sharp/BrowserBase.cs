@@ -41,10 +41,6 @@ namespace Avahi
                 if (AllForNow != null)
                     AllForNow (this, new EventArgs ());
                 break;
-            case BrowserEvent.NotFound:
-                if (NotFound != null)
-                    NotFound (this, new EventArgs ());
-                break;
             case BrowserEvent.Failure:
                 if (Failed != null)
                     Failed (this, new EventArgs ());

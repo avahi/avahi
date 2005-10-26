@@ -29,8 +29,6 @@ namespace Avahi
 {
     internal enum ResolverEvent {
         Found,
-        Timeout,
-        NotFound,
         Failure
     }
     
@@ -39,7 +37,6 @@ namespace Avahi
         Removed,
         CacheExhausted,
         AllForNow,
-        NotFound,
         Failure
     }
 
@@ -66,8 +63,7 @@ namespace Avahi
     public enum LookupFlags {
         None = 0,
         UseWideArea = 1,
-        UseMulticast = 2,
-        NoTxt = 4,
+        UseMulticast = 4,
         NoAddress = 8
     }
 
@@ -76,7 +72,9 @@ namespace Avahi
         None = 0,
         Cached = 1,
         WideArea = 2,
-        Multicast = 4
+        Multicast = 4,
+        Local = 8,
+        OurOwn = 16,
     }
     
     public class Client : IDisposable
@@ -123,7 +121,7 @@ namespace Avahi
         private static extern void avahi_simple_poll_free (IntPtr spoll);
 
         [DllImport ("avahi-common")]
-        private static extern int avahi_simple_poll_iterate (IntPtr spoll, int timeout);
+        private static extern int avahi_simple_poll_loop (IntPtr spoll);
 
         [DllImport ("avahi-common")]
         private static extern void avahi_simple_poll_set_func (IntPtr spoll, PollCallback cb);
@@ -133,10 +131,6 @@ namespace Avahi
 
         [DllImport ("avahi-client")]
         private static extern uint avahi_client_get_local_service_cookie (IntPtr client);
-
-        [DllImport ("avahi-client")]
-        private static extern int avahi_client_is_service_local (IntPtr client, int iface, Protocol proto,
-                                                                 IntPtr name, IntPtr type, IntPtr domain);
 
 
         [DllImport ("libc")]
@@ -203,11 +197,11 @@ namespace Avahi
             }
         }
 
-        internal int LastError
+        internal ErrorCode LastError
         {
             get {
                 lock (this) {
-                    return avahi_client_errno (handle);
+                    return (ErrorCode) avahi_client_errno (handle);
                 }
             }
         }
@@ -250,32 +244,11 @@ namespace Avahi
             }
         }
 
-        public bool IsServiceLocal (ServiceInfo service)
-        {
-            return IsServiceLocal (service.NetworkInterface, service.Protocol, service.Name,
-                                   service.ServiceType, service.Domain);
-        }
-
-        public bool IsServiceLocal (int iface, Protocol proto, string name, string type, string domain)
-        {
-            IntPtr namePtr = Utility.StringToPtr (name);
-            IntPtr typePtr = Utility.StringToPtr (type);
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-            
-            int result = avahi_client_is_service_local (handle, iface, proto, namePtr, typePtr, domainPtr);
-
-            Utility.Free (namePtr);
-            Utility.Free (typePtr);
-            Utility.Free (domainPtr);
-
-            return result == 1;
-        }
-
         internal void CheckError ()
         {
-            int error = LastError;
+            ErrorCode error = LastError;
 
-            if (error != 0)
+            if (error != ErrorCode.Ok)
                 throw new ClientException (error);
         }
         
@@ -295,10 +268,7 @@ namespace Avahi
         private void PollLoop () {
             try {
                 lock (this) {
-                    while (true) {
-                        if (avahi_simple_poll_iterate (spoll, -1) != 0)
-                            break;
-                    }
+                    avahi_simple_poll_loop (spoll);
                 }
             } catch (ThreadAbortException e) {
             } catch (Exception e) {

@@ -36,6 +36,9 @@ namespace Avahi
         [DllImport ("avahi-common")]
         private static extern IntPtr avahi_address_snprint (IntPtr buf, int size, IntPtr address);
 
+        [DllImport ("avahi-common")]
+        private static extern IntPtr avahi_address_parse (IntPtr str, Protocol proto, IntPtr ret);
+
         public static string PtrToString (IntPtr ptr)
         {
             if (ptr == IntPtr.Zero)
@@ -72,6 +75,16 @@ namespace Avahi
         public static void Free (IntPtr ptr)
         {
             Stdlib.free (ptr);
+        }
+
+        public static IntPtr AddressToPtr (IPAddress address)
+        {
+            IntPtr straddr = Utility.StringToPtr (address.ToString ());
+            IntPtr addrPtr = Stdlib.malloc (32);
+            avahi_address_parse (straddr, Protocol.Unspecified, addrPtr);
+            Utility.Free (straddr);
+
+            return addrPtr;
         }
 
         public static IPAddress PtrToAddress (IntPtr ptr)

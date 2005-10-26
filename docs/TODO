@@ -5,7 +5,6 @@ for 0.6:
 * Add static host configuration like static services [lathiat]
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 * unify argument order of functions returning a string in a user supplied buffer 
-* remove irrelevant functions from pubic rr.h API
 
 later:
 * add simplification routine for adding services 
@@ -97,3 +96,4 @@ done:
 * add error state for server and entry group
 * make sure that all limit definitions end with _MAX
 * generate local CNAME responses
+* remove irrelevant functions from pubic rr.h API

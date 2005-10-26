@@ -232,19 +232,15 @@ namespace Avahi
 
         public void Dispose ()
         {
-            lock (this) {
-                if (handle != IntPtr.Zero) {
-                    thread.Abort ();
-
-                    avahi_client_free (handle);
-                    avahi_simple_poll_quit (spoll);
-                    avahi_simple_poll_free (spoll);
-                    handle = IntPtr.Zero;
-                }
+            if (handle != IntPtr.Zero) {
+                avahi_client_free (handle);
+                avahi_simple_poll_quit (spoll);
+                avahi_simple_poll_free (spoll);
+                handle = IntPtr.Zero;
             }
         }
 
-        internal void CheckError ()
+        internal void ThrowError ()
         {
             ErrorCode error = LastError;
 
@@ -270,7 +266,6 @@ namespace Avahi
                 lock (this) {
                     avahi_simple_poll_loop (spoll);
                 }
-            } catch (ThreadAbortException e) {
             } catch (Exception e) {
                 Console.Error.WriteLine ("Error in avahi-sharp event loop: " + e);
             }

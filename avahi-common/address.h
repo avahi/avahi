@@ -91,7 +91,7 @@ char *avahi_address_snprint(char *ret_s, size_t length, const AvahiAddress *a);
 AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol af, AvahiAddress *ret_addr);
 
 /** Generate the DNS reverse lookup name for an IPv4 or IPv6 address. */
-char* avahi_reverse_lookup_name(char *ret_s, size_t length, const AvahiAddress *a);
+char* avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length);
 
 /** Map AVAHI_PROTO_xxx constants to Unix AF_xxx constants */
 int avahi_proto_to_af(AvahiProtocol proto);

@@ -203,7 +203,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
         return NULL;
     }
 
-    avahi_reverse_lookup_name(n, sizeof(n), address);
+    avahi_reverse_lookup_name(address, n, sizeof(n));
 
     if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);

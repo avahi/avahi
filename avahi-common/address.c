@@ -66,7 +66,7 @@ char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
     return s;
 }
 
-char* avahi_reverse_lookup_name(char *ret_s, size_t length, const AvahiAddress *a) {
+char* avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length) {
     assert(ret_s);
     assert(length > 0);
     assert(a);

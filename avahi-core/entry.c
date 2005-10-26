@@ -441,7 +441,7 @@ int avahi_server_add_address(
     
     if (!(flags & AVAHI_PUBLISH_NO_REVERSE)) {
         char reverse_n[AVAHI_DOMAIN_NAME_MAX];
-        avahi_reverse_lookup_name(reverse_n, sizeof(reverse_n), a);
+        avahi_reverse_lookup_name(a, reverse_n, sizeof(reverse_n));
             
         if (!(reverse = server_add_ptr_internal(s, g, interface, protocol, flags | AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse_n, name))) {
             ret = avahi_server_errno(s);

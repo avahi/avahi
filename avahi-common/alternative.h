@@ -35,9 +35,9 @@ AVAHI_C_DECL_BEGIN
 char *avahi_alternative_host_name(const char *s);
 
 /** Find an alternative for the specified service name. If called with
-    an original service name, " #2" is appended. Afterwards the number
-    is increased on each call (i.e. "foo" becomes "foo #2" becomes
-    "foo #3" and so on.) avahi_free() the result. */
+ * an original service name, " #2" is appended. Afterwards the number
+ * is increased on each call (i.e. "foo" becomes "foo #2" becomes "foo
+ * #3" and so on.) avahi_free() the result. */
 char *avahi_alternative_service_name(const char *s);
 
 AVAHI_C_DECL_END

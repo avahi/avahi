@@ -78,7 +78,8 @@ libavahi_core_la_SOURCES = \
 	multicast-lookup.c multicast-lookup.h \
 	querier.c querier.h \
 	addr-util.h addr-util.c \
-	domain-util.h domain-util.c
+	domain-util.h domain-util.c \
+	dns-srv-rr.h
 
 if HAVE_NETLINK
 libavahi_core_la_SOURCES += \

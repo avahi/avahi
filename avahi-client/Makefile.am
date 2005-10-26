@@ -43,7 +43,8 @@ libavahi_client_la_SOURCES = \
 	client.c client.h \
 	entrygroup.c \
 	browser.c \
-	resolver.c
+	resolver.c \
+	publish.h lookup.h
 
 libavahi_client_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DDBUS_SYSTEM_BUS_DEFAULT_ADDRESS=\"$(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)\"
 libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-common-pic.la

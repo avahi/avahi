@@ -59,16 +59,20 @@
         type. Should contain one <opt>&lt;type&gt;</opt> and one
         <opt>&lt;port&gt;</opt> element. Optionally it may contain one
         <opt>&lt;domain-name&gt;</opt>, one
-        <opt>&lt;host-name&gt;</opt> and multiple
+        <opt>&lt;host-name&gt;</opt>, any number of
+        <opt>&lt;subtype&gt;</opt> and any number of
         <opt>&lt;txt-record&gt;</opt> elements. The attribute
-        <opt>protocol</opt> specifies the protocol to
-        advertise the service on. If <opt>any</opt> is used (which is
-        the default), the service will be advertised on both IPv4 and
-        IPv6.</p>
+        <opt>protocol</opt> specifies the protocol to advertise the
+        service on. If <opt>any</opt> is used (which is the default),
+        the service will be advertised on both IPv4 and IPv6.</p>
       </option>
 
       <option>
         <p><opt>&lt;type&gt;</opt> Contains the DNS-SD service type for this service. e.g. "_http._tcp".</p>
+      </option>
+
+      <option>
+        <p><opt>&lt;subtype&gt;</opt> Contains an additional DNS-SD service subtype for this service. e.g. "_anon._sub._ftp._tcp".</p>
       </option>
 
       <option>

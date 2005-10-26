@@ -55,6 +55,8 @@ struct StaticService {
     uint16_t port;
     int protocol;
 
+    AvahiStringList *subtypes;
+    
     AvahiStringList *txt_records;
     
     AVAHI_LLIST_FIELDS(StaticService, services);
@@ -117,6 +119,7 @@ static StaticService *static_service_new(StaticServiceGroup *group) {
     s->protocol = AVAHI_PROTO_UNSPEC;
 
     s->txt_records = NULL;
+    s->subtypes = NULL;
 
     AVAHI_LLIST_PREPEND(StaticService, services, group->services, s);
 
@@ -150,6 +153,7 @@ static void static_service_free(StaticService *s) {
     avahi_free(s->domain_name);
 
     avahi_string_list_free(s->txt_records);
+    avahi_string_list_free(s->subtypes);
     
     avahi_free(s);
 }
@@ -176,21 +180,37 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *eg, AvahiEntr
     
     assert(s);
     assert(g);
-    
-    if (state == AVAHI_ENTRY_GROUP_COLLISION) {
-        char *n;
 
-        remove_static_service_group_from_server(g);
+    switch (state) {
+        
+        case AVAHI_ENTRY_GROUP_COLLISION: {
+            char *n;
+            
+            remove_static_service_group_from_server(g);
+            
+            n = avahi_alternative_service_name(g->chosen_name);
+            avahi_free(g->chosen_name);
+            g->chosen_name = n;
+            
+            avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
+            
+            add_static_service_group_to_server(g);
+            break;
+        }
+            
+        case AVAHI_ENTRY_GROUP_ESTABLISHED: 
+            avahi_log_info("Service \"%s\" (%s) successfully established.", g->chosen_name, g->filename);
+            break;
 
-        n = avahi_alternative_service_name(g->chosen_name);
-        avahi_free(g->chosen_name);
-        g->chosen_name = n;
+        case AVAHI_ENTRY_GROUP_FAILURE: 
+            avahi_log_warn("Failed to publish service \"%s\" (%s): %s", g->chosen_name, g->filename, avahi_strerror(avahi_server_errno(s)));
+            remove_static_service_group_from_server(g);
+            break;
 
-        avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
-
-        add_static_service_group_to_server(g);
-    } else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED)
-        avahi_log_info("Service \"%s\" (%s) successfully established.", g->chosen_name, g->filename);
+        case AVAHI_ENTRY_GROUP_UNCOMMITED:
+        case AVAHI_ENTRY_GROUP_REGISTERING:
+            ;
+    }
 }
 
 static void add_static_service_group_to_server(StaticServiceGroup *g) {
@@ -217,20 +237,37 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
     assert(avahi_s_entry_group_is_empty(g->entry_group));
     
     for (s = g->services; s; s = s->services_next) {
+        AvahiStringList *i;
 
         if (avahi_server_add_service_strlst(
                 avahi_server,
                 g->entry_group,
                 AVAHI_IF_UNSPEC, s->protocol,
                 0, 
-                g->chosen_name, s->type, 
-                s->domain_name, s->host_name, s->port,
+                g->chosen_name, s->type, s->domain_name,
+                s->host_name, s->port,
                 s->txt_records) < 0) {
             avahi_log_error("Failed to add service '%s' of type '%s', ignoring service group (%s): %s",
                             g->chosen_name, s->type, g->filename,
                             avahi_strerror(avahi_server_errno(avahi_server)));
             remove_static_service_group_from_server(g);
             return;
+        }
+
+        for (i = s->subtypes; i; i = i->next) {
+
+            if (avahi_server_add_service_subtype(
+                    avahi_server,
+                    g->entry_group,
+                    AVAHI_IF_UNSPEC, s->protocol,
+                    0,
+                    g->chosen_name, s->type, s->domain_name,
+                    (char*) i->text) < 0) {
+                
+                avahi_log_error("Failed to add subtype '%s' for service '%s' of type '%s', ignoring subtype (%s): %s",
+                                i->text, g->chosen_name, s->type, g->filename,
+                                avahi_strerror(avahi_server_errno(avahi_server)));
+            }
         }
     }
 
@@ -250,6 +287,7 @@ typedef enum {
     XML_TAG_NAME,
     XML_TAG_SERVICE,
     XML_TAG_TYPE,
+    XML_TAG_SUBTYPE,
     XML_TAG_DOMAIN_NAME,
     XML_TAG_HOST_NAME,
     XML_TAG_PORT,
@@ -326,6 +364,11 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
             goto invalid_attr;
 
         u->current_tag = XML_TAG_TYPE;
+    } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "subtype") == 0) {
+        if (attr[0])
+            goto invalid_attr;
+
+        u->current_tag = XML_TAG_SUBTYPE;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "domain-name") == 0) {
         if (attr[0])
             goto invalid_attr;
@@ -419,6 +462,14 @@ static void XMLCALL xml_end(void *data, const char *el) {
             u->current_tag = XML_TAG_SERVICE;
             break;
         }
+
+        case XML_TAG_SUBTYPE: {
+            assert(u->service);
+            
+            u->service->subtypes = avahi_string_list_add(u->service->subtypes, u->buf ? u->buf : "");
+            u->current_tag = XML_TAG_SERVICE;
+            break;
+        }
             
         case XML_TAG_TYPE:
         case XML_TAG_DOMAIN_NAME:
@@ -482,6 +533,7 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
 
         case XML_TAG_PORT:
         case XML_TAG_TXT_RECORD:
+        case XML_TAG_SUBTYPE:
             assert(u->service);
             u->buf = append_cdata(u->buf, s, len);
             break;

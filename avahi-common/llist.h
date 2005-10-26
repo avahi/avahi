@@ -28,9 +28,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
@@ -74,9 +72,6 @@ AVAHI_C_DECL_BEGIN
                                     _item->name##_next = _item->name##_prev = NULL; \
                                     } while(0)
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
-
 
 #endif

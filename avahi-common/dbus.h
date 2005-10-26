@@ -27,9 +27,7 @@
 #include <avahi-common/cdecl.h>
 #include <dbus/dbus.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 #define AVAHI_DBUS_NAME "org.freedesktop.Avahi"
 #define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME".Server"
@@ -95,8 +93,6 @@ int avahi_error_dbus_to_number(const char *s);
 /** Convert an Avahi error number into a DBus error string.  Result should not be freed */
 const char * avahi_error_number_to_dbus(int error);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

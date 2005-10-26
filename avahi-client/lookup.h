@@ -38,9 +38,7 @@
 /** \example client-browse-services.c Example how to browse for DNS-SD
  * services using the client interface to avahi-daemon. */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** A domain browser object */
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
@@ -209,9 +207,6 @@ AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *);
 /** Free a AvahiAddressResolver resolver object */
 int avahi_address_resolver_free(AvahiAddressResolver *r);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
-
 
 #endif

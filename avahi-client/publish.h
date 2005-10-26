@@ -39,9 +39,7 @@
  * service using the client interface to avahi-daemon. It behaves like a network
  * printer registering both an IPP and a BSD LPR service. */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** An entry group object */
 typedef struct AvahiEntryGroup AvahiEntryGroup;
@@ -138,8 +136,6 @@ int avahi_entry_group_add_address(
     const char *name,
     const AvahiAddress *a);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

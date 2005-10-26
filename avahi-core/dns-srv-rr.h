@@ -34,9 +34,7 @@ typedef struct AvahiSDNSServerBrowser AvahiSDNSServerBrowser;
 #include <avahi-core/core.h>
 #include <avahi-core/publish.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** The type of DNS server */
 typedef enum {
@@ -86,8 +84,6 @@ AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(
 /** Free an AvahiSDNSServerBrowser object */
 void avahi_s_dns_server_browser_free(AvahiSDNSServerBrowser *b);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

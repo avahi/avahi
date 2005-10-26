@@ -28,6 +28,7 @@
 
 #include "announce.h"
 #include "log.h"
+#include "rr-util.h"
 
 #define AVAHI_ANNOUNCEMENT_JITTER_MSEC 250
 #define AVAHI_PROBE_JITTER_MSEC 250

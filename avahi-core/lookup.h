@@ -52,9 +52,7 @@ typedef struct AvahiSServiceResolver AvahiSServiceResolver;
 #include <avahi-common/defs.h>
 #include <avahi-core/core.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** Callback prototype for AvahiSRecordBrowser events */
 typedef void (*AvahiSRecordBrowserCallback)(
@@ -234,8 +232,6 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
 /** Free an AvahiSServiceResolver object */
 void avahi_s_service_resolver_free(AvahiSServiceResolver *r);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

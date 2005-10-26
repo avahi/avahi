@@ -29,6 +29,7 @@
 
 #include "probe-sched.h"
 #include "log.h"
+#include "rr-util.h"
 
 #define AVAHI_PROBE_HISTORY_MSEC 150
 #define AVAHI_PROBE_DEFER_MSEC 50

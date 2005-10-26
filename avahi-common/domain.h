@@ -29,9 +29,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** The maximum length of a a fully escaped domain name C string. This
  * is calculated like this: RFC1034 mandates maximum length of FQDNs
@@ -100,8 +98,6 @@ int avahi_service_name_join(char *p, size_t size, const char *name, const char *
 /** Split a full service name into name, type and domain */
 int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain, size_t domain_size);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

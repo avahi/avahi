@@ -36,9 +36,7 @@
 /** \example glib-integration.c Example of how to integrate
  * avahi use with GLIB/GTK applications */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** A connection context */
 typedef struct AvahiClient AvahiClient;
@@ -83,8 +81,6 @@ int avahi_client_errno (AvahiClient*);
 /** Return the local service cookie. returns AVAHI_SERVICE_COOKIE_INVALID on failure. */
 uint32_t avahi_client_get_local_service_cookie(AvahiClient *client);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

@@ -29,9 +29,7 @@
 #include <avahi-common/cdecl.h>
 #include <avahi-common/watch.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** GLib main loop adapter. You can safely cast this into a GSource */
 typedef struct AvahiGLibPoll AvahiGLibPoll;
@@ -50,8 +48,6 @@ void avahi_glib_poll_free(AvahiGLibPoll *g);
  * call */
 const AvahiPoll *avahi_glib_poll_get(AvahiGLibPoll *g);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

@@ -32,6 +32,7 @@
 #include "log.h"
 #include "hashmap.h"
 #include "multicast-lookup.h"
+#include "rr-util.h"
 
 struct AvahiMulticastLookup {
     AvahiMulticastLookupEngine *engine;

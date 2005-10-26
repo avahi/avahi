@@ -26,9 +26,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** Find an alternative for the specified host name. If called with an
  * original host name, "2" is appended, Afterwards the number is
@@ -42,8 +40,6 @@ char *avahi_alternative_host_name(const char *s);
     "foo #3" and so on.) avahi_free() the result. */
 char *avahi_alternative_service_name(const char *s);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

@@ -26,9 +26,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 #ifdef __GNUC__
 #if __GNUC__ >= 4
@@ -61,8 +59,6 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_GCC_NORETURN
 #endif
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

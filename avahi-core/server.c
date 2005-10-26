@@ -47,6 +47,7 @@
 #include "dns-srv-rr.h"
 #include "addr-util.h"
 #include "domain-util.h"
+#include "rr-util.h"
 
 static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const char *name, uint16_t type, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata) {
     assert(s);

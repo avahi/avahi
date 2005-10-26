@@ -26,6 +26,10 @@
 
 #include <avahi-common/watch.h>
 
+AVAHI_C_DECL_BEGIN
+
 int avahi_dbus_connection_glue(DBusConnection *c, const AvahiPoll *poll_api);
+
+AVAHI_C_DECL_END
 
 #endif

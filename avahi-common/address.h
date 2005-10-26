@@ -29,9 +29,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** Protocol family specification, takes the values AVAHI_PROTO_INET, AVAHI_PROTO_INET6, AVAHI_PROTO_UNSPEC */
 typedef int AvahiProtocol;
@@ -61,17 +59,17 @@ enum {
 #define AVAHI_PROTO_VALID(protocol) (((protocol) == AVAHI_PROTO_INET) || ((protocol) == AVAHI_PROTO_INET6) || ((protocol) == AVAHI_PROTO_UNSPEC))
 
 /** An IPv4 address */
-typedef struct {
+typedef struct AvahiIPv4Address {
     uint32_t address; /**< Address data in network byte order. */
 } AvahiIPv4Address;
 
 /** An IPv6 address */
-typedef struct {
+typedef struct AvahiIPv6Address {
     uint8_t address[16]; /**< Address data */
 } AvahiIPv6Address;
 
 /** Protocol (address family) independent address structure */
-typedef struct {
+typedef struct AvahiAddress {
     AvahiProtocol proto; /**< Address family */
 
     union {
@@ -104,8 +102,6 @@ AvahiProtocol avahi_af_to_proto(int af);
 /** Return a textual representation of the specified protocol number. i.e. "IPv4", "IPv6" or "UNSPEC" */
 const char* avahi_proto_to_string(AvahiProtocol proto);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

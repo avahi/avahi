@@ -26,9 +26,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** Error codes used by avahi */
 enum { 
@@ -97,8 +95,6 @@ enum {
 /** Return a human readable error string for the specified error code */
 const char *avahi_strerror(int error);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

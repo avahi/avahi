@@ -24,28 +24,16 @@
 
 /** \file core.h The Avahi Multicast DNS and DNS Service Discovery implementation. */
 
-
-#include <avahi-common/cdecl.h>
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-AVAHI_C_DECL_BEGIN
-#endif
-
 /** An mDNS responder object */
 typedef struct AvahiServer AvahiServer;
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-AVAHI_C_DECL_END
-#endif
-
-#include <avahi-core/rr.h>
+#include <avahi-common/cdecl.h>
 #include <avahi-common/address.h>
 #include <avahi-common/defs.h>
 #include <avahi-common/watch.h>
+#include <avahi-core/rr.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** Maximum number of defined DNS servers for wide area DNS */
 #define AVAHI_WIDE_AREA_SERVERS_MAX 4
@@ -157,8 +145,6 @@ uint32_t avahi_server_get_local_service_cookie(AvahiServer *s);
 /** Set the wide area DNS servers */
 int avahi_server_set_wide_area_servers(AvahiServer *s, const AvahiAddress *a, unsigned n);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

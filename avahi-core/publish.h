@@ -34,9 +34,7 @@ typedef struct AvahiSEntryGroup AvahiSEntryGroup;
 #include <avahi-common/cdecl.h>
 #include <avahi-core/core.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** Prototype for callback functions which are called whenever the state of an AvahiSEntryGroup object changes */
 typedef void (*AvahiSEntryGroupCallback) (AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata);
@@ -174,8 +172,6 @@ int avahi_server_update_service_txt(
 /** Check if there is a service locally defined and return the entry group it is attached to. Returns NULL if the service isn't local*/
 int avahi_server_get_group_of_service(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, AvahiSEntryGroup** ret_group);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

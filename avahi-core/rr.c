@@ -38,6 +38,7 @@
 #include "util.h"
 #include "hashmap.h"
 #include "domain-util.h"
+#include "rr-util.h"
 
 AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
     AvahiKey *k;

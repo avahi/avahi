@@ -60,15 +60,12 @@ char *avahi_strndup(const char *s, size_t l);
 void *avahi_memdup(const void *s, size_t l);
 
 /** Wraps allocator functions */
-typedef struct AvahiAllocator AvahiAllocator;
-
-/** Wraps allocator functions */
-struct AvahiAllocator {
+typedef struct AvahiAllocator {
     void* (*malloc)(size_t size);     
     void (*free)(void *p);           
     void* (*realloc)(void *p, size_t size);
     void* (*calloc)(size_t nmemb, size_t size);   /**< May be NULL */
-};
+} AvahiAllocator;
 
 /** Change the allocator. May be NULL to return to default (libc)
  * allocators. The structure is not copied! */

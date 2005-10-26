@@ -29,9 +29,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** A numeric data type for storing microsecond values. (signed 64bit integer) */
 typedef int64_t AvahiUsec;
@@ -53,8 +51,6 @@ AvahiUsec avahi_age(const struct timeval *a);
  * the jitter */
 struct timeval *avahi_elapse_time(struct timeval *tv, unsigned ms, unsigned j);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

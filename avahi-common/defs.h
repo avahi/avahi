@@ -48,6 +48,20 @@
  * 
  * All three APIs are very similar, however avahi-core is the most powerful.
  *
+ * In addition to the three APIs described above Avahi supports two
+ * compatibility libraries:
+ *
+ * \li avahi-compat-libdns_sd: the original Bonjour API as documented
+ * in the header file "dns_sd.h" by Apple Computer, Inc.
+ *
+ * \li avahi-compat-howl: the HOWL API as released with HOWL 0.9.8 by
+ * Porchdog Software.
+ *
+ * Please note that these compatibility layers are incomplete and
+ * generally a waste of resources. We strongly encourage everyone to
+ * use our native APIs for newly written programs and to port older
+ * programs to one of them!
+ * 
  * \section error_reporting Error Reporting
  *
  * Some notes on the Avahi error handling:
@@ -104,8 +118,7 @@
  * avahi_alternative_service_name()) and commit again. Please do not
  * free the entry group and create a new one. This would inhibit some
  * traffic limiting algorithms in mDNS.
- * - When you need to modify your services, reset the entry group
- * (i.e. avahi_entry_group_reset()) and add them back. Please do not
+ * - When you need to modify your services, use the AVAHI_PUBLISH_UPDATE flag. Please do not
  * free the entry group and create a new one. This would inhibit some
  * traffic limiting algorithms in mDNS.
  *
@@ -117,7 +130,7 @@
  * for the service type you want to browse for. Use
  * avahi_client_resolve_service() to acquire service data for a a service
  * name.
- * - You can use avahi_domain_browser() to get a list of announced
+ * - You can use avahi_domain_browser_new() to get a list of announced
  * browsing domains. Please note that not all domains whith services
  * on the LAN are mandatorily announced.
  * - Network monitor software may use avahi_service_type_browser_new()
@@ -130,9 +143,7 @@
  *  
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** States of an entry group object */
 typedef enum {
@@ -214,8 +225,6 @@ typedef enum {
 /** In invalid cookie as special value */
 #define AVAHI_SERVICE_COOKIE_INVALID (0)
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

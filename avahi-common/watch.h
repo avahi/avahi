@@ -29,9 +29,7 @@
 
 #include <avahi-common/cdecl.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
 /** An I/O watch object */
 typedef struct AvahiWatch AvahiWatch;
@@ -95,9 +93,7 @@ struct AvahiPoll {
     void (*timeout_free)(AvahiTimeout *t);
 };
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif
 

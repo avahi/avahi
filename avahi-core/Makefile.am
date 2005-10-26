@@ -67,7 +67,7 @@ libavahi_core_la_SOURCES = \
 	browse-service.c \
 	resolve-service.c \
 	dns.c dns.h \
-	rr.c rr.h \
+	rr.c rr.h rr-util.h \
 	core.h lookup.h publish.h \
 	log.c log.h \
 	browse-dns-server.c \

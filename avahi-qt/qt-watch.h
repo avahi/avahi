@@ -26,17 +26,11 @@
 
 #include <avahi-common/watch.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_BEGIN
-#endif
 
-/**
-Setup abstract poll structure for integration with Qt main loop  */
-
+/** Setup abstract poll structure for integration with Qt main loop  */
 const AvahiPoll* avahi_qt_poll_get(void);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 AVAHI_C_DECL_END
-#endif
 
 #endif

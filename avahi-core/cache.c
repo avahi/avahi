@@ -31,6 +31,7 @@
 
 #include "cache.h"
 #include "log.h"
+#include "rr-util.h"
 
 #define AVAHI_CACHE_ENTRIES_MAX 500
 

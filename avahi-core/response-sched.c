@@ -28,6 +28,7 @@
 
 #include "response-sched.h"
 #include "log.h"
+#include "rr-util.h"
 
 /* Local packets are supressed this long after sending them */
 #define AVAHI_RESPONSE_HISTORY_MSEC 500

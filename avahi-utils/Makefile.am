@@ -88,7 +88,7 @@ if HAVE_DBUS
 
 bin_PROGRAMS = avahi-browse
 
-avahi_browse_SOURCES = avahi-browse.c sigint.c
+avahi_browse_SOURCES = avahi-browse.c sigint.c sigint.h
 avahi_browse_CFLAGS = $(AM_CFLAGS)
 avahi_browse_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 

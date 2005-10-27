@@ -77,7 +77,9 @@ const char *avahi_strerror(int error) {
         "DNS failure: YXRRSET",
         "DNS failure: NXRRSET",
         "DNS failure: NOTAUTH",
-        "DNS failure: NOTZONE"
+        "DNS failure: NOTZONE",
+
+        "Invalid RDATA"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

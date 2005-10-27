@@ -69,5 +69,15 @@
       <arg name="address" type="s" direction="in"/>
     </method>
 
+    <method name="AddRecord">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="clazz" type="i" direction="in"/>
+      <arg name="type" type="i" direction="in"/>
+      <arg name="ttl" type="i" direction="in"/>
+      <arg name="rdata" type="ay" direction="in"/>
+    </method>
   </interface>
 </node>

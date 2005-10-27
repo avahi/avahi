@@ -136,6 +136,19 @@ int avahi_entry_group_add_address(
     const char *name,
     const AvahiAddress *a);
 
+/** Add an arbitrary record */
+int avahi_entry_group_add_record(
+    AvahiEntryGroup *group,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiPublishFlags flags,
+    const char *name,
+    uint16_t clazz,
+    uint16_t type,
+    uint32_t ttl,
+    uint8_t *rdata,
+    size_t size);
+
 AVAHI_C_DECL_END
 
 #endif

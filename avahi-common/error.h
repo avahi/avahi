@@ -80,6 +80,8 @@ enum {
     AVAHI_ERR_DNS_NXRRSET = -43,
     AVAHI_ERR_DNS_NOTAUTH = -44,
     AVAHI_ERR_DNS_NOTZONE = -45,
+
+    AVAHI_ERR_INVALID_RDATA = -46,
     
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -89,7 +91,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -46
+    AVAHI_ERR_MAX = -47
 };
 
 /** Return a human readable error string for the specified error code */

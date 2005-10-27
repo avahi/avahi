@@ -1,10 +1,12 @@
 $Id$
 
 * NOTE *
-While this document provides an overview of the DBUS-API, a much better reference is the .introspect files
-in the avahi-daemon directory
+While this document provides an overview of the DBUS-API, a much better
+reference is the .introspect files in the avahi-daemon directory.
+It may also become out of date, especially in SVN, so please, check the
+.introspect files in avahi-daemon/
 
-You can find copies online, under "Developing with Avahi" here
+Or you can find copies online, under "Developing with Avahi" here
 http://www.freedesktop.org/Software/Avahi
 
 - Lathiat

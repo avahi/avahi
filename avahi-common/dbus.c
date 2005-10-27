@@ -77,6 +77,7 @@ static const char * const table[- AVAHI_ERR_MAX] = {
     AVAHI_DBUS_ERR_DNS_NXRRSET,
     AVAHI_DBUS_ERR_DNS_NOTAUTH,
     AVAHI_DBUS_ERR_DNS_NOTZONE,
+    AVAHI_DBUS_ERR_INVALID_RDATA
 };
 
 int avahi_error_dbus_to_number(const char *s) {

@@ -86,6 +86,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_DNS_NXRRSET "org.freedesktop.Avahi.DNSNXRRSET"
 #define AVAHI_DBUS_ERR_DNS_NOTAUTH "org.freedesktop.Avahi.DNSNOTAUTH"
 #define AVAHI_DBUS_ERR_DNS_NOTZONE "org.freedesktop.Avahi.DNSNOTZONE"
+#define AVAHI_DBUS_ERR_INVALID_RDATA "org.freedesktop.Avahi.InvalidRDATA"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

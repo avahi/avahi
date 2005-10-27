@@ -46,6 +46,7 @@
 #include <avahi-common/dbus-watch-glue.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/error.h>
+#include <avahi-common/domain.h>
 
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
@@ -712,6 +713,38 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
     dbus_message_unref(m);
 }
 
+static int read_rdata(DBusMessage *m, int idx, void **rdata, uint32_t *size) {
+    DBusMessageIter iter, sub;
+    int n, j;
+    uint8_t *k;
+
+    assert(m);
+    
+    dbus_message_iter_init(m, &iter);
+
+    for (j = 0; j < idx; j++)
+       dbus_message_iter_next(&iter);
+    
+    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
+        dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_BYTE)
+        goto fail;
+
+    dbus_message_iter_recurse(&iter, &sub);
+    dbus_message_iter_get_fixed_array(&sub, &k, &n);
+
+    *rdata = k;
+    *size = n;
+    
+    return 0;
+    
+fail:
+    avahi_log_warn("Error parsing data");
+
+    *rdata = NULL;
+    size = 0;
+    return -1;
+}
+
 static int read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
     DBusMessageIter iter, sub;
     int j;
@@ -984,7 +1017,56 @@ static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m,
             i->n_entries ++;
         
         return respond_ok(c, m);
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddRecord")) {
+        int32_t interface, protocol;
+        uint32_t flags, ttl, size;
+        uint16_t clazz, type;
+        char *name;
+        void *rdata;
+        AvahiRecord *r;
+        
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_UINT32, &flags,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_UINT16, &clazz,
+                DBUS_TYPE_UINT16, &type,
+                DBUS_TYPE_UINT32, &ttl,
+                DBUS_TYPE_INVALID) || !name ||
+                read_rdata (m, 7, &rdata, &size)) {
+            avahi_log_warn("Error parsing EntryGroup::AddRecord message");
+            goto fail;
+        }
+
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
+            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
+
+        if (!avahi_is_valid_domain_name (name))
+            return respond_error(c, m, AVAHI_ERR_INVALID_DOMAIN_NAME, NULL);
+
+        if (!(r = avahi_record_new_full (name, clazz, type, ttl)))
+            return respond_error(c, m, AVAHI_ERR_NO_MEMORY, NULL);
+
+        if (avahi_rdata_parse (r, rdata, size) < 0) {
+            avahi_record_unref (r);
+            return respond_error(c, m, AVAHI_ERR_INVALID_RDATA, NULL);
+        }
+        
+        if (avahi_server_add(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, r) < 0) {
+            avahi_record_unref (r);
+            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        }
+
+        if (!(flags & AVAHI_PUBLISH_UPDATE))
+            i->n_entries ++;
+       
+        avahi_record_unref (r); 
+
+        return respond_ok(c, m);
     } 
+ 
     
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

@@ -330,7 +330,7 @@ fail:
     return r;
 }
 
-static int append_rdata(DBusMessage *message, uint8_t *rdata, size_t size) {
+static int append_rdata(DBusMessage *message, const void *rdata, size_t size) {
     DBusMessageIter iter, sub;
  
     assert(message);
@@ -801,7 +801,7 @@ int avahi_entry_group_add_record(
     uint16_t clazz,
     uint16_t type,
     uint32_t ttl,
-    uint8_t *rdata,
+    const void *rdata,
     size_t size) {
 
     DBusMessage *message = NULL, *reply = NULL;

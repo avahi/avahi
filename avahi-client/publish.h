@@ -146,7 +146,7 @@ int avahi_entry_group_add_record(
     uint16_t clazz,
     uint16_t type,
     uint32_t ttl,
-    uint8_t *rdata,
+    const void *rdata,
     size_t size);
 
 AVAHI_C_DECL_END

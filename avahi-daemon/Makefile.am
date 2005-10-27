@@ -74,8 +74,19 @@ pkgdata_DATA = \
 if HAVE_DBUS
 
 avahi_daemon_SOURCES += \
-	dbus-protocol.c \
-	dbus-protocol.h
+	dbus-protocol.c dbus-protocol.h \
+	dbus-util.c dbus-util.h \
+	dbus-internal.h \
+	dbus-async-address-resolver.c \
+	dbus-async-host-name-resolver.c \
+	dbus-async-service-resolver.c \
+	dbus-domain-browser.c \
+	dbus-entry-group.c \
+	dbus-service-browser.c \
+	dbus-service-type-browser.c \
+	dbus-sync-address-resolver.c \
+	dbus-sync-host-name-resolver.c \
+	dbus-sync-service-resolver.c
 
 avahi_daemon_LDADD += \
 	../avahi-common/libdbus-common.la \

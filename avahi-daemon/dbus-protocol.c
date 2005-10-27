@@ -54,288 +54,13 @@
 #include <avahi-core/publish.h>
 
 #include "dbus-protocol.h"
+#include "dbus-util.h"
+#include "dbus-internal.h"
 #include "main.h"
-
-typedef struct Server Server;
-typedef struct Client Client;
-typedef struct EntryGroupInfo EntryGroupInfo;
-typedef struct SyncHostNameResolverInfo SyncHostNameResolverInfo;
-typedef struct AsyncHostNameResolverInfo AsyncHostNameResolverInfo;
-typedef struct SyncAddressResolverInfo SyncAddressResolverInfo;
-typedef struct AsyncAddressResolverInfo AsyncAddressResolverInfo;
-typedef struct DomainBrowserInfo DomainBrowserInfo;
-typedef struct ServiceTypeBrowserInfo ServiceTypeBrowserInfo;
-typedef struct ServiceBrowserInfo ServiceBrowserInfo;
-typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
-typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
-
-#define CLIENTS_MAX 256
-#define OBJECTS_PER_CLIENT_MAX 50
-#define ENTRIES_PER_ENTRY_GROUP_MAX 20
 
 /* #define VALGRIND_WORKAROUND 1 */
 
-struct EntryGroupInfo {
-    unsigned id;
-    Client *client;
-    AvahiSEntryGroup *entry_group;
-    char *path;
-
-    int n_entries;
-    
-    AVAHI_LLIST_FIELDS(EntryGroupInfo, entry_groups);
-};
-
-struct SyncHostNameResolverInfo {
-    Client *client;
-    AvahiSHostNameResolver *host_name_resolver;
-    DBusMessage *message;
-
-    AVAHI_LLIST_FIELDS(SyncHostNameResolverInfo, sync_host_name_resolvers);
-};
-
-struct AsyncHostNameResolverInfo {
-    unsigned id;
-    Client *client;
-    AvahiSHostNameResolver *host_name_resolver;
-    char *path;
-
-    AVAHI_LLIST_FIELDS(AsyncHostNameResolverInfo, async_host_name_resolvers);
-};
-
-struct SyncAddressResolverInfo {
-    Client *client;
-    AvahiSAddressResolver *address_resolver;
-    DBusMessage *message;
-
-    AVAHI_LLIST_FIELDS(SyncAddressResolverInfo, sync_address_resolvers);
-};
-
-struct AsyncAddressResolverInfo {
-    unsigned id;
-    Client *client;
-    AvahiSAddressResolver *address_resolver;
-    char *path;
-
-    AVAHI_LLIST_FIELDS(AsyncAddressResolverInfo, async_address_resolvers);
-};
-
-struct DomainBrowserInfo {
-    unsigned id;
-    Client *client;
-    AvahiSDomainBrowser *domain_browser;
-    char *path;
-
-    AVAHI_LLIST_FIELDS(DomainBrowserInfo, domain_browsers);
-};
-
-struct ServiceTypeBrowserInfo {
-    unsigned id;
-    Client *client;
-    AvahiSServiceTypeBrowser *service_type_browser;
-    char *path;
-
-    AVAHI_LLIST_FIELDS(ServiceTypeBrowserInfo, service_type_browsers);
-};
-
-struct ServiceBrowserInfo {
-    unsigned id;
-    Client *client;
-    AvahiSServiceBrowser *service_browser;
-    char *path;
-
-    AVAHI_LLIST_FIELDS(ServiceBrowserInfo, service_browsers);
-};
-
-struct SyncServiceResolverInfo {
-    Client *client;
-    AvahiSServiceResolver *service_resolver;
-    DBusMessage *message;
-
-    AVAHI_LLIST_FIELDS(SyncServiceResolverInfo, sync_service_resolvers);
-};
-
-struct AsyncServiceResolverInfo {
-    unsigned id;
-    Client *client;
-    AvahiSServiceResolver *service_resolver;
-    char *path;
-
-    AVAHI_LLIST_FIELDS(AsyncServiceResolverInfo, async_service_resolvers);
-};
-
-struct Client {
-    unsigned id;
-    char *name;
-    unsigned current_id;
-    int n_objects;
-    
-    AVAHI_LLIST_FIELDS(Client, clients);
-    AVAHI_LLIST_HEAD(EntryGroupInfo, entry_groups);
-    AVAHI_LLIST_HEAD(SyncHostNameResolverInfo, sync_host_name_resolvers);
-    AVAHI_LLIST_HEAD(AsyncHostNameResolverInfo, async_host_name_resolvers);
-    AVAHI_LLIST_HEAD(SyncAddressResolverInfo, sync_address_resolvers);
-    AVAHI_LLIST_HEAD(AsyncAddressResolverInfo, async_address_resolvers);
-    AVAHI_LLIST_HEAD(DomainBrowserInfo, domain_browsers);
-    AVAHI_LLIST_HEAD(ServiceTypeBrowserInfo, service_type_browsers);
-    AVAHI_LLIST_HEAD(ServiceBrowserInfo, service_browsers);
-    AVAHI_LLIST_HEAD(SyncServiceResolverInfo, sync_service_resolvers);
-    AVAHI_LLIST_HEAD(AsyncServiceResolverInfo, async_service_resolvers);
-};
-
-struct Server {
-    DBusConnection *bus;
-    AVAHI_LLIST_HEAD(Client, clients);
-    int n_clients;
-    unsigned current_id;
-};
-
-static Server *server = NULL;
-
-static void entry_group_free(EntryGroupInfo *i) {
-    assert(i);
-
-    if (i->entry_group)
-        avahi_s_entry_group_free(i->entry_group);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    avahi_free(i->path);
-    AVAHI_LLIST_REMOVE(EntryGroupInfo, entry_groups, i->client->entry_groups, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-    
-    avahi_free(i);
-}
-
-static void sync_host_name_resolver_free(SyncHostNameResolverInfo *i) {
-    assert(i);
-
-    if (i->host_name_resolver)
-        avahi_s_host_name_resolver_free(i->host_name_resolver);
-    dbus_message_unref(i->message);
-    AVAHI_LLIST_REMOVE(SyncHostNameResolverInfo, sync_host_name_resolvers, i->client->sync_host_name_resolvers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void async_host_name_resolver_free(AsyncHostNameResolverInfo *i) {
-    assert(i);
-
-    if (i->host_name_resolver)
-        avahi_s_host_name_resolver_free(i->host_name_resolver);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    AVAHI_LLIST_REMOVE(AsyncHostNameResolverInfo, async_host_name_resolvers, i->client->async_host_name_resolvers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void sync_address_resolver_free(SyncAddressResolverInfo *i) {
-    assert(i);
-
-    if (i->address_resolver)
-        avahi_s_address_resolver_free(i->address_resolver);
-    dbus_message_unref(i->message);
-    AVAHI_LLIST_REMOVE(SyncAddressResolverInfo, sync_address_resolvers, i->client->sync_address_resolvers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void async_address_resolver_free(AsyncAddressResolverInfo *i) {
-    assert(i);
-
-    if (i->address_resolver)
-        avahi_s_address_resolver_free(i->address_resolver);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    AVAHI_LLIST_REMOVE(AsyncAddressResolverInfo, async_address_resolvers, i->client->async_address_resolvers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void domain_browser_free(DomainBrowserInfo *i) {
-    assert(i);
-
-    if (i->domain_browser)
-        avahi_s_domain_browser_free(i->domain_browser);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    avahi_free(i->path);
-    AVAHI_LLIST_REMOVE(DomainBrowserInfo, domain_browsers, i->client->domain_browsers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void service_type_browser_free(ServiceTypeBrowserInfo *i) {
-    assert(i);
-
-    if (i->service_type_browser)
-        avahi_s_service_type_browser_free(i->service_type_browser);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    avahi_free(i->path);
-    AVAHI_LLIST_REMOVE(ServiceTypeBrowserInfo, service_type_browsers, i->client->service_type_browsers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void service_browser_free(ServiceBrowserInfo *i) {
-    assert(i);
-
-    if (i->service_browser)
-        avahi_s_service_browser_free(i->service_browser);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    avahi_free(i->path);
-    AVAHI_LLIST_REMOVE(ServiceBrowserInfo, service_browsers, i->client->service_browsers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void sync_service_resolver_free(SyncServiceResolverInfo *i) {
-    assert(i);
-
-    if (i->service_resolver)
-        avahi_s_service_resolver_free(i->service_resolver);
-    dbus_message_unref(i->message);
-    AVAHI_LLIST_REMOVE(SyncServiceResolverInfo, sync_service_resolvers, i->client->sync_service_resolvers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
-
-static void async_service_resolver_free(AsyncServiceResolverInfo *i) {
-    assert(i);
-
-    if (i->service_resolver)
-        avahi_s_service_resolver_free(i->service_resolver);
-
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    AVAHI_LLIST_REMOVE(AsyncServiceResolverInfo, async_service_resolvers, i->client->async_service_resolvers, i);
-
-    i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
-
-    avahi_free(i);
-}
+Server *server = NULL;
 
 static void client_free(Client *c) {
     
@@ -343,34 +68,34 @@ static void client_free(Client *c) {
     assert(c);
 
     while (c->entry_groups)
-        entry_group_free(c->entry_groups);
+        avahi_dbus_entry_group_free(c->entry_groups);
 
     while (c->sync_host_name_resolvers)
-        sync_host_name_resolver_free(c->sync_host_name_resolvers);
+        avahi_dbus_sync_host_name_resolver_free(c->sync_host_name_resolvers);
 
     while (c->async_host_name_resolvers)
-        async_host_name_resolver_free(c->async_host_name_resolvers);
+        avahi_dbus_async_host_name_resolver_free(c->async_host_name_resolvers);
     
     while (c->sync_address_resolvers)
-        sync_address_resolver_free(c->sync_address_resolvers);
+        avahi_dbus_sync_address_resolver_free(c->sync_address_resolvers);
 
     while (c->async_address_resolvers)
-        async_address_resolver_free(c->async_address_resolvers);
+        avahi_dbus_async_address_resolver_free(c->async_address_resolvers);
 
     while (c->domain_browsers)
-        domain_browser_free(c->domain_browsers);
+        avahi_dbus_domain_browser_free(c->domain_browsers);
 
     while (c->service_type_browsers)
-        service_type_browser_free(c->service_type_browsers);
+        avahi_dbus_service_type_browser_free(c->service_type_browsers);
 
     while (c->service_browsers)
-        service_browser_free(c->service_browsers);
+        avahi_dbus_service_browser_free(c->service_browsers);
 
     while (c->sync_service_resolvers)
-        sync_service_resolver_free(c->sync_service_resolvers);
+        avahi_dbus_sync_service_resolver_free(c->sync_service_resolvers);
 
     while (c->async_service_resolvers)
-        async_service_resolver_free(c->async_service_resolvers);
+        avahi_dbus_async_service_resolver_free(c->async_service_resolvers);
 
     assert(c->n_objects == 0);
     
@@ -424,209 +149,6 @@ static Client *client_get(const char *name, int create) {
     return client;
 }
 
-static DBusHandlerResult respond_error(DBusConnection *c, DBusMessage *m, int error, const char *text) {
-    DBusMessage *reply;
-
-    assert(-error > -AVAHI_OK);
-    assert(-error < -AVAHI_ERR_MAX);
-
-    if (!text)
-        text = avahi_strerror(error);
-    
-    reply = dbus_message_new_error(m, avahi_error_number_to_dbus(error), text);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-
-    avahi_log_debug(__FILE__": Responding error '%s' (%i)", text, error);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static DBusHandlerResult respond_string(DBusConnection *c, DBusMessage *m, const char *text) {
-    DBusMessage *reply;
-
-    reply = dbus_message_new_method_return(m);
-    dbus_message_append_args(reply, DBUS_TYPE_STRING, &text, DBUS_TYPE_INVALID);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static DBusHandlerResult respond_int32(DBusConnection *c, DBusMessage *m, int32_t i) {
-    DBusMessage *reply;
-
-    reply = dbus_message_new_method_return(m);
-    dbus_message_append_args(reply, DBUS_TYPE_INT32, &i, DBUS_TYPE_INVALID);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static DBusHandlerResult respond_uint32(DBusConnection *c, DBusMessage *m, uint32_t u) {
-    DBusMessage *reply;
-
-    reply = dbus_message_new_method_return(m);
-    dbus_message_append_args(reply, DBUS_TYPE_UINT32, &u, DBUS_TYPE_INVALID);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static DBusHandlerResult respond_boolean(DBusConnection *c, DBusMessage *m, int b) {
-    DBusMessage *reply;
-
-    reply = dbus_message_new_method_return(m);
-    dbus_message_append_args(reply, DBUS_TYPE_BOOLEAN, &b, DBUS_TYPE_INVALID);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static DBusHandlerResult respond_ok(DBusConnection *c, DBusMessage *m) {
-    DBusMessage *reply;
-
-    reply = dbus_message_new_method_return(m);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static DBusHandlerResult respond_path(DBusConnection *c, DBusMessage *m, const char *path) {
-    DBusMessage *reply;
-
-    reply = dbus_message_new_method_return(m);
-    dbus_message_append_args(reply, DBUS_TYPE_OBJECT_PATH, &path, DBUS_TYPE_INVALID);
-    dbus_connection_send(c, reply, NULL);
-    dbus_message_unref(reply);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-static void append_server_error(DBusMessage *reply) {
-    const char *t;
-
-    t = avahi_error_number_to_dbus(avahi_server_errno(avahi_server));
-    
-    dbus_message_append_args(
-        reply,
-        DBUS_TYPE_STRING, &t,
-        DBUS_TYPE_INVALID);
-}
-
-static char *file_get_contents(char *fname) {
-    int fd = -1;
-    struct stat st;
-    ssize_t size;
-    char *buf = NULL;
-    
-    assert(fname);
-
-    if (!(fd = open(fname, O_RDONLY))) {
-        avahi_log_error("Failed to open %s: %s", fname, strerror(errno));
-        goto fail;
-    }
-
-    if (fstat(fd, &st) < 0) {
-        avahi_log_error("stat(%s) failed: %s", fname, strerror(errno));
-        goto fail;
-    }
-
-    if (!(S_ISREG(st.st_mode))) {
-        avahi_log_error("Invalid file %s", fname);
-        goto fail;
-    }
-
-    if (st.st_size > 1024*1024) { /** 1MB */
-        avahi_log_error("File too large %s", fname);
-        goto fail;
-    }
-
-    buf = avahi_new(char, st.st_size+1);
-
-    if ((size = read(fd, buf, st.st_size)) < 0) {
-        avahi_log_error("read() failed: %s\n", strerror(errno));
-        goto fail;
-    }
-
-    buf[size] = 0;
-
-    close(fd);
-    return buf;
-    
-fail:
-    if (fd >= 0)
-        close(fd);
-
-    if (buf)
-        avahi_free(buf);
-
-    return NULL;
-        
-}
-
-static const char *map_browse_signal_name(AvahiBrowserEvent e) {
-    switch (e) {
-        case AVAHI_BROWSER_NEW : return "ItemNew";
-        case AVAHI_BROWSER_REMOVE : return "ItemRemove";
-        case AVAHI_BROWSER_FAILURE : return "Failure";
-        case AVAHI_BROWSER_CACHE_EXHAUSTED : return "CacheExhausted";
-        case AVAHI_BROWSER_ALL_FOR_NOW : return "AllForNow";
-    }
-
-    abort();
-}
-
-static const char *map_resolve_signal_name(AvahiResolverEvent e) {
-    switch (e) {
-        case AVAHI_RESOLVER_FOUND : return "Found";
-        case AVAHI_RESOLVER_FAILURE : return "Failure";
-    }
-
-    abort();
-}
-
-
-static DBusHandlerResult handle_introspect(DBusConnection *c, DBusMessage *m, const char *fname) {
-    char *path, *contents;
-    DBusError error;
-    
-    assert(c);
-    assert(m);
-    assert(fname);
-
-    dbus_error_init(&error);
-
-    if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-        avahi_log_error("Error parsing Introspect message: %s", error.message);
-        goto fail;
-    }
-    
-    path = avahi_strdup_printf("%s/%s", AVAHI_DBUS_INTROSPECTION_DIR, fname);
-    contents = file_get_contents(path);
-    avahi_free(path);
-    
-    if (!contents) {
-        avahi_log_error("Failed to load introspection data.");
-        goto fail;
-    }
-    
-    respond_string(c, m, contents);
-    avahi_free(contents);
-    
-    return DBUS_HANDLER_RESULT_HANDLED;
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-}
 
 static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata) {
     DBusError error;
@@ -683,1138 +205,6 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
-    EntryGroupInfo *i = userdata;
-    DBusMessage *m;
-    int32_t t;
-    const char *e;
-    
-    assert(s);
-    assert(g);
-    assert(i);
-
-    m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged");
-    
-    t = (int32_t) state;
-    if (state == AVAHI_ENTRY_GROUP_FAILURE)
-        e = avahi_error_number_to_dbus(avahi_server_errno(s));
-    else if (state == AVAHI_ENTRY_GROUP_COLLISION)
-        e = AVAHI_DBUS_ERR_COLLISION;
-    else
-        e = AVAHI_DBUS_ERR_OK;
-        
-    dbus_message_append_args(
-        m,
-        DBUS_TYPE_INT32, &t,
-        DBUS_TYPE_STRING, &e,
-        DBUS_TYPE_INVALID);
-    dbus_message_set_destination(m, i->client->name);  
-    dbus_connection_send(server->bus, m, NULL);
-    dbus_message_unref(m);
-}
-
-static int read_rdata(DBusMessage *m, int idx, void **rdata, uint32_t *size) {
-    DBusMessageIter iter, sub;
-    int n, j;
-    uint8_t *k;
-
-    assert(m);
-    
-    dbus_message_iter_init(m, &iter);
-
-    for (j = 0; j < idx; j++)
-       dbus_message_iter_next(&iter);
-    
-    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
-        dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_BYTE)
-        goto fail;
-
-    dbus_message_iter_recurse(&iter, &sub);
-    dbus_message_iter_get_fixed_array(&sub, &k, &n);
-
-    *rdata = k;
-    *size = n;
-    
-    return 0;
-    
-fail:
-    avahi_log_warn("Error parsing data");
-
-    *rdata = NULL;
-    size = 0;
-    return -1;
-}
-
-static int read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
-    DBusMessageIter iter, sub;
-    int j;
-    AvahiStringList *strlst = NULL;
-
-    assert(m);
-    assert(l);
-    
-    dbus_message_iter_init(m, &iter);
-
-    for (j = 0; j < idx; j++)
-        dbus_message_iter_next(&iter);
-    
-    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
-        dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_ARRAY)
-        goto fail;
-
-    dbus_message_iter_recurse(&iter, &sub);
-        
-    for (;;) {
-        DBusMessageIter sub2;
-        int at, n;
-        uint8_t *k;
-        
-        if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
-            break;
-        
-        assert(at == DBUS_TYPE_ARRAY);
-        
-        if (dbus_message_iter_get_element_type(&sub) != DBUS_TYPE_BYTE)
-            goto fail;
-
-        dbus_message_iter_recurse(&sub, &sub2);
-        dbus_message_iter_get_fixed_array(&sub2, &k, &n);
-        strlst = avahi_string_list_add_arbitrary(strlst, k, n);
-        
-        dbus_message_iter_next(&sub);
-    }
-
-    *l = strlst;
-    
-    return 0;
-    
-fail:
-    avahi_log_warn("Error parsing TXT data");
-
-    avahi_string_list_free(strlst);
-    *l = NULL;
-    return -1;
-}
-
-
-static DBusHandlerResult msg_entry_group_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    EntryGroupInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "EntryGroup.introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing EntryGroup::Free message");
-            goto fail;
-        }
-
-        entry_group_free(i);
-        return respond_ok(c, m);
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Commit")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing EntryGroup::Commit message");
-            goto fail;
-        }
-
-        avahi_s_entry_group_commit(i->entry_group);
-        return respond_ok(c, m);
-        
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Reset")) {
-        
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing EntryGroup::Reset message");
-            goto fail;
-        }
-
-        avahi_s_entry_group_reset(i->entry_group);
-	i->n_entries = 0;
-        return respond_ok(c, m);
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing EntryGroup::IsEmpty message");
-            goto fail;
-        }
-
-        return respond_boolean(c, m, !!avahi_s_entry_group_is_empty(i->entry_group));
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "GetState")) {
-        AvahiEntryGroupState state;
-        
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing EntryGroup::GetState message");
-            goto fail;
-        }
-
-        state = avahi_s_entry_group_get_state(i->entry_group);
-        return respond_int32(c, m, (int32_t) state);
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService")) {
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *type, *name, *domain, *host;
-        uint16_t port;
-        AvahiStringList *strlst = NULL;
-        
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_STRING, &host,
-                DBUS_TYPE_UINT16, &port, 
-                DBUS_TYPE_INVALID) ||
-            !type || !name ||
-            read_strlst(m, 8, &strlst) < 0) {
-            avahi_log_warn("Error parsing EntryGroup::AddService message");
-            goto fail;
-        }
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX) {
-            avahi_string_list_free(strlst);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
-        }
-
-        if (domain && !*domain)
-            domain = NULL;
-
-        if (host && !*host)
-            host = NULL;
-
-        if (avahi_server_add_service_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, host, port, strlst) < 0) {
-            avahi_string_list_free(strlst);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-        }
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
-            
-        avahi_string_list_free(strlst);
-        
-        return respond_ok(c, m);
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddServiceSubtype")) {
-
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *type, *name, *domain, *subtype;
-        
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_STRING, &subtype,
-                DBUS_TYPE_INVALID) || !type || !name || !subtype) {
-            avahi_log_warn("Error parsing EntryGroup::AddServiceSubtype message");
-            goto fail;
-        }
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
-
-        if (domain && !*domain)
-            domain = NULL;
-
-        if (avahi_server_add_service_subtype(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, subtype) < 0) 
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
-        
-        return respond_ok(c, m);
-
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "UpdateServiceTxt")) {
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *type, *name, *domain;
-        AvahiStringList *strlst;
-        
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_INVALID) ||
-            !type || !name ||
-            read_strlst(m, 6, &strlst)) {
-            avahi_log_warn("Error parsing EntryGroup::UpdateServiceTxt message");
-            goto fail;
-        }
-
-        if (domain && !*domain)
-            domain = NULL;
-
-        if (avahi_server_update_service_txt_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, strlst) < 0) {
-            avahi_string_list_free(strlst);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-        }
-
-        avahi_string_list_free(strlst);
-        
-        return respond_ok(c, m);
-        
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddAddress")) {
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *name, *address;
-        AvahiAddress a;
-        
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &address,
-                DBUS_TYPE_INVALID) || !name || !address) {
-            avahi_log_warn("Error parsing EntryGroup::AddAddress message");
-            goto fail;
-        }
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
-        
-        if (!(avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a)))
-            return respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
-
-        if (avahi_server_add_address(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, &a) < 0)
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
-        
-        return respond_ok(c, m);
-    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddRecord")) {
-        int32_t interface, protocol;
-        uint32_t flags, ttl, size;
-        uint16_t clazz, type;
-        char *name;
-        void *rdata;
-        AvahiRecord *r;
-        
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_UINT16, &clazz,
-                DBUS_TYPE_UINT16, &type,
-                DBUS_TYPE_UINT32, &ttl,
-                DBUS_TYPE_INVALID) || !name ||
-                read_rdata (m, 7, &rdata, &size)) {
-            avahi_log_warn("Error parsing EntryGroup::AddRecord message");
-            goto fail;
-        }
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
-
-        if (!avahi_is_valid_domain_name (name))
-            return respond_error(c, m, AVAHI_ERR_INVALID_DOMAIN_NAME, NULL);
-
-        if (!(r = avahi_record_new_full (name, clazz, type, ttl)))
-            return respond_error(c, m, AVAHI_ERR_NO_MEMORY, NULL);
-
-        if (avahi_rdata_parse (r, rdata, size) < 0) {
-            avahi_record_unref (r);
-            return respond_error(c, m, AVAHI_ERR_INVALID_RDATA, NULL);
-        }
-        
-        if (avahi_server_add(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, r) < 0) {
-            avahi_record_unref (r);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
-        }
-
-        if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
-       
-        avahi_record_unref (r); 
-
-        return respond_ok(c, m);
-    } 
- 
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static void sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata) {
-    SyncHostNameResolverInfo *i = userdata;
-    
-    assert(r);
-    assert(host_name);
-    assert(i);
-
-    if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
-        DBusMessage *reply;
-
-        assert(a);
-        avahi_address_snprint(t, sizeof(t), a);
-
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->proto;
-        u_flags = (uint32_t) flags;
-        
-        reply = dbus_message_new_method_return(i->message);
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-
-        dbus_connection_send(server->bus, reply, NULL);
-        dbus_message_unref(reply);
-    } else {
-        assert(event == AVAHI_RESOLVER_FAILURE);
-        respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
-    }
-
-    sync_host_name_resolver_free(i);
-}
-
-static void sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata) {
-    SyncAddressResolverInfo *i = userdata;
-    
-    assert(r);
-    assert(address);
-    assert(i);
-
-    if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
-        DBusMessage *reply;
-
-        assert(host_name);
-        avahi_address_snprint(t, sizeof(t), address);
-
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) address->proto;
-        u_flags = (uint32_t) flags;
-        
-        reply = dbus_message_new_method_return(i->message);
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-
-        dbus_connection_send(server->bus, reply, NULL);
-        dbus_message_unref(reply);
-    } else {
-        assert(event == AVAHI_RESOLVER_FAILURE);
-        respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
-    }
-
-    sync_address_resolver_free(i);
-}
-
-static DBusHandlerResult msg_domain_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    DomainBrowserInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "DomainBrowser.introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing DomainBrowser::Free message");
-            goto fail;
-        }
-
-        domain_browser_free(i);
-        return respond_ok(c, m);
-        
-    }
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static void domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,  void* userdata) {
-    DomainBrowserInfo *i = userdata;
-    DBusMessage *m;
-    int32_t i_interface, i_protocol;
-    uint32_t u_flags;
-    
-    assert(b);
-    assert(i);
-
-    i_interface = (int32_t) interface;
-    i_protocol = (int32_t) protocol;
-    u_flags = (uint32_t) flags;
-
-    m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, map_browse_signal_name(event));
-
-    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
-        assert(domain);
-        dbus_message_append_args(
-            m,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-    } else if (event == AVAHI_BROWSER_FAILURE)
-        append_server_error(m);
-    
-    dbus_message_set_destination(m, i->client->name);   
-    dbus_connection_send(server->bus, m, NULL);
-    dbus_message_unref(m);
-}
-
-static DBusHandlerResult msg_service_type_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    ServiceTypeBrowserInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "ServiceTypeBrowser.introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing ServiceTypeBrowser::Free message");
-            goto fail;
-        }
-
-        service_type_browser_free(i);
-        return respond_ok(c, m);
-        
-    }
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static void service_type_browser_callback(AvahiSServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata) {
-    ServiceTypeBrowserInfo *i = userdata;
-    DBusMessage *m;
-    int32_t i_interface, i_protocol;
-    uint32_t u_flags;
-    
-    assert(b);
-    assert(i);
-
-    i_interface = (int32_t) interface;
-    i_protocol = (int32_t) protocol;
-    u_flags = (uint32_t) flags;
-
-    m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, map_browse_signal_name(event));
-
-    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
-        assert(type);
-        assert(domain);
-        dbus_message_append_args(
-            m,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &type,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-    } else if (event == AVAHI_BROWSER_FAILURE)
-        append_server_error(m);
-        
-    dbus_message_set_destination(m, i->client->name);   
-    dbus_connection_send(server->bus, m, NULL);
-    dbus_message_unref(m);
-}
-
-static DBusHandlerResult msg_service_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    ServiceBrowserInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "ServiceBrowser.Introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing ServiceBrowser::Free message");
-            goto fail;
-        }
-
-        service_browser_free(i);
-        return respond_ok(c, m);
-        
-    }
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static int is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {
-    AvahiSEntryGroup *g;
-        
-
-    if (avahi_server_get_group_of_service(avahi_server, interface, protocol, name, type, domain, &g) == AVAHI_OK) {
-        EntryGroupInfo *egi;
-
-        for (egi = c->entry_groups; egi; egi = egi->entry_groups_next)
-            if (egi->entry_group == g)
-                return 1;
-    }
-
-    return 0;
-}
-
-static void service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata) {
-    ServiceBrowserInfo *i = userdata;
-    DBusMessage *m;
-    int32_t i_interface, i_protocol;
-    uint32_t u_flags;
-    
-    assert(b);
-    assert(i);
-
-    i_interface = (int32_t) interface;
-    i_protocol = (int32_t) protocol;
-    u_flags = (uint32_t) flags;
-
-    m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, map_browse_signal_name(event));
-
-    if (event == AVAHI_BROWSER_NEW) {
-        /* Patch in AVAHI_LOOKUP_RESULT_OUR_OWN */
-
-        if (is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
-            flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
-    }
-    
-    if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
-        assert(name);
-        assert(type);
-        assert(domain);
-        
-        dbus_message_append_args(
-            m,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &name,
-            DBUS_TYPE_STRING, &type,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-    } else if (event == AVAHI_BROWSER_FAILURE)
-        append_server_error(m);
-    
-    dbus_message_set_destination(m, i->client->name);   
-    dbus_connection_send(server->bus, m, NULL);
-    dbus_message_unref(m);
-}
-
-static void append_string_list(DBusMessage *reply, AvahiStringList *txt) {
-    AvahiStringList *p;
-    DBusMessageIter iter, sub;
-    
-    assert(reply);
-
-    dbus_message_iter_init_append(reply, &iter);
-    dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY, "ay", &sub);
-    
-    for (p = txt; p; p = p->next) {
-        DBusMessageIter sub2;
-        const uint8_t *data = p->text;
-        
-        dbus_message_iter_open_container(&sub, DBUS_TYPE_ARRAY, "y", &sub2);
-        dbus_message_iter_append_fixed_array(&sub2, DBUS_TYPE_BYTE, &data, p->size); 
-        dbus_message_iter_close_container(&sub, &sub2);
-        
-    }
-    dbus_message_iter_close_container(&iter, &sub);
-}
-
-static void sync_service_resolver_callback(
-    AvahiSServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AvahiStringList *txt,
-    AvahiLookupResultFlags flags, 
-    void* userdata) {
-    
-    SyncServiceResolverInfo *i = userdata;
-    
-    assert(r);
-    assert(i);
-
-    if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
-        DBusMessage *reply;
-    
-        assert(host_name);
-
-        if (!name)
-            name = "";
-
-        if (a) 
-            avahi_address_snprint(t, sizeof(t), a);
-        else
-            t[0] = 0;
-
-        /* Patch in AVAHI_LOOKUP_RESULT_OUR_OWN */
-
-        if (is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
-            flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
-        
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        if (a) 
-	    i_aprotocol = (int32_t) a->proto;
-	else 
-	    i_aprotocol = AVAHI_PROTO_UNSPEC;
-        u_flags = (uint32_t) flags;
-
-        reply = dbus_message_new_method_return(i->message);
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &name,
-            DBUS_TYPE_STRING, &type,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT16, &port,
-            DBUS_TYPE_INVALID);
-
-        append_string_list(reply, txt);
-                
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-
-        dbus_connection_send(server->bus, reply, NULL);
-        dbus_message_unref(reply);
-    } else {
-        assert(event == AVAHI_RESOLVER_FAILURE);
-        
-        respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
-    }
-
-    sync_service_resolver_free(i);
-}
-
-static void async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata) {
-    AsyncAddressResolverInfo *i = userdata;
-    DBusMessage *reply;
-    
-    assert(r);
-    assert(i);
-
-    reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, map_resolve_signal_name(event));
-    
-    if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
-
-        assert(address);
-        assert(host_name);
-        avahi_address_snprint(t, sizeof(t), address);
-
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) address->proto;
-        u_flags = (uint32_t) flags;
-        
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-
-    }  else {
-        assert(event == AVAHI_RESOLVER_FAILURE);
-        append_server_error(reply);
-    }
-
-    dbus_message_set_destination(reply, i->client->name);  
-    dbus_connection_send(server->bus, reply, NULL);
-    dbus_message_unref(reply);
-}
-
-static DBusHandlerResult msg_async_address_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    AsyncAddressResolverInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "AddressResolver.Introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing AddressResolver::Free message");
-            goto fail;
-        }
-
-        async_address_resolver_free(i);
-        return respond_ok(c, m);
-        
-    }
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static void async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata) {
-    AsyncHostNameResolverInfo *i = userdata;
-    DBusMessage *reply;
-    
-    assert(r);
-    assert(i);
-
-    reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, map_resolve_signal_name(event));
-    
-    if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
-
-        assert(a);
-        assert(host_name);
-        avahi_address_snprint(t, sizeof(t), a);
-
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->proto;
-        u_flags = (uint32_t) flags;
-        
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-    }  else {
-        assert(event == AVAHI_RESOLVER_FAILURE);
-        append_server_error(reply);
-    }
-
-    dbus_message_set_destination(reply, i->client->name);  
-    dbus_connection_send(server->bus, reply, NULL);
-    dbus_message_unref(reply);
-}
-
-static DBusHandlerResult msg_async_host_name_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    AsyncHostNameResolverInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "HostNameResolver.Introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing HostNameResolver::Free message");
-            goto fail;
-        }
-
-        async_host_name_resolver_free(i);
-        return respond_ok(c, m);
-    }
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static void async_service_resolver_callback(
-    AvahiSServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AvahiStringList *txt,
-    AvahiLookupResultFlags flags, 
-    void* userdata) {
-
-    AsyncServiceResolverInfo *i = userdata;
-    DBusMessage *reply;
-    
-    assert(r);
-    assert(i);
-
-    reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, map_resolve_signal_name(event));
-    
-    if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
-    
-        assert(host_name);
-
-/*         avahi_log_debug(__FILE__": [%s] Successfully resolved service <%s.%s.%s>", i->path, name, type, domain); */
-        
-        if (a)
-            avahi_address_snprint(t, sizeof(t), a);
-        else
-            t[0] = 0;
-
-        if (!name)
-            name = "";
-
-        if (is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
-            flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
-
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        if (a) 
-	    i_aprotocol = (int32_t) a->proto;
-	else 
-	    i_aprotocol = AVAHI_PROTO_UNSPEC;
-        u_flags = (uint32_t) flags;
-
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &name,
-            DBUS_TYPE_STRING, &type,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT16, &port,
-            DBUS_TYPE_INVALID);
-
-        append_string_list(reply, txt);
-
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-    }  else {
-        assert(event == AVAHI_RESOLVER_FAILURE);
-        append_server_error(reply);
-    }
-
-    dbus_message_set_destination(reply, i->client->name);  
-    dbus_connection_send(server->bus, reply, NULL);
-    dbus_message_unref(reply);
-}
-
-static DBusHandlerResult msg_async_service_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
-    AsyncServiceResolverInfo *i = userdata;
-
-    assert(c);
-    assert(m);
-    assert(i);
-    
-    dbus_error_init(&error);
-
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
-                    dbus_message_get_interface(m),
-                    dbus_message_get_path(m),
-                    dbus_message_get_member(m));
-
-    /* Introspection */
-    if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "ServiceResolver.Introspect");
-    
-    /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
-        return respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
-    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Free")) {
-
-        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
-            avahi_log_warn("Error parsing ServiceResolver::Free message");
-            goto fail;
-        }
-
-        async_service_resolver_free(i);
-        return respond_ok(c, m);
-    }
-    
-    avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
-
-fail:
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-    
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
 static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata) {
     DBusError error;
 
@@ -1826,7 +216,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
                     dbus_message_get_member(m));
 
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return handle_introspect(c, m, "Server.introspect");
+        return avahi_dbus_handle_introspect(c, m, "Server.introspect");
         
     else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostName")) {
 
@@ -1835,7 +225,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
 
-        return respond_string(c, m, avahi_server_get_host_name(avahi_server));
+        return avahi_dbus_respond_string(c, m, avahi_server_get_host_name(avahi_server));
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetDomainName")) {
 
@@ -1844,7 +234,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
 
-        return respond_string(c, m, avahi_server_get_domain_name(avahi_server));
+        return avahi_dbus_respond_string(c, m, avahi_server_get_domain_name(avahi_server));
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostNameFqdn")) {
 
@@ -1853,7 +243,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
     
-        return respond_string(c, m, avahi_server_get_host_name_fqdn(avahi_server));
+        return avahi_dbus_respond_string(c, m, avahi_server_get_host_name_fqdn(avahi_server));
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")) {
 
@@ -1862,7 +252,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
     
-        return respond_string(c, m, PACKAGE_STRING);
+        return avahi_dbus_respond_string(c, m, PACKAGE_STRING);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetState")) {
         AvahiServerState state;
@@ -1873,7 +263,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         }
         
         state = avahi_server_get_state(avahi_server);
-        return respond_int32(c, m, (int32_t) state);
+        return avahi_dbus_respond_int32(c, m, (int32_t) state);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetLocalServiceCookie")) {
 
@@ -1882,7 +272,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
         
-        return respond_uint32(c, m, avahi_server_get_local_service_cookie(avahi_server));
+        return avahi_dbus_respond_uint32(c, m, avahi_server_get_local_service_cookie(avahi_server));
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;
@@ -1903,19 +293,19 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
                 char txt[256];
                 snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-                return respond_error(c, m, AVAHI_ERR_OS, txt);
+                return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
             }
 
         if ((!if_indextoname(idx, name))) {
             char txt[256];
             snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
             close(fd);
-            return respond_error(c, m, AVAHI_ERR_OS, txt);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
         }
 
         close(fd);
         
-        return respond_string(c, m, name);
+        return avahi_dbus_respond_string(c, m, name);
 #endif
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceIndexByName")) {
@@ -1935,19 +325,19 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
                 char txt[256];
                 snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-                return respond_error(c, m, AVAHI_ERR_OS, txt);
+                return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
             }
 
         if (!(idx = if_nametoindex(n))) {
             char txt[256];
             snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
             close(fd);
-            return respond_error(c, m, AVAHI_ERR_OS, txt);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
         }
 
         close(fd);
         
-        return respond_int32(c, m, idx);
+        return avahi_dbus_respond_int32(c, m, idx);
 #endif
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAlternativeHostName")) {
@@ -1959,7 +349,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         }
 
         t = avahi_alternative_host_name(n);
-        respond_string(c, m, t);
+        avahi_dbus_respond_string(c, m, t);
         avahi_free(t);
 
         return DBUS_HANDLER_RESULT_HANDLED;
@@ -1973,7 +363,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         }
 
         t = avahi_alternative_service_name(n);
-        respond_string(c, m, t);
+        avahi_dbus_respond_string(c, m, t);
         avahi_free(t);
 
         return DBUS_HANDLER_RESULT_HANDLED;
@@ -1983,7 +373,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         EntryGroupInfo *i;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_entry_group_impl,
+            avahi_dbus_msg_entry_group_impl,
             NULL,
             NULL,
             NULL,
@@ -1997,12 +387,12 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         i = avahi_new(EntryGroupInfo, 1);
@@ -2013,13 +403,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(EntryGroupInfo, entry_groups, client->entry_groups, i);
         client->n_objects++;
         
-        if (!(i->entry_group = avahi_s_entry_group_new(avahi_server, entry_group_callback, i))) {
-            entry_group_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->entry_group = avahi_s_entry_group_new(avahi_server, avahi_dbus_entry_group_callback, i))) {
+            avahi_dbus_entry_group_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
 
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ResolveHostName")) {
         Client *client;
@@ -2042,12 +432,12 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         i = avahi_new(SyncHostNameResolverInfo, 1);
@@ -2056,9 +446,9 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(SyncHostNameResolverInfo, sync_host_name_resolvers, client->sync_host_name_resolvers, i);
         client->n_objects++;
 
-        if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, (AvahiLookupFlags) flags, sync_host_name_resolver_callback, i))) {
-            sync_host_name_resolver_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, (AvahiProtocol) aprotocol, (AvahiLookupFlags) flags, avahi_dbus_sync_host_name_resolver_callback, i))) {
+            avahi_dbus_sync_host_name_resolver_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         return DBUS_HANDLER_RESULT_HANDLED;
@@ -2083,16 +473,16 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         }
 
         if (!avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a))
-            return respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         i = avahi_new(SyncAddressResolverInfo, 1);
@@ -2101,9 +491,9 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(SyncAddressResolverInfo, sync_address_resolvers, client->sync_address_resolvers, i);
         client->n_objects++;
 
-        if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, (AvahiLookupFlags) flags, sync_address_resolver_callback, i))) {
-            sync_address_resolver_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, (AvahiLookupFlags) flags, avahi_dbus_sync_address_resolver_callback, i))) {
+            avahi_dbus_sync_address_resolver_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         return DBUS_HANDLER_RESULT_HANDLED;
@@ -2113,7 +503,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         DomainBrowserInfo *i;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_domain_browser_impl,
+            avahi_dbus_msg_domain_browser_impl,
             NULL,
             NULL,
             NULL,
@@ -2137,12 +527,12 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         if (!*domain)
@@ -2155,20 +545,20 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(DomainBrowserInfo, domain_browsers, client->domain_browsers, i);
         client->n_objects++;
 
-        if (!(i->domain_browser = avahi_s_domain_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, (AvahiDomainBrowserType) type, (AvahiLookupFlags) flags, domain_browser_callback, i))) {
-            domain_browser_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->domain_browser = avahi_s_domain_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, (AvahiDomainBrowserType) type, (AvahiLookupFlags) flags, avahi_dbus_domain_browser_callback, i))) {
+            avahi_dbus_domain_browser_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ServiceTypeBrowserNew")) {
         Client *client;
         ServiceTypeBrowserInfo *i;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_service_type_browser_impl,
+            avahi_dbus_msg_service_type_browser_impl,
             NULL,
             NULL,
             NULL,
@@ -2191,13 +581,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         if (!*domain)
@@ -2210,20 +600,20 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(ServiceTypeBrowserInfo, service_type_browsers, client->service_type_browsers, i);
         client->n_objects++;
 
-        if (!(i->service_type_browser = avahi_s_service_type_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, (AvahiLookupFlags) flags, service_type_browser_callback, i))) {
-            service_type_browser_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->service_type_browser = avahi_s_service_type_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, domain, (AvahiLookupFlags) flags, avahi_dbus_service_type_browser_callback, i))) {
+            avahi_dbus_service_type_browser_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ServiceBrowserNew")) {
         Client *client;
         ServiceBrowserInfo *i;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_service_browser_impl,
+            avahi_dbus_msg_service_browser_impl,
             NULL,
             NULL,
             NULL,
@@ -2247,13 +637,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         if (!*domain)
@@ -2266,13 +656,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(ServiceBrowserInfo, service_browsers, client->service_browsers, i);
         client->n_objects++;
 
-        if (!(i->service_browser = avahi_s_service_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, type, domain, (AvahiLookupFlags) flags, service_browser_callback, i))) {
-            service_browser_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->service_browser = avahi_s_service_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, type, domain, (AvahiLookupFlags) flags, avahi_dbus_service_browser_callback, i))) {
+            avahi_dbus_service_browser_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "ResolveService")) {
         Client *client;
@@ -2297,12 +687,12 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
         
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         if (!*domain)
@@ -2317,9 +707,9 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(SyncServiceResolverInfo, sync_service_resolvers, client->sync_service_resolvers, i);
         client->n_objects++;
 
-        if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, (AvahiLookupFlags) flags, sync_service_resolver_callback, i))) {
-            sync_service_resolver_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, (AvahiLookupFlags) flags, avahi_dbus_sync_service_resolver_callback, i))) {
+            avahi_dbus_sync_service_resolver_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         return DBUS_HANDLER_RESULT_HANDLED;
@@ -2332,7 +722,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AsyncServiceResolverInfo *i;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_async_service_resolver_impl,
+            avahi_dbus_msg_async_service_resolver_impl,
             NULL,
             NULL,
             NULL,
@@ -2355,12 +745,12 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn(__FILE__": Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         if (!*domain)
@@ -2376,15 +766,15 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(AsyncServiceResolverInfo, async_service_resolvers, client->async_service_resolvers, i);
         client->n_objects++;
 
-        if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, (AvahiLookupFlags) flags, async_service_resolver_callback, i))) {
-            async_service_resolver_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->service_resolver = avahi_s_service_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, type, domain, (AvahiProtocol) aprotocol, (AvahiLookupFlags) flags, avahi_dbus_async_service_resolver_callback, i))) {
+            avahi_dbus_async_service_resolver_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
 
 /*         avahi_log_debug(__FILE__": [%s], new service resolver for <%s.%s.%s>", i->path, name, type, domain); */
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "HostNameResolverNew")) {
         Client *client;
@@ -2394,7 +784,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AsyncHostNameResolverInfo *i;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_async_host_name_resolver_impl,
+            avahi_dbus_msg_async_host_name_resolver_impl,
             NULL,
             NULL,
             NULL,
@@ -2415,12 +805,12 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn(__FILE__": Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         i = avahi_new(AsyncHostNameResolverInfo, 1);
@@ -2430,13 +820,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(AsyncHostNameResolverInfo, async_host_name_resolvers, client->async_host_name_resolvers, i);
         client->n_objects++;
 
-        if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, aprotocol, (AvahiLookupFlags) flags, async_host_name_resolver_callback, i))) {
-            async_host_name_resolver_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, name, aprotocol, (AvahiLookupFlags) flags, avahi_dbus_async_host_name_resolver_callback, i))) {
+            avahi_dbus_async_host_name_resolver_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "AddressResolverNew")) {
         Client *client;
@@ -2447,7 +837,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AvahiAddress a;
         static const DBusObjectPathVTable vtable = {
             NULL,
-            msg_async_address_resolver_impl,
+            avahi_dbus_msg_async_address_resolver_impl,
             NULL,
             NULL,
             NULL,
@@ -2466,16 +856,16 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         }
 
         if (!avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a))
-            return respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn(__FILE__": Too many clients, client request failed.");
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
-            return respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
 
         i = avahi_new(AsyncAddressResolverInfo, 1);
@@ -2485,13 +875,13 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         AVAHI_LLIST_PREPEND(AsyncAddressResolverInfo, async_address_resolvers, client->async_address_resolvers, i);
         client->n_objects++;
 
-        if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, (AvahiLookupFlags) flags, async_address_resolver_callback, i))) {
-            async_address_resolver_free(i);
-            return respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        if (!(i->address_resolver = avahi_s_address_resolver_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, &a, (AvahiLookupFlags) flags, avahi_dbus_async_address_resolver_callback, i))) {
+            avahi_dbus_async_address_resolver_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
-        return respond_path(c, m, i->path);
+        return avahi_dbus_respond_path(c, m, i->path);
     }
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));

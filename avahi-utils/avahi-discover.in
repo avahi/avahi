@@ -73,12 +73,7 @@ class Main_window(SimpleGladeApp):
 
         print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, str(avahi.txt_array_to_string_array(txt)))
 
-        if len(txt) == 0:
-            txt_data = "<i>empty</i>"
-        else:
-            txt_data = str(avahi.txt_array_to_string_array(txt))
-        
-        self.update_label(interface, protocol, name, stype, domain, host, aprotocol, address, port, txt_data)
+        self.update_label(interface, protocol, name, stype, domain, host, aprotocol, address, port, avahi.txt_array_to_string_array(txt))
         
     def print_error(self, err):
         error_label = "<b>Error:</b> %s" % (err)
@@ -172,8 +167,28 @@ class Main_window(SimpleGladeApp):
         if domain != "local":
             self.browse_domain(interface, protocol, domain)
 
+    def pair_to_dict(self, l):
+        res = dict()
+        for el in l:
+            if "=" not in el:
+                res[el]=''
+            else:
+                tmp = el.split('=',1)
+                if len(tmp[0]) > 0:
+                    res[tmp[0]] = tmp[1]
+        return res
+                                                                            
+
     def update_label(self,interface, protocol, name, stype, domain, host, aprotocol, address, port, txt):
-        infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b> %s %s\n<b>Address:</b> %s/%s:%i\n<b>TXT Data:</b> %s" % (stype, name, domain, self.siocgifname(interface), self.protoname(protocol), host, address, port, str(txt))
+        if len(txt) != 0:
+            txts = ""
+            txtd = self.pair_to_dict(txt)
+            for k,v in txtd.items():
+                txts+="<b>TXT <i>%s</i></b> = %s\n" % (k,v)
+        else:
+            txts = "<b>TXT Data:</b> <i>empty</i>"
+
+        infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b> %s %s\n<b>Address:</b> %s/%s:%i\n%s" % (stype, name, domain, self.siocgifname(interface), self.protoname(protocol), host, address, port, txts.strip())
         self.info_label.set_markup(infos)
 
     def insert_row(self, model,parent,

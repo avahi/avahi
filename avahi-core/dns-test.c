@@ -29,6 +29,7 @@
 #include <arpa/inet.h>
 
 #include <avahi-common/domain.h>
+#include <avahi-common/defs.h>
 #include <avahi-common/malloc.h>
 
 #include "dns.h"
@@ -36,7 +37,7 @@
 #include "util.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    char t[AVAHI_DOMAIN_NAME_MAX];
+    char t[AVAHI_DOMAIN_NAME_MAX], *m;
     const char *a, *b, *c, *d;
     AvahiDnsPacket *p;
     AvahiRecord *r, *r2;
@@ -95,6 +96,19 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     /* Free the records */
     avahi_record_unref(r);
     avahi_record_unref(r2);
+
+    r = avahi_record_new_full("foobar", 77, 77, AVAHI_DEFAULT_TTL);
+    assert(r);
+
+    assert(r->data.generic.data = avahi_memdup("HALLO", r->data.generic.size = 5));
+
+    m = avahi_record_to_string(r);
+    assert(m);
+
+    avahi_log_debug(">%s<", m);
+
+    avahi_free(m);
+    avahi_record_unref(r);
     
     return 0;
 }

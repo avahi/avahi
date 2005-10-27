@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <avahi-common/defs.h>
 #include <avahi-common/domain.h>
 #include <avahi-common/malloc.h>
 

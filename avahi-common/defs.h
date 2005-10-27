@@ -225,6 +225,31 @@ typedef enum {
 /** In invalid cookie as special value */
 #define AVAHI_SERVICE_COOKIE_INVALID (0)
 
+/** DNS record types, see RFC 1035 */
+enum {
+    AVAHI_DNS_TYPE_A = 0x01,
+    AVAHI_DNS_TYPE_NS = 0x02,
+    AVAHI_DNS_TYPE_CNAME = 0x05,
+    AVAHI_DNS_TYPE_SOA = 0x06,
+    AVAHI_DNS_TYPE_PTR = 0x0C,
+    AVAHI_DNS_TYPE_HINFO = 0x0D,
+    AVAHI_DNS_TYPE_MX = 0x0F,
+    AVAHI_DNS_TYPE_TXT = 0x10,
+    AVAHI_DNS_TYPE_AAAA = 0x1C,
+    AVAHI_DNS_TYPE_SRV = 0x21,
+};
+
+/** DNS record classes, see RFC 1035 */
+enum {
+    AVAHI_DNS_CLASS_IN = 0x01,          /**< Probably the only class we will ever use */
+};
+
+/** The default TTL for RRs which contain a host name of some kind. */
+#define AVAHI_DEFAULT_TTL_HOST_NAME (120)
+
+/** The default TTL for all other records. */
+#define AVAHI_DEFAULT_TTL (75*60)
+
 AVAHI_C_DECL_END
 
 #endif

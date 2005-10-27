@@ -69,19 +69,20 @@ enum {
     AVAHI_ERR_INVALID_SERVICE_SUBTYPE = -33, /**< Invalid service subtype */
     AVAHI_ERR_INVALID_PACKET = -34,          /**< Invalid packet */
     AVAHI_ERR_INVALID_DNS_ERROR = -35,       /**< Invlaid DNS return code */
-    AVAHI_ERR_DNS_FORMERR = -36,
-    AVAHI_ERR_DNS_SERVFAIL = -37,
-    AVAHI_ERR_DNS_NXDOMAIN = -38,
-    AVAHI_ERR_DNS_NOTIMP = -39,
+    AVAHI_ERR_DNS_FORMERR = -36,             /**< DNS Error: Form error */
+    AVAHI_ERR_DNS_SERVFAIL = -37,            /**< DNS Error: Server Failure */
+    AVAHI_ERR_DNS_NXDOMAIN = -38,            /**< DNS Error: No such domain */
+    AVAHI_ERR_DNS_NOTIMP = -39,              /**< DNS Error: Not implemented */
 
-    AVAHI_ERR_DNS_REFUSED = -40,
+    AVAHI_ERR_DNS_REFUSED = -40,             /**< DNS Error: Operation refused */
     AVAHI_ERR_DNS_YXDOMAIN = -41,
     AVAHI_ERR_DNS_YXRRSET = -42,
     AVAHI_ERR_DNS_NXRRSET = -43,
-    AVAHI_ERR_DNS_NOTAUTH = -44,
-    AVAHI_ERR_DNS_NOTZONE = -45,
-
-    AVAHI_ERR_INVALID_RDATA = -46,
+    AVAHI_ERR_DNS_NOTAUTH = -44,             /**< DNS Error: Not authorized */
+    AVAHI_ERR_DNS_NOTZONE = -45,             
+    AVAHI_ERR_INVALID_RDATA = -46,           /**< Invalid RDATA */
+    AVAHI_ERR_INVALID_DNS_CLASS = -47,       /**< Invalid DNS class */
+    AVAHI_ERR_INVALID_DNS_TYPE = -48,        /**< Invalid DNS type */
     
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -91,7 +92,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -47
+    AVAHI_ERR_MAX = -49
 };
 
 /** Return a human readable error string for the specified error code */

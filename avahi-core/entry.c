@@ -176,6 +176,15 @@ static AvahiEntry * server_add_internal(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, r->ttl != 0, AVAHI_ERR_INVALID_TTL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !avahi_key_is_pattern(r->key), AVAHI_ERR_IS_PATTERN);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, avahi_record_is_valid(r), AVAHI_ERR_INVALID_RECORD);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, r->key->clazz == AVAHI_DNS_CLASS_IN, AVAHI_ERR_INVALID_DNS_CLASS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(s,
+                                     (r->key->type != 0) &&
+                                     (r->key->type != AVAHI_DNS_TYPE_ANY) &&
+                                     (r->key->type != AVAHI_DNS_TYPE_OPT) &&
+                                     (r->key->type != AVAHI_DNS_TYPE_TKEY) &&
+                                     (r->key->type != AVAHI_DNS_TYPE_TSIG) &&
+                                     (r->key->type != AVAHI_DNS_TYPE_IXFR) &&
+                                     (r->key->type != AVAHI_DNS_TYPE_AXFR), AVAHI_ERR_INVALID_DNS_TYPE);
 
     if (flags & AVAHI_PUBLISH_UPDATE) {
         AvahiRecord *old_record;

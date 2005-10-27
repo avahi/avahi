@@ -32,6 +32,7 @@
 
 #include <avahi-common/domain.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/defs.h>
 
 #include "rr.h"
 #include "log.h"
@@ -224,18 +225,30 @@ const char *avahi_dns_type_to_string(uint16_t type) {
 }
 
 char *avahi_key_to_string(const AvahiKey *k) {
+    char class[16], type[16];
+    const char *c, *t;
+    
     assert(k);
     assert(k->ref >= 1);
+
+    /* According to RFC3597 */
     
-    return avahi_strdup_printf("%s\t%s\t%s",
-                               k->name,
-                               avahi_dns_class_to_string(k->clazz),
-                               avahi_dns_type_to_string(k->type));
+    if (!(c = avahi_dns_class_to_string(k->clazz))) {
+        snprintf(class, sizeof(class), "CLASS%u", k->clazz);
+        c = class;
+    }
+
+    if (!(t = avahi_dns_type_to_string(k->type))) {
+        snprintf(type, sizeof(type), "TYPE%u", k->type);
+        t = type;
+    }
+    
+    return avahi_strdup_printf("%s\t%s\t%s", k->name, c, t);
 }
 
 char *avahi_record_to_string(const AvahiRecord *r) {
     char *p, *s;
-    char buf[257], *t = NULL, *d = NULL;
+    char buf[1024], *t = NULL, *d = NULL;
 
     assert(r);
     assert(r->ref >= 1);
@@ -274,10 +287,34 @@ char *avahi_record_to_string(const AvahiRecord *r) {
                      r->data.srv.name);
 
             break;
+
+        default: {
+
+            uint8_t *c;
+            uint16_t n;
+            int i;
+            char *e;
+
+            /* According to RFC3597 */
+            
+            snprintf(t = buf, sizeof(buf), "\\# %u", r->data.generic.size);
+
+            e = strchr(t, 0);
+            
+            for (c = r->data.generic.data, n = r->data.generic.size, i = 0;
+                 n > 0 && i < 20;
+                 c ++, n --) {
+
+                sprintf(e, " %02X", *c);
+                e = strchr(e, 0);
+            }
+
+            break;
+        }
     }
 
     p = avahi_key_to_string(r->key);
-    s = avahi_strdup_printf("%s %s ; ttl=%u", p, t ? t : "<unparsable>", r->ttl);
+    s = avahi_strdup_printf("%s %s ; ttl=%u", p, t, r->ttl);
     avahi_free(p);
     avahi_free(d);
     
@@ -291,8 +328,6 @@ int avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
     if (a == b)
         return 1;
     
-/*     g_message("equal: %p %p", a, b); */
-    
     return avahi_domain_equal(a->name, b->name) &&
         a->type == b->type &&
         a->clazz == b->clazz;
@@ -301,8 +336,6 @@ int avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
 int avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
     assert(pattern);
     assert(k);
-
-/*     g_message("equal: %p %p", a, b); */
 
     assert(!avahi_key_is_pattern(k));
 
@@ -336,15 +369,6 @@ static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
     assert(b);
     assert(a->key->type == b->key->type);
 
-/*     t = avahi_record_to_string(a); */
-/*     g_message("comparing %s", t); */
-/*     avahi_free(t); */
-
-/*     t = avahi_record_to_string(b); */
-/*     g_message("and %s", t); */
-/*     avahi_free(t); */
-
-    
     switch (a->key->type) {
         case AVAHI_DNS_TYPE_SRV:
             return
@@ -661,7 +685,6 @@ int avahi_record_is_valid(AvahiRecord *r) {
             return
                 strlen(r->data.hinfo.os) <= 255 &&
                 strlen(r->data.hinfo.cpu) <= 255;
-
             
         case AVAHI_DNS_TYPE_TXT: {
 

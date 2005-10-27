@@ -50,6 +50,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_IS_PATTERN "org.freedesktop.Avahi.IsPatternError"
 #define AVAHI_DBUS_ERR_COLLISION "org.freedesktop.Avahi.CollisionError"
 #define AVAHI_DBUS_ERR_INVALID_RECORD "org.freedesktop.Avahi.InvalidRecordError"
+
 #define AVAHI_DBUS_ERR_INVALID_SERVICE_NAME "org.freedesktop.Avahi.InvalidServiceNameError"
 #define AVAHI_DBUS_ERR_INVALID_SERVICE_TYPE "org.freedesktop.Avahi.InvalidServiceTypeError"
 #define AVAHI_DBUS_ERR_INVALID_PORT "org.freedesktop.Avahi.InvalidPortError"
@@ -60,6 +61,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_TOO_MANY_OBJECTS "org.freedesktop.Avahi.TooManyObjectsError"
 #define AVAHI_DBUS_ERR_TOO_MANY_ENTRIES "org.freedesktop.Avahi.TooManyEntriesError"
 #define AVAHI_DBUS_ERR_OS "org.freedesktop.Avahi.OSError"
+
 #define AVAHI_DBUS_ERR_ACCESS_DENIED DBUS_ERROR_ACCESS_DENIED
 #define AVAHI_DBUS_ERR_INVALID_OPERATION "org.freedesktop.Avahi.InvalidOperationError"
 #define AVAHI_DBUS_ERR_DBUS_ERROR "org.freedesktop.Avahi.DBusError"
@@ -70,6 +72,7 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_INVALID_INTERFACE "org.freedesktop.Avahi.InvalidInterfaceError"
 #define AVAHI_DBUS_ERR_INVALID_PROTOCOL "org.freedesktop.Avahi.InvalidInterfaceProtocolError"
 #define AVAHI_DBUS_ERR_INVALID_FLAGS "org.freedesktop.Avahi.InvalidFlagsError"
+
 #define AVAHI_DBUS_ERR_NOT_FOUND "org.freedesktop.Avahi.NotFoundError"
 #define AVAHI_DBUS_ERR_INVALID_CONFIG "org.freedesktop.Avahi.InvalidConfigurationError"
 #define AVAHI_DBUS_ERR_VERSION_MISMATCH "org.freedesktop.Avahi.VersionMismatchError"
@@ -80,13 +83,16 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_DNS_SERVFAIL "org.freedesktop.Avahi.DNSSERVFAIL"
 #define AVAHI_DBUS_ERR_DNS_NXDOMAIN "org.freedesktop.Avahi.DNSNXDOMAIN"
 #define AVAHI_DBUS_ERR_DNS_NOTIMP "org.freedesktop.Avahi.DNSNOTIMP"
+
 #define AVAHI_DBUS_ERR_DNS_REFUSED "org.freedesktop.Avahi.DNSREFUSED"
 #define AVAHI_DBUS_ERR_DNS_YXDOMAIN "org.freedesktop.Avahi.DNSYXDOMAIN"
 #define AVAHI_DBUS_ERR_DNS_YXRRSET "org.freedesktop.Avahi.DNSYXRRSET"
 #define AVAHI_DBUS_ERR_DNS_NXRRSET "org.freedesktop.Avahi.DNSNXRRSET"
 #define AVAHI_DBUS_ERR_DNS_NOTAUTH "org.freedesktop.Avahi.DNSNOTAUTH"
 #define AVAHI_DBUS_ERR_DNS_NOTZONE "org.freedesktop.Avahi.DNSNOTZONE"
-#define AVAHI_DBUS_ERR_INVALID_RDATA "org.freedesktop.Avahi.InvalidRDATA"
+#define AVAHI_DBUS_ERR_INVALID_RDATA "org.freedesktop.Avahi.InvalidRDataError"
+#define AVAHI_DBUS_ERR_INVALID_DNS_CLASS "org.freedesktop.Avahi.InvalidDNSClass"
+#define AVAHI_DBUS_ERR_INVALID_DNS_TYPE "org.freedesktop.Avahi.InvalidDNSType"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

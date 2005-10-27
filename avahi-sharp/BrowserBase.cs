@@ -27,7 +27,6 @@ namespace Avahi
     {
         public event EventHandler CacheExhausted;
         public event EventHandler AllForNow;
-        public event EventHandler NotFound;
         public event EventHandler Failed;
 
         internal void EmitBrowserEvent (BrowserEvent bevent)

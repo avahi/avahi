@@ -2,9 +2,9 @@ for 0.6:
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
 * Add static host configuration like static services [lathiat]
-* wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 * always set source address for outgoing packets
 * introduce AVAHI_CLIENT_FAILURE
+* Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 
 later:
 * add simplification routine for adding services 
@@ -99,3 +99,4 @@ done:
 * remove irrelevant functions from pubic rr.h API
 * unify argument order of functions returning a string in a user supplied buffer 
 * add support for subtypes in static services
+* wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]

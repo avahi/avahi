@@ -6,7 +6,6 @@ for 0.6:
 * introduce AVAHI_CLIENT_FAILURE
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * add support for defining browsing domains with an option in avahi-daemon.onf
-* add service type database support to avahi-browse
 * avahi-client: do something about letting the client know if the daemon comes back from a DISCONNECTED state
 
 later:
@@ -103,3 +102,4 @@ done:
 * unify argument order of functions returning a string in a user supplied buffer 
 * add support for subtypes in static services
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
+* add service type database support to avahi-browse

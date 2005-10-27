@@ -393,6 +393,28 @@ fi
 AM_CONDITIONAL(HAVE_EXPAT, test "x$HAVE_EXPAT" = "xyes")
 
 #
+# GDBM
+#
+AC_ARG_ENABLE(gdbm,
+        AS_HELP_STRING([--disable-gdbm],[Disable use of GDBM]),
+        [case "${enableval}" in
+                yes) HAVE_GDBM=yes ;;
+                no)  HAVE_GDBM=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gdbm) ;;
+        esac],
+        [HAVE_GDBM=yes]) 
+
+if test "x$HAVE_GDBM" = "xyes" ; then
+    AC_CHECK_LIB(gdbm, gdbm_open, [ AC_CHECK_HEADERS(gdbm.h, have_gdbm=true, have_gdbm=false) ], have_gdbm=false)
+
+    if ! $have_gdbm ; then
+        AC_MSG_WARN([*** libgdbm not found ***])
+    fi
+    AC_DEFINE([HAVE_GDBM],[],[Support for GDBM])
+fi
+AM_CONDITIONAL(HAVE_GDBM, test "x$HAVE_GDBM" = "xyes")
+
+#
 # libdaemon
 #
 AC_ARG_ENABLE(libdaemon,
@@ -696,6 +718,7 @@ echo "
     Enable GTK:             ${HAVE_GTK}
     Enable D-BUS:           ${HAVE_DBUS}
     Enable Expat:           ${HAVE_EXPAT}
+    Enable GDBM:            ${HAVE_GDBM}
     Enable libdaemon:       ${HAVE_LIBDAEMON}
     Enable Python:          ${HAVE_PYTHON}
     Enable pygtk:           ${HAVE_PYGTK}

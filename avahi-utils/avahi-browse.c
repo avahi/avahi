@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <string.h>
 #include <net/if.h>
+#include <locale.h>
 
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
@@ -39,6 +40,10 @@
 #include <avahi-client/lookup.h>
 
 #include "sigint.h"
+
+#ifdef HAVE_GDBM
+#include "stdb.h"
+#endif
 
 typedef enum {
     COMMAND_HELP,
@@ -56,8 +61,10 @@ typedef struct Config {
     int show_all;
     Command command;
     int resolve;
+#ifdef HAVE_GDBM
+    int no_db_lookup;
+#endif
 } Config;
-
 
 typedef struct ServiceInfo ServiceInfo;
 
@@ -123,6 +130,20 @@ static ServiceInfo *find_service(AvahiIfIndex interface, AvahiProtocol protocol,
     return NULL;
 }
 
+static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {
+    char ifname[IF_NAMESIZE];
+
+#ifdef HAVE_GDBM
+    if (!config->no_db_lookup)
+        type = stdb_lookup(type);
+#endif
+    
+    printf("%c %4s %4s %-*s %-20s %s\n",
+           c,
+           if_indextoname(interface, ifname), avahi_proto_to_string(protocol), 
+           n_columns-35, name, type, domain);
+}
+
 static void service_resolver_callback(
     AvahiServiceResolver *r,
     AvahiIfIndex interface,
@@ -146,19 +167,17 @@ static void service_resolver_callback(
     switch (event) {
         case AVAHI_RESOLVER_FOUND: {
             char address[AVAHI_ADDRESS_STR_MAX], *t;
-            char ifname[IF_NAMESIZE];
 
             avahi_address_snprint(address, sizeof(address), a);
 
             t = avahi_string_list_to_string(txt);
 
-            printf("= %4s %4s %-*s %-20s %s\n"
-                   "   hostname = [%s]\n"
+            print_service_line(i->config, '=', interface, protocol, name, type, domain);
+            
+            printf("   hostname = [%s]\n"
                    "   address = [%s]\n"
                    "   port = [%i]\n"
                    "   txt = [%s]\n",
-                   if_indextoname(interface, ifname), avahi_proto_to_string(protocol), 
-                   n_columns-35, name, type, domain,
                    host_name,
                    address,
                    port,
@@ -244,7 +263,6 @@ static void service_browser_callback(
 
     switch (event) {
         case AVAHI_BROWSER_NEW: {
-            char ifname[IF_NAMESIZE];
             if (c->ignore_local && (flags & AVAHI_LOOKUP_RESULT_LOCAL))
                 break;
 
@@ -253,13 +271,12 @@ static void service_browser_callback(
 
             add_service(c, interface, protocol, name, type, domain);
 
-            printf("+ %4s %4s %-*s %-20s %s\n", if_indextoname(interface, ifname), avahi_proto_to_string(protocol), n_columns-35, name, type, domain);
+            print_service_line(c, '+', interface, protocol, name, type, domain);
             break;
 
         }
 
         case AVAHI_BROWSER_REMOVE: {
-            char ifname[IF_NAMESIZE];
             ServiceInfo *info;
             
             if (!(info = find_service(interface, protocol, name, type, domain)))
@@ -267,7 +284,7 @@ static void service_browser_callback(
 
             remove_service(c, info);
             
-            printf("- %4s %4s %-*s %-20s %s\n", if_indextoname(interface, ifname), avahi_proto_to_string(protocol), n_columns-35, name, type, domain);
+            print_service_line(c, '-', interface, protocol, name, type, domain);
             break;
         }
             
@@ -410,10 +427,13 @@ static void help(FILE *f, const char *argv0) {
             "    -t --terminate     Terminate after getting or more or less complete list\n"
             "    -c --cache         Terminate after dumping all entries from the cache\n"
             "    -l --ignore-local  Ignore local services\n"
-            "    -r --resolve       Resolve services found\n",
-            argv0, argv0);
-}
+            "    -r --resolve       Resolve services found\n"
+#ifdef HAVE_GDBM
+            "    -k --no-db-lookup  Don't lookup service types\n"
+#endif
 
+            , argv0, argv0);
+}
 
 static int parse_command_line(Config *c, int argc, char *argv[]) {
     int o;
@@ -428,6 +448,9 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
         { "cache",        no_argument,       NULL, 'c' },
         { "ignore-local", no_argument,       NULL, 'l' },
         { "resolve",      no_argument,       NULL, 'r' },
+#ifdef HAVE_GDBM
+        { "no-db-lookup", no_argument,       NULL, 'k' },
+#endif
         { NULL, 0, NULL, 0 }
     };
 
@@ -441,9 +464,17 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
         c->ignore_local =
         c->resolve = 0;
     c->domain = c->stype = NULL;
+
+#ifdef HAVE_GDBM
+    c->no_db_lookup = 0;
+#endif
     
     opterr = 0;
-    while ((o = getopt_long(argc, argv, "hVd:avtclr", long_options, NULL)) >= 0) {
+    while ((o = getopt_long(argc, argv, "hVd:avtclr"
+#ifdef HAVE_GDBM
+                            "k"
+#endif
+                            , long_options, NULL)) >= 0) {
 
         switch(o) {
             case 'h':
@@ -473,6 +504,11 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
             case 'r':
                 c->resolve = 1;
                 break;
+#ifdef HAVE_GDBM
+            case 'k':
+                c->no_db_lookup = 1;
+                break;
+#endif
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", o);
                 return -1;
@@ -502,6 +538,8 @@ int main(int argc, char *argv[]) {
     Config config;
     const char *argv0;
     char *ec;
+
+    setlocale(LC_ALL, "");
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
@@ -588,6 +626,10 @@ fail:
     avahi_free(config.stype);
 
     avahi_string_list_free(browsed_types);
+
+#ifdef HAVE_GDBM
+    stdb_shutdown();
+#endif    
 
     return ret;
 }

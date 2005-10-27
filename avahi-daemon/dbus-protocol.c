@@ -628,7 +628,7 @@ fail:
 
 }
 
-static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection *c, DBusMessage *m, void *userdata) {
+static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata) {
     DBusError error;
 
     dbus_error_init(&error);

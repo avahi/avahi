@@ -206,7 +206,7 @@ static AvahiAnnouncer *get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterfa
     return NULL;
 }
 
-static void go_to_initial_state(AvahiAnnouncer *a, int immediately) {
+static void go_to_initial_state(AvahiAnnouncer *a) {
     AvahiEntry *e;
     struct timeval tv;
         
@@ -271,7 +271,7 @@ static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_interface, i->announcers, a);
     AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_entry, e->announcers, a);
 
-    go_to_initial_state(a, 0);
+    go_to_initial_state(a);
     
 /*     avahi_log_debug("New announcer on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
 /*     avahi_free(t); */
@@ -369,7 +369,7 @@ void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInt
     if (a->state == AVAHI_PROBING && a->entry->group)
         a->entry->group->n_probing--;
 
-    go_to_initial_state(a, 1);
+    go_to_initial_state(a);
 }
 
 static AvahiRecord *make_goodbye_record(AvahiRecord *r) {

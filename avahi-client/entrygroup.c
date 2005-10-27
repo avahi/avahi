@@ -51,7 +51,7 @@ void avahi_entry_group_set_state(AvahiEntryGroup *group, AvahiEntryGroupState st
 }
 
 static int retrieve_state(AvahiEntryGroup *group) {
-    DBusMessage *message, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     int r = AVAHI_OK;
     int32_t state;
@@ -279,7 +279,7 @@ AvahiClient* avahi_entry_group_get_client (AvahiEntryGroup *group) {
 }
 
 int avahi_entry_group_is_empty (AvahiEntryGroup *group) {
-    DBusMessage *message, *reply;
+    DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     int r = AVAHI_OK;
     int b;

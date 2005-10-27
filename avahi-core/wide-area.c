@@ -478,7 +478,7 @@ static int map_dns_error(uint16_t error) {
     return table[error];
 }
 
-static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p, AvahiAddress *a) {
+static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p) {
     AvahiWideAreaLookup *l = NULL;
     int i, r;
 
@@ -571,7 +571,7 @@ static void socket_event(AVAHI_GCC_UNUSED AvahiWatch *w, int fd, AVAHI_GCC_UNUSE
     }
 
     if (p) {
-        handle_packet(e, p, &a);
+        handle_packet(e, p);
         avahi_dns_packet_free(p);
     }
 }

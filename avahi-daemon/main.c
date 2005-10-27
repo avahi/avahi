@@ -117,7 +117,7 @@ static int has_prefix(const char *s, const char *prefix) {
     return strlen(s) >= l && strncmp(s, prefix, l) == 0;
 }
 
-static int load_resolv_conf(const DaemonConfig *c) {
+static int load_resolv_conf(void) {
     int ret = -1;
     FILE *f;
     int i = 0;
@@ -594,7 +594,7 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
             if (resolv_conf_entry_group)
                 avahi_s_entry_group_reset(resolv_conf_entry_group);
 
-            load_resolv_conf(&config);
+            load_resolv_conf();
 
             update_wide_area_servers();
             
@@ -617,8 +617,8 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
 static int run_server(DaemonConfig *c) {
     int r = -1;
     int error;
-    const AvahiPoll *poll_api;
-    AvahiWatch *sig_watch;
+    const AvahiPoll *poll_api = NULL;
+    AvahiWatch *sig_watch = NULL;
 
     assert(c);
 
@@ -657,7 +657,7 @@ static int run_server(DaemonConfig *c) {
 #endif
     }
     
-    load_resolv_conf(c);
+    load_resolv_conf();
     static_service_load();
 
     if (!(avahi_server = avahi_server_new(poll_api, &c->server_config, server_callback, c, &error))) {

@@ -236,7 +236,7 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     }
 }
 
-static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, int unique, const AvahiAddress *a) {
+static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, int unique) {
     int valid = 1, ours = 0, conflict = 0, withdraw_immediately = 0;
     AvahiEntry *e, *n, *conflicting_entry = NULL;
     
@@ -591,7 +591,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
                 goto fail;
             }
             
-            if (handle_conflict(s, i, record, unique, a)) {
+            if (handle_conflict(s, i, record, unique)) {
                 avahi_response_scheduler_suppress(i->response_scheduler, record, a);
                 avahi_record_list_drop(s->record_list, record);
                 avahi_cache_stop_poof(i->cache, record, a);
@@ -655,7 +655,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 /*             avahi_log_debug("Handling response: %s", txt = avahi_record_to_string(record)); */
 /*             avahi_free(txt); */
             
-            if (handle_conflict(s, i, record, cache_flush, a)) {
+            if (handle_conflict(s, i, record, cache_flush)) {
                 if (!from_local_iface)
                     reflect_response(s, i, record, cache_flush);
                 avahi_cache_update(i->cache, record, cache_flush, a);

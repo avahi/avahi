@@ -544,7 +544,8 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
         case AVAHI_DNS_TYPE_TXT:
 
             if (rdlength > 0) {
-                r->data.txt.string_list = avahi_string_list_parse(avahi_dns_packet_get_rptr(p), rdlength);
+                if (avahi_string_list_parse(avahi_dns_packet_get_rptr(p), rdlength, &r->data.txt.string_list) < 0)
+                    return -1;
                 
                 if (avahi_dns_packet_skip(p, rdlength) < 0)
                     return -1;

@@ -102,7 +102,7 @@ char* avahi_string_list_to_string(AvahiStringList *l);
 size_t avahi_string_list_serialize(AvahiStringList *l, void * data, size_t size);
 
 /** Inverse of avahi_string_list_serialize() */
-AvahiStringList *avahi_string_list_parse(const void *data, size_t size);
+int avahi_string_list_parse(const void *data, size_t size, AvahiStringList **ret);
 
 /** Compare to string lists */
 int avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b);

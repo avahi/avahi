@@ -68,29 +68,45 @@ AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text) {
     return avahi_string_list_add_arbitrary(l, (const uint8_t*) text, strlen(text));
 }
 
-AvahiStringList *avahi_string_list_parse(const void* data, size_t size) {
-    AvahiStringList *r = NULL;
+int avahi_string_list_parse(const void* data, size_t size, AvahiStringList **ret) {
     const uint8_t *c;
+    AvahiStringList *r;
     
     assert(data);
+    assert(ret);
+
+    r = NULL;
 
     c = data;
-    for (;;) {
+    while (size > 0) {
         size_t k;
         
-        if (size < 1)
-            break;
-
         k = *(c++);
+        size--;
 
-        if (k > 0) /* Ignore empty strings */
-            r = avahi_string_list_add_arbitrary(r, c, k);
+        if (k > size)
+            goto fail; /* Overflow */
+
+        if (k > 0) { /* Ignore empty strings */
+            AvahiStringList *n;
+
+            if (!(n = avahi_string_list_add_arbitrary(r, c, k)))  
+                goto fail; /* OOM */
+
+            r = n;
+        }
+            
         c += k;
-
-        size -= 1 + k;
+        size -= k;
     }
 
-    return r;
+    *ret = r;
+    
+    return 0;
+
+fail:
+    avahi_string_list_free(*ret);
+    return -1;
 }
 
 void avahi_string_list_free(AvahiStringList *l) {

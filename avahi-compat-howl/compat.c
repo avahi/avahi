@@ -769,6 +769,7 @@ sw_result sw_discovery_publish(
     oid_data *data;
     sw_result result = SW_E_UNKNOWN;
     service_data *sdata;
+    AvahiStringList *txt = NULL;
     
     assert(self);
     assert(name);
@@ -778,10 +779,17 @@ sw_result sw_discovery_publish(
     
     AVAHI_WARN_LINKAGE;
 
-    if ((*oid = oid_alloc(self, OID_ENTRY_GROUP)) == (sw_discovery_oid) -1)
+    if (text_record && text_record_len > 0)
+        if (avahi_string_list_parse(text_record, text_record_len, &txt) < 0)
+            return SW_E_UNKNOWN;
+
+    if ((*oid = oid_alloc(self, OID_ENTRY_GROUP)) == (sw_discovery_oid) -1) {
+        avahi_string_list_free(txt);
         return SW_E_UNKNOWN;
+    }
 
     if (!(sdata = service_data_new(self))) {
+        avahi_string_list_free(txt);
         oid_release(self, *oid);
         return SW_E_MEM;
     }
@@ -798,7 +806,7 @@ sw_result sw_discovery_publish(
     sdata->domain = domain ? avahi_normalize_name_strdup(domain) : NULL;
     sdata->host = host ? avahi_normalize_name_strdup(host) : NULL;
     sdata->port = port;
-    sdata->txt = text_record && text_record_len > 0 ? avahi_string_list_parse(text_record, text_record_len) : NULL;
+    sdata->txt = txt;
 
     /* Some OOM checking would be cool here */
 

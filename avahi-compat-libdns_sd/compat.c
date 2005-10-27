@@ -974,6 +974,7 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     DNSServiceErrorType ret = kDNSServiceErr_Unknown;
     int error;
     DNSServiceRef sdref = NULL;
+    AvahiStringList *txt = NULL;
 
     AVAHI_WARN_LINKAGE;
 
@@ -986,8 +987,14 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
         return kDNSServiceErr_Unsupported;
     }
 
-    if (!(sdref = sdref_new()))
+    if (txtRecord && txtLen > 0) 
+        if (avahi_string_list_parse(txtRecord, txtLen, &txt) < 0)
+            return kDNSServiceErr_Invalid;
+    
+    if (!(sdref = sdref_new())) {
+        avahi_string_list_free(txt);
         return kDNSServiceErr_Unknown;
+    }
 
     sdref->context = context;
     sdref->service_register_callback = callback;
@@ -998,7 +1005,7 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     sdref->service_host = host ? avahi_normalize_name_strdup(host) : NULL;
     sdref->service_interface = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
     sdref->service_port = ntohs(port);
-    sdref->service_txt = txtRecord && txtLen > 0 ? avahi_string_list_parse(txtRecord, txtLen) : NULL;
+    sdref->service_txt = txt;
 
     /* Some OOM checking would be cool here */
     

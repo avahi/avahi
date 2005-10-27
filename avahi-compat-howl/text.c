@@ -194,6 +194,7 @@ sw_result sw_text_record_iterator_init(
     sw_octets text_record,
     sw_uint32 text_record_len) {
 
+    AvahiStringList *txt;
     assert(self);
 
     AVAHI_WARN_LINKAGE;
@@ -203,7 +204,13 @@ sw_result sw_text_record_iterator_init(
         return SW_E_UNKNOWN;
     }
 
-    (*self)->index = (*self)->strlst = avahi_string_list_reverse(avahi_string_list_parse(text_record, text_record_len));
+    if (avahi_string_list_parse(text_record, text_record_len, &txt) < 0) {
+        avahi_free(*self);
+        *self = NULL;
+        return SW_E_UNKNOWN;
+    }
+
+    (*self)->index = (*self)->strlst = avahi_string_list_reverse(txt);
     
     return SW_OKAY;
 }

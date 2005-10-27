@@ -69,7 +69,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     printf("\n");
     
-    b = avahi_string_list_parse(data, size);
+    assert(avahi_string_list_parse(data, size, &b) == 0);
 
     assert(avahi_string_list_equal(a, b));
     
@@ -119,7 +119,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(size == 1);
     assert(size == n);
 
-    a = avahi_string_list_parse(data, size);
+    assert(avahi_string_list_parse(data, size, &a) == 0);
     assert(!a);
     
     return 0;

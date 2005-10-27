@@ -50,12 +50,18 @@ namespace Avahi
         IPv4 = 0,
         IPv6 = 1
     }
-    
-    public enum ClientState {
+
+    internal enum ServerState {
         Invalid,
         Registering,
         Running,
-        Collision,
+        Collision
+    }
+    
+    public enum ClientState {
+        Registering = ServerState.Registering,
+        Running = ServerState.Running,
+        Collision = ServerState.Collision,
         Disconnected = 100
     }
 

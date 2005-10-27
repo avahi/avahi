@@ -5,6 +5,7 @@ for 0.6:
 * always set source address for outgoing packets
 * introduce AVAHI_CLIENT_FAILURE
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
+* add support for defining browsing domains with an option in avahi-daemon.onf
 
 later:
 * add simplification routine for adding services 

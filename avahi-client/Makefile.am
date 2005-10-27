@@ -25,7 +25,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 if HAVE_DBUS
 
 avahi_clientincludedir=$(includedir)/avahi-client
-avahi_clientinclude_HEADERS = client.h
+avahi_clientinclude_HEADERS = client.h lookup.h publish.h
 
 noinst_HEADERS = internal.h
 

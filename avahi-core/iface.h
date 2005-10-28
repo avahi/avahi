@@ -45,7 +45,17 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #elif defined(HAVE_PF_ROUTE)
 #include "iface-pfroute.h"
 #else
-#error "No network configuration notification system available"
+typedef struct AvahiInterfaceMonitorOSDep AvahiInterfaceMonitorOSDep;
+struct AvahiInterfaceMonitorOSDep {
+        
+    unsigned query_addr_seq, query_link_seq;
+    
+    enum {
+        LIST_IFACE,
+        LIST_ADDR,
+        LIST_DONE
+    } list;
+};
 #endif
 
 #define AVAHI_MAC_ADDRESS_MAX 32

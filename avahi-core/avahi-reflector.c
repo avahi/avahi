@@ -23,10 +23,12 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h>
+
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
 
 #include <avahi-common/simple-watch.h>
 #include <avahi-core/core.h>

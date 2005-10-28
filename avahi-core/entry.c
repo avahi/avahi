@@ -23,15 +23,18 @@
 #include <config.h>
 #endif
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <string.h>
-#include <sys/utsname.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+
+#include <arpa/inet.h>
+
+#include <sys/utsname.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 #include <avahi-common/domain.h>
 #include <avahi-common/timeval.h>

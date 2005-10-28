@@ -119,7 +119,7 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   int prefixlen = 0;
   struct sockaddr *sa  =NULL;
 
-#ifdef __NetBSD__  
+#if defined(__NetBSD__) || defined(__OpenBSD__)
   if(((struct sockaddr *)cp)->sa_family == AF_UNSPEC)
     ((struct sockaddr *)cp)->sa_family = AF_INET;
 #endif

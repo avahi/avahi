@@ -23,13 +23,15 @@
 #include <config.h>
 #endif
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <assert.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <avahi-common/alternative.h>
 #include <avahi-common/malloc.h>

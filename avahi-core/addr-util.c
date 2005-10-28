@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
-#include <netinet/in.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>

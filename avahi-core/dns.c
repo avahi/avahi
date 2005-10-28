@@ -23,12 +23,12 @@
 #include <config.h>
 #endif
 
-#include <netinet/in.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+
+#include <netinet/in.h>
 
 #include <avahi-common/defs.h>
 #include <avahi-common/domain.h>

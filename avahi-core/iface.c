@@ -24,10 +24,12 @@
 #endif
 
 #include <string.h>
-#include <sys/socket.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
 
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>

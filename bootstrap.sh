@@ -55,7 +55,7 @@ case "$USER" in
     FLAGS="$FLAGS --disable-monodoc"
     ;;
     sebest)
-    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4"
+    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --sysconfdir=/etc --localstatedir=/var --prefix=/usr"
     ;;
 esac
 

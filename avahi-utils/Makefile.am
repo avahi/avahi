@@ -90,11 +90,12 @@ bin_PROGRAMS = avahi-browse
 
 avahi_browse_SOURCES = avahi-browse.c sigint.c sigint.h
 avahi_browse_CFLAGS = $(AM_CFLAGS)
-avahi_browse_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la -lgdbm
+avahi_browse_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
 if HAVE_GDBM
 avahi_browse_SOURCES += stdb.h stdb.c
 avahi_browse_CFLAGS += -DDATABASE_FILE=\"$(pkgdatadir)/service-types.db\"
+avahi_browse_LDADD += -lgdbm
 endif
 
 endif

@@ -408,7 +408,7 @@ if test "x$HAVE_GDBM" = "xyes" ; then
     AC_CHECK_LIB(gdbm, gdbm_open, [ AC_CHECK_HEADERS(gdbm.h, have_gdbm=true, have_gdbm=false) ], have_gdbm=false)
 
     if ! $have_gdbm ; then
-        AC_MSG_WARN([*** libgdbm not found ***])
+        AC_MSG_ERROR([*** libgdbm not found ***])
     fi
     AC_DEFINE([HAVE_GDBM],[],[Support for GDBM])
 fi

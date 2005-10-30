@@ -56,6 +56,11 @@
 #include <avahi-core/dns-srv-rr.h>
 #include <avahi-core/log.h>
 
+#ifdef ENABLE_CHROOT
+#include "chroot.h"
+#include "caps.h"
+#endif
+
 #include "main.h"
 #include "simple-protocol.h"
 #include "static-services.h"
@@ -83,12 +88,18 @@ typedef struct {
     int daemonize;
     int use_syslog;
     char *config_file;
+#ifdef HAVE_DBUS
     int enable_dbus;
     int fail_on_missing_dbus;
+#endif
     int drop_root;
+    int set_rlimits;
+#ifdef ENABLE_CHROOT
+    int use_chroot;
+#endif
+    
     int publish_resolv_conf;
     char ** publish_dns_servers;
-    int no_rlimits;
     int debug;
 
     int rlimit_as_set, rlimit_core_set, rlimit_data_set, rlimit_fsize_set, rlimit_nofile_set, rlimit_stack_set;
@@ -125,8 +136,14 @@ static int load_resolv_conf(void) {
     avahi_strfreev(resolv_conf);
     resolv_conf = NULL;
 
-    if (!(f = fopen(RESOLV_CONF, "r"))) {
-        avahi_log_warn("Failed to open "RESOLV_CONF".");
+#ifdef ENABLE_CHROOT
+    f = avahi_chroot_helper_get_file(RESOLV_CONF);
+#else
+    f = fopen(RESOLV_CONF, "r");
+#endif
+    
+    if (!f) {
+        avahi_log_warn("Failed to open "RESOLV_CONF": %s", strerror(errno));
         goto finish;
     }
 
@@ -207,6 +224,11 @@ static void update_wide_area_servers(void) {
     AvahiAddress a[AVAHI_WIDE_AREA_SERVERS_MAX];
     unsigned n = 0;
     char **p;
+
+    if (!resolv_conf) {
+        avahi_server_set_wide_area_servers(avahi_server, NULL, 0);
+        return;
+    }
 
     for (p = resolv_conf; *p && n < AVAHI_WIDE_AREA_SERVERS_MAX; p++) {
         if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a[n]))
@@ -291,6 +313,9 @@ static void help(FILE *f, const char *argv0) {
             "                       "AVAHI_CONFIG_FILE"\n"
             "       --no-rlimits    Don't enforce resource limits\n"
             "       --no-drop-root  Don't drop privileges\n"
+#ifdef ENABLE_CHROOT            
+            "       --no-chroot     Don't chroot()\n"
+#endif            
             "       --debug         Increase verbosity\n",
             argv0);
 }
@@ -302,6 +327,9 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
     enum {
         OPTION_NO_RLIMITS = 256,
         OPTION_NO_DROP_ROOT,
+#ifdef ENABLE_CHROOT        
+        OPTION_NO_CHROOT,
+#endif        
         OPTION_DEBUG
     };
     
@@ -316,6 +344,9 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
         { "syslog",       no_argument,       NULL, 's' },
         { "no-rlimits",   no_argument,       NULL, OPTION_NO_RLIMITS },
         { "no-drop-root", no_argument,       NULL, OPTION_NO_DROP_ROOT },
+#ifdef ENABLE_CHROOT
+        { "no-chroot",    no_argument,       NULL, OPTION_NO_CHROOT },
+#endif        
         { "debug",        no_argument,       NULL, OPTION_DEBUG },
         { NULL, 0, NULL, 0 }
     };
@@ -352,11 +383,16 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
                 c->command = DAEMON_CHECK;
                 break;
             case OPTION_NO_RLIMITS:
-                c->no_rlimits = 1;
+                c->set_rlimits = 0;
                 break;
             case OPTION_NO_DROP_ROOT:
                 c->drop_root = 0;
                 break;
+#ifdef ENABLE_CHROOT
+            case OPTION_NO_CHROOT:
+                c->use_chroot = 0;
+                break;
+#endif                
             case OPTION_DEBUG:
                 c->debug = 1;
                 break;
@@ -588,7 +624,11 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
 
         case SIGHUP:
             avahi_log_info("Got SIGHUP, reloading.");
-            static_service_load();
+#ifdef ENABLE_CHROOT
+            static_service_load(config.use_chroot);
+#else
+            static_service_load(0);
+#endif            
             static_service_add_to_server();
 
             if (resolv_conf_entry_group)
@@ -613,6 +653,7 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
             break;
     }
 }
+
 
 static int run_server(DaemonConfig *c) {
     int r = -1;
@@ -641,8 +682,9 @@ static int run_server(DaemonConfig *c) {
 
     if (simple_protocol_setup(poll_api) < 0)
         goto finish;
-    if (c->enable_dbus) {
+
 #ifdef HAVE_DBUS
+    if (c->enable_dbus) {
         if (dbus_protocol_setup(poll_api) < 0) {
 
             if (c->fail_on_missing_dbus)
@@ -651,14 +693,35 @@ static int run_server(DaemonConfig *c) {
             avahi_log_warn("WARNING: Failed to contact D-BUS daemon, disabling D-BUS support.");
             c->enable_dbus = 0;
         }
-#else
-        avahi_log_warn("WARNING: We are configured to enable D-BUS but it was not compiled in.");
-        c->enable_dbus = 0;
+    }
 #endif
+
+#ifdef ENABLE_CHROOT
+
+    if (config.drop_root && config.use_chroot) {
+        if (chroot(AVAHI_CONFIG_DIR) < 0) {
+            avahi_log_error("Failed to chroot(): %s", strerror(errno));
+            goto finish;
+        }
+        
+        chdir("/");
+        
+        if (avahi_caps_drop_all() < 0) {
+            avahi_log_error("Failed to drop capabilities.");
+            goto finish;
+        }
+
+        avahi_log_info("chroot() successful.");
     }
     
+#endif
+
     load_resolv_conf();
-    static_service_load();
+#ifdef ENABLE_CHROOT
+    static_service_load(config.use_chroot);
+#else
+    static_service_load(0);
+#endif
 
     if (!(avahi_server = avahi_server_new(poll_api, &c->server_config, server_callback, c, &error))) {
         avahi_log_error("Failed to create server: %s", avahi_strerror(error));
@@ -778,7 +841,7 @@ static int drop_root(void) {
     set_env("USER", pw->pw_name);
     set_env("LOGNAME", pw->pw_name);
     set_env("HOME", pw->pw_dir);
-    
+
     avahi_log_info("Successfully dropped root privileges.");
 
     return 0;
@@ -904,15 +967,17 @@ int main(int argc, char *argv[]) {
 #ifdef HAVE_DBUS
     config.enable_dbus = 1;
     config.fail_on_missing_dbus = 1;
-#else
-    config.enable_dbus = 0;
-    config.fail_on_missing_dbus = 0;
 #endif
+    
     config.drop_root = 1;
+    config.set_rlimits = 1;
+#ifdef ENABLE_CHROOT
+    config.use_chroot = 1;
+#endif
+    
     config.publish_dns_servers = NULL;
     config.publish_resolv_conf = 0;
     config.use_syslog = 0;
-    config.no_rlimits = 0;
     config.debug = 0;
     
     config.rlimit_as_set = 0;
@@ -937,6 +1002,10 @@ int main(int argc, char *argv[]) {
     if (parse_command_line(&config, argc, argv) < 0)
         goto finish;
 
+#ifdef ENABLE_CHROOT
+    config.use_chroot = config.use_chroot && config.drop_root;
+#endif
+    
     if (config.command == DAEMON_HELP) {
         help(stdout, argv0);
         r = 0;
@@ -1005,8 +1074,20 @@ int main(int argc, char *argv[]) {
             goto finish;
 
         if (config.drop_root) {
+#ifdef ENABLE_CHROOT
+            if (config.use_chroot)
+                if (avahi_caps_reduce() < 0)
+                    goto finish;
+#endif
+            
             if (drop_root() < 0)
                 goto finish;
+
+#ifdef ENABLE_CHROOT
+            if (config.use_chroot)
+                if (avahi_caps_reduce2() < 0)
+                    goto finish;
+#endif
         }
 
         if (daemon_pid_file_create() < 0) {
@@ -1018,13 +1099,20 @@ int main(int argc, char *argv[]) {
         } else
             wrote_pid_file = 1;
 
-        if (!config.no_rlimits)
+        if (config.set_rlimits)
             enforce_rlimits();
 
         chdir("/");
-        
+
+#ifdef ENABLE_CHROOT
+        if (config.drop_root && config.use_chroot)
+            if (avahi_chroot_helper_start() < 0) {
+                avahi_log_error("failed to start chroot() helper daemon.");
+                goto finish;
+            }
+#endif
         avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
-        
+
         if (run_server(&config) == 0)
             r = 0;
     }
@@ -1039,8 +1127,17 @@ finish:
     avahi_strfreev(config.publish_dns_servers);
     avahi_strfreev(resolv_conf);
 
-    if (wrote_pid_file)
+    if (wrote_pid_file) {
+#ifdef ENABLE_CHROOT
+        avahi_chroot_helper_unlink(pid_file_proc());
+#else
         daemon_pid_file_remove();
-    
+#endif
+    }
+
+#if ENABLE_CHROOT
+    avahi_chroot_helper_shutdown();
+#endif
+
     return r;
 }

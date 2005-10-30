@@ -35,7 +35,8 @@ AM_CFLAGS+= \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_SERVICE_DIR=\"$(servicedir)\" \
 	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\" \
-	-DAVAHI_DBUS_INTROSPECTION_DIR=\"$(introspectiondir)\" 
+	-DAVAHI_DBUS_INTROSPECTION_DIR=\"$(introspectiondir)\" \
+	-DAVAHI_CONFIG_DIR=\"$(pkgsysconfdir)\"
 
 sbin_PROGRAMS = \
 	avahi-daemon
@@ -70,6 +71,15 @@ service_DATA = \
 pkgdata_DATA = \
 	avahi-service.dtd
 
+if ENABLE_CHROOT
+
+avahi_daemon_SOURCES += \
+	chroot.c chroot.h \
+	caps.c caps.h
+
+avahi_daemon_LDADD += -lcap
+
+endif
 
 if HAVE_DBUS
 
@@ -86,7 +96,7 @@ avahi_daemon_SOURCES += \
 	dbus-service-type-browser.c \
 	dbus-sync-address-resolver.c \
 	dbus-sync-host-name-resolver.c \
-	dbus-sync-service-resolver.c
+	dbus-sync-service-resolver.c	
 
 avahi_daemon_LDADD += \
 	../avahi-common/libdbus-common.la \

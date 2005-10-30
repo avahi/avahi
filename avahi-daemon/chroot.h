@@ -1,5 +1,5 @@
-#ifndef foomainhfoo
-#define foomainhfoo
+#ifndef foochroothelperhfoo
+#define foochroothelperhfoo
 
 /* $Id$ */
 
@@ -22,10 +22,15 @@
   USA.
 ***/
 
-#include <avahi-core/core.h>
-#include <avahi-common/simple-watch.h>
+#include <stdio.h>
 
-extern AvahiServer *avahi_server;
-extern AvahiSimplePoll *simple_poll_api;
+int avahi_chroot_helper_start(void);
+void avahi_chroot_helper_shutdown(void);
+int avahi_chroot_helper_get(const char *fname);
+
+int avahi_chroot_helper_get_fd(const char *fname);
+FILE *avahi_chroot_helper_get_file(const char *fname);
+
+int avahi_chroot_helper_unlink(const char *fname);
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef foomainhfoo
-#define foomainhfoo
+#ifndef foocapshfoo
+#define foocapshfoo
 
 /* $Id$ */
 
@@ -22,10 +22,8 @@
   USA.
 ***/
 
-#include <avahi-core/core.h>
-#include <avahi-common/simple-watch.h>
-
-extern AvahiServer *avahi_server;
-extern AvahiSimplePoll *simple_poll_api;
+int avahi_caps_reduce(void);
+int avahi_caps_reduce2(void);
+int avahi_caps_drop_all(void);
 
 #endif

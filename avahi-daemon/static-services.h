@@ -22,7 +22,7 @@
   USA.
 ***/
 
-void static_service_load(void);
+void static_service_load(int in_chroot);
 void static_service_free_all(void);
 void static_service_add_to_server(void);
 void static_service_remove_from_server(void);

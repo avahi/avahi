@@ -648,7 +648,7 @@ static void load_file(char *n) {
     }
 }
 
-void static_service_load(void) {
+void static_service_load(int in_chroot) {
     StaticServiceGroup *g, *n;
     glob_t globbuf;
     char **p;
@@ -677,7 +677,7 @@ void static_service_load(void) {
     }
 
     memset(&globbuf, 0, sizeof(globbuf));
-    if (glob(AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf) != 0)
+    if (glob(in_chroot ? "/services/*.service" : AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf) != 0)
         avahi_log_error("Failed to read service directory.");
     else {
         for (p = globbuf.gl_pathv; *p; p++)

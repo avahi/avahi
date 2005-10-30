@@ -215,6 +215,17 @@ AC_TYPE_PID_T
 
 AC_CHECK_DECLS(environ)
 
+enable_chroot=yes
+AC_CHECK_HEADERS([sys/capability.h],,enable_chroot=no)
+AC_CHECK_HEADERS([sys/prctl.h],,enable_chroot=no)
+AC_CHECK_FUNCS([chroot],,enable_chroot=no)
+
+AM_CONDITIONAL(ENABLE_CHROOT, test "x$enable_chroot" = "xyes")
+
+if test "x$enable_chroot" = "xyes" ; then
+   AC_DEFINE([ENABLE_CHROOT], 1, [Enable chroot() usage])
+fi
+
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.
 AC_CHECK_PROG(have_pkg_config, pkg-config, yes, no)
@@ -729,6 +740,7 @@ echo "
     Linux Distro:           ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}
+    Enable chroot():        ${enable_chroot}
 "
 
 BUILD_DAEMON="no (!)"

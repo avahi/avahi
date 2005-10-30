@@ -44,6 +44,10 @@
 #include "simple-protocol.h"
 #include "main.h"
 
+#ifdef ENABLE_CHROOT
+#include "chroot.h"
+#endif
+
 #define BUFFER_SIZE (20*1024)
 
 #define CLIENTS_MAX 50
@@ -497,7 +501,11 @@ void simple_protocol_shutdown(void) {
     if (server) {
 
         if (server->bind_successful)
+#ifdef ENABLE_CHROOT
+            avahi_chroot_helper_unlink(AVAHI_SOCKET);
+#else
             unlink(AVAHI_SOCKET);
+#endif
 
         while (server->clients)
             client_free(server->clients);

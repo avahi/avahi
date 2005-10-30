@@ -37,6 +37,10 @@
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
 
+#ifdef ENABLE_CHROOT
+#include "chroot.h"
+#endif
+
 #include "main.h"
 #include "dbus-util.h"
 
@@ -155,15 +159,21 @@ const char *avahi_dbus_map_resolve_signal_name(AvahiResolverEvent e) {
     abort();
 }
 
-static char *file_get_contents(char *fname) {
+static char *file_get_contents(const char *fname) {
     int fd = -1;
     struct stat st;
     ssize_t size;
     char *buf = NULL;
-    
-    assert(fname);
 
-    if (!(fd = open(fname, O_RDONLY))) {
+    assert(fname);
+    
+#ifdef ENABLE_CHROOT
+    fd = avahi_chroot_helper_get_fd(fname);
+#else
+    fd = open(fname, O_RDONLY);
+#endif
+
+    if (fd < 0) {
         avahi_log_error("Failed to open %s: %s", fname, strerror(errno));
         goto fail;
     }
@@ -193,12 +203,13 @@ static char *file_get_contents(char *fname) {
     buf[size] = 0;
 
     close(fd);
+
     return buf;
     
 fail:
     if (fd >= 0)
         close(fd);
-
+    
     if (buf)
         avahi_free(buf);
 
@@ -207,7 +218,7 @@ fail:
 }
 
 DBusHandlerResult avahi_dbus_handle_introspect(DBusConnection *c, DBusMessage *m, const char *fname) {
-    char *path, *contents;
+    char *contents, *path;
     DBusError error;
     
     assert(c);
@@ -220,7 +231,7 @@ DBusHandlerResult avahi_dbus_handle_introspect(DBusConnection *c, DBusMessage *m
         avahi_log_error("Error parsing Introspect message: %s", error.message);
         goto fail;
     }
-    
+
     path = avahi_strdup_printf("%s/%s", AVAHI_DBUS_INTROSPECTION_DIR, fname);
     contents = file_get_contents(path);
     avahi_free(path);

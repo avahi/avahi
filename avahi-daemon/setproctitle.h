@@ -1,5 +1,5 @@
-#ifndef foochroothelperhfoo
-#define foochroothelperhfoo
+#ifndef foosetproctitlehfoo
+#define foosetproctitlehfoo
 
 /* $Id$ */
 
@@ -22,15 +22,7 @@
   USA.
 ***/
 
-#include <stdio.h>
-
-int avahi_chroot_helper_start(const char *argv0);
-void avahi_chroot_helper_shutdown(void);
-int avahi_chroot_helper_get(const char *fname);
-
-int avahi_chroot_helper_get_fd(const char *fname);
-FILE *avahi_chroot_helper_get_file(const char *fname);
-
-int avahi_chroot_helper_unlink(const char *fname);
+void avahi_init_proc_title(int argc, char **argv);
+void avahi_set_proc_title(const char *fmt, ...);
 
 #endif

@@ -61,6 +61,7 @@
 #include "caps.h"
 #endif
 
+#include "setproctitle.h"
 #include "main.h"
 #include "simple-protocol.h"
 #include "static-services.h"
@@ -72,6 +73,7 @@
 
 AvahiServer *avahi_server = NULL;
 AvahiSimplePoll *simple_poll_api = NULL;
+static char *argv0 = NULL;
 
 typedef enum {
     DAEMON_RUN,
@@ -97,6 +99,7 @@ typedef struct {
 #ifdef ENABLE_CHROOT
     int use_chroot;
 #endif
+    int modify_proc_title;
     
     int publish_resolv_conf;
     char ** publish_dns_servers;
@@ -259,6 +262,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     switch (state) {
         case AVAHI_SERVER_RUNNING:
             avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
+            
+            avahi_set_proc_title("%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
+            
             static_service_add_to_server();
             
             remove_dns_server_entry_groups();
@@ -283,6 +289,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             avahi_log_warn("Host name conflict, retrying with <%s>", n);
             avahi_server_set_host_name(s, n);
             avahi_free(n);
+
+            avahi_set_proc_title("%s: collision", argv0);
+            
             break;
         }
 
@@ -293,13 +302,16 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             break;
 
         case AVAHI_SERVER_REGISTERING:
+            avahi_set_proc_title("%s: registering [%s]", argv0, avahi_server_get_host_name_fqdn(s));
+
+
         case AVAHI_SERVER_INVALID:
             break;
             
     }
 }
 
-static void help(FILE *f, const char *argv0) {
+static void help(FILE *f) {
     fprintf(f,
             "%s [options]\n"
             "    -h --help          Show this help\n"
@@ -316,6 +328,7 @@ static void help(FILE *f, const char *argv0) {
 #ifdef ENABLE_CHROOT            
             "       --no-chroot     Don't chroot()\n"
 #endif            
+            "       --no-proc-title Don't modify process title\n"
             "       --debug         Increase verbosity\n",
             argv0);
 }
@@ -329,25 +342,27 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
         OPTION_NO_DROP_ROOT,
 #ifdef ENABLE_CHROOT        
         OPTION_NO_CHROOT,
-#endif        
+#endif
+        OPTION_NO_PROC_TITLE,
         OPTION_DEBUG
     };
     
     static const struct option long_options[] = {
-        { "help",         no_argument,       NULL, 'h' },
-        { "daemonize",    no_argument,       NULL, 'D' },
-        { "kill",         no_argument,       NULL, 'k' },
-        { "version",      no_argument,       NULL, 'V' },
-        { "file",         required_argument, NULL, 'f' },
-        { "reload",       no_argument,       NULL, 'r' },
-        { "check",        no_argument,       NULL, 'c' },
-        { "syslog",       no_argument,       NULL, 's' },
-        { "no-rlimits",   no_argument,       NULL, OPTION_NO_RLIMITS },
-        { "no-drop-root", no_argument,       NULL, OPTION_NO_DROP_ROOT },
+        { "help",           no_argument,       NULL, 'h' },
+        { "daemonize",      no_argument,       NULL, 'D' },
+        { "kill",           no_argument,       NULL, 'k' },
+        { "version",        no_argument,       NULL, 'V' },
+        { "file",           required_argument, NULL, 'f' },
+        { "reload",         no_argument,       NULL, 'r' },
+        { "check",          no_argument,       NULL, 'c' },
+        { "syslog",         no_argument,       NULL, 's' },
+        { "no-rlimits",     no_argument,       NULL, OPTION_NO_RLIMITS },
+        { "no-drop-root",   no_argument,       NULL, OPTION_NO_DROP_ROOT },
 #ifdef ENABLE_CHROOT
-        { "no-chroot",    no_argument,       NULL, OPTION_NO_CHROOT },
-#endif        
-        { "debug",        no_argument,       NULL, OPTION_DEBUG },
+        { "no-chroot",      no_argument,       NULL, OPTION_NO_CHROOT },
+#endif
+        { "no-proc-title",  no_argument,       NULL, OPTION_NO_PROC_TITLE },
+        { "debug",          no_argument,       NULL, OPTION_DEBUG },
         { NULL, 0, NULL, 0 }
     };
 
@@ -392,7 +407,10 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
             case OPTION_NO_CHROOT:
                 c->use_chroot = 0;
                 break;
-#endif                
+#endif
+            case OPTION_NO_PROC_TITLE:
+                c->modify_proc_title = 0;
+                break;
             case OPTION_DEBUG:
                 c->debug = 1;
                 break;
@@ -953,7 +971,6 @@ static void init_rand_seed(void) {
 
 int main(int argc, char *argv[]) {
     int r = 255;
-    const char *argv0;
     int wrote_pid_file = 0;
 
     avahi_set_log_function(log_function);
@@ -974,12 +991,12 @@ int main(int argc, char *argv[]) {
 #ifdef ENABLE_CHROOT
     config.use_chroot = 1;
 #endif
+    config.modify_proc_title = 1;
     
     config.publish_dns_servers = NULL;
     config.publish_resolv_conf = 0;
     config.use_syslog = 0;
     config.debug = 0;
-    
     config.rlimit_as_set = 0;
     config.rlimit_core_set = 0;
     config.rlimit_data_set = 0;
@@ -991,9 +1008,9 @@ int main(int argc, char *argv[]) {
 #endif
     
     if ((argv0 = strrchr(argv[0], '/')))
-        argv0++;
+        argv0 = avahi_strdup(argv0 + 1);
     else
-        argv0 = argv[0];
+        argv0 = avahi_strdup(argv[0]);
 
     daemon_pid_file_ident = (const char *) argv0;
     daemon_log_ident = (char*) argv0;
@@ -1002,12 +1019,15 @@ int main(int argc, char *argv[]) {
     if (parse_command_line(&config, argc, argv) < 0)
         goto finish;
 
+    if (config.modify_proc_title)
+        avahi_init_proc_title(argc, argv);
+
 #ifdef ENABLE_CHROOT
     config.use_chroot = config.use_chroot && config.drop_root;
 #endif
     
     if (config.command == DAEMON_HELP) {
-        help(stdout, argv0);
+        help(stdout);
         r = 0;
     } else if (config.command == DAEMON_VERSION) {
         printf("%s "PACKAGE_VERSION"\n", argv0);
@@ -1106,13 +1126,15 @@ int main(int argc, char *argv[]) {
 
 #ifdef ENABLE_CHROOT
         if (config.drop_root && config.use_chroot)
-            if (avahi_chroot_helper_start() < 0) {
+            if (avahi_chroot_helper_start(argv0) < 0) {
                 avahi_log_error("failed to start chroot() helper daemon.");
                 goto finish;
             }
 #endif
         avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
 
+        avahi_set_proc_title("%s: starting up", argv0);
+        
         if (run_server(&config) == 0)
             r = 0;
     }
@@ -1139,5 +1161,7 @@ finish:
     avahi_chroot_helper_shutdown();
 #endif
 
+    avahi_free(argv0);
+    
     return r;
 }

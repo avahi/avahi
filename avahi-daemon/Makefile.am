@@ -50,7 +50,8 @@ avahi_daemon_SOURCES = \
 	main.c main.h \
 	simple-protocol.c simple-protocol.h \
 	static-services.c static-services.h \
-	ini-file-parser.c ini-file-parser.h
+	ini-file-parser.c ini-file-parser.h \
+	setproctitle.c setproctitle.h
 
 avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS)
 avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) -lexpat

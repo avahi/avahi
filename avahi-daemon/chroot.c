@@ -39,6 +39,7 @@
 
 #include "chroot.h"
 #include "caps.h"
+#include "setproctitle.h"
 
 enum {
     AVAHI_CHROOT_SUCCESS = 0,
@@ -286,7 +287,7 @@ fail:
     return ret;
 }
 
-int avahi_chroot_helper_start(void) {
+int avahi_chroot_helper_start(const char *argv0) {
     int sock[2];
     pid_t pid;
 
@@ -306,6 +307,8 @@ int avahi_chroot_helper_start(void) {
         
         /* Drop all remaining capabilities */
         avahi_caps_drop_all();
+
+        avahi_set_proc_title("%s: chroot helper process", argv0);
         
         close(sock[0]);
         helper_main(sock[1]);

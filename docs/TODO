@@ -6,9 +6,11 @@ for 0.6:
 * introduce AVAHI_CLIENT_FAILURE
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * add support for defining browsing domains with an option in avahi-daemon.onf
-* avahi-client: do something about letting the client know if the daemon comes back from a DISCONNECTED state
+* fix python scripts
+* add domain browsing to avahi-browse
 
 later:
+* avahi-client: do something about letting the client know if the daemon comes back from a DISCONNECTED state
 * add simplification routine for adding services 
 * implement avahi-utils in C
 * support for special domain PTR records based on local IP subnet address

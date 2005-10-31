@@ -78,7 +78,7 @@ void avahi_set_proc_title(const char *fmt,...) {
     char t[256];
 
     va_list ap;
-    va_start(ap);
+    va_start(ap, fmt);
     vsnprintf(t, sizeof(t), fmt, ap);
     va_end(ap);
 

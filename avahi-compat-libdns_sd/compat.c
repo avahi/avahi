@@ -33,6 +33,9 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>

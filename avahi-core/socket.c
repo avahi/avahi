@@ -30,7 +30,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/time.h>
-#include <net/if.h>
 #include <sys/ioctl.h>
 #include <assert.h>
 
@@ -38,6 +37,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <net/if.h>
 #include <sys/uio.h>
 
 #ifdef IP_RECVIF

@@ -7,7 +7,6 @@ for 0.6:
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * add support for defining browsing domains with an option in avahi-daemon.onf
 * fix python scripts
-* add domain browsing to avahi-browse
 * update man pages
 
 later:
@@ -106,3 +105,4 @@ done:
 * add support for subtypes in static services
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 * add service type database support to avahi-browse
+* add domain browsing to avahi-browse

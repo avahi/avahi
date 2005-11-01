@@ -50,7 +50,9 @@
 typedef enum {
     COMMAND_HELP,
     COMMAND_VERSION,
-    COMMAND_RUN
+    COMMAND_BROWSE_SERVICES,
+    COMMAND_BROWSE_ALL_SERVICES,
+    COMMAND_BROWSE_DOMAINS
 } Command;
 
 typedef struct Config {
@@ -60,7 +62,6 @@ typedef struct Config {
     char *domain;
     char *stype;
     int ignore_local;
-    int show_all;
     Command command;
     int resolve;
 #ifdef HAVE_GDBM
@@ -142,7 +143,8 @@ static void print_service_line(Config *config, char c, AvahiIfIndex interface, A
     
     printf("%c %4s %4s %-*s %-20s %s\n",
            c,
-           if_indextoname(interface, ifname), avahi_proto_to_string(protocol), 
+           interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
+           protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
            n_columns-35, name, type, domain);
 }
 
@@ -403,6 +405,74 @@ static void browse_all(Config *c) {
     n_all_for_now++;
 }
 
+static void domain_browser_callback(
+    AvahiDomainBrowser *b,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
+    AvahiBrowserEvent event,
+    const char *domain,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    void *userdata) {
+
+    Config *c = userdata;
+
+    assert(b);
+    assert(c);
+    
+    switch (event) {
+        
+        case AVAHI_BROWSER_NEW:
+        case AVAHI_BROWSER_REMOVE: {
+            char ifname[IF_NAMESIZE];
+            
+            printf("%c %4s %4s %s\n",
+                   event == AVAHI_BROWSER_NEW ? '+' : '-',
+                   interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
+                   protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
+                   domain);
+            break;
+        }
+
+        case AVAHI_BROWSER_FAILURE:
+            fprintf(stderr, "domain_browser failed: %s\n", avahi_strerror(avahi_client_errno(client)));
+            avahi_simple_poll_quit(simple_poll);
+            break;
+            
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            n_cache_exhausted --;
+            check_terminate(c);
+            break;
+            
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            n_all_for_now --;
+            check_terminate(c);
+            break;
+    }
+}
+
+static void browse_domains(Config *c) {
+    AvahiDomainBrowser *b;
+
+    assert(c);
+
+    if (!(b = avahi_domain_browser_new(
+              client,
+              AVAHI_IF_UNSPEC,
+              AVAHI_PROTO_UNSPEC,
+              c->domain,
+              AVAHI_DOMAIN_BROWSER_BROWSE,
+              0,
+              domain_browser_callback,
+              c))) {
+
+        fprintf(stderr, "avahi_domain_browser_new() failed: %s\n", avahi_strerror(avahi_client_errno(client)));
+        avahi_simple_poll_quit(simple_poll);
+    }
+
+    n_cache_exhausted++;
+    n_all_for_now++;
+}
+
 static void client_callback(AVAHI_GCC_UNUSED AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
     switch (state) {
         case AVAHI_CLIENT_DISCONNECTED:
@@ -419,50 +489,51 @@ static void client_callback(AVAHI_GCC_UNUSED AvahiClient *c, AvahiClientState st
 
 static void help(FILE *f, const char *argv0) {
     fprintf(f,
-            "%s [options] <type>\n"
-            "%s [options] -a\n\n"
-            "    -h --help          Show this help\n"
-            "    -V --version       Show version\n"
-            "    -d --domain=DOMAIN The domain to browse\n"
-            "    -a --all           Show all services, regardless of the type\n"
-            "    -v --verbose       Enable verbose mode\n"
-            "    -t --terminate     Terminate after getting or more or less complete list\n"
-            "    -c --cache         Terminate after dumping all entries from the cache\n"
-            "    -l --ignore-local  Ignore local services\n"
-            "    -r --resolve       Resolve services found\n"
+            "%s [options] <service type>\n"
+            "%s [options] -a\n"
+            "%s [options] -D\n\n"
+            "    -h --help            Show this help\n"
+            "    -V --version         Show version\n"
+            "    -D --browse-domains  Browse for browsing domains instead of services\n"
+            "    -a --all             Show all services, regardless of the type\n"
+            "    -d --domain=DOMAIN   The domain to browse in\n"
+            "    -v --verbose         Enable verbose mode\n"
+            "    -t --terminate       Terminate after dumping a more or less complete list\n"
+            "    -c --cache           Terminate after dumping all entries from the cache\n"
+            "    -l --ignore-local    Ignore local services\n"
+            "    -r --resolve         Resolve services found\n"
 #ifdef HAVE_GDBM
-            "    -k --no-db-lookup  Don't lookup service types\n"
+            "    -k --no-db-lookup    Don't lookup service types\n"
 #endif
-
-            , argv0, argv0);
+            , argv0, argv0, argv0);
 }
 
 static int parse_command_line(Config *c, int argc, char *argv[]) {
     int o;
 
     static const struct option long_options[] = {
-        { "help",         no_argument,       NULL, 'h' },
-        { "version",      no_argument,       NULL, 'V' },
-        { "domain",       required_argument, NULL, 'd' },
-        { "all",          no_argument,       NULL, 'a' },
-        { "verbose",      no_argument,       NULL, 'v' },
-        { "terminate",    no_argument,       NULL, 't' },
-        { "cache",        no_argument,       NULL, 'c' },
-        { "ignore-local", no_argument,       NULL, 'l' },
-        { "resolve",      no_argument,       NULL, 'r' },
+        { "help",           no_argument,       NULL, 'h' },
+        { "version",        no_argument,       NULL, 'V' },
+        { "browse-domains", no_argument,       NULL, 'D' },
+        { "domain",         required_argument, NULL, 'd' },
+        { "all",            no_argument,       NULL, 'a' },
+        { "verbose",        no_argument,       NULL, 'v' },
+        { "terminate",      no_argument,       NULL, 't' },
+        { "cache",          no_argument,       NULL, 'c' },
+        { "ignore-local",   no_argument,       NULL, 'l' },
+        { "resolve",        no_argument,       NULL, 'r' },
 #ifdef HAVE_GDBM
-        { "no-db-lookup", no_argument,       NULL, 'k' },
+        { "no-db-lookup",   no_argument,       NULL, 'k' },
 #endif
         { NULL, 0, NULL, 0 }
     };
 
     assert(c);
 
-    c->command = COMMAND_RUN;
+    c->command = COMMAND_BROWSE_SERVICES;
     c->verbose =
         c->terminate_on_cache_exhausted =
         c->terminate_on_all_for_now =
-        c->show_all =
         c->ignore_local =
         c->resolve = 0;
     c->domain = c->stype = NULL;
@@ -472,7 +543,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
 #endif
     
     opterr = 0;
-    while ((o = getopt_long(argc, argv, "hVd:avtclr"
+    while ((o = getopt_long(argc, argv, "hVd:avtclrD"
 #ifdef HAVE_GDBM
                             "k"
 #endif
@@ -485,11 +556,14 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
             case 'V':
                 c->command = COMMAND_VERSION;
                 break;
+            case 'a':
+                c->command = COMMAND_BROWSE_ALL_SERVICES;
+                break;
+            case 'D':
+                c->command = COMMAND_BROWSE_DOMAINS;
+                break;
             case 'd':
                 c->domain = avahi_strdup(optarg);
-                break;
-            case 'a':
-                c->show_all = 1;
                 break;
             case 'v':
                 c->verbose = 1;
@@ -517,7 +591,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
         }
     }
 
-    if (c->command == COMMAND_RUN && !c->show_all) {
+    if (c->command == COMMAND_BROWSE_SERVICES) {
         if (optind >= argc) {
             fprintf(stderr, "Too few arguments\n");
             return -1;
@@ -568,7 +642,9 @@ int main(int argc, char *argv[]) {
             ret = 0;
             break;
 
-        case COMMAND_RUN:
+        case COMMAND_BROWSE_SERVICES:
+        case COMMAND_BROWSE_ALL_SERVICES:
+        case COMMAND_BROWSE_DOMAINS:
             
             if (!(simple_poll = avahi_simple_poll_new())) {
                 fprintf(stderr, "Failed to create simple poll object.\n");
@@ -596,14 +672,22 @@ int main(int argc, char *argv[]) {
                     goto fail;
                 }
                 
-                fprintf(stderr, "Server version: %s; Host name: %s\n\n", version, hn);
-                fprintf(stderr, "E Ifce Prot %-*s %-20s Domain\n", n_columns-35, "Name", "Type");
+                fprintf(stderr, "Server version: %s; Host name: %s\n", version, hn);
+
+                if (config.command == COMMAND_BROWSE_DOMAINS)
+                    fprintf(stderr, "E Ifce Prot Domain\n");
+                else
+                    fprintf(stderr, "E Ifce Prot %-*s %-20s Domain\n", n_columns-35, "Name", "Type");
             }
-            
-            if (config.show_all)
-                browse_all(&config);
-            else
+
+            if (config.command == COMMAND_BROWSE_SERVICES)
                 browse_service_type(&config, config.stype, config.domain);
+            else if (config.command == COMMAND_BROWSE_ALL_SERVICES)
+                browse_all(&config);
+            else {
+                assert(config.command == COMMAND_BROWSE_DOMAINS);
+                browse_domains(&config);
+            }
             
             avahi_simple_poll_loop(simple_poll);
             ret = 0;

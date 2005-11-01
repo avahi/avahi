@@ -302,6 +302,10 @@ struct xml_userdata {
     char *buf;
 };
 
+#ifndef XMLCALL
+#define XMLCALL
+#endif
+
 static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
     struct xml_userdata *u = data;
     

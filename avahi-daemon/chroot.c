@@ -298,12 +298,14 @@ int avahi_chroot_helper_start(const char *argv0) {
         return -1;
     }
     
-    if ((pid = daemon_fork()) < 0) {
+    if ((pid = fork()) < 0) {
         close(sock[0]);
         close(sock[1]);
-        avahi_log_error(__FILE__": Failed to fork()");
+        avahi_log_error(__FILE__": fork() failed: %s", strerror(errno));
         return -1;
     } else if (pid == 0) {
+
+        setsid();
         
         /* Drop all remaining capabilities */
         avahi_caps_drop_all();

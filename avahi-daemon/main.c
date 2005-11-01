@@ -777,7 +777,7 @@ finish:
     
     simple_protocol_shutdown();
 
-#ifdef ENABLE_DBUS
+#ifdef HAVE_DBUS
     if (c->enable_dbus)
         dbus_protocol_shutdown();
 #endif
@@ -1160,7 +1160,7 @@ finish:
 #endif
     }
 
-#if ENABLE_CHROOT
+#ifdef ENABLE_CHROOT
     avahi_chroot_helper_shutdown();
 #endif
 

@@ -467,6 +467,7 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.use_iff_running = is_yes(p->value);
                 else if (strcasecmp(p->key, "disallow-other-stacks") == 0)
                     c->server_config.disallow_other_stacks = is_yes(p->value);
+#ifdef HAVE_DBUS
                 else if (strcasecmp(p->key, "enable-dbus") == 0) {
 
                     if (*(p->value) == 'w' || *(p->value) == 'W') {
@@ -478,7 +479,9 @@ static int load_config_file(DaemonConfig *c) {
                     } else {
                         c->enable_dbus = 0;
                     }
-                } else if (strcasecmp(p->key, "drop-root") == 0)
+                }
+#endif
+		else if (strcasecmp(p->key, "drop-root") == 0)
                     c->drop_root = is_yes(p->value);
                 else if (strcasecmp(p->key, "add-service-cookie") == 0)
                     c->server_config.add_service_cookie = is_yes(p->value);

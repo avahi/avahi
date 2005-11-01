@@ -102,25 +102,25 @@ static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv
     memcpy(&ret_sa->sin6_addr, a, sizeof(AvahiIPv6Address));
 }
 
+int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int join) {
 #ifdef HAVE_STRUCT_IP_MREQN
-int avahi_mdns_mcast_join_ipv4(int fd, int idx, int join) {
     struct ip_mreqn mreq;
 #else
-int avahi_mdns_mcast_join_ipv4(int fd, const AvahiAddress *a, int join) {
     struct ip_mreq mreq;
 #endif
-        
     struct sockaddr_in sa;
-    memset(&mreq, 0, sizeof(mreq));
 
+    assert(fd >= 0);
+    assert(idx >= 0);
+    assert(a);
+
+    memset(&mreq, 0, sizeof(mreq));
 #ifdef HAVE_STRUCT_IP_MREQN
     mreq.imr_ifindex = idx;
+    mreq.imr_address.s_addr = a->address;
 #else
-    assert(a);
-    assert(a->proto == AVAHI_PROTO_INET);
-    mreq.imr_interface.s_addr = a->data.ipv4.address;
+    mreq.imr_interface.s_addr = a->address;
 #endif
-    
     mdns_mcast_group_ipv4(&sa);
     mreq.imr_multiaddr = sa.sin_addr;
 
@@ -132,13 +132,16 @@ int avahi_mdns_mcast_join_ipv4(int fd, const AvahiAddress *a, int join) {
     return 0;
 }
 
-int avahi_mdns_mcast_join_ipv6(int fd, int idx, int join) {
+int avahi_mdns_mcast_join_ipv6(int fd, const AvahiIPv6Address *a, int idx, int join) {
     struct ipv6_mreq mreq6; 
     struct sockaddr_in6 sa6;
 
-    mdns_mcast_group_ipv6 (&sa6);
+    assert(fd >= 0);
+    assert(idx >= 0);
+    assert(a);
 
     memset(&mreq6, 0, sizeof(mreq6));
+    mdns_mcast_group_ipv6 (&sa6);
     mreq6.ipv6mr_multiaddr = sa6.sin6_addr;
     mreq6.ipv6mr_interface = idx;
 

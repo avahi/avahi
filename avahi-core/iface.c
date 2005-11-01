@@ -172,6 +172,88 @@ void avahi_interface_monitor_update_rrs(AvahiInterfaceMonitor *m, int remove_rrs
         avahi_hw_interface_update_rrs(hw, remove_rrs);
 }
 
+static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
+    char at[AVAHI_ADDRESS_STR_MAX];
+    assert(i);
+
+    assert((join && !i->mcast_joined) || (!join && i->mcast_joined));
+    
+    if (join) {
+        AvahiInterfaceAddress *a;
+
+        /* Look if there's an address with global scope */
+        for (a = i->addresses; a; a = a->address_next)
+            if (a->global_scope)
+                break;
+
+        /* No address with a global scope has been found, so let's use
+         * any. */
+        if (!a)
+            a = i->addresses;
+
+        /* Hmm, there is no address available. */
+        if (!a) {
+            avahi_log_warn(__FILE__": interface_mdns_mcast_join() called but no local address available."); 
+            return -1;
+        }
+
+        i->local_mcast_address = a->address;
+    }
+
+    avahi_log_info("%s mDNS multicast group on interface %s.%s with address %s",
+                   join ? "Joining" : "Leaving",
+                   i->hardware->name,
+                   avahi_proto_to_string(i->protocol),
+                   avahi_address_snprint(at, sizeof(at), &i->local_mcast_address));
+
+    if (i->protocol == AVAHI_PROTO_INET6) {
+        if (avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, &i->local_mcast_address.data.ipv6, i->hardware->index, join) < 0)
+            return -1;
+        
+    } else {
+        assert(i->protocol == AVAHI_PROTO_INET);
+            
+        if (avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &i->local_mcast_address.data.ipv4, i->hardware->index, join) < 0)
+            return -1;
+    }
+
+    i->mcast_joined = join;
+    return 0;
+}
+
+static int interface_mdns_mcast_rejoin(AvahiInterface *i) {
+    AvahiInterfaceAddress *a, *usable = NULL, *found = NULL;
+    assert(i);
+
+    if (!i->mcast_joined)
+        return 0;
+
+    /* Check whether old address we joined with is still available. If
+     * not, rejoin using an other address. */
+    
+    for (a = i->addresses; a; a = a->address_next) {
+        if (a->global_scope && !usable)
+            usable = a;
+        
+        if (avahi_address_cmp(&a->address, &i->local_mcast_address) == 0) {
+
+            if (a->global_scope)
+                /* No action necessary: the address still exists and
+                 * has global scope. */
+                return 0;
+
+            found = a;
+        }
+    }
+
+    if (found && !usable)
+        /* No action necessary: the address still exists and no better one has been found */
+        return 0;
+    
+    interface_mdns_mcast_join(i, 0);
+    return interface_mdns_mcast_join(i, 1);
+}
+
 void avahi_interface_address_free(AvahiInterfaceAddress *a) {
     assert(a);
     assert(a->interface);
@@ -181,6 +263,8 @@ void avahi_interface_address_free(AvahiInterfaceAddress *a) {
 
     if (a->entry_group)
         avahi_s_entry_group_free(a->entry_group);
+
+    interface_mdns_mcast_rejoin(a->interface);
     
     avahi_free(a);
 }
@@ -193,6 +277,9 @@ void avahi_interface_free(AvahiInterface *i, int send_goodbye) {
     avahi_response_scheduler_force(i->response_scheduler);
     assert(!i->announcers);
 
+    if (i->mcast_joined)
+        interface_mdns_mcast_join(i, 0);
+    
     /* Remove queriers */
     avahi_querier_free_all(i);
     avahi_hashmap_free(i->queriers_by_key);
@@ -246,6 +333,7 @@ AvahiInterface* avahi_interface_new(AvahiInterfaceMonitor *m, AvahiHwInterface *
     i->hardware = hw;
     i->protocol = protocol;
     i->announcing = 0;
+    i->mcast_joined = 0;
 
     AVAHI_LLIST_HEAD_INIT(AvahiInterfaceAddress, i->addresses);
     AVAHI_LLIST_HEAD_INIT(AvahiAnnouncer, i->announcers);
@@ -333,30 +421,6 @@ AvahiInterfaceAddress *avahi_interface_address_new(AvahiInterfaceMonitor *m, Ava
     return a;
 }
 
-static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
-
-    if (i->protocol == AVAHI_PROTO_INET6)
-        return avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, join);
-    else if (i->protocol == AVAHI_PROTO_INET) {
-
-#ifdef HAVE_STRUCT_IP_MREQN
-        return avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, join);
-
-#else
-        AvahiInterfaceAddress *ia;
-        int r = 0;
-
-        for (ia = i->addresses; ia; ia = ia->address_next)
-            r  |= avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &ia->address, join);
-
-        return r;
-#endif
-    }
-
-    abort();
-}
-
-
 void avahi_interface_check_relevant(AvahiInterface *i) {
     int b;
     AvahiInterfaceMonitor *m;
@@ -388,7 +452,9 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
         avahi_cache_flush(i->cache);
 
         i->announcing = 0;
-    }
+        
+    } else
+        interface_mdns_mcast_rejoin(i);
 }
 
 void avahi_hw_interface_check_relevant(AvahiHwInterface *hw) {

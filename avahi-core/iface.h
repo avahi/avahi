@@ -99,6 +99,8 @@ struct AvahiInterface {
     
     AvahiProtocol protocol;
     int announcing;
+    AvahiAddress local_mcast_address;
+    int mcast_joined;
 
     AvahiCache *cache;
 

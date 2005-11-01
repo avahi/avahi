@@ -287,7 +287,7 @@ static int new_line(const char *l) {
         AvahiIfIndex interface;
         AvahiProtocol protocol;
         int i_interface, i_protocol, port;
-        char a[64];
+        char a[AVAHI_ADDRESS_STR_MAX];
         
         assert(state == BROWSING); 
 
@@ -296,7 +296,7 @@ static int new_line(const char *l) {
             return -1;
         }
 
-        if (sscanf(l+1, "%i %i %64s %i", &i_interface, &i_protocol, a, &port) != 4) {
+        if (sscanf(l+1, "%i %i %39s %i", &i_interface, &i_protocol, a, &port) != 4) {
             daemon_log(LOG_ERR, "Failed to parse browsing line: %s", l);
             return -1;
         }

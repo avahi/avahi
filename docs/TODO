@@ -8,6 +8,7 @@ for 0.6:
 * add support for defining browsing domains with an option in avahi-daemon.onf
 * fix python scripts
 * add domain browsing to avahi-browse
+* update man pages
 
 later:
 * avahi-client: do something about letting the client know if the daemon comes back from a DISCONNECTED state

@@ -39,7 +39,7 @@
 #define DNSSD_API
 #endif
 
-#if defined(__FreeBSD_version) && (__FreeBSD_version < 500000)
+#if defined(__FreeBSD_version) && (__FreeBSD_version < 500000) || defined(__OpenBSD__)
 /* stdint.h does not exist on FreeBSD 4.x; its types are defined in sys/types.h instead */
 #include <sys/types.h>
 #elif defined(__sun__)

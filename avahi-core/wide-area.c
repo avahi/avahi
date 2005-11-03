@@ -27,6 +27,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <netinet/in.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
@@ -140,7 +141,7 @@ static int send_to_dns_server(AvahiWideAreaLookup *l, AvahiDnsPacket *p) {
         if (l->engine->fd_ipv4 < 0)
             return -1;
         
-        return avahi_send_dns_packet_ipv4(l->engine->fd_ipv4, AVAHI_IF_UNSPEC, p, &a->data.ipv4, AVAHI_DNS_PORT);
+        return avahi_send_dns_packet_ipv4(l->engine->fd_ipv4, AVAHI_IF_UNSPEC, p, NULL, &a->data.ipv4, AVAHI_DNS_PORT);
         
     } else {
         assert(a->proto == AVAHI_PROTO_INET6);
@@ -148,7 +149,7 @@ static int send_to_dns_server(AvahiWideAreaLookup *l, AvahiDnsPacket *p) {
         if (l->engine->fd_ipv6 < 0)
             return -1;
         
-        return avahi_send_dns_packet_ipv6(l->engine->fd_ipv6, AVAHI_IF_UNSPEC, p, &a->data.ipv6, AVAHI_DNS_PORT);
+        return avahi_send_dns_packet_ipv6(l->engine->fd_ipv6, AVAHI_IF_UNSPEC, p, NULL, &a->data.ipv6, AVAHI_DNS_PORT);
     }
 }
 
@@ -553,21 +554,13 @@ finish:
 
 static void socket_event(AVAHI_GCC_UNUSED AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent events, void *userdata) {
     AvahiWideAreaLookupEngine *e = userdata;
-    AvahiAddress a;
     AvahiDnsPacket *p = NULL;
     
-    if (fd == e->fd_ipv4) {
-        struct sockaddr_in sa;
-            
-        if ((p = avahi_recv_dns_packet_ipv4(e->fd_ipv4, &sa, NULL, NULL, NULL)))
-            avahi_address_from_sockaddr((struct sockaddr*) &sa, &a);
-            
-    } else if (fd == e->fd_ipv6) {
-        struct sockaddr_in6 sa6;
-        
-        if ((p = avahi_recv_dns_packet_ipv6(e->fd_ipv6, &sa6, NULL, NULL, NULL)))
-            avahi_address_from_sockaddr((struct sockaddr*) &sa6, &a);
-
+    if (fd == e->fd_ipv4)
+        p = avahi_recv_dns_packet_ipv4(e->fd_ipv4, NULL, NULL, NULL, NULL, NULL);
+    else {
+        assert(fd == e->fd_ipv6);
+        p = avahi_recv_dns_packet_ipv6(e->fd_ipv6, NULL, NULL, NULL, NULL, NULL);
     }
 
     if (p) {

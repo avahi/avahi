@@ -798,7 +798,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     avahi_elapse_time(&slot->elapse_time, 2000, 0);
     slot->time_event = avahi_time_event_new(s->time_event_queue, &slot->elapse_time, legacy_unicast_reflect_slot_timeout, slot);
 
-    /* Patch the packet with our new locally generatedt id */
+    /* Patch the packet with our new locally generatet id */
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->id);
     
     for (j = s->monitor->interfaces; j; j = j->interface_next)
@@ -807,47 +807,45 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
             (s->config.reflect_ipv || j->protocol == i->protocol)) {
 
             if (j->protocol == AVAHI_PROTO_INET && s->fd_legacy_unicast_ipv4 >= 0) {
-                avahi_send_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, j->hardware->index, p, NULL, 0);
-                } else if (j->protocol == AVAHI_PROTO_INET6 && s->fd_legacy_unicast_ipv6 >= 0)
-                avahi_send_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, j->hardware->index, p, NULL, 0);
+                avahi_send_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, j->hardware->index, p, NULL, NULL, 0);
+            } else if (j->protocol == AVAHI_PROTO_INET6 && s->fd_legacy_unicast_ipv6 >= 0)
+                avahi_send_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, j->hardware->index, p, NULL, NULL, 0);
         }
 
     /* Reset the id */
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->original_id);
 }
 
-static int originates_from_local_legacy_unicast_socket(AvahiServer *s, const struct sockaddr *sa) {
-    AvahiAddress a;
+static int originates_from_local_legacy_unicast_socket(AvahiServer *s, const AvahiAddress *address, uint16_t port) {
     assert(s);
-    assert(sa);
+    assert(address);
+    assert(port > 0);
 
     if (!s->config.enable_reflector)
         return 0;
     
-    avahi_address_from_sockaddr(sa, &a);
-
-    if (!avahi_address_is_local(s->monitor, &a))
+    if (!avahi_address_is_local(s->monitor, address))
         return 0;
     
-    if (sa->sa_family == AF_INET && s->fd_legacy_unicast_ipv4 >= 0) {
+    if (address->proto == AVAHI_PROTO_INET && s->fd_legacy_unicast_ipv4 >= 0) {
         struct sockaddr_in lsa;
         socklen_t l = sizeof(lsa);
         
         if (getsockname(s->fd_legacy_unicast_ipv4, (struct sockaddr*) &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
-            return lsa.sin_port == ((const struct sockaddr_in*) sa)->sin_port;
+            return lsa.sin_port == port;
 
     }
 
-    if (sa->sa_family == AF_INET6 && s->fd_legacy_unicast_ipv6 >= 0) {
+    if (address->proto == AVAHI_PROTO_INET6 && s->fd_legacy_unicast_ipv6 >= 0) {
         struct sockaddr_in6 lsa;
         socklen_t l = sizeof(lsa);
 
         if (getsockname(s->fd_legacy_unicast_ipv6, (struct sockaddr*) &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
-            return lsa.sin6_port == ((const struct sockaddr_in6*) sa)->sin6_port;
+            return lsa.sin6_port == port;
     }
 
     return 0;
@@ -873,19 +871,18 @@ static int originates_from_local_iface(AvahiServer *s, AvahiIfIndex iface, const
     return avahi_interface_has_address(s->monitor, iface, a);
 }
 
-static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, AvahiAddress *dest, AvahiIfIndex iface, int ttl) {
+static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddress *src_address, uint16_t port, const AvahiAddress *dst_address, AvahiIfIndex iface, int ttl) {
     AvahiInterface *i;
-    AvahiAddress a;
-    uint16_t port;
     int from_local_iface = 0;
     
     assert(s);
     assert(p);
-    assert(sa);
-    assert(dest);
+    assert(src_address);
+    assert(dst_address);
     assert(iface > 0);
+    assert(src_address->proto == dst_address->proto);
 
-    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, avahi_af_to_proto(sa->sa_family))) ||
+    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, src_address->proto)) ||
         !avahi_interface_is_relevant(i)) {
         avahi_log_warn("Recieved packet from invalid interface.");
         return;
@@ -893,20 +890,17 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
 
 /*     avahi_log_debug("new packet received on interface '%s.%i'.", i->hardware->name, i->protocol); */
 
-    port = avahi_port_from_sockaddr(sa);
-    avahi_address_from_sockaddr(sa, &a);
-    
-    if (avahi_address_is_ipv4_in_ipv6(&a))
+    if (avahi_address_is_ipv4_in_ipv6(src_address))
         /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
         return;
 
-    if (originates_from_local_legacy_unicast_socket(s, sa))
+    if (originates_from_local_legacy_unicast_socket(s, src_address, port))
         /* This originates from our local reflector, so let's ignore it */
         return;
 
     /* We don't want to reflect local traffic, so we check if this packet is generated locally. */
     if (s->config.enable_reflector)
-        from_local_iface = originates_from_local_iface(s, iface, &a, port);
+        from_local_iface = originates_from_local_iface(s, iface, src_address, port);
 
     if (avahi_dns_packet_check_valid_multicast(p) < 0) {
         avahi_log_warn("Recieved invalid packet.");
@@ -934,9 +928,9 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
         }
 
         if (legacy_unicast)
-            reflect_legacy_unicast_query_packet(s, p, i, &a, port);
+            reflect_legacy_unicast_query_packet(s, p, i, src_address, port);
         
-        handle_query_packet(s, p, i, &a, port, legacy_unicast, from_local_iface);
+        handle_query_packet(s, p, i, src_address, port, legacy_unicast, from_local_iface);
         
 /*         avahi_log_debug("Handled query"); */
     } else {
@@ -950,8 +944,8 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
             return;
         }
 
-        if (!is_mdns_mcast_address(dest) &&
-            !avahi_interface_address_on_link(i, &a)) {
+        if (!is_mdns_mcast_address(dst_address) &&
+            !avahi_interface_address_on_link(i, src_address)) {
             avahi_log_warn("Received non-local response on interface '%s.%i'.", i->hardware->name, i->protocol);
             return;
         }
@@ -963,34 +957,17 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sock
             return;
         }
 
-        handle_response_packet(s, p, i, &a, from_local_iface);
+        handle_response_packet(s, p, i, src_address, from_local_iface);
 /*         avahi_log_debug("Handled response"); */
     }
 }
 
-static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p, const struct sockaddr *sa, AvahiIfIndex iface) {
-    AvahiInterface *i, *j;
-    AvahiAddress a;
+static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p) {
+    AvahiInterface *j;
     AvahiLegacyUnicastReflectSlot *slot;
     
     assert(s);
     assert(p);
-    assert(sa);
-    assert(iface > 0);
-
-    if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, avahi_af_to_proto(sa->sa_family))) ||
-        !avahi_interface_is_relevant(i)) {
-        avahi_log_warn("Recieved packet from invalid interface.");
-        return;
-    }
-
-/*     avahi_log_debug("new legacy unicast packet received on interface '%s.%i'.", i->hardware->name, i->protocol); */
-
-    avahi_address_from_sockaddr(sa, &a);
-    
-    if (avahi_address_is_ipv4_in_ipv6(&a))
-        /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
-        return;
 
     if (avahi_dns_packet_check_valid(p) < 0 || avahi_dns_packet_is_query(p)) {
         avahi_log_warn("Recieved invalid packet.");
@@ -1023,52 +1000,63 @@ static void cleanup_dead(AvahiServer *s) {
     avahi_browser_cleanup(s);
 }
 
-static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *userdata) {
+static void mcast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *userdata) {
     AvahiServer *s = userdata;
-    AvahiAddress dest;
-    AvahiDnsPacket *p;
+    AvahiAddress dest, src;
+    AvahiDnsPacket *p = NULL;
     AvahiIfIndex iface;
+    uint16_t port;
     uint8_t ttl;
-    struct sockaddr_in sa;
-    struct sockaddr_in6 sa6;
 
     assert(w);
     assert(fd >= 0);
-
-    if (events & AVAHI_WATCH_IN) {
+    assert(events & AVAHI_WATCH_IN);
     
-        if (fd == s->fd_ipv4) {
-            dest.proto = AVAHI_PROTO_INET;
-            if ((p = avahi_recv_dns_packet_ipv4(s->fd_ipv4, &sa, &dest.data.ipv4, &iface, &ttl))) {
-                dispatch_packet(s, p, (struct sockaddr*) &sa, &dest, iface, ttl);
-                avahi_dns_packet_free(p);
-            }
-        } else if (fd == s->fd_ipv6) {
-            dest.proto = AVAHI_PROTO_INET6;
+    if (fd == s->fd_ipv4) {
+        dest.proto = src.proto = AVAHI_PROTO_INET;
+        p = avahi_recv_dns_packet_ipv4(s->fd_ipv4, &src.data.ipv4, &port, &dest.data.ipv4, &iface, &ttl);
+    } else {
+        assert(fd == s->fd_ipv6);
+        dest.proto = src.proto = AVAHI_PROTO_INET6;
+        p = avahi_recv_dns_packet_ipv6(s->fd_ipv6, &src.data.ipv6, &port, &dest.data.ipv6, &iface, &ttl);
+    }
+        
+    if (p) {
+        if (iface == AVAHI_IF_UNSPEC) 
+            iface = avahi_find_interface_for_address(s->monitor, &dest);
+        
+        if (iface != AVAHI_IF_UNSPEC)
+            dispatch_packet(s, p, &src, port, &dest, iface, ttl);
+        else
+            avahi_log_error("Incoming packet recieved on address that isn't local.");
 
-            if ((p = avahi_recv_dns_packet_ipv6(s->fd_ipv6, &sa6, &dest.data.ipv6, &iface, &ttl))) {
-                dispatch_packet(s, p, (struct sockaddr*) &sa6, &dest, iface, ttl);
-                avahi_dns_packet_free(p);
-            }
-        } else if (fd == s->fd_legacy_unicast_ipv4) {
-            dest.proto = AVAHI_PROTO_INET;
-            
-            if ((p = avahi_recv_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, &sa, &dest.data.ipv4, &iface, &ttl))) {
-                dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa, iface);
-                avahi_dns_packet_free(p);
-            }
-        } else if (fd == s->fd_legacy_unicast_ipv6) {
-            dest.proto = AVAHI_PROTO_INET6;
-            
-            if ((p = avahi_recv_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, &sa6, &dest.data.ipv6, &iface, &ttl))) {
-                dispatch_legacy_unicast_packet(s, p, (struct sockaddr*) &sa6, iface);
-                avahi_dns_packet_free(p);
-            }
-        }
+        avahi_dns_packet_free(p);
 
         cleanup_dead(s);
-    } else
-        abort();
+    }
+}
+
+static void legacy_unicast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *userdata) {
+    AvahiServer *s = userdata;
+    AvahiDnsPacket *p = NULL;
+
+    assert(w);
+    assert(fd >= 0);
+    assert(events & AVAHI_WATCH_IN);
+    
+    if (fd == s->fd_legacy_unicast_ipv4)
+        p = avahi_recv_dns_packet_ipv4(s->fd_legacy_unicast_ipv4, NULL, NULL, NULL, NULL, NULL);
+    else {
+        assert(fd == s->fd_legacy_unicast_ipv6);
+        p = avahi_recv_dns_packet_ipv6(s->fd_legacy_unicast_ipv6, NULL, NULL, NULL, NULL, NULL);
+    }
+
+    if (p) {
+        dispatch_legacy_unicast_packet(s, p);
+        avahi_dns_packet_free(p);
+
+        cleanup_dead(s);
+    }
 }
 
 static void server_set_state(AvahiServer *s, AvahiServerState state) {
@@ -1297,14 +1285,14 @@ static int setup_sockets(AvahiServer *s) {
         s->watch_legacy_unicast_ipv6 = NULL;
     
     if (s->fd_ipv4 >= 0)
-        s->watch_ipv4 = s->poll_api->watch_new(s->poll_api, s->fd_ipv4, AVAHI_WATCH_IN, socket_event, s);
+        s->watch_ipv4 = s->poll_api->watch_new(s->poll_api, s->fd_ipv4, AVAHI_WATCH_IN, mcast_socket_event, s);
     if (s->fd_ipv6 >= 0)
-        s->watch_ipv6 = s->poll_api->watch_new(s->poll_api, s->fd_ipv6, AVAHI_WATCH_IN, socket_event, s);
+        s->watch_ipv6 = s->poll_api->watch_new(s->poll_api, s->fd_ipv6, AVAHI_WATCH_IN, mcast_socket_event, s);
     
     if (s->fd_legacy_unicast_ipv4 >= 0)
-        s->watch_legacy_unicast_ipv4 = s->poll_api->watch_new(s->poll_api, s->fd_legacy_unicast_ipv4, AVAHI_WATCH_IN, socket_event, s);
+        s->watch_legacy_unicast_ipv4 = s->poll_api->watch_new(s->poll_api, s->fd_legacy_unicast_ipv4, AVAHI_WATCH_IN, legacy_unicast_socket_event, s);
     if (s->fd_legacy_unicast_ipv6 >= 0)
-        s->watch_legacy_unicast_ipv6 = s->poll_api->watch_new(s->poll_api, s->fd_legacy_unicast_ipv6, AVAHI_WATCH_IN, socket_event, s);
+        s->watch_legacy_unicast_ipv6 = s->poll_api->watch_new(s->poll_api, s->fd_legacy_unicast_ipv6, AVAHI_WATCH_IN, legacy_unicast_socket_event, s);
             
     return 0;
 }

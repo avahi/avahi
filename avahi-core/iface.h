@@ -186,4 +186,6 @@ int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a);
 
 AvahiInterfaceAddress* avahi_interface_monitor_get_address(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr);
 
+AvahiIfIndex avahi_find_interface_for_address(AvahiInterfaceMonitor *m, const AvahiAddress *a);
+
 #endif

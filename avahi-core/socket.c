@@ -48,6 +48,7 @@
 #include "fdutil.h"
 #include "socket.h"
 #include "log.h"
+#include "addr-util.h"
 
 /* this is a portability hack */
 #ifndef IPV6_ADD_MEMBERSHIP
@@ -449,24 +450,24 @@ static int sendmsg_loop(int fd, struct msghdr *msg, int flags) {
     return 0;
 }
 
-int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const AvahiIPv4Address *a, uint16_t port) {
+int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p, const AvahiIPv4Address *src_address, const AvahiIPv4Address *dst_address, uint16_t dst_port) {
     struct sockaddr_in sa;
     struct msghdr msg;
     struct iovec io;
 #ifdef IP_PKTINFO
     struct cmsghdr *cmsg;
-    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct in_pktinfo)];
+    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_pktinfo))];
 #endif
 
     assert(fd >= 0);
     assert(p);
     assert(avahi_dns_packet_check_valid(p) >= 0);
-    assert(!a || port > 0);
+    assert(!dst_address || dst_port > 0);
 
-    if (!a)
+    if (!dst_address)
         mdns_mcast_group_ipv4(&sa);
     else
-        ipv4_address_to_sockaddr(&sa, a, port);
+        ipv4_address_to_sockaddr(&sa, dst_address, dst_port);
 
     memset(&io, 0, sizeof(io));
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
@@ -482,51 +483,56 @@ int avahi_send_dns_packet_ipv4(int fd, int interface, AvahiDnsPacket *p, const A
     msg.msg_controllen = 0;
 
 #ifdef IP_PKTINFO
-    if (interface >= 0) {
+    if (interface > 0 || src_address) {
         struct in_pktinfo *pkti;
         
         memset(cmsg_data, 0, sizeof(cmsg_data));
         cmsg = (struct cmsghdr*) cmsg_data;
-        cmsg->cmsg_len = sizeof(cmsg_data);
+        cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_pktinfo));
         cmsg->cmsg_level = IPPROTO_IP;
         cmsg->cmsg_type = IP_PKTINFO;
 
-        pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
-        pkti->ipi_ifindex = interface;
+        pkti = (struct in_pktinfo*) CMSG_DATA(cmsg);
+
+        if (interface > 0) 
+            pkti->ipi_ifindex = interface;
+
+        if (src_address)
+            pkti->ipi_spec_dst.s_addr = src_address->address;
 
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     }
 #else
 #ifdef __GNUC__
-#warning "FIXME: We need some code to set the outgoing interface here if IP_PKTINFO is not available"
+#warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO is not available"
 #endif
 #endif
     
     return sendmsg_loop(fd, &msg, 0);
 }
 
-int avahi_send_dns_packet_ipv6(int fd, int interface, AvahiDnsPacket *p, const AvahiIPv6Address *a, uint16_t port) {
+int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p, const AvahiIPv6Address *src_address, const AvahiIPv6Address *dst_address, uint16_t dst_port) {
     struct sockaddr_in6 sa;
     struct msghdr msg;
     struct iovec io;
     struct cmsghdr *cmsg;
-    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct in6_pktinfo)];
+    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in6_pktinfo))];
 
     assert(fd >= 0);
     assert(p);
     assert(avahi_dns_packet_check_valid(p) >= 0);
+    assert(!dst_address || dst_port > 0);
 
-    if (!a)
+    if (!dst_address)
         mdns_mcast_group_ipv6(&sa);
     else
-        ipv6_address_to_sockaddr(&sa, a, port);
+        ipv6_address_to_sockaddr(&sa, dst_address, dst_port);
 
     memset(&io, 0, sizeof(io));
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
     io.iov_len = p->size;
 
-    
     memset(&msg, 0, sizeof(msg));
     msg.msg_name = &sa;
     msg.msg_namelen = sizeof(sa);
@@ -534,17 +540,22 @@ int avahi_send_dns_packet_ipv6(int fd, int interface, AvahiDnsPacket *p, const A
     msg.msg_iovlen = 1;
     msg.msg_flags = 0;
 
-    if (interface >= 0) {
+    if (interface > 0 || src_address) {
         struct in6_pktinfo *pkti;
     
         memset(cmsg_data, 0, sizeof(cmsg_data));
         cmsg = (struct cmsghdr*) cmsg_data;
-        cmsg->cmsg_len = sizeof(cmsg_data);
+        cmsg->cmsg_len = CMSG_LEN(sizeof(struct in6_pktinfo));
         cmsg->cmsg_level = IPPROTO_IPV6;
         cmsg->cmsg_type = IPV6_PKTINFO;
         
-        pkti = (struct in6_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
-        pkti->ipi6_ifindex = interface;
+        pkti = (struct in6_pktinfo*) CMSG_DATA(cmsg);
+
+        if (interface > 0)
+            pkti->ipi6_ifindex = interface;
+
+        if (src_address)
+            memcpy(&pkti->ipi6_addr, src_address->address, sizeof(src_address->address));
         
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
@@ -556,15 +567,16 @@ int avahi_send_dns_packet_ipv6(int fd, int interface, AvahiDnsPacket *p, const A
     return sendmsg_loop(fd, &msg, 0);
 }
 
-AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, AvahiIPv4Address *ret_dest_address, int *ret_iface, uint8_t* ret_ttl) {
+AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_address, uint16_t *ret_src_port, AvahiIPv4Address *ret_dst_address, AvahiIfIndex *ret_iface, uint8_t *ret_ttl) {
     AvahiDnsPacket *p= NULL;
     struct msghdr msg;
     struct iovec io;
     uint8_t aux[1024];
     ssize_t l;
     struct cmsghdr *cmsg;
-    int found_iface = 0, found_addr = 0;
+    int found_addr = 0;
     int ms;
+    struct sockaddr_in sa;
 
     assert(fd >= 0);
 
@@ -579,13 +591,8 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
     io.iov_len = p->max_size;
     
     memset(&msg, 0, sizeof(msg));
-    if (ret_sa) {
-        msg.msg_name = ret_sa;
-        msg.msg_namelen = sizeof(struct sockaddr_in);
-    } else {
-        msg.msg_name = NULL;
-        msg.msg_namelen = 0;
-    }
+    msg.msg_name = &sa;
+    msg.msg_namelen = sizeof(sa);
     msg.msg_iov = &io;
     msg.msg_iovlen = 1;
     msg.msg_control = aux;
@@ -597,23 +604,35 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
         goto fail;
     }
 
-    if (ret_sa && ret_sa->sin_addr.s_addr == INADDR_ANY) {
+    if (sa.sin_addr.s_addr == INADDR_ANY) {
         /* Linux 2.4 behaves very strangely sometimes! */
-
-        /*avahi_hexdump(AVAHI_DNS_PACKET_DATA(p), l); */
         goto fail;
     }
-    
+
     assert(!(msg.msg_flags & MSG_CTRUNC));
     assert(!(msg.msg_flags & MSG_TRUNC));
+
     p->size = (size_t) l;
+
+    if (ret_src_port)
+        *ret_src_port = avahi_port_from_sockaddr((struct sockaddr*) &sa);
+
+    if (ret_src_address) {
+        AvahiAddress a;
+        avahi_address_from_sockaddr((struct sockaddr*) &sa, &a);
+        *ret_src_address = a.data.ipv4;
+    }
 
     if (ret_ttl)
         *ret_ttl = 255;
+
+    if (ret_iface)
+        *ret_iface = AVAHI_IF_UNSPEC;
     
     for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
         
         if (cmsg->cmsg_level == IPPROTO_IP) {
+            
             switch (cmsg->cmsg_type) {
 #ifdef IP_RECVTTL
                 case IP_RECVTTL:
@@ -631,21 +650,22 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
                     if (ret_iface)
                         *ret_iface = (int) i->ipi_ifindex;
                     
-                    if (ret_dest_address)
-                        ret_dest_address->address = i->ipi_addr.s_addr;
+                    if (ret_dst_address)
+                        ret_dst_address->address = i->ipi_addr.s_addr;
                     
-                    found_addr = found_iface = 1;
+                    found_addr = 1;
 
                     break;
                 }
-#elif defined(IP_RECVIF)
+#endif
+                    
+#ifdef IP_RECVIF
                 case IP_RECVIF: {
                     struct sockaddr_dl *sdl = (struct sockaddr_dl *) CMSG_DATA (cmsg);
                     
                     if (ret_iface)
                         *ret_iface = (int) sdl->sdl_index;
-                    
-                    found_iface = 1;
+
                     break;
                 }
 #endif
@@ -654,9 +674,9 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
                 case IP_RECVDSTADDR:
                     if (ret_dest_address)
                         memcpy(&ret_dest_address->address, CMSG_DATA (cmsg), 4);
+                    
                     found_addr = 1;
                     break;
-                    
 #endif
                     
                 default:
@@ -666,7 +686,6 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv4(int fd, struct sockaddr_in *ret_sa, A
         }
     }
 
-    assert(found_iface);
     assert(found_addr);
 
     return p;
@@ -678,7 +697,7 @@ fail:
     return NULL;
 }
 
-AvahiDnsPacket* avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6 *ret_sa, AvahiIPv6Address *ret_dest_address, int *ret_iface, uint8_t* ret_ttl) {
+AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_address, uint16_t *ret_src_port, AvahiIPv6Address *ret_dst_address, AvahiIfIndex *ret_iface, uint8_t *ret_ttl) {
     AvahiDnsPacket *p = NULL;
     struct msghdr msg;
     struct iovec io;
@@ -687,6 +706,7 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6 *ret_sa, 
     int ms;
     struct cmsghdr *cmsg;
     int found_ttl = 0, found_iface = 0;
+    struct sockaddr_in6 sa;
 
     assert(fd >= 0);
 
@@ -701,13 +721,8 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6 *ret_sa, 
     io.iov_len = p->max_size;
     
     memset(&msg, 0, sizeof(msg));
-    if (ret_sa) {
-        msg.msg_name = ret_sa;
-        msg.msg_namelen = sizeof(struct sockaddr_in6);
-    } else {
-        msg.msg_name = NULL;
-        msg.msg_namelen = 0;
-    }
+    msg.msg_name = (struct sockaddr*) &sa;
+    msg.msg_namelen = sizeof(sa);
     
     msg.msg_iov = &io;
     msg.msg_iovlen = 1;
@@ -720,30 +735,52 @@ AvahiDnsPacket* avahi_recv_dns_packet_ipv6(int fd, struct sockaddr_in6 *ret_sa, 
         goto fail;
     }
 
+    assert(!(msg.msg_flags & MSG_CTRUNC));
+    assert(!(msg.msg_flags & MSG_TRUNC));
+ 
     p->size = (size_t) l;
 
-    if (ret_ttl)
-        *ret_ttl = 0;
+    if (ret_src_port)
+        *ret_src_port = avahi_port_from_sockaddr((struct sockaddr*) &sa);
+
+    if (ret_src_address) {
+        AvahiAddress a;
+        avahi_address_from_sockaddr((struct sockaddr*) &sa, &a);
+        *ret_src_address = a.data.ipv6;
+    }
 
     for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-        if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_HOPLIMIT) {
 
-            if (ret_ttl)
-                *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
-            
-            found_ttl = 1;
-        }
-            
-        if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO) {
-            struct in6_pktinfo *i = (struct in6_pktinfo*) CMSG_DATA(cmsg);
+        if (cmsg->cmsg_level == IPPROTO_IPV6) {
 
-            if (ret_iface)
-                *ret_iface = i->ipi6_ifindex;
+            switch (cmsg->cmsg_type) {
 
-            if (ret_dest_address)
-                memcpy(ret_dest_address->address, i->ipi6_addr.s6_addr, 16);
-            
-            found_iface = 1;
+                case IPV6_HOPLIMIT:
+
+                    if (ret_ttl)
+                        *ret_ttl = (uint8_t) (*(int *) CMSG_DATA(cmsg));
+
+                    found_ttl = 1;
+                    
+                    break;
+
+                case IPV6_PKTINFO: {
+                    struct in6_pktinfo *i = (struct in6_pktinfo*) CMSG_DATA(cmsg);
+                    
+                    if (ret_iface)
+                        *ret_iface = i->ipi6_ifindex;
+                    
+                    if (ret_dst_address)
+                        memcpy(ret_dst_address->address, i->ipi6_addr.s6_addr, 16);
+
+                    found_iface = 1;
+                    break;
+                }
+                    
+                default:
+                    avahi_log_warn("Unhandled cmsg_type : %d", cmsg->cmsg_type);
+                    break;
+            }
         }
     }
 

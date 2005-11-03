@@ -27,7 +27,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -571,9 +571,9 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
 /*         avahi_log_debug("multicast sending on '%s.%i'", i->hardware->name, i->protocol); */
     
     if (i->protocol == AVAHI_PROTO_INET && i->monitor->server->fd_ipv4 >= 0)
-        avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, a ? &a->data.ipv4 : NULL, port);
+        avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, i->mcast_joined ? &i->local_mcast_address.data.ipv4 : NULL, a ? &a->data.ipv4 : NULL, port);
     else if (i->protocol == AVAHI_PROTO_INET6 && i->monitor->server->fd_ipv6 >= 0)
-        avahi_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p, a ? &a->data.ipv6 : NULL, port);
+        avahi_send_dns_packet_ipv6(i->monitor->server->fd_ipv6, i->hardware->index, p, i->mcast_joined ? &i->local_mcast_address.data.ipv6 : NULL, a ? &a->data.ipv6 : NULL, port);
 }
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p) {
@@ -792,4 +792,28 @@ int avahi_interface_has_address(AvahiInterfaceMonitor *m, AvahiIfIndex iface, co
             return 1;
 
     return 0;
+}
+
+AvahiIfIndex avahi_find_interface_for_address(AvahiInterfaceMonitor *m, const AvahiAddress *a) {
+    AvahiInterface *i;
+    assert(m);
+
+    /* Some stupid OS don't support passing the interface index when a
+     * packet is recieved. We have to work around that limitation by
+     * looking for an interface that has the incoming address
+     * attached. This is sometimes ambiguous, but we have to live with
+     * it. */
+
+    for (i = m->interfaces; i; i = i->interface_next) {
+        AvahiInterfaceAddress *ai;
+
+        if (i->protocol != a->proto)
+            continue;
+        
+        for (ai = i->addresses; ai; ai = ai->address_next)
+            if (avahi_address_cmp(a, &ai->address) == 0)
+                return i->hardware->index;
+    }
+
+    return AVAHI_IF_UNSPEC;
 }

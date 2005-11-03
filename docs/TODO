@@ -2,7 +2,6 @@ for 0.6:
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
 * Add static host configuration like static services [lathiat]
-* always set source address for outgoing packets
 * introduce AVAHI_CLIENT_FAILURE
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * add support for defining browsing domains with an option in avahi-daemon.onf
@@ -106,3 +105,4 @@ done:
 * wrap avahi_server_add_record() via DBUS and in avahi-client [lathiat]
 * add service type database support to avahi-browse
 * add domain browsing to avahi-browse
+* always set source address for outgoing packets

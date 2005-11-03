@@ -508,7 +508,7 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
 #warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO is not available"
 #endif
 #endif
-    
+
     return sendmsg_loop(fd, &msg, 0);
 }
 
@@ -672,8 +672,8 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_add
             
 #ifdef IP_RECVDSTADDR
                 case IP_RECVDSTADDR:
-                    if (ret_dest_address)
-                        memcpy(&ret_dest_address->address, CMSG_DATA (cmsg), 4);
+                    if (ret_dst_address)
+                        memcpy(&ret_dst_address->address, CMSG_DATA (cmsg), 4);
                     
                     found_addr = 1;
                     break;

@@ -1528,6 +1528,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->enable_wide_area = 0;
     c->n_wide_area_servers = 0;
     c->disallow_other_stacks = 0;
+    c->browse_domains = NULL;
     
     return c;
 }
@@ -1537,10 +1538,12 @@ void avahi_server_config_free(AvahiServerConfig *c) {
 
     avahi_free(c->host_name);
     avahi_free(c->domain_name);
+    avahi_string_list_free(c->browse_domains);
 }
 
 AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c) {
     char *d = NULL, *h = NULL;
+    AvahiStringList *l = NULL;
     assert(ret);
     assert(c);
 
@@ -1553,10 +1556,17 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
             avahi_free(h);
             return NULL;
         }
+
+    if (!(l = avahi_string_list_copy(c->browse_domains)) && c->browse_domains) {
+        avahi_free(h);
+        avahi_free(d);
+        return NULL;
+    }
     
     *ret = *c;
     ret->host_name = h;
     ret->domain_name = d;
+    ret->browse_domains = l;
 
     return ret;
 }

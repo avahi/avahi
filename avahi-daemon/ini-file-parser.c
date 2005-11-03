@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-core/log.h>
@@ -155,9 +156,16 @@ char** avahi_split_csv(const char *t) {
     i = r = avahi_new(char*, n_comma+2);
 
     for (;;) {
-        size_t l = strcspn(t, ",");
+        size_t n, l = strcspn(t, ",");
+        const char *c;
 
-        *(i++) = avahi_strndup(t, l);
+        /* Ignore leading blanks */
+        for (c = t, n = l; isblank(*c); c++, n--);
+
+        /* Ignore trailing blanks */
+        for (; n > 0 && isblank(c[n-1]); n--);
+
+        *(i++) = avahi_strndup(c, n);
 
         t += l;
 

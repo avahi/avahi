@@ -29,10 +29,10 @@ namespace Avahi
                                                   IntPtr domain, LookupResultFlags flags, IntPtr userdata);
 
     public enum DomainBrowserType {
-        Register,
-        RegisterDefault,
         Browse,
         BrowseDefault,
+        Register,
+        RegisterDefault,
         BrowseLegacy
     }
 

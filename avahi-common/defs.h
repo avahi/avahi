@@ -156,10 +156,10 @@ typedef enum {
 
 /** The type of domain to browse for */
 typedef enum {
-    AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
-    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
     AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
     AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT,    /**< Browse for the default browsing domain */
+    AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
+    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
     AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY,     /**< Legacy browse domain - see DNS-SD spec for more information */
     AVAHI_DOMAIN_BROWSER_MAX
 } AvahiDomainBrowserType;
@@ -189,7 +189,8 @@ typedef enum {
     AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,      /**< This response originates from wide area DNS */
     AVAHI_LOOKUP_RESULT_MULTICAST = 4,      /**< This response originates from multicast DNS */
     AVAHI_LOOKUP_RESULT_LOCAL = 8,          /**< This record/service resides on and was announced by the local host. Only available in service and record browsers and only on AVAHI_BROWSER_NEW. */
-    AVAHI_LOOKUP_RESULT_OUR_OWN = 16        /**< This service belongs to the same local client as the browser object. Only available in avahi-client, and only for service browsers and only on AVAHI_BROWSER_NEW. */
+    AVAHI_LOOKUP_RESULT_OUR_OWN = 16,       /**< This service belongs to the same local client as the browser object. Only available in avahi-client, and only for service browsers and only on AVAHI_BROWSER_NEW. */
+    AVAHI_LOOKUP_RESULT_STATIC = 32         /**< The returned data has been defined statically by some configuration option */
 } AvahiLookupResultFlags;
 
 /** Type of callback event when browsing */

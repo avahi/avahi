@@ -157,6 +157,8 @@ struct AvahiServer {
 
     AvahiMulticastLookupEngine *multicast_lookup_engine;
     AvahiWideAreaLookupEngine *wide_area_lookup_engine;
+
+    AvahiStringList *static_browse_domains;
 };
 
 void avahi_entry_free(AvahiServer*s, AvahiEntry *e);

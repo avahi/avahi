@@ -299,7 +299,10 @@ AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
     AvahiStringList *r = NULL;
 
     for (; l; l = l->next)
-        r = avahi_string_list_add_arbitrary(r, l->text, l->size);
+        if (!(r = avahi_string_list_add_arbitrary(r, l->text, l->size))) {
+            avahi_string_list_free(r);
+            return NULL;
+        }
 
     return avahi_string_list_reverse(r);
 }

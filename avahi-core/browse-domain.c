@@ -28,17 +28,32 @@
 #include <avahi-common/error.h>
 
 #include "browse.h"
+#include "log.h"
 
 struct AvahiSDomainBrowser {
+    int ref;
+    
     AvahiServer *server;
     
     AvahiSRecordBrowser *record_browser;
-    
+
+    AvahiDomainBrowserType type;
     AvahiSDomainBrowserCallback callback;
     void* userdata;
 
+    AvahiTimeEvent *defer_event;
+
+    int all_for_now_scheduled;
+    
     AVAHI_LLIST_FIELDS(AvahiSDomainBrowser, browser);
 };
+
+static void inc_ref(AvahiSDomainBrowser *b) {
+    assert(b);
+    assert(b->ref >= 1);
+
+    b->ref++;
+}
 
 static void record_browser_callback(
     AvahiSRecordBrowser*rr,
@@ -55,15 +70,67 @@ static void record_browser_callback(
     assert(rr);
     assert(b);
 
+    if (event == AVAHI_BROWSER_ALL_FOR_NOW &&
+        b->defer_event) {
+
+        b->all_for_now_scheduled = 1;
+        return;
+    }
+    
     /* Filter flags */
     flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
-    
+
     if (record) {
         assert(record->key->type == AVAHI_DNS_TYPE_PTR);
         n = record->data.ptr.name;
+
+        if (b->type == AVAHI_DOMAIN_BROWSER_BROWSE) {
+            AvahiStringList *l;
+
+            /* Filter out entries defined statically */
+            
+            for (l = b->server->config.browse_domains; l; l = l->next)
+                if (avahi_domain_equal((char*) l->text, n))
+                    return;
+        }
+        
     }
         
     b->callback(b, interface, protocol, event, n, flags, b->userdata);
+}
+
+static void defer_callback(AvahiTimeEvent *e, void *userdata) {
+    AvahiSDomainBrowser *b = userdata;
+    AvahiStringList *l;
+    
+    assert(e);
+    assert(b);
+
+    avahi_time_event_free(b->defer_event);
+    b->defer_event = NULL;
+
+    /* Increase ref counter */
+    inc_ref(b);
+
+    for (l = b->server->config.browse_domains; l; l = l->next) {
+
+        /* Check whether this object still exists outside our own
+         * stack frame */
+        if (b->ref <= 1)
+            break;
+
+        b->callback(b, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_BROWSER_NEW, (char*) l->text, AVAHI_LOOKUP_RESULT_STATIC, b->userdata);
+    }
+
+    if (b->ref > 1) {
+        /* If the ALL_FOR_NOW event has already been scheduled, execute it now */
+        
+        if (b->all_for_now_scheduled) 
+            b->callback(b, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_BROWSER_ALL_FOR_NOW, NULL, 0, b->userdata);
+    }
+    
+    /* Decrease ref counter */
+    avahi_s_domain_browser_free(b);
 }
 
 AvahiSDomainBrowser *avahi_s_domain_browser_new(
@@ -77,10 +144,10 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
     void* userdata) {
 
     static const char * const type_table[AVAHI_DOMAIN_BROWSER_MAX] = {
-        "r",
-        "dr",
         "b",
         "db",
+        "r",
+        "dr",
         "lb"
     };
     
@@ -110,11 +177,14 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
-    
+
+    b->ref = 1;
     b->server = server;
     b->callback = callback;
     b->userdata = userdata;
     b->record_browser = NULL;
+    b->type = type;
+    b->all_for_now_scheduled = 0;
 
     AVAHI_LLIST_PREPEND(AvahiSDomainBrowser, browser, server->domain_browsers, b);
 
@@ -127,6 +197,9 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
         goto fail;
     
     avahi_key_unref(k);
+
+    b->defer_event = avahi_time_event_new(server->time_event_queue, NULL, defer_callback, b);
+    
     return b;
     
 fail:
@@ -142,10 +215,17 @@ fail:
 void avahi_s_domain_browser_free(AvahiSDomainBrowser *b) {
     assert(b);
 
+    assert(b->ref >= 1);
+    if (--b->ref > 0)
+        return;
+    
     AVAHI_LLIST_REMOVE(AvahiSDomainBrowser, browser, b->server->domain_browsers, b);
 
     if (b->record_browser)
         avahi_s_record_browser_free(b->record_browser);
+
+    if (b->defer_event)
+        avahi_time_event_free(b->defer_event);
     
     avahi_free(b);
 }

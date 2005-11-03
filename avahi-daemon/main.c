@@ -50,6 +50,7 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
 #include <avahi-common/alternative.h>
+#include <avahi-common/domain.h>
 
 #include <avahi-core/core.h>
 #include <avahi-core/publish.h>
@@ -457,6 +458,24 @@ static int load_config_file(DaemonConfig *c) {
                 } else if (strcasecmp(p->key, "domain-name") == 0) {
                     avahi_free(c->server_config.domain_name);
                     c->server_config.domain_name = avahi_strdup(p->value);
+                } else if (strcasecmp(p->key, "browse-domains") == 0) {
+                    char **e, **t;
+
+                    e = avahi_split_csv(p->value);
+                    
+                    for (t = e; *t; t++) {
+                        char cleaned[AVAHI_DOMAIN_NAME_MAX];
+
+                        if (!avahi_normalize_name(*t, cleaned, sizeof(cleaned))) {
+                            avahi_log_error("Invalid domain name \"%s\" for key \"%s\" in group \"%s\"\n", *t, p->key, g->name);
+                            avahi_strfreev(e);
+                            goto finish;
+                        }
+
+                        c->server_config.browse_domains = avahi_string_list_add(c->server_config.browse_domains, cleaned);
+                    }
+                    
+                    avahi_strfreev(e);
                 } else if (strcasecmp(p->key, "use-ipv4") == 0)
                     c->server_config.use_ipv4 = is_yes(p->value);
                 else if (strcasecmp(p->key, "use-ipv6") == 0)
@@ -481,10 +500,6 @@ static int load_config_file(DaemonConfig *c) {
                     }
                 }
 #endif
-		else if (strcasecmp(p->key, "drop-root") == 0)
-                    c->drop_root = is_yes(p->value);
-                else if (strcasecmp(p->key, "add-service-cookie") == 0)
-                    c->server_config.add_service_cookie = is_yes(p->value);
                 else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;
@@ -506,9 +521,11 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.publish_domain = is_yes(p->value);
                 else if (strcasecmp(p->key, "publish-resolv-conf-dns-servers") == 0)
                     c->publish_resolv_conf = is_yes(p->value);
+                else if (strcasecmp(p->key, "add-service-cookie") == 0)
+                    c->server_config.add_service_cookie = is_yes(p->value);
                 else if (strcasecmp(p->key, "publish-dns-servers") == 0) {
                     avahi_strfreev(c->publish_dns_servers);
-                    c->publish_dns_servers = avahi_split_csv(p->value);
+                    c->publish_dns_servers = avahi_split_csv(p->value); 
                 } else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;

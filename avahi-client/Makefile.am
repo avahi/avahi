@@ -33,7 +33,8 @@ if ENABLE_TESTS
 
 noinst_PROGRAMS = \
 	client-test \
-	srv-test
+	srv-test \
+	xdg-config-test
 
 endif
 
@@ -44,7 +45,8 @@ libavahi_client_la_SOURCES = \
 	entrygroup.c \
 	browser.c \
 	resolver.c \
-	publish.h lookup.h
+	publish.h lookup.h \
+	xdg-config.c xdg-config.h
 
 libavahi_client_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DDBUS_SYSTEM_BUS_DEFAULT_ADDRESS=\"$(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)\"
 libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-common-pic.la
@@ -57,5 +59,9 @@ client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-comm
 srv_test_SOURCES = srv-test.c
 srv_test_CFLAGS = $(AM_CFLAGS) 
 srv_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
+
+xdg_config_test_SOURCES = xdg-config-test.c xdg-config.c xdg-config.h
+xdg_config_test_CFLAGS = $(AM_CFLAGS) 
+xdg_config_test_LDADD = $(AM_LDADD)
 
 endif

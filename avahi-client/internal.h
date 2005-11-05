@@ -61,6 +61,8 @@ struct AvahiEntryGroup {
 };
 
 struct AvahiDomainBrowser {
+    int ref;
+    
     char *path;
     AvahiClient *client;
     AvahiDomainBrowserCallback callback;
@@ -69,6 +71,10 @@ struct AvahiDomainBrowser {
 
     AvahiIfIndex interface;
     AvahiProtocol protocol;
+
+    AvahiTimeout *defer_timeout;
+
+    AvahiStringList *static_browse_domains;
 };
 
 struct AvahiServiceBrowser {

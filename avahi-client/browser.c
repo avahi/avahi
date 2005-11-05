@@ -34,9 +34,74 @@
 #include <avahi-common/llist.h>
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/domain.h>
 
 #include "client.h"
 #include "internal.h"
+#include "xdg-config.h"
+
+static void parse_environment(AvahiDomainBrowser *b) {
+    char buf[AVAHI_DOMAIN_NAME_MAX*3], *e, *t, *p;
+
+    assert(b);
+    
+    if (!(e = getenv("AVAHI_BROWSE_DOMAINS")))
+        return;
+
+    snprintf(buf, sizeof(buf), "%s", e);
+
+    for (t = strtok_r(buf, ":", &p); t; t = strtok_r(NULL, ":", &p)) {
+        char domain[AVAHI_DOMAIN_NAME_MAX];
+        if (avahi_normalize_name(t, domain, sizeof(domain)))
+            b->static_browse_domains = avahi_string_list_add(b->static_browse_domains, domain);
+    }
+}
+
+static void parse_domain_file(AvahiDomainBrowser *b) {
+    FILE *f;
+    char buf[AVAHI_DOMAIN_NAME_MAX];
+    
+    assert(b);
+
+    if (!(f = avahi_xdg_config_open("avahi/browse-domains")))
+        return;
+    
+    
+    while (fgets(buf, sizeof(buf)-1, f)) {
+        char domain[AVAHI_DOMAIN_NAME_MAX];
+        buf[strcspn(buf, "\n\r")] = 0;
+        
+        if (avahi_normalize_name(buf, domain, sizeof(domain)))
+            b->static_browse_domains = avahi_string_list_add(b->static_browse_domains, domain);
+    }
+}
+
+static void domain_browser_ref(AvahiDomainBrowser *db) {
+    assert(db);
+    assert(db->ref >= 1);
+    db->ref++;
+}
+
+static void defer_timeout_callback(AvahiTimeout *t, void *userdata) {
+    AvahiDomainBrowser *db = userdata;
+    AvahiStringList *l;
+    assert(t);
+
+    db->client->poll_api->timeout_free(db->defer_timeout);
+    db->defer_timeout = NULL;
+
+    domain_browser_ref(db);
+
+    for (l = db->static_browse_domains; l; l = l->next) {
+
+        if (db->ref <= 1)
+            break;
+
+        db->callback(db, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_BROWSER_NEW, (char*) l->text, AVAHI_LOOKUP_RESULT_STATIC, db->userdata);
+    }
+
+    avahi_domain_browser_free(db);
+}
 
 AvahiDomainBrowser* avahi_domain_browser_new(
     AvahiClient *client,
@@ -73,15 +138,23 @@ AvahiDomainBrowser* avahi_domain_browser_new(
         goto fail;
     }
 
+    db->ref = 1;
     db->client = client;
     db->callback = callback;
     db->userdata = userdata;
     db->path = NULL;
     db->interface = interface;
     db->protocol = protocol;
+    db->static_browse_domains = NULL;
+    db->defer_timeout = NULL;
 
     AVAHI_LLIST_PREPEND(AvahiDomainBrowser, domain_browsers, client->domain_browsers, db);
 
+    parse_environment(db);
+    parse_domain_file(db);
+
+    db->static_browse_domains = avahi_string_list_reverse(db->static_browse_domains);
+    
     if (!(message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "DomainBrowserNew"))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -125,6 +198,15 @@ AvahiDomainBrowser* avahi_domain_browser_new(
         goto fail;
     }
 
+    if (db->static_browse_domains) {
+        struct timeval tv = { 0, 0 };
+
+        if (!(db->defer_timeout = client->poll_api->timeout_new(client->poll_api, &tv, defer_timeout_callback, db))) {
+            avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+            goto fail;
+        }
+    }
+    
     dbus_message_unref(message);
     dbus_message_unref(reply);
     
@@ -157,8 +239,13 @@ AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *b) {
 int avahi_domain_browser_free (AvahiDomainBrowser *b) {
     AvahiClient *client;
     int r = AVAHI_OK;
-
+    
     assert(b);
+    assert(b->ref >= 1);
+
+    if (--(b->ref) >= 1)
+        return AVAHI_OK;
+    
     client = b->client;
 
     if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
@@ -166,6 +253,10 @@ int avahi_domain_browser_free (AvahiDomainBrowser *b) {
 
     AVAHI_LLIST_REMOVE(AvahiDomainBrowser, domain_browsers, client->domain_browsers, b);
 
+    if (b->defer_timeout)
+        b->client->poll_api->timeout_free(b->defer_timeout);
+    
+    avahi_string_list_free(b->static_browse_domains);
     avahi_free(b->path);
     avahi_free(b);
 
@@ -179,6 +270,7 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
     char *domain = NULL;
     int32_t interface, protocol;
     uint32_t flags = 0;
+    AvahiStringList *l;
 
     assert(client);
     assert(message);
@@ -237,6 +329,13 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
         }
     }
 
+    if (domain)
+        for (l = db->static_browse_domains; l; l = l->next)
+            if (avahi_domain_equal((char*) l->text, domain)) {
+                /* We had this entry already in the static entries */
+                return DBUS_HANDLER_RESULT_HANDLED;
+            }
+    
     db->callback(db, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, domain, (AvahiLookupResultFlags) flags, db->userdata);
 
     return DBUS_HANDLER_RESULT_HANDLED;

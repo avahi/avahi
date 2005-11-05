@@ -4,7 +4,6 @@ for 0.6:
 * Add static host configuration like static services [lathiat]
 * introduce AVAHI_CLIENT_FAILURE
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
-* add support for defining browsing domains with an option in avahi-daemon.onf
 * fix python scripts
 * update man pages
 * return an error when the user tries to register a service in a domain != .local, for now
@@ -107,3 +106,4 @@ done:
 * add service type database support to avahi-browse
 * add domain browsing to avahi-browse
 * always set source address for outgoing packets
+* add support for defining browsing domains with an option in avahi-daemon.onf

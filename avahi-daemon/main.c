@@ -101,7 +101,8 @@ typedef struct {
     int use_chroot;
 #endif
     int modify_proc_title;
-    
+
+    int disable_user_service_publishing;
     int publish_resolv_conf;
     char ** publish_dns_servers;
     int debug;
@@ -486,6 +487,10 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.use_iff_running = is_yes(p->value);
                 else if (strcasecmp(p->key, "disallow-other-stacks") == 0)
                     c->server_config.disallow_other_stacks = is_yes(p->value);
+                else if (strcasecmp(p->key, "disable-publishing") == 0)
+                    c->server_config.disable_publishing = is_yes(p->value);
+                else if (strcasecmp(p->key, "disable-user-service-publishing") == 0)
+                    c->disable_user_service_publishing = is_yes(p->value);
 #ifdef HAVE_DBUS
                 else if (strcasecmp(p->key, "enable-dbus") == 0) {
 
@@ -723,7 +728,7 @@ static int run_server(DaemonConfig *c) {
 
 #ifdef HAVE_DBUS
     if (c->enable_dbus) {
-        if (dbus_protocol_setup(poll_api) < 0) {
+        if (dbus_protocol_setup(poll_api, config.disable_user_service_publishing) < 0) {
 
             if (c->fail_on_missing_dbus)
                 goto finish;
@@ -1012,7 +1017,8 @@ int main(int argc, char *argv[]) {
     config.use_chroot = 1;
 #endif
     config.modify_proc_title = 1;
-    
+
+    config.disable_user_service_publishing = 0;
     config.publish_dns_servers = NULL;
     config.publish_resolv_conf = 0;
     config.use_syslog = 0;

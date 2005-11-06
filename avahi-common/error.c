@@ -80,7 +80,10 @@ const char *avahi_strerror(int error) {
         "DNS failure: NOTZONE",
         "Invalid RDATA",
         "Invalid DNS type",
-        "Invalid DNS class"
+        "Invalid DNS class",
+        "Not supported",
+
+        "Not permitted"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

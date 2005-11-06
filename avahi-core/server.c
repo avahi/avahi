@@ -1529,6 +1529,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->n_wide_area_servers = 0;
     c->disallow_other_stacks = 0;
     c->browse_domains = NULL;
+    c->disable_publishing = 0;
     
     return c;
 }

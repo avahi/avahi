@@ -61,6 +61,7 @@ typedef struct AvahiServerConfig {
     unsigned n_wide_area_servers;     /**< Number of servers in wide_area_servers[] */
     int disallow_other_stacks;        /**< Make sure that only one mDNS responder is run at the same time on the local machine. If this is enable Avahi will not set SO_REUSADDR on its sockets, effectively preventing other stacks from running on the local machine */
     AvahiStringList *browse_domains;  /**< Additional browsing domains */
+    int disable_publishing;           /**< Disable publishing of any record */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

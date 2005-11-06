@@ -83,6 +83,9 @@ enum {
     AVAHI_ERR_INVALID_RDATA = -46,           /**< Invalid RDATA */
     AVAHI_ERR_INVALID_DNS_CLASS = -47,       /**< Invalid DNS class */
     AVAHI_ERR_INVALID_DNS_TYPE = -48,        /**< Invalid DNS type */
+    AVAHI_ERR_NOT_SUPPORTED = -49,           /**< Not supported */
+    
+    AVAHI_ERR_NOT_PERMITTED = -50,           /**< Operation not permitted */
     
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -92,7 +95,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -49
+    AVAHI_ERR_MAX = -51
 };
 
 /** Return a human readable error string for the specified error code */

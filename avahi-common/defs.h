@@ -172,7 +172,9 @@ typedef enum {
     AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,   /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
     AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
     AVAHI_PUBLISH_NO_COOKIE = 32,       /**< For service records: do not implicitly add the local service cookie to TXT data */
-    AVAHI_PUBLISH_UPDATE = 64           /**< Update existing records instead of adding new ones */
+    AVAHI_PUBLISH_UPDATE = 64,          /**< Update existing records instead of adding new ones */
+    AVAHI_PUBLISH_USE_WIDE_AREA = 128,  /**< Register the record using wide area DNS (i.e. unicast DNS update) */
+    AVAHI_PUBLISH_USE_MULTICAST = 256   /**< Register the record using multicast DNS */
 } AvahiPublishFlags;
 
 /** Some flags for lookup functions */

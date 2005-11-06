@@ -1,12 +1,11 @@
 for 0.6:
 * remove outgoing queries from queue if the browse object they were issued from is destroyed
 * add API to allow user to tell the server that some service is not reachable
-* Add static host configuration like static services [lathiat]
 * introduce AVAHI_CLIENT_FAILURE
+* Add static host configuration like static services [lathiat]
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * fix python scripts
 * update man pages
-* return an error when the user tries to register a service in a domain != .local, for now
 
 later:
 * avahi-client: do something about letting the client know if the daemon comes back from a DISCONNECTED state
@@ -107,3 +106,4 @@ done:
 * add domain browsing to avahi-browse
 * always set source address for outgoing packets
 * add support for defining browsing domains with an option in avahi-daemon.onf
+* return an error when the user tries to register a service in a domain != .local, for now

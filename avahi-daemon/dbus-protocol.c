@@ -63,6 +63,8 @@
 
 Server *server = NULL;
 
+static int disable_user_service_publishing = 0;
+
 static void client_free(Client *c) {
     
     assert(server);
@@ -386,6 +388,9 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
 
+        if (disable_user_service_publishing)
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_NOT_PERMITTED, NULL);
+        
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
             avahi_log_warn("Too many clients, client request failed.");
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
@@ -917,7 +922,7 @@ void dbus_protocol_server_state_changed(AvahiServerState state) {
     dbus_message_unref(m);
 }
 
-int dbus_protocol_setup(const AvahiPoll *poll_api) {
+int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_publishing) {
     DBusError error;
 
     static const DBusObjectPathVTable server_vtable = {
@@ -930,6 +935,8 @@ int dbus_protocol_setup(const AvahiPoll *poll_api) {
     };
 
     dbus_error_init(&error);
+
+    disable_user_service_publishing = _disable_user_service_publishing;
 
     server = avahi_new(Server, 1);
     AVAHI_LLIST_HEAD_INIT(Clients, server->clients);

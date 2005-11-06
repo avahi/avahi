@@ -91,8 +91,10 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_ERR_DNS_NOTAUTH "org.freedesktop.Avahi.DNSNOTAUTH"
 #define AVAHI_DBUS_ERR_DNS_NOTZONE "org.freedesktop.Avahi.DNSNOTZONE"
 #define AVAHI_DBUS_ERR_INVALID_RDATA "org.freedesktop.Avahi.InvalidRDataError"
-#define AVAHI_DBUS_ERR_INVALID_DNS_CLASS "org.freedesktop.Avahi.InvalidDNSClass"
-#define AVAHI_DBUS_ERR_INVALID_DNS_TYPE "org.freedesktop.Avahi.InvalidDNSType"
+#define AVAHI_DBUS_ERR_INVALID_DNS_CLASS "org.freedesktop.Avahi.InvalidDNSClassError"
+#define AVAHI_DBUS_ERR_INVALID_DNS_TYPE "org.freedesktop.Avahi.InvalidDNSTypeError"
+#define AVAHI_DBUS_ERR_NOT_SUPPORTED "org.freedesktop.Avahi.NotSupportedError"
+#define AVAHI_DBUS_ERR_NOT_PERMITTED "org.freedesktop.Avahi.NotPermittedError"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

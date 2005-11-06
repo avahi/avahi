@@ -7,7 +7,6 @@ for 0.6:
 * update man pages
 
 later:
-* avahi-client: do something about letting the client know if the daemon comes back from a DISCONNECTED state
 * add simplification routine for adding services 
 * implement avahi-utils in C
 * support for special domain PTR records based on local IP subnet address

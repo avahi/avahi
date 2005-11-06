@@ -145,7 +145,7 @@ static DNSServiceErrorType map_error(int error) {
         case AVAHI_ERR_INVALID_CONFIG:
         case AVAHI_ERR_TIMEOUT:
         case AVAHI_ERR_DBUS_ERROR:
-        case AVAHI_ERR_NOT_CONNECTED:
+        case AVAHI_ERR_DISCONNECTED:
         case AVAHI_ERR_NO_DAEMON:
             break;
 
@@ -481,7 +481,6 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
     switch (state) {
 
         case AVAHI_CLIENT_FAILURE:
-        case AVAHI_CLIENT_DISCONNECTED:
 
             if (sdref->service_browser_callback)
                 sdref->service_browser_callback(sdref, 0, 0, error, NULL, NULL, NULL, sdref->context);
@@ -862,7 +861,6 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
     
     switch (state) {
         case AVAHI_CLIENT_FAILURE:
-        case AVAHI_CLIENT_DISCONNECTED:
             reg_report_error(sdref, kDNSServiceErr_Unknown);
             break;
 

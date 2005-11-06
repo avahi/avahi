@@ -125,7 +125,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
 
     dbus_error_init (&error);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -248,7 +248,7 @@ int avahi_domain_browser_free (AvahiDomainBrowser *b) {
     
     client = b->client;
 
-    if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (b->path && client->state != AVAHI_CLIENT_FAILURE)
         r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiDomainBrowser, domain_browsers, client->domain_browsers, b);
@@ -367,7 +367,7 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new(
 
     dbus_error_init(&error);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -473,7 +473,7 @@ int avahi_service_type_browser_free (AvahiServiceTypeBrowser *b) {
     assert(b);
     client = b->client;
 
-    if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (b->path && client->state != AVAHI_CLIENT_FAILURE)
         r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiServiceTypeBrowser, service_type_browsers, b->client->service_type_browsers, b);
@@ -583,7 +583,7 @@ AvahiServiceBrowser* avahi_service_browser_new(
 
     dbus_error_init(&error);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -694,7 +694,7 @@ int avahi_service_browser_free (AvahiServiceBrowser *b) {
     assert(b);
     client = b->client;
 
-    if (b->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (b->path && client->state != AVAHI_CLIENT_FAILURE)
         r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiServiceBrowser, service_browsers, b->client->service_browsers, b);

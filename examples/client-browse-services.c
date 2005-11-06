@@ -145,8 +145,8 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 
     /* Called whenever the client or server state changes */
 
-    if (state == AVAHI_CLIENT_DISCONNECTED) {
-        fprintf(stderr, "Server connection terminated.\n");
+    if (state == AVAHI_CLIENT_FAILURE) {
+        fprintf(stderr, "Server connection failre: %s\n", avahi_strerror(avahi_client_errno(c)));
         avahi_simple_poll_quit(simple_poll);
     }
 }

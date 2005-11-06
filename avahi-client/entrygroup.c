@@ -111,7 +111,7 @@ AvahiEntryGroup* avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCall
 
     dbus_error_init (&error);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -237,7 +237,7 @@ int avahi_entry_group_free(AvahiEntryGroup *group) {
         
     assert(group);
     
-    if (group->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (group->path && client->state != AVAHI_CLIENT_FAILURE)
         r = entry_group_simple_method_call(group, "Free");
     
     AVAHI_LLIST_REMOVE(AvahiEntryGroup, groups, client->groups, group);
@@ -251,7 +251,7 @@ int avahi_entry_group_free(AvahiEntryGroup *group) {
 int avahi_entry_group_commit(AvahiEntryGroup *group) {
     assert(group);
     
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     return entry_group_simple_method_call(group, "Commit");
@@ -260,7 +260,7 @@ int avahi_entry_group_commit(AvahiEntryGroup *group) {
 int avahi_entry_group_reset(AvahiEntryGroup *group) {
     assert(group);
     
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     return entry_group_simple_method_call(group, "Reset");
@@ -288,7 +288,7 @@ int avahi_entry_group_is_empty (AvahiEntryGroup *group) {
     assert(group);
     client = group->client;
 
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     dbus_error_init(&error);
@@ -409,7 +409,7 @@ int avahi_entry_group_add_service_strlst(
 
     client = group->client;
 
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     if (!domain)
@@ -528,7 +528,7 @@ int avahi_entry_group_add_service_subtype(
 
     client = group->client;
 
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     if (!domain)
@@ -638,7 +638,7 @@ int avahi_entry_group_update_service_txt_strlst(
 
     client = group->client;
 
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     if (!domain)
@@ -726,7 +726,7 @@ int avahi_entry_group_add_address(
 
     client = group->client;
 
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     dbus_error_init(&error);
@@ -815,7 +815,7 @@ int avahi_entry_group_add_record(
 
     client = group->client;
 
-    if (!group->path || group->client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (!group->path || group->client->state == AVAHI_CLIENT_FAILURE)
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
     dbus_error_init(&error);

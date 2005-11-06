@@ -209,7 +209,7 @@ AvahiServiceResolver * avahi_service_resolver_new(
     
     dbus_error_init (&error);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -331,7 +331,7 @@ int avahi_service_resolver_free(AvahiServiceResolver *r) {
     assert(r);
     client = r->client;
 
-    if (r->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (r->path && client->state != AVAHI_CLIENT_FAILURE)
         ret = avahi_client_simple_method_call(client, r->path, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiServiceResolver, service_resolvers, client->service_resolvers, r);
@@ -446,7 +446,7 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
 
     dbus_error_init (&error);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -546,7 +546,7 @@ int avahi_host_name_resolver_free(AvahiHostNameResolver *r) {
     assert(r);
     client = r->client;
 
-    if (r->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (r->path && client->state != AVAHI_CLIENT_FAILURE)
         ret = avahi_client_simple_method_call(client, r->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiHostNameResolver, host_name_resolvers, client->host_name_resolvers, r);
@@ -669,7 +669,7 @@ AvahiAddressResolver * avahi_address_resolver_new(
         return NULL;
     }
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         goto fail;
     }
@@ -768,7 +768,7 @@ int avahi_address_resolver_free(AvahiAddressResolver *r) {
     assert(r);
     client = r->client;
 
-    if (r->path && client->state != AVAHI_CLIENT_DISCONNECTED)
+    if (r->path && client->state != AVAHI_CLIENT_FAILURE)
         ret = avahi_client_simple_method_call(client, r->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Free");
 
     AVAHI_LLIST_REMOVE(AvahiAddressResolver, address_resolvers, client->address_resolvers, r);

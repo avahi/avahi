@@ -53,7 +53,7 @@ const char *avahi_strerror(int error) {
         "Access denied",
         "Invalid operation",
         "An unexpected DBUS error occured",
-        "Could not get a connection to the daemon",
+        "Daemon connection failed",
         "Memory exhausted",
         "The object passed in was not valid",
         "Daemon not running",

@@ -60,10 +60,10 @@ avahi_client_callback (AVAHI_GCC_UNUSED AvahiClient *client, AvahiClientState st
 
     g_message ("Avahi Client State Change: %d", state);
 
-    if (state == AVAHI_CLIENT_DISCONNECTED)
+    if (state == AVAHI_CLIENT_FAILURE)
     {
         /* We we're disconnected from the Daemon */
-        g_message ("Disconnected from the Avahi Daemon");
+        g_message ("Disconnected from the Avahi Daemon: %s", avahi_strerror(avahi_client_errno(client)));
 
         /* Quit the application */
         g_main_loop_quit (loop);

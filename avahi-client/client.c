@@ -61,7 +61,6 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
     client->state = state;
 
     switch (client->state) {
-        case AVAHI_CLIENT_DISCONNECTED:
         case AVAHI_CLIENT_FAILURE:
             if (client->bus) {
                 dbus_connection_disconnect(client->bus);
@@ -107,13 +106,14 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
 /*             dbus_message_get_path (message), */
 /*             dbus_message_get_member (message)); */
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED)
+    if (client->state == AVAHI_CLIENT_FAILURE)
         goto fail;
 
     if (dbus_message_is_signal(message, DBUS_INTERFACE_LOCAL, "Disconnected")) {
 
         /* The DBUS server died or kicked us */
-        client_set_state(client, AVAHI_CLIENT_DISCONNECTED);
+        avahi_client_set_errno(client, AVAHI_ERR_DISCONNECTED);
+        client_set_state(client, AVAHI_CLIENT_FAILURE);
 
     } if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
         char *name, *old, *new;
@@ -129,13 +129,15 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
             goto fail;
         }
 
-        if (strcmp(name, AVAHI_DBUS_NAME) == 0)
+        if (strcmp(name, AVAHI_DBUS_NAME) == 0) {
 
             /* Regardless if the server lost or acquired its name or
              * if the name was transfered: our services are no longer
              * available, so we disconnect ourselves */
-            
-            client_set_state(client, AVAHI_CLIENT_DISCONNECTED);
+
+            avahi_client_set_errno(client, AVAHI_ERR_DISCONNECTED);
+            client_set_state(client, AVAHI_CLIENT_FAILURE);
+        }
 
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged")) {
         int32_t state;
@@ -387,7 +389,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientCallback cal
     client->error = AVAHI_OK;
     client->callback = callback;
     client->userdata = userdata;
-    client->state = AVAHI_CLIENT_DISCONNECTED;
+    client->state = AVAHI_CLIENT_FAILURE;
 
     client->host_name = NULL;
     client->host_name_fqdn = NULL;
@@ -577,7 +579,7 @@ fail:
 const char* avahi_client_get_version_string (AvahiClient *client) {
     assert(client);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
@@ -591,7 +593,7 @@ const char* avahi_client_get_version_string (AvahiClient *client) {
 const char* avahi_client_get_domain_name (AvahiClient *client) {
     assert(client);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
@@ -605,7 +607,7 @@ const char* avahi_client_get_domain_name (AvahiClient *client) {
 const char* avahi_client_get_host_name (AvahiClient *client) {
     assert(client);
     
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
@@ -619,7 +621,7 @@ const char* avahi_client_get_host_name (AvahiClient *client) {
 const char* avahi_client_get_host_name_fqdn (AvahiClient *client) {
     assert(client);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return NULL;
     }
@@ -697,7 +699,7 @@ uint32_t avahi_client_get_local_service_cookie(AvahiClient *client) {
     DBusError error;
     assert(client);
 
-    if (client->state == AVAHI_CLIENT_DISCONNECTED) {
+    if (client->state == AVAHI_CLIENT_FAILURE) {
         avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
         return AVAHI_SERVICE_COOKIE_INVALID;
     }

@@ -46,8 +46,7 @@ typedef enum {
     AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,  /**< Server state: REGISTERING */
     AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,          /**< Server state: RUNNING */
     AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,      /**< Server state: COLLISION */
-    AVAHI_CLIENT_DISCONNECTED = 100,                        /**< Lost DBUS connection to the Avahi daemon */
-    AVAHI_CLIENT_FAILURE = 101                              /**< Some kind of error happened on the client side */
+    AVAHI_CLIENT_FAILURE = 100                              /**< Some kind of error happened on the client side */
 } AvahiClientState;
 
 /** The function prototype for the callback of an AvahiClient */

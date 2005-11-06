@@ -148,11 +148,6 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
             avahi_simple_poll_quit(simple_poll);
             break;
             
-        case AVAHI_CLIENT_DISCONNECTED:
-            fprintf(stderr, "Client disconnected, exiting.\n");
-            avahi_simple_poll_quit(simple_poll);
-            break;
-
         case AVAHI_CLIENT_S_REGISTERING:
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_S_COLLISION:

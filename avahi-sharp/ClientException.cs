@@ -49,7 +49,7 @@ namespace Avahi
         AccessDenied = -20,
         InvalidOperation = -21,
         DBusError = -22,
-        NotConnected = -23,
+        Disconnected = -23,
         NoMemory = -24,
         InvalidObject = -25,
         NoDaemon = -26,
@@ -71,7 +71,12 @@ namespace Avahi
         DnsYxRrSet = -42,
         DnsNxRrSet = -43,
         DnsNotAuth = -44,
-        DnsNotZone = -45
+        DnsNotZone = -45,
+        InvalidRData = -46,
+        InvalidDnsClass = -47,
+        InvalidDnsType = -48,
+        NotSupported = -49,
+        NotPermitted = -50
     }
 
     public delegate void ErrorCodeHandler (object o, ErrorCode code);

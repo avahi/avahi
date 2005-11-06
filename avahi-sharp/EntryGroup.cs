@@ -35,7 +35,9 @@ namespace Avahi
         AllowMultiple = 8,
         NoReverse = 16,
         NoCookie = 32,
-        Update = 64
+        Update = 64,
+        UseWideArea = 128,
+        UseMulticast = 256
     }
     
     public enum EntryGroupState {

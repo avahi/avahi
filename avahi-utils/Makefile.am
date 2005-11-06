@@ -39,8 +39,6 @@ pythonscripts = \
 	avahi-publish-address \
 	avahi-publish-service \
 	avahi-bookmarks \
-	avahi-resolve-host-name \
-	avahi-resolve-address \
 	avahi-discover
 
 desktopdir = $(datadir)/applications

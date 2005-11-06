@@ -157,6 +157,13 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 
             break;
 
+        case AVAHI_CLIENT_FAILURE:
+            
+            fprintf(stderr, "Client failure: %s\n", avahi_strerror(avahi_client_errno(c)));
+            avahi_simple_poll_quit(simple_poll);
+            
+            break;
+
         case AVAHI_CLIENT_S_REGISTERING:
             ;
     }

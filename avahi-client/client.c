@@ -62,6 +62,7 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
 
     switch (client->state) {
         case AVAHI_CLIENT_DISCONNECTED:
+        case AVAHI_CLIENT_FAILURE:
             if (client->bus) {
                 dbus_connection_disconnect(client->bus);
                 dbus_connection_unref(client->bus);

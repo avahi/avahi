@@ -479,7 +479,8 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
     assert(sdref->n_ref >= 1);
 
     switch (state) {
-            
+
+        case AVAHI_CLIENT_FAILURE:
         case AVAHI_CLIENT_DISCONNECTED:
 
             if (sdref->service_browser_callback)
@@ -860,6 +861,7 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
         return;
     
     switch (state) {
+        case AVAHI_CLIENT_FAILURE:
         case AVAHI_CLIENT_DISCONNECTED:
             reg_report_error(sdref, kDNSServiceErr_Unknown);
             break;

@@ -28,13 +28,9 @@
 
 AVAHI_C_DECL_BEGIN
 
-#ifdef __GNUC__
-#if __GNUC__ >= 4
+#if defined(__GNUC__) && (__GNUC__ >= 4)
 #define AVAHI_GCC_SENTINEL __attribute__ ((sentinel))
-#endif
-#endif
-
-#ifndef AVAHI_GCC_SENTINEL
+#else
 /** Macro for usage of GCC's sentinel compilation warnings */
 #define AVAHI_GCC_SENTINEL
 #endif

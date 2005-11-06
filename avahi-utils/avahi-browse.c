@@ -473,8 +473,13 @@ static void browse_domains(Config *c) {
     n_all_for_now++;
 }
 
-static void client_callback(AVAHI_GCC_UNUSED AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
+static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
     switch (state) {
+        case AVAHI_CLIENT_FAILURE:
+            fprintf(stderr, "Client failure, exiting: %s\n", avahi_strerror(avahi_client_errno(c)));
+            avahi_simple_poll_quit(simple_poll);
+            break;
+            
         case AVAHI_CLIENT_DISCONNECTED:
             fprintf(stderr, "Client disconnected, exiting.\n");
             avahi_simple_poll_quit(simple_poll);

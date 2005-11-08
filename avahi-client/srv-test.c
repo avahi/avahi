@@ -63,15 +63,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     poll_api = avahi_simple_poll_get(simple_poll);
     assert(poll_api);
     
-    client = avahi_client_new(poll_api, NULL, NULL, NULL);
+    client = avahi_client_new(poll_api, 0, NULL, NULL, NULL);
     assert(client);
 
     r = avahi_service_resolver_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, "_domain._udp", "0pointer.de", AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_NO_TXT, callback, simple_poll);
     assert(r);
 
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    avahi_simple_poll_loop(simple_poll);
 
     avahi_client_free(client);
     avahi_simple_poll_free(simple_poll);

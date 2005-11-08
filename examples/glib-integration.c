@@ -108,6 +108,7 @@ main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[])
 
     /* Create a new AvahiClient instance */
     client = avahi_client_new (poll_api,            /* AvahiPoll object from above */
+                               0,
             avahi_client_callback,                  /* Callback function for Client state changes */
             loop,                                   /* User data */
             &error);                                /* Error return */

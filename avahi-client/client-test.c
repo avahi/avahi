@@ -228,7 +228,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
     
-    if (!(avahi = avahi_client_new(poll_api, avahi_client_callback, "omghai2u", &error))) {
+    if (!(avahi = avahi_client_new(poll_api, 0, avahi_client_callback, "omghai2u", &error))) {
         fprintf(stderr, "Client failed: %s\n", avahi_strerror(error));
         goto fail;
     }
@@ -250,7 +250,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     cookie = avahi_client_get_local_service_cookie(avahi);
     printf("Local service cookie: %u (Error Return: %s)\n", cookie, cookie != AVAHI_SERVICE_COOKIE_INVALID ? "OK" : avahi_strerror(avahi_client_errno(avahi)));
 
-    group = avahi_entry_group_new (avahi, avahi_entry_group_callback, "omghai");
+    group = avahi_entry_group_new(avahi, avahi_entry_group_callback, "omghai");
     printf("Creating entry group: %s\n", group ? "OK" : avahi_strerror(avahi_client_errno (avahi)));
 
     assert(group);

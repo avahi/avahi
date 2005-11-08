@@ -64,6 +64,7 @@ typedef struct Config {
     int ignore_local;
     Command command;
     int resolve;
+    int no_fail;
 #ifdef HAVE_GDBM
     int no_db_lookup;
 #endif
@@ -88,6 +89,7 @@ static int n_all_for_now = 0, n_cache_exhausted = 0, n_resolving = 0;
 static AvahiStringList *browsed_types = NULL;
 static ServiceInfo *services = NULL;
 static int n_columns = 80;
+static int browsing = 0;
 
 static void check_terminate(Config *c) {
 
@@ -473,17 +475,100 @@ static void browse_domains(Config *c) {
     n_all_for_now++;
 }
 
+static int start(Config *config) {
+
+    assert(!browsing);
+    
+    if (config->verbose) {
+        const char *version, *hn;
+        
+        if (!(version = avahi_client_get_version_string(client))) {
+            fprintf(stderr, "Failed to query version string: %s\n", avahi_strerror(avahi_client_errno(client)));
+            return -1;
+        }
+        
+        if (!(hn = avahi_client_get_host_name_fqdn(client))) {
+            fprintf(stderr, "Failed to query host name: %s\n", avahi_strerror(avahi_client_errno(client)));
+            return -1;
+        }
+        
+        fprintf(stderr, "Server version: %s; Host name: %s\n", version, hn);
+        
+        if (config->command == COMMAND_BROWSE_DOMAINS)
+            fprintf(stderr, "E Ifce Prot Domain\n");
+        else
+            fprintf(stderr, "E Ifce Prot %-*s %-20s Domain\n", n_columns-35, "Name", "Type");
+    }
+    
+    if (config->command == COMMAND_BROWSE_SERVICES)
+        browse_service_type(config, config->stype, config->domain);
+    else if (config->command == COMMAND_BROWSE_ALL_SERVICES)
+        browse_all(config);
+    else {
+        assert(config->command == COMMAND_BROWSE_DOMAINS);
+        browse_domains(config);
+    }
+
+    browsing = 1;
+    return 0;
+}
+    
 static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
+    Config *config = userdata;
+
+    /* This function might be called when avahi_client_new() has not
+     * returned yet.*/
+    client = c;
+    
     switch (state) {
         case AVAHI_CLIENT_FAILURE:
-            fprintf(stderr, "Client failure, exiting: %s\n", avahi_strerror(avahi_client_errno(c)));
-            avahi_simple_poll_quit(simple_poll);
+            
+            if (config->no_fail && avahi_client_errno(c) == AVAHI_ERR_DISCONNECTED) {
+                int error;
+
+                /* We have been disconnected, so let reconnect */
+
+                fprintf(stderr, "Disconnected, reconnecting ...\n");
+
+                avahi_client_free(client);
+                client = NULL;
+
+                avahi_string_list_free(browsed_types);
+                browsed_types = NULL;
+                
+                while (services)
+                    remove_service(config, services);
+
+                browsing = 0;
+
+                if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), AVAHI_CLIENT_NO_FAIL, client_callback, config, &error))) {
+                    fprintf(stderr, "Failed to create client object: %s\n", avahi_strerror(error));
+                    avahi_simple_poll_quit(simple_poll);
+                }
+
+            } else {
+                fprintf(stderr, "Client failure, exiting: %s\n", avahi_strerror(avahi_client_errno(c)));
+                avahi_simple_poll_quit(simple_poll);
+            }
+            
             break;
             
         case AVAHI_CLIENT_S_REGISTERING:
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_S_COLLISION:
-            ;
+
+            if (!browsing)
+                if (start(config) < 0)
+                    avahi_simple_poll_quit(simple_poll);
+
+            break;
+            
+        case AVAHI_CLIENT_CONNECTING:
+            
+            if (config->verbose)
+                fprintf(stderr, "Waiting for daemon ...\n");
+
+                break;
     }
 }
 
@@ -502,6 +587,7 @@ static void help(FILE *f, const char *argv0) {
             "    -c --cache           Terminate after dumping all entries from the cache\n"
             "    -l --ignore-local    Ignore local services\n"
             "    -r --resolve         Resolve services found\n"
+            "    -f --no-fail         Don't fail if the server is not available\n"
 #ifdef HAVE_GDBM
             "    -k --no-db-lookup    Don't lookup service types\n"
 #endif
@@ -522,6 +608,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
         { "cache",          no_argument,       NULL, 'c' },
         { "ignore-local",   no_argument,       NULL, 'l' },
         { "resolve",        no_argument,       NULL, 'r' },
+        { "no-fail",        no_argument,       NULL, 'f' },
 #ifdef HAVE_GDBM
         { "no-db-lookup",   no_argument,       NULL, 'k' },
 #endif
@@ -535,7 +622,8 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
         c->terminate_on_cache_exhausted =
         c->terminate_on_all_for_now =
         c->ignore_local =
-        c->resolve = 0;
+        c->resolve =
+        c->no_fail = 0;
     c->domain = c->stype = NULL;
 
 #ifdef HAVE_GDBM
@@ -543,7 +631,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
 #endif
     
     opterr = 0;
-    while ((o = getopt_long(argc, argv, "hVd:avtclrD"
+    while ((o = getopt_long(argc, argv, "hVd:avtclrDf"
 #ifdef HAVE_GDBM
                             "k"
 #endif
@@ -579,6 +667,9 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
                 break;
             case 'r':
                 c->resolve = 1;
+                break;
+            case 'f':
+                c->no_fail = 1;
                 break;
 #ifdef HAVE_GDBM
             case 'k':
@@ -654,39 +745,9 @@ int main(int argc, char *argv[]) {
             if (sigint_install(simple_poll) < 0)
                 goto fail;
             
-            if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), client_callback, NULL, &error))) {
+            if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), config.no_fail ? AVAHI_CLIENT_NO_FAIL : 0, client_callback, &config, &error))) {
                 fprintf(stderr, "Failed to create client object: %s\n", avahi_strerror(error));
                 goto fail;
-            }
-
-            if (config.verbose) {
-                const char *version, *hn;
-
-                if (!(version = avahi_client_get_version_string(client))) {
-                    fprintf(stderr, "Failed to query version string: %s\n", avahi_strerror(avahi_client_errno(client)));
-                    goto fail;
-                }
-
-                if (!(hn = avahi_client_get_host_name_fqdn(client))) {
-                    fprintf(stderr, "Failed to query host name: %s\n", avahi_strerror(avahi_client_errno(client)));
-                    goto fail;
-                }
-                
-                fprintf(stderr, "Server version: %s; Host name: %s\n", version, hn);
-
-                if (config.command == COMMAND_BROWSE_DOMAINS)
-                    fprintf(stderr, "E Ifce Prot Domain\n");
-                else
-                    fprintf(stderr, "E Ifce Prot %-*s %-20s Domain\n", n_columns-35, "Name", "Type");
-            }
-
-            if (config.command == COMMAND_BROWSE_SERVICES)
-                browse_service_type(&config, config.stype, config.domain);
-            else if (config.command == COMMAND_BROWSE_ALL_SERVICES)
-                browse_all(&config);
-            else {
-                assert(config.command == COMMAND_BROWSE_DOMAINS);
-                browse_domains(&config);
             }
             
             avahi_simple_poll_loop(simple_poll);

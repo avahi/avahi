@@ -33,6 +33,7 @@ struct AvahiClient {
     DBusConnection *bus;
     int error;
     AvahiClientState state;
+    AvahiClientFlags flags;
 
     /* Cache for some seldom changing server data */
     char *version_string, *host_name, *host_name_fqdn, *domain_name;
@@ -151,5 +152,7 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
 DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolverEvent event, DBusMessage *message);
 
 int avahi_client_simple_method_call(AvahiClient *client, const char *path, const char *interface, const char *method);
+
+int avahi_client_is_connected(AvahiClient *client);
 
 #endif

@@ -151,6 +151,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
         case AVAHI_CLIENT_S_REGISTERING:
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_S_COLLISION:
+        case AVAHI_CLIENT_CONNECTING:
             ;
     }
 }
@@ -266,7 +267,7 @@ int main(int argc, char *argv[]) {
             if (sigint_install(simple_poll) < 0)
                 goto fail;
             
-            if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), client_callback, NULL, &error))) {
+            if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, NULL, &error))) {
                 fprintf(stderr, "Failed to create client object: %s\n", avahi_strerror(error));
                 goto fail;
             }

@@ -157,6 +157,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
             
             break;
 
+        case AVAHI_CLIENT_CONNECTING:
         case AVAHI_CLIENT_S_REGISTERING:
             ;
     }
@@ -176,7 +177,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     name = avahi_strdup("MegaPrinter");
 
     /* Allocate a new client */
-    client = avahi_client_new(avahi_simple_poll_get(simple_poll), client_callback, NULL, &error);
+    client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, NULL, &error);
 
     /* Check wether creating the client object succeeded */
     if (!client) {

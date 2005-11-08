@@ -380,7 +380,7 @@ sw_result sw_discovery_init(sw_discovery * self) {
 
     avahi_simple_poll_set_func((*self)->simple_poll, poll_func, *self);
 
-    if (!((*self)->client = avahi_client_new(avahi_simple_poll_get((*self)->simple_poll), client_callback, *self, &error))) {
+    if (!((*self)->client = avahi_client_new(avahi_simple_poll_get((*self)->simple_poll), 0, client_callback, *self, &error))) {
         result = map_error(error);
         goto fail;
     }
@@ -716,6 +716,7 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
             avahi_entry_group_reset(data->object);
             break;
 
+        case AVAHI_CLIENT_CONNECTING:
         case AVAHI_CLIENT_S_REGISTERING:
             /* Ignore */
             break;

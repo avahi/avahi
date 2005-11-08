@@ -46,14 +46,20 @@ typedef enum {
     AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,  /**< Server state: REGISTERING */
     AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,          /**< Server state: RUNNING */
     AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,      /**< Server state: COLLISION */
-    AVAHI_CLIENT_FAILURE = 100                              /**< Some kind of error happened on the client side */
+    AVAHI_CLIENT_FAILURE = 100,                             /**< Some kind of error happened on the client side */
+    AVAHI_CLIENT_CONNECTING = 101                           /**< We're still connecting. This state is only entered when AVAHI_CLIENT_NO_FAIL has been passed to avahi_client_new() and the daemon is not yet available. */  
 } AvahiClientState;
+
+typedef enum {
+    AVAHI_CLIENT_IGNORE_USER_CONFIG = 1, /**< Don't read user configuration */
+    AVAHI_CLIENT_NO_FAIL = 2        /**< Don't fail if the daemon is not available when avahi_client_new() is called, instead enter AVAHI_CLIENT_CONNECTING state and wait for the daemon to appear */
+} AvahiClientFlags;
 
 /** The function prototype for the callback of an AvahiClient */
 typedef void (*AvahiClientCallback) (AvahiClient *s, AvahiClientState state, void* userdata);
 
 /** Creates a new client instance */
-AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientCallback callback, void *userdata, int *error);
+AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientFlags flags, AvahiClientCallback callback, void *userdata, int *error);
 
 /** Free a client instance */
 void avahi_client_free(AvahiClient *client);

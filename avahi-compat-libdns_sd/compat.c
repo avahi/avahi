@@ -494,6 +494,7 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_S_COLLISION:
         case AVAHI_CLIENT_S_REGISTERING:
+        case AVAHI_CLIENT_CONNECTING:
             break;
     }
 }
@@ -532,7 +533,7 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
 
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
-    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), generic_client_callback, sdref, &error))) {
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), 0, generic_client_callback, sdref, &error))) {
         ret =  map_error(error);
         goto finish;
     }
@@ -645,7 +646,7 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve(
 
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
-    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), generic_client_callback, sdref, &error))) {
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), 0, generic_client_callback, sdref, &error))) {
         ret =  map_error(error);
         goto finish;
     }
@@ -757,7 +758,7 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
 
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
-    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), generic_client_callback, sdref, &error))) {
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), 0, generic_client_callback, sdref, &error))) {
         ret =  map_error(error);
         goto finish;
     }
@@ -902,6 +903,7 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
             
             break;
 
+        case AVAHI_CLIENT_CONNECTING:
         case AVAHI_CLIENT_S_REGISTERING:
             /* Ignore */
             break;
@@ -1014,7 +1016,7 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     
     ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
-    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), reg_client_callback, sdref, &error))) {
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), 0, reg_client_callback, sdref, &error))) {
         ret =  map_error(error);
         goto finish;
     }

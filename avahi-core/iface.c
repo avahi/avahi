@@ -69,7 +69,7 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
             char t[AVAHI_ADDRESS_STR_MAX];
             avahi_address_snprint(t, sizeof(t), &a->address);
 
-            avahi_log_info("Registering new address %s on %s.", t, a->interface->hardware->name);
+            avahi_log_info("Registering new address record for %s on %s.", t, a->interface->hardware->name);
 
             if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_address() failed: %s", avahi_strerror(m->server->error));
@@ -92,7 +92,7 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
 		m->server->state == AVAHI_SERVER_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
 
-            avahi_log_info("Withdrawing address %s on %s.", t, a->interface->hardware->name);
+            avahi_log_info("Withdrawing address record for %s on %s.", t, a->interface->hardware->name);
             
             avahi_s_entry_group_reset(a->entry_group);
         }
@@ -200,7 +200,7 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
         i->local_mcast_address = a->address;
     }
 
-    avahi_log_info("%s mDNS multicast group on interface %s.%s with address %s",
+    avahi_log_info("%s mDNS multicast group on interface %s.%s with address %s.",
                    join ? "Joining" : "Leaving",
                    i->hardware->name,
                    avahi_proto_to_string(i->protocol),
@@ -431,7 +431,7 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
     b = avahi_interface_is_relevant(i);
 
     if (m->list_complete && b && !i->announcing) {
-        avahi_log_info("New relevant interface %s.%s.", i->hardware->name, avahi_proto_to_string(i->protocol));
+        avahi_log_info("New relevant interface %s.%s for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
         interface_mdns_mcast_join(i, 1);
 
@@ -439,7 +439,7 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
         avahi_announce_interface(m->server, i);
         avahi_multicast_lookup_engine_new_interface(m->server->multicast_lookup_engine, i);
     } else if (!b && i->announcing) {
-        avahi_log_info("Interface %s.%s no longer relevant.", i->hardware->name, avahi_proto_to_string(i->protocol));
+        avahi_log_info("Interface %s.%s no longer relevant for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
         interface_mdns_mcast_join(i, 0);
 

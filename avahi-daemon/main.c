@@ -747,14 +747,14 @@ static int run_server(DaemonConfig *c) {
             goto finish;
         }
         
+        avahi_log_info("Successfully called chroot().");
         chdir("/");
         
         if (avahi_caps_drop_all() < 0) {
             avahi_log_error("Failed to drop capabilities.");
             goto finish;
         }
-
-        avahi_log_info("chroot() successful.");
+        avahi_log_info("Successfully dropped remaining capabilities.");
     }
     
 #endif

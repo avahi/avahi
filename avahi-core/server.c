@@ -1141,7 +1141,7 @@ static void register_hinfo(AvahiServer *s) {
             r->data.hinfo.cpu = avahi_strdup(avahi_strup(utsname.machine));
             r->data.hinfo.os = avahi_strdup(avahi_strup(utsname.sysname));
             
-            avahi_log_info("Adding HINFO record with values '%s/%s'", r->data.hinfo.cpu, r->data.hinfo.os);
+            avahi_log_info("Registering HINFO record with values '%s'/'%s'.", r->data.hinfo.cpu, r->data.hinfo.os);
             
             if (avahi_server_add(s, s->hinfo_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_UNIQUE, r) < 0) {
                 avahi_log_warn("Failed to add HINFO RR: %s", avahi_strerror(s->error));

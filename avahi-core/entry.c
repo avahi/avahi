@@ -187,6 +187,7 @@ static AvahiEntry * server_add_internal(
     assert(s);
     assert(r);
 
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, s->state != AVAHI_SERVER_FAILURE && s->state != AVAHI_SERVER_INVALID, AVAHI_ERR_BAD_STATE);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_FLAGS_VALID(
@@ -215,6 +216,7 @@ static AvahiEntry * server_add_internal(
     transport_flags_from_domain(s, &flags, r->key->name);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, flags & AVAHI_PUBLISH_USE_MULTICAST, AVAHI_ERR_NOT_SUPPORTED);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !s->config.disable_publishing, AVAHI_ERR_NOT_PERMITTED);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !g || (g->state != AVAHI_ENTRY_GROUP_ESTABLISHED && g->state != AVAHI_ENTRY_GROUP_REGISTERING), AVAHI_ERR_BAD_STATE);
     
     if (flags & AVAHI_PUBLISH_UPDATE) {
         AvahiRecord *old_record;

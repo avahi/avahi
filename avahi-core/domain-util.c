@@ -27,25 +27,53 @@
 #include <assert.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
+#include <sys/utsname.h>
+#include <stdio.h>
 
 #include <avahi-common/malloc.h>
 
 #include "domain-util.h"
+#include "util.h"
+
+static void strip_bad_chars(char *s) {
+    char *p, *d;
+
+    s[strcspn(s, ".")] = 0;
+    
+    for (p = s, d = s; *p; p++) 
+        if (isalnum(*p) || *p == '-')
+            *(d++) = *p;
+
+    *d = 0;
+}
 
 char *avahi_get_host_name(char *ret_s, size_t size) {
-#ifdef HOST_NAME_MAX
-    char t[HOST_NAME_MAX];
-#else
-    char t[256];
-#endif
-    
     assert(ret_s);
     assert(size > 0);
+
+    if (gethostname(ret_s, size) >= 0) {
+        ret_s[size-1] = 0;
+        strip_bad_chars(ret_s);
+    } else
+        *ret_s = 0;
+
+    if (*ret_s == 0) {
+        struct utsname utsname;
+        
+        /* No hostname was set, so let's take the OS name */
+
+        if (uname(&utsname) >= 0) {
+            snprintf(ret_s, size, "%s", utsname.sysname);
+            strip_bad_chars(ret_s);
+            avahi_strdown(ret_s);
+        }
+
+        if (*ret_s == 0)
+            snprintf(ret_s, size, "unnamed");
+    }
     
-    gethostname(t, sizeof(t));
-    t[sizeof(t)-1] = 0;
-    
-    return avahi_normalize_name(t, ret_s, size);
+    return ret_s;
 }
 
 char *avahi_get_host_name_strdup(void) {

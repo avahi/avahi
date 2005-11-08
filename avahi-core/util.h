@@ -35,6 +35,9 @@ char *avahi_format_mac_address(const uint8_t* mac, size_t size);
 /** Change every character in the string to upper case (ASCII), return a pointer to the string */
 char *avahi_strup(char *s);
 
+/** Change every character in the string to lower case (ASCII), return a pointer to the string */
+char *avahi_strdown(char *s);
+
 AVAHI_C_DECL_END
 
 #endif

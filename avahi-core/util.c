@@ -101,3 +101,13 @@ char *avahi_strup(char *s) {
 
     return s;
 }
+
+char *avahi_strdown(char *s) {
+    char *c;
+    assert(s);
+
+    for (c = s; *c; c++)
+        *c = (char) tolower(*c);
+
+    return s;
+}

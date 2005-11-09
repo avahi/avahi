@@ -703,6 +703,7 @@ static int run_server(DaemonConfig *c) {
     int error;
     const AvahiPoll *poll_api = NULL;
     AvahiWatch *sig_watch = NULL;
+    int retval_is_sent = 0;
 
     assert(c);
 
@@ -773,8 +774,10 @@ static int run_server(DaemonConfig *c) {
 
     update_wide_area_servers();
 
-    if (c->daemonize)
+    if (c->daemonize) {
         daemon_retval_send(0);
+	retval_is_sent = 1;
+    }
 
     for (;;) {
         if ((r = avahi_simple_poll_iterate(simple_poll_api, -1)) < 0) {
@@ -819,7 +822,7 @@ finish:
         simple_poll_api = NULL;
     }
 
-    if (r != 0 && c->daemonize)
+    if (!retval_is_sent && c->daemonize)
         daemon_retval_send(1);
     
     return r;

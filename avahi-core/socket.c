@@ -503,10 +503,13 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     }
-#else
-#ifdef __GNUC__
-#warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO is not available"
-#endif
+#elif defined(IP_MULTICAST_IF)
+    if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &(src_address->address), sizeof(src_address->address)) < 0) {
+      avahi_log_warn("IP_MULTICAST_IF failed: %s", strerror(errno));
+      return -1;
+    }
+#elif defined(__GNUC__)
+#warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO/IP_MULTICAST_IF is not available"
 #endif
 
     return sendmsg_loop(fd, &msg, 0);

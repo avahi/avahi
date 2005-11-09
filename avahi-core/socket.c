@@ -457,6 +457,9 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
 #ifdef IP_PKTINFO
     struct cmsghdr *cmsg;
     uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_pktinfo))];
+#elif defined(IP_SENDSRCADDR)
+    struct cmsghdr *cmsg;
+    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_addr))];
 #endif
 
     assert(fd >= 0);
@@ -503,10 +506,29 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
         msg.msg_control = cmsg_data;
         msg.msg_controllen = sizeof(cmsg_data);
     }
+#elif defined(IP_SENDSRCADDR)
+    if (src_address) {
+        struct in_addr *addr;
+      
+	memset(cmsg_data, 0, sizeof(cmsg_data));
+	cmsg = (struct cmsghdr*) cmsg_data;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_addr));
+	cmsg->cmsg_level = IPPROTO_IP;
+	cmsg->cmsg_type = IP_SENDSRCADDR;
+	
+	addr = (struct in_addr *)CMSG_DATA(cmsg);
+	addr->s_addr =  src_address->address;
+	
+	msg.msg_control = cmsg_data;
+	msg.msg_controllen = sizeof(cmsg_data);
+    }
 #elif defined(IP_MULTICAST_IF)
-    if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &(src_address->address), sizeof(src_address->address)) < 0) {
-      avahi_log_warn("IP_MULTICAST_IF failed: %s", strerror(errno));
-      return -1;
+    {
+        struct in_addr any = { INADDR_ANY };
+	if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, src_address ? (const void*) &src_address->address : (const void*) &any, sizeof(struct in_addr)) < 0) {
+	    avahi_log_warn("IP_MULTICAST_IF failed: %s", strerror(errno));
+	    return -1;
+	}
     }
 #elif defined(__GNUC__)
 #warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO/IP_MULTICAST_IF is not available"

@@ -59,11 +59,8 @@ const char *avahi_exe_name(void) {
 
     if (exe_name[0] == 0) {
         int k;
-        char fn[64];
         
-        snprintf(fn, sizeof(fn), "/proc/%lu/exe", (unsigned long) getpid());
-        
-        if ((k = readlink(fn, exe_name, sizeof(exe_name)-1)) < 0)
+        if ((k = readlink("/proc/self/exe", exe_name, sizeof(exe_name)-1)) < 0)
             snprintf(exe_name, sizeof(exe_name), "(unknown)");
         else {
             char *slash;
@@ -132,6 +129,3 @@ void avahi_warn_unsupported(const char *function) {
     avahi_warn("Please fix your application to use the native API of Avahi!");
     avahi_warn("For more information see <http://0pointer.de/avahi-compat?s="CGI_SUBSYSTEM"&e=%s&f=%s>", avahi_exe_name(), function);
 }
-
-
-

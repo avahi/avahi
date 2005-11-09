@@ -72,6 +72,9 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
         if (*ret_s == 0)
             snprintf(ret_s, size, "unnamed");
     }
+
+    if (size >= AVAHI_LABEL_MAX)
+	ret_s[AVAHI_LABEL_MAX-1] = 0;    
     
     return ret_s;
 }

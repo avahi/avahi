@@ -62,7 +62,8 @@ namespace Avahi
         Registering = ServerState.Registering,
         Running = ServerState.Running,
         Collision = ServerState.Collision,
-        Disconnected = 100
+        Failure = 100,
+        Connecting = 101
     }
 
     [Flags]
@@ -82,6 +83,13 @@ namespace Avahi
         Local = 8,
         OurOwn = 16,
     }
+
+    [Flags]
+    public enum ClientFlags {
+        None = 0,
+        IgnoreUserConfig = 1,
+        NoFail = 2
+    }
     
     public class Client : IDisposable
     {
@@ -93,7 +101,7 @@ namespace Avahi
         private Thread thread;
 
         [DllImport ("avahi-client")]
-        private static extern IntPtr avahi_client_new (IntPtr poll, ClientCallback handler,
+        private static extern IntPtr avahi_client_new (IntPtr poll, ClientFlags flags, ClientCallback handler,
                                                        IntPtr userData, out int error);
 
         [DllImport ("avahi-client")]
@@ -212,7 +220,7 @@ namespace Avahi
             }
         }
 
-        public Client ()
+        public Client (ClientFlags flags)
         {
             spoll = avahi_simple_poll_new ();
 
@@ -222,13 +230,16 @@ namespace Avahi
             cb = OnClientCallback;
 
             int error;
-            handle = avahi_client_new (poll, cb, IntPtr.Zero, out error);
+            handle = avahi_client_new (poll, flags, cb, IntPtr.Zero, out error);
             if (error != 0)
                 throw new ClientException (error);
 
             thread = new Thread (PollLoop);
             thread.IsBackground = true;
             thread.Start ();
+        }
+
+        public Client () : this (ClientFlags.None) {
         }
 
         ~Client ()

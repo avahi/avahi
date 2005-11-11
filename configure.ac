@@ -370,7 +370,7 @@ if test "x$HAVE_DBUS" = "xyes" ; then
         # to /var/run/dbus
 
         DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="unix:path=/var/run/dbus/system_bus_socket"
-        TRY_SOCKETS="/var/lib/dbus/system_bus_socket /var/run/dbus/system_bus_socket"
+        TRY_SOCKETS="/var/lib/dbus/system_bus_socket /var/run/dbus/system_bus_socket ${localstatedir}/run/dbus/system_bus_socket ${prefix}/var/run/dbus/system_bus_socket"
         for sock in $TRY_SOCKETS; do
             if test -S $sock; then
                 DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="unix:path=$sock"

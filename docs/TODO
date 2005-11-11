@@ -5,7 +5,7 @@ for 0.6:
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * fix python scripts
 * update man pages
-* portability: make use of IP_SENDSRCADDR where it is available
+* portability: Check that IP_SENDSRCADDR is working properly
 * portability: implement avahi_exe_name() in avahi-compat-libdns_sd/warn.c on non-linux architectures
 
 later:

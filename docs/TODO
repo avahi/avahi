@@ -5,8 +5,6 @@ for 0.6:
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
 * fix python scripts
 * update man pages
-* add some avahi_warn_log in iface-pfroute for the sysctl call [sebest]
-* find why the sysctl call in iface-pfroute fails on FreeBSD "Cannot allocate memory" needs --no-rtlimits to workaround this [sebest]
 * portability: implement avahi_exe_name() in avahi-compat-libdns_sd/warn.c on non-linux architectures [sebest]
 
 later:

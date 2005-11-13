@@ -321,10 +321,14 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   mib[4] = NET_RT_IFLIST;
   mib[5] = 0;             /* no flags */
   if (sysctl(mib, 6, NULL, &needed, NULL, 0) < 0)
-    return;
+    {
+      avahi_log_warn("sysctl failed: %s", strerror(errno));
+      return;
+    }
   if ((buf = avahi_malloc(needed)) == NULL)
     return;
   if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
+    avahi_log_warn("sysctl failed: %s", strerror(errno));
     if (errno == ENOMEM && count++ < 10) {
       sleep(1);
       avahi_free(buf);

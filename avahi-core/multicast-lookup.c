@@ -114,9 +114,10 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
     avahi_querier_add_for_all(e->server, interface, protocol, l->key, &tv);
     l->queriers_added = 1;
 
-    /* add a second */
+    /* Add a second */
     avahi_timeval_add(&tv, 1000000);
 
+    /* Issue the ALL_FOR_NOW event one second after the querier was initially created */
     l->all_for_now_event = avahi_time_event_new(e->server->time_event_queue, &tv, all_for_now_callback, l);
     
     return l;

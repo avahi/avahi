@@ -115,7 +115,11 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         avahi_client_set_errno(client, AVAHI_ERR_DISCONNECTED);
         goto fail;
 
-    } if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
+    } else if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameAcquired")) {
+
+        /* Ignore this message */
+        
+    } else if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
         char *name, *old, *new;
         
         if (!dbus_message_get_args(
@@ -154,7 +158,7 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
 
     } else if (!avahi_client_is_connected(client)) {
         
-        /* Ignore messages, we get in unconnected state */
+        /* Ignore messages we get in unconnected state */
         
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged")) {
         int32_t state;

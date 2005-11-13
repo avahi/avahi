@@ -31,9 +31,11 @@ AvahiRecordList *avahi_record_list_new(void);
 void avahi_record_list_free(AvahiRecordList *l);
 void avahi_record_list_flush(AvahiRecordList *l);
 
-AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *flush_cache, int *unicast_response, int *auxiliary);
+AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *ret_flush_cache, int *ret_unicast_response, int *ret_auxiliary);
 void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, int flush_cache, int unicast_response, int auxiliary);
 void avahi_record_list_drop(AvahiRecordList *l, AvahiRecord *r);
+
+int avahi_record_list_all_flush_cache(AvahiRecordList *l);
 
 int avahi_record_list_is_empty(AvahiRecordList *l);
 

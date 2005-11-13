@@ -36,6 +36,9 @@ typedef struct AvahiQueryJob AvahiQueryJob;
 typedef struct AvahiKnownAnswer AvahiKnownAnswer;
 
 struct AvahiQueryJob {
+    unsigned id;
+    int n_posted;
+    
     AvahiQueryScheduler *scheduler;
     AvahiTimeEvent *time_event;
     
@@ -44,6 +47,14 @@ struct AvahiQueryJob {
 
     AvahiKey *key;
 
+    /* Jobs are stored in a simple linked list. It might turn out in
+     * the future that this list grows too long and we must switch to
+     * some other kind of data structure. This needs further
+     * investigation. I expect the list to be very short (< 20
+     * entries) most of the time, but this might be a wrong
+     * assumption, especially on setups where traffic reflection is
+     * involved. */
+    
     AVAHI_LLIST_FIELDS(AvahiQueryJob, jobs);
 };
 
@@ -57,6 +68,8 @@ struct AvahiKnownAnswer {
 struct AvahiQueryScheduler {
     AvahiInterface *interface;
     AvahiTimeEventQueue *time_event_queue;
+
+    unsigned next_id;
 
     AVAHI_LLIST_HEAD(AvahiQueryJob, jobs);
     AVAHI_LLIST_HEAD(AvahiQueryJob, history);
@@ -77,6 +90,8 @@ static AvahiQueryJob* job_new(AvahiQueryScheduler *s, AvahiKey *key, int done) {
     qj->scheduler = s;
     qj->key = avahi_key_ref(key);
     qj->time_event = NULL;
+    qj->n_posted = 1;
+    qj->id = s->next_id++;
     
     if ((qj->done = done)) 
         AVAHI_LLIST_PREPEND(AvahiQueryJob, jobs, s->history, qj);
@@ -144,6 +159,7 @@ AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i) {
     
     s->interface = i;
     s->time_event_queue = i->monitor->server->time_event_queue;
+    s->next_id = 0;
     
     AVAHI_LLIST_HEAD_INIT(AvahiQueryJob, s->jobs);
     AVAHI_LLIST_HEAD_INIT(AvahiQueryJob, s->history);
@@ -335,25 +351,21 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
     return NULL;
 }
 
-int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately) {
+int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately, unsigned *ret_id) {
     struct timeval tv;
     AvahiQueryJob *qj;
     
     assert(s);
     assert(key);
 
-    if ((qj = find_history_job(s, key))) {
-/*         avahi_log_debug("Query suppressed by local duplicate suppression (history)"); */
+    if ((qj = find_history_job(s, key)))
         return 0;
-    }
     
     avahi_elapse_time(&tv, immediately ? 0 : AVAHI_QUERY_DEFER_MSEC, 0);
 
     if ((qj = find_scheduled_job(s, key))) {
         /* Duplicate questions suppression */
 
-/*         avahi_log_debug("Query suppressed by local duplicate suppression (scheduled)"); */
-        
         if (avahi_timeval_compare(&tv, &qj->delivery) < 0) {
             /* If the new entry should be scheduled earlier,
              * update the old entry */
@@ -361,18 +373,21 @@ int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immedi
             avahi_time_event_update(qj->time_event, &qj->delivery);
         }
 
-        return 1;
+        qj->n_posted++;
+        
     } else {
-/*         avahi_log_debug("Accepted new query job."); */
 
         if (!(qj = job_new(s, key, 0)))
             return 0; /* OOM */
         
         qj->delivery = tv;
         qj->time_event = avahi_time_event_new(s->time_event_queue, &qj->delivery, elapse_callback, qj);
-        
-        return 1;
     }
+
+    if (ret_id)
+        *ret_id = qj->id;
+    
+    return 1;
 }
 
 void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
@@ -382,19 +397,54 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
     assert(key);
 
     /* This function is called whenever an incoming query was
-     * receieved. We drop scheduled queries that match. The keyword is
+     * received. We drop scheduled queries that match. The keyword is
      * "DUPLICATE QUESTION SUPPRESION". */
 
     if ((qj = find_scheduled_job(s, key))) {
-/*         avahi_log_debug("Query suppressed by distributed duplicate suppression"); */
         job_mark_done(s, qj);
         return;
     }
-    
-    if (!(qj = job_new(s, key, 1)))
-        return; /* OOM */
+
+    /* Look if there's a history job for this key. If there is, just
+     * update the elapse time */
+    if (!(qj = find_history_job(s, key)))
+        if (!(qj = job_new(s, key, 1)))
+            return; /* OOM */
     
     gettimeofday(&qj->delivery, NULL);
     job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
 }
 
+int avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id) {
+    AvahiQueryJob *qj;
+    
+    assert(s);
+
+    /* Very short lived queries can withdraw an already scheduled item
+     * from the queue using this function, simply by passing the id
+     * returned by avahi_query_scheduler_post(). */
+
+    for (qj = s->jobs; qj; qj = qj->jobs_next) {
+        assert(!qj->done);
+        
+        if (qj->id == id) {
+            /* Entry found */
+
+            assert(qj->n_posted >= 1);
+
+            if (--qj->n_posted <= 0) {
+
+                /* We withdraw this job only if the calling object was
+                 * the only remaining poster. (Usually this is the
+                 * case since there should exist only one querier per
+                 * key, but there are exceptions, notably reflected
+                 * traffic.) */
+                
+                job_free(s, qj);
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}

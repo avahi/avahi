@@ -583,14 +583,19 @@ void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p) {
     avahi_interface_send_packet_unicast(i, p, NULL, 0);
 }
 
-int avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, int immediately) {
+int avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, int immediately, unsigned *ret_id) {
     assert(i);
     assert(key);
 
     if (avahi_interface_is_relevant(i))
-        return avahi_query_scheduler_post(i->query_scheduler, key, immediately);
+        return avahi_query_scheduler_post(i->query_scheduler, key, immediately, ret_id);
 
     return 0;
+}
+
+int avahi_interface_withraw_query(AvahiInterface *i, unsigned id) {
+
+    return avahi_query_scheduler_withdraw_by_id(i->query_scheduler, id);
 }
 
 int avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately) {

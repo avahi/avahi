@@ -42,6 +42,9 @@ struct AvahiQuerier {
     AvahiTimeEvent *time_event;
 
     struct timeval creation_time;
+
+    unsigned post_id;
+    int post_id_valid;
     
     AVAHI_LLIST_FIELDS(AvahiQuerier, queriers);
 };
@@ -64,7 +67,24 @@ static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *us
     
     assert(q);
 
-    avahi_interface_post_query(q->interface, q->key, 0);
+    if (q->n_used <= 0) {
+
+        /* We are not referenced by anyone anymore, so let's free
+         * ourselves. We should not send out any further queries from
+         * this querier object anymore. */
+
+        avahi_querier_free(q);
+        return;
+    }
+
+    if (avahi_interface_post_query(q->interface, q->key, 0, &q->post_id)) {
+
+        /* The queue accepted our query. We store the query id here,
+         * that allows us to drop the query at a later point if the
+         * query is very short-lived. */
+        
+        q->post_id_valid = 1;
+    }
 
     q->sec_delay *= 2;
     
@@ -83,10 +103,13 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
     assert(key);
     
     if ((q = avahi_hashmap_lookup(i->queriers_by_key, key))) {
+        
         /* Someone is already browsing for records of this RR key */
         q->n_used++;
 
-        /* Return the creation time */
+        /* Return the creation time. This is used for generating the
+         * ALL_FOR_NOW event one second after the querier was
+         * initially created. */
         if (ret_ctime)
             *ret_ctime = q->creation_time;
         return;
@@ -100,10 +123,12 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
     q->interface = i;
     q->n_used = 1;
     q->sec_delay = 1;
+    q->post_id_valid = 0;
     gettimeofday(&q->creation_time, NULL);
 
     /* Do the initial query */
-    avahi_interface_post_query(i, key, 0);
+    if (avahi_interface_post_query(i, key, 0, &q->post_id))
+        q->post_id_valid = 1;
 
     /* Schedule next queries */
     q->time_event = avahi_time_event_new(i->monitor->server->time_event_queue, avahi_elapse_time(&tv, q->sec_delay*1000, 0), querier_elapse_callback, q);
@@ -111,7 +136,9 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
     AVAHI_LLIST_PREPEND(AvahiQuerier, queriers, i->queriers, q);
     avahi_hashmap_insert(i->queriers_by_key, q->key, q);
 
-    /* Return the creation time */
+    /* Return the creation time. This is used for generating the
+     * ALL_FOR_NOW event one second after the querier was initially
+     * created. */
     if (ret_ctime)
         *ret_ctime = q->creation_time;
 }
@@ -119,16 +146,29 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
 void avahi_querier_remove(AvahiInterface *i, AvahiKey *key) {
     AvahiQuerier *q;
 
-    if (!(q = avahi_hashmap_lookup(i->queriers_by_key, key))) {
-        /* The was no querier for this RR key */
-        avahi_log_warn(__FILE__": querier_remove() called but no querier to remove");
+    if (!(q = avahi_hashmap_lookup(i->queriers_by_key, key)) || q->n_used <= 0) {
+        /* There was no querier for this RR key, or it wasn't referenced by anyone */
+        avahi_log_warn(__FILE__": querier_remove() called but no querier to remove.");
         return;
     }
 
-    assert(q->n_used >= 1);
+    if ((--q->n_used) <= 0) {
 
-    if ((--q->n_used) <= 0)
-        avahi_querier_free(q);
+        /* Nobody references us anymore. */
+
+        if (q->post_id_valid && avahi_interface_withraw_query(i, q->post_id)) {
+
+            /* We succeeded in withdrawing our query from the queue,
+             * so let's drop dead. */
+
+            avahi_querier_free(q);
+        }
+
+        /* If we failed to withdraw our query from the queue, we stay
+         * alive, in case someone else might recycle our querier at a
+         * later point. We are freed at our next expiry, in case
+         * nobody recycled us. */
+    }
 }
 
 static void remove_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
@@ -183,14 +223,42 @@ void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol p
     avahi_interface_monitor_walk(s->monitor, idx, protocol, add_querier_callback, &cbdata);
 }
 
-int avahi_querier_exists(AvahiInterface *i, AvahiKey *key) {
+int avahi_querier_shall_refresh_cache(AvahiInterface *i, AvahiKey *key) {
+    AvahiQuerier *q;
+    
     assert(i);
     assert(key);
 
-    if (avahi_hashmap_lookup(i->queriers_by_key, key))
-        return 1;
+    /* Called by the cache maintainer */
 
-    return 0;
+    if (!(q = avahi_hashmap_lookup(i->queriers_by_key, key)))
+        /* This key is currently not subscribed at all, so no cache
+         * refresh is needed */
+        return 0;
+    
+    if (q->n_used <= 0) {
+
+        /* If this is an entry nobody references right now, don't
+         * consider it "existing". */
+        
+        /* Remove this querier since it is referenced by nobody
+         * and the cached data will soon be out of date */
+        avahi_querier_free(q);
+
+        /* Tell the cache that no refresh is needed */
+        return 0;
+        
+    } else {
+        struct timeval tv;
+
+        /* We can defer our query a little, since the cache will now
+         * issue a refresh query anyway. */
+        avahi_elapse_time(&tv, q->sec_delay*1000, 0);
+        avahi_time_event_update(q->time_event, &tv);
+
+        /* Tell the cache that a refresh should be issued */
+        return 1;
+    }
 }
 
 void avahi_querier_free_all(AvahiInterface *i) {

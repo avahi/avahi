@@ -211,11 +211,9 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         assert(percent > 0);
 
-        /* Request a cache update, if we are subscribed to this entry */
-        if (avahi_querier_exists(e->cache->interface, e->record->key)) {
-/*             avahi_log_debug("Requesting cache entry update at %i%% for %s.", percent, txt);   */
-            avahi_interface_post_query(e->cache->interface, e->record->key, 1);
-        }
+        /* Request a cache update if we are subscribed to this entry */
+        if (avahi_querier_shall_refresh_cache(e->cache->interface, e->record->key))
+            avahi_interface_post_query(e->cache->interface, e->record->key, 0, NULL);
         
         /* Check again later */
         next_expiry(e->cache, e, percent);

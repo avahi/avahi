@@ -43,10 +43,11 @@ struct AvahiRecordListItem {
     AVAHI_LLIST_FIELDS(AvahiRecordListItem, items);
 };
 
-
 struct AvahiRecordList {
     AVAHI_LLIST_HEAD(AvahiRecordListItem, read);
     AVAHI_LLIST_HEAD(AvahiRecordListItem, unread);
+
+    int all_flush_cache;
 };
 
 AvahiRecordList *avahi_record_list_new(void) {
@@ -59,6 +60,8 @@ AvahiRecordList *avahi_record_list_new(void) {
     
     AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->read);
     AVAHI_LLIST_HEAD_INIT(AvahiRecordListItem, l->unread);
+
+    l->all_flush_cache = 1;
     return l;
 }
 
@@ -89,9 +92,11 @@ void avahi_record_list_flush(AvahiRecordList *l) {
         item_free(l, l->read);
     while (l->unread)
         item_free(l, l->unread);
+
+    l->all_flush_cache = 1;
 }
 
-AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *flush_cache, int *unicast_response, int *auxiliary) {
+AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *ret_flush_cache, int *ret_unicast_response, int *ret_auxiliary) {
     AvahiRecord *r;
     AvahiRecordListItem *i;
 
@@ -101,12 +106,12 @@ AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *flush_cache, int *u
     assert(!i->read);
     
     r = avahi_record_ref(i->record);
-    if (unicast_response)
-        *unicast_response = i->unicast_response;
-    if (flush_cache)
-        *flush_cache = i->flush_cache;
-    if (auxiliary)
-        *auxiliary = i->auxiliary;
+    if (ret_unicast_response)
+        *ret_unicast_response = i->unicast_response;
+    if (ret_flush_cache)
+        *ret_flush_cache = i->flush_cache;
+    if (ret_auxiliary)
+        *ret_auxiliary = i->auxiliary;
 
     AVAHI_LLIST_REMOVE(AvahiRecordListItem, items, l->unread, i);
     AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->read, i);
@@ -153,6 +158,8 @@ void avahi_record_list_push(AvahiRecordList *l, AvahiRecord *r, int flush_cache,
     i->record = avahi_record_ref(r);
     i->read = 0;
 
+    l->all_flush_cache = l->all_flush_cache && flush_cache;
+    
     AVAHI_LLIST_PREPEND(AvahiRecordListItem, items, l->unread, i);
 }
 
@@ -172,4 +179,12 @@ int avahi_record_list_is_empty(AvahiRecordList *l) {
     assert(l);
     
     return !l->unread && !l->read;
+}
+
+int avahi_record_list_all_flush_cache(AvahiRecordList *l) {
+    assert(l);
+
+    /* Return TRUE if all entries in this list have flush_cache set */
+    
+    return l->all_flush_cache;
 }

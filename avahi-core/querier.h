@@ -45,6 +45,6 @@ void avahi_querier_free(AvahiQuerier *q);
 void avahi_querier_free_all(AvahiInterface *i);
 
 /** Return 1 if there is a querier for the specified key on the specified interface */
-int avahi_querier_exists(AvahiInterface *i, AvahiKey *key);
+int avahi_querier_shall_refresh_cache(AvahiInterface *i, AvahiKey *key);
 
 #endif

@@ -404,15 +404,25 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
         int tc = p && !!(avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) & AVAHI_DNS_FLAG_TC);
         
         while ((r = avahi_record_list_next(s->record_list, &flush_cache, &unicast_response, &auxiliary))) {
-                        
-            if (!avahi_interface_post_response(i, r, flush_cache, a, immediately || (flush_cache && !tc && !auxiliary)) && unicast_response) {
 
-                append_aux_records_to_list(s, i, r, unicast_response);
-                
+            int im = immediately;
+
+            /* Only send the response immediately if it contains a
+             * unique entry AND it is not in reply to a truncated
+             * packet AND it is not an auxiliary record AND all other
+             * responses for this record are unique too. */
+            
+            if (flush_cache && !tc && !auxiliary && avahi_record_list_all_flush_cache(s->record_list))
+                im = 1;
+
+            if (!avahi_interface_post_response(i, r, flush_cache, a, im) && unicast_response) {
+
                 /* Due to some reasons the record has not been scheduled.
                  * The client requested an unicast response in that
                  * case. Therefore we prepare such a response */
 
+                append_aux_records_to_list(s, i, r, unicast_response);
+                
                 for (;;) {
                 
                     if (!reply) {
@@ -517,7 +527,7 @@ static void reflect_query(AvahiServer *s, AvahiInterface *i, AvahiKey *k) {
     for (j = s->monitor->interfaces; j; j = j->interface_next)
         if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol)) {
             /* Post the query to other networks */
-            avahi_interface_post_query(j, k, 1);
+            avahi_interface_post_query(j, k, 1, NULL);
 
             /* Reply from caches of other network. This is needed to
              * "work around" known answer suppression. */

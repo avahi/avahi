@@ -166,7 +166,8 @@ int avahi_interface_is_relevant(AvahiInterface *i);
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port);
 
-int avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, int immediately);
+int avahi_interface_post_query(AvahiInterface *i, AvahiKey *k, int immediately, unsigned *ret_id);
+int avahi_interface_withraw_query(AvahiInterface *i, unsigned id);
 int avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately);
 int avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *p, int immediately);
 

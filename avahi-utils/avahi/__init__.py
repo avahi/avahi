@@ -74,3 +74,11 @@ def string_array_to_txt_array(t):
         l.append(string_to_byte_array(s))
 
     return l
+
+def dict_to_txt_array(txt_dict):
+    l = []
+
+    for k,v in txt_dict.items():
+        l.append(string_to_byte_array("%s=%s" % (k,v)))
+
+    return l

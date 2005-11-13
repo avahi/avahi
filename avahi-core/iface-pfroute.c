@@ -322,14 +322,19 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   mib[5] = 0;             /* no flags */
   if (sysctl(mib, 6, NULL, &needed, NULL, 0) < 0)
     {
-      avahi_log_warn("sysctl failed: %s", strerror(errno));
+      avahi_log_error("sysctl failed: %s", strerror(errno));
+      avahi_log_error("route-sysctl-estimate");
       return;
     }
   if ((buf = avahi_malloc(needed)) == NULL)
-    return;
+    {
+      avahi_log_error("malloc failed in avahi_interface_monitor_sync");
+      return;
+    }
   if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
     avahi_log_warn("sysctl failed: %s", strerror(errno));
     if (errno == ENOMEM && count++ < 10) {
+      avahi_log_warn("Routing table grew, retrying");
       sleep(1);
       avahi_free(buf);
       goto retry2;

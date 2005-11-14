@@ -129,9 +129,9 @@ fi
 with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
 
 case $with_distro in
-    debian|gentoo|archlinux|suse|fedora|none)
+    debian|gentoo|archlinux|suse|fedora|darwin|none)
      ;;
-    darwin|netbsd|freebsd)
+    netbsd|freebsd)
      AC_MSG_WARN([Your distribution (${with_distro}) is supported but no init script exist yet! (patches welcome)])
      ;;
     linux)
@@ -704,6 +704,7 @@ initscript/gentoo/Makefile
 initscript/archlinux/Makefile
 initscript/suse/Makefile
 initscript/fedora/Makefile
+initscript/darwin/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-utils/avahi/Makefile

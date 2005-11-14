@@ -17,28 +17,24 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-SUBDIRS = 
+initddir = /System/Library/LaunchDaemons/
 
-if TARGET_DEBIAN
-SUBDIRS += debian
-endif
+EXTRA_DIST = \
+	org.freedesktop.avahi-daemon.plist.in \
+	org.freedesktop.avahi-dnsconfd.plist.in
 
-if TARGET_ARCHLINUX
-SUBDIRS += archlinux
-endif
+initd_SCRIPTS = \
+	org.freedesktop.avahi-daemon.plist \
+	org.freedesktop.avahi-dnsconfd.plist
 
-if TARGET_GENTOO
-SUBDIRS += gentoo
-endif
+CLEANFILES = \
+	org.freedesktop.avahi-daemon.plist \
+	org.freedesktop.avahi-dnsconfd.plist
 
-if TARGET_SUSE
-SUBDIRS += suse
-endif
+org.freedesktop.avahi-daemon.plist: org.freedesktop.avahi-daemon.plist.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@
 
-if TARGET_FEDORA
-SUBDIRS += fedora
-endif
-
-if TARGET_DARWIN
-SUBDIRS += darwin
-endif
+org.freedesktop.avahi-dnsconfd.plist: org.freedesktop.avahi-dnsconfd.plist.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@

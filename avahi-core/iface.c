@@ -206,15 +206,12 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
                    avahi_proto_to_string(i->protocol),
                    avahi_address_snprint(at, sizeof(at), &i->local_mcast_address));
 
-    if (i->protocol == AVAHI_PROTO_INET6) {
-        if (avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, &i->local_mcast_address.data.ipv6, i->hardware->index, join) < 0)
-            return -1;
-        
-    } else {
+    if (i->protocol == AVAHI_PROTO_INET6)
+        avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, &i->local_mcast_address.data.ipv6, i->hardware->index, join);
+    else {
         assert(i->protocol == AVAHI_PROTO_INET);
             
-        if (avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &i->local_mcast_address.data.ipv4, i->hardware->index, join) < 0)
-            return -1;
+        avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &i->local_mcast_address.data.ipv4, i->hardware->index, join);
     }
 
     i->mcast_joined = join;

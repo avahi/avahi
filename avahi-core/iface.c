@@ -174,9 +174,11 @@ void avahi_interface_monitor_update_rrs(AvahiInterfaceMonitor *m, int remove_rrs
 
 static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
     char at[AVAHI_ADDRESS_STR_MAX];
+    int r;
     assert(i);
 
-    assert((join && !i->mcast_joined) || (!join && i->mcast_joined));
+    if (!!join  == !!i->mcast_joined)
+        return 0;
     
     if (join) {
         AvahiInterfaceAddress *a;
@@ -207,14 +209,18 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
                    avahi_address_snprint(at, sizeof(at), &i->local_mcast_address));
 
     if (i->protocol == AVAHI_PROTO_INET6)
-        avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, &i->local_mcast_address.data.ipv6, i->hardware->index, join);
+        r = avahi_mdns_mcast_join_ipv6(i->monitor->server->fd_ipv6, &i->local_mcast_address.data.ipv6, i->hardware->index, join);
     else {
         assert(i->protocol == AVAHI_PROTO_INET);
             
-        avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &i->local_mcast_address.data.ipv4, i->hardware->index, join);
+        r = avahi_mdns_mcast_join_ipv4(i->monitor->server->fd_ipv4, &i->local_mcast_address.data.ipv4, i->hardware->index, join);
     }
 
-    i->mcast_joined = join;
+    if (r < 0)
+        i->mcast_joined = 0;
+    else
+        i->mcast_joined = join;
+    
     return 0;
 }
 

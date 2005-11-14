@@ -1,5 +1,4 @@
 for 0.6:
-* add API to allow user to tell the server that some service is not reachable
 * pass *all* Bonjour conformance tests
 * Add static host configuration like static services [lathiat]
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
@@ -19,6 +18,7 @@ later:
 * long lived queries
 * libavahi-compat-libdns_sd: implement kDNSServiceFlagsNoAutoRename and missing functions
 * libavahi-compat-howl: implement missing functions
+* add API to allow user to tell the server that some service is not reachable
 
 done:
 * drop glib from avahi-daemon

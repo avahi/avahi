@@ -1636,20 +1636,11 @@ int avahi_server_get_group_of_service(AvahiServer *s, AvahiIfIndex interface, Av
     assert(type);
     assert(ret_group);
 
-    if (!AVAHI_IF_VALID(interface))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_INTERFACE);
-
-    if (!AVAHI_IF_VALID(protocol))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_PROTOCOL);
-    
-    if (!avahi_is_valid_service_name(name))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_NAME);
-
-    if (!avahi_is_valid_service_type_strict(type))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_SERVICE_TYPE);
-
-    if (domain && !avahi_is_valid_domain_name(domain))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
+    AVAHI_CHECK_VALIDITY(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
+    AVAHI_CHECK_VALIDITY(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
 
     if ((ret = avahi_service_name_join(n, sizeof(n), name, type, domain) < 0))
         return avahi_server_set_errno(s, ret);

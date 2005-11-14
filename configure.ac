@@ -115,34 +115,41 @@ AC_TRY_COMPILE([#include <netinet/in.h>], [
 #
 # Detecting the linux distribution for specific things like init scripts.
 #
-AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the Linux distribution to target: One of debian, gentoo, archlinux or none]))
+AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the distribution to target: One of debian, gentoo, archlinux, fedora, darwin, netbsd, freebsd or none]))
 if test "z$with_distro" = "z"; then
     AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
     AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
     AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
     AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
     AC_CHECK_FILE(/etc/redhat-release,with_distro="fedora")
+    if test "z$with_distro" = "z"; then
+        with_distro=`uname -s`
+    fi
 fi
 with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
 
-if test "z$with_distro" = "z"; then
-    AC_MSG_ERROR([Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO, set DISTRO to none if your distribution is not supported.])
-    exit 1
-else
 case $with_distro in
     debian|gentoo|archlinux|suse|fedora|none)
+     ;;
+    darwin|netbsd|freebsd)
+     AC_MSG_WARN([Your distribution (${with_distro}) is supported but no init script exist yet! (patches welcome)])
+     ;;
+    linux)
+     AC_MSG_ERROR([Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO, set DISTRO to none if your distribution is not supported.])
      ;;
     *)
      AC_MSG_ERROR([Your distribution (${with_distro}) is not yet supported, init scripts and dbus configuration will not be installed! (patches welcome), you can specify --with-distro=none to skip this check])
      ;;
 esac
-fi
 
 AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
 AM_CONDITIONAL(TARGET_GENTOO, test x"$with_distro" = xgentoo)
 AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
 AM_CONDITIONAL(TARGET_ARCHLINUX, test x"$with_distro" = xarchlinux)
 AM_CONDITIONAL(TARGET_FEDORA, test x"$with_distro" = xfedora)
+AM_CONDITIONAL(TARGET_DARWIN, test x"$with_distro" = xdarwin)
+AM_CONDITIONAL(TARGET_NETBSD, test x"$with_distro" = xnetbsd)
+AM_CONDITIONAL(TARGET_FREEBSD, test x"$with_distro" = xfreebsd)
 
 test_gcc_flag() {
     AC_LANG_CONFTEST([int main() {}])
@@ -737,7 +744,7 @@ echo "
     Enable QT3:             ${HAVE_QT3}
     Enable QT4:             ${HAVE_QT4}
     Enable Mono:            ${HAVE_MONO}
-    Linux Distro:           ${with_distro}
+    Distribution/OS:        ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}
     Enable chroot():        ${enable_chroot}

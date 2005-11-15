@@ -24,7 +24,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_DBUS
 
-bin_PROGRAMS = avahi-browse avahi-resolve-host-name
+bin_PROGRAMS = avahi-browse avahi-resolve
 
 avahi_browse_SOURCES = avahi-browse.c sigint.c sigint.h
 avahi_browse_CFLAGS = $(AM_CFLAGS)
@@ -36,8 +36,8 @@ avahi_browse_CFLAGS += -DDATABASE_FILE=\"$(pkgdatadir)/service-types.db\"
 avahi_browse_LDADD += -lgdbm
 endif
 
-avahi_resolve_host_name_SOURCES = avahi-resolve-host-name.c sigint.c sigint.h
-avahi_resolve_host_name_CFLAGS = $(AM_CFLAGS)
-avahi_resolve_host_name_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
+avahi_resolve_SOURCES = avahi-resolve.c sigint.c sigint.h
+avahi_resolve_CFLAGS = $(AM_CFLAGS)
+avahi_resolve_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
 endif

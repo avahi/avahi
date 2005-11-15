@@ -54,19 +54,24 @@ class Main_window(SimpleGladeApp):
         #Asynchronous resolving
         self.server.ResolveService( int(interface), int(protocol), name, stype, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0), reply_handler=self.service_resolved, error_handler=self.print_error)
 
-
     def protoname(self,protocol):
         if protocol == avahi.PROTO_INET:
             return "IPv4"
         if protocol == avahi.PROTO_INET6:
             return "IPv6"
-            
+        return "n/a"
             
     def siocgifname(self, interface):
         if interface <= 0:
-            return "any"
+            return "n/a"
         else:
             return self.server.GetNetworkInterfaceNameByIndex(interface)
+
+    def get_interface_name(self, interface, protocol):
+        if interface == avahi.IF_UNSPEC and protocol == avahi.PROTO_UNSPEC:
+            return "Wide Area"
+        else:
+            return str(self.siocgifname(interface)) + " " + str(self.protoname(protocol))
                         
     def service_resolved(self, interface, protocol, name, stype, domain, host, aprotocol, address, port, txt, flags):
         print "Service data for service '%s' of type '%s' in domain '%s' on %i.%i:" % (name, stype, domain, interface, protocol)
@@ -91,7 +96,10 @@ class Main_window(SimpleGladeApp):
     def new_service(self, interface, protocol, name, stype, domain, flags):
         print "Found service '%s' of type '%s' in domain '%s' on %i.%i." % (name, stype, domain, interface, protocol)
         if self.zc_ifaces.has_key((interface,protocol)) == False:
-            self.zc_ifaces[(interface,protocol)] = self.insert_row(self.treemodel, None, str(self.siocgifname(interface))+" "+str(self.protoname(protocol)),None,interface,protocol,None,domain)
+
+            ifn = self.get_interface_name(interface, protocol)
+            
+            self.zc_ifaces[(interface,protocol)] = self.insert_row(self.treemodel, None, ifn, None,interface,protocol,None,domain)
         if self.zc_domains.has_key((interface,protocol,domain)) == False:
             self.zc_domains[(interface,protocol,domain)] = self.insert_row(self.treemodel, self.zc_ifaces[(interface,protocol)], domain,None,interface,protocol,None,domain)
         if self.zc_types.has_key((interface,protocol,stype,domain)) == False:
@@ -101,7 +109,6 @@ class Main_window(SimpleGladeApp):
         self.services_browsed[(interface, protocol, name, stype, domain)] = treeiter
         # expand the tree of this path
         self.tree_view.expand_to_path(self.treemodel.get_path(treeiter))
-
 
     def remove_service(self, interface, protocol, name, stype, domain, flags):
         print "Service '%s' of type '%s' in domain '%s' on %i.%i disappeared." % (name, stype, domain, interface, protocol)
@@ -125,7 +132,6 @@ class Main_window(SimpleGladeApp):
                     parent = self.treemodel.iter_parent(treeiter)
                     self.treemodel.remove(treeiter)
                     del self.zc_ifaces[(interface,protocol)]
-
  
     def new_service_type(self, interface, protocol, stype, domain, flags):
         global service_browsers
@@ -161,7 +167,8 @@ class Main_window(SimpleGladeApp):
 
     def new_domain(self,interface, protocol, domain, flags):
         if self.zc_ifaces.has_key((interface,protocol)) == False:
-            self.zc_ifaces[(interface,protocol)] = self.insert_row(self.treemodel, None, str(self.siocgifname(interface))+" "+str(self.protoname(protocol)),None,interface,protocol,None,domain)
+            ifn = self.get_interface_name(interface, protocol)
+            self.zc_ifaces[(interface,protocol)] = self.insert_row(self.treemodel, None, ifn,None,interface,protocol,None,domain)
         if self.zc_domains.has_key((interface,protocol,domain)) == False:
             self.zc_domains[(interface,protocol,domain)] = self.insert_row(self.treemodel, self.zc_ifaces[(interface,protocol)], domain,None,interface,protocol,None,domain)
         if domain != "local":

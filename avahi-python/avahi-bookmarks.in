@@ -62,10 +62,8 @@ class AvahiBookmarks(resource.Resource):
         self.version_string = self.server.GetVersionString()
 
         self.browse_service_type("_http._tcp")
-
-        # Hurrah! if I enable one of the following lines, python segfaults.
-        #self.browse_service_type("_https._tcp")
-        #self.browse_service_type("_ftp._tcp")
+        self.browse_service_type("_https._tcp")
+        self.browse_service_type("_ftp._tcp")
 
     def browse_service_type(self, stype):
 

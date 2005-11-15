@@ -1,11 +1,11 @@
 for 0.6:
 * Add static host configuration like static services [lathiat]
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
+* avahi-publish-* rewrites in C [lathiat]
 * update man pages
 
 later:
 * add simplification routine for adding services 
-* implement avahi-utils in C
 * support for special domain PTR records based on local IP subnet address
 * Changes resulting in updated RFC of 7th June 2005:
   * Defer responses to replies with TC bit set by 400-500msec

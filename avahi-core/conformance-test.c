@@ -109,7 +109,6 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
     avahi_log_debug("server state: %i", state);
 
     if (state == AVAHI_SERVER_RUNNING) {
-        create_service("gurke");
         avahi_server_dump(avahi, dump_line, NULL);
     } else if (state == AVAHI_SERVER_COLLISION) {
         char *n;
@@ -145,9 +144,11 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_elapse_time(&tv, 5000, 0);
     poll_api->timeout_new(poll_api, &tv, rename_timeout_callback, avahi);
 
-    for (;;)
-        if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
-            break;
+    /* Evil, but the conformace test requires that*/
+    create_service("gurke");
+
+    
+    avahi_simple_poll_loop(simple_poll);
     
     if (group)
         avahi_s_entry_group_free(group);   

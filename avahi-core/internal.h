@@ -46,7 +46,7 @@ typedef struct AvahiEntry AvahiEntry;
 #define AVAHI_FLAGS_VALID(flags, max) (!((flags) & ~(max)))
 
 #define AVAHI_RR_HOLDOFF_MSEC 1000
-#define AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT 60000
+#define AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT 20000
 #define AVAHI_RR_RATE_LIMIT_COUNT 15
 
 typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;

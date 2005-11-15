@@ -159,7 +159,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 
 static void help(FILE *f, const char *argv0) {
     fprintf(f,
-            "%s [options] %s <name ...>\n"
+            "%s [options] %s <host name ...>\n"
             "%s [options] %s <address ... >\n\n"
             "    -h --help            Show this help\n"
             "    -V --version         Show version\n"

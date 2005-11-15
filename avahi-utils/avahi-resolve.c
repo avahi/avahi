@@ -48,6 +48,7 @@
 #endif
 
 typedef enum {
+    COMMAND_UNSPEC, 
     COMMAND_HELP,
     COMMAND_VERSION,
     COMMAND_RESOLVE_HOST_NAME,
@@ -168,8 +169,8 @@ static void help(FILE *f, const char *argv0) {
             "    -6                   Lookup IPv6 address\n"
             "    -4                   Lookup IPv4 address\n"
             ,
-            argv0, strstr(argv0, "address") ? "-n" : "[-n]",
-            argv0, strstr(argv0, "address") ? "[-a]" : "-a");
+            argv0, strstr(argv0, "address") ? "[-a]" : "-a",
+            argv0, strstr(argv0, "host-name") ? "[-n]" : "-n");
 }
 
 static int parse_command_line(Config *c, int argc, char *argv[]) {
@@ -186,7 +187,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
 
     assert(c);
 
-    c->command = strstr(argv[0], "address") ? COMMAND_RESOLVE_ADDRESS : COMMAND_RESOLVE_HOST_NAME;
+    c->command = strstr(argv[0], "address") ? COMMAND_RESOLVE_ADDRESS : (strstr(argv[0], "host-name") ? COMMAND_RESOLVE_HOST_NAME : COMMAND_UNSPEC);
     c->proto = AVAHI_PROTO_UNSPEC;
     c->verbose = 0;
 
@@ -245,6 +246,11 @@ int main(int argc, char *argv[]) {
         goto fail;
 
     switch (config.command) {
+        case COMMAND_UNSPEC:
+            ret = 1;
+            fprintf(stderr, "No command specified.\n");
+            break;
+            
         case COMMAND_HELP:
             help(stdout, argv0);
             ret = 0;
@@ -323,7 +329,6 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-    
     
 fail:
 

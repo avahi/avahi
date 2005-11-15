@@ -40,4 +40,7 @@ avahi_resolve_SOURCES = avahi-resolve.c sigint.c sigint.h
 avahi_resolve_CFLAGS = $(AM_CFLAGS)
 avahi_resolve_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
+install-exec-local:
+	cd $(DESTDIR)/$(bindir) && rm -f avahi-resolve-host-name avahi-resolve-address && $(LN_S) avahi-resolve avahi-resolve-host-name && $(LN_S) avahi-resolve avahi-resolve-address
+
 endif

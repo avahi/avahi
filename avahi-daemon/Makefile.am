@@ -125,7 +125,6 @@ EXTRA_DIST = \
 	avahi-service.dtd \
 	avahi-daemon.conf \
 	example.service \
-	dbus-test.py \
 	avahi-dbus.conf \
 	Server.introspect \
 	EntryGroup.introspect \

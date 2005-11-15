@@ -707,7 +707,8 @@ initscript/fedora/Makefile
 initscript/darwin/Makefile
 avahi-dnsconfd/Makefile
 avahi-utils/Makefile
-avahi-utils/avahi/Makefile
+avahi-python/Makefile
+avahi-python/avahi/Makefile
 examples/Makefile
 common/Makefile
 man/Makefile

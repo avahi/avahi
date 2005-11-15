@@ -58,6 +58,7 @@ SUBDIRS = \
 	initscript \
 	avahi-dnsconfd \
 	avahi-utils \
+	avahi-python \
 	examples \
 	man \
 	tests \

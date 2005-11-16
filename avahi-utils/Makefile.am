@@ -46,7 +46,7 @@ avahi_publish_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-co
 
 install-exec-local:
 	cd $(DESTDIR)/$(bindir) && \
-		rm -f avahi-resolve-host-name avahi-resolve-address avahi-browse-domains && \
+		rm -f avahi-resolve-host-name avahi-resolve-address avahi-browse-domains avahi-publish-address avahi-publish-service && \
 		$(LN_S) avahi-resolve avahi-resolve-host-name && \
 		$(LN_S) avahi-resolve avahi-resolve-address && \
 		$(LN_S) avahi-browse avahi-browse-domains && \

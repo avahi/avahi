@@ -167,8 +167,7 @@ static void help(FILE *f, const char *argv0) {
             "    -a --address         Resolve address\n"
             "    -v --verbose         Enable verbose mode\n"
             "    -6                   Lookup IPv6 address\n"
-            "    -4                   Lookup IPv4 address\n"
-            ,
+            "    -4                   Lookup IPv4 address\n",
             argv0, strstr(argv0, "address") ? "[-a]" : "-a",
             argv0, strstr(argv0, "host-name") ? "[-n]" : "-n");
 }

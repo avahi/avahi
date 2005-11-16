@@ -23,8 +23,6 @@ AM_CFLAGS=-I$(top_srcdir)
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 EXTRA_DIST = \
-	avahi-publish-address.in \
-	avahi-publish-service.in \
 	avahi-bookmarks.in \
 	avahi-discover.in \
 	avahi-discover.desktop.in
@@ -36,8 +34,6 @@ if HAVE_PYTHON_DBUS
 if HAVE_PYGTK
 
 pythonscripts = \
-	avahi-publish-address \
-	avahi-publish-service \
 	avahi-bookmarks \
 	avahi-discover
 
@@ -51,14 +47,6 @@ avahi-discover.desktop: avahi-discover.desktop.in
 avahi-discover: avahi-discover.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
-	chmod +x $@
-
-avahi-publish-address: avahi-publish-address.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
-	chmod +x $@
-
-avahi-publish-service: avahi-publish-service.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
 	chmod +x $@
 
 avahi-bookmarks: avahi-bookmarks.in

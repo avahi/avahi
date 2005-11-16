@@ -568,7 +568,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
             if (config->verbose)
                 fprintf(stderr, "Waiting for daemon ...\n");
 
-                break;
+            break;
     }
 }
 
@@ -593,10 +593,11 @@ static void help(FILE *f, const char *argv0) {
             "    -c --cache           Terminate after dumping all entries from the cache\n"
             "    -l --ignore-local    Ignore local services\n"
             "    -r --resolve         Resolve services found\n"
-            "    -f --no-fail         Don't fail if the server is not available\n"
+            "    -f --no-fail         Don't fail if the daemon is not available\n"
 #ifdef HAVE_GDBM
-                    "    -k --no-db-lookup    Don't lookup service types\n");
+            "    -k --no-db-lookup    Don't lookup service types\n"
 #endif
+            );
 }
 
 static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {
@@ -656,6 +657,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 c->command = COMMAND_BROWSE_DOMAINS;
                 break;
             case 'd':
+                avahi_free(c->domain);
                 c->domain = avahi_strdup(optarg);
                 break;
             case 'v':

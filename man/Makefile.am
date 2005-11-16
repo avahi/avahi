@@ -31,8 +31,7 @@ man_MANS = \
 
 noinst_DATA = \
 	avahi-browse.1.xml \
-	avahi-publish-service.1.xml \
-	avahi-publish-address.1.xml \
+	avahi-publish.1.xml \
 	avahi-resolve.1.xml \
 	avahi-daemon.8.xml \
 	avahi-discover.1.xml \
@@ -49,12 +48,11 @@ if HAVE_DBUS
 
 man_MANS += \
 	avahi-browse.1 \
-	avahi-resolve.1
+	avahi-resolve.1 \
+	avahi-publish.1
 
 if HAVE_PYTHON
 man_MANS += \
-	avahi-publish-service.1 \
-	avahi-publish-address.1 \
 	avahi-discover.1 \
 	avahi-bookmarks.1
 endif
@@ -64,11 +62,7 @@ avahi-browse.1.xml: avahi-browse.1.xml.in Makefile
 	sed -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
-avahi-publish-service.1.xml: avahi-publish-service.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-publish-address.1.xml: avahi-publish-address.1.xml.in Makefile
+avahi-publish.1.xml: avahi-publish.1.xml.in Makefile
 	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
@@ -119,10 +113,7 @@ CLEANFILES += $(man_MANS)
 avahi-browse.1: avahi-browse.1.xml Makefile
 	xmltoman $< > $@
 
-avahi-publish-service.1: avahi-publish-service.1.xml Makefile
-	xmltoman $< > $@
-
-avahi-publish-address.1: avahi-publish-address.1.xml Makefile
+avahi-publish.1: avahi-publish.1.xml Makefile
 	xmltoman $< > $@
 
 avahi-resolve.1: avahi-resolve.1.xml Makefile
@@ -162,8 +153,7 @@ endif
 EXTRA_DIST = \
 	$(man_MANS) \
 	avahi-browse.1.xml.in \
-	avahi-publish-service.1.xml.in \
-	avahi-publish-address.1.xml.in \
+	avahi-publish.1.xml.in \
 	avahi-resolve.1.xml.in \
 	avahi-daemon.8.xml.in \
 	avahi-discover.1.xml.in \
@@ -182,9 +172,11 @@ if HAVE_DBUS
 install-exec-local:
 	mkdir -p $(DESTDIR)/$(mandir)/man1 && \
 		cd $(DESTDIR)/$(mandir)/man1 && \
-		rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 avahi-browse-domains.1 && \
+		rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 avahi-browse-domains.1 avahi-publish-address.1 avahi-publish-service.1 && \
 		$(LN_S) avahi-resolve.1 avahi-resolve-host-name.1 && \
 		$(LN_S) avahi-resolve.1 avahi-resolve-address.1 && \
-		$(LN_S) avahi-browse.1 avahi-browse-domains.1
+		$(LN_S) avahi-browse.1 avahi-browse-domains.1 && \
+		$(LN_S) avahi-publish.1 avahi-publish-address.1 && \
+		$(LN_S) avahi-publish.1 avahi-publish-service.1
 
 endif

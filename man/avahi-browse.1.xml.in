@@ -81,23 +81,23 @@
       </option>
 
 	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help.</p></optdesc>
-	  </option>
-
-	  <option>
 		<p><opt>-r | --resolve</opt></p>
 		<optdesc><p>Automatically resolve services found.</p></optdesc>
 	  </option>
 
 	  <option>
 		<p><opt>-f | --no-fail</opt></p>
-		<optdesc><p>Don't fail if the service is not found running. Instead, wait until it appears. If it disconnects, try to reconnect.</p></optdesc>
+		<optdesc><p>Don't fail if the daemon is not found running. Instead, wait until it appears. If it disconnects, try to reconnect.</p></optdesc>
 	  </option>
 
 	  <option>
 		<p><opt>-k | --no-db-lookup</opt></p>
 		<optdesc><p>Don't lookup services types in service type database.</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-h | --help</opt></p>
+		<optdesc><p>Show help.</p></optdesc>
 	  </option>
 
 	  <option>
@@ -114,7 +114,7 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-publish-service" section="1"/>, <manref name="avahi-daemon" section="8"/>
+        <manref name="avahi-publish" section="1"/>, <manref name="avahi-resolve" section="1"/>, <manref name="avahi-daemon" section="8"/>
 	  </p>
 	</section>
 	

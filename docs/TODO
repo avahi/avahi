@@ -1,8 +1,7 @@
 for 0.6:
 * Add static host configuration like static services [lathiat]
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client [lathiat]
-* avahi-publish-* rewrites in C [lathiat]
-* update man pages
+* avahi-publish-* rewrites in C, update man pages [lathiat]
 
 later:
 * add simplification routine for adding services 

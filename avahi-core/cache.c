@@ -25,6 +25,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <avahi-common/timeval.h>
 #include <avahi-common/malloc.h>
@@ -86,6 +87,8 @@ AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {
 
     AVAHI_LLIST_HEAD_INIT(AvahiCacheEntry, c->entries);
     c->n_entries = 0;
+
+    c->last_rand_timestamp = 0;
     
     return c;
 }
@@ -235,6 +238,7 @@ static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
 
 static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
     AvahiUsec usec, left, right;
+    time_t now;
     
     assert(c);
     assert(e);
@@ -245,7 +249,14 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
     left = usec * percent;
     right = usec * (percent+2); /* 2% jitter */
 
-    usec = left + (AvahiUsec) ((double) (right-left) * rand() / (RAND_MAX+1.0));
+    now = time(NULL);
+
+    if (now >= c->last_rand_timestamp + 10) {
+        c->last_rand = rand();
+        c->last_rand_timestamp = now;
+    }
+
+    usec = left + (AvahiUsec) ((double) (right-left) * c->last_rand / (RAND_MAX+1.0));
     
     e->expiry = e->timestamp;
     avahi_timeval_add(&e->expiry, usec);

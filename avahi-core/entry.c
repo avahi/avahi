@@ -1083,17 +1083,16 @@ static void entry_group_commit_real(AvahiSEntryGroup *g) {
 
     avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
 
-    if (!g->dead) {
-        avahi_announce_group(g->server, g);
-        avahi_s_entry_group_check_probed(g, 0);
-    }
+    if (g->dead)
+        return;
+
+    avahi_announce_group(g->server, g);
+    avahi_s_entry_group_check_probed(g, 0);
 }
 
 static void entry_group_register_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* userdata) {
     AvahiSEntryGroup *g = userdata;
     assert(g);
-
-/*     avahi_log_debug("Holdoff passed, waking up and going on."); */
 
     avahi_time_event_free(g->register_time_event);
     g->register_time_event = NULL;
@@ -1121,12 +1120,10 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
     gettimeofday(&now, NULL);
 
     if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
-        /* Holdoff time passed, so let's start probing */
-/*         avahi_log_debug("Holdoff passed, directly going on.");  */
 
+        /* Holdoff time passed, so let's start probing */
         entry_group_commit_real(g);
     } else {
-/*          avahi_log_debug("Holdoff not passed, sleeping.");  */
 
          /* Holdoff time has not yet passed, so let's wait */
         assert(!g->register_time_event);

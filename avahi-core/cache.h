@@ -72,6 +72,9 @@ struct AvahiCache {
     AVAHI_LLIST_HEAD(AvahiCacheEntry, entries);
 
     unsigned n_entries;
+
+    int last_rand;
+    time_t last_rand_timestamp;
 };
 
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *interface);

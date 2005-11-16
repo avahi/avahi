@@ -23,6 +23,7 @@
 #include <config.h>
 #endif
 
+#include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -84,7 +85,6 @@ AvahiUsec avahi_age(const struct timeval *a) {
     return avahi_timeval_diff(&now, a);
 }
 
-
 struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
     assert(tv);
 
@@ -93,8 +93,32 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
     if (msec)
         avahi_timeval_add(tv, (AvahiUsec) msec*1000);
 
-    if (jitter)
-        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*rand()/(RAND_MAX+1.0)));
+    if (jitter) {
+        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        static int last_rand;
+        static time_t timestamp = 0;
+
+        time_t now;
+        int r;
+        
+        now = time(NULL);
+
+        pthread_mutex_lock(&mutex);
+        if (now >= timestamp + 10) {
+            timestamp = now;
+            last_rand = rand();
+        }
+        
+        r = last_rand;
+        
+        pthread_mutex_unlock(&mutex);
+
+        /* We use the same jitter for 10 seconds. That way our
+         * time events elapse in bursts which has the advantage that
+         * packet data can be aggegrated better */
+        
+        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*r/(RAND_MAX+1.0)));
+    }
         
     return tv;
 }

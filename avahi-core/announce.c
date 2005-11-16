@@ -83,11 +83,11 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
     if (g->dead)
         return;
     
-    for (e = g->entries; e; e = e->entries_next) {
+    for (e = g->entries; e; e = e->by_group_next) {
         AvahiAnnouncer *a;
         
         for (a = e->announcers; a; a = a->by_entry_next) {
-
+            
             if (a->state != AVAHI_WAITING)
                 continue;
             
@@ -111,8 +111,6 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
 static void next_state(AvahiAnnouncer *a) {
     assert(a);
 
-/*     avahi_log_debug("%i -- %u", a->state, a->n_iteration);   */
-    
     if (a->state == AVAHI_WAITING) {
 
         assert(a->entry->group);
@@ -124,11 +122,6 @@ static void next_state(AvahiAnnouncer *a) {
         if (a->n_iteration >= 4) {
             /* Probing done */
             
-/*             char *t; */
-
-/*             avahi_log_debug("Enough probes for record [%s]", t = avahi_record_to_string(a->entry->record)); */
-/*             avahi_free(t); */
-
             if (a->entry->group) {
                 assert(a->entry->group->n_probing);
                 a->entry->group->n_probing--;
@@ -165,11 +158,7 @@ static void next_state(AvahiAnnouncer *a) {
         avahi_server_generate_response(a->server, a->interface, NULL, NULL, 0, 0, 0);
 
         if (++a->n_iteration >= 4) {
-/*             char *t; */
             /* Announcing done */
-
-/*             avahi_log_debug("Enough announcements for record [%s]", t = avahi_record_to_string(a->entry->record)); */
-/*             avahi_free(t); */
 
             a->state = AVAHI_ESTABLISHED;
 
@@ -241,16 +230,12 @@ static void go_to_initial_state(AvahiAnnouncer *a) {
 
 static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     AvahiAnnouncer *a;
-/*     char *t;  */
 
     assert(s);
     assert(i);
     assert(e);
     assert(!e->dead);
 
-/*     avahi_log_debug("NEW ANNOUNCER: %s.%i [%s]", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record)); */
-/*     avahi_free(t); */
-    
     if (!avahi_interface_match(i, e->interface, e->protocol) || !i->announcing || !avahi_entry_is_commited(e))
         return;
 
@@ -272,9 +257,6 @@ static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_entry, e->announcers, a);
 
     go_to_initial_state(a);
-    
-/*     avahi_log_debug("New announcer on interface %s.%i for entry [%s] state=%i", i->hardware->name, i->protocol, t = avahi_record_to_string(e->record), a->state); */
-/*     avahi_free(t); */
 }
 
 void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {
@@ -348,8 +330,6 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
 
     if (!(a = get_announcer(s, e, i)))
         return 0;
-
-/*     avahi_log_debug("state: %i", a->state); */
     
     return
         a->state == AVAHI_PROBING ||
@@ -373,13 +353,9 @@ void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInt
 }
 
 static AvahiRecord *make_goodbye_record(AvahiRecord *r) {
-/*     char *t; */
     AvahiRecord *g;
     
     assert(r);
-
-/*     avahi_log_debug("Preparing goodbye for record [%s]", t = avahi_record_to_string(r)); */
-/*     avahi_free(t); */
 
     if (!(g = avahi_record_copy(r)))
         return NULL; /* OOM */

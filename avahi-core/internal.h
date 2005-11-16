@@ -195,7 +195,6 @@ int avahi_server_add_ptr(
     const char *name,      
     const char *dest);
 
-
 #define AVAHI_CHECK_VALIDITY(server, expression, error) { \
         if (!(expression)) \
             return avahi_server_set_errno((server), (error)); \

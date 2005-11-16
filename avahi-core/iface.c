@@ -121,8 +121,7 @@ void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs) {
     if (m->list_complete &&
         !remove_rrs &&
         m->server->config.publish_workstation &&
-        (m->server->state == AVAHI_SERVER_RUNNING ||
-        m->server->state == AVAHI_SERVER_REGISTERING)) {
+        (m->server->state == AVAHI_SERVER_RUNNING)) {
 
         if (!hw->entry_group)
             hw->entry_group = avahi_s_entry_group_new(m->server, avahi_host_rr_entry_group_callback, NULL);
@@ -131,18 +130,11 @@ void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs) {
             return; /* OOM */
         
         if (avahi_s_entry_group_is_empty(hw->entry_group)) {
-            char name[AVAHI_LABEL_MAX];
-            char *t;
+            char name[AVAHI_LABEL_MAX], mac[256];
 
-            if (!(t = avahi_format_mac_address(hw->mac_address, hw->mac_address_size)))
-                return; /* OOM */
+            avahi_format_mac_address(mac, sizeof(mac), hw->mac_address, hw->mac_address_size);
+            snprintf(name, sizeof(name), "%s [%s]", m->server->host_name, mac);
 
-            snprintf(name, sizeof(name), "%s [%s]", m->server->host_name, t);
-            avahi_free(t);
-
-            if (!name)
-                return; /* OOM */
-            
             if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, 0, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) { 
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed: %s", avahi_strerror(m->server->error));
                 avahi_s_entry_group_free(hw->entry_group);
@@ -557,22 +549,15 @@ AvahiInterfaceAddress* avahi_interface_monitor_get_address(AvahiInterfaceMonitor
     return NULL;
 }
 
-
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port) {
     assert(i);
     assert(p);
-/*     char t[AVAHI_ADDRESS_STR_MAX]; */
 
     if (!avahi_interface_is_relevant(i))
         return;
     
     assert(!a || a->proto == i->protocol);
 
-/*     if (a) */
-/*         avahi_log_debug("unicast sending on '%s.%i' to %s:%u", i->hardware->name, i->protocol, avahi_address_snprint(t, sizeof(t), a), port); */
-/*     else */
-/*         avahi_log_debug("multicast sending on '%s.%i'", i->hardware->name, i->protocol); */
-    
     if (i->protocol == AVAHI_PROTO_INET && i->monitor->server->fd_ipv4 >= 0)
         avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, i->mcast_joined ? &i->local_mcast_address.data.ipv4 : NULL, a ? &a->data.ipv4 : NULL, port);
     else if (i->protocol == AVAHI_PROTO_INET6 && i->monitor->server->fd_ipv6 >= 0)

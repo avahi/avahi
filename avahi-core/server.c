@@ -560,8 +560,6 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
     assert(i);
     assert(a);
 
-/*     avahi_log_debug("query"); */
-
     assert(avahi_record_list_is_empty(s->record_list));
 
     is_probe = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_NSCOUNT) > 0;
@@ -649,8 +647,6 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
     assert(i);
     assert(a);
 
-/*     avahi_log_debug("response"); */
-    
     for (n = avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) +
              avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT); n > 0; n--) {
         AvahiRecord *record;
@@ -664,9 +660,6 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 
         if (!avahi_key_is_pattern(record->key)) {
 
-/*             avahi_log_debug("Handling response: %s", txt = avahi_record_to_string(record)); */
-/*             avahi_free(txt); */
-            
             if (handle_conflict(s, i, record, cache_flush)) {
                 if (!from_local_iface)
                     reflect_response(s, i, record, cache_flush);
@@ -785,8 +778,6 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     if (!s->config.enable_reflector)
         return;
 
-/*     avahi_log_debug("legacy unicast reflector"); */
-    
     /* Reflecting legacy unicast queries is a little more complicated
        than reflecting normal queries, since we must route the
        responses back to the right client. Therefore we must store
@@ -899,8 +890,6 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         return;
     }
 
-/*     avahi_log_debug("new packet received on interface '%s.%i'.", i->hardware->name, i->protocol); */
-
     if (avahi_address_is_ipv4_in_ipv6(src_address))
         /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
         return;
@@ -943,7 +932,6 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         
         handle_query_packet(s, p, i, src_address, port, legacy_unicast, from_local_iface);
         
-/*         avahi_log_debug("Handled query"); */
     } else {
         if (port != AVAHI_MDNS_PORT) {
             avahi_log_warn("Recieved repsonse with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
@@ -969,7 +957,6 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         }
 
         handle_response_packet(s, p, i, src_address, from_local_iface);
-/*         avahi_log_debug("Handled response"); */
     }
 }
 
@@ -1078,6 +1065,8 @@ static void server_set_state(AvahiServer *s, AvahiServerState state) {
     
     s->state = state;
 
+    avahi_interface_monitor_update_rrs(s->monitor, 0);
+    
     if (s->callback)
         s->callback(s, state, s->userdata);
 }

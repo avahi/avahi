@@ -66,29 +66,38 @@ void avahi_hexdump(const void* p, size_t size) {
     }
 }
 
-
-char *avahi_format_mac_address(const uint8_t* mac, size_t size) {
-    char *r, *t;
+char *avahi_format_mac_address(char *r, size_t l, const uint8_t* mac, size_t size) {
+    char *t = r;
     unsigned i;
     static const char hex[] = "0123456789abcdef";
 
-    if (!(t = r = avahi_new(char, size > 0 ? size*3 : 1)))
-        return NULL;
-
+    assert(r);
+    assert(l > 0);
+    assert(mac);
+    
     if (size <= 0) {
         *r = 0;
         return r;
     }
     
     for (i = 0; i < size; i++) {
+        if (l < 3)
+            break;
+        
         *(t++) = hex[*mac >> 4];
         *(t++) = hex[*mac & 0xF];
         *(t++) = ':';
 
+        l -= 3;
+        
         mac++;
     }
 
-    *(--t) = 0;
+    if (t > r)
+        *(t-1) = 0;
+    else
+        *r = 0;
+    
     return r;
 }
 

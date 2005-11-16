@@ -33,8 +33,7 @@ noinst_DATA = \
 	avahi-browse.1.xml \
 	avahi-publish-service.1.xml \
 	avahi-publish-address.1.xml \
-	avahi-resolve-address.1.xml \
-	avahi-resolve-host-name.1.xml \
+	avahi-resolve.1.xml \
 	avahi-daemon.8.xml \
 	avahi-discover.1.xml \
 	avahi-bookmarks.1.xml \
@@ -46,18 +45,18 @@ noinst_DATA = \
 CLEANFILES = \
 	$(noinst_DATA)
 
-if HAVE_PYTHON
 if HAVE_DBUS
 
 man_MANS += \
 	avahi-browse.1 \
+	avahi-resolve.1
+
+if HAVE_PYTHON
+man_MANS += \
 	avahi-publish-service.1 \
 	avahi-publish-address.1 \
-	avahi-resolve-address.1 \
-	avahi-resolve-host-name.1 \
 	avahi-discover.1 \
 	avahi-bookmarks.1
-
 endif
 endif
 
@@ -73,11 +72,7 @@ avahi-publish-address.1.xml: avahi-publish-address.1.xml.in Makefile
 	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
-avahi-resolve-address.1.xml: avahi-resolve-address.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-resolve-host-name.1.xml: avahi-resolve-host-name.1.xml.in Makefile
+avahi-resolve.1.xml: avahi-resolve.1.xml.in Makefile
 	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
@@ -130,10 +125,7 @@ avahi-publish-service.1: avahi-publish-service.1.xml Makefile
 avahi-publish-address.1: avahi-publish-address.1.xml Makefile
 	xmltoman $< > $@
 
-avahi-resolve-address.1: avahi-resolve-address.1.xml Makefile
-	xmltoman $< > $@
-
-avahi-resolve-host-name.1: avahi-resolve-host-name.1.xml Makefile
+avahi-resolve.1: avahi-resolve.1.xml Makefile
 	xmltoman $< > $@
 
 avahi-daemon.8: avahi-daemon.8.xml Makefile
@@ -172,8 +164,7 @@ EXTRA_DIST = \
 	avahi-browse.1.xml.in \
 	avahi-publish-service.1.xml.in \
 	avahi-publish-address.1.xml.in \
-	avahi-resolve-address.1.xml.in \
-	avahi-resolve-host-name.1.xml.in \
+	avahi-resolve.1.xml.in \
 	avahi-daemon.8.xml.in \
 	avahi-discover.1.xml.in \
 	avahi-bookmarks.1.xml.in \
@@ -184,3 +175,11 @@ EXTRA_DIST = \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd
+
+
+if HAVE_DBUS
+
+install-exec-local:
+	cd $(DESTDIR)/$(mandir)/man1 && rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 && $(LN_S) avahi-resolve.1 avahi-resolve-host-name.1 && $(LN_S) avahi-resolve.1 avahi-resolve-address.1
+
+endif

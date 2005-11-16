@@ -30,12 +30,12 @@
 	</synopsis>
 	
     <description>
-      <p>Web service showing mDNS/DNS-SD announced HTTP services using
-      the Avahi daemon. avahi-bookmarks opens an TCP port 8080 and
-      waits for incoming HTTP connections returning a dynamic web site
-      containing links to all services of type _http._tcp on the
-      LAN. Point your browser to http://localhost:8080/ to make use of
-      avahi-bookmarks.</p>
+      <p>A web service for listing HTTP services that are announced
+      via mDNS/DNS-SD using the Avahi daemon. avahi-bookmarks opens a
+      TCP socket on port 8080 and waits for incoming HTTP connections
+      returning a dynamic web site containing links to all services of
+      type _http._tcp on the LAN. Point your browser to
+      http://localhost:8080/ to make use of avahi-bookmarks.</p>
       
 	</description>
 	
@@ -58,6 +58,11 @@
         mDNS host names (e.g. nss-mdns).</p></optdesc>
       </option>
     
+      <option>
+        <p><opt>-d | --domain</opt> <arg>DOMAIN</arg></p>
+        <optdesc><p>The domain to browse for services in.</p></optdesc>
+      </option> 
+
 	  <option>
 		<p><opt>-h | --help</opt></p>
 		<optdesc><p>Show help</p></optdesc>

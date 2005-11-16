@@ -30,8 +30,6 @@
       <cmd>avahi-dnsconfd <opt>--kill</opt></cmd>
       <cmd>avahi-dnsconfd <opt>--refresh</opt></cmd>
       <cmd>avahi-dnsconfd <opt>--check</opt></cmd>
-      <cmd>avahi-dnsconfd <opt>--version</opt></cmd>
-      <cmd>avahi-dnsconfd <opt>--help</opt></cmd>
 	</synopsis>
 	
     <description>
@@ -75,7 +73,6 @@
 	  </option>
 
 	</options>
-
 
     <section name="Files">
       

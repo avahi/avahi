@@ -30,8 +30,6 @@
       <cmd>avahi-daemon <opt>--kill</opt></cmd>
       <cmd>avahi-daemon <opt>--reload</opt></cmd>
       <cmd>avahi-daemon <opt>--check</opt></cmd>
-      <cmd>avahi-daemon <opt>--version</opt></cmd>
-      <cmd>avahi-daemon <opt>--help</opt></cmd>
 	</synopsis>
 	
     <description>
@@ -88,6 +86,19 @@
         <optdesc><p>Don't drop root priviliges after startup and don't require daemon to be started as root. We recommend not to use this option.</p></optdesc>
       </option>
 
+      <option>
+        <p><opt>--no-chroot</opt></p>
+        <optdesc><p>Don't <manref section="2" name="chroot"/> the daemon. This option is only available when compiled with chroot() support.</p></optdesc>
+      </option>
+
+      <option>
+        <p><opt>--no-proctitle</opt></p>
+        <optdesc><p>Don't change the process name while
+        running. Unless this option is specified avahi will reflect
+        it's current state and selected host name in the process
+        title.</p></optdesc>
+      </option>
+
 	  <option>
 		<p><opt>-k | --kill</opt></p>
 		<optdesc><p>Kill an already running avahi-daemon. (equivalent to sending a SIGTERM)</p></optdesc>
@@ -101,7 +112,7 @@
 		<file>avahi-daemon.conf</file>) the files from
 		<file>@servicedir@/</file>. Please note that this will not
 		reload the
-		<file>@pkgsysconfdir@/avahi-daemon.conf</file>(equivalent to
+		<file>@pkgsysconfdir@/avahi-daemon.conf</file>. (equivalent to
 		sending a SIGHUP)</p></optdesc>
 	  </option>
 
@@ -120,9 +131,7 @@
 		<optdesc><p>Show version information </p></optdesc>
 	  </option>
 
-
 	</options>
-
 
     <section name="Files">
       

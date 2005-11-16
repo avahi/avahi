@@ -42,9 +42,21 @@
       </option>
 
       <option>
-        <p><opt>domain-name=</opt> Set the domain name avahi-domain
+        <p><opt>domain-name=</opt> Set the default domain name avahi-daemon
         tries to register its host name and services on the LAN in. If
-        omited defaults to ".local".</p>
+        omitted defaults to ".local".</p>
+      </option>
+
+      <option>
+        <p><opt>browse-domains=</opt> Set a comma seperated list of
+        browsing domains (in addition to the default one and those
+        announced inside the default browsing domain). Please note
+        that the user may specify additional browsing domains on the
+        client side, either by setting $AVAHI_BROWSE_DOMAINS to a list
+        of colon seperated domains or by adding them to the XDG config
+        file <file>~/.config/avahi/browse-domains</file> (seperated by
+        newlines).</p>
+        
       </option>
 
       <option>
@@ -93,6 +105,47 @@
       </option>
 
       <option>
+        <p><opt>disallow-other-stacks=</opt> Takes a boolean value
+        ("yes" or "no"). If set to "yes", no other process is allowed
+        to bind to UDP port 5353. This effectively impedes other mDNS
+        stacks from running on the host. Use this as a security
+        measure to make sure that only Avahi is responsible for mDNS
+        traffic. Please note that we do no recommend running multiple
+        mDNS stacks on the same host simultaneously. This hampers
+        reliability and is a waste of resources. However, to not annoy
+        people this option defaults to "no".</p>
+      </option>
+
+	</section>
+
+	<section name="Section [wide-area]">
+      <option>
+        <p><opt>enable-wide-area=</opt> Enable wide-area DNS-SD, aka
+        DNS-SD over unicast DNS. If this is enabled only domains
+        ending in .local will be resolved on mDNS, all other domains
+        are resolved via unicast DNS. If you want to maintain multiple
+        different multicast DNS domains even with this option enabled
+        we encourage you to use subdomains of .local, such as
+        "kitchen.local". This option defaults to "yes".</p>
+      </option>
+      
+    </section>
+
+	<section name="Section [publish]">
+
+      <option><p><opt>disable-publishing=</opt> Takes a boolean value
+      ("yes" or "no"). If set to "yes", no record will be published by
+      Avahi, not even address records for the local host. Avahi will
+      be started in a querying-only mode. Use this is a security
+      measure. This option defaults to "no"</p></option>
+
+      <option><p><opt>disable-publishing=</opt> Takes a boolean value
+      ("yes" or "no"). If set to "yes", Avahi will still publish
+      address records and suchlike but will not allow user
+      applications to publish services. Use this is a security
+      measure. This option defaults to "no"</p></option>
+
+      <option>
         <p><opt>add-service-cookie=</opt> Takes a boolean value ("yes"
         or "no"). If set to "yes" an implicit TXT entry will be added
         to all locally registered services, containing a cookie value
@@ -102,10 +155,6 @@
         "yes".</p>
       </option>
 
-
-	</section>
-
-	<section name="Section [publish]">
       <option>
         <p><opt>publish-addresses=</opt> Takes a boolean value ("yes"
         or "no"). If set to "yes" avahi-daemon will register mDNS

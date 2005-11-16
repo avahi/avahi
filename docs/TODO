@@ -1,5 +1,5 @@
 for 0.6:
-* avahi-publish-* rewrites in C, update man pages [lathiat]
+* RELEASE!
 
 later:
 * add simplification routine for adding services 
@@ -106,3 +106,4 @@ done:
 * pass *all* Bonjour conformance tests
 * fix python scripts
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client
+* avahi-publish-* rewrites in C, update man pages

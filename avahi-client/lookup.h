@@ -193,7 +193,7 @@ AvahiServiceBrowser* avahi_service_browser_new (
 /** Get the parent client of an AvahiServiceBrowser object */
 AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *);
 
-/* Cleans up and frees an AvahiServiceBrowser object */
+/** Cleans up and frees an AvahiServiceBrowser object */
 int avahi_service_browser_free (AvahiServiceBrowser *);
 
 /** Create a new service resolver object */
@@ -263,7 +263,7 @@ AvahiRecordBrowser* avahi_record_browser_new(
 /** Get the parent client of an AvahiRecordBrowser object */
 AvahiClient* avahi_record_browser_get_client(AvahiRecordBrowser *);
 
-/* Cleans up and frees an AvahiRecordBrowser object */
+/** Cleans up and frees an AvahiRecordBrowser object */
 int avahi_record_browser_free(AvahiRecordBrowser *);
 
 AVAHI_C_DECL_END

@@ -192,5 +192,18 @@
 
       <arg name="path" type="o" direction="out"/>
     </method>
+
+    <method name="RecordBrowserNew">
+      <arg name="interface" type="i" direction="in"/>
+      <arg name="protocol" type="i" direction="in"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="clazz" type="q" direction="in"/>
+      <arg name="type" type="q" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+
+      <arg name="path" type="o" direction="out"/>
+    </method>
+
+
   </interface>
 </node>

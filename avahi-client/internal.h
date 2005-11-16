@@ -50,6 +50,7 @@ struct AvahiClient {
     AVAHI_LLIST_HEAD(AvahiServiceResolver, service_resolvers);
     AVAHI_LLIST_HEAD(AvahiHostNameResolver, host_name_resolvers);
     AVAHI_LLIST_HEAD(AvahiAddressResolver, address_resolvers);
+    AVAHI_LLIST_HEAD(AvahiRecordBrowser, record_browsers);
 };
 
 struct AvahiEntryGroup {
@@ -138,6 +139,19 @@ struct AvahiAddressResolver {
     AvahiProtocol protocol;
 };
 
+struct AvahiRecordBrowser {
+    char *path;
+    AvahiClient *client;
+    AvahiRecordBrowserCallback callback;
+    void *userdata;
+    AVAHI_LLIST_FIELDS(AvahiRecordBrowser, record_browsers);
+
+    char *name;
+    uint16_t clazz, type;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
+};
+
 int avahi_client_set_errno (AvahiClient *client, int error);
 int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error);
 
@@ -146,6 +160,7 @@ void avahi_entry_group_set_state(AvahiEntryGroup *group, AvahiEntryGroupState st
 DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 DBusHandlerResult avahi_service_browser_event (AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
+DBusHandlerResult avahi_record_browser_event(AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message);
 
 DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolverEvent event, DBusMessage *message);
 DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiResolverEvent event, DBusMessage *message);

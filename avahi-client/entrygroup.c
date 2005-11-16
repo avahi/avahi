@@ -700,8 +700,6 @@ fail:
         dbus_message_unref(reply);
 
     return r;
-    
-    
 }
 
 /** Add a host/address pair */

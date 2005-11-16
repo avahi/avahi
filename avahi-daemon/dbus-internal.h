@@ -43,6 +43,7 @@ typedef struct ServiceTypeBrowserInfo ServiceTypeBrowserInfo;
 typedef struct ServiceBrowserInfo ServiceBrowserInfo;
 typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
 typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
+typedef struct RecordBrowserInfo RecordBrowserInfo;
 
 #define CLIENTS_MAX 256
 #define OBJECTS_PER_CLIENT_MAX 50
@@ -137,6 +138,15 @@ struct AsyncServiceResolverInfo {
     AVAHI_LLIST_FIELDS(AsyncServiceResolverInfo, async_service_resolvers);
 };
 
+struct RecordBrowserInfo {
+    unsigned id;
+    Client *client;
+    AvahiSRecordBrowser *record_browser;
+    char *path;
+
+    AVAHI_LLIST_FIELDS(RecordBrowserInfo, record_browsers);
+};
+
 struct Client {
     unsigned id;
     char *name;
@@ -154,6 +164,7 @@ struct Client {
     AVAHI_LLIST_HEAD(ServiceBrowserInfo, service_browsers);
     AVAHI_LLIST_HEAD(SyncServiceResolverInfo, sync_service_resolvers);
     AVAHI_LLIST_HEAD(AsyncServiceResolverInfo, async_service_resolvers);
+    AVAHI_LLIST_HEAD(RecordBrowserInfo, record_browsers);
 };
 
 struct Server {
@@ -229,4 +240,9 @@ void avahi_dbus_async_service_resolver_callback(
     void* userdata);
 
 DBusHandlerResult avahi_dbus_msg_async_service_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
+
+void avahi_dbus_record_browser_free(RecordBrowserInfo *i);
+DBusHandlerResult avahi_dbus_msg_record_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
+void avahi_dbus_record_browser_callback(AvahiSRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, AvahiLookupResultFlags flags, void* userdata);
+
 #endif

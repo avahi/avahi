@@ -260,6 +260,18 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         return avahi_address_resolver_event (client, AVAHI_RESOLVER_FOUND, message);
     else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Failure")) 
         return avahi_address_resolver_event (client, AVAHI_RESOLVER_FAILURE, message);
+
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_RECORD_BROWSER, "ItemNew")) 
+        return avahi_record_browser_event (client, AVAHI_BROWSER_NEW, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_RECORD_BROWSER, "ItemRemove")) 
+        return avahi_record_browser_event (client, AVAHI_BROWSER_REMOVE, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_RECORD_BROWSER, "CacheExhausted")) 
+        return avahi_record_browser_event (client, AVAHI_BROWSER_CACHE_EXHAUSTED, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_RECORD_BROWSER, "AllForNow")) 
+        return avahi_record_browser_event (client, AVAHI_BROWSER_ALL_FOR_NOW, message);
+    else if (dbus_message_is_signal(message, AVAHI_DBUS_INTERFACE_RECORD_BROWSER, "Failure")) 
+        return avahi_record_browser_event (client, AVAHI_BROWSER_FAILURE, message);
+
     else {
 
         fprintf(stderr, "WARNING: Unhandled message: interface=%s, path=%s, member=%s\n",
@@ -446,6 +458,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
     AVAHI_LLIST_HEAD_INIT(AvahiServiceResolver, client->service_resolvers);
     AVAHI_LLIST_HEAD_INIT(AvahiHostNameResolver, client->host_name_resolvers);
     AVAHI_LLIST_HEAD_INIT(AvahiAddressResolver, client->address_resolvers);
+    AVAHI_LLIST_HEAD_INIT(AvahiRecordBrowser, client->record_browsers);
 
     if (!(client->bus = avahi_dbus_bus_get(&error)) || dbus_error_is_set(&error)) {
         if (ret_error)
@@ -558,6 +571,15 @@ void avahi_client_free(AvahiClient *client) {
     while (client->service_resolvers)
         avahi_service_resolver_free(client->service_resolvers);
 
+    while (client->host_name_resolvers)
+        avahi_host_name_resolver_free(client->host_name_resolvers);
+
+    while (client->address_resolvers)
+        avahi_address_resolver_free(client->address_resolvers);
+
+    while (client->record_browsers)
+        avahi_record_browser_free(client->record_browsers);
+    
     if (client->bus) {
         dbus_connection_disconnect(client->bus);
         dbus_connection_unref(client->bus);

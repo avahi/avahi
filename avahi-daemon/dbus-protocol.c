@@ -100,6 +100,9 @@ static void client_free(Client *c) {
     while (c->async_service_resolvers)
         avahi_dbus_async_service_resolver_free(c->async_service_resolvers);
 
+    while (c->record_browsers)
+        avahi_dbus_record_browser_free(c->record_browsers);
+
     assert(c->n_objects == 0);
     
     avahi_free(c->name);
@@ -143,6 +146,7 @@ static Client *client_get(const char *name, int create) {
     AVAHI_LLIST_HEAD_INIT(ServiceBrowserInfo, client->service_browsers);
     AVAHI_LLIST_HEAD_INIT(SyncServiceResolverInfo, client->sync_service_resolvers);
     AVAHI_LLIST_HEAD_INIT(AsyncServiceResolverInfo, client->async_service_resolvers);
+    AVAHI_LLIST_HEAD_INIT(RecordBrowserInfo, client->record_browsers);
 
     AVAHI_LLIST_PREPEND(Client, clients, server->clients, client);
 
@@ -646,7 +650,6 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
@@ -885,6 +888,70 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             avahi_dbus_async_address_resolver_free(i);
             return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
+        
+        dbus_connection_register_object_path(c, i->path, &vtable, i);
+        return avahi_dbus_respond_path(c, m, i->path);
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "RecordBrowserNew")) {
+        Client *client;
+        RecordBrowserInfo *i;
+        static const DBusObjectPathVTable vtable = {
+            NULL,
+            avahi_dbus_msg_record_browser_impl,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        };
+        int32_t interface, protocol;
+        uint32_t flags;
+        char *name;
+        uint16_t type, clazz;
+        AvahiKey *key;
+        
+        if (!dbus_message_get_args(
+                m, &error,
+                DBUS_TYPE_INT32, &interface,
+                DBUS_TYPE_INT32, &protocol,
+                DBUS_TYPE_STRING, &name,
+                DBUS_TYPE_UINT16, &clazz,
+                DBUS_TYPE_UINT16, &type,
+                DBUS_TYPE_UINT32, &flags,
+                DBUS_TYPE_INVALID) || !name) {
+            avahi_log_warn("Error parsing Server::RecordBrowserNew message");
+            goto fail;
+        }
+
+        if (!avahi_is_valid_domain_name(name)) 
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_DOMAIN_NAME, NULL);
+
+        if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
+            avahi_log_warn("Too many clients, client request failed.");
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
+        }
+
+        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+            avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
+            return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
+        }
+
+        i = avahi_new(RecordBrowserInfo, 1);
+        i->id = ++client->current_id;
+        i->client = client;
+        i->path = avahi_strdup_printf("/Client%u/RecordBrowser%u", client->id, i->id);
+        AVAHI_LLIST_PREPEND(RecordBrowserInfo, record_browsers, client->record_browsers, i);
+        client->n_objects++;
+
+        key = avahi_key_new(name, clazz, type);
+        assert(key);
+
+        if (!(i->record_browser = avahi_s_record_browser_new(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, key, (AvahiLookupFlags) flags, avahi_dbus_record_browser_callback, i))) {
+            avahi_key_unref(key);
+            avahi_dbus_record_browser_free(i);
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+        }
+
+        avahi_key_unref(key);
         
         dbus_connection_register_object_path(c, i->path, &vtable, i);
         return avahi_dbus_respond_path(c, m, i->path);

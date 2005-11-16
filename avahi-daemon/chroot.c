@@ -54,6 +54,7 @@ enum {
     AVAHI_CHROOT_GET_SERVICE_BROWSER_INTROSPECT,
     AVAHI_CHROOT_GET_SERVICE_RESOLVER_INTROSPECT,
     AVAHI_CHROOT_GET_SERVICE_TYPE_BROWSER_INTROSPECT,
+    AVAHI_CHROOT_GET_RECORD_BROWSER_INTROSPECT,
 #endif
     AVAHI_CHROOT_UNLINK_PID,
     AVAHI_CHROOT_UNLINK_SOCKET,
@@ -73,6 +74,7 @@ static const char* const get_file_name_table[AVAHI_CHROOT_MAX] = {
     AVAHI_DBUS_INTROSPECTION_DIR"/ServiceBrowser.introspect",
     AVAHI_DBUS_INTROSPECTION_DIR"/ServiceResolver.introspect",
     AVAHI_DBUS_INTROSPECTION_DIR"/ServiceTypeBrowser.introspect",
+    AVAHI_DBUS_INTROSPECTION_DIR"/RecordBrowser.introspect",
 #endif
     NULL,
     NULL
@@ -83,6 +85,7 @@ static const char *const unlink_file_name_table[AVAHI_CHROOT_MAX] = {
     NULL,
     NULL,
 #ifdef HAVE_DBUS
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -233,6 +236,7 @@ static int helper_main(int fd) {
             case AVAHI_CHROOT_GET_SERVICE_BROWSER_INTROSPECT:
             case AVAHI_CHROOT_GET_SERVICE_RESOLVER_INTROSPECT:
             case AVAHI_CHROOT_GET_SERVICE_TYPE_BROWSER_INTROSPECT:
+            case AVAHI_CHROOT_GET_RECORD_BROWSER_INTROSPECT:
 #endif
             case AVAHI_CHROOT_GET_RESOLV_CONF: {
                 int payload;

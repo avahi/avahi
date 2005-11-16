@@ -348,6 +348,7 @@ fail:
 }
 
 /* AvahiServiceTypeBrowser */
+
 AvahiServiceTypeBrowser* avahi_service_type_browser_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -782,4 +783,246 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
+/* AvahiRecordBrowser */
+
+AvahiRecordBrowser* avahi_record_browser_new(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    uint16_t clazz,
+    uint16_t type,
+    AvahiLookupFlags flags,
+    AvahiRecordBrowserCallback callback,
+    void *userdata) {
+    
+    AvahiRecordBrowser *b = NULL;
+    DBusMessage *message = NULL, *reply = NULL;
+    DBusError error;
+    char *path;
+    int32_t i_protocol, i_interface;
+    uint32_t u_flags;
+
+    assert(client);
+    assert(name);
+    assert(callback);
+
+    dbus_error_init(&error);
+
+    if (!avahi_client_is_connected(client)) {
+        avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
+        goto fail;
+    }
+
+    if (!(b = avahi_new(AvahiRecordBrowser, 1))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+    
+    b->client = client;
+    b->callback = callback;
+    b->userdata = userdata;
+    b->path = NULL;
+    b->name = NULL;
+    b->clazz = clazz;
+    b->type = type;
+    b->interface = interface;
+    b->protocol = protocol;
+
+    AVAHI_LLIST_PREPEND(AvahiRecordBrowser, record_browsers, client->record_browsers, b);
+
+    if (!(b->name = avahi_strdup(name))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+    
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "RecordBrowserNew"))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    i_interface = (int32_t) interface;
+    i_protocol = (int32_t) protocol;
+    u_flags = (uint32_t) flags;
+
+    if (!dbus_message_append_args(
+            message,
+            DBUS_TYPE_INT32, &i_interface,
+            DBUS_TYPE_INT32, &i_protocol,
+            DBUS_TYPE_STRING, &name,
+            DBUS_TYPE_UINT16, &clazz,
+            DBUS_TYPE_UINT16, &type,
+            DBUS_TYPE_UINT32, &u_flags,
+            DBUS_TYPE_INVALID)) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    if (!(reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error)) ||
+        dbus_error_is_set(&error)) {
+        avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
+        goto fail;
+    }
+
+    if (!dbus_message_get_args (reply, &error, DBUS_TYPE_OBJECT_PATH, &path, DBUS_TYPE_INVALID) ||
+        dbus_error_is_set(&error) ||
+        !path) {
+        avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
+        goto fail;
+    }
+
+    if (!(b->path = avahi_strdup(path))) {
+
+        /* FIXME: We don't remove the object on the server side */
+
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+    
+    return b;
+
+fail:
+    if (dbus_error_is_set(&error)) {
+        avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    if (b)
+        avahi_record_browser_free(b);
+    
+    if (message)
+        dbus_message_unref(message);
+
+    if (reply)
+        dbus_message_unref(reply);
+
+    return NULL;
+}
+
+AvahiClient* avahi_record_browser_get_client (AvahiRecordBrowser *b) {
+    assert(b);
+    return b->client;
+}
+
+int avahi_record_browser_free (AvahiRecordBrowser *b) {
+    AvahiClient *client;
+    int r = AVAHI_OK;
+
+    assert(b);
+    client = b->client;
+
+    if (b->path && avahi_client_is_connected(b->client))
+        r = avahi_client_simple_method_call(client, b->path, AVAHI_DBUS_INTERFACE_RECORD_BROWSER, "Free");
+
+    AVAHI_LLIST_REMOVE(AvahiRecordBrowser, record_browsers, b->client->record_browsers, b);
+
+    avahi_free(b->path);
+    avahi_free(b->name);
+    avahi_free(b);
+    return r;
+}
+
+DBusHandlerResult avahi_record_browser_event(AvahiClient *client, AvahiBrowserEvent event, DBusMessage *message) {
+    AvahiRecordBrowser *b = NULL;
+    DBusError error;
+    const char *path;
+    char *name;
+    int32_t interface, protocol;
+    uint32_t flags = 0;
+    uint16_t clazz, type;
+    void *rdata = NULL;
+    int rdata_size = 0;
+
+    dbus_error_init (&error);
+
+    if (!(path = dbus_message_get_path(message)))
+        goto fail;
+
+    for (b = client->record_browsers; b; b = b->record_browsers_next)
+        if (strcmp (b->path, path) == 0)
+            break;
+
+    if (!b)
+        goto fail;
+
+    interface = b->interface;
+    protocol = b->protocol;
+    clazz = b->clazz;
+    type = b->type;
+    name = b->name;
+
+    switch (event) {
+        case AVAHI_BROWSER_NEW:
+        case AVAHI_BROWSER_REMOVE: {
+            DBusMessageIter iter, sub;
+            int j;
+
+            if (!dbus_message_get_args (
+                    message, &error,
+                    DBUS_TYPE_INT32, &interface,
+                    DBUS_TYPE_INT32, &protocol,
+                    DBUS_TYPE_STRING, &name,
+                    DBUS_TYPE_UINT16, &clazz,
+                    DBUS_TYPE_UINT16, &type,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set(&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+
+
+            dbus_message_iter_init(message, &iter);
+
+            for (j = 0; j < 5; j++)
+                dbus_message_iter_next(&iter);
+    
+            if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
+                dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_BYTE)
+                goto fail;
+
+            dbus_message_iter_recurse(&iter, &sub);
+            dbus_message_iter_get_fixed_array(&sub, &rdata, &rdata_size);
+
+            dbus_message_iter_next(&iter);
+            
+            if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_UINT32)
+                goto fail;
+
+            dbus_message_iter_get_basic(&iter, &flags);
+            
+            break;
+        }
+
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            break;
+
+        case AVAHI_BROWSER_FAILURE: {
+            char *etxt;
+            
+            if (!dbus_message_get_args(
+                    message, &error,
+                    DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_INVALID) ||
+                dbus_error_is_set (&error)) {
+                fprintf(stderr, "Failed to parse browser event.\n");
+                goto fail;
+            }
+            
+            avahi_client_set_errno(b->client, avahi_error_dbus_to_number(etxt));
+            break;
+        }
+    }
+
+    b->callback(b, (AvahiIfIndex) interface, (AvahiProtocol) protocol, event, name, clazz, type, rdata, (size_t) rdata_size, (AvahiLookupResultFlags) flags, b->userdata);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+
+fail:
+    dbus_error_free (&error);
+    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
 

@@ -54,4 +54,6 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l);
 
 int avahi_dbus_is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain);
 
+int avahi_dbus_append_rdata(DBusMessage *message, const void *rdata, size_t size);
+
 #endif

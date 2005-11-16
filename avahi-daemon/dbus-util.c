@@ -372,3 +372,17 @@ int avahi_dbus_is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtoc
     return 0;
 }
 
+int avahi_dbus_append_rdata(DBusMessage *message, const void *rdata, size_t size) {
+    DBusMessageIter iter, sub;
+ 
+    assert(message);
+ 
+    dbus_message_iter_init_append(message, &iter);
+ 
+    if (!(dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY, DBUS_TYPE_BYTE_AS_STRING, &sub)) ||
+        !(dbus_message_iter_append_fixed_array(&sub, DBUS_TYPE_BYTE, &rdata, size)) ||
+        !(dbus_message_iter_close_container(&iter, &sub)))
+        return -1;
+    
+    return 0;
+}

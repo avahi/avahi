@@ -97,7 +97,8 @@ avahi_daemon_SOURCES += \
 	dbus-service-type-browser.c \
 	dbus-sync-address-resolver.c \
 	dbus-sync-host-name-resolver.c \
-	dbus-sync-service-resolver.c	
+	dbus-sync-service-resolver.c \
+	dbus-record-browser.c
 
 avahi_daemon_LDADD += \
 	../avahi-common/libdbus-common.la \
@@ -115,7 +116,8 @@ introspection_DATA = \
 	ServiceBrowser.introspect \
 	ServiceResolver.introspect \
 	AddressResolver.introspect \
-	HostNameResolver.introspect
+	HostNameResolver.introspect \
+	RecordBrowser.introspect
 
 endif
 endif
@@ -134,6 +136,7 @@ EXTRA_DIST = \
 	ServiceResolver.introspect \
 	AddressResolver.introspect \
 	HostNameResolver.introspect \
+	RecordBrowser.introspect \
 	ssh.service \
 	example.service \
 	introspect.dtd \

@@ -34,7 +34,8 @@ if ENABLE_TESTS
 noinst_PROGRAMS = \
 	client-test \
 	srv-test \
-	xdg-config-test
+	xdg-config-test \
+	rr-test
 
 endif
 
@@ -59,6 +60,10 @@ client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-comm
 srv_test_SOURCES = srv-test.c
 srv_test_CFLAGS = $(AM_CFLAGS) 
 srv_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
+
+rr_test_SOURCES = rr-test.c
+rr_test_CFLAGS = $(AM_CFLAGS) 
+rr_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
 
 xdg_config_test_SOURCES = xdg-config-test.c xdg-config.c xdg-config.h
 xdg_config_test_CFLAGS = $(AM_CFLAGS) 

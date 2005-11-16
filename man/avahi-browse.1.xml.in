@@ -29,6 +29,7 @@
       <cmd>avahi-browse [<arg>options</arg>] <arg>service-type</arg></cmd>
       <cmd>avahi-browse [<arg>options</arg>] <opt>--all</opt></cmd>
       <cmd>avahi-browse [<arg>options</arg>] <opt>--browse-domains</opt></cmd>
+      <cmd>avahi-browse-domains [<arg>options</arg>]</cmd>
 	</synopsis>
 	
     <description>
@@ -49,7 +50,7 @@
 
       <option>
         <p><opt>-D | --browse-domains</opt></p>
-        <optdesc><p>Browse for browsing domains instead for services.</p></optdesc>
+        <optdesc><p>Browse for browsing domains instead for services. avahi-browse-domains is equivalent to avahi-browse --browse-domains</p></optdesc>
       </option>
 
  	  <option>

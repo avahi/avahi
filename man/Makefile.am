@@ -180,6 +180,10 @@ EXTRA_DIST = \
 if HAVE_DBUS
 
 install-exec-local:
-	cd $(DESTDIR)/$(mandir)/man1 && rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 && $(LN_S) avahi-resolve.1 avahi-resolve-host-name.1 && $(LN_S) avahi-resolve.1 avahi-resolve-address.1
+	cd $(DESTDIR)/$(mandir)/man1 && \
+		rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 avahi-browse-domains.1 && \
+		$(LN_S) avahi-resolve.1 avahi-resolve-host-name.1 && \
+		$(LN_S) avahi-resolve.1 avahi-resolve-address.1 && \
+		$(LN_S) avahi-browse.1 avahi-browse-domains.1
 
 endif

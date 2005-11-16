@@ -573,10 +573,16 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 }
 
 static void help(FILE *f, const char *argv0) {
-    fprintf(f,
-            "%s [options] <service type>\n"
-            "%s [options] -a\n"
-            "%s [options] -D\n\n"
+    if (strstr(argv0, "domain"))
+        fprintf(f, "%s [options] \n\n", argv0);
+    else
+        fprintf(f,
+                "%s [options] <service type>\n"
+                "%s [options] -a\n"
+                "%s [options] -D\n\n",
+                argv0, argv0, argv0);
+
+            fprintf(f, 
             "    -h --help            Show this help\n"
             "    -V --version         Show version\n"
             "    -D --browse-domains  Browse for browsing domains instead of services\n"
@@ -589,12 +595,11 @@ static void help(FILE *f, const char *argv0) {
             "    -r --resolve         Resolve services found\n"
             "    -f --no-fail         Don't fail if the server is not available\n"
 #ifdef HAVE_GDBM
-            "    -k --no-db-lookup    Don't lookup service types\n"
+                    "    -k --no-db-lookup    Don't lookup service types\n");
 #endif
-            , argv0, argv0, argv0);
 }
 
-static int parse_command_line(Config *c, int argc, char *argv[]) {
+static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {
     int o;
 
     static const struct option long_options[] = {
@@ -617,7 +622,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
 
     assert(c);
 
-    c->command = COMMAND_BROWSE_SERVICES;
+    c->command = strstr(argv0, "domain") ? COMMAND_BROWSE_DOMAINS : COMMAND_BROWSE_SERVICES;
     c->verbose =
         c->terminate_on_cache_exhausted =
         c->terminate_on_all_for_now =
@@ -719,7 +724,7 @@ int main(int argc, char *argv[]) {
     if (n_columns < 40)
         n_columns = 40;
     
-    if (parse_command_line(&config, argc, argv) < 0)
+    if (parse_command_line(&config, argv0, argc, argv) < 0)
         goto fail;
 
     switch (config.command) {

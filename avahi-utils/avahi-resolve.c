@@ -173,7 +173,7 @@ static void help(FILE *f, const char *argv0) {
             argv0, strstr(argv0, "host-name") ? "[-n]" : "-n");
 }
 
-static int parse_command_line(Config *c, int argc, char *argv[]) {
+static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {
     int o;
 
     static const struct option long_options[] = {
@@ -187,7 +187,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
 
     assert(c);
 
-    c->command = strstr(argv[0], "address") ? COMMAND_RESOLVE_ADDRESS : (strstr(argv[0], "host-name") ? COMMAND_RESOLVE_HOST_NAME : COMMAND_UNSPEC);
+    c->command = strstr(argv0, "address") ? COMMAND_RESOLVE_ADDRESS : (strstr(argv0, "host-name") ? COMMAND_RESOLVE_HOST_NAME : COMMAND_UNSPEC);
     c->proto = AVAHI_PROTO_UNSPEC;
     c->verbose = 0;
 
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
     else
         argv0 = argv[0];
 
-    if (parse_command_line(&config, argc, argv) < 0)
+    if (parse_command_line(&config, argv0, argc, argv) < 0)
         goto fail;
 
     switch (config.command) {

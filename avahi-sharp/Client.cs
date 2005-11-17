@@ -43,8 +43,23 @@ namespace Avahi
     internal delegate int PollCallback (IntPtr ufds, uint nfds, int timeout);
     internal delegate void ClientCallback (IntPtr client, ClientState state, IntPtr userData);
 
-    public delegate void ClientStateHandler (object o, ClientState state);
+    public delegate void ClientStateHandler (object o, ClientStateArgs state);
 
+    public class ClientStateArgs : EventArgs
+    {
+        private ClientState state;
+
+        public ClientState State
+        {
+            get { return state; }
+        }
+
+        public ClientStateArgs (ClientState state)
+        {
+            this.state = state;
+        }
+    }
+    
     public enum Protocol {
         Unspecified = -1,
         IPv4 = 0,
@@ -268,7 +283,7 @@ namespace Avahi
         private void OnClientCallback (IntPtr client, ClientState state, IntPtr userData)
         {
             if (StateChanged != null)
-                StateChanged (this, state);
+                StateChanged (this, new ClientStateArgs (state));
         }
 
         private int OnPollCallback (IntPtr ufds, uint nfds, int timeout) {

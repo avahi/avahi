@@ -44,7 +44,22 @@ namespace Avahi
         public LookupResultFlags Flags;
     }
 
-    public delegate void DomainInfoHandler (object o, DomainInfo info);
+    public class DomainInfoArgs : EventArgs
+    {
+        private DomainInfo domain;
+
+        public DomainInfo Domain
+        {
+            get { return domain; }
+        }
+
+        public DomainInfoArgs (DomainInfo domain)
+        {
+            this.domain = domain;
+        }
+    }
+
+    public delegate void DomainInfoHandler (object o, DomainInfoArgs args);
     
     public class DomainBrowser : BrowserBase, IDisposable
     {
@@ -160,20 +175,18 @@ namespace Avahi
             info.Domain = Utility.PtrToString (domain);
             info.Flags = flags;
 
-            infos.Add (info);
-
             switch (bevent) {
             case BrowserEvent.Added:
                 infos.Add (info);
 
                 foreach (DomainInfoHandler handler in addListeners)
-                    handler (this, info);
+                    handler (this, new DomainInfoArgs (info));
                 break;
             case BrowserEvent.Removed:
                 infos.Remove (info);
 
                 foreach (DomainInfoHandler handler in removeListeners)
-                    handler (this, info);
+                    handler (this, new DomainInfoArgs (info));
                 break;
             default:
                 EmitBrowserEvent (bevent);

@@ -79,7 +79,22 @@ namespace Avahi
         NotPermitted = -50
     }
 
-    public delegate void ErrorCodeHandler (object o, ErrorCode code);
+    public delegate void ErrorCodeHandler (object o, ErrorCodeArgs args);
+
+    public class ErrorCodeArgs : EventArgs
+    {
+        private ErrorCode code;
+
+        public ErrorCode ErrorCode
+        {
+            get { return code; }
+        }
+
+        public ErrorCodeArgs (ErrorCode code)
+        {
+            this.code = code;
+        }
+    }
     
     public class ClientException : ApplicationException
     {

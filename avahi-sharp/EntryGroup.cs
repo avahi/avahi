@@ -48,8 +48,23 @@ namespace Avahi
         Failure
     }
 
+    public class EntryGroupStateArgs : EventArgs
+    {
+        private EntryGroupState state;
+
+        public EntryGroupState State
+        {
+            get { return state; }
+        }
+        
+        public EntryGroupStateArgs (EntryGroupState state)
+        {
+            this.state = state;
+        }
+    }
+
     internal delegate void EntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata);
-    public delegate void EntryGroupStateHandler (object o, EntryGroupState state);
+    public delegate void EntryGroupStateHandler (object o, EntryGroupStateArgs args);
     
     public class EntryGroup : IDisposable
     {
@@ -208,7 +223,7 @@ namespace Avahi
         private void OnEntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata)
         {
             if (StateChanged != null)
-                StateChanged (this, state);
+                StateChanged (this, new EntryGroupStateArgs (state));
         }
     }
 }

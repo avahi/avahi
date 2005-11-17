@@ -30,6 +30,7 @@ AVAHISOURCES = 				\
 	$(srcdir)/DomainBrowser.cs	\
 	$(srcdir)/EntryGroup.cs		\
 	$(srcdir)/HostNameResolver.cs	\
+	$(srcdir)/RecordBrowser.cs	\
 	$(srcdir)/ResolverBase.cs	\
 	$(srcdir)/ServiceBrowser.cs	\
 	$(srcdir)/ServiceResolver.cs	\

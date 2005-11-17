@@ -30,7 +30,7 @@ namespace Avahi
         internal void EmitFailure (ErrorCode code)
         {
             if (Failed != null)
-                Failed (this, code);
+                Failed (this, new ErrorCodeArgs (code));
         }
     }
 }

@@ -205,7 +205,7 @@ namespace Avahi
                 currentInfo = info;
 
                 foreach (ServiceInfoHandler handler in foundListeners)
-                    handler (this, info);
+                    handler (this, new ServiceInfoArgs (info));
                 break;
             case ResolverEvent.Failure:
                 EmitFailure (client.LastError);

@@ -38,7 +38,22 @@ namespace Avahi
         public LookupResultFlags Flags;
     }
 
-    public delegate void ServiceTypeInfoHandler (object o, ServiceTypeInfo info);
+    public class ServiceTypeInfoArgs : EventArgs
+    {
+        private ServiceTypeInfo type;
+
+        public ServiceTypeInfo ServiceType
+        {
+            get { return type; }
+        }
+
+        public ServiceTypeInfoArgs (ServiceTypeInfo type)
+        {
+            this.type = type;
+        }
+    }
+
+    public delegate void ServiceTypeInfoHandler (object o, ServiceTypeInfoArgs args);
     
     public class ServiceTypeBrowser : BrowserBase, IDisposable
     {
@@ -159,20 +174,18 @@ namespace Avahi
             info.ServiceType = Utility.PtrToString (type);
             info.Flags = flags;
 
-            infos.Add (info);
-
             switch (bevent) {
             case BrowserEvent.Added:
                 infos.Add (info);
 
                 foreach (ServiceTypeInfoHandler handler in addListeners)
-                    handler (this, info);
+                    handler (this, new ServiceTypeInfoArgs (info));
                 break;
             case BrowserEvent.Removed:
                 infos.Remove (info);
 
                 foreach (ServiceTypeInfoHandler handler in removeListeners)
-                    handler (this, info);
+                    handler (this, new ServiceTypeInfoArgs (info));
                 break;
             default:
                 EmitBrowserEvent (bevent);

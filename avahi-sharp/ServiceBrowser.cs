@@ -47,7 +47,21 @@ namespace Avahi
         public static ServiceInfo Zero = new ServiceInfo ();
     }
 
-    public delegate void ServiceInfoHandler (object o, ServiceInfo info);
+    public class ServiceInfoArgs : EventArgs
+    {
+        private ServiceInfo service;
+
+        public ServiceInfo Service {
+            get { return service; }
+        }
+
+        public ServiceInfoArgs (ServiceInfo service)
+        {
+            this.service = service;
+        }
+    }
+
+    public delegate void ServiceInfoHandler (object o, ServiceInfoArgs args);
     
     public class ServiceBrowser : BrowserBase, IDisposable
     {
@@ -178,21 +192,19 @@ namespace Avahi
             info.Text = null;
             info.Flags = flags;
 
-            infos.Add (info);
-
             switch (bevent) {
             case BrowserEvent.Added:
                 infos.Add (info);
 
                 foreach (ServiceInfoHandler handler in addListeners)
-                    handler (this, info);
+                    handler (this, new ServiceInfoArgs (info));
 
                 break;
             case BrowserEvent.Removed:
                 infos.Remove (info);
 
                 foreach (ServiceInfoHandler handler in removeListeners)
-                    handler (this, info);
+                    handler (this, new ServiceInfoArgs (info));
 
                 break;
             default:

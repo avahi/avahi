@@ -32,7 +32,29 @@ namespace Avahi
                                                     ResolverEvent revent, IntPtr address,
                                                     IntPtr hostname, LookupResultFlags flags, IntPtr userdata);
 
-    public delegate void HostAddressHandler (object o, string host, IPAddress address);
+    public delegate void HostAddressHandler (object o, HostAddressArgs args);
+
+    public class HostAddressArgs : EventArgs
+    {
+        private string host;
+        private IPAddress address;
+
+        public string Host
+        {
+            get { return host; }
+        }
+
+        public IPAddress Address
+        {
+            get { return address; }
+        }
+
+        public HostAddressArgs (string host, IPAddress address)
+        {
+            this.host = host;
+            this.address = address;
+        }
+    }
     
     public class AddressResolver : ResolverBase, IDisposable
     {
@@ -156,7 +178,7 @@ namespace Avahi
                 currentHost = Utility.PtrToString (hostname);
 
                 foreach (HostAddressHandler handler in foundListeners)
-                    handler (this, currentHost, currentAddress);
+                    handler (this, new HostAddressArgs (currentHost, currentAddress));
                 break;
             case ResolverEvent.Failure:
                 EmitFailure (client.LastError);

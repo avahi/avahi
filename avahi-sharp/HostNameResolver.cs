@@ -157,7 +157,7 @@ namespace Avahi
                 currentHost = Utility.PtrToString (hostname);
 
                 foreach (HostAddressHandler handler in foundListeners)
-                    handler (this, currentHost, currentAddress);
+                    handler (this, new HostAddressArgs (currentHost, currentAddress));
                 break;
             case ResolverEvent.Failure:
                 EmitFailure (client.LastError);

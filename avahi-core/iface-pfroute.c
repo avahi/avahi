@@ -92,12 +92,15 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
     hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
   
   memcpy(hw->mac_address, sdl->sdl_data + sdl->sdl_nlen, hw->mac_address_size);
-  
-  avahi_log_debug("======\n name: %s\n index:%d\n mtu:%d\n mac:%s\n flags_ok:%d\n======", 
-		  hw->name, hw->index, 
-		  hw->mtu, 
-		  avahi_format_mac_address(hw->mac_address, hw->mac_address_size),
-		  hw->flags_ok);
+ 
+/*   { */
+/*     char mac[256]; */
+/*     avahi_log_debug("======\n name: %s\n index:%d\n mtu:%d\n mac:%s\n flags_ok:%d\n======",  */
+/* 		    hw->name, hw->index,  */
+/* 		    hw->mtu,  */
+/* 		    avahi_format_mac_address(mac, sizeof(mac), hw->mac_address, hw->mac_address_size), */
+/* 		    hw->flags_ok); */
+/*   } */
   
   avahi_hw_interface_check_relevant(hw);
   avahi_hw_interface_update_rrs(hw, 0);
@@ -143,7 +146,7 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
       case AF_INET:
 	switch (1<<i) {
 	case RTA_NETMASK:
-	  prefixlen = bitcount(((struct sockaddr_in *)sa)->sin_addr.s_addr);
+	  prefixlen = bitcount((unsigned int)((struct sockaddr_in *)sa)->sin_addr.s_addr);
 	  break;
 	case RTA_IFA:
 	  memcpy(raddr.data.data, &((struct sockaddr_in *)sa)->sin_addr,  sizeof(struct in_addr));
@@ -155,7 +158,7 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
       case AF_INET6:
 	switch (1<<i) {
 	case RTA_NETMASK:
-	  prefixlen = bitcount(((struct sockaddr_in6 *)sa)->sin6_addr.s6_addr);
+	  prefixlen = bitcount((unsigned int)((struct sockaddr_in6 *)sa)->sin6_addr.s6_addr);
 	  break;
 	case RTA_IFA:
 	  memcpy(raddr.data.data, &((struct sockaddr_in6 *)sa)->sin6_addr,  sizeof(struct in6_addr));
@@ -200,7 +203,7 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   avahi_interface_update_rrs(iface, 0);
 }
 
-static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor *m)
+static void parse_rtmsg(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 {
   assert(m);
   assert(rtm);
@@ -224,7 +227,7 @@ static void parse_rtmsg(struct rt_msghdr *rtm, int msglen, AvahiInterfaceMonitor
   }
 }
 
-static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *userdata) {
+static void socket_event(AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event,void *userdata) {
   AvahiInterfaceMonitor *m = (AvahiInterfaceMonitor *)userdata;
   AvahiPfRoute *nl = m->osdep.pfroute;
     ssize_t bytes;
@@ -242,7 +245,7 @@ static void socket_event(AvahiWatch *w, int fd, AvahiWatchEvent event,void *user
 	avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
 	return;
       }
-      parse_rtmsg((struct rt_msghdr *)msg, bytes ,m);
+      parse_rtmsg((struct rt_msghdr *)msg, m);
     }
     while (bytes > 0);
 }
@@ -343,7 +346,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   lim = buf + needed;
   for (next = buf; next < lim; next += rtm->rtm_msglen) {
     rtm = (struct rt_msghdr *)next;
-    parse_rtmsg(rtm, rtm->rtm_msglen, m);
+    parse_rtmsg(rtm, m);
   }
   
   m->list_complete = 1;

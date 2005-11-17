@@ -1,7 +1,7 @@
 -*-text-*-
 
 
-A terse list of API changes between 0.5.2 and 0.6:
+A terse (and incomplete) list of API changes between 0.5.2 and 0.6:
 
  * Most browsing and registration functions and their callbacks gained
    new "flags" parameters. Passing 0 results in similar behaviour as
@@ -55,7 +55,23 @@ A terse list of API changes between 0.5.2 and 0.6:
  
  * AVAHI_ERR_LOCAL_COLLISION has been renamed to AVAHI_ERR_COLLSION
 
- * The values of AVAHI_PROTO_xxx have changed, they are no longer identical to
-   the BSD AF_xxx constants
+ * The values of AVAHI_PROTO_xxx have changed, they are no longer
+   identical to the BSD AF_xxx constants
+
+ * avahi_client_new() now takes an additional flags parameter. Most
+   interesting flag here is AVAHI_CLIENT_NO_FAIL, which can be used to
+   create an AvahiClient object even when the daemon is not
+   running. This is useful to deal with daemon restarts.
+
+ * AvahiClient gained a new state AVAHI_CLIENT_FAILURE.  (superseding
+   AVAHI_CLIENT_DISCONNECTED). If this event happens,
+   avahi_client_errno() will return the reason. If the error returned
+   is AVAHI_ERR_DISCONNECTED, the situation where
+   AVAHI_CLIENT_DISCONNECTED was previously thrown is entered. You may
+   choose to reconnect in that case by freeing your AvahiClient new
+   and create a new one with passing AVAHI_CLIENT_NO_FAIL.
+
+ * There's now a client side AvahiRecordBrowser, and 
+   avahi_entry_group_add_record().
 
 $Id$

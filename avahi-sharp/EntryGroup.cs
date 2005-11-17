@@ -275,6 +275,26 @@ namespace Avahi
                 }
             }
 
+            UpdateService (iface, proto, flags, name, type, domain, list);
+        }
+
+        public void UpdateService (int iface, Protocol proto, PublishFlags flags, string name, string type,
+                                   string domain, params byte[][] txt)
+        {
+            IntPtr list = avahi_string_list_new (IntPtr.Zero);
+
+            if (txt != null) {
+                foreach (byte[] item in txt) {
+                    list = avahi_string_list_add (list, item);
+                }
+            }
+
+            UpdateService (iface, proto, flags, name, type, domain, list);
+        }
+        
+        private void UpdateService (int iface, Protocol proto, PublishFlags flags, string name, string type,
+                                    string domain, IntPtr list)
+        {
             lock (client) {
                 int ret = avahi_entry_group_update_service_strlst (handle, iface, proto, flags,
                                                                    Utility.StringToBytes (name),

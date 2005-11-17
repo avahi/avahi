@@ -60,12 +60,20 @@ namespace Avahi
             return ret;
         }
 
-        public static IntPtr StringToPtr (string str)
+        public static byte[] StringToBytes (string str)
+        {
+            if (str == null)
+                return null;
+
+            return Encoding.UTF8.GetBytes (str);
+        }
+
+        private static IntPtr StringToPtr (string str)
         {
             if (str == null)
                 return IntPtr.Zero;
 
-            byte[] bytes = Encoding.UTF8.GetBytes (str);
+            byte[] bytes = Utility.StringToBytes (str);
             IntPtr buf = Stdlib.malloc ((uint) bytes.Length + 1);
             Marshal.Copy (bytes, 0, buf, bytes.Length);
             Marshal.WriteByte (buf, bytes.Length, 0);

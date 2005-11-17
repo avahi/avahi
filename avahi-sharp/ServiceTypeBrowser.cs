@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Avahi
 {
@@ -71,7 +72,7 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_service_type_browser_new (IntPtr client, int iface, int proto,
-                                                                     IntPtr domain, LookupFlags flags,
+                                                                     byte[] domain, LookupFlags flags,
                                                                      ServiceTypeBrowserCallback cb,
                                                                      IntPtr userdata);
 
@@ -143,10 +144,12 @@ namespace Avahi
                 return;
 
             lock (client) {
-                IntPtr domainPtr = Utility.StringToPtr (domain);
-                handle = avahi_service_type_browser_new (client.Handle, iface, (int) proto, domainPtr, flags,
+                handle = avahi_service_type_browser_new (client.Handle, iface, (int) proto,
+                                                         Utility.StringToBytes (domain), flags,
                                                          cb, IntPtr.Zero);
-                Utility.Free (domainPtr);
+
+                if (handle == IntPtr.Zero)
+                    client.ThrowError ();
             }
         }
 

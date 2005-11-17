@@ -151,6 +151,9 @@ namespace Avahi
             lock (client) {
                 handle = avahi_address_resolver_new (client.Handle, iface, proto, addrPtr, flags,
                                                      cb, IntPtr.Zero);
+
+                if (handle == IntPtr.Zero)
+                    client.ThrowError ();
             }
             
             Utility.Free (addrPtr);

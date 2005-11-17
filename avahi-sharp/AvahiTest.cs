@@ -37,7 +37,7 @@ public class AvahiTest {
         EntryGroup eg = new EntryGroup (client);
         eg.StateChanged += OnEntryGroupChanged;
         eg.AddService ("foobar2", "_daap._tcp", client.DomainName,
-                       444, new string[] { "foo", "bar", "baz" });
+                       444, new string[] { "foo=stuff", "bar=stuff2", "baz=stuff3" });
         eg.Commit ();
         Console.WriteLine ("Press enter to quit");
         Console.ReadLine ();
@@ -99,10 +99,17 @@ public class AvahiTest {
         foreach (byte[] bytes in args.Service.Text) {
             Console.WriteLine ("Text: " + Encoding.UTF8.GetString (bytes));
         }
+
         AddressResolver ar = new AddressResolver (client, args.Service.Address);
         objects.Add (ar);
-        
+
         ar.Found += OnAddressResolved;
+        ar.Failed += OnAddressResolverFailed;
+    }
+
+    private static void OnAddressResolverFailed (object o, ErrorCodeArgs args)
+    {
+        Console.WriteLine ("Failed to resolve '{0}': {1}", (o as AddressResolver).Address, args.ErrorCode);
     }
 
     private static void OnAddressResolved (object o, HostAddressArgs args)

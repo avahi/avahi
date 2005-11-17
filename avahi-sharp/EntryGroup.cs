@@ -22,6 +22,7 @@
 using System;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
 using Mono.Unix;
 
 namespace Avahi
@@ -90,28 +91,28 @@ namespace Avahi
 
         [DllImport ("avahi-client")]
         private static extern int avahi_entry_group_add_service_strlst (IntPtr group, int iface, Protocol proto,
-                                                                        PublishFlags flags, IntPtr name, IntPtr type,
-                                                                        IntPtr domain, IntPtr host, UInt16 port,
+                                                                        PublishFlags flags, byte[] name, byte[] type,
+                                                                        byte[] domain, byte[] host, UInt16 port,
                                                                         IntPtr strlst);
 
         [DllImport ("avahi-client")]
         private static extern int avahi_entry_group_update_service_strlst (IntPtr group, int iface, Protocol proto,
-                                                                           PublishFlags flags, IntPtr name,
-                                                                           IntPtr type, IntPtr domain, IntPtr strlst);
+                                                                           PublishFlags flags, byte[] name,
+                                                                           byte[] type, byte[] domain, IntPtr strlst);
 
         [DllImport ("avahi-client")]
         private static extern int avahi_entry_group_add_service_subtype (IntPtr group, int iface, Protocol proto,
-                                                                         PublishFlags flags, IntPtr name, IntPtr type,
-                                                                         IntPtr domain, IntPtr subtype);
+                                                                         PublishFlags flags, byte[] name, byte[] type,
+                                                                         byte[] domain, byte[] subtype);
 
         [DllImport ("avahi-client")]
         private static extern int avahi_entry_group_add_address (IntPtr group, int iface, Protocol proto,
-                                                                 PublishFlags flags, IntPtr name, IntPtr address);
+                                                                 PublishFlags flags, byte[] name, IntPtr address);
 
 
         [DllImport ("avahi-client")]
         private static extern int avahi_entry_group_add_record (IntPtr group, int iface, Protocol proto,
-                                                                PublishFlags flags, IntPtr name, RecordClass clazz,
+                                                                PublishFlags flags, byte[] name, RecordClass clazz,
                                                                 RecordType type, uint ttl, byte[] rdata, int size);
         
         [DllImport ("avahi-client")]
@@ -121,23 +122,23 @@ namespace Avahi
         private static extern IntPtr avahi_string_list_new (IntPtr txt);
 
         [DllImport ("avahi-common")]
-        private static extern IntPtr avahi_string_list_add (IntPtr list, IntPtr txt);
+        private static extern IntPtr avahi_string_list_add (IntPtr list, byte[] txt);
 
         [DllImport ("avahi-common")]
         private static extern void avahi_string_list_free (IntPtr list);
 
         [DllImport ("avahi-common")]
-        private static extern int avahi_service_name_join (IntPtr buf, int len, IntPtr name, IntPtr type,
-                                                           IntPtr domain);
+        private static extern int avahi_service_name_join (IntPtr buf, int len, byte[] name, byte[] type,
+                                                           byte[] domain);
 
         [DllImport ("avahi-common")]
-        private static extern int avahi_service_name_split (IntPtr service, IntPtr name, int name_len,
+        private static extern int avahi_service_name_split (byte[] service, IntPtr name, int name_len,
                                                             IntPtr type, int type_len,
                                                             IntPtr domain, int domain_len);
 
         
         [DllImport ("avahi-common")]
-        private static extern IntPtr avahi_alternative_service_name (IntPtr name);
+        private static extern IntPtr avahi_alternative_service_name (byte[] name);
 
         public event EntryGroupStateHandler StateChanged;
         
@@ -221,32 +222,41 @@ namespace Avahi
 
             if (txt != null) {
                 foreach (string item in txt) {
-                    IntPtr itemPtr = Utility.StringToPtr (item);
-                    list = avahi_string_list_add (list, itemPtr);
-                    Utility.Free (itemPtr);
+                    list = avahi_string_list_add (list, Utility.StringToBytes (item));
                 }
             }
 
-            IntPtr namePtr = Utility.StringToPtr (name);
-            IntPtr typePtr = Utility.StringToPtr (type);
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-            IntPtr hostPtr = Utility.StringToPtr (host);
+            AddService (iface, proto, flags, name, type, domain, host, port, list);
+        }
 
-            lock (client) {
-                int ret = avahi_entry_group_add_service_strlst (handle, iface, proto, flags, namePtr, typePtr, domainPtr,
-                                                                hostPtr, port, list);
+        public void AddService (int iface, Protocol proto, PublishFlags flags, string name, string type, string domain,
+                                string host, UInt16 port, params byte[][] txt)
+        {
+            IntPtr list = avahi_string_list_new (IntPtr.Zero);
 
-                Utility.Free (namePtr);
-                Utility.Free (typePtr);
-                Utility.Free (domainPtr);
-                Utility.Free (hostPtr);
-                avahi_string_list_free (list);
-
-                if (ret < 0) {
-                    client.ThrowError ();
+            if (txt != null) {
+                foreach (byte[] item in txt) {
+                    list = avahi_string_list_add (list, item);
                 }
             }
+
+            AddService (iface, proto, flags, name, type, domain, host, port, list);
+        }
+
+        private void AddService (int iface, Protocol proto, PublishFlags flags, string name, string type,
+                                 string domain, string host, UInt16 port, IntPtr list)
+        {
+            int ret = avahi_entry_group_add_service_strlst (handle, iface, proto, flags,
+                                                            Utility.StringToBytes (name),
+                                                            Utility.StringToBytes (type),
+                                                            Utility.StringToBytes (domain),
+                                                            Utility.StringToBytes (host), port, list);
             
+            avahi_string_list_free (list);
+            
+            if (ret < 0) {
+                client.ThrowError ();
+            }
         }
 
         public void UpdateService (string name, string type, string domain, params string[] txt)
@@ -261,23 +271,17 @@ namespace Avahi
 
             if (txt != null) {
                 foreach (string item in txt) {
-                    IntPtr itemPtr = Utility.StringToPtr (item);
-                    list = avahi_string_list_add (list, itemPtr);
-                    Utility.Free (itemPtr);
+                    list = avahi_string_list_add (list, Utility.StringToBytes (item));
                 }
             }
 
-            IntPtr namePtr = Utility.StringToPtr (name);
-            IntPtr typePtr = Utility.StringToPtr (type);
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-
             lock (client) {
-                int ret = avahi_entry_group_update_service_strlst (handle, iface, proto, flags, namePtr, typePtr, domainPtr, list);
+                int ret = avahi_entry_group_update_service_strlst (handle, iface, proto, flags,
+                                                                   Utility.StringToBytes (name),
+                                                                   Utility.StringToBytes (type),
+                                                                   Utility.StringToBytes (domain),
+                                                                   list);
 
-                Utility.Free (namePtr);
-                Utility.Free (typePtr);
-                Utility.Free (domainPtr);
-                
                 avahi_string_list_free (list);
 
                 if (ret < 0) {
@@ -294,20 +298,13 @@ namespace Avahi
         public void AddServiceSubtype (int iface, Protocol proto, PublishFlags flags, string name,
                                        string type, string domain, string subtype)
         {
-            IntPtr namePtr = Utility.StringToPtr (name);
-            IntPtr typePtr = Utility.StringToPtr (type);
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-            IntPtr subtypePtr = Utility.StringToPtr (subtype);
-
             lock (client) {
-                int ret = avahi_entry_group_add_service_subtype (handle, iface, proto, flags, namePtr,
-                                                                 typePtr, domainPtr, subtypePtr);
+                int ret = avahi_entry_group_add_service_subtype (handle, iface, proto, flags,
+                                                                 Utility.StringToBytes (name),
+                                                                 Utility.StringToBytes (type),
+                                                                 Utility.StringToBytes (domain),
+                                                                 Utility.StringToBytes (subtype));
 
-                Utility.Free (namePtr);
-                Utility.Free (typePtr);
-                Utility.Free (domainPtr);
-                Utility.Free (subtypePtr);
-                
                 if (ret < 0) {
                     client.ThrowError ();
                 }
@@ -321,13 +318,12 @@ namespace Avahi
 
         public void AddAddress (int iface, Protocol proto, PublishFlags flags, string name, IPAddress address)
         {
-            IntPtr namePtr = Utility.StringToPtr (name);
             IntPtr addressPtr = Utility.AddressToPtr (address);
 
             lock (client) {
-                int ret = avahi_entry_group_add_address (handle, iface, proto, flags, namePtr, addressPtr);
+                int ret = avahi_entry_group_add_address (handle, iface, proto, flags,
+                                                         Utility.StringToBytes (name), addressPtr);
 
-                Utility.Free (namePtr);
                 Utility.Free (addressPtr);
 
                 if (ret < 0) {
@@ -344,14 +340,11 @@ namespace Avahi
         public void AddRecord (int iface, Protocol proto, PublishFlags flags, string name,
                                RecordClass clazz, RecordType type, uint ttl, byte[] rdata, int length)
         {
-            IntPtr namePtr = Utility.StringToPtr (name);
-
             lock (client) {
-                int ret = avahi_entry_group_add_record (handle, iface, proto, flags, namePtr,
+                int ret = avahi_entry_group_add_record (handle, iface, proto, flags,
+                                                        Utility.StringToBytes (name),
                                                         clazz, type, ttl, rdata, length);
 
-                Utility.Free (namePtr);
-                
                 if (ret < 0) {
                     client.ThrowError ();
                 }
@@ -363,15 +356,10 @@ namespace Avahi
             int len = 4 * (name.Length + type.Length + domain.Length) + 4;
             IntPtr buf = Stdlib.malloc ((ulong) len);
 
-            IntPtr namePtr = Utility.StringToPtr (name);
-            IntPtr typePtr = Utility.StringToPtr (type);
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-
-            int ret = avahi_service_name_join (buf, len, namePtr, typePtr, domainPtr);
-
-            Utility.Free (namePtr);
-            Utility.Free (typePtr);
-            Utility.Free (domainPtr);
+            int ret = avahi_service_name_join (buf, len,
+                                               Utility.StringToBytes (name),
+                                               Utility.StringToBytes (type),
+                                               Utility.StringToBytes (domain));
 
             if (ret < 0) {
                 Utility.Free (buf);
@@ -388,15 +376,13 @@ namespace Avahi
         {
             int len = 1024;
 
-            IntPtr servicePtr = Utility.StringToPtr (service);
             IntPtr namePtr = Stdlib.malloc ((ulong) len);
             IntPtr typePtr = Stdlib.malloc ((ulong) len);
             IntPtr domainPtr = Stdlib.malloc ((ulong) len);
             
-            int ret = avahi_service_name_split (servicePtr, namePtr, len, typePtr, len, domainPtr, len);
+            int ret = avahi_service_name_split (Utility.StringToBytes (service), namePtr, len, typePtr, len,
+                                                domainPtr, len);
 
-            Utility.Free (servicePtr);
-            
             if (ret < 0) {
                 Utility.Free (namePtr);
                 Utility.Free (typePtr);
@@ -418,11 +404,7 @@ namespace Avahi
         }
 
         public static string GetAlternativeServiceName (string name) {
-            IntPtr namePtr = Utility.StringToPtr (name);
-            IntPtr result = avahi_alternative_service_name (namePtr);
-            Utility.Free (namePtr);
-
-            return Utility.PtrToStringFree (result);
+            return Utility.PtrToStringFree (avahi_alternative_service_name (Utility.StringToBytes (name)));
         }
 
         private void OnEntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata)

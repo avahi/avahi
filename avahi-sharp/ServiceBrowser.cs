@@ -23,6 +23,7 @@ using System;
 using System.Net;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Avahi
 {
@@ -79,8 +80,8 @@ namespace Avahi
         private ArrayList removeListeners = new ArrayList ();
         
         [DllImport ("avahi-client")]
-        private static extern IntPtr avahi_service_browser_new (IntPtr client, int iface, int proto, IntPtr type,
-                                                                IntPtr domain, LookupFlags flags,
+        private static extern IntPtr avahi_service_browser_new (IntPtr client, int iface, int proto, byte[] type,
+                                                                byte[] domain, LookupFlags flags,
                                                                 ServiceBrowserCallback cb,
                                                                 IntPtr userdata);
 
@@ -152,15 +153,14 @@ namespace Avahi
                 (addListeners.Count == 0 && removeListeners.Count == 0))
                 return;
 
-            IntPtr domainPtr = Utility.StringToPtr (domain);
-            IntPtr typePtr = Utility.StringToPtr (type);
-
             lock (client) {
-                handle = avahi_service_browser_new (client.Handle, iface, (int) proto, typePtr, domainPtr, flags,
-                                                    cb, IntPtr.Zero);
+                handle = avahi_service_browser_new (client.Handle, iface, (int) proto,
+                                                    Utility.StringToBytes (type), Utility.StringToBytes (domain),
+                                                    flags, cb, IntPtr.Zero);
+
+                if (handle == IntPtr.Zero)
+                    client.ThrowError ();
             }
-            Utility.Free (domainPtr);
-            Utility.Free (typePtr);
         }
 
         private void Stop (bool force)

@@ -23,6 +23,7 @@ using System;
 using System.Collections;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
 using Mono.Unix;
 
 namespace Avahi
@@ -51,7 +52,7 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_host_name_resolver_new (IntPtr client, int iface, Protocol proto,
-                                                                   IntPtr hostname, Protocol aproto, LookupFlags flags,
+                                                                   byte[] hostname, Protocol aproto, LookupFlags flags,
                                                                    HostNameResolverCallback cb, IntPtr userdata);
 
         [DllImport ("avahi-client")]
@@ -125,14 +126,14 @@ namespace Avahi
                 (foundListeners.Count == 0 && timeoutListeners.Count == 0))
                 return;
 
-            IntPtr hostPtr = Utility.StringToPtr (hostname);
-
             lock (client) {
-                handle = avahi_host_name_resolver_new (client.Handle, iface, proto, hostPtr, aproto, flags,
+                handle = avahi_host_name_resolver_new (client.Handle, iface, proto,
+                                                       Utility.StringToBytes (hostname), aproto, flags,
                                                        cb, IntPtr.Zero);
+
+                if (handle == IntPtr.Zero)
+                    client.ThrowError ();
             }
-            
-            Utility.Free (hostPtr);
         }
 
         private void Stop (bool force)

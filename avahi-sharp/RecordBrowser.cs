@@ -23,6 +23,7 @@ using System;
 using System.Net;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Avahi
 {
@@ -93,7 +94,7 @@ namespace Avahi
         
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_record_browser_new (IntPtr client, int iface, Protocol proto,
-                                                               IntPtr name, ushort clazz, ushort type,
+                                                               byte[] name, ushort clazz, ushort type,
                                                                LookupFlags flags, RecordBrowserCallback cb,
                                                                IntPtr userdata);
 
@@ -164,14 +165,13 @@ namespace Avahi
                 (addListeners.Count == 0 && removeListeners.Count == 0))
                 return;
 
-            IntPtr namePtr = Utility.StringToPtr (name);
-
             lock (client) {
-                handle = avahi_record_browser_new (client.Handle, iface, proto, namePtr, (ushort) clazz, (ushort) type,
-                                                   flags, cb, IntPtr.Zero);
-            }
+                handle = avahi_record_browser_new (client.Handle, iface, proto, Utility.StringToBytes (name),
+                                                   (ushort) clazz, (ushort) type, flags, cb, IntPtr.Zero);
 
-            Utility.Free (namePtr);
+                if (handle == IntPtr.Zero)
+                    client.ThrowError ();
+            }
         }
 
         private void Stop (bool force)

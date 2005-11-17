@@ -28,28 +28,28 @@
         <summary>To be added.</summary>
       </Docs>
     </Member>
-    <Member MemberName="Invalid">
-      <MemberSignature Language="C#" Value="Invalid" />
-      <MemberType>Field</MemberType>
-      <ReturnValue>
-        <ReturnType>Avahi.ClientState</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>To be added.</summary>
-      </Docs>
-    </Member>
-    <Member MemberName="Disconnected">
-      <MemberSignature Language="C#" Value="Disconnected" />
-      <MemberType>Field</MemberType>
-      <ReturnValue>
-        <ReturnType>Avahi.ClientState</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>To be added.</summary>
-      </Docs>
-    </Member>
     <Member MemberName="Running">
       <MemberSignature Language="C#" Value="Running" />
+      <MemberType>Field</MemberType>
+      <ReturnValue>
+        <ReturnType>Avahi.ClientState</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Connecting">
+      <MemberSignature Language="C#" Value="Connecting" />
+      <MemberType>Field</MemberType>
+      <ReturnValue>
+        <ReturnType>Avahi.ClientState</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Failure">
+      <MemberSignature Language="C#" Value="Failure" />
       <MemberType>Field</MemberType>
       <ReturnValue>
         <ReturnType>Avahi.ClientState</ReturnType>

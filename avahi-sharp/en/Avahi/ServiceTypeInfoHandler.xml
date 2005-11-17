@@ -1,5 +1,5 @@
 <Type Name="ServiceTypeInfoHandler" FullName="Avahi.ServiceTypeInfoHandler">
-  <TypeSignature Language="C#" Value="public delegate void ServiceTypeInfoHandler(object o, Avahi.ServiceTypeInfo info);" />
+  <TypeSignature Language="C#" Value="public delegate void ServiceTypeInfoHandler(object o, Avahi.ServiceTypeInfoArgs args);" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -9,14 +9,14 @@
   </Base>
   <Parameters>
     <Parameter Name="o" Type="System.Object" />
-    <Parameter Name="info" Type="Avahi.ServiceTypeInfo" />
+    <Parameter Name="args" Type="Avahi.ServiceTypeInfoArgs" />
   </Parameters>
   <ReturnValue>
     <ReturnType>System.Void</ReturnType>
   </ReturnValue>
   <Docs>
     <param name="o">To be added.</param>
-    <param name="info">To be added.</param>
+    <param name="args">To be added.</param>
     <summary>To be added.</summary>
     <remarks>To be added.</remarks>
   </Docs>

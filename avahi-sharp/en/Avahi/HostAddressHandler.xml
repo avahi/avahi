@@ -1,5 +1,5 @@
 <Type Name="HostAddressHandler" FullName="Avahi.HostAddressHandler">
-  <TypeSignature Language="C#" Value="public delegate void HostAddressHandler(object o, string host, System.Net.IPAddress address);" />
+  <TypeSignature Language="C#" Value="public delegate void HostAddressHandler(object o, Avahi.HostAddressArgs args);" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -9,16 +9,14 @@
   </Base>
   <Parameters>
     <Parameter Name="o" Type="System.Object" />
-    <Parameter Name="host" Type="System.String" />
-    <Parameter Name="address" Type="System.Net.IPAddress" />
+    <Parameter Name="args" Type="Avahi.HostAddressArgs" />
   </Parameters>
   <ReturnValue>
     <ReturnType>System.Void</ReturnType>
   </ReturnValue>
   <Docs>
     <param name="o">To be added.</param>
-    <param name="host">To be added.</param>
-    <param name="address">To be added.</param>
+    <param name="args">To be added.</param>
     <summary>To be added.</summary>
     <remarks>To be added.</remarks>
   </Docs>

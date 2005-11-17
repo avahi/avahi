@@ -1,11 +1,11 @@
 <Type Name="DomainBrowser" FullName="Avahi.DomainBrowser">
-  <TypeSignature Language="C#" Value="public class DomainBrowser : System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class DomainBrowser : Avahi.BrowserBase, System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
-    <BaseTypeName>System.Object</BaseTypeName>
+    <BaseTypeName>Avahi.BrowserBase</BaseTypeName>
   </Base>
   <Interfaces>
     <Interface>

@@ -54,6 +54,25 @@
       <Type Name="EntryGroupState" />
       <Type Name="LookupFlags" />
       <Type Name="LookupResultFlags" />
+      <Type Name="HostAddressArgs" />
+      <Type Name="ResolverBase" />
+      <Type Name="BrowserBase" />
+      <Type Name="ClientStateArgs" />
+      <Type Name="ErrorCodeArgs" />
+      <Type Name="DomainInfoArgs" />
+      <Type Name="EntryGroupStateArgs" />
+      <Type Name="RecordInfo" />
+      <Type Name="RecordInfoArgs" />
+      <Type Name="RecordBrowser" />
+      <Type Name="ServiceInfoArgs" />
+      <Type Name="ServiceTypeInfoArgs" />
+      <Type Name="ErrorCodeHandler" />
+      <Type Name="RecordInfoHandler" />
+      <Type Name="ClientFlags" />
+      <Type Name="ErrorCode" />
+      <Type Name="PublishFlags" />
+      <Type Name="RecordClass" />
+      <Type Name="RecordType" />
     </Namespace>
   </Types>
   <Title>avahi-sharp</Title>

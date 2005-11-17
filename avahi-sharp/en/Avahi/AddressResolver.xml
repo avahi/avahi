@@ -1,11 +1,11 @@
 <Type Name="AddressResolver" FullName="Avahi.AddressResolver">
-  <TypeSignature Language="C#" Value="public class AddressResolver : System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class AddressResolver : Avahi.ResolverBase, System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
-    <BaseTypeName>System.Object</BaseTypeName>
+    <BaseTypeName>Avahi.ResolverBase</BaseTypeName>
   </Base>
   <Interfaces>
     <Interface>

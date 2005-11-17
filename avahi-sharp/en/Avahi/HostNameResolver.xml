@@ -1,11 +1,11 @@
 <Type Name="HostNameResolver" FullName="Avahi.HostNameResolver">
-  <TypeSignature Language="C#" Value="public class HostNameResolver : System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class HostNameResolver : Avahi.ResolverBase, System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
-    <BaseTypeName>System.Object</BaseTypeName>
+    <BaseTypeName>Avahi.ResolverBase</BaseTypeName>
   </Base>
   <Interfaces>
     <Interface>

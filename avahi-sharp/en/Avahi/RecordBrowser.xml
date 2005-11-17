@@ -1,5 +1,5 @@
-<Type Name="ServiceTypeBrowser" FullName="Avahi.ServiceTypeBrowser">
-  <TypeSignature Language="C#" Value="public class ServiceTypeBrowser : Avahi.BrowserBase, System.IDisposable" />
+<Type Name="RecordBrowser" FullName="Avahi.RecordBrowser">
+  <TypeSignature Language="C#" Value="public class RecordBrowser : Avahi.BrowserBase, System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -14,47 +14,61 @@
   </Interfaces>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public ServiceTypeBrowser (Avahi.Client client);" />
+      <MemberSignature Language="C#" Value="public RecordBrowser (Avahi.Client client, string name, Avahi.RecordType type);" />
       <MemberType>Constructor</MemberType>
       <Parameters>
         <Parameter Name="client" Type="Avahi.Client" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="type" Type="Avahi.RecordType" />
       </Parameters>
       <Docs>
         <param name="client">To be added.</param>
+        <param name="name">To be added.</param>
+        <param name="type">To be added.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public ServiceTypeBrowser (Avahi.Client client, string domain);" />
+      <MemberSignature Language="C#" Value="public RecordBrowser (Avahi.Client client, int iface, Avahi.Protocol proto, string name, Avahi.RecordClass clazz, Avahi.RecordType type, Avahi.LookupFlags flags);" />
       <MemberType>Constructor</MemberType>
       <Parameters>
         <Parameter Name="client" Type="Avahi.Client" />
-        <Parameter Name="domain" Type="System.String" />
+        <Parameter Name="iface" Type="System.Int32" />
+        <Parameter Name="proto" Type="Avahi.Protocol" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="clazz" Type="Avahi.RecordClass" />
+        <Parameter Name="type" Type="Avahi.RecordType" />
+        <Parameter Name="flags" Type="Avahi.LookupFlags" />
       </Parameters>
       <Docs>
         <param name="client">To be added.</param>
-        <param name="domain">To be added.</param>
+        <param name="iface">To be added.</param>
+        <param name="proto">To be added.</param>
+        <param name="name">To be added.</param>
+        <param name="clazz">To be added.</param>
+        <param name="type">To be added.</param>
+        <param name="flags">To be added.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="ServiceTypeAdded">
-      <MemberSignature Language="C#" Value="public event Avahi.ServiceTypeInfoHandler ServiceTypeAdded;" />
+    <Member MemberName="RecordAdded">
+      <MemberSignature Language="C#" Value="public event Avahi.RecordInfoHandler RecordAdded;" />
       <MemberType>Event</MemberType>
       <ReturnValue>
-        <ReturnType>Avahi.ServiceTypeInfoHandler</ReturnType>
+        <ReturnType>Avahi.RecordInfoHandler</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="ServiceTypeRemoved">
-      <MemberSignature Language="C#" Value="public event Avahi.ServiceTypeInfoHandler ServiceTypeRemoved;" />
+    <Member MemberName="RecordRemoved">
+      <MemberSignature Language="C#" Value="public event Avahi.RecordInfoHandler RecordRemoved;" />
       <MemberType>Event</MemberType>
       <ReturnValue>
-        <ReturnType>Avahi.ServiceTypeInfoHandler</ReturnType>
+        <ReturnType>Avahi.RecordInfoHandler</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>To be added.</summary>
@@ -73,35 +87,15 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="ServiceTypes">
-      <MemberSignature Language="C#" Value="public Avahi.ServiceTypeInfo[] ServiceTypes { get; };" />
+    <Member MemberName="Records">
+      <MemberSignature Language="C#" Value="public Avahi.RecordInfo[] Records { get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue>
-        <ReturnType>Avahi.ServiceTypeInfo[]</ReturnType>
+        <ReturnType>Avahi.RecordInfo[]</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public ServiceTypeBrowser (Avahi.Client client, int iface, Avahi.Protocol proto, string domain, Avahi.LookupFlags flags);" />
-      <MemberType>Constructor</MemberType>
-      <Parameters>
-        <Parameter Name="client" Type="Avahi.Client" />
-        <Parameter Name="iface" Type="System.Int32" />
-        <Parameter Name="proto" Type="Avahi.Protocol" />
-        <Parameter Name="domain" Type="System.String" />
-        <Parameter Name="flags" Type="Avahi.LookupFlags" />
-      </Parameters>
-      <Docs>
-        <param name="client">To be added.</param>
-        <param name="iface">To be added.</param>
-        <param name="proto">To be added.</param>
-        <param name="domain">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

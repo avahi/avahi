@@ -1,11 +1,11 @@
 <Type Name="ServiceBrowser" FullName="Avahi.ServiceBrowser">
-  <TypeSignature Language="C#" Value="public class ServiceBrowser : System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class ServiceBrowser : Avahi.BrowserBase, System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>avahi-sharp</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
-    <BaseTypeName>System.Object</BaseTypeName>
+    <BaseTypeName>Avahi.BrowserBase</BaseTypeName>
   </Base>
   <Interfaces>
     <Interface>

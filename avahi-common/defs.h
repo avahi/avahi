@@ -139,8 +139,53 @@
  * traffic heavily.
  * - There is no need to subscribe to server state changes.
  *  
- * The linked functions belong to avahi-client. They all have counterparts in the DBUS API and avahi-core.
- *  
+ * The linked functions belong to avahi-client. They all have
+ * counterparts in the DBUS API and avahi-core.
+ *
+ * \section daemon_dies How to Write a Client That Can Deal with Daemon Restarts
+ *
+ * With Avahi it is possible to write client applications that can
+ * deal with Avahi daemon restarts. To accomplish that make sure to
+ * pass AVAHI_CLIENT_NO_FAIL to avahi_client_new()'s flags
+ * parameter. That way avahi_client_new() will succeed even when the
+ * daemon is not running. In that case the object will enter
+ * AVAHI_CLIENT_CONNECTING state. As soon as the daemon becomes
+ * available the object will enter one of the AVAHI_CLIENT_S_xxx
+ * states. Make sure to not create browsers or entry groups before the
+ * client object has entered one of those states. As usual you will be
+ * informed about state changes with the callback function supplied to
+ * avahi_client_new(). If the client is forced to disconnect from the
+ * server it will enter AVAHI_CLIENT_FAILURE state with
+ * avahi_client_errno() == AVAHI_ERR_DISCONNECTED. Free the
+ * AvahiClient object in that case and reconnect to the server anew -
+ * again with passing AVAHI_CLIENT_NO_FAIL to avahi_client_new().
+ *
+ * We encourage to implement this in all software where service
+ * discovery is not an integral part of application. e.g. use it in
+ * all kinds of background daemons, but not in software like iChat
+ * compatible IM software.
+ *
+ * For now AVAHI_CLIENT_NO_FAIL cannot deal with DBUS daemon restarts.
+ *
+ * \section domains How to Deal Properly with Browsing Domains
+ *
+ * Due to the introduction of wide-area DNS-SD the correct handling of
+ * domains becomes more important for Avahi enabled applications. All
+ * applications that offer the user a list of services discovered with
+ * Avahi should offer some kind of editable drop down box where the
+ * user can either enter his own domain or select one of those offered
+ * by AvahiDomainBrowser. The default domain to browse should be the
+ * one returned by avahi_client_get_domain_name(). The list of domains
+ * returned by AvahiDomainBrowser is assembled by the browsing domains
+ * configured in the daemon's configuration file, the domains
+ * announced inside the default domain, the domains set with the
+ * environment variable $AVAHI_BROWSE_DOMAINS (colon-seperated) on the
+ * client side and the domains set in the XDG configuration file
+ * ~/.config/avahi/browse-domains on the client side (seperated by
+ * newlines). File managers offering some kind of "Network
+ * Neighborhood" folder should show the entries of the default domain
+ * right inside that and offer subfolders for the browsing domains
+ * returned by AvahiDomainBrowser.
  */
 
 AVAHI_C_DECL_BEGIN

@@ -6,8 +6,8 @@ Avahi 0.6, the "Goddag" release
  * Support for (read-only) wide area support. (i.e. DNS-SD over unicast DNS)
  * Ported to FreeBSD, NetBSD, Darwin/MacOSX and to some extent OpenBSD
  * Portability fixes for ARM CPUs
- * Compatibility layers for HOWL and Bonjour
- * Support for registering/browsing abritrary records
+ * Compatibility layers for the HOWL and Bonjour APIs
+ * Support for registering/browsing arbitrary records
  * Proper support for DNS-SD service subtypes
  * Native C implementations of the client utilities
  * Now passes the Bonjour conformance test suite without any exceptions

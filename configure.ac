@@ -758,10 +758,10 @@ if test "x$HAVE_EXPAT" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
     BUILD_DAEMON=yes
 fi
 
-BUILD_UTILS="no (!)"
+BUILD_PYTHON="no (!)"
 
 if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGTK" = "xyes" ; then
-    BUILD_UTILS=yes
+    BUILD_PYTHON=yes
 fi
 
 BUILD_CLIENT="no (!)"
@@ -782,9 +782,10 @@ echo "
     Building libavahi-core              yes
     Building avahi-daemon:              ${BUILD_DAEMON}
     Building avahi-dnsconfd:            ${BUILD_DAEMON}
-    Building avahi-utils:               ${BUILD_UTILS}
-    Building libavahi-glib:             ${HAVE_GLIB}
     Building libavahi-client:           ${BUILD_CLIENT}
+    Building avahi-utils:               ${BUILD_CLIENT}
+    Building avahi-python:              ${BUILD_PYTHON}
+    Building libavahi-glib:             ${HAVE_GLIB}
     Building avahi-discover-standalone: ${HAVE_GTK}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}

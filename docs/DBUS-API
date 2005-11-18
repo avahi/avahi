@@ -1,74 +1,14 @@
 $Id$
 
 * NOTE *
-While this document provides an overview of the DBUS-API, a much better
-reference is the .introspect files in the avahi-daemon directory.
-It may also become out of date, especially in SVN, so please, check the
-.introspect files in avahi-daemon/
+This file used to contain an overview of the DBUS API for Avahi, however
+since it was no longer up to date you should now read the XML-formatted DBUS
+Introspection files, which are fairly easy to understand and kept up to date.
 
-Or you can find copies online, under "Developing with Avahi" here
+You can see them in the avahi-daemon source directory, named *.introspect.
+
+Opening them in a web browser is a good way to view them as they are formatted
+nicely, you can also view our online copy under "Developing with Avahi" here
 http://www.freedesktop.org/Software/Avahi
 
-- Lathiat
-
-org.freedesktop.Avahi.Server               
-        string GetVersionString()
-        string GetHostName()
-        string GetHostNameFqdn()
-        string GetDomainName()
-        int32 GetState()
-        string GetAlternativeHostName(string name)
-        string GetAlternativeServiceName(string name)
-        string GetNetworkInterfaceNameByIndex(int32 index)
-        int32 GetNetworkInterfaceIndexByName(string name)
-        [int32 interface, int32 protocol, string name, int32 aprotocol, string address] ResolveHostName(int32 interface, int32 protocol, string name, int32 aprotocol)
-        [int32 interface, int32 protocol, int32 aprotocol, string address, string name] ResolveAddress(int32 interface, int32 protocol, string address)
-        [int32 interface, int32 protocol, string name, string type, string domain, string host, int32 aprotocol, string address, uint16 port, byte txt[][]] ResolveService(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol) 
-        path EntryGroupNew()              
-        path DomainBrowserNew(int32 interface, int32 protocol, string domain, int32 btype)
-        path ServiceTypeBrowserNew(int32 interface, int32 protocol, string domain)
-        path ServiceBrowserNew(int32 interface, int32 protocol, string type, string domain)
-        path ServiceResolverNew(int32 interface, int32 protocol, string name, string type, string domain, int32 aprotocol)
-        path HostNameResolverNew(int32, int32 protocol, string name, int aprotocol)
-        path AddressResolverNew(int32 interface, int32 protocol, string address)
-        SIGNAL StateChanged(int32 state)
-
-org.freedesktop.Avahi.EntryGroup
-        void Free()
-        void Commit()
-        void Reset()
-        int32 GetState()
-        boolean IsEmpty()
-        void AddService(int32 interface, int32 protocol, string name, string type, string domain, string host, uint16 port, string txt[])
-        void AddAddress(int32 interface, int32 protocol, string name, string address)
-        SIGNAL StateChanged(int32 state)
-
-org.freedesktop.Avahi.DomainBrowser
-        void Free()
-        SIGNAL ItemNew(int32 interface, int32 protocol, string domain)
-        SIGNAL ItemRemove(int32 interface, int32 protocol, string domain)
-
-org.freedesktop.Avahi.ServiceTypeBrowser
-        void Free()
-        SIGNAL ItemNew(int32 interface, int32 protocol, string type, string domain) 
-        SIGNAL ItemRemove(int32 interface, int32 protocol, string type, string domain)
-
-org.freedesktop.Avahi.ServiceBrowser
-        void Free()
-        SIGNAL ItemNew(int32 interface, int32 protocol, string name, string type, string domain)
-        SIGNAL ItemRemove(int32 interface, int32 protocol, string name, string type, string domain)
-
-org.freedesktop.Avahi.AddressResolver
-        void Free()
-        SIGNAL Found(int32 interface, int32 protocol, int32 aprotocol, string address, string name)
-        SIGNAL Timeout()
-
-org.freedesktop.Avahi.HostNameResolver
-        void Free()
-        SIGNAL Found(int32 interface, int32 protocol, string name, int32 aprotocol, string address)
-        SIGNAL Timeout()
-
-org.freedesktop.Avahi.ServiceResolver
-        void Free()
-        SIGNAL Found(int32 interface, int32 protocol,string name, string type, string domain, string host, int32 aprotocol, string address, int32 port, byte[][] txt)
-        SIGNAL Timeout()
+ - Lathiat

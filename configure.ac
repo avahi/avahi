@@ -758,7 +758,7 @@ if test "x$HAVE_EXPAT" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
     BUILD_DAEMON=yes
 fi
 
-BUILD_PYTHON="no (!)"
+BUILD_PYTHON="no"
 
 if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGTK" = "xyes" ; then
     BUILD_PYTHON=yes

@@ -352,9 +352,11 @@ AC_ARG_ENABLE(dbus,
 AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
 AC_ARG_WITH(dbus-system-socket, AS_HELP_STRING([--with-dbus-system-address=<address>], [where the dbus system socket is, you probably want to put unix:path= at the start]))
 
+DBUS_VERSION="Not installed!"
 if test "x$HAVE_DBUS" = "xyes" ; then
     AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
+    DBUS_VERSION=`$PKG_CONFIG dbus-1 --modversion`
     PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.34 ])
     DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
     AC_SUBST(DBUS_CFLAGS)
@@ -730,7 +732,7 @@ echo "
     localstatedir:          ${localstatedir}
     avahi socket:           ${avahi_socket}
     dbus-1 system.d dir:    ${DBUS_SYS_DIR}
-    dbus-1 version:         `pkg-config dbus-1 --modversion`
+    dbus-1 version:         ${DBUS_VERSION}
     dbus-1 system socket    ${DBUS_SYSTEM_BUS_DEFAULT_ADDRESS}
     compiler:               ${CC}
     cflags:                 ${CFLAGS}

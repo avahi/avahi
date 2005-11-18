@@ -64,8 +64,8 @@ libavahi_common_la_SOURCES = \
 	watch.h gccmacro.h \
 	rlist.h rlist.c
 
-libavahi_common_la_CFLAGS = $(AM_CFLAGS)
-libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMMON_VERSION_INFO)
+libavahi_common_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) 
+libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) $(PTHREAD_LIBS) -export-dynamic -version-info $(LIBAVAHI_COMMON_VERSION_INFO)
 
 strlst_test_SOURCES = \
 	strlst.c strlst.h \
@@ -92,12 +92,14 @@ watch_test_SOURCES = \
 	watch.h \
 	malloc.c malloc.h \
 	watch-test.c
-watch_test_CFLAGS = $(AM_CFLAGS)
+watch_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
+watch_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS)
 
 timeval_test_SOURCES = \
 	timeval.c timeval.h \
 	timeval-test.c
-timeval_test_CFLAGS = $(AM_CFLAGS)
+timeval_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
+timeval_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS)
 
 if HAVE_DBUS
 

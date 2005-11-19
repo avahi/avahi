@@ -56,6 +56,7 @@ $(ASSEMBLY).config: $(ASSEMBLY).config.in
 		$(top_builddir)/avahi-common/libavahi-common.la < $< > $@
 
 if HAVE_MONO
+if HAVE_DBUS
 all: $(ASSEMBLY) $(ASSEMBLY).config
 
 if HAVE_MONODOC
@@ -75,4 +76,6 @@ install-data-hook: $(ASSEMBLY)
 
 uninstall-hook: $(ASSEMBLY)
 	$(GACUTIL) /u avahi-sharp /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+
+endif
 endif

@@ -105,21 +105,37 @@ CLEANFILES = avahi-core.pc
 
 if HAVE_DBUS
 
-pkgconfig_DATA += avahi-client.pc avahi-compat-libdns_sd.pc  avahi-compat-howl.pc
+pkgconfig_DATA += avahi-client.pc
 
 avahi-client.pc: avahi-client.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
-avahi-compat-libdns_sd.pc: avahi-compat-libdns_sd.pc.in
-	sed -e 's,@prefix\@,$(prefix),g' \
-	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+CLEANFILES += avahi-client.pc
+
+if ENABLE_COMPAT_HOWL
+
+pkgconfig_DATA += avahi-compat-howl.pc
 
 avahi-compat-howl.pc: avahi-compat-howl.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@HOWL_COMPAT_VERSION\@,$(HOWL_COMPAT_VERSION),g' $< > $@
 
-CLEANFILES += avahi-client.pc avahi-compat-libdns_sd.pc avahi-compat-howl.pc
+CLEANFILES += avahi-compat-howl.pc
+
+endif
+
+if ENABLE_COMPAT_LIBDNS_SD
+
+pkgconfig_DATA += avahi-compat-libdns_sd.pc
+
+avahi-compat-libdns_sd.pc: avahi-compat-libdns_sd.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-compat-libdns_sd.pc
+
+endif
 
 endif
 
@@ -160,6 +176,7 @@ CLEANFILES += avahi-qt4.pc
 endif
 
 if HAVE_MONO
+if HAVE_DBUS
 
 pkgconfig_DATA += avahi-sharp.pc
 
@@ -170,6 +187,7 @@ avahi-sharp.pc: avahi-sharp.pc.in
 
 CLEANFILES += avahi-sharp.pc
 
+endif
 endif
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)

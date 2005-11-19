@@ -137,6 +137,19 @@ CLEANFILES += avahi-compat-libdns_sd.pc
 
 endif
 
+if HAVE_MONO
+
+pkgconfig_DATA += avahi-sharp.pc
+
+avahi-sharp.pc: avahi-sharp.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' \
+	    -e 's,@libdir\@,$(libdir),g' $< > $@
+
+CLEANFILES += avahi-sharp.pc
+
+endif
+
 endif
 
 if HAVE_GLIB
@@ -173,21 +186,6 @@ avahi-qt4.pc: avahi-qt4.pc.in
 
 CLEANFILES += avahi-qt4.pc
 
-endif
-
-if HAVE_MONO
-if HAVE_DBUS
-
-pkgconfig_DATA += avahi-sharp.pc
-
-avahi-sharp.pc: avahi-sharp.pc.in
-	sed -e 's,@prefix\@,$(prefix),g' \
-	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' \
-	    -e 's,@libdir\@,$(libdir),g' $< > $@
-
-CLEANFILES += avahi-sharp.pc
-
-endif
 endif
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)

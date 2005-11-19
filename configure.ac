@@ -352,7 +352,9 @@ AC_ARG_ENABLE(dbus,
 AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [where D-BUS system.d directory is]))
 AC_ARG_WITH(dbus-system-socket, AS_HELP_STRING([--with-dbus-system-address=<address>], [where the dbus system socket is, you probably want to put unix:path= at the start]))
 
-DBUS_VERSION="Not installed!"
+DBUS_VERSION="Disabled"
+DBUS_SYS_DIR="Disabled"
+DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="Disabled"
 if test "x$HAVE_DBUS" = "xyes" ; then
     AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
@@ -484,21 +486,23 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
     fi
 
 
-    AC_ARG_ENABLE(python-dbus,
-        AS_HELP_STRING([--disable-python-dbus],[Disable use of D-BUS in Python]),
-        [case "${enableval}" in
-                yes) HAVE_PYTHON_DBUS=yes ;;
-                no)  HAVE_PYTHON_DBUS=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-python-dbus) ;;
-        esac],
-        [HAVE_PYTHON_DBUS=yes])
+    if test "x$HAVE_DBUS" = "xyes" ; then
+        AC_ARG_ENABLE(python-dbus,
+	    AS_HELP_STRING([--disable-python-dbus],[Disable use of D-BUS in Python]),
+            [case "${enableval}" in
+                   yes) HAVE_PYTHON_DBUS=yes ;;
+                   no)  HAVE_PYTHON_DBUS=no ;;
+                   *) AC_MSG_ERROR(bad value ${enableval} for --enable-python-dbus) ;;
+            esac],
+            [HAVE_PYTHON_DBUS=yes])
     
-    if test "x$HAVE_PYTHON_DBUS" = "xyes"; then
-        AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
-    fi
+        if test "x$HAVE_PYTHON_DBUS" = "xyes"; then
+            AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
+        fi
 
-    AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
-    AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
+        AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
+        AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
+    fi
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
 AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
@@ -507,15 +511,38 @@ AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
 #
 # Check for mono stuff
 #
-AC_ARG_ENABLE(mono,
-        AS_HELP_STRING([--disable-mono],[Disable mono bindings]),
-        [case "${enableval}" in
-                yes) HAVE_MONO=yes ;;
-                no)  HAVE_MONO=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-mono) ;;
-        esac],
-        [HAVE_MONO=yes])
+HAVE_MONO=no
+if test "x$HAVE_DBUS" = "xyes" ; then
+    AC_ARG_ENABLE(mono,
+            AS_HELP_STRING([--disable-mono],[Disable mono bindings]),
+            [case "${enableval}" in
+                    yes) HAVE_MONO=yes ;;
+                    no)  HAVE_MONO=no ;;
+                    *) AC_MSG_ERROR(bad value ${enableval} for --enable-mono) ;;
+            esac],
+            [HAVE_MONO=yes])
 
+    if test "x$HAVE_MONO" = "xyes" ; then
+        AC_PATH_PROG(MCS, mcs)
+        if test "x$MCS" = "x" ; then
+            AC_MSG_ERROR([Can not find "mcs" in your PATH])
+        fi
+
+        AC_PATH_PROG(GACUTIL, gacutil)
+        if test "x$GACUTIL" = "x" ; then
+            AC_MSG_ERROR([Can not find "gacutil" in your PATH])
+        fi
+
+        AC_SUBST(MCS)
+        AC_SUBST(GACUTIL)
+    fi
+fi
+AM_CONDITIONAL(HAVE_MONO, test "x$HAVE_MONO" = "xyes")
+
+#
+# Check for monodoc stuff
+#
+HAVE_MONODOC=no
 AC_ARG_ENABLE(monodoc,
         AS_HELP_STRING([--disable-monodoc],[Disable documentation for mono bindings]),
         [case "${enableval}" in
@@ -525,25 +552,6 @@ AC_ARG_ENABLE(monodoc,
         esac],
         [HAVE_MONODOC=yes])
 
-if test "x$HAVE_MONO" = "xyes" ; then
-        AC_PATH_PROG(MCS, mcs)
-        if test "x$MCS" = "x" ; then
-               AC_MSG_ERROR([Can not find "mcs" in your PATH])
-        fi
-
-        AC_PATH_PROG(GACUTIL, gacutil)
-        if test "x$GACUTIL" = "x" ; then
-                AC_MSG_ERROR([Can not find "gacutil" in your PATH])
-        fi
-
-        AC_SUBST(MCS)
-        AC_SUBST(GACUTIL)
-fi
-AM_CONDITIONAL(HAVE_MONO, test "x$HAVE_MONO" = "xyes")
-
-#
-# Check for monodoc stuff
-#
 if test "x$HAVE_MONODOC" = "xyes" ; then
         PKG_CHECK_MODULES(MONODOC, [monodoc >= 1.1.8])
         MONODOC_DIR=`$PKG_CONFIG --variable=sourcesdir monodoc`        
@@ -748,39 +756,40 @@ echo "
     Enable QT3:             ${HAVE_QT3}
     Enable QT4:             ${HAVE_QT4}
     Enable Mono:            ${HAVE_MONO}
+    Enable Monodoc:         ${HAVE_MONODOC}
     Distribution/OS:        ${with_distro}
     User for Avahi:         ${AVAHI_USER}
     Group for Avahi:        ${AVAHI_GROUP}
     Enable chroot():        ${enable_chroot}
 "
 
-BUILD_DAEMON="no (!)"
+BUILD_DAEMON="no   (You need libdaemon and expat!)"
 
 if test "x$HAVE_EXPAT" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
     BUILD_DAEMON=yes
 fi
 
-BUILD_PYTHON="no"
+BUILD_PYTHON="no   (You need python, pygtk and python-dbus!)"
 
 if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGTK" = "xyes" ; then
     BUILD_PYTHON=yes
 fi
 
-BUILD_CLIENT="no (!)"
+BUILD_CLIENT="no   (You need avahi-daemon and dbus!)"
 
 if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" ; then
     BUILD_CLIENT=yes
 fi
 
 if test "x$ENABLE_COMPAT_LIBDNS_SD" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
-   AC_MSG_ERROR([building avahi-compat-libdns_sd without building libavahi-client doesn't work])
+   ENABLE_COMPAT_LIBDNS_SD="no   (You need libavahi-client!)"
 fi
 if test "x$ENABLE_COMPAT_HOWL" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
-   AC_MSG_ERROR([building avahi-compat-howl without building libavahi-client doesn't work])
+   ENABLE_COMPAT_HOWL="no   (You need libavahi-client!)"
 fi
 
 
-echo "
+echo "\
     Building libavahi-core              yes
     Building avahi-daemon:              ${BUILD_DAEMON}
     Building avahi-dnsconfd:            ${BUILD_DAEMON}

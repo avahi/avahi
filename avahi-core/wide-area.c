@@ -596,6 +596,9 @@ AvahiWideAreaLookupEngine *avahi_wide_area_engine_new(AvahiServer *s) {
     }
 
     /* Create watches */
+
+    e->watch_ipv4 = e->watch_ipv6 = NULL;
+    
     if (e->fd_ipv4 >= 0)
         e->watch_ipv4 = s->poll_api->watch_new(e->server->poll_api, e->fd_ipv4, AVAHI_WATCH_IN, socket_event, e);
     if (e->fd_ipv6 >= 0)

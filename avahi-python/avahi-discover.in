@@ -43,6 +43,7 @@ service_type_db = avahi.ServiceTypeDatabase.ServiceTypeDatabase()
 class Main_window(SimpleGladeApp):
     def __init__(self, path="avahi-discover.glade", root="main_window", domain=None, **kwargs):
         path = os.path.join(glade_dir, path)
+        gtk.window_set_default_icon_name("gnome-networktool")
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
 
     def on_tree_view_cursor_changed(self, widget, *args):

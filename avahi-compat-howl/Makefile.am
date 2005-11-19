@@ -69,7 +69,7 @@ HOWLHEADERS = \
 	$(avahi_compat_howl_discovery_HEADERS) \
 	$(avahi_compat_howl_salt_HEADERS)
 
-lib_LTLIBRARIES = libavahi-compat-howl.la 
+lib_LTLIBRARIES = libavahi-compat-howl.la libhowl.la
 
 if ENABLE_TESTS
 noinst_PROGRAMS = address-test text-test browse-domain-test
@@ -84,6 +84,10 @@ libavahi_compat_howl_la_SOURCES = \
 	compat.c
 libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 libavahi_compat_howl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
+
+libhowl_la_SOURCES =
+libhowl_la_CFLAGS = $(AM_CFLAGS)
+libhowl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) libavahi-compat-howl.la
 
 address_test_SOURCES = \
 	$(HOWLHEADERS) \

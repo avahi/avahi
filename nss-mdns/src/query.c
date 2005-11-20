@@ -120,6 +120,7 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
     struct ifreq ifreq[32];
     struct ifconf ifconf;
     int n_sent = 0;
+    int last_index = -1;
 
     assert(fd >= 0 && p);
     assert(dns_packet_check_valid(p) >= 0);
@@ -181,8 +182,14 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
 
         if (ioctl(fd, SIOCGIFINDEX, &ifreq[i]) < 0) 
             continue; /* See above why we ignore this error */
-        
-        pkti->ipi_ifindex = ifreq[i].ifr_ifindex;
+
+        /* Only send the the packet once per interface. We assume that
+         * multiple addresses assigned to the same interface follow
+         * immediately one after the other.*/
+        if (last_index == ifreq[i].ifr_ifindex)
+            continue;
+
+        last_index = pkti->ipi_ifindex = ifreq[i].ifr_ifindex;
         
         for (;;) {
             

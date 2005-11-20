@@ -46,7 +46,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 href="@PACKAGE_URL@nss-mdns-0.7.tar.gz">Version 0.7</a>
 released. Changes include: Portability patch for ARM from Philipp
 Zabel; make sure not to print any messages to STDERR; deal with OOM
-situations properly; other cleanups</p>
+situations properly; if multiple addresses are assigned to the same interface make sure to send a query packet only once; other cleanups</p>
 
 <div class="news-date">Sun Aug 21 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.6.tar.gz">Version 0.6</a>

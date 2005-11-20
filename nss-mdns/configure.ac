@@ -55,7 +55,7 @@ AC_HEADER_TIME
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_SELECT_ARGTYPES
-AC_CHECK_FUNCS([gethostbyaddr gethostbyname gettimeofday inet_ntoa memset select socket strcspn strdup strerror strncasecmp])
+AC_CHECK_FUNCS([gethostbyaddr gethostbyname gettimeofday inet_ntoa memset select socket strcspn strdup strerror strncasecmp strcasecmp strspn])
 
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then

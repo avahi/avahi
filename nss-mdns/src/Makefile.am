@@ -58,3 +58,7 @@ install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns4.la 
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns6.la 
 
+uninstall-hook:
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns.so.2 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns4.so.2 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns6.so.2

@@ -40,7 +40,7 @@
 static FILE *open_socket(void) {
     int fd = -1;
     struct sockaddr_un sa;
-    FILE *f;
+    FILE *f = NULL;
 
     if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
         goto fail;
@@ -68,7 +68,7 @@ fail:
 }
 
 int avahi_resolve_name(int af, const char* name, void* data) {
-    FILE *f;
+    FILE *f = NULL;
     char *p;
     int ret = -1;
     char ln[256];
@@ -122,7 +122,7 @@ finish:
 }
 
 int avahi_resolve_address(int af, const void *data, char* name, size_t name_len) {
-    FILE *f;
+    FILE *f = NULL;
     char *p;
     int ret = -1;
     char a[256], ln[256];

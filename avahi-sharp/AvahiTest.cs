@@ -32,7 +32,7 @@ public class AvahiTest {
     public static void Main () {
         client = new Client ();
 
-	Console.WriteLine ("joined service name: " + EntryGroup.JoinServiceName ("FooBar", "_foo", "local"));
+	Console.WriteLine ("joined service name: " + Client.JoinServiceName ("FooBar", "_foo", "local"));
 
         EntryGroup eg = new EntryGroup (client);
         eg.StateChanged += OnEntryGroupChanged;

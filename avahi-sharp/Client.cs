@@ -24,6 +24,7 @@ using System;
 using System.Threading;
 using System.Collections;
 using System.Runtime.InteropServices;
+using Mono.Unix;
 
 namespace Avahi
 {
@@ -161,6 +162,15 @@ namespace Avahi
         [DllImport ("avahi-client")]
         private static extern uint avahi_client_get_local_service_cookie (IntPtr client);
 
+        [DllImport ("avahi-common")]
+        private static extern int avahi_service_name_join (IntPtr buf, int len, byte[] name, byte[] type,
+                                                           byte[] domain);
+
+        [DllImport ("avahi-common")]
+        private static extern int avahi_service_name_split (byte[] service, IntPtr name, int name_len,
+                                                            IntPtr type, int type_len,
+                                                            IntPtr domain, int domain_len);
+
 
         [DllImport ("libc")]
         private static extern int poll(IntPtr ufds, uint nfds, int timeout);
@@ -270,6 +280,58 @@ namespace Avahi
                 avahi_simple_poll_free (spoll);
                 handle = IntPtr.Zero;
             }
+        }
+
+        public static string JoinServiceName (string name, string type, string domain)
+        {
+            int len = 4 * (name.Length + type.Length + domain.Length) + 4;
+            IntPtr buf = Stdlib.malloc ((ulong) len);
+
+            int ret = avahi_service_name_join (buf, len,
+                                               Utility.StringToBytes (name),
+                                               Utility.StringToBytes (type),
+                                               Utility.StringToBytes (domain));
+
+            if (ret < 0) {
+                Utility.Free (buf);
+                return null; // FIXME, should throw exception
+            }
+
+            string service = Utility.PtrToString (buf);
+            Utility.Free (buf);
+
+            return service;
+        }
+
+        public static void SplitServiceName (string service, out string name, out string type, out string domain)
+        {
+            int len = 1024;
+
+            IntPtr namePtr = Stdlib.malloc ((ulong) len);
+            IntPtr typePtr = Stdlib.malloc ((ulong) len);
+            IntPtr domainPtr = Stdlib.malloc ((ulong) len);
+            
+            int ret = avahi_service_name_split (Utility.StringToBytes (service), namePtr, len, typePtr, len,
+                                                domainPtr, len);
+
+            if (ret < 0) {
+                Utility.Free (namePtr);
+                Utility.Free (typePtr);
+                Utility.Free (domainPtr);
+                
+                name = null;
+                type = null;
+                domain = null;
+                return;
+            }
+
+            name = Utility.PtrToString (namePtr);
+            type = Utility.PtrToString (typePtr);
+            domain = Utility.PtrToString (domainPtr);
+
+            Utility.Free (namePtr);
+            Utility.Free (typePtr);
+            Utility.Free (domainPtr);
         }
 
         internal void ThrowError ()

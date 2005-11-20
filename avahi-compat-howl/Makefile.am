@@ -69,25 +69,21 @@ HOWLHEADERS = \
 	$(avahi_compat_howl_discovery_HEADERS) \
 	$(avahi_compat_howl_salt_HEADERS)
 
-lib_LTLIBRARIES = libavahi-compat-howl.la libhowl.la
+lib_LTLIBRARIES = libhowl.la
 
 if ENABLE_TESTS
 noinst_PROGRAMS = address-test text-test browse-domain-test
 endif
 
-libavahi_compat_howl_la_SOURCES = \
+libhowl_la_SOURCES = \
 	$(HOWLHEADERS) \
 	warn.c warn.h \
 	unsupported.c \
 	address.c \
 	text.c \
 	compat.c
-libavahi_compat_howl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-libavahi_compat_howl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
-
-libhowl_la_SOURCES =
-libhowl_la_CFLAGS = $(AM_CFLAGS)
-libhowl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) libavahi-compat-howl.la
+libhowl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
+libhowl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 address_test_SOURCES = \
 	$(HOWLHEADERS) \
@@ -109,7 +105,7 @@ browse_domain_test_SOURCES = \
 	$(HOWLHEADERS) \
 	browse-domain-test.c
 browse_domain_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-browse_domain_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) libavahi-compat-howl.la
+browse_domain_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) libhowl.la
 
 endif
 endif

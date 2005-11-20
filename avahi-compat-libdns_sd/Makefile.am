@@ -29,24 +29,20 @@ avahi_compat_libdns_sddir=$(includedir)/avahi-compat-libdns_sd
 
 avahi_compat_libdns_sd_HEADERS = dns_sd.h
 
-lib_LTLIBRARIES = libavahi-compat-libdns_sd.la libdns_sd.la
+lib_LTLIBRARIES = libdns_sd.la
 
 if ENABLE_TESTS
 noinst_PROGRAMS = txt-test
 endif
 
-libavahi_compat_libdns_sd_la_SOURCES = \
+libdns_sd_la_SOURCES = \
 	dns_sd.h \
 	compat.c \
 	txt.c \
 	unsupported.c \
 	warn.c warn.h
-libavahi_compat_libdns_sd_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
-libavahi_compat_libdns_sd_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
-
-libdns_sd_la_SOURCES =
-libdns_sd_la_CFLAGS = $(AM_CFLAGS)
-libdns_sd_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO) libavahi-compat-libdns_sd.la
+libdns_sd_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
+libdns_sd_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 txt_test_SOURCES = \
 	dns_sd.h \
@@ -61,9 +57,9 @@ txt_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la
 # libdns_sd-test" manually. We do not distribute that file due to
 # licensing restrictions.
 
-libdns_sd-test: libdns_sd-test.c libavahi-compat-libdns_sd.la
+libdns_sd-test: libdns_sd-test.c libdns_sd.la
 	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) $(PTHREAD_CFLAGS) -o libdns_sd-test.o -c libdns_sd-test.c 
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(PTHREAD_CFLAGS) -o libdns_sd-test libdns_sd-test.o $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la libavahi-compat-libdns_sd.la 
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(PTHREAD_CFLAGS) -o libdns_sd-test libdns_sd-test.o $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la libdns_sd.la 
 
 CLEANFILES = libdns_sd-test.o libdns_sd-test
 

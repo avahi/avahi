@@ -32,22 +32,22 @@ endif
 browse_SOURCES = \
 	browse.c
 browse_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-browse_LDADD = $(AM_LDADD) ../libavahi-compat-howl.la
+browse_LDADD = $(AM_LDADD) ../libhowl.la
 
 resolve_SOURCES = \
 	resolve.c
 resolve_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-resolve_LDADD = $(AM_LDADD) ../libavahi-compat-howl.la
+resolve_LDADD = $(AM_LDADD) ../libhowl.la
 
 publish_SOURCES = \
 	publish.c
 publish_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-publish_LDADD = $(AM_LDADD) ../libavahi-compat-howl.la
+publish_LDADD = $(AM_LDADD) ../libhowl.la
 
 query_SOURCES = \
 	query.c
 query_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-query_LDADD = $(AM_LDADD) ../libavahi-compat-howl.la
+query_LDADD = $(AM_LDADD) ../libhowl.la
 
 endif
 endif

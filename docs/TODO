@@ -1,6 +1,3 @@
-for 0.6:
-* RELEASE!
-
 later:
 * add simplification routine for adding services 
 * support for special domain PTR records based on local IP subnet address

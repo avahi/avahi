@@ -26,7 +26,6 @@
 #include <sys/select.h>
 #include <errno.h>
 #include <string.h>
-#include <stdio.h>
 #include <assert.h>
 #include <fcntl.h>
 
@@ -152,10 +151,8 @@ int wait_for_write(int fd, struct timeval *end) {
         }
 
         if ((r = select(fd+1, NULL, &fds, NULL, end ? &tv : NULL)) < 0) {
-            if (errno != EINTR) {
-                fprintf(stderr, "select() failed: %s\n", strerror(errno));
+            if (errno != EINTR)
                 return -1;
-            }
         } else if (r == 0)
             return 1;
         else {
@@ -191,10 +188,8 @@ int wait_for_read(int fd, struct timeval *end) {
         }
         
         if ((r = select(fd+1, &fds, NULL, NULL, end ? &tv : NULL)) < 0) {
-            if (errno != EINTR) {
-                fprintf(stderr, "select() failed: %s\n", strerror(errno));
+            if (errno != EINTR)
                 return -1;
-            }
         } else if (r == 0) 
             return 1;
         else {

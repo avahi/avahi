@@ -73,46 +73,32 @@ int mdns_open_socket(void) {
     struct sockaddr_in sa;
     int fd = -1, ttl, yes;
 
-    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        fprintf(stderr, "socket() failed: %s\n", strerror(errno));
+    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
         goto fail;
-    }
 
     ttl = 255;
-    if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)) < 0) {
-        fprintf(stderr, "IP_MULTICAST_TTL failed: %s\n", strerror(errno));
+    if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)) < 0)
         goto fail;
-    }
 
     sa.sin_family = AF_INET;
     sa.sin_port = 0;
     sa.sin_addr.s_addr = INADDR_ANY;
     
-    if (bind(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
-        fprintf(stderr, "bind() failed: %s\n", strerror(errno));
+    if (bind(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0)
         goto fail;
-    }
     
     yes = 1;
-    if (setsockopt(fd, IPPROTO_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0) {
-        fprintf(stderr, "IP_RECVTTL failed: %s\n", strerror(errno));
+    if (setsockopt(fd, IPPROTO_IP, IP_RECVTTL, &yes, sizeof(yes)) < 0)
         goto fail;
-    }
 
-    if (setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0) {
-        fprintf(stderr, "IP_PKTINFO failed: %s\n", strerror(errno));
+    if (setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0)
         goto fail;
-    }
     
-    if (set_cloexec(fd) < 0) {
-        fprintf(stderr, "FD_CLOEXEC failed: %s\n", strerror(errno));
+    if (set_cloexec(fd) < 0)
         goto fail;
-    }
     
-    if (set_nonblock(fd) < 0) {
-        fprintf(stderr, "O_ONONBLOCK failed: %s\n", strerror(errno));
+    if (set_nonblock(fd) < 0)
         goto fail;
-    }
 
     return fd;
 
@@ -129,7 +115,7 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
     struct iovec io;
     struct cmsghdr *cmsg;
     struct in_pktinfo *pkti;
-    uint8_t cmsg_data[sizeof(struct cmsghdr) + sizeof(struct in_pktinfo)];
+    uint8_t cmsg_data[CMSG_LEN(sizeof(struct in_pktinfo))];
     int i, n;
     struct ifreq ifreq[32];
     struct ifconf ifconf;
@@ -150,7 +136,7 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
     cmsg->cmsg_level = IPPROTO_IP;
     cmsg->cmsg_type = IP_PKTINFO;
 
-    pkti = (struct in_pktinfo*) (cmsg_data + sizeof(struct cmsghdr));
+    pkti = (struct in_pktinfo*) CMSG_DATA(cmsg);
     pkti->ipi_ifindex = 0;
     
     memset(&msg, 0, sizeof(msg));
@@ -165,10 +151,8 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
     ifconf.ifc_req = ifreq;
     ifconf.ifc_len = sizeof(ifreq);
     
-    if (ioctl(fd, SIOCGIFCONF, &ifconf) < 0) {
-        fprintf(stderr, "SIOCGIFCONF failed: %s\n", strerror(errno));
+    if (ioctl(fd, SIOCGIFCONF, &ifconf) < 0)
         return -1;
-    }
 
     for (i = 0, n = ifconf.ifc_len/sizeof(struct ifreq); i < n; i++) {
         struct sockaddr_in *ifsa;
@@ -205,10 +189,8 @@ static int send_dns_packet(int fd, struct dns_packet *p) {
             if (sendmsg(fd, &msg, MSG_DONTROUTE) >= 0)
                 break;
 
-            if (errno != EAGAIN) {
-                fprintf(stderr, "sendmsg() failed: %s\n", strerror(errno));
+            if (errno != EAGAIN)
                 return -1;
-            }
             
             if (wait_for_write(fd, NULL) < 0)
                 return -1;
@@ -228,7 +210,8 @@ static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t *ret_
     uint8_t aux[64];
     assert(fd >= 0);
 
-    p = dns_packet_new();
+    if (!(p = dns_packet_new()))
+        return -1; /* OOM */
 
     io.iov_base = p->data;
     io.iov_len = sizeof(p->data);
@@ -257,10 +240,8 @@ static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t *ret_
                 }
             }
                      
-            if (cmsg == NULL) {
-                fprintf(stderr, "Didn't recieve TTL\n");
+            if (!cmsg)
                 goto fail;
-            }
 
             p->size = (size_t) l;
 
@@ -268,10 +249,8 @@ static int recv_dns_packet(int fd, struct dns_packet **ret_packet, uint8_t *ret_
             return 0;
         }
 
-        if (errno != EAGAIN) {
-            fprintf(stderr, "recvfrom() failed: %s\n", strerror(errno));
+        if (errno != EAGAIN)
             goto fail;
-        }
         
         if ((r = wait_for_read(fd, end)) < 0)
             goto fail;
@@ -296,21 +275,17 @@ static int send_name_query(int fd, const char *name, uint16_t id, int query_ipv4
 
     assert(fd >= 0 && name && (query_ipv4 || query_ipv6));
 
-    if (!(p = dns_packet_new())) {
-        fprintf(stderr, "Failed to allocate DNS packet.\n");
-        goto finish;
-    }
+    if (!(p = dns_packet_new()))
+        goto finish; /* OOM */
 
     dns_packet_set_field(p, DNS_FIELD_ID, id);
     dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 
 #ifndef NSS_IP6_ONLY
     if (query_ipv4) {
-        if (!(prev_name = dns_packet_append_name(p, name))) {
-            fprintf(stderr, "Bad host name\n");
-            goto finish;
-            
-        }
+        if (!(prev_name = dns_packet_append_name(p, name)))
+            goto finish; /* Bad name */
+
         dns_packet_append_uint16(p, DNS_TYPE_A);
         dns_packet_append_uint16(p, DNS_CLASS_IN);
         qdcount++;
@@ -319,10 +294,8 @@ static int send_name_query(int fd, const char *name, uint16_t id, int query_ipv4
     
 #ifndef NSS_IP4_ONLY
     if (query_ipv6) {
-        if (!dns_packet_append_name_compressed(p, name, prev_name)) {
-            fprintf(stderr, "Bad host name\n");
-            goto finish;
-        }
+        if (!dns_packet_append_name_compressed(p, name, prev_name))
+            goto finish; /* Bad name */
         
         dns_packet_append_uint16(p, DNS_TYPE_AAAA);
         dns_packet_append_uint16(p, DNS_CLASS_IN);
@@ -510,18 +483,14 @@ static int send_reverse_query(int fd, const char *name, uint16_t id) {
 
     assert(fd >= 0 && name);
 
-    if (!(p = dns_packet_new())) {
-        fprintf(stderr, "Failed to allocate DNS packet.\n");
+    if (!(p = dns_packet_new()))
         goto finish;
-    }
 
     dns_packet_set_field(p, DNS_FIELD_ID, id);
     dns_packet_set_field(p, DNS_FIELD_FLAGS, DNS_FLAGS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 
-    if (!dns_packet_append_name(p, name)) {
-        fprintf(stderr, "Bad host name\n");
+    if (!dns_packet_append_name(p, name))
         goto finish;
-    }
 
     dns_packet_append_uint16(p, DNS_TYPE_PTR);
     dns_packet_append_uint16(p, DNS_CLASS_IN);
@@ -678,6 +647,4 @@ int mdns_query_ipv6(int fd, const ipv6_address_t *ipv6, void (*name_func)(const 
     
     return query_reverse(fd, name, name_func, userdata);
 }
-
-
 #endif

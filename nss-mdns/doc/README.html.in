@@ -42,6 +42,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Sat Nov 19 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.7.tar.gz">Version 0.7</a>
+released. Changes include: Portability patch for ARM from Philipp
+Zabel; make sure not to print any messages to STDERR; deal with OOM
+situations properly; other cleanups</p>
+
 <div class="news-date">Sun Aug 21 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.6.tar.gz">Version 0.6</a>
 released. Changes include: honour search list in
@@ -81,20 +87,20 @@ href="@PACKAGE_URL@nss-mdns-0.1.tar.gz">Version 0.1</a> released</p>
 Switch (NSS) functionality of the GNU C Library (<tt>glibc</tt>)
 providing host name resolution via <a
 href="http://www.multicastdns.org/">Multicast DNS</a> (aka
-<i>Zeroconf</i>, aka <i>Apple Rendezvous</i>), effectively allowing
+<i>Zeroconf</i>, aka <i>Apple Rendezvous</i>, aka <i>Apple Bonjour</i>), effectively allowing
 name resolution by common Unix/Linux programs in the ad-hoc mDNS domain <tt>.local</tt>.</p>
 
 <p><tt>nss-mdns</tt> provides client functionality only, which
 means that you have to run a mDNS responder daemon seperately
 from <tt>nss-mdns</tt> if you want to register the local host name via
-mDNS (e.g. <a href="http://www.freedesktop.org/Software/Avahi">Avahi</a>).</p>
+mDNS. I recommend <a href="http://www.freedesktop.org/Software/Avahi">Avahi</a>.</p>
 
 <p><tt>nss-mdns</tt> is very lightweight (23 KByte stripped binary
-<tt>.so</tt> compiled with <tt>-DNDEBUG=1</tt> on i386, <tt>gcc</tt>
-3.3), has no dependencies besides the <tt>glibc</tt> and requires only
+<tt>.so</tt> compiled with <tt>-DNDEBUG=1 -Os</tt> on i386, <tt>gcc</tt>
+4.0), has no dependencies besides the <tt>glibc</tt> and requires only
 minimal configuration.</p>
 
-<p>Optionally, <tt>nss-mdns</tt> can try to contact a running <a
+<p>Optionally <tt>nss-mdns</tt> can try to contact a running <a
 href="http://www.freedesktop.org/Software/Avahi">avahi-daemon</a> to
 make use of its superior record cacheing.</p>
 
@@ -103,7 +109,8 @@ make use of its superior record cacheing.</p>
 <p>It works!</p>
 
 <p>While <tt>nss-mdns</tt> supports resolving IPv6 addresses it does
-so via IPv4 multicasts only.</p>
+so via IPv4 multicasts only. (Unless, of course, it finds a running
+Avahi daemon which supports IPv6 properly.)</p>
 
 <h2><a name="documentation">Documentation</a></h2>
 
@@ -153,12 +160,6 @@ use <tt>glibc</tt>'s <tt>getent</tt> tool:
 <p>Replace <i>foo</i> whith a host name that has been registered with
 an mDNS responder.</p>
 
-<p>To reduce the traffic <tt>nss-mdns</tt> is responsible for consider
-installing <tt>glibc</tt>'s name service cache daemon
-<tt>nscd</tt>. However, when doing troubleshooting for
-<tt>nss-mdns</tt>, don't forget to disable <tt>nscd</tt> for getting
-sensible results.</p>
-
 <p>If you run a firewall, don't forget to allow UDP traffic to the the
 mDNS multicast address <tt>224.0.0.251</tt> on port 5353.</p>
 
@@ -187,14 +188,6 @@ mDNS.</p>
 <p>If the configuration file is existent but empty, mDNS name lookups
 are disabled completely.</p>
 
-<p><tt>nss-mdns</tt> does not honour the domain search list of
-<tt>/etc/resolv.conf</tt>, because I don't consider that this would be
-a good idea, since every name lookup for non-existing domains would
-result in a series of long timeouts of <tt>nss-mdns</tt>. If somebody
-still considers this a good idea, he is free to send me a sensible
-patch, which I might apply, but only if the domain search list may be
-disabled.</p>
-
 <h2><a name="requirements">Requirements</a></h2>
 
 <p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly
@@ -222,6 +215,8 @@ compilation and <tt>make install</tt> (as root) for installation of
 
 <p>Sean Meiners for search list support.</p>
 
+<p>Philipp Zabel for ARM support.</p>
+
 <h2><a name="download">Download</a></h2>
 
 <p>The newest release is always available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a></p>
@@ -232,12 +227,12 @@ compilation and <tt>make install</tt> (as root) for installation of
 
 <pre>svn checkout svn://svn.0pointer.de/nss-mdns/trunk nss-mdns</pre>
 
-<p>You may find an up to date Debian package of <tt>nss-mdns</tt> on the <a href="http://packages.debian.org/libnss-mdns">Debian package repository</a>.</p>
+<p>You may find an up to date Debian package of <tt>nss-mdns</tt> on the <a href="http://packages.debian.org/libnss-mdns">Debian package repository</a>. Many other distributions ship it, too.</p>
 
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 
 <hr/>
-<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, Aug 2005</address>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, Nov 2005</address>
 <div class="grey"><i>$Id$</i></div>
 
 </body>

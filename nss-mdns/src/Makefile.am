@@ -22,7 +22,7 @@ AM_CFLAGS = \
 	-DRESOLV_CONF_FILE=\"$(sysconfdir)/resolv.conf\" \
 	-DAVAHI_SOCKET=\"$(localstatedir)/run/avahi-daemon/socket\"
 
-#-DNDEBUG=1
+#AM_CFLAGS += -DNDEBUG=1 -Os
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'

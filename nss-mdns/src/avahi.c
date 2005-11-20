@@ -65,7 +65,6 @@ fail:
         close(fd);
 
     return NULL;
-    
 }
 
 int avahi_resolve_name(int af, const char* name, void* data) {
@@ -74,7 +73,8 @@ int avahi_resolve_name(int af, const char* name, void* data) {
     int ret = -1;
     char ln[256];
 
-    assert(af == AF_INET || af == AF_INET6);
+    if (af != AF_INET && af != AF_INET6)
+        goto finish;
     
     if (!(f = open_socket()))
         goto finish;
@@ -127,7 +127,8 @@ int avahi_resolve_address(int af, const void *data, char* name, size_t name_len)
     int ret = -1;
     char a[256], ln[256];
 
-    assert(af == AF_INET || af == AF_INET6);
+    if (af != AF_INET && af == AF_INET6)
+        goto finish;
     
     if (!(f = open_socket()))
         goto finish;

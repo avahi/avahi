@@ -34,8 +34,10 @@
 
 struct dns_packet* dns_packet_new(void) {
     struct dns_packet *p;
-    p = malloc(sizeof(struct dns_packet));
-    assert(p);
+
+    if (!(p = malloc(sizeof(struct dns_packet))))
+        return NULL;
+    
     p->size = p->rindex = 2*6;
     memset(p->data, 0, p->size);
     return p;
@@ -47,13 +49,15 @@ void dns_packet_free(struct dns_packet *p) {
 }
 
 void dns_packet_set_field(struct dns_packet *p, unsigned idx, uint16_t v) {
-    assert(p && idx < 2*6);
+    assert(p);
+    assert(idx < 2*6);
     
     ((uint16_t*) p->data)[idx] = htons(v);
 }
 
 uint16_t dns_packet_get_field(struct dns_packet *p, unsigned idx) {
-    assert(p && idx < 2*6);
+    assert(p);
+    assert(idx < 2*6);
 
     return ntohs(((uint16_t*) p->data)[idx]);
 }
@@ -70,6 +74,7 @@ uint8_t* dns_packet_append_name(struct dns_packet *p, const char *name) {
         d = dns_packet_extend(p, n+1);
         if (!f)
             f = d;
+        
         d[0] = n;
         memcpy(d+1, name, n);
 
@@ -95,8 +100,10 @@ uint8_t* dns_packet_append_name(struct dns_packet *p, const char *name) {
 uint8_t* dns_packet_append_uint16(struct dns_packet *p, uint16_t v) {
     uint8_t *d;
     assert(p);
+    
     d = dns_packet_extend(p, sizeof(uint16_t));
     *((uint16_t*) d) = htons(v);
+    
     return d;
 }
 
@@ -158,7 +165,6 @@ int dns_packet_check_valid_response(struct dns_packet *p) {
         return -1;
 
     return 0;
-    
 }
 
 static ssize_t consume_labels(struct dns_packet *p, size_t idx, char *ret_name, size_t l) {

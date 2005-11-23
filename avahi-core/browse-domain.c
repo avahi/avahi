@@ -106,6 +106,8 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
     assert(e);
     assert(b);
 
+    assert(b->type == AVAHI_DOMAIN_BROWSER_BROWSE);
+
     avahi_time_event_free(b->defer_event);
     b->defer_event = NULL;
 
@@ -113,12 +115,12 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
     inc_ref(b);
 
     for (l = b->server->config.browse_domains; l; l = l->next) {
-
+        
         /* Check whether this object still exists outside our own
          * stack frame */
         if (b->ref <= 1)
             break;
-
+        
         b->callback(b, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_BROWSER_NEW, (char*) l->text, AVAHI_LOOKUP_RESULT_STATIC, b->userdata);
     }
 
@@ -198,7 +200,8 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
     
     avahi_key_unref(k);
 
-    b->defer_event = avahi_time_event_new(server->time_event_queue, NULL, defer_callback, b);
+    if (type == AVAHI_DOMAIN_BROWSER_BROWSE && b->server->config.browse_domains)
+        b->defer_event = avahi_time_event_new(server->time_event_queue, NULL, defer_callback, b);
     
     return b;
     

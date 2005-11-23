@@ -200,7 +200,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
         goto fail;
     }
 
-    if (db->static_browse_domains) {
+    if (db->static_browse_domains && btype == AVAHI_DOMAIN_BROWSER_BROWSE) {
         struct timeval tv = { 0, 0 };
 
         if (!(db->defer_timeout = client->poll_api->timeout_new(client->poll_api, &tv, defer_timeout_callback, db))) {

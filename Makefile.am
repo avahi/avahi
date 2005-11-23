@@ -33,6 +33,9 @@ EXTRA_DIST = \
 	docs/DBUS-API \
 	docs/AUTHORS \
 	docs/HACKING \
+	docs/API-CHANGES-0.6 \
+	docs/COMPAT-LAYERS \
+	docs/MALLOC \
 	docs/overview.dia \
 	docs/server-states.dia \
 	docs/avahi-poll.dia \

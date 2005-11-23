@@ -52,7 +52,7 @@ esac
 
 case "$USER" in
     lathiat)
-    FLAGS="$FLAGS --disable-monodoc"
+    FLAGS="$FLAGS"
     ;;
     sebest)
     FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt3 --disable-qt4 --sysconfdir=/etc --localstatedir=/var --prefix=/usr  --disable-manpages --disable-xmltoman"

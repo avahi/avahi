@@ -486,7 +486,6 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
     avahi_record_list_flush(s->record_list);
 }
 
-
 static void reflect_response(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, int flush_cache) {
     AvahiInterface *j;
     
@@ -1172,6 +1171,9 @@ static void register_browse_domain(AvahiServer *s) {
     assert(s);
 
     if (!s->config.publish_domain)
+        return;
+
+    if (avahi_domain_equal(s->domain_name, "local"))
         return;
 
     if (s->browse_domain_entry_group)

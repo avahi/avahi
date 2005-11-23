@@ -187,6 +187,7 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
     b->record_browser = NULL;
     b->type = type;
     b->all_for_now_scheduled = 0;
+    b->defer_event = NULL;
 
     AVAHI_LLIST_PREPEND(AvahiSDomainBrowser, browser, server->domain_browsers, b);
 

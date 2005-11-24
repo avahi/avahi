@@ -107,19 +107,5 @@ noinst_HEADERS = \
 	dbus.h \
 	dbus-watch-glue.h
 
-noinst_LTLIBRARIES = \
-	libdbus-common.la \
-	libdbus-common-pic.la
-
-libdbus_common_la_SOURCES = \
-	dbus-watch-glue.h dbus-watch-glue.c \
-	dbus.h dbus.c
-libdbus_common_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
-libdbus_common_la_LDFLAGS = $(AM_LDFLAGS) -all-static
-
-libdbus_common_pic_la_SOURCES = $(libdbus_common_la_SOURCES)
-libdbus_common_pic_la_CFLAGS = $(libdbus_common_la_CFLAGS) -fPIC
-libdbus_common_pic_la_LDFLAGS = $(libdbus_common_la_LDFLAGS)
-
 endif
 

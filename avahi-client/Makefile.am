@@ -47,10 +47,12 @@ libavahi_client_la_SOURCES = \
 	browser.c \
 	resolver.c \
 	publish.h lookup.h \
-	xdg-config.c xdg-config.h
+	xdg-config.c xdg-config.h \
+	../avahi-common/dbus.c ../avahi-common/dbus.h \
+	../avahi-common/dbus-watch-glue.c ../avahi-common/dbus-watch-glue.h
 
 libavahi_client_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DDBUS_SYSTEM_BUS_DEFAULT_ADDRESS=\"$(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)\"
-libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la ../avahi-common/libdbus-common-pic.la
+libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-common.la
 libavahi_client_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_CLIENT_VERSION_INFO)
 
 client_test_SOURCES = client-test.c

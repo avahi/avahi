@@ -7,5 +7,5 @@ Name: avahi-qt4
 Description: Avahi Multicast DNS Responder (QT4 Support)
 Version: @PACKAGE_VERSION@
 Requires: QtCore >= 4.0.0
-Libs: -L${libdir} -lavahi-common -lavahi-qt4
+Libs: -L${libdir} -lavahi-qt4
 Cflags: -D_REENTRANT -I${includedir}

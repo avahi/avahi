@@ -1,4 +1,28 @@
-$Id$
+Avahi 0.6.1
+===========
+        
+This is mostly a bugfix release.
+
+ * Fix a segfault when shutting down the daemon. Please note that this
+   issue was not security sensitive in any way but had the ugly side
+   effect that the daemon's PID file was not removed properly.
+ * Added init scripts for ArchLinux and FreeBSD
+ * Add DBUS API versioning through the new method GetAPIVersion()
+ * Build the HOWL compatibility library as "libhowl.so", instead of
+   "libavahi-compat-howl.so". This will help distributors to ensure
+   full API/ABI compatibility with HOWL out-of-the-box.
+ * Same for the Bonjour compatibility library
+ * Other fixes
+
+We encourage Linux users to update to libdaemon 0.10 since logging
+does not work from a chroot() environment with older versions.
+
+This release is fully API and ABI compatible with Avahi 0.6. This is
+true for both the C libraries and the DBUS interface.
+
+Packagers should read the new documentation file doc/COMPAT-LAYERS
+which contains some information about maintaining full build system
+compatibility in addition to ABI/API compatibility.
 
 Avahi 0.6, the "Goddag" release
 ===============================
@@ -201,3 +225,5 @@ contribution to Avahi 0.1.
 
 Cheers,
 The Avahi Team
+
+$Id$

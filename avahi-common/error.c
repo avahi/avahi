@@ -83,7 +83,8 @@ const char *avahi_strerror(int error) {
         "Invalid DNS class",
         "Not supported",
 
-        "Not permitted"
+        "Not permitted",
+        "Invalid argument"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

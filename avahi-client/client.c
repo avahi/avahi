@@ -544,8 +544,13 @@ fail:
 
     if (dbus_error_is_set(&error)) {
 
-        if (ret_error)
-            *ret_error = avahi_error_dbus_to_number(error.name);
+        if (ret_error) {
+            if (strcmp(error.name, DBUS_ERROR_FILE_NOT_FOUND) == 0)
+                /* DBUS returns this error when the DBUS daemon is not running */
+                *ret_error = AVAHI_ERR_NO_DAEMON;
+            else
+                *ret_error = avahi_error_dbus_to_number(error.name);
+        }
         
         dbus_error_free(&error);
     }

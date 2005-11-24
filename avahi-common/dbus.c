@@ -86,11 +86,36 @@ static const char * const table[- AVAHI_ERR_MAX] = {
     AVAHI_DBUS_ERR_INVALID_DNS_TYPE,
     AVAHI_DBUS_ERR_NOT_SUPPORTED,
 
-    AVAHI_DBUS_ERR_NOT_PERMITTED
+    AVAHI_DBUS_ERR_NOT_PERMITTED,
+    AVAHI_DBUS_ERR_INVALID_ARGUMENT
+};
+
+struct error_map {
+    const char *dbus_error;
+    int avahi_error;
+};
+
+static struct error_map error_map[] = {
+    { DBUS_ERROR_FAILED,           AVAHI_ERR_FAILURE },
+    { DBUS_ERROR_NO_MEMORY,        AVAHI_ERR_NO_MEMORY },
+    { DBUS_ERROR_SERVICE_UNKNOWN,  AVAHI_ERR_NO_DAEMON },
+    { DBUS_ERROR_BAD_ADDRESS,      AVAHI_ERR_NO_DAEMON },
+    { DBUS_ERROR_NOT_SUPPORTED,    AVAHI_ERR_NOT_SUPPORTED },
+    { DBUS_ERROR_LIMITS_EXCEEDED,  AVAHI_ERR_TOO_MANY_OBJECTS },
+    { DBUS_ERROR_ACCESS_DENIED,    AVAHI_ERR_ACCESS_DENIED },
+    { DBUS_ERROR_AUTH_FAILED,      AVAHI_ERR_ACCESS_DENIED },
+    { DBUS_ERROR_NO_SERVER,        AVAHI_ERR_NO_DAEMON },
+    { DBUS_ERROR_TIMEOUT,          AVAHI_ERR_TIMEOUT },
+    { DBUS_ERROR_NO_NETWORK,       AVAHI_ERR_NO_NETWORK },
+    { DBUS_ERROR_DISCONNECTED,     AVAHI_ERR_DISCONNECTED },
+    { DBUS_ERROR_INVALID_ARGS,     AVAHI_ERR_INVALID_ARGUMENT },
+    { DBUS_ERROR_TIMED_OUT,        AVAHI_ERR_TIMEOUT },
+    { NULL, 0 }
 };
 
 int avahi_error_dbus_to_number(const char *s) {
     int e;
+    const struct error_map *m;
 
     assert(s);
 
@@ -98,6 +123,10 @@ int avahi_error_dbus_to_number(const char *s) {
         if (strcmp(s, table[-e]) == 0)
             return e;
 
+    for (m = error_map; m->dbus_error; m++)
+        if (strcmp(m->dbus_error, s) == 0)
+            return m->avahi_error;
+    
     return AVAHI_ERR_DBUS_ERROR;
 }
 

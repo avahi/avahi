@@ -32,8 +32,13 @@
   </interface>
 
   <interface name="org.freedesktop.Avahi.Server">
+
     <method name="GetVersionString">
       <arg name="version" type="s" direction="out"/>
+    </method>
+
+    <method name="GetAPIVersion">
+      <arg name="version" type="u" direction="out"/>
     </method>
 
     <method name="GetHostName">

@@ -41,6 +41,15 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER AVAHI_DBUS_NAME".ServiceResolver"
 #define AVAHI_DBUS_INTERFACE_RECORD_BROWSER AVAHI_DBUS_NAME".RecordBrowser"
 
+/** The DBUS API version identifier. The first byte specifies the API
+release, the second byte specifies the revision. If the revision
+number is increased the API has been extended but is downwards
+compatible. If the release changes compatibility is lost.
+
+Avahi 0.6 implements API version 0x0201;
+Avahi 0.6.1 implements API version 0x0202 */
+#define AVAHI_DBUS_API_VERSION ((uint32_t) 0x0202)
+
 #define AVAHI_DBUS_ERR_OK "org.freedesktop.Avahi.Success"
 #define AVAHI_DBUS_ERR_FAILURE "org.freedesktop.Avahi.Failure"
 #define AVAHI_DBUS_ERR_BAD_STATE "org.freedesktop.Avahi.BadStateError"

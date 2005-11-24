@@ -39,6 +39,8 @@
 #include "client.h"
 #include "internal.h"
 
+#define AVAHI_CLIENT_DBUS_API_SUPPORTED ((uint32_t) 0x0201)
+
 static int init_server(AvahiClient *client, int *ret_error);
 
 int avahi_client_set_errno (AvahiClient *client, int error) {
@@ -345,26 +347,57 @@ fail:
 static int check_version(AvahiClient *client, int *ret_error) {
     DBusMessage *message = NULL, *reply  = NULL;
     DBusError error;
-    char *version;
+    uint32_t version;
     int e = AVAHI_ERR_NO_MEMORY;
     
     assert(client);
 
     dbus_error_init(&error);
 
-    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")))
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetAPIVersion")))
         goto fail;
 
     reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
 
-    if (!reply || dbus_error_is_set (&error))
-        goto fail;
+    if (!reply || dbus_error_is_set (&error)) {
+        char *version_str;
 
-    if (!dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &version, DBUS_TYPE_INVALID) ||
-        dbus_error_is_set (&error))
-        goto fail;
+        if (!dbus_error_is_set(&error) || strcmp(error.name, DBUS_ERROR_UNKNOWN_METHOD))
+            goto fail;
 
-    if (strcmp(version, PACKAGE_STRING) != 0) {
+        /* If the method GetAPIVersion is not known, we look if
+         * GetVersionString matches "avahi 0.6" which is the only
+         * version we support which doesn't have GetAPIVersion() .*/
+        
+        dbus_message_unref(message);
+        if (reply) dbus_message_unref(reply);
+        dbus_error_free(&error);
+
+        if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")))
+            goto fail;
+
+        reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
+            
+        if (!reply || dbus_error_is_set (&error))
+            goto fail;
+        
+        if (!dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &version_str, DBUS_TYPE_INVALID) ||
+            dbus_error_is_set (&error))
+            goto fail;
+
+        version = strcmp(version_str, "avahi 0.6") == 0 ? 0x0201 : 0x0000;
+            
+    } else {
+        
+        if (!dbus_message_get_args (reply, &error, DBUS_TYPE_UINT32, &version, DBUS_TYPE_INVALID) ||
+            dbus_error_is_set(&error))
+            goto fail;
+    }
+
+    fprintf(stderr, "API Version 0x%04x\n", version);
+    
+    if ((version & 0xFF00) != (AVAHI_CLIENT_DBUS_API_SUPPORTED & 0xFF00) ||
+        (version & 0x00FF) < (AVAHI_CLIENT_DBUS_API_SUPPORTED & 0x00FF)) {
         e = AVAHI_ERR_VERSION_MISMATCH;
         goto fail;
     }
@@ -404,7 +437,8 @@ static int init_server(AvahiClient *client, int *ret_error) {
 }
 
 /* This function acts like dbus_bus_get but creates a private
- * connection instead */
+ * connection instead. Eventually this should be replaced by a DBUS
+ * provided version. */
 static DBusConnection* avahi_dbus_bus_get(DBusError *error) {
     DBusConnection *c;
     const char *a;

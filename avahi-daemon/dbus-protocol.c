@@ -261,6 +261,15 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
     
         return avahi_dbus_respond_string(c, m, PACKAGE_STRING);
 
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetAPIVersion")) {
+
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
+            avahi_log_warn("Error parsing Server::GetAPIVersion message");
+            goto fail;
+        }
+    
+        return avahi_dbus_respond_uint32(c, m, AVAHI_DBUS_API_VERSION);
+
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetState")) {
         AvahiServerState state;
         
@@ -593,7 +602,6 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             avahi_log_warn("Too many clients, client request failed.");
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
-
 
         if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);

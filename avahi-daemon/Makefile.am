@@ -28,7 +28,6 @@ if HAVE_EXPAT
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
 introspectiondir=$(pkgdatadir)/introspection
-dbusservicedir=$(DBUS_SYS_DIR)
 
 AM_CFLAGS+= \
 	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
@@ -84,6 +83,8 @@ endif
 
 if HAVE_DBUS
 
+dbusservicedir=$(DBUS_SYS_DIR)
+
 avahi_daemon_SOURCES += \
 	dbus-protocol.c dbus-protocol.h \
 	dbus-util.c dbus-util.h \
@@ -101,7 +102,7 @@ avahi_daemon_SOURCES += \
 	dbus-record-browser.c  \
         ../avahi-common/dbus.c ../avahi-common/dbus.h \
 	../avahi-common/dbus-watch-glue.c ../avahi-common/dbus-watch-glue.h
-		
+
 avahi_daemon_LDADD += \
 	$(DBUS_LIBS)
 

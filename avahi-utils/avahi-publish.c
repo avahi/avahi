@@ -220,8 +220,8 @@ static void help(FILE *f, const char *argv0) {
             "    -H --host=DOMAIN     Host where service resides\n"
             "       --subtype=SUBTYPE An additional subtype to register this service with\n"
             "    -f --no-fail         Don't fail if the daemon is not available\n",
-            argv0, strstr(argv0, "address") ? "[-a]" : "-a",
-            argv0, strstr(argv0, "service") ? "[-s]" : "-s");
+            argv0, strstr(argv0, "service") ? "[-s]" : "-s",
+            argv0, strstr(argv0, "address") ? "[-a]" : "-a");
 }
 
 static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {

@@ -83,7 +83,7 @@ libhowl_la_SOURCES = \
 	text.c \
 	compat.c
 libhowl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-libhowl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
+libhowl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 address_test_SOURCES = \
 	$(HOWLHEADERS) \
@@ -91,7 +91,7 @@ address_test_SOURCES = \
 	address-test.c \
 	warn.c warn.h 
 address_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-address_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la
+address_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la
 
 text_test_SOURCES = \
 	$(HOWLHEADERS) \
@@ -99,13 +99,13 @@ text_test_SOURCES = \
 	text-test.c \
 	warn.c warn.h 
 text_test_CFLAGS = $(AM_CFLAGS)  $(PTHREAD_CFLAGS) -I $(srcdir)/include
-text_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) ../avahi-common/libavahi-common.la
+text_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la
 
 browse_domain_test_SOURCES = \
 	$(HOWLHEADERS) \
 	browse-domain-test.c
 browse_domain_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-browse_domain_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) libhowl.la
+browse_domain_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) libhowl.la
 
 endif
 endif

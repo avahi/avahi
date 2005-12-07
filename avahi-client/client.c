@@ -394,7 +394,7 @@ static int check_version(AvahiClient *client, int *ret_error) {
             goto fail;
     }
 
-    fprintf(stderr, "API Version 0x%04x\n", version);
+    /*fprintf(stderr, "API Version 0x%04x\n", version);*/
     
     if ((version & 0xFF00) != (AVAHI_CLIENT_DBUS_API_SUPPORTED & 0xFF00) ||
         (version & 0x00FF) < (AVAHI_CLIENT_DBUS_API_SUPPORTED & 0x00FF)) {

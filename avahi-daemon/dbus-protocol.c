@@ -156,7 +156,6 @@ static Client *client_get(const char *name, int create) {
     return client;
 }
 
-
 static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata) {
     DBusError error;
 
@@ -1029,7 +1028,15 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
         goto fail;
     }
 
-    if (dbus_bus_request_name(server->bus, AVAHI_DBUS_NAME, DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT, &error) != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
+    if (dbus_bus_request_name(
+            server->bus,
+            AVAHI_DBUS_NAME,
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 60)
+            DBUS_NAME_FLAG_DO_NOT_QUEUE,
+#else
+            DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT,
+#endif
+            &error) != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
         if (dbus_error_is_set(&error)) {
             avahi_log_error("dbus_bus_request_name(): %s", error.message);
             goto fail;

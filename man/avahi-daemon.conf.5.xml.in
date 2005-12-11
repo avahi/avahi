@@ -139,7 +139,7 @@
       be started in a querying-only mode. Use this is a security
       measure. This option defaults to "no"</p></option>
 
-      <option><p><opt>disable-publishing=</opt> Takes a boolean value
+      <option><p><opt>disable-user-service-publishing=</opt> Takes a boolean value
       ("yes" or "no"). If set to "yes", Avahi will still publish
       address records and suchlike but will not allow user
       applications to publish services. Use this is a security

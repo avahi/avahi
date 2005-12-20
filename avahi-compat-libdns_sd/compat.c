@@ -517,7 +517,6 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
     
     assert(ret_sdref);
     assert(regtype);
-    assert(domain);
     assert(callback);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {

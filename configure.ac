@@ -356,10 +356,40 @@ DBUS_VERSION="Disabled"
 DBUS_SYS_DIR="Disabled"
 DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="Disabled"
 if test "x$HAVE_DBUS" = "xyes" ; then
+    PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.34 ])
+
     AC_DEFINE(HAVE_DBUS, 1, [Whether we have D-BUS or not])
 
     DBUS_VERSION=`$PKG_CONFIG dbus-1 --modversion`
-    PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.34 ])
+    DBUS_VERSION_MAJOR=`echo $DBUS_VERSION | awk -F. '{print $1}'`
+    DBUS_VERSION_MINOR=`echo $DBUS_VERSION | awk -F. '{print $2}'`
+    DBUS_VERSION_MICRO=`echo $DBUS_VERSION | awk -F. '{print $3}'`
+    if test "z$DBUS_VERSION_MAJOR" = "z"; then
+        DBUS_VERSION_MAJOR="0"
+    fi
+    if test "z$DBUS_VERSION_MINOR" = "z"; then
+        DBUS_VERSION_MINOR="0"
+    fi
+    if test "z$DBUS_VERSION_MICRO" = "z"; then
+        DBUS_VERSION_MICRO="0"
+    fi
+
+    if test "z$DBUS_VERSION_MAJOR" = "z0" -a "z$DBUS_VERSION_MINOR" = "z0" -a "z$DBUS_VERSION_MICRO" = "z0"; then
+        echo "Error: Couldn't determine the version of your DBUS package."
+        echo "  This is probably an error in this script, please report it"
+        echo "  along with the following information:"
+        echo "      Base DBUS version ='$DBUS_VERSION'"
+        echo "      DBUS_VERSION_MAJOR='$DBUS_VERSION_MAJOR'"
+        echo "      DBUS_VERSION_MINOR='$DBUS_VERSION_MINOR'"
+        echo "      DBUS_VERSION_MICRO='$DBUS_VERSION_MICRO'"
+        exit 1
+    else
+        echo "Your dbus version is $DBUS_VERSION_MAJOR,$DBUS_VERSION_MINOR,$DBUS_VERSION_MICRO."
+        DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_VERSION_MAJOR=$DBUS_VERSION_MAJOR"
+        DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_VERSION_MINOR=$DBUS_VERSION_MINOR"
+        DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_VERSION_MICRO=$DBUS_VERSION_MICRO"
+    fi
+
     DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_API_SUBJECT_TO_CHANGE"
     AC_SUBST(DBUS_CFLAGS)
     AC_SUBST(DBUS_LIBS)

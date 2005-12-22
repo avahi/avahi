@@ -53,7 +53,8 @@ $(ASSEMBLY): $(AVAHISOURCES)
 
 $(ASSEMBLY).config: $(ASSEMBLY).config.in
 	$(srcdir)/gencfg.sh $(top_builddir)/avahi-client/libavahi-client.la \
-		$(top_builddir)/avahi-common/libavahi-common.la < $< > $@
+		$(top_builddir)/avahi-common/libavahi-common.la \
+		$(top_builddir)/avahi-glib/libavahi-glib.la < $< > $@
 
 if HAVE_MONO
 if HAVE_DBUS

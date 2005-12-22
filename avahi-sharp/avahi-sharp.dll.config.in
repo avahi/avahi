@@ -1,5 +1,5 @@
 <configuration>
   <dllmap dll="avahi-client" target="@CLIENT_DLNAME@"/>
   <dllmap dll="avahi-common" target="@COMMON_DLNAME@"/>
-  <dllmap dll="avahi-glib" target="libavahi-glib.so.1"/>
+  <dllmap dll="avahi-glib" target="@GLIB_DLNAME@"/>
 </configuration>

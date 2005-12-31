@@ -106,7 +106,7 @@ DBusHandlerResult avahi_dbus_msg_async_host_name_resolver_impl(DBusConnection *c
 
     /* Introspection */
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return avahi_dbus_handle_introspect(c, m, "HostNameResolver.Introspect");
+        return avahi_dbus_handle_introspect(c, m, "HostNameResolver.introspect");
     
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name)) 

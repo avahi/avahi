@@ -70,12 +70,10 @@ AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text) {
 
 int avahi_string_list_parse(const void* data, size_t size, AvahiStringList **ret) {
     const uint8_t *c;
-    AvahiStringList *r;
+    AvahiStringList *r = NULL;
     
     assert(data);
     assert(ret);
-
-    r = NULL;
 
     c = data;
     while (size > 0) {
@@ -105,7 +103,7 @@ int avahi_string_list_parse(const void* data, size_t size, AvahiStringList **ret
     return 0;
 
 fail:
-    avahi_string_list_free(*ret);
+    avahi_string_list_free(r);
     return -1;
 }
 
@@ -173,65 +171,64 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
     size_t used = 0;
 
     if (data) {
-    
-        if (l) {
-            uint8_t *c;
-            AvahiStringList *n;
-        
-            l = avahi_string_list_reverse(l);
-            c = data;
-            
-            for (n = l; n; n = n->next) {
-                size_t k;
-                if (size < 1)
-                    break;
-                
-                k = n->size;
-                if (k > 255)
-                    k = 255;
-                
-                if (k > size-1)
-                    k = size-1;
-                
-                *(c++) = k;
-                memcpy(c, n->text, k);
-                c += k;
-                
-                used += 1+ k;
-            }
-        
-            l = avahi_string_list_reverse(l);
-            
-        } else {
+        AvahiStringList *n;
+        uint8_t *c;
 
+        l = avahi_string_list_reverse(l);
+        c = data;
+        
+        for (n = l; size > 1 && n; n = n->next) {
+            size_t k;
+
+            if ((k = n->size) == 0)
+                /* Skip empty strings */
+                continue;
+            
+            if (k > 255)
+                /* Truncate strings at 255 characters */
+                k = 255;
+            
+            if (k > size-1)
+                /* Make sure this string fits in */
+                k = size-1;
+
+            *(c++) = (uint8_t) k;
+            memcpy(c, n->text, k);
+            c += k;
+            
+            used += 1 + k;
+            size -= 1 + k;
+        }
+        
+        l = avahi_string_list_reverse(l);
+
+        if (used == 0 && size > 0) {
+        
             /* Empty lists are treated specially. To comply with
              * section 6.1 of the DNS-SD spec, we return a single
              * empty string (i.e. a NUL byte)*/
 
-            if (size > 0) {
-                *(uint8_t*) data = 0;
-                used = 1;
-            }
-            
+            *(uint8_t*) data = 0;
+            used = 1;
         }
             
     } else {
         AvahiStringList *n;
 
-        if (!l)
-            used = 1;
-        else {
-
-            for (n = l; n; n = n->next) {
-                size_t k;
-                
-                k = n->size;
-                if (k > 255)
-                    k = 255;
-                
-                used += 1+k;
-            }
+        for (n = l; n; n = n->next) {
+            size_t k;
+            
+            if ((k = n->size) == 0)
+                continue;
+            
+            if (k > 255)
+                k = 255;
+            
+            used += 1+k;
         }
+
+        if (used == 0)
+            used = 1;
     }
 
     return used;

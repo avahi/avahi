@@ -46,7 +46,7 @@ typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
 typedef struct RecordBrowserInfo RecordBrowserInfo;
 
 #define CLIENTS_MAX 256
-#define OBJECTS_PER_CLIENT_MAX 50
+#define OBJECTS_PER_CLIENT_MAX 250
 #define ENTRIES_PER_ENTRY_GROUP_MAX 20
 
 struct EntryGroupInfo {

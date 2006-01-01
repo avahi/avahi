@@ -327,9 +327,9 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
     dbus_message_iter_recurse(&iter, &sub);
         
     for (;;) {
-        DBusMessageIter sub2;
         int at, n;
-        uint8_t *k;
+        const uint8_t *k;
+        DBusMessageIter sub2;
         
         if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
             break;
@@ -340,7 +340,14 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
             goto fail;
 
         dbus_message_iter_recurse(&sub, &sub2);
-        dbus_message_iter_get_fixed_array(&sub2, &k, &n);
+            
+        if (dbus_message_iter_get_array_len(&sub2) > 0) 
+            dbus_message_iter_get_fixed_array(&sub2, &k, &n);
+        else {
+            k = (const uint8_t*) "";
+            n = 0;
+        }
+            
         strlst = avahi_string_list_add_arbitrary(strlst, k, n);
         
         dbus_message_iter_next(&sub);

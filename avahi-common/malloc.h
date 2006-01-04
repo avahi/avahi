@@ -26,6 +26,8 @@
 
 #include <sys/types.h>
 #include <stdarg.h>
+#include <limits.h>
+#include <assert.h>
 
 #include <avahi-common/cdecl.h>
 #include <avahi-common/gccmacro.h>
@@ -44,11 +46,23 @@ void avahi_free(void *p);
 /** Similar to libc's realloc() */
 void *avahi_realloc(void *p, size_t size);
 
+/** Internal helper for avahi_new() */
+static inline void* avahi_new_internal(unsigned n, size_t k) {
+    assert(n < INT_MAX/k);
+    return avahi_malloc(n*k);
+}
+
 /** Allocate n new structures of the specified type. */
-#define avahi_new(type, n) ((type*) avahi_malloc((n)*sizeof(type)))
+#define avahi_new(type, n) ((type*) avahi_new_internal((n), sizeof(type)))
+
+/** Internal helper for avahi_new0() */
+static inline void* avahi_new0_internal(unsigned n, size_t k) {
+    assert(n < INT_MAX/k);
+    return avahi_malloc0(n*k);
+}
 
 /** Same as avahi_new() but set the memory to zero */
-#define avahi_new0(type, n) ((type*) avahi_malloc0((n)*sizeof(type)))
+#define avahi_new0(type, n) ((type*) avahi_new0_internal((n), sizeof(type)))
 
 /** Just like libc's strdup() */
 char *avahi_strdup(const char *s);

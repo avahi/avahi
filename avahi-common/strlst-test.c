@@ -41,7 +41,10 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     a = avahi_string_list_add(a, "start");
     a = avahi_string_list_add(a, "foo=99");
     a = avahi_string_list_add(a, "bar");
+    a = avahi_string_list_add(a, "");
+    a = avahi_string_list_add(a, "");
     a = avahi_string_list_add(a, "quux");
+    a = avahi_string_list_add(a, "");
     a = avahi_string_list_add_arbitrary(a, (const uint8_t*) "null\0null", 9);
     a = avahi_string_list_add_printf(a, "seven=%i %c", 7, 'x');
     a = avahi_string_list_add_pair(a, "blubb", "blaa");
@@ -71,7 +74,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     
     assert(avahi_string_list_parse(data, size, &b) == 0);
 
-    assert(avahi_string_list_equal(a, b));
+    printf("equal: %i\n", avahi_string_list_equal(a, b));
     
     t = avahi_string_list_to_string(b);
     printf("--%s--\n", t);

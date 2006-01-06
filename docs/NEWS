@@ -8,8 +8,11 @@ This is mostly a bugfix release.
  * Fix introspection for some auxiliary DBUS objects
  * Miscellaneous documentation updates
  * Improve Autoconf support for detecting PTHREADS library
+ * Fix avahi-publish --help
  * Workaround a DBUS limitation which might cause Avahi to die when a
-   user sends an empty TXT entry over DBUS.
+   user sends an empty TXT entry over DBUS
+ * Increase number of resolver/browser objects a DBUS client may create
+ * Remove fprintf() call in avahi_client_new()
  * Other minor fixes
 
  This release is both up and downwards compatible with Avahi 0.6 and 

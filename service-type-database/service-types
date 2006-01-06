@@ -87,3 +87,12 @@ _ipp._tcp:Internet Printer
 #_http-rss091._tcp:Web Syndication RSS 0.91
 
 #_http-rss20._tcp:Web Syndication RSS 2.0
+
+_dacp._tcp:iTunes Remote Control
+
+_realplayfavs._tcp:RealPlayer Shared Favorites
+
+_timbuktu._tcp:Timbuktu Remote Desktop Control
+
+_see._tcp:SubEthaEdit Collaborative Text Editor
+

@@ -26,7 +26,7 @@ AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
 
-AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Avahi])
+AC_SUBST(PACKAGE_URL, [http://avahi.org/])
 
 AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [4:0:1])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [3:1:0])

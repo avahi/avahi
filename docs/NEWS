@@ -1,3 +1,25 @@
+Avahi 0.6.2
+===========
+
+This is mostly a bugfix release.
+
+ * Compatibility with DBUS 0.60 (Full compatibility with DBUS 0.3x and 
+   0.5 is retained)
+ * Fix introspection for some auxiliary DBUS objects
+ * Miscellaneous documentation updates
+ * Improve Autoconf support for detecting PTHREADS library
+ * Workaround a DBUS limitation which might cause Avahi to die when a
+   user sends an empty TXT entry over DBUS.
+ * Other minor fixes
+
+ This release is both up and downwards compatible with Avahi 0.6 and 
+ 0.6.1.
+
+ Avahi now has its own Domain (http://avahi.org) and a new Website!
+
+ And, most importantly, we now have a Logo:
+      http://avahi.org/chrome/site/avahi-trac.png
+
 Avahi 0.6.1
 ===========
         

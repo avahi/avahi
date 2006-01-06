@@ -2,7 +2,7 @@ Avahi is a free, LGPL mDNS/DNS-SD implementation.
 
 Copyright 2004, 2005 by the Avahi developers.
 
-	http://www.freedesktop.org/Software/Avahi
+	http://avahi.org/
 
 Avahi has a mailing list:
 
@@ -43,7 +43,7 @@ asking for support on the mailing list:
 
 	- INSTALL
 	- Man pages
-	- Homepage http://www.freedesktop.org/Software/Avahi
+	- Homepage http://avahi.org/
 	- Mailing list archive http://lists.freedesktop.org/archives/avahi/
 
 

@@ -1,3 +1,13 @@
+Avahi 0.6.3
+===========
+
+This is a bugfix release. Everyone should update ASAP!
+
+ * avahi-sharp: make sure to append a trailing NUL byte to all C strings
+ * avahi-core: fix a double free() which occurs when wide area lookups timeout
+
+This release is fully compatible with Avahi 0.6, 0.6.1 and 0.6.2.
+
 Avahi 0.6.2
 ===========
 
@@ -15,12 +25,11 @@ This is mostly a bugfix release.
  * Remove fprintf() call in avahi_client_new()
  * Other minor fixes
 
- This release is both up and downwards compatible with Avahi 0.6 and 
- 0.6.1.
+This release is both up and downwards compatible with Avahi 0.6 and 0.6.1.
 
- Avahi now has its own Domain (http://avahi.org) and a new Website!
+Avahi now has its own Domain (http://avahi.org) and a new Website!
 
- And, most importantly, we now have a Logo:
+And, most importantly, we now have a Logo:
       http://avahi.org/chrome/site/avahi-trac.png
 
 Avahi 0.6.1

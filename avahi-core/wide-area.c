@@ -162,6 +162,17 @@ static void next_dns_server(AvahiWideAreaLookupEngine *e) {
         e->current_dns_server = 0;
 }
 
+static void lookup_stop(AvahiWideAreaLookup *l) {
+    assert(l);
+    
+    l->callback = NULL;
+
+    if (l->time_event) {
+        avahi_time_event_free(l->time_event);
+        l->time_event = NULL;
+    }
+}
+
 static void sender_timeout_callback(AvahiTimeEvent *e, void *userdata) {
     AvahiWideAreaLookup *l = userdata;
     struct timeval tv;
@@ -181,7 +192,7 @@ static void sender_timeout_callback(AvahiTimeEvent *e, void *userdata) {
         avahi_log_warn(__FILE__": Query timed out.");
         avahi_server_set_errno(l->engine->server, AVAHI_ERR_TIMEOUT);
         l->callback(l->engine, AVAHI_BROWSER_FAILURE, AVAHI_LOOKUP_RESULT_WIDE_AREA, NULL, l->userdata);
-        avahi_wide_area_lookup_free(l);
+        lookup_stop(l);
         return;
     }
 
@@ -258,17 +269,6 @@ AvahiWideAreaLookup *avahi_wide_area_lookup_new(
     AVAHI_LLIST_PREPEND(AvahiWideAreaLookup, lookups, e->lookups, l);
     
     return l;
-}
-
-static void lookup_stop(AvahiWideAreaLookup *l) {
-    assert(l);
-    
-    l->callback = NULL;
-
-    if (l->time_event) {
-        avahi_time_event_free(l->time_event);
-        l->time_event = NULL;
-    }
 }
 
 static void lookup_destroy(AvahiWideAreaLookup *l) {

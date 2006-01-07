@@ -65,7 +65,7 @@ namespace Avahi
             if (str == null)
                 return null;
 
-            return Encoding.UTF8.GetBytes (str);
+            return Encoding.UTF8.GetBytes (str + "\0"); // lame.
         }
 
         private static IntPtr StringToPtr (string str)

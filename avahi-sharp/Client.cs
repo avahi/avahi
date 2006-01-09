@@ -86,7 +86,8 @@ namespace Avahi
     public enum LookupFlags {
         None = 0,
         UseWideArea = 1,
-        UseMulticast = 4,
+        UseMulticast = 2,
+	NoTxt = 4,
         NoAddress = 8
     }
 

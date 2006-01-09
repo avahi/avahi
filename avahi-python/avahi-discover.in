@@ -242,7 +242,6 @@ class Main_window(SimpleGladeApp):
 
         
 def main():
-    gtk.window_set_default_icon_name("gnome-networktool")
     main_window = Main_window()
 
     main_window.run()

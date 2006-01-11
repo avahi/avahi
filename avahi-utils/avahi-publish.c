@@ -322,6 +322,8 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
             fprintf(stderr, "Failed to parse port number: %s\n", argv[optind+2]);
             return -1;
         }
+
+        c->port = p;
             
         for (i = optind+3; i < argc; i++)
             c->txt = avahi_string_list_add(c->txt, argv[i]);

@@ -26,6 +26,8 @@ using System.Runtime.InteropServices;
 using Mono.Unix;
 using Mono.Unix.Native;
 
+using Stdlib = Mono.Unix.Native.Stdlib;
+
 namespace Avahi
 {
     internal class Utility

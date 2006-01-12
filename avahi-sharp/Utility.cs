@@ -24,7 +24,7 @@ using System.Net;
 using System.Text;
 using System.Runtime.InteropServices;
 using Mono.Unix;
-
+using Mono.Unix.Native;
 
 namespace Avahi
 {

@@ -25,6 +25,7 @@ using System.Threading;
 using System.Collections;
 using System.Runtime.InteropServices;
 using Mono.Unix;
+using Mono.Unix.Native;
 
 namespace Avahi
 {

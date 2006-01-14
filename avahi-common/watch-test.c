@@ -30,12 +30,18 @@
 #include <string.h>
 
 #include "watch.h"
-#include "simple-watch.h"
 #include "timeval.h"
 #include "gccmacro.h"
 
 static const AvahiPoll *api = NULL;
+
+#ifndef USE_THREAD
+#include "simple-watch.h"
 static AvahiSimplePoll *simple_poll = NULL;
+#else
+#include "thread-watch.h"
+static AvahiThreadedPoll *threaded_poll = NULL;
+#endif
 
 static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
 
@@ -59,9 +65,13 @@ static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
 
     printf("Wakeup #%i\n", i++);
 
-    if (i > 10)
+    if (i > 10) {
+#ifndef USE_THREAD
         avahi_simple_poll_quit(simple_poll);
-    else {
+#else
+        avahi_threaded_poll_quit(threaded_poll);
+#endif
+    } else {
         avahi_elapse_time(&tv, 1000, 0);
         api->timeout_update(t, &tv);
     }
@@ -69,20 +79,39 @@ static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct timeval tv;
-    
-    simple_poll = avahi_simple_poll_new();
 
+#ifndef USE_THREAD
+    simple_poll = avahi_simple_poll_new();
+    assert(simple_poll);
     api = avahi_simple_poll_get(simple_poll);
+    assert(api);
+#else
+    threaded_poll = avahi_threaded_poll_new();
+    assert(threaded_poll);
+    api = avahi_threaded_poll_get(threaded_poll);
+    assert(api);
+#endif
+    
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);
 
     avahi_elapse_time(&tv, 1000, 0);
     api->timeout_new(api, &tv, wakeup, NULL);
 
+#ifndef USE_THREAD
     /* Our main loop */
     avahi_simple_poll_loop(simple_poll);
-
-
     avahi_simple_poll_free(simple_poll);
+
+#else
+    avahi_threaded_poll_start(threaded_poll);
+
+    fprintf(stderr, "Now doing some stupid stuff ...\n");
+    sleep(20);
+    fprintf(stderr, "... stupid stuff is done.\n");
+
+    avahi_threaded_poll_free(threaded_poll);
+    
+#endif
     
     return 0;
 }

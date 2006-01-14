@@ -46,7 +46,8 @@ noinst_PROGRAMS = \
 	domain-test \
 	alternative-test \
 	timeval-test \
-	watch-test
+	watch-test \
+	watch-test-thread
 endif
 
 lib_LTLIBRARIES = \
@@ -61,6 +62,7 @@ libavahi_common_la_SOURCES = \
 	domain.c domain.h \
 	timeval.c timeval.h \
 	simple-watch.c simple-watch.h \
+	thread-watch.c thread-watch.h \
 	watch.h gccmacro.h \
 	rlist.h rlist.c
 
@@ -94,6 +96,10 @@ watch_test_SOURCES = \
 	watch-test.c
 watch_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
 watch_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS)
+
+watch_test_thread_SOURCES = $(watch_test_SOURCES) thread-watch.c thread-watch.h
+watch_test_thread_CFLAGS = $(watch_test_CFLAGS) -DUSE_THREAD
+watch_test_thread_LDADD = $(watch_test_LDADD)
 
 timeval_test_SOURCES = \
 	timeval.c timeval.h \

@@ -88,6 +88,7 @@ DX_INPUT = \
 	$(srcdir)/avahi-common/domain.h \
 	$(srcdir)/avahi-common/watch.h \
 	$(srcdir)/avahi-common/simple-watch.h \
+	$(srcdir)/avahi-common/thread-watch.h \
 	$(srcdir)/avahi-glib/glib-watch.h \
 	$(srcdir)/avahi-glib/glib-malloc.h \
 	$(srcdir)/avahi-common/timeval.h \

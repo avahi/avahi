@@ -204,5 +204,5 @@ homepage:
 	    fdo:public_html/
 	rm -rf doxygen
 	$(MAKE) doxygen-run
-	ssh fdo rm -rf public_html/doxygen
-	scp -r doxygen/html fdo:public_html/doxygen
+	ssh tango rm -rf www/avahi.org/tree/download/doxygen
+	scp -r doxygen/html tango:www/avahi.org/tree/download/doxygen

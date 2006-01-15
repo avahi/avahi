@@ -1,3 +1,22 @@
+Avahi 0.6.4
+===========
+
+This is a bugfix release and adds a new event loop implementation to
+avahi-common's public interface.
+ 
+ * avahi-common: add new AvahiThreadedPool event loop implementation
+ * avahi-sharp: compatibility with newer mono versions
+ * avahi-publish-service: don't ignore the port number specified
+ * avahi-sharp: correct some flags definitions
+
+This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2 and
+0.6.3.
+
+A quick introduction how to use the new AvahiThreadedPool interface is
+available in our Wiki:
+
+          http://avahi.org/wiki/RunningAvahiClientAsThread
+
 Avahi 0.6.3
 ===========
 

@@ -64,7 +64,9 @@ if HAVE_MONODOC
 update-docs: $(ASSEMBLY)
 	$(MONODOCER) -assembly:$(ASSEMBLY) -path:en
 
-avahi-sharp-docs.zip avahi-sharp-docs.tree: $(srcdir)/en/*/*
+avahi-sharp-docs.zip: avahi-sharp-docs.tree
+
+avahi-sharp-docs.tree: $(srcdir)/en/*/*
 	$(MDASSEMBLER) --out avahi-sharp-docs --ecma $(srcdir)/en
 
 docdir = $(MONODOC_DIR)

@@ -22,7 +22,7 @@
   USA.
 ***/
 
-/** \file threaded-watch.h Threaded poll() based main loop implementation */
+/** \file thread-watch.h Threaded poll() based main loop implementation */
 
 #include <sys/poll.h>
 #include <avahi-common/cdecl.h>

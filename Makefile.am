@@ -201,7 +201,7 @@ homepage:
 	$(MAKE) -C man
 	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
 	    man/*.xml man/xmltoman.dtd man/xmltoman.xsl \
-	    fdo:public_html/
+	    tango:www/avahi.org/tree/download/
 	rm -rf doxygen
 	$(MAKE) doxygen-run
 	ssh tango rm -rf www/avahi.org/tree/download/doxygen

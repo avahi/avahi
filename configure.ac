@@ -21,14 +21,14 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([avahi],[0.6.3],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.6.4],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
 
 AC_SUBST(PACKAGE_URL, [http://avahi.org/])
 
-AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [4:1:1])
+AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [5:0:2])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [3:3:0])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [3:2:0])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:0:0])

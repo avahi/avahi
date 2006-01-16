@@ -582,7 +582,7 @@ AC_ARG_ENABLE(monodoc,
         esac],
         [HAVE_MONODOC=yes])
 
-if test "x$HAVE_MONODOC" = "xyes" ; then
+if test "x$HAVE_MONO" = "xyes" && test "x$HAVE_MONODOC" = "xyes" ; then
         PKG_CHECK_MODULES(MONODOC, [monodoc >= 1.1.8])
         MONODOC_DIR=`$PKG_CONFIG --variable=sourcesdir monodoc`        
 

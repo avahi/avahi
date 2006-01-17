@@ -413,47 +413,6 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="JoinServiceName">
-      <MemberSignature Language="C#" Value="public static string JoinServiceName (string name, string type, string domain);" />
-      <MemberType>Method</MemberType>
-      <ReturnValue>
-        <ReturnType>System.String</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="type" Type="System.String" />
-        <Parameter Name="domain" Type="System.String" />
-      </Parameters>
-      <Docs>
-        <param name="name">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="SplitServiceName">
-      <MemberSignature Language="C#" Value="public static void SplitServiceName (string service, out string name, out string type, out string domain);" />
-      <MemberType>Method</MemberType>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="service" Type="System.String" />
-        <Parameter Name="name" Type="System.String&amp;" RefType="out" />
-        <Parameter Name="type" Type="System.String&amp;" RefType="out" />
-        <Parameter Name="domain" Type="System.String&amp;" RefType="out" />
-      </Parameters>
-      <Docs>
-        <param name="service">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="AddService">
       <MemberSignature Language="C#" Value="public void AddService (int iface, Avahi.Protocol proto, Avahi.PublishFlags flags, string name, string type, string domain, string host, ushort port, byte[][] txt);" />
       <MemberType>Method</MemberType>

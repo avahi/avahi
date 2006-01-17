@@ -35,6 +35,7 @@ avahi_commoninclude_HEADERS = \
 	watch.h \
 	timeval.h \
 	simple-watch.h \
+	thread-watch.h \
 	gccmacro.h \
 	error.h \
 	llist.h \

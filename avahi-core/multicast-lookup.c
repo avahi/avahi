@@ -23,6 +23,8 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h>
+
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
 

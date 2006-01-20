@@ -30,20 +30,20 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** A main loop object that runs an AvahiSimplePoll in its own thread. */
+/** A main loop object that runs an AvahiSimplePoll in its own thread. \since 0.6.4 */
 typedef struct AvahiThreadedPoll AvahiThreadedPoll;
 
 /** Create a new event loop object. This will allocate the internal
- * AvahiSimplePoll, but will not start the helper thread. */
+ * AvahiSimplePoll, but will not start the helper thread. \since 0.6.4 */
 AvahiThreadedPoll *avahi_threaded_poll_new(void);
 
 /** Free an event loop object. Ths will stop the associated evet loop
- * thread (if it is running). */
+ * thread (if it is running). \since 0.6.4 */
 void avahi_threaded_poll_free(AvahiThreadedPoll *p);
 
 /** Return the abstracted poll API object for this event loop
  * object. The will return the same pointer each time it is
- * called. */
+ * called. \since 0.6.4 */
 const AvahiPoll* avahi_threaded_poll_get(AvahiThreadedPoll *p);
 
 /** Start the event loop helper thread. After the thread has startet
@@ -54,27 +54,27 @@ const AvahiPoll* avahi_threaded_poll_get(AvahiThreadedPoll *p);
  * which will lock the the entire event loop. Please note that event
  * loop callback functions are called from the event loop helper thread
  * with that lock held, i.e. avahi_threaded_poll_lock() calls are not
- * required from event callbacks. */
+ * required from event callbacks. \since 0.6.4 */
 int avahi_threaded_poll_start(AvahiThreadedPoll *p);
 
 /** Request that the event loop quits and the associated thread
  stops. Call this from outside the helper thread if you want to shut
- it down. */
+ it down. \since 0.6.4 */
 int avahi_threaded_poll_stop(AvahiThreadedPoll *p);
 
 /** Request that the event loop quits and the associated thread
  stops. Call this from inside the helper thread if you want to shut it
- down.*/
+ down. \since 0.6.4  */
 void avahi_threaded_poll_quit(AvahiThreadedPoll *p);
 
 /** Lock the main loop object. Use this if you want to access the event
  * loop objects (such as creating a new event source) from anything
  * else but the event loop helper thread, i.e. from anything else but event
- * loop callbacks */
+ * loop callbacks \since 0.6.4  */
 void avahi_threaded_poll_lock(AvahiThreadedPoll *p);
 
 /** Unlock the event loop object, use this as counterpart to
- * avahi_threaded_poll_lock() */
+ * avahi_threaded_poll_lock() \since 0.6.4 */
 void avahi_threaded_poll_unlock(AvahiThreadedPoll *p);
 
 AVAHI_C_DECL_END

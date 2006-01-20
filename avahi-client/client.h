@@ -85,7 +85,7 @@ int avahi_client_errno (AvahiClient*);
 /** Return the local service cookie. returns AVAHI_SERVICE_COOKIE_INVALID on failure. */
 uint32_t avahi_client_get_local_service_cookie(AvahiClient *client);
 
-/** Return 1 if gethostbyname() supports mDNS lookups, 0 otherwise */
+/** Return 1 if gethostbyname() supports mDNS lookups, 0 otherwise. \since 0.6.5 */
 int avahi_nss_support(void);
 
 AVAHI_C_DECL_END

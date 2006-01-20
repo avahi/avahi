@@ -34,7 +34,7 @@
 	
     <description>
       <p>avahi-dnsconfd connects to a running avahi-daemon and runs
-      the script <file>@pkgsysconfdir@/dnsconf.action</file> for each unicast DNS
+      the script <file>@pkgsysconfdir@/dnsconfd.action</file> for each unicast DNS
       server that is announced on the local LAN. This is useful for
       configuring unicast DNS servers in a DHCP-like fashion with
       mDNS.</p>
@@ -76,7 +76,7 @@
 
     <section name="Files">
       
-      <p><file>@pkgsysconfdir@/dnsconf.action</file>: the script to run when a DNS server is found or removed.</p>
+      <p><file>@pkgsysconfdir@/dnsconfd.action</file>: the script to run when a DNS server is found or removed.</p>
     
     </section>
 
@@ -92,7 +92,7 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-daemon" section="8"/>, <manref name="dnsconf.action" section="8"/>
+        <manref name="avahi-daemon" section="8"/>, <manref name="dnsconfd.action" section="8"/>
 	  </p>
 	</section>
 	

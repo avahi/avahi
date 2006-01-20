@@ -39,6 +39,10 @@ if TARGET_FEDORA
 SUBDIRS += fedora
 endif
 
+if TARGET_MANDRIVA
+SUBDIRS += mandriva
+endif
+
 if TARGET_DARWIN
 SUBDIRS += darwin
 endif

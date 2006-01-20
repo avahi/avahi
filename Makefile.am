@@ -103,6 +103,7 @@ pkgconfig_DATA = avahi-core.pc
 
 avahi-core.pc: avahi-core.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES = avahi-core.pc
@@ -113,6 +114,7 @@ pkgconfig_DATA += avahi-client.pc
 
 avahi-client.pc: avahi-client.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES += avahi-client.pc
@@ -123,6 +125,7 @@ pkgconfig_DATA += avahi-compat-howl.pc
 
 avahi-compat-howl.pc: avahi-compat-howl.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@HOWL_COMPAT_VERSION\@,$(HOWL_COMPAT_VERSION),g' $< > $@
 
 CLEANFILES += avahi-compat-howl.pc
@@ -135,6 +138,7 @@ pkgconfig_DATA += avahi-compat-libdns_sd.pc
 
 avahi-compat-libdns_sd.pc: avahi-compat-libdns_sd.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES += avahi-compat-libdns_sd.pc
@@ -162,6 +166,7 @@ pkgconfig_DATA += avahi-glib.pc
 
 avahi-glib.pc: avahi-glib.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES += avahi-glib.pc
@@ -174,6 +179,7 @@ pkgconfig_DATA += avahi-qt3.pc
 
 avahi-qt3.pc: avahi-qt3.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES += avahi-qt3.pc
@@ -186,6 +192,7 @@ pkgconfig_DATA += avahi-qt4.pc
 
 avahi-qt4.pc: avahi-qt4.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES += avahi-qt4.pc

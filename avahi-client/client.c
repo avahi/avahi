@@ -595,6 +595,11 @@ fail:
 void avahi_client_free(AvahiClient *client) {
     assert(client);
 
+    if (client->bus)
+        /* Disconnect in advance, so that the free() functions won't
+         * issue needless server calls */
+        dbus_connection_disconnect(client->bus);
+    
     while (client->groups)
         avahi_entry_group_free(client->groups);
 
@@ -619,10 +624,8 @@ void avahi_client_free(AvahiClient *client) {
     while (client->record_browsers)
         avahi_record_browser_free(client->record_browsers);
     
-    if (client->bus) {
-        dbus_connection_disconnect(client->bus);
+    if (client->bus)
         dbus_connection_unref(client->bus);
-    }
 
     avahi_free(client->version_string);
     avahi_free(client->host_name);
@@ -859,5 +862,7 @@ fail:
 int avahi_client_is_connected(AvahiClient *client) {
     assert(client);
 
-    return client->state == AVAHI_CLIENT_S_RUNNING || client->state == AVAHI_CLIENT_S_REGISTERING || client->state == AVAHI_CLIENT_S_COLLISION;
+    return
+        dbus_connection_get_is_connected(client->bus) &&
+        (client->state == AVAHI_CLIENT_S_RUNNING || client->state == AVAHI_CLIENT_S_REGISTERING || client->state == AVAHI_CLIENT_S_COLLISION);
 }

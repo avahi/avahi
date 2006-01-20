@@ -35,7 +35,8 @@ noinst_PROGRAMS = \
 	client-test \
 	srv-test \
 	xdg-config-test \
-	rr-test
+	rr-test \
+	check-nss-test
 
 endif
 
@@ -48,6 +49,7 @@ libavahi_client_la_SOURCES = \
 	resolver.c \
 	publish.h lookup.h \
 	xdg-config.c xdg-config.h \
+	check-nss.c \
 	../avahi-common/dbus.c ../avahi-common/dbus.h \
 	../avahi-common/dbus-watch-glue.c ../avahi-common/dbus-watch-glue.h
 
@@ -70,5 +72,14 @@ rr_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.l
 xdg_config_test_SOURCES = xdg-config-test.c xdg-config.c xdg-config.h
 xdg_config_test_CFLAGS = $(AM_CFLAGS) 
 xdg_config_test_LDADD = $(AM_LDADD)
+
+check_nss_test_SOURCES = check-nss.c check-nss-test.c client.h
+check_nss_test_CFLAGS = $(AM_CFLAGS) 
+check_nss_test_LDADD = $(AM_LDADD)
+
+if HAVE_DLOPEN
+check_nss_test_LDADD += -ldl
+libavahi_client_la_LIBADD += -ldl
+endif
 
 endif

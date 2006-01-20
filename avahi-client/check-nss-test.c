@@ -1,6 +1,3 @@
-#ifndef foomainhfoo
-#define foomainhfoo
-
 /* $Id$ */
 
 /***
@@ -22,12 +19,14 @@
   USA.
 ***/
 
-#include <avahi-core/core.h>
-#include <avahi-common/simple-watch.h>
-
-extern AvahiServer *avahi_server;
-extern AvahiSimplePoll *simple_poll_api;
-
-extern int nss_support;
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
+
+#include <stdio.h>
+
+#include <avahi-client/client.h>
+
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
+    printf("NSS Support available: %s\n", avahi_nss_support() ? "yes" : "no");
+}

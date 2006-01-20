@@ -51,6 +51,10 @@
       <arg name="name" type="s" direction="out"/>
     </method>
 
+    <method name="IsNSSSupportAvailable">
+      <arg name="yes" type="b" direction="out"/>
+    </method>
+
     <method name="GetState">
       <arg name="state" type="i" direction="out"/>
     </method>

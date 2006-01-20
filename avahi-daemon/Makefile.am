@@ -100,11 +100,16 @@ avahi_daemon_SOURCES += \
 	dbus-sync-host-name-resolver.c \
 	dbus-sync-service-resolver.c \
 	dbus-record-browser.c  \
-        ../avahi-common/dbus.c ../avahi-common/dbus.h \
-	../avahi-common/dbus-watch-glue.c ../avahi-common/dbus-watch-glue.h
+	../avahi-common/dbus.c ../avahi-common/dbus.h \
+	../avahi-common/dbus-watch-glue.c ../avahi-common/dbus-watch-glue.h \
+	../avahi-client/check-nss.c
 
 avahi_daemon_LDADD += \
 	$(DBUS_LIBS)
+
+if HAVE_DLOPEN
+avahi_daemon_LDADD += -ldl
+endif
 
 avahi_daemon_CFLAGS += $(DBUS_CFLAGS)
 

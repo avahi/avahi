@@ -235,6 +235,12 @@ if test "x$enable_chroot" = "xyes" ; then
    AC_DEFINE([ENABLE_CHROOT], 1, [Enable chroot() usage])
 fi
 
+AC_CHECK_LIB(dl, dlopen, [ AC_CHECK_HEADERS(dlfcn.h, HAVE_DLOPEN=yes, HAVE_DLOPEN=no) ], HAVE_DLOPEN=no)
+if test "x$HAVE_DLOPEN" = "xyes" ; then
+    AC_DEFINE([HAVE_DLOPEN],1,[Have dlopen()])
+fi
+AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
+
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.
 AC_CHECK_PROG(have_pkg_config, pkg-config, yes, no)

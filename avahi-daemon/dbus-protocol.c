@@ -251,6 +251,14 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
     
         return avahi_dbus_respond_string(c, m, avahi_server_get_host_name_fqdn(avahi_server));
         
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "IsNSSSupportAvailable")) {
+        if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {
+            avahi_log_warn("Error parsing Server::IsNSSSupportAvailable message");
+            goto fail;
+        }
+
+        return avahi_dbus_respond_boolean(c, m, nss_support);
+        
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetVersionString")) {
 
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INVALID))) {

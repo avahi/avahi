@@ -75,6 +75,7 @@
 AvahiServer *avahi_server = NULL;
 AvahiSimplePoll *simple_poll_api = NULL;
 static char *argv0 = NULL;
+int nss_support = 0;
 
 typedef enum {
     DAEMON_RUN,
@@ -697,6 +698,8 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
     }
 }
 
+/* Imported from ../avahi-client/nss-check.c */
+int avahi_nss_support(void);
 
 static int run_server(DaemonConfig *c) {
     int r = -1;
@@ -706,6 +709,9 @@ static int run_server(DaemonConfig *c) {
     int retval_is_sent = 0;
 
     assert(c);
+
+    if (!(nss_support = avahi_nss_support()))
+        avahi_log_warn("WARNING: No NSS support for mDNS detected, consider installing nss-mdns!");
 
     if (!(simple_poll_api = avahi_simple_poll_new())) {
         avahi_log_error("Failed to create main loop object.");

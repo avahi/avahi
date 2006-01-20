@@ -1,6 +1,3 @@
-#ifndef foomainhfoo
-#define foomainhfoo
-
 /* $Id$ */
 
 /***
@@ -22,12 +19,39 @@
   USA.
 ***/
 
-#include <avahi-core/core.h>
-#include <avahi-common/simple-watch.h>
-
-extern AvahiServer *avahi_server;
-extern AvahiSimplePoll *simple_poll_api;
-
-extern int nss_support;
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
+
+#ifdef HAVE_DLOPEN
+#include <dlfcn.h>
+#endif
+#include <stdlib.h>
+
+#include "client.h"
+
+int avahi_nss_support(void) {
+    int b = 0;
+    
+#ifdef HAVE_DLOPEN
+    static const char * const libs[] = {
+        "libnss_mdns.so.2",
+        "libnss_mdns4.so.2",
+        "libnss_mdns6.so.2",
+        NULL };
+    
+    const char * const *l;
+    
+    for (l = libs; *l; l++) {
+        void *dl;
+        
+        if ((dl = dlopen(*l, RTLD_LAZY))) {
+            b = 1;
+            dlclose(dl);
+            break;
+        }
+    }
+#endif
+
+    return b;
+}

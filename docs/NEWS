@@ -1,3 +1,26 @@
+Avahi 0.6.5
+===========
+
+This release fixes some bugs and adds a new API function.
+ 
+ * avahi-browse: properly show services that are removed from the 
+   network
+ * fix build on bi-arch platforms and on GNU/kFreeBSD
+ * add new API function avahi_nss_support() and DBUS function
+   IsNSSSupportAvailable() which may be used to detect whether
+   libc's gethostbyname() supports mDNS domain names.
+ * patch avahi-bookmarks to make use of
+   IsNSSSupportAvailable(). avahi-bookmarks will now generate links
+   with real hostnames instead of numeric IP addresses if mDNS support
+   is detected for gethostbyname().
+ * add init script for Mandriva Linux
+ * speed up avahi_client_free()
+ * man page updates
+ * install missing header thread-watch.h
+
+This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
+0.6.3 and 0.6.4.
+
 Avahi 0.6.4
 ===========
 

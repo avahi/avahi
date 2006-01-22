@@ -17,6 +17,7 @@ This release fixes some bugs and adds a new API function.
  * speed up avahi_client_free()
  * man page updates
  * install missing header thread-watch.h
+ * fix avahi-bookmarks to work with certain twisted versions
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
 0.6.3 and 0.6.4.

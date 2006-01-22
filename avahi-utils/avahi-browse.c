@@ -127,8 +127,8 @@ static ServiceInfo *find_service(AvahiIfIndex interface, AvahiProtocol protocol,
         if (i->interface == interface &&
             i->protocol == protocol &&
             strcasecmp(i->name, name) == 0 &&
-            avahi_domain_equal(i->type, type) == 0 &&
-            avahi_domain_equal(i->domain, domain) == 0)
+            avahi_domain_equal(i->type, type) &&
+            avahi_domain_equal(i->domain, domain))
 
             return i;
 

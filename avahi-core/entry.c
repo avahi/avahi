@@ -216,7 +216,10 @@ static AvahiEntry * server_add_internal(
     transport_flags_from_domain(s, &flags, r->key->name);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, flags & AVAHI_PUBLISH_USE_MULTICAST, AVAHI_ERR_NOT_SUPPORTED);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !s->config.disable_publishing, AVAHI_ERR_NOT_PERMITTED);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !g || (g->state != AVAHI_ENTRY_GROUP_ESTABLISHED && g->state != AVAHI_ENTRY_GROUP_REGISTERING), AVAHI_ERR_BAD_STATE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(s,
+                                     !g ||
+                                     (g->state != AVAHI_ENTRY_GROUP_ESTABLISHED && g->state != AVAHI_ENTRY_GROUP_REGISTERING) ||
+                                     (flags & AVAHI_PUBLISH_UPDATE), AVAHI_ERR_BAD_STATE);
     
     if (flags & AVAHI_PUBLISH_UPDATE) {
         AvahiRecord *old_record;

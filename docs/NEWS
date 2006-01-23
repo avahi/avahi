@@ -5,7 +5,8 @@ This release fixes some bugs and adds a new API function.
  
  * avahi-browse: properly show services that are removed from the 
    network
- * fix build on bi-arch platforms and on GNU/kFreeBSD
+ * fix build on bi-arch platforms, on GNU/kFreeBSD, on MIPS and 
+   for non-DBUS builds
  * add new API function avahi_nss_support() and DBUS function
    IsNSSSupportAvailable() which may be used to detect whether
    libc's gethostbyname() supports mDNS domain names.
@@ -18,6 +19,8 @@ This release fixes some bugs and adds a new API function.
  * man page updates
  * install missing header thread-watch.h
  * fix avahi-bookmarks to work with certain twisted versions
+ * fix record updating
+ * Use pkg-config's Requires.private directive where it makes sense
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
 0.6.3 and 0.6.4.

@@ -237,7 +237,7 @@ int avahi_entry_group_free(AvahiEntryGroup *group) {
         
     assert(group);
     
-    if (group->path && !avahi_client_is_connected(client))
+    if (group->path && avahi_client_is_connected(client))
         r = entry_group_simple_method_call(group, "Free");
     
     AVAHI_LLIST_REMOVE(AvahiEntryGroup, groups, client->groups, group);

@@ -35,6 +35,7 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+#include <avahi-common/timeval.h>
 
 static AvahiEntryGroup *group = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
@@ -163,10 +164,32 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
     }
 }
 
+static void modify_callback(AVAHI_GCC_UNUSED AvahiTimeout *e, void *userdata) {
+    AvahiClient *client = userdata;
+
+    fprintf(stderr, "Doing some weird modification\n");
+
+    avahi_free(name); 
+    name = avahi_strdup("Modified MegaPrinter"); 
+
+    /* If the server is currently running, we need to remove our
+     * service and create it anew */
+    if (avahi_client_get_state(client) == AVAHI_CLIENT_S_RUNNING) {
+
+        /* Remove the old services */
+        if (group)
+            avahi_entry_group_reset(group);
+
+        /* And create them again with the new name */
+        create_services(client);
+    }
+}
+
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiClient *client = NULL;
     int error;
     int ret = 1;
+    struct timeval tv;
     
     /* Allocate main loop object */
     if (!(simple_poll = avahi_simple_poll_new())) {
@@ -185,6 +208,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
         goto fail;
     }
 
+    /* After 20s do some weird modification to the service */
+    avahi_simple_poll_get(simple_poll)->timeout_new(
+        avahi_simple_poll_get(simple_poll),
+        avahi_elapse_time(&tv, 1000*10, 0),
+        modify_callback,
+        client);
+    
     /* Run the main loop */
     avahi_simple_poll_loop(simple_poll);
     

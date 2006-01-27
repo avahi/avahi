@@ -118,9 +118,16 @@
  * avahi_alternative_service_name()) and commit again. Please do not
  * free the entry group and create a new one. This would inhibit some
  * traffic limiting algorithms in mDNS.
- * - When you need to modify your services, use the AVAHI_PUBLISH_UPDATE flag. Please do not
- * free the entry group and create a new one. This would inhibit some
- * traffic limiting algorithms in mDNS.
+ * - When you need to modify your services (i.e. change the TXT data
+ * or the port number), use the AVAHI_PUBLISH_UPDATE flag. Please do
+ * not free the entry group and create a new one. This would inhibit
+ * some traffic limiting algorithms in mDNS. When changing just the
+ * TXT data avahi_entry_group_update_txt() is a shortcut for
+ * AVAHI_PUBLISH_UPDATE. Please note that you cannot use
+ * AVAHI_PUBLISH_UPDATE when changing the service name! Renaming a
+ * DNS-SD service is identical to deleting and creating a new one, and
+ * that's exactly what you should do in that case. First call
+ * avahi_entry_group_reset() to remove it and than readd it normally.
  *
  * The linked functions belong to avahi-client. They all have counterparts in the DBUS API and avahi-core.
  *

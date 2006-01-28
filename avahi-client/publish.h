@@ -45,18 +45,24 @@ AVAHI_C_DECL_BEGIN
 typedef struct AvahiEntryGroup AvahiEntryGroup;
 
 /** The function prototype for the callback of an AvahiEntryGroup */
-typedef void (*AvahiEntryGroupCallback) (AvahiEntryGroup *g, AvahiEntryGroupState state, void* userdata);
+typedef void (*AvahiEntryGroupCallback) (
+    AvahiEntryGroup *g,
+    AvahiEntryGroupState state /**< The new state of the entry group */,
+    void* userdata /* The arbitrary user data pointer originally passed to avahi_entry_group_new()*/);
 
 /** Create a new AvahiEntryGroup object */
-AvahiEntryGroup* avahi_entry_group_new (AvahiClient*, AvahiEntryGroupCallback callback, void *userdata);
+AvahiEntryGroup* avahi_entry_group_new(
+    AvahiClient* c,
+    AvahiEntryGroupCallback callback /**< This callback is called whenever the state of this entry group changes. May not be NULL. */,
+    void *userdata /**< This arbitrary user data pointer will be passed to the callback functon */);
 
 /** Clean up and free an AvahiEntryGroup object */
 int avahi_entry_group_free (AvahiEntryGroup *);
 
-/** Commit an AvahiEntryGroup */
+/** Commit an AvahiEntryGroup. The entries in the entry group are now registered on the network. Commiting empty entry groups is considered an error. */
 int avahi_entry_group_commit (AvahiEntryGroup*);
 
-/** Reset an AvahiEntryGroup */
+/** Reset an AvahiEntryGroup. This takes effect immediately. */
 int avahi_entry_group_reset (AvahiEntryGroup*);
 
 /** Get an AvahiEntryGroup's state */
@@ -68,20 +74,20 @@ int avahi_entry_group_is_empty (AvahiEntryGroup*);
 /** Get an AvahiEntryGroup's owning client instance */
 AvahiClient* avahi_entry_group_get_client (AvahiEntryGroup*);
 
-/** Add a service, takes a variable NULL terminated list of text records */
+/** Add a service. Takes a variable NULL terminated list of TXT record strings as last arguments. Please note that this service is not announced on the network before avahi_entry_group_commit() is called. */
 int avahi_entry_group_add_service(
     AvahiEntryGroup *group,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
+    AvahiIfIndex interface /**< The interface this service shall be announced on. We recommend to pass AVAHI_IF_UNSPEC here, to announce on all interfaces. */,
+    AvahiProtocol protocol /**< The protocol this service shall be announced with, i.e. MDNS over IPV4 or MDNS over IPV6. We recommend to pass AVAHI_PROTO_UNSPEC here, to announce this service on all protocols the daemon supports. */,
+    AvahiPublishFlags flags /**< Usually 0, unless you know what you do */,
+    const char *name        /**< The name for the new service. May not be NULL. */,
+    const char *type        /**< The service type for the new service, such as _http._tcp. May not be NULL. */,
+    const char *domain      /**< The domain to register this domain in. We recommend to pass NULL here, to let the daemon decide */,   
+    const char *host        /**< The host this services is residing on. We recommend to pass NULL here, the daemon will than automatically insert the local host name in that case */,
+    uint16_t port           /**< The IP port number of this service */,
     ...) AVAHI_GCC_SENTINEL;
 
-/** Add a service, takes an AvahiStringList for text records */
+/** Add a service, takes an AvahiStringList for TXT records. Arguments have the same meaning as for avahi_entry_group_add_service(). */
 int avahi_entry_group_add_service_strlst(
     AvahiEntryGroup *group,
     AvahiIfIndex interface,
@@ -92,31 +98,31 @@ int avahi_entry_group_add_service_strlst(
     const char *domain,
     const char *host,
     uint16_t port,
-    AvahiStringList *txt);
+    AvahiStringList *txt /**< The TXT data for this service. You may free this object after calling this function, it is not referenced any further */);
 
-/** Add a subtype for a service */
+/** Add a subtype for a service. The service should already be existent in the entry group. You may add as many subtypes for a service as you wish. */
 int avahi_entry_group_add_service_subtype(
     AvahiEntryGroup *group,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *subtype);
+    AvahiIfIndex interface /**< The interface this subtype shall be announced on. This should match the value passed for the original avahi_entry_group_add_service() call. */,
+    AvahiProtocol protocol /**< The protocol this subtype shall be announced with. This should match the value passed for the original avahi_entry_group_add_service() call. */,
+    AvahiPublishFlags flags  /**< Only != 0 if you really know what you do */,
+    const char *name         /**< The name of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,
+    const char *type         /**< The type of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,
+    const char *domain       /**< The domain this service resides is, as passed to avahi_entry_group_add_service(). May be NULL. */,
+    const char *subtype /**< The new subtype to register for the specified service. May not be NULL. */);
 
-/** Update a TXT record for an existing service */
+/** Update a TXT record for an existing service. The service should already be existent in the entry group. */
 int avahi_entry_group_update_service_txt(
     AvahiEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
+    AvahiIfIndex interface   /**< The interface this service is announced on. This should match the value passed to the original avahi_entry_group_add_service() call. */,
+    AvahiProtocol protocol   /**< The protocol this service is announced with. This should match the value passed to the original avahi_entry_group_add_service() call. */,
+    AvahiPublishFlags flags  /**< Only != 0 if you really know what you do */,
+    const char *name         /**< The name of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,    
+    const char *type         /**< The type of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,     
+    const char *domain       /**< The domain this service resides is, as passed to avahi_entry_group_add_service(). May be NULL. */,   
     ...) AVAHI_GCC_SENTINEL;
 
-/** Update a TXT record for an existing service */
+/** Update a TXT record for an existing service. Similar to avahi_entry_group_update_service_txt() but takes an AvahiStringList for the TXT strings, instead of a NULL terminated list of arguments. */
 int avahi_entry_group_update_service_txt_strlst(
     AvahiEntryGroup *g,
     AvahiIfIndex interface,
@@ -133,10 +139,10 @@ int avahi_entry_group_add_address(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiPublishFlags flags,
-    const char *name,
-    const AvahiAddress *a);
+    const char *name /**< The FDQN of the new hostname to register */,
+    const AvahiAddress *a /**< The address this host name shall map to */);
 
-/** Add an arbitrary record */
+/** Add an arbitrary record. I hope you know what you do. */
 int avahi_entry_group_add_record(
     AvahiEntryGroup *group,
     AvahiIfIndex interface,

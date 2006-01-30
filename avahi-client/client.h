@@ -56,12 +56,22 @@ typedef enum {
 } AvahiClientFlags;
 
 /** The function prototype for the callback of an AvahiClient */
-typedef void (*AvahiClientCallback) (AvahiClient *s, AvahiClientState state, void* userdata);
+typedef void (*AvahiClientCallback) (
+    AvahiClient *s,
+    AvahiClientState state /**< The new state of the client */,
+    void* userdata /**< The user data that was passed to avahi_client_new() */);
 
 /** Creates a new client instance */
-AvahiClient* avahi_client_new (const AvahiPoll *poll_api, AvahiClientFlags flags, AvahiClientCallback callback, void *userdata, int *error);
+AvahiClient* avahi_client_new (
+    const AvahiPoll *poll_api /**< The abstract event loop API to use */,
+    AvahiClientFlags flags /**< Some flags to modify the behaviour of  the client library */,
+    AvahiClientCallback callback /**< A callback that is called whenever the state of the client changes. This may be NULL */,
+    void *userdata /**< Some arbitrary user data pointer that will be passed to the callback function */,
+    int *error /**< If creation of the client fails, this integer will contain the error cause. May be NULL if you aren't interested in the reason why avahi_client_new() failed. */);
 
-/** Free a client instance */
+/** Free a client instance. This will automatically free all
+ * associated browser, resolve and entry group objects. All pointers
+ * to such objects become invalid! */
 void avahi_client_free(AvahiClient *client);
 
 /** Get the version of the server */

@@ -84,7 +84,8 @@ const char *avahi_strerror(int error) {
         "Not supported",
 
         "Not permitted",
-        "Invalid argument"
+        "Invalid argument",
+	"Is empty"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

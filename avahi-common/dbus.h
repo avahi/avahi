@@ -88,7 +88,7 @@ Avahi 0.6.1 implements API version 0x0202 */
 #define AVAHI_DBUS_ERR_VERSION_MISMATCH "org.freedesktop.Avahi.VersionMismatchError"
 #define AVAHI_DBUS_ERR_INVALID_SERVICE_SUBTYPE "org.freedesktop.Avahi.InvalidServiceSubtypeError"
 #define AVAHI_DBUS_ERR_INVALID_PACKET "org.freedesktop.Avahi.InvalidPacketError"
-#define AVAHI_DBUS_ERR_INVALID_DNS_ERROR "org.freedesktop.Avahi.InvalidDNSError"
+#define AVAHI_DBUS_ERR_INVALID_DNS_ERROR "org.freedesktop.Avahi.InvalidDNSErrorError"
 #define AVAHI_DBUS_ERR_DNS_FORMERR "org.freedesktop.Avahi.DNSFORMERR"
 #define AVAHI_DBUS_ERR_DNS_SERVFAIL "org.freedesktop.Avahi.DNSSERVFAIL"
 #define AVAHI_DBUS_ERR_DNS_NXDOMAIN "org.freedesktop.Avahi.DNSNXDOMAIN"
@@ -106,8 +106,8 @@ Avahi 0.6.1 implements API version 0x0202 */
 #define AVAHI_DBUS_ERR_NOT_SUPPORTED "org.freedesktop.Avahi.NotSupportedError"
 
 #define AVAHI_DBUS_ERR_NOT_PERMITTED "org.freedesktop.Avahi.NotPermittedError"
-#define AVAHI_DBUS_ERR_INVALID_ARGUMENT "org.freedesktop.Avahi.InvalidArgument"
-
+#define AVAHI_DBUS_ERR_INVALID_ARGUMENT "org.freedesktop.Avahi.InvalidArgumentError"
+#define AVAHI_DBUS_ERR_IS_EMPTY "org.freedesktop.Avahi.IsEmptyError"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

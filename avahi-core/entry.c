@@ -1114,7 +1114,7 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
         return avahi_server_set_errno(g->server, AVAHI_ERR_BAD_STATE);
 
     if (avahi_s_entry_group_is_empty(g))
-        return avahi_server_set_errno(g->server, AVAHI_ERR_BAD_STATE);
+        return avahi_server_set_errno(g->server, AVAHI_ERR_IS_EMPTY);
 
     g->n_register_try++;
 

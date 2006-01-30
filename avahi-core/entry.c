@@ -1113,6 +1113,9 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
     if (g->state != AVAHI_ENTRY_GROUP_UNCOMMITED && g->state != AVAHI_ENTRY_GROUP_COLLISION)
         return avahi_server_set_errno(g->server, AVAHI_ERR_BAD_STATE);
 
+    if (avahi_s_entry_group_is_empty(g))
+        return avahi_server_set_errno(g->server, AVAHI_ERR_BAD_STATE);
+
     g->n_register_try++;
 
     avahi_timeval_add(&g->register_time,

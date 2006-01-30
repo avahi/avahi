@@ -691,7 +691,7 @@ int avahi_record_is_valid(AvahiRecord *r) {
             AvahiStringList *strlst;
 
             for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next)
-                if (strlst->size > 255)
+                if (strlst->size > 255 || strlst->size <= 0)
                     return 0;
 
             return 1;

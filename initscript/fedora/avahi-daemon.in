@@ -2,7 +2,7 @@
 #
 # avahi-daemon:       Starts the Avahi Daemon
 #
-# chkconfig: 345 34 66
+# chkconfig: 345 98 02
 # description: This is a daemon which runs on client machines to perform \
 #              Zeroconf service discovery on a network. avahi-daemon must be \
 #              running on systems  that use Avahi for service discovery. \
@@ -23,32 +23,45 @@ OTHER_AVAHI_OPTS=""
 AVAHI_BIN=@sbindir@/avahi-daemon
 test -x $AVAHI_BIN || exit 5
 
+LOCKFILE=/var/lock/subsys/avahi-daemon
+
+base=${0##*/}
+
 start() {
 	echo -n $"Starting Avahi daemon... "
+	if [ -s /etc/localtime ]; then
+	    cp -fp /etc/localtime /etc/avahi/etc >/dev/null 2>&1
+	fi;
         $AVAHI_BIN -D
 	RETVAL=$?
-	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
+	if [ $RETVAL = 0 ]; then
+		touch $LOCKFILE
+		success $"$base startup"
+	else
+		failure $"$base startup"
+	fi
 	echo
 	return $RETVAL
 }
 
 stop() {
-        echo -n "Shutting down Avahi daemon: "
+        echo -n $"Shutting down Avahi daemon: "
         $AVAHI_BIN -k
 	RETVAL=$?
+	[ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
+	rm -f $LOCKFILE
 	echo
 	return $RETVAL
 }
 
 reload() {
-        echo -n "Reloading Avahi daemon... "
+        echo -n $"Reloading Avahi daemon... "
         $AVAHI_BIN -r
 	RETVAL=$?
-	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
+	[ $RETVAL = 0 ] && success $"$base reload" || failure $"$base reload"
 	echo
 	return $RETVAL
 }
-
 
 restart() {
 	stop
@@ -67,7 +80,7 @@ case "$1" in
 	;;
   status)
         $AVAHI_BIN -c
-	[ $? = 0 ] && echo "Avahi daemon is running" || echo "Avahi daemon is not running"
+	[ $? = 0 ] && echo $"Avahi daemon is running" || echo $"Avahi daemon is not running"
 	;;
   restart)
 	restart
@@ -76,8 +89,9 @@ case "$1" in
         reload 
 	;;
   condrestart)
-        $AVAHI_BIN -c
-        [ $? = 0 ] && restart || :
+  	if [ -f $LOCKFILE ]; then
+		restart
+	fi
 	;;
   *)
 	echo $"Usage: $0 {start|stop|status|restart|condrestart}"
@@ -85,3 +99,4 @@ case "$1" in
 esac
 
 exit $?
+

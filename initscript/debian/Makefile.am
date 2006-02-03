@@ -32,9 +32,15 @@ CLEANFILES = \
 	avahi-dnsconfd
 
 avahi-daemon: avahi-daemon.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	sed \
+		-e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@sysconfdir\@,$(sysconfdir),g' \
+		$< > $@
 	chmod +x $@
 
 avahi-dnsconfd: avahi-dnsconfd.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	sed \
+		-e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@sysconfdir\@,$(sysconfdir),g' \
+		$< > $@
 	chmod +x $@

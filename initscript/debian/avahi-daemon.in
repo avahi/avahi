@@ -91,6 +91,13 @@ test -x $DAEMON || exit 0
 #       Function that starts the daemon/service.
 #
 d_start() {
+    if [ -s /etc/localtime ]; then
+	if [ ! -d /etc/avahi/etc ]; then
+	    mkdir -p @sysconfdir@/avahi/etc >/dev/null 2>&1
+	fi
+	cp -fp /etc/localtime @sysconfdir@/avahi/etc >/dev/null 2>&1
+    fi;
+    
     $DAEMON -D
 }
 

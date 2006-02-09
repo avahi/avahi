@@ -456,10 +456,10 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
     struct iovec io;
 #ifdef IP_PKTINFO
     struct cmsghdr *cmsg;
-    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_pktinfo))];
+    size_t cmsg_data[( CMSG_SPACE(sizeof(struct in_pktinfo)) / sizeof(size_t)) + 1];
 #elif defined(IP_SENDSRCADDR)
     struct cmsghdr *cmsg;
-    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_addr))];
+    size_t cmsg_data[( CMSG_SPACE(sizeof(struct in_addr)) / sizeof(size_t)) + 1];
 #endif
 
     assert(fd >= 0);
@@ -542,7 +542,7 @@ int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
     struct msghdr msg;
     struct iovec io;
     struct cmsghdr *cmsg;
-    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in6_pktinfo))];
+    size_t cmsg_data[(CMSG_SPACE(sizeof(struct in6_pktinfo))/sizeof(size_t)) + 1];
 
     assert(fd >= 0);
     assert(p);
@@ -596,7 +596,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_add
     AvahiDnsPacket *p= NULL;
     struct msghdr msg;
     struct iovec io;
-    uint8_t aux[1024];
+    size_t aux[1024 / sizeof(size_t)]; /* for alignment on ia64 ! */
     ssize_t l;
     struct cmsghdr *cmsg;
     int found_addr = 0;
@@ -726,7 +726,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_add
     AvahiDnsPacket *p = NULL;
     struct msghdr msg;
     struct iovec io;
-    uint8_t aux[64];
+    size_t aux[1024 / sizeof(size_t)];
     ssize_t l;
     int ms;
     struct cmsghdr *cmsg;

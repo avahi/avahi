@@ -125,6 +125,9 @@ int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int j
     mdns_mcast_group_ipv4(&sa);
     mreq.imr_multiaddr = sa.sin_addr;
 
+    if (join)
+      setsockopt(fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq));
+
     if (setsockopt(fd, IPPROTO_IP, join ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
         avahi_log_warn("%s failed: %s", join ? "IP_ADD_MEMBERSHIP" : "IP_DROP_MEMBERSHIP", strerror(errno));
         return -1;

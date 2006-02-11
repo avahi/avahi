@@ -1,0 +1,8 @@
+# $Id$
+#
+# This file contains static ip<-> host mappings.
+# These can be usefull to publish services on behalf of a non-avahi enabled device.
+#
+# Examples:
+# 192.168.0.1 router.local
+# 2001::81:1 test.local

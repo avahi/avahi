@@ -34,6 +34,7 @@ AM_CFLAGS+= \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_SERVICE_DIR=\"$(servicedir)\" \
 	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\" \
+	-DAVAHI_HOSTS_FILE=\"$(pkgsysconfdir)/hosts\" \
 	-DAVAHI_DBUS_INTROSPECTION_DIR=\"$(introspectiondir)\" \
 	-DAVAHI_CONFIG_DIR=\"$(pkgsysconfdir)\"
 
@@ -49,6 +50,7 @@ avahi_daemon_SOURCES = \
 	main.c main.h \
 	simple-protocol.c simple-protocol.h \
 	static-services.c static-services.h \
+	static-hosts.c static-hosts.h \
 	ini-file-parser.c ini-file-parser.h \
 	setproctitle.c setproctitle.h \
 	../avahi-client/check-nss.c
@@ -64,7 +66,8 @@ ini_file_parser_test_CFLAGS = $(AM_CFLAGS)
 ini_file_parser_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la 
 
 pkgsysconf_DATA = \
-	avahi-daemon.conf
+	avahi-daemon.conf \
+	hosts
 
 service_DATA = \
 	ssh.service
@@ -145,6 +148,7 @@ EXTRA_DIST = \
 	HostNameResolver.introspect \
 	RecordBrowser.introspect \
 	ssh.service \
+	hosts \
 	example.service \
 	introspect.dtd \
 	introspect.xsl

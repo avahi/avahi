@@ -269,6 +269,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             avahi_set_proc_title("%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
             
             static_service_add_to_server();
+            static_hosts_add_to_server();
             
             remove_dns_server_entry_groups();
             
@@ -285,6 +286,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             char *n;
             
             static_service_remove_from_server();
+            static_hosts_remove_from_server();
             
             remove_dns_server_entry_groups();
             
@@ -670,10 +672,13 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
             avahi_log_info("Got SIGHUP, reloading.");
 #ifdef ENABLE_CHROOT
             static_service_load(config.use_chroot);
+            static_hosts_load(config.use_chroot);
 #else
             static_service_load(0);
+            static_hosts_load(0);
 #endif            
             static_service_add_to_server();
+            static_service_remove_from_server();
 
             if (resolv_conf_entry_group)
                 avahi_s_entry_group_reset(resolv_conf_entry_group);
@@ -769,8 +774,10 @@ static int run_server(DaemonConfig *c) {
     load_resolv_conf();
 #ifdef ENABLE_CHROOT
     static_service_load(config.use_chroot);
+    static_hosts_load(config.use_chroot);
 #else
     static_service_load(0);
+    static_hosts_load(0);
 #endif
 
     if (!(avahi_server = avahi_server_new(poll_api, &c->server_config, server_callback, c, &error))) {
@@ -804,6 +811,10 @@ finish:
     
     static_service_remove_from_server();
     static_service_free_all();
+
+    static_hosts_remove_from_server();
+    static_hosts_free_all();
+
     remove_dns_server_entry_groups();
     
     simple_protocol_shutdown();

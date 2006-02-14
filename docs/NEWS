@@ -1,3 +1,19 @@
+Avahi 0.6.7
+===========
+
+This release fixes some bugs and adds a few new features
+
+ * Add static hosts name mappings
+ * Work around kernel bugs regarding multicast group membership
+ * ia64 portability fixes
+ * Don't require X11 to run avahi-bookmarks
+ * API: Return AVAHI_ERR_IS_EMPTY when the user tries to commit an
+   empty entry group.
+ * Improved Slackware and Fedora suppport
+
+This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
+0.6.3, 0.6.4, 0.6.5 and 0.6.6
+
 Avahi 0.6.6
 ===========
 

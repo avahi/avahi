@@ -23,7 +23,7 @@ EXTRA_DIST = avahi-daemon.in avahi-dnsconfd.in
 
 initd_SCRIPTS = rc.avahidaemon rc.avahidnsconfd
 
-CLEANFILES = avahi-daemon avahi-dnsconfd
+CLEANFILES = rc.avahidaemon rc.avahidnsconfd
 
 rc.avahidaemon: avahi-daemon.in
 	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@

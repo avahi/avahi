@@ -155,7 +155,8 @@ void static_hosts_load(int in_chroot) {
 
     if (!(f = fopen(filename, "r")))
     {
-        avahi_log_error ("Failed to open static hosts file: %s", strerror (errno));
+        if (errno != ENOENT)
+            avahi_log_error ("Failed to open static hosts file: %s", strerror (errno));
         return;
     }
 

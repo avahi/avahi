@@ -135,9 +135,11 @@
 
     <section name="Files">
       
-      <p><file>@pkgsysconfdir@/avahi-daemon.conf</file>: the default configuration file for avahi-daemon.</p>
+      <p><file>@pkgsysconfdir@/avahi-daemon.conf</file>: the default configuration file for avahi-daemon, <manref name="avahi-daemon.conf" section="5"/> for more information.</p>
 
-      <p><file>@servicedir@/*.service</file>: static service definitions.</p>
+      <p><file>@pkgsysconfdir@/hosts</file>: additional static hostname mappings to publish in mDNS, see <manref name="avahi.hosts" section="5"/> for more information.</p>
+
+      <p><file>@servicedir@/*.service</file>: static service definitions, see <manref name="avahi.service" section="5"/> for more information.</p>
     
     </section>
 
@@ -156,7 +158,7 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-daemon.conf" section="5"/>, <manref name="avahi.service" section="5"/>, <manref name="avahi-dnsconfd" section="8"/>
+        <manref name="avahi-daemon.conf" section="5"/>, <manref name="avahi.hosts" section="5"/>, <manref name="avahi.service" section="5"/>, <manref name="avahi-dnsconfd" section="8"/>
 	  </p>
 	</section>
 	

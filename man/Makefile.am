@@ -27,7 +27,8 @@ man_MANS = \
 	avahi-dnsconfd.8 \
 	avahi-daemon.conf.5 \
 	avahi-dnsconfd.action.8 \
-	avahi.service.5
+	avahi.service.5 \
+	avahi.hosts.5
 
 noinst_DATA = \
 	avahi-browse.1.xml \
@@ -39,7 +40,8 @@ noinst_DATA = \
 	avahi-dnsconfd.8.xml \
 	avahi-daemon.conf.5.xml \
 	avahi-dnsconfd.action.8.xml \
-	avahi.service.5.xml
+	avahi.service.5.xml \
+	avahi.hosts.5.xml
 
 CLEANFILES = \
 	$(noinst_DATA)
@@ -105,6 +107,10 @@ avahi.service.5.xml: avahi.service.5.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+avahi.hosts.5.xml: avahi.hosts.5.xml.in Makefile
+	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
 if USE_XMLTOMAN
 
@@ -140,6 +146,8 @@ avahi-dnsconfd.action.8: avahi-dnsconfd.action.8.xml Makefile
 avahi.service.5: avahi.service.5.xml Makefile
 	xmltoman $< > $@
 
+avahi.hosts.5: avahi.hosts.5.xml Makefile
+	xmltoman $< > $@
 
 xmllint: $(noinst_DATA)
 	for f in $(noinst_DATA) ; do \
@@ -162,6 +170,7 @@ EXTRA_DIST = \
 	avahi-daemon.conf.5.xml.in \
 	avahi-dnsconfd.action.8.xml.in \
 	avahi.service.5.xml.in \
+	avahi.hosts.5.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd

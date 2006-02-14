@@ -83,11 +83,14 @@
 
       <option>
         <p><opt>&lt;host-name&gt;</opt> The host name of the host that
-        provides this service. This should be a host that is resolvable
-        by multicast or unicast DNS. Please note that you need to
-        specify a fully-qualified domain name (FQDN) here, i.e. .local
-        is not appended implicitly! The host name doesn't need to be part of the
-        domain specified in <opt>&lt;domain-name&gt;</opt>.</p>
+        provides this service. This should be a host that is
+        resolvable by multicast or unicast DNS. Please note that you
+        need to specify a fully-qualified domain name (FQDN) here,
+        i.e. .local is not appended implicitly! The host name doesn't
+        need to be part of the domain specified in
+        <opt>&lt;domain-name&gt;</opt>. See <manref name="avahi.hosts"
+        section="5"/> for more information how to publish additional
+        host name mappings.</p>
       </option>
 
       <option>
@@ -108,7 +111,7 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-daemon" section="8"/>
+        <manref name="avahi-daemon" section="8"/>, <manref name="avahi.hosts" section="5"/>
 	  </p>
 	</section>
 	

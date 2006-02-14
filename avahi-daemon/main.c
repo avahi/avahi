@@ -66,6 +66,7 @@
 #include "main.h"
 #include "simple-protocol.h"
 #include "static-services.h"
+#include "static-hosts.h"
 #include "ini-file-parser.h"
 
 #ifdef HAVE_DBUS

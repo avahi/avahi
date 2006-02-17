@@ -91,6 +91,8 @@ test -x $DAEMON || exit 0
 #       Function that starts the daemon/service.
 #
 d_start() {
+    modprobe capability >/dev/null 2>&1 || true
+
     $DAEMON -c
     [ $? = 0 ] && exit 0
 
@@ -150,7 +152,7 @@ case "$1" in
         ;;
     restart|force-reload)
         log_begin_msg "Restarting $DESC: $NAME"
-        d_stop
+        $DAEMON -c && d_stop
         d_start
         log_end_msg $?
         ;;

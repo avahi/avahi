@@ -150,7 +150,7 @@ case "$1" in
         ;;
     reload|restart|force-reload)
         log_begin_msg "Restarting $DESC: $NAME"
-        d_stop
+        $DAEMON -c && d_stop
         d_start
         log_end_msg $?
         ;;

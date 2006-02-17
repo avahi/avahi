@@ -30,7 +30,7 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** A main loop object that runs an AvahiSimplePoll in its own thread. \since 0.6.4 */
+/** \struct AvahiThreadedPoll A main loop object that runs an AvahiSimplePoll in its own thread. \since 0.6.4 */
 typedef struct AvahiThreadedPoll AvahiThreadedPoll;
 
 /** Create a new event loop object. This will allocate the internal

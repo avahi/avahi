@@ -24,7 +24,7 @@
 
 /** \file core.h The Avahi Multicast DNS and DNS Service Discovery implementation. */
 
-/** An mDNS responder object */
+/** \struct AvahiServer An mDNS responder object */
 typedef struct AvahiServer AvahiServer;
 
 #include <avahi-common/cdecl.h>

@@ -40,25 +40,25 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** A domain browser object */
+/** \struct AvahiDomainBrowser A domain browser object */
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
 
-/** A service browser object */
+/** \struct AvahiServiceBrowser A service browser object */
 typedef struct AvahiServiceBrowser AvahiServiceBrowser;
 
-/** A service type browser object */
+/** \struct AvahiServiceTypeBrowser A service type browser object */
 typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 
-/** A service resolver object */
+/** \struct AvahiServiceResolver A service resolver object */
 typedef struct AvahiServiceResolver AvahiServiceResolver;
 
-/** A service resolver object */
+/** \struct AvahiHostNameResolver A service resolver object */
 typedef struct AvahiHostNameResolver AvahiHostNameResolver;
 
-/** An address resolver object */
+/** \struct AvahiAddressResolver An address resolver object */
 typedef struct AvahiAddressResolver AvahiAddressResolver;
 
-/** A record browser object */
+/** \struct AvahiRecordBrowser A record browser object */
 typedef struct AvahiRecordBrowser AvahiRecordBrowser;
 
 /** The function prototype for the callback of an AvahiDomainBrowser */

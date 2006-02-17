@@ -28,7 +28,7 @@
  * service using an embedded mDNS stack. It behaves like a network
  * printer registering both an IPP and a BSD LPR service. */
 
-/** A group of locally registered DNS RRs */
+/** \struct AvahiSEntryGroup A group of locally registered DNS RRs */
 typedef struct AvahiSEntryGroup AvahiSEntryGroup;
 
 #include <avahi-common/cdecl.h>

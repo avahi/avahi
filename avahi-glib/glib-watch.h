@@ -31,7 +31,8 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** GLib main loop adapter. You can safely cast this into a GSource */
+/** \struct AvahiGLibPoll
+ * GLib main loop adapter. You can safely cast this into a GSource */
 typedef struct AvahiGLibPoll AvahiGLibPoll;
 
 /** Create a new GLib main loop adapter attached to the specified

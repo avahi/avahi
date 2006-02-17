@@ -27,25 +27,25 @@
 /** \example core-browse-services.c Example how to browse for DNS-SD
  * services using an embedded mDNS stack. */
 
-/** A browsing object for arbitrary RRs */
+/** \struct AvahiSRecordBrowser A browsing object for arbitrary RRs */
 typedef struct AvahiSRecordBrowser AvahiSRecordBrowser;
 
-/** A host name to IP adddress resolver object */
+/** \struct AvahiSHostNameResolve rA host name to IP adddress resolver object */
 typedef struct AvahiSHostNameResolver AvahiSHostNameResolver;
 
-/** An IP address to host name resolver object ("reverse lookup") */
+/** \struct AvahiSAddressResolver An IP address to host name resolver object ("reverse lookup") */
 typedef struct AvahiSAddressResolver AvahiSAddressResolver;
 
-/** A local domain browsing object. May be used to enumerate domains used on the local LAN */
+/** \struct AvahiSDomainBrowser  A local domain browsing object. May be used to enumerate domains used on the local LAN */
 typedef struct AvahiSDomainBrowser AvahiSDomainBrowser;
 
-/** A DNS-SD service type browsing object. May be used to enumerate the service types of all available services on the local LAN */
+/** \struct AvahiSServiceTypeBrowser A DNS-SD service type browsing object. May be used to enumerate the service types of all available services on the local LAN */
 typedef struct AvahiSServiceTypeBrowser AvahiSServiceTypeBrowser;
 
-/** A DNS-SD service browser. Use this to enumerate available services of a certain kind on the local LAN. Use AvahiSServiceResolver to get specific service data like address and port for a service. */
+/** \struct AvahiSServiceBrowser A DNS-SD service browser. Use this to enumerate available services of a certain kind on the local LAN. Use AvahiSServiceResolver to get specific service data like address and port for a service. */
 typedef struct AvahiSServiceBrowser AvahiSServiceBrowser;
 
-/** A DNS-SD service resolver.  Use this to retrieve addres, port and TXT data for a DNS-SD service */
+/** \struct AvahiSServiceResolver A DNS-SD service resolver.  Use this to retrieve addres, port and TXT data for a DNS-SD service */
 typedef struct AvahiSServiceResolver AvahiSServiceResolver;
 
 #include <avahi-common/cdecl.h>

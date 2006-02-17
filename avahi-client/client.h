@@ -38,7 +38,7 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** A connection context */
+/** \struct AvahiClient A connection context */
 typedef struct AvahiClient AvahiClient;
 
 /** States of a client object, a superset of AvahiServerState */

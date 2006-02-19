@@ -116,6 +116,13 @@
         people this option defaults to "no".</p>
       </option>
 
+      <option>
+        <p><opt>allow-point-to-point=</opt> Takes a boolean value
+        ("yes" or "no"). If set to "yes", avahi-daemon will accept
+	interfaces with the POINTOPOINT flag. This option defaults
+	to "no" as it may be unreliable.</p>
+      </option>
+
 	</section>
 
 	<section name="Section [wide-area]">

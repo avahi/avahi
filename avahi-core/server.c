@@ -1538,6 +1538,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->disallow_other_stacks = 0;
     c->browse_domains = NULL;
     c->disable_publishing = 0;
+    c->allow_point_to_point = 0;
     
     return c;
 }

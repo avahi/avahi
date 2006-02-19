@@ -487,6 +487,8 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.use_ipv6 = is_yes(p->value);
                 else if (strcasecmp(p->key, "check-response-ttl") == 0)
                     c->server_config.check_response_ttl = is_yes(p->value);
+                else if (strcasecmp(p->key, "allow-point-to-point") == 0)
+                    c->server_config.allow_point_to_point = is_yes(p->value);
                 else if (strcasecmp(p->key, "use-iff-running") == 0)
                     c->server_config.use_iff_running = is_yes(p->value);
                 else if (strcasecmp(p->key, "disallow-other-stacks") == 0)

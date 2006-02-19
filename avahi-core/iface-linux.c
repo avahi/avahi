@@ -98,7 +98,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             (!m->server->config.use_iff_running || (ifinfomsg->ifi_flags & IFF_RUNNING)) &&
             !(ifinfomsg->ifi_flags & IFF_LOOPBACK) &&
             (ifinfomsg->ifi_flags & IFF_MULTICAST) &&
-            !(ifinfomsg->ifi_flags & IFF_POINTOPOINT);
+            (m->server->config.allow_point_to_point || !(ifinfomsg->ifi_flags & IFF_POINTOPOINT));
 
         /* Handle interface attributes */
         l = NLMSG_PAYLOAD(n, sizeof(struct ifinfomsg));

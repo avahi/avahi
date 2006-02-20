@@ -221,10 +221,6 @@ void static_hosts_load(int in_chroot) {
 
 void static_hosts_free_all (void)
 {
-    StaticHost *h;
-
-    for (h = hosts; h; h = hosts->hosts_next)
-    {
-        static_host_free (h);
-    }
+    while(hosts)
+        static_host_free(hosts);
 }

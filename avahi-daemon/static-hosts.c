@@ -171,46 +171,52 @@ void static_hosts_load(int in_chroot) {
 
         line++;
 
-		/* Find the start of the line, ignore whitespace */
-		s = ln + strspn(ln, " \t");
-		/* Set the end of the string to NULL */
-		s[strcspn(s, "#\r\n")] = 0;
+        /* Find the start of the line, ignore whitespace */
+        s = ln + strspn(ln, " \t");
+        /* Set the end of the string to NULL */
+        s[strcspn(s, "#\r\n")] = 0;
 
-		/* Ignore comment (#) and blank lines (*/
-		if (*s == '#' || *s == 0)
-			continue;
+        /* Ignore comment (#) and blank lines (*/
+        if (*s == '#' || *s == 0)
+            continue;
 
-		/* Read the first string (ip) up to the next whitespace */
-		len = strcspn(s, " \t");
-		ip = avahi_strndup(s, len);
+        /* Read the first string (ip) up to the next whitespace */
+        len = strcspn(s, " \t");
+        ip = avahi_strndup(s, len);
 
-		/* Skip past it */
-		s += len;
+        /* Skip past it */
+        s += len;
 
-		/* Find the next token */
-		s += strspn(s, " \t");
-		len = strcspn(s, " \t");
-		host = avahi_strndup(s, len);
+        /* Find the next token */
+        s += strspn(s, " \t");
+        len = strcspn(s, " \t");
+        host = avahi_strndup(s, len);
 
-		if (*host == 0)
-		{
-			avahi_log_error ("%s:%d: Error, unexpected end of line!", filename, line);
-            break;
-		}
+        if (*host == 0)
+        {
+            avahi_log_error("%s:%d: Error, unexpected end of line!", filename, line);
+            avahi_free(host);
+            avahi_free(ip);
+	    break;
+        }
 
         /* Skip past any more spaces */
-		s += strspn(s+len, " \t");
+        s += strspn(s+len, " \t");
         
         /* Anything left? */
-		if (*(s+len) != 0) {
-			avahi_log_error ("%s:%d: Junk on the end of the line!", filename, line);
+        if (*(s+len) != 0) {
+            avahi_log_error ("%s:%d: Junk on the end of the line!", filename, line);
+            avahi_free(host);
+            avahi_free(ip);
             break;
-		}
+        }
 
         h = static_host_new();
         h->host = host;
         h->ip = ip;
     }
+
+    fclose(f);
 }
 
 void static_hosts_free_all (void)

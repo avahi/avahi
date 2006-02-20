@@ -176,8 +176,8 @@ void static_hosts_load(int in_chroot) {
         /* Set the end of the string to NULL */
         s[strcspn(s, "#\r\n")] = 0;
 
-        /* Ignore comment (#) and blank lines (*/
-        if (*s == '#' || *s == 0)
+        /* Ignore blank lines */
+        if (*s == 0)
             continue;
 
         /* Read the first string (ip) up to the next whitespace */

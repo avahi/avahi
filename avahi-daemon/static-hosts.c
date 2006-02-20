@@ -200,11 +200,14 @@ void static_hosts_load(int in_chroot) {
 	    break;
         }
 
+        /* Skip over the host */
+        s += len;
+
         /* Skip past any more spaces */
-        s += strspn(s+len, " \t");
+        s += strspn(s, " \t");
         
         /* Anything left? */
-        if (*(s+len) != 0) {
+        if (*s != 0) {
             avahi_log_error ("%s:%d: Junk on the end of the line!", filename, line);
             avahi_free(host);
             avahi_free(ip);

@@ -158,3 +158,6 @@ xmllint:
 	for F in $(introspection_DATA) ; do \
 		xmllint --noout --valid $$F ; \
 	done
+
+install-data-local:
+	test -z "$(localstatedir)/run" || $(mkdir_p) "$(DESTDIR)$(localstatedir)/run"

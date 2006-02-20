@@ -30,7 +30,7 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** \struct AvahiSimplePoll A main loop object. Main loops of this type aren't very flexible
+/** A main loop object. Main loops of this type aren't very flexible
  * since they only support a single wakeup type. Nevertheless it
  * should suffice for small test and example applications.  */
 typedef struct AvahiSimplePoll AvahiSimplePoll;

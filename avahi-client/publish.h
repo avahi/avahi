@@ -41,7 +41,7 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** \struct AvahiEntryGroup An entry group object */
+/** An entry group object */
 typedef struct AvahiEntryGroup AvahiEntryGroup;
 
 /** The function prototype for the callback of an AvahiEntryGroup */

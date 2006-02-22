@@ -302,7 +302,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
             continue;
 
         if (!avahi_dns_packet_append_record(p, pj->record, 0, 0)) {
-            avahi_log_warn("Bad probe size estimate!");
+/*             avahi_log_warn("Bad probe size estimate!"); */
 
             /* Unmark all following jobs */
             for (; pj; pj = pj->jobs_next)

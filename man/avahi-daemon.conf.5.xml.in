@@ -106,7 +106,7 @@
 
       <option>
         <p><opt>disallow-other-stacks=</opt> Takes a boolean value
-        ("yes" or "no"). If set to "yes", no other process is allowed
+        ("yes" or "no"). If set to "yes" no other process is allowed
         to bind to UDP port 5353. This effectively impedes other mDNS
         stacks from running on the host. Use this as a security
         measure to make sure that only Avahi is responsible for mDNS
@@ -118,16 +118,20 @@
 
       <option>
         <p><opt>allow-point-to-point=</opt> Takes a boolean value
-        ("yes" or "no"). If set to "yes", avahi-daemon will accept
-	interfaces with the POINTOPOINT flag. This option defaults
-	to "no" as it may be unreliable.</p>
+        ("yes" or "no"). If set to "yes" avahi-daemon will make use of
+        interfaces with the POINTOPOINT flag set. This option defaults
+        to "no" as it might make mDNS unreliable due to usually large
+        latencies with such links and opens a potential security hole
+        by allowing mDNS access from Internet connections. Use with
+        care and YMMV!</p>
       </option>
 
 	</section>
 
 	<section name="Section [wide-area]">
       <option>
-        <p><opt>enable-wide-area=</opt> Enable wide-area DNS-SD, aka
+        <p><opt>enable-wide-area=</opt> Takes a boolean value
+        ("yes" or "no"). Enable wide-area DNS-SD, aka
         DNS-SD over unicast DNS. If this is enabled only domains
         ending in .local will be resolved on mDNS, all other domains
         are resolved via unicast DNS. If you want to maintain multiple

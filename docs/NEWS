@@ -1,13 +1,13 @@
 Avahi 0.6.8
 ===========
 
-This release fixes some bugs and adds a few new features. Please
-update ASAP if you where using version 0.6.7.
+This release fixes some bugs and adds a few new features. Users of 0.6.7,
+please update ASAP!
 
  * Fix broken parsing of static hosts file 
  * Improve out-of-the-box Debian support
- * Add option to allow mDNS over POINTOPOINT links.
-   This is a potential security hole and YMMV.
+ * Add configuration option to allow mDNS over POINTOPOINT links.
+   This is a potential security hole and YMMV. See man page for details.
  * Create $(localstatedir)/run on installation
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,

@@ -1,5 +1,7 @@
 dnl @synopsis ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 dnl
+dnl @summary figure out how to build C programs using POSIX threads
+dnl
 dnl This macro figures out how to build C programs using POSIX threads.
 dnl It sets the PTHREAD_LIBS output variable to the threads library and
 dnl linker flags, and the PTHREAD_CFLAGS output variable to any special
@@ -41,12 +43,8 @@ dnl We are also grateful for the helpful feedback of numerous users.
 dnl
 dnl @category InstalledPackages
 dnl @author Steven G. Johnson <stevenj@alum.mit.edu>
-dnl @version 2005-01-14
+dnl @version 2005-06-15
 dnl @license GPLWithACException
-dnl 
-dnl Checks for GCC shared/pthread inconsistency based on work by
-dnl Marcin Owsiany <marcin@owsiany.pl>
-
 
 AC_DEFUN([ACX_PTHREAD], [
 AC_REQUIRE([AC_CANONICAL_HOST])
@@ -104,6 +102,7 @@ acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -m
 # -mt: Sun Workshop C (may only link SunOS threads [-lthread], but it
 #      doesn't hurt to check since this sometimes defines pthreads too;
 #      also defines -D_REENTRANT)
+#      ... -mt is also the pthreads flag for HP/aCC
 # pthread: Linux, etcetera
 # --thread-safe: KAI C++
 # pthread-config: use pthread-config program (for GNU Pth library)
@@ -113,13 +112,13 @@ case "${host_cpu}-${host_os}" in
 
         # On Solaris (at least, for some versions), libc contains stubbed
         # (non-functional) versions of the pthreads routines, so link-based
-        # tests will erroneously succeed.  (We need to link with -pthread or
+        # tests will erroneously succeed.  (We need to link with -pthreads/-mt/
         # -lpthread.)  (The stubs are missing pthread_cleanup_push, or rather
         # a function called by this macro, so we could check for that, but
         # who knows whether they'll stub that too in a future libc.)  So,
         # we'll just look for -pthreads and -lpthread first:
 
-        acx_pthread_flags="-pthread -pthreads pthread -mt $acx_pthread_flags"
+        acx_pthread_flags="-pthreads pthread -mt -pthread $acx_pthread_flags"
         ;;
 esac
 
@@ -193,7 +192,7 @@ if test "x$acx_pthread_ok" = xyes; then
 	AC_MSG_CHECKING([for joinable pthread attribute])
 	attr_name=unknown
 	for attr in PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_UNDETACHED; do
-	    AC_TRY_LINK([#include <pthread.h>], [int attr=$attr;],
+	    AC_TRY_LINK([#include <pthread.h>], [int attr=$attr; return attr;],
                         [attr_name=$attr; break])
 	done
         AC_MSG_RESULT($attr_name)
@@ -219,107 +218,6 @@ if test "x$acx_pthread_ok" = xyes; then
 
         # More AIX lossage: must compile with cc_r
         AC_CHECK_PROG(PTHREAD_CC, cc_r, cc_r, ${CC})
-
-   # The next part tries to detect GCC inconsistency with -shared on some
-   # architectures and systems. The problem is that in certain
-   # configurations, when -shared is specified, GCC "forgets" to
-   # internally use various flags which are still necessary.
-   
-   # First, check whether caller wants us to skip -shared checks
-   # this is useful
-   AC_MSG_CHECKING([whether to check for GCC pthread/shared inconsistencies])
-   if test x"$3" = x1; then
-      AC_MSG_RESULT([no])
-   else
-      AC_MSG_RESULT([yes])
-
-      # In order not to create several levels of indentation, we test
-      # the value of "$ok" until we find out the cure or run out of
-      # ideas.
-      ok="no"
-
-      #
-      # Prepare the flags
-      #
-      save_CFLAGS="$CFLAGS"
-      save_LIBS="$LIBS"
-      save_CC="$CC"
-      # Try with the flags determined by the earlier checks.
-      #
-      # -Wl,-z,defs forces link-time symbol resolution, so that the
-      # linking checks with -shared actually have any value
-      #
-      # FIXME: -fPIC is required for -shared on many architectures,
-      # so we specify it here, but the right way would probably be to
-      # properly detect whether it is actually required.
-      CFLAGS="-shared -fPIC -Wl,-z,defs $CFLAGS $PTHREAD_CFLAGS"
-      LIBS="$PTHREAD_LIBS $LIBS"
-      CC="$PTHREAD_CC"
-
-      AC_MSG_CHECKING([whether -pthread is sufficient with -shared])
-      AC_TRY_LINK([#include <pthread.h>],
-         [pthread_t th; pthread_join(th, 0);
-         pthread_attr_init(0); pthread_cleanup_push(0, 0);
-         pthread_create(0,0,0,0); pthread_cleanup_pop(0); ],
-         [ok=yes])
-      
-      if test "x$ok" = xyes; then
-         AC_MSG_RESULT([yes])
-      else
-         AC_MSG_RESULT([no])
-      fi
-   
-      #
-      # Linux gcc on some architectures such as mips/mipsel forgets
-      # about -lpthread
-      #
-      if test x"$ok" = xno; then
-         AC_MSG_CHECKING([whether -lpthread fixes that])
-         LIBS="-lpthread $PTHREAD_LIBS $save_LIBS"
-         AC_TRY_LINK([#include <pthread.h>],
-            [pthread_t th; pthread_join(th, 0);
-            pthread_attr_init(0); pthread_cleanup_push(0, 0);
-            pthread_create(0,0,0,0); pthread_cleanup_pop(0); ],
-            [ok=yes])
-   
-         if test "x$ok" = xyes; then
-            AC_MSG_RESULT([yes])
-            PTHREAD_LIBS="-lpthread $PTHREAD_LIBS"
-         else
-            AC_MSG_RESULT([no])
-         fi
-      fi
-      #
-      # FreeBSD 4.10 gcc forgets to use -lc_r instead of -lc
-      #
-      if test x"$ok" = xno; then
-         AC_MSG_CHECKING([whether -lc_r fixes that])
-         LIBS="-lc_r $PTHREAD_LIBS $save_LIBS"
-         AC_TRY_LINK([#include <pthread.h>],
-             [pthread_t th; pthread_join(th, 0);
-              pthread_attr_init(0); pthread_cleanup_push(0, 0);
-              pthread_create(0,0,0,0); pthread_cleanup_pop(0); ],
-             [ok=yes])
-   
-         if test "x$ok" = xyes; then
-            AC_MSG_RESULT([yes])
-            PTHREAD_LIBS="-lc_r $PTHREAD_LIBS"
-         else
-            AC_MSG_RESULT([no])
-         fi
-      fi
-      if test x"$ok" = xno; then
-         # OK, we have run out of ideas
-         AC_MSG_WARN([Impossible to determine how to use pthreads with shared libraries])
-
-         # so it's not safe to assume that we may use pthreads
-         acx_pthread_ok=no
-      fi
-
-      CFLAGS="$save_CFLAGS"
-      LIBS="$save_LIBS"
-      CC="$save_CC"
-   fi
 else
         PTHREAD_CC="$CC"
 fi

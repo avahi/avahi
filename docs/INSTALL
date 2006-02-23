@@ -20,11 +20,12 @@ Some configure options available:
     Please note that by disabling DBUS you lose the ability to publish and browse
     services from local applications.
 
-    Please note that only the Debian init script is currently up-to-date. 
-    YMMV on other distributions. Patches welcome!
+    Please note that Avahi currently ships with a init scripts for only a few
+    distributions. if yours is not supported right now, YMMV. Patches welcome.
 
 	$ make
 	# make install
+	# ldconfig
 
 Add a user an a group for avahi. (Debian specific)
 	# addgroup --system avahi

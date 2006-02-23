@@ -32,6 +32,7 @@
 #include <sys/un.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
@@ -470,7 +471,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
 
     unlink(AVAHI_SOCKET);
     
-    if (bind(server->fd, &sa, sizeof(sa)) < 0) {
+    if (bind(server->fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
         avahi_log_warn("bind(): %s", strerror(errno));
         goto fail;
     }

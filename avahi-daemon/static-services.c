@@ -613,7 +613,7 @@ static int static_service_group_load(StaticServiceGroup *g) {
         }
 
         if (!XML_ParseBuffer(parser, n, n == 0)) {
-            avahi_log_error("XML_ParseBuffer() failed at line %d: %s.\n", XML_GetCurrentLineNumber(parser), XML_ErrorString(XML_GetErrorCode(parser)));
+            avahi_log_error("XML_ParseBuffer() failed at line %d: %s.\n", (int) XML_GetCurrentLineNumber(parser), XML_ErrorString(XML_GetErrorCode(parser)));
             goto finish;
         }
 

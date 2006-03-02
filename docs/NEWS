@@ -1,3 +1,16 @@
+Avahi 0.6.9
+===========
+
+This release fixes some bugs and includes minor enhancements.
+
+ * Don't allow registration of address records with invalid host names
+ * Clean up argument validity checking for AvahiHostNameResolver and 
+   AvahiAddressResolver
+ * Fix Avahi builds without DBUS
+
+This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
+0.6.3, 0.6.4, 0.6.5, 0.6.6, 0.6.7 and 0.6.8.
+
 Avahi 0.6.8
 ===========
 
@@ -27,7 +40,7 @@ This release fixes some bugs and adds a few new features
  * Improved Slackware and Fedora suppport
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
-0.6.3, 0.6.4, 0.6.5 and 0.6.6
+0.6.3, 0.6.4, 0.6.5 and 0.6.6.
 
 Avahi 0.6.6
 ===========
@@ -46,7 +59,7 @@ This release fixes some bugs and includes some documentation updates
    existing service
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
-0.6.3, 0.6.4 and 0.6.5
+0.6.3, 0.6.4 and 0.6.5.
 
 Avahi 0.6.5
 ===========

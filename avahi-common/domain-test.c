@@ -111,6 +111,15 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(avahi_normalize_name(".", t, sizeof(t)));
     assert(avahi_normalize_name("", t, sizeof(t)));
 
+    assert(!avahi_is_valid_fqdn("."));
+    assert(!avahi_is_valid_fqdn(""));
+    assert(!avahi_is_valid_fqdn("foo"));
+    assert(avahi_is_valid_fqdn("foo.bar"));
+    assert(avahi_is_valid_fqdn("foo.bar."));
+    assert(avahi_is_valid_fqdn("gnurz.foo.bar."));
+    assert(!avahi_is_valid_fqdn("192.168.50.1"));
+    assert(!avahi_is_valid_fqdn("::1"));
+    assert(!avahi_is_valid_fqdn(".192.168.50.1."));
     
     return 0;
 }

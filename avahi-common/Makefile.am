@@ -81,12 +81,14 @@ alternative_test_SOURCES = \
 	alternative.c alternative.h \
 	malloc.c malloc.h \
 	domain.c domain.h \
+	address.c address.h \
 	alternative-test.c
 alternative_test_CFLAGS = $(AM_CFLAGS)
 
 domain_test_SOURCES = \
 	domain.c domain.h \
 	malloc.c malloc.h \
+	address.c address.h \
 	domain-test.c
 domain_test_CFLAGS = $(AM_CFLAGS)
 

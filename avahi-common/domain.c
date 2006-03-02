@@ -36,6 +36,7 @@
 #include "domain.h"
 #include "malloc.h"
 #include "error.h"
+#include "address.h"
 
 /* Read the first label from string *name, unescape "\" and write it to dest */
 char *avahi_unescape_label(const char **name, char *dest, size_t size) {
@@ -569,3 +570,38 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
     return 0;
 }
 
+int avahi_is_valid_fqdn(const char *t) {
+    char label[AVAHI_LABEL_MAX];
+    char normalized[AVAHI_DOMAIN_NAME_MAX];
+    const char *k = t;
+    AvahiAddress a;
+    assert(t);
+
+    if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX)
+        return 0;
+
+    if (!avahi_is_valid_domain_name(t))
+        return 0;
+
+    /* Check if there are at least two labels*/
+    if (!(avahi_unescape_label(&k, label, sizeof(label))))
+        return 0;
+
+    if (label[0] == 0 || !k)
+        return 0;
+
+    if (!(avahi_unescape_label(&k, label, sizeof(label))))
+        return 0;
+
+    if (label[0] == 0 || !k)
+        return 0;
+
+    /* Make sure that the name is not an IP address */
+    if (!(avahi_normalize_name(t, normalized, sizeof(normalized))))
+        return 0;
+    
+    if (avahi_address_parse(normalized, AVAHI_PROTO_UNSPEC, &a))
+        return 0;
+
+    return 1;
+}

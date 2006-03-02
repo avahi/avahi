@@ -6,7 +6,8 @@
 opts="${opts} reload"
 
 depend() {
-	use net dbus
+	use net
+	need dbus
 }
 
 start() {

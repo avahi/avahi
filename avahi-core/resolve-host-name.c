@@ -220,22 +220,11 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     assert(host_name);
     assert(callback);
 
-    assert(aprotocol == AVAHI_PROTO_UNSPEC || aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_INET6);
-
-    if (!AVAHI_IF_VALID(interface)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_INTERFACE);
-        return NULL;
-    }
-
-    if (!avahi_is_valid_domain_name(host_name)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_HOST_NAME);
-        return NULL;
-    }
-
-    if (!AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
-        return NULL;
-    }
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_is_valid_domain_name(host_name), AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(aprotocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
 
     if (!(r = avahi_new(AvahiSHostNameResolver, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
@@ -258,7 +247,6 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     AVAHI_LLIST_PREPEND(AvahiSHostNameResolver, resolver, server->host_name_resolvers, r);
 
     r->record_browser_aaaa = r->record_browser_a = NULL;
-
 
     if (aprotocol == AVAHI_PROTO_INET || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A);

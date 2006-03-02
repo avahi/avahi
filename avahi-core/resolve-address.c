@@ -193,18 +193,11 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     assert(address);
     assert(callback);
 
-    assert(address->proto == AVAHI_PROTO_INET || address->proto == AVAHI_PROTO_INET6);
-
-    if (!AVAHI_IF_VALID(interface)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_INTERFACE);
-        return NULL;
-    }
-
-    if (!AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST)) {
-        avahi_server_set_errno(server, AVAHI_ERR_INVALID_FLAGS);
-        return NULL;
-    }
-
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, address->proto == AVAHI_PROTO_INET || address->proto == AVAHI_PROTO_INET6, AVAHI_ERR_INVALID_PROTOCOL);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    
     avahi_reverse_lookup_name(address, n, sizeof(n));
 
     if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR))) {

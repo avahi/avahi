@@ -21,6 +21,7 @@
 
 import gdbm
 import locale
+import re
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -64,6 +65,17 @@ class ServiceTypeDatabase:
                 pass
 
         raise KeyError()
+
+    def items(self):
+
+        items = []
+        key = self.db.firstkey()
+        while key is not None:
+            if re.search('_\w*\._\w*', key) and not re.search('_\w*\._\w*\[.*\]', key):
+                localized_service_name = self[key]
+                items.append((key, localized_service_name))
+            key = self.db.nextkey(key)
+        return items
 
     def has_key(self, key):
 

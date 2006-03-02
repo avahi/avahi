@@ -66,11 +66,11 @@ static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGro
             break;
 
         case AVAHI_ENTRY_GROUP_ESTABLISHED:
-            avahi_log_notice ("Static Host \"%s\" successfully established.", h->host);
+            avahi_log_notice ("Static host name \"%s\" successfully established.", h->host);
             break;
 
         case AVAHI_ENTRY_GROUP_FAILURE:
-            avahi_log_notice ("Failed to establish Static Host \"%s\": %s.", h->host, avahi_strerror (avahi_server_errno (s)));
+            avahi_log_notice ("Failed to establish static host name \"%s\": %s.", h->host, avahi_strerror (avahi_server_errno (s)));
             break;
         
         case AVAHI_ENTRY_GROUP_UNCOMMITED:
@@ -115,12 +115,12 @@ static void add_static_host_to_server(StaticHost *h)
         h->group = avahi_s_entry_group_new (avahi_server, entry_group_callback, h);
 
     if (!avahi_address_parse (h->ip, AVAHI_PROTO_UNSPEC, &a)) {
-        avahi_log_error("Static host %s: avahi_address_parse failed", h->host);
+        avahi_log_error("Static host name %s: avahi_address_parse failed", h->host);
         return;
     }
 
     if ((err = avahi_server_add_address(avahi_server, h->group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, h->host, &a))) {
-        avahi_log_error ("Static host %s: avahi_server_add_address failure: %s", h->host, avahi_strerror(err));
+        avahi_log_error ("Static host name %s: avahi_server_add_address failure: %s", h->host, avahi_strerror(err));
         return;
     }
 

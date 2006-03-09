@@ -52,15 +52,22 @@ namespace Avahi
     public class ClientStateArgs : EventArgs
     {
         private ClientState state;
+        private ErrorCode error;
 
         public ClientState State
         {
             get { return state; }
         }
 
-        public ClientStateArgs (ClientState state)
+        public ErrorCode Error
+        {
+            get { return error; }
+        }
+
+        public ClientStateArgs (ClientState state, ErrorCode error)
         {
             this.state = state;
+            this.error = error;
         }
     }
     
@@ -349,7 +356,7 @@ namespace Avahi
         private void OnClientCallback (IntPtr client, ClientState state, IntPtr userData)
         {
             if (StateChanged != null)
-                StateChanged (this, new ClientStateArgs (state));
+                StateChanged (this, new ClientStateArgs (state, LastError));
         }
 
         private int OnPollCallback (IntPtr ufds, uint nfds, int timeout) {

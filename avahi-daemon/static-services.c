@@ -655,6 +655,7 @@ static void load_file(char *n) {
 void static_service_load(int in_chroot) {
     StaticServiceGroup *g, *n;
     glob_t globbuf;
+    int globret;
     char **p;
 
     for (g = groups; g; g = n) {
@@ -681,8 +682,20 @@ void static_service_load(int in_chroot) {
     }
 
     memset(&globbuf, 0, sizeof(globbuf));
-    if (glob(in_chroot ? "/services/*.service" : AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf) != 0)
-        avahi_log_error("Failed to read service directory.");
+    if ((globret = glob(in_chroot ? "/services/*.service" : AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf)) != 0)
+        switch (globret) {
+	    case GLOB_NOSPACE:
+	        avahi_log_error("Not enough memory to read service directory.");
+	        break;
+
+	    case GLOB_ABORTED:
+	        avahi_log_error("Failed to read %s.", AVAHI_SERVICE_DIR);
+	        break;
+
+            case GLOB_NOMATCH:
+	        avahi_log_error("No service found in %s.", AVAHI_SERVICE_DIR);
+	        break;
+	        }
     else {
         for (p = globbuf.gl_pathv; *p; p++)
             load_file(*p);

@@ -513,7 +513,7 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
             pkti->ipi_spec_dst.s_addr = src_address->address;
 
         msg.msg_control = cmsg_data;
-        msg.msg_controllen = sizeof(cmsg_data);
+        msg.msg_controllen = CMSG_SPACE(sizeof(struct in_pktinfo));
     }
 #elif defined(IP_SENDSRCADDR)
     if (src_address) {
@@ -529,7 +529,7 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
 	addr->s_addr =  src_address->address;
 	
 	msg.msg_control = cmsg_data;
-	msg.msg_controllen = sizeof(cmsg_data);
+	msg.msg_controllen = CMSG_SPACE(sizeof(struct in_addr));
     }
 #elif defined(IP_MULTICAST_IF)
     {
@@ -592,7 +592,7 @@ int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
             memcpy(&pkti->ipi6_addr, src_address->address, sizeof(src_address->address));
         
         msg.msg_control = cmsg_data;
-        msg.msg_controllen = sizeof(cmsg_data);
+        msg.msg_controllen = CMSG_SPACE(sizeof(struct in6_pktinfo));
     } else {
         msg.msg_control = NULL;
         msg.msg_controllen = 0;

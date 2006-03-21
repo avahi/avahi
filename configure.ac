@@ -565,7 +565,7 @@ if test "x$HAVE_DBUS" = "xyes" ; then
     if test "x$HAVE_MONO" = "xyes" ; then
         AC_PATH_PROG(MCS, mcs)
         if test "x$MCS" = "x" ; then
-            AC_MSG_ERROR([Can not find "mcs" in your PATH])
+            AC_MSG_ERROR([Can not find "mcs" - The Mono C-Sharp Compiler) in your PATH])
         fi
 
         AC_PATH_PROG(GACUTIL, gacutil)

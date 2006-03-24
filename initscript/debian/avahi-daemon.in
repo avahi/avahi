@@ -93,8 +93,7 @@ test -x $DAEMON || exit 0
 d_start() {
     modprobe capability >/dev/null 2>&1 || true
 
-    $DAEMON -c
-    [ $? = 0 ] && exit 0
+    $DAEMON -c && return 0
 
     if [ -s /etc/localtime ]; then
 	if [ ! -d /etc/avahi/etc ]; then
@@ -110,28 +109,21 @@ d_start() {
 #       Function that stops the daemon/service.
 #
 d_stop() {
-    $DAEMON -c
-    [ $? != 0 ] && exit 0
-
-    $DAEMON -k
+    $DAEMON -c && $DAEMON -k
 }
 
 #
 #       Function that reload the config file for the daemon/service.
 #
 d_reload() {
-    $DAEMON -c
-    [ $? != 0 ] && exit 0
-
-    $DAEMON -r
+    $DAEMON -c && $DAEMON -r
 }
 
 #
 #       Function that check the status of the daemon/service.
 #
 d_status() {
-    $DAEMON -c
-    [ $? = 0 ]  && echo "$DESC is running" || echo "$DESC is not running"
+    $DAEMON -c && echo "$DESC is running" || echo "$DESC is not running"
 }
 
 case "$1" in

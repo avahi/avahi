@@ -693,7 +693,7 @@ void static_service_load(int in_chroot) {
 	        break;
 
             case GLOB_NOMATCH:
-	        avahi_log_error("No service found in %s.", AVAHI_SERVICE_DIR);
+	        avahi_log_info("No service found in %s.", AVAHI_SERVICE_DIR);
 	        break;
 	        }
     else {

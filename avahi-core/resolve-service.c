@@ -131,7 +131,7 @@ static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
                 r->service_name,
                 r->service_type,
                 r->domain_name,
-                r->address_record ? r->address_record->key->name : r->srv_record->data.srv.name,
+                r->srv_record->data.srv.name,
                 r->address_record ? &a : NULL,
                 r->srv_record->data.srv.port,
                 r->txt_record ? r->txt_record->data.txt.string_list : NULL,

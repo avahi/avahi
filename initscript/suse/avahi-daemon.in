@@ -17,6 +17,15 @@ case "$1" in
     start)
         echo -n "Starting Avahi daemon"
         /sbin/startproc $AVAHI_BIN -D
+	rc_check
+	for (( n=0 ; n<10 ; n++ )) ; do
+	    if test -f /var/run/avahi-daemon/pid ; then
+		break
+	    else
+		echo -n "."
+		sleep 1
+	    fi
+	done
 	rc_status -v
         ;;
     stop)

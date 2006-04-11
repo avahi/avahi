@@ -107,3 +107,5 @@ _lobby._tcp:Gobby Collaborative Editor Session
 _dpap._tcp:Digital Photo Sharing
 
 _skype._tcp:Skype VoIP
+
+_airport._tcp:Apple AirPort

@@ -236,11 +236,15 @@ namespace Avahi
         private void AddService (int iface, Protocol proto, PublishFlags flags, string name, string type,
                                  string domain, string host, UInt16 port, IntPtr list)
         {
-            int ret = avahi_entry_group_add_service_strlst (handle, iface, proto, flags,
+            int ret;
+
+            lock (client) {
+                ret = avahi_entry_group_add_service_strlst (handle, iface, proto, flags,
                                                             Utility.StringToBytes (name),
                                                             Utility.StringToBytes (type),
                                                             Utility.StringToBytes (domain),
                                                             Utility.StringToBytes (host), port, list);
+            }
             
             avahi_string_list_free (list);
             

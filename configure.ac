@@ -280,19 +280,12 @@ AC_ARG_ENABLE(qt3,
         [case "${enableval}" in
                 yes) HAVE_QT3=yes ;;
                 no)  HAVE_QT3=no ;;
-                auto)  HAVE_QT3=auto ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt3) ;;
         esac],
         [HAVE_QT3=yes])
 
-if test "x$HAVE_QT3" = "xauto" ; then
-        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ], [ HAVE_QT3="yes"], [ HAVE_QT3="no" && AC_MSG_RESULT([no]) ])
-else if test "x$HAVE_QT3" = "xyes" ; then
-        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])
-     fi
-fi
-
 if test "x$HAVE_QT3" = "xyes" ; then
+        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])
         AC_SUBST(QT3_CFLAGS)
         AC_SUBST(QT3_LIBS)
 	    QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
@@ -312,19 +305,12 @@ AC_ARG_ENABLE(qt4,
         [case "${enableval}" in
                 yes) HAVE_QT4=yes ;;
                 no)  HAVE_QT4=no ;;
-                auto)  HAVE_QT4=auto ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt4) ;;
         esac],
         [HAVE_QT4=yes])
 
-if test "x$HAVE_QT4" = "xauto" ; then
-        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ], [ HAVE_QT4="yes"], [ HAVE_QT4="no" && AC_MSG_RESULT([no]) ])
-else if test "x$HAVE_QT4" = "xyes" ; then
-        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ])
-     fi
-fi
-
 if test "x$HAVE_QT4" = "xyes" ; then
+        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ])
         AC_SUBST(QT4_CFLAGS)
         AC_SUBST(QT4_LIBS)
 	    QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"

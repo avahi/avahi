@@ -515,7 +515,7 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p) {
         AvahiKey *k;
         
         if (!(k = avahi_dns_packet_consume_key(p, NULL))) {
-            avahi_log_warn(__FILE__": Wide area response packet too short.");
+            avahi_log_warn(__FILE__": Wide area response packet too short or invalid while reading question key. (Maybe an UTF8 problem?)");
             avahi_server_set_errno(e->server, AVAHI_ERR_INVALID_PACKET);
             final_event = AVAHI_BROWSER_FAILURE;
             goto finish;
@@ -532,7 +532,7 @@ static void handle_packet(AvahiWideAreaLookupEngine *e, AvahiDnsPacket *p) {
         AvahiRecord *rr;
 
         if (!(rr = avahi_dns_packet_consume_record(p, NULL))) {
-            avahi_log_warn(__FILE__": Wide area response packet too short (2).");
+            avahi_log_warn(__FILE__": Wide area response packet too short or invalid while reading response ecord. (Maybe an UTF8 problem?)");
             avahi_server_set_errno(e->server, AVAHI_ERR_INVALID_PACKET);
             final_event = AVAHI_BROWSER_FAILURE;
             goto finish;

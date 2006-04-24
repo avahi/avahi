@@ -569,7 +569,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
         int unicast_response = 0;
 
         if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
-            avahi_log_warn("Packet too short (1)");
+            avahi_log_warn(__FILE__": Packet too short or invalid while reading question key. (Maybe an UTF8 problem?)");
             goto fail;
         }
 
@@ -596,7 +596,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             int unique = 0;
             
             if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-                avahi_log_warn("Packet too short (2)");
+                avahi_log_warn(__FILE__": Packet too short or invalid while reading known answer record. (Maybe an UTF8 problem?)");
                 goto fail;
             }
             
@@ -615,7 +615,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             int unique = 0;
             
             if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-                avahi_log_warn("Packet too short (3)");
+                avahi_log_warn(__FILE__": Packet too short or invalid while reading probe record. (Maybe an UTF8 problem?)");
                 goto fail;
             }
             
@@ -653,7 +653,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 /*         char *txt; */
         
         if (!(record = avahi_dns_packet_consume_record(p, &cache_flush))) {
-            avahi_log_warn("Packet too short (4)");
+            avahi_log_warn(__FILE__": Packet too short or invalid while reading response record. (Maybe an UTF8 problem?)");
             break;
         }
 

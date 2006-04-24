@@ -42,7 +42,10 @@ static void strip_bad_chars(char *s) {
     s[strcspn(s, ".")] = 0;
     
     for (p = s, d = s; *p; p++) 
-        if (isalnum(*p) || *p == '-')
+        if ((*p >= 'a' && *p <= 'z') ||
+            (*p >= 'A' && *p <= 'Z') ||
+            (*p >= '0' && *p <= '9') ||
+            *p == '-')
             *(d++) = *p;
 
     *d = 0;

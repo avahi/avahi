@@ -202,8 +202,18 @@ static char *concat_dns_servers(AvahiIfIndex interface) {
     
     for (i = servers; i; i = i->servers_next)
         if (i->interface == interface || interface <= 0) {
+            DNSServerInfo *j;
             char *t;
 
+            /* Filter out double entries */
+            for (j = servers; j != i; j = j->servers_next)
+                if (j->interface == interface || interface <= 0)
+                    if (strcmp(i->address, j->address) == 0)
+                        break;
+
+            if (j != i)
+                continue;
+            
             if (!r)
                 t = avahi_strdup(i->address);
             else

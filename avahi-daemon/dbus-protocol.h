@@ -22,7 +22,7 @@
   USA.
 ***/
 
-int dbus_protocol_setup(const AvahiPoll *poll_api, int disable_user_service_publishing);
+int dbus_protocol_setup(const AvahiPoll *poll_api, int disable_user_service_publishing, int force);
 void dbus_protocol_shutdown(void);
 void dbus_protocol_server_state_changed(AvahiServerState state);
 

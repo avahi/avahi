@@ -48,6 +48,7 @@
 #include <avahi-common/alternative.h>
 #include <avahi-common/error.h>
 #include <avahi-common/domain.h>
+#include <avahi-common/timeval.h>
 
 #include <avahi-core/log.h>
 #include <avahi-core/core.h>
@@ -61,9 +62,14 @@
 
 /* #define VALGRIND_WORKAROUND 1 */
 
+#define RECONNECT_MSEC 3000
+
 Server *server = NULL;
 
 static int disable_user_service_publishing = 0;
+
+static int dbus_connect(void);
+static void dbus_disconnect(void);
 
 static void client_free(Client *c) {
     
@@ -156,6 +162,20 @@ static Client *client_get(const char *name, int create) {
     return client;
 }
 
+static void reconnect_callback(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
+    assert(!server->bus);
+
+    if (dbus_connect() < 0) {
+        struct timeval tv;
+        avahi_log_debug(__FILE__": Connection failed, retrying in %ims...", RECONNECT_MSEC);
+        avahi_elapse_time(&tv, RECONNECT_MSEC, 0);
+        server->poll_api->timeout_update(t, &tv);
+    } else {
+        avahi_log_debug(__FILE__": Successfully reconnected.");
+        server->poll_api->timeout_update(t, NULL);
+    }
+}
+
 static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata) {
     DBusError error;
 
@@ -167,12 +187,24 @@ static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection 
 /*                     dbus_message_get_member(m)); */
 
     if (dbus_message_is_signal(m, DBUS_INTERFACE_LOCAL, "Disconnected")) {
-        /* No, we shouldn't quit, but until we get somewhere
-         * usefull such that we can restore our state, we will */
-        avahi_log_warn("Disconnnected from D-BUS, terminating...");
-        
-        raise(SIGQUIT); /* The signal handler will catch this and terminate the process cleanly*/
-        
+        struct timeval tv;
+
+        if (server->reconnect) {
+            avahi_log_warn("Disconnnected from D-BUS, trying to reconnect in %ims...", RECONNECT_MSEC);
+            
+            dbus_disconnect();
+            
+            avahi_elapse_time(&tv, RECONNECT_MSEC, 0);
+            
+            if (server->reconnect_timeout)
+                server->poll_api->timeout_update(server->reconnect_timeout, &tv);
+            else
+                server->reconnect_timeout = server->poll_api->timeout_new(server->poll_api, &tv, reconnect_callback, NULL);
+        } else {
+            avahi_log_warn("Disconnnected from D-BUS, exiting.");
+            raise(SIGQUIT);
+        }
+            
         return DBUS_HANDLER_RESULT_HANDLED;
         
     } else if (dbus_message_is_signal(m, DBUS_INTERFACE_DBUS, "NameAcquired")) {
@@ -986,7 +1018,7 @@ void dbus_protocol_server_state_changed(AvahiServerState state) {
     int32_t t;
     const char *e;
     
-    if (!server)
+    if (!server || !server->bus)
         return;
 
     m = dbus_message_new_signal(AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged");
@@ -1004,7 +1036,7 @@ void dbus_protocol_server_state_changed(AvahiServerState state) {
     dbus_message_unref(m);
 }
 
-int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_publishing) {
+static int dbus_connect(void) {
     DBusError error;
 
     static const DBusObjectPathVTable server_vtable = {
@@ -1016,26 +1048,23 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
         NULL
     };
 
+    assert(server);
+    assert(!server->bus);
+
     dbus_error_init(&error);
-
-    disable_user_service_publishing = _disable_user_service_publishing;
-
-    server = avahi_new(Server, 1);
-    AVAHI_LLIST_HEAD_INIT(Clients, server->clients);
-    server->current_id = 0;
-    server->n_clients = 0;
-
+    
     if (!(server->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error))) {
         assert(dbus_error_is_set(&error));
         avahi_log_error("dbus_bus_get(): %s", error.message);
         goto fail;
     }
-
-    if (avahi_dbus_connection_glue(server->bus, poll_api) < 0) {
+    if (avahi_dbus_connection_glue(server->bus, server->poll_api) < 0) {
         avahi_log_error("avahi_dbus_connection_glue() failed");
         goto fail;
     }
 
+    dbus_connection_set_exit_on_disconnect(server->bus, FALSE);
+    
     if (dbus_bus_request_name(
             server->bus,
             AVAHI_DBUS_NAME,
@@ -1054,7 +1083,7 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
         goto fail;
     }
 
-    if (!(dbus_connection_add_filter(server->bus, msg_signal_filter_impl, (void*) poll_api, NULL))) {
+    if (!(dbus_connection_add_filter(server->bus, msg_signal_filter_impl, (void*) server->poll_api, NULL))) {
         avahi_log_error("dbus_connection_add_filter() failed");
         goto fail;
     }
@@ -1072,6 +1101,61 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
     }
 
     return 0;
+fail:
+
+    if (dbus_error_is_set(&error))
+        dbus_error_free(&error);
+
+    if (server->bus) {
+        dbus_connection_disconnect(server->bus);
+        dbus_connection_unref(server->bus);
+        server->bus = NULL;
+    }
+
+    return -1;
+}
+
+static void dbus_disconnect(void) {
+    assert(server);
+
+    while (server->clients)
+        client_free(server->clients);
+    
+    assert(server->n_clients == 0);
+
+    if (server->bus) {
+        dbus_connection_disconnect(server->bus);
+        dbus_connection_unref(server->bus);
+        server->bus = NULL;
+    }
+}
+
+int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_publishing, int force) {
+
+    disable_user_service_publishing = _disable_user_service_publishing;
+
+    server = avahi_new(Server, 1);
+    AVAHI_LLIST_HEAD_INIT(Clients, server->clients);
+    server->current_id = 0;
+    server->n_clients = 0;
+    server->bus = NULL;
+    server->poll_api = poll_api;
+    server->reconnect_timeout = NULL;
+    server->reconnect = force;
+
+    if (dbus_connect() < 0) {
+        struct timeval tv;
+
+        if (!force)
+            goto fail;
+
+        avahi_log_warn("WARNING: Failed to contact D-BUS daemon, retrying in %ims.", RECONNECT_MSEC);
+        
+        avahi_elapse_time(&tv, RECONNECT_MSEC, 0);
+        server->reconnect_timeout = server->poll_api->timeout_new(server->poll_api, &tv, reconnect_callback, NULL);
+    }
+        
+    return 0;
 
 fail:
     if (server->bus) {
@@ -1079,9 +1163,6 @@ fail:
         dbus_connection_unref(server->bus);
     }
 
-    if (dbus_error_is_set(&error))
-        dbus_error_free(&error);
-        
     avahi_free(server);
     server = NULL;
     return -1;
@@ -1090,17 +1171,11 @@ fail:
 void dbus_protocol_shutdown(void) {
 
     if (server) {
-    
-        while (server->clients)
-            client_free(server->clients);
+        dbus_disconnect();
 
-        assert(server->n_clients == 0);
-
-        if (server->bus) {
-            dbus_connection_disconnect(server->bus);
-            dbus_connection_unref(server->bus);
-        }
-
+        if (server->reconnect_timeout)
+            server->poll_api->timeout_free(server->reconnect_timeout);
+        
         avahi_free(server);
         server = NULL;
     }

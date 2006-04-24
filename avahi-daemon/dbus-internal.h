@@ -168,10 +168,14 @@ struct Client {
 };
 
 struct Server {
+    const AvahiPoll *poll_api;
     DBusConnection *bus;
     AVAHI_LLIST_HEAD(Client, clients);
     int n_clients;
     unsigned current_id;
+
+    AvahiTimeout *reconnect_timeout;
+    int reconnect;
 };
 
 extern Server *server;

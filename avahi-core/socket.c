@@ -499,7 +499,10 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
         struct in_pktinfo *pkti;
         
         memset(cmsg_data, 0, sizeof(cmsg_data));
-        cmsg = (struct cmsghdr*) cmsg_data;
+        msg.msg_control = cmsg_data;
+        msg.msg_controllen = sizeof(cmsg_data);
+	
+        cmsg = CMSG_FIRSTHDR(&msg);
         cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_pktinfo));
         cmsg->cmsg_level = IPPROTO_IP;
         cmsg->cmsg_type = IP_PKTINFO;
@@ -512,8 +515,7 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
         if (src_address)
             pkti->ipi_spec_dst.s_addr = src_address->address;
 
-        msg.msg_control = cmsg_data;
-        msg.msg_controllen = CMSG_SPACE(sizeof(struct in_pktinfo));
+        msg.msg_controllen = cmsg->cmsg_len;
     }
 #elif defined(IP_SENDSRCADDR)
     if (src_address) {

@@ -98,10 +98,12 @@
         <p><opt>enable-dbus=</opt> Takes either "yes", "no" or
         "warn". If set to "yes" avahi-daemon connects to D-BUS,
         offering an object oriented client API. It is only available
-        if avahi has been compiled with <opt>--enable-dbus</opt> in
+        if Avahi has been compiled with <opt>--enable-dbus</opt> in
         which case it defaults to "yes". "warn" behaves like "yes",
         but the daemon starts up even when it fails to connect to a
-        D-BUS daemon.</p>
+        D-BUS daemon. In addition, if the connection to the D-BUS
+        daemon is terminated we try to reconnect. (Unless we are in a
+        chroot() environment where this definitely will fail.) </p>
       </option>
 
       <option>

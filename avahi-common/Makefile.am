@@ -48,7 +48,8 @@ noinst_PROGRAMS = \
 	alternative-test \
 	timeval-test \
 	watch-test \
-	watch-test-thread
+	watch-test-thread \
+	utf8-test
 endif
 
 lib_LTLIBRARIES = \
@@ -65,7 +66,8 @@ libavahi_common_la_SOURCES = \
 	simple-watch.c simple-watch.h \
 	thread-watch.c thread-watch.h \
 	watch.h gccmacro.h \
-	rlist.h rlist.c
+	rlist.h rlist.c \
+	utf8.c utf8.h
 
 libavahi_common_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) 
 libavahi_common_la_LIBADD = $(AM_LDADD) $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
@@ -82,14 +84,16 @@ alternative_test_SOURCES = \
 	malloc.c malloc.h \
 	domain.c domain.h \
 	address.c address.h \
-	alternative-test.c
+	alternative-test.c \
+	utf8.c utf8.h
 alternative_test_CFLAGS = $(AM_CFLAGS)
 
 domain_test_SOURCES = \
 	domain.c domain.h \
 	malloc.c malloc.h \
 	address.c address.h \
-	domain-test.c
+	domain-test.c \
+	utf8.c utf8.h
 domain_test_CFLAGS = $(AM_CFLAGS)
 
 watch_test_SOURCES = \
@@ -110,6 +114,12 @@ timeval_test_SOURCES = \
 	timeval-test.c
 timeval_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
 timeval_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS)
+
+utf8_test_SOURCES = \
+	utf8-test.c \
+	utf8.c utf8.h
+utf8_test_CFLAGS = $(AM_CFLAGS)
+utf8_test_LDADD = $(AM_LDADD)
 
 if HAVE_DBUS
 

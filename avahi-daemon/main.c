@@ -743,7 +743,11 @@ static int run_server(DaemonConfig *c) {
 
 #ifdef HAVE_DBUS
     if (c->enable_dbus) {
-        if (dbus_protocol_setup(poll_api, config.disable_user_service_publishing, !c->fail_on_missing_dbus && !config.use_chroot) < 0) {
+        if (dbus_protocol_setup(poll_api, config.disable_user_service_publishing, !c->fail_on_missing_dbus
+#ifdef ENABLE_CHROOT
+                                && !config.use_chroot
+#endif
+            ) < 0) {
 
             avahi_log_warn("WARNING: Failed to contact D-BUS daemon.");
 

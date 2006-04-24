@@ -325,7 +325,7 @@ static void handle_line(Client *c, const char *s) {
             goto fail;
         client_output_printf(c, "+ Browsing ...\n");
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__": Got %s request.", cmd);
 
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
@@ -333,7 +333,7 @@ static void handle_line(Client *c, const char *s) {
             goto fail;
         client_output_printf(c, "+ Browsing ...\n");
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__": Got %s request.", cmd);
 
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
@@ -341,7 +341,7 @@ static void handle_line(Client *c, const char *s) {
             goto fail;
         client_output_printf(c, "+ Browsing ...\n");
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__": Got %s request.", cmd);
 
     } else {
         client_output_printf(c, "%+i Invalid command \"%s\", try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION, cmd);

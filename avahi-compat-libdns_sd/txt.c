@@ -60,7 +60,7 @@ void DNSSD_API TXTRecordCreate(
 
     if ((t = avahi_new(TXTRecordInternal, 1))) {
         t->buffer = buffer;
-        t->max_size = length;
+        t->max_size = buffer ? length : (size_t)0;
         t->size = 0;
         t->malloc_buffer = NULL;
     }

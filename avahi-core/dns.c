@@ -322,7 +322,6 @@ int avahi_dns_packet_check_valid_multicast(AvahiDnsPacket *p) {
     return 0;
 }
 
-
 int avahi_dns_packet_is_query(AvahiDnsPacket *p) {
     assert(p);
     
@@ -621,6 +620,9 @@ AvahiRecord* avahi_dns_packet_consume_record(AvahiDnsPacket *p, int *ret_cache_f
     
     if (parse_rdata(p, r, rdlength) < 0)
         goto fail;
+
+    if (!avahi_record_is_valid(r))
+        goto fail;
     
     return r;
 
@@ -634,6 +636,7 @@ fail:
 AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, int *ret_unicast_response) {
     char name[256];
     uint16_t type, class;
+    AvahiKey *k;
 
     assert(p);
 
@@ -647,7 +650,15 @@ AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, int *ret_unicast_respo
 
     class &= ~AVAHI_DNS_UNICAST_RESPONSE;
     
-    return avahi_key_new(name, class, type);
+    if (!(k = avahi_key_new(name, class, type)))
+        return NULL;
+
+    if (!avahi_key_is_valid(k)) {
+        avahi_key_unref(k);
+        return NULL;
+    }
+
+    return k;
 }
 
 uint8_t* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, int unicast_response) {

@@ -374,8 +374,8 @@ static void sdref_unref(DNSServiceRef sdref) {
 }
 
 int DNSSD_API DNSServiceRefSockFD(DNSServiceRef sdref) {
-    assert(sdref);
-    assert(sdref->n_ref >= 1);
+    if (!sdref || sdref->n_ref <= 0)
+        return -1;
 
     AVAHI_WARN_LINKAGE;
     

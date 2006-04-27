@@ -39,19 +39,32 @@
 #include "avahi.h"
 #endif
 
-#define MAX_ENTRIES 16
-
-#ifdef NSS_IPV4_ONLY
+#if defined(NSS_IPV4_ONLY) && ! defined(MDNS_MINIMAL)
 #define _nss_mdns_gethostbyname2_r _nss_mdns4_gethostbyname2_r
-#define _nss_mdns_gethostbyname_r _nss_mdns4_gethostbyname_r
-#define _nss_mdns_gethostbyaddr_r _nss_mdns4_gethostbyaddr_r
-#elif NSS_IPV6_ONLY
+#define _nss_mdns_gethostbyname_r  _nss_mdns4_gethostbyname_r
+#define _nss_mdns_gethostbyaddr_r  _nss_mdns4_gethostbyaddr_r
+#elif defined(NSS_IPV4_ONLY) && defined(MDNS_MINIMAL)
+#define _nss_mdns_gethostbyname2_r _nss_mdns4_minimal_gethostbyname2_r
+#define _nss_mdns_gethostbyname_r  _nss_mdns4_minimal_gethostbyname_r
+#define _nss_mdns_gethostbyaddr_r  _nss_mdns4_minimal_gethostbyaddr_r
+#elif defined(NSS_IPV6_ONLY) && ! defined(MDNS_MINIMAL)
 #define _nss_mdns_gethostbyname2_r _nss_mdns6_gethostbyname2_r
-#define _nss_mdns_gethostbyname_r _nss_mdns6_gethostbyname_r
-#define _nss_mdns_gethostbyaddr_r _nss_mdns6_gethostbyaddr_r
+#define _nss_mdns_gethostbyname_r  _nss_mdns6_gethostbyname_r
+#define _nss_mdns_gethostbyaddr_r  _nss_mdns6_gethostbyaddr_r
+#elif defined(NSS_IPV6_ONLY) && defined(MDNS_MINIMAL)
+#define _nss_mdns_gethostbyname2_r _nss_mdns6_minimal_gethostbyname2_r
+#define _nss_mdns_gethostbyname_r  _nss_mdns6_minimal_gethostbyname_r
+#define _nss_mdns_gethostbyaddr_r  _nss_mdns6_minimal_gethostbyaddr_r
+#elif defined(MDNS_MINIMAL)
+#define _nss_mdns_gethostbyname2_r _nss_mdns_minimal_gethostbyname2_r
+#define _nss_mdns_gethostbyname_r  _nss_mdns_minimal_gethostbyname_r
+#define _nss_mdns_gethostbyaddr_r  _nss_mdns_minimal_gethostbyaddr_r
 #endif
 
-/* the resolv conf page states that they only support 6 domains */
+/* Maximum number of entries to return */
+#define MAX_ENTRIES 16
+
+/* The resolv.conf page states that they only support 6 domains */
 #define MAX_SEARCH_DOMAINS 6
 
 struct userdata {
@@ -113,44 +126,50 @@ static int ends_with(const char *name, const char* suffix) {
 }
 
 static int verify_name_allowed(const char *name) {
+#ifndef MDNS_MINIMAL
     FILE *f;
-    int valid = 0;
+#endif
     
     assert(name);
 
-    if (!(f = fopen(MDNS_ALLOW_FILE, "r")))
-        return ends_with(name, ".local") || ends_with(name, ".local."); 
-
-    while (!feof(f)) {
-        char ln[128], ln2[128], *t;
+#ifndef MDNS_MINIMAL
+    if ((f = fopen(MDNS_ALLOW_FILE, "r"))) {
+        int valid = 0;
         
-        if (!fgets(ln, sizeof(ln), f))
-            break;
-
-        ln[strcspn(ln, "#\t\n\r ")] = 0;
-
-        if (ln[0] == 0)
-            continue;
-
-        if (strcmp(ln, "*") == 0) {
-            valid = 1;
-            break;
+        
+        while (!feof(f)) {
+            char ln[128], ln2[128], *t;
+            
+            if (!fgets(ln, sizeof(ln), f))
+                break;
+            
+            ln[strcspn(ln, "#\t\n\r ")] = 0;
+            
+            if (ln[0] == 0)
+                continue;
+            
+            if (strcmp(ln, "*") == 0) {
+                valid = 1;
+                break;
+            }
+            
+            if (ln[0] != '.')
+                snprintf(t = ln2, sizeof(ln2), ".%s", ln);
+            else
+                t = ln;
+            
+            if (ends_with(name, t)) {
+                valid = 1;
+                break;
+            }
         }
-
-        if (ln[0] != '.')
-            snprintf(t = ln2, sizeof(ln2), ".%s", ln);
-        else
-            t = ln;
-
-        if (ends_with(name, t)) {
-            valid = 1;
-            break;
-        }
+        
+        fclose(f);
+        return valid;
     }
+#endif
 
-    fclose(f);
-
-    return valid;
+    return ends_with(name, ".local") || ends_with(name, ".local."); 
 }
 
 static char **alloc_domains(unsigned ndomains) {
@@ -268,7 +287,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 
     struct userdata u;
     enum nss_status status = NSS_STATUS_UNAVAIL;
-    int fd = -1, i;
+    int i;
     size_t address_length, l, idx, astart;
     void (*ipv4_func)(const ipv4_address_t *ipv4, void *userdata);
     void (*ipv6_func)(const ipv6_address_t *ipv6, void *userdata);
@@ -277,6 +296,10 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 #ifdef ENABLE_AVAHI
     int avahi_works = 1;
     uint8_t data[128];
+#endif
+
+#ifdef ENABLE_LEGACY
+    int fd = -1;
 #endif
 
 /*     DEBUG_TRAP; */
@@ -381,11 +404,14 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 	    free_domains(domains);
 	}
     }
-
-
-    if (u.count == 0 && !avahi_works) {
 #endif
 
+#if defined(ENABLE_LEGACY) && defined(ENABLE_AVAHI)
+    if (u.count == 0 && !avahi_works) 
+#endif
+
+#if defined(ENABLE_LEGACY)
+    {
         if ((fd = mdns_open_socket()) < 0) {
             *errnop = errno;
             *h_errnop = NO_RECOVERY;
@@ -432,14 +458,13 @@ enum nss_status _nss_mdns_gethostbyname2_r(
                 free_domains(domains);
 	    }
         }
-
-#ifdef ENABLE_AVAHI
     }
 #endif
 
     if (u.count == 0) {
         *errnop = ETIMEDOUT;
         *h_errnop = HOST_NOT_FOUND;
+        status = NSS_STATUS_NOTFOUND;
         goto finish;
     }
     
@@ -483,8 +508,10 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     status = NSS_STATUS_SUCCESS;
     
 finish:
+#ifdef ENABLE_LEGACY
     if (fd >= 0)
         close(fd);
+#endif
     
     return status;
 }
@@ -523,10 +550,14 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     
     struct userdata u;
     enum nss_status status = NSS_STATUS_UNAVAIL;
-    int fd = -1, r;
+    int r;
     size_t address_length, idx, astart;
+    
 #ifdef ENABLE_AVAHI
     char t[256];
+#endif
+#ifdef ENABLE_LEGACY
+    int fd = -1;
 #endif
 
     *errnop = EINVAL;
@@ -534,7 +565,8 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
 
     u.count = 0;
     u.data_len = 0;
-    
+
+    /* Check for address types */
     address_length = af == AF_INET ? sizeof(ipv4_address_t) : sizeof(ipv6_address_t);
 
     if (len != (int) address_length ||
@@ -551,6 +583,7 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
         goto finish;
     }
 
+    /* Check for buffer space */
     if (buflen <
         sizeof(char*)+      /* alias names */
         address_length) {   /* address */
@@ -562,27 +595,45 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
         goto finish;
     }
 
-#ifdef ENABLE_AVAHI
+#ifdef MDNS_MINIMAL
+    /* Only query for 169.254.0.0/16 IPv4 in minimal mode */
+    if ((af == AF_INET && ((*(uint32_t*)  &addr) & 0xFFFF0000UL) != 0xA9FE0000UL) ||
+        (af == AF_INET6 && !(((uint8_t*) &addr)[0] == 0xFE && (((uint8_t*) &addr)[1] >> 6) == 2))) {
 
+        *errnop = EINVAL;
+        *h_errnop = NO_RECOVERY;
+
+        goto finish;
+    }
+#endif
+    
+#ifdef ENABLE_AVAHI
+    /* Lookup using Avahi */
     if ((r = avahi_resolve_address(af, addr, t, sizeof(t))) == 0) {
         name_callback(t, &u);
     } else if (r > 0) {
         *errnop = ETIMEDOUT;
         *h_errnop = HOST_NOT_FOUND;
+        status = NSS_STATUS_NOTFOUND;
         goto finish;
-    }
+    } 
+#endif
 
-#endif 
-
-    if (u.count == 0) {
-
+#if defined(ENABLE_AVAHI) && defined(ENABLE_LEGACY)
+    else
+#endif
+    
+#ifdef ENABLE_LEGACY
+     /* Lookup using legacy mDNS queries */   
+     {
         if ((fd = mdns_open_socket()) < 0) {
-            
             *errnop = errno;
             *h_errnop = NO_RECOVERY;
             goto finish;
         }
-        
+
+	r = -1;
+
 #if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
         if (af == AF_INET)
 #endif
@@ -595,13 +646,14 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
 #ifndef NSS_IPV4_ONLY        
             r = mdns_query_ipv6(fd, (const ipv6_address_t*) addr, name_callback, &u);
 #endif
-        
         if (r < 0) {
             *errnop = ETIMEDOUT;
             *h_errnop = HOST_NOT_FOUND;
+            status = NSS_STATUS_NOTFOUND;
             goto finish;
         }
     }
+#endif /* ENABLE_LEGACY */
 
     /* Alias names */
     *((char**) buffer) = NULL;
@@ -642,8 +694,10 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     status = NSS_STATUS_SUCCESS;
     
 finish:
+#ifdef ENABLE_LEGACY
     if (fd >= 0)
         close(fd);
+#endif
     
     return status;
 }

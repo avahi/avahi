@@ -39,6 +39,32 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
+test_gcc_flag() {
+    AC_LANG_CONFTEST([int main() {}])
+    $CC -c conftest.c $CFLAGS $@ > /dev/null 2> /dev/null
+    ret=$?
+    rm -f conftest.o
+    return $ret
+}
+
+# If using GCC specify some additional parameters
+if test "x$GCC" = "xyes" ; then
+
+    # We use gnu99 instead of c99 because many have interpreted the standard
+    # in a way that int64_t isn't defined on non-64 bit platforms.
+    DESIRED_FLAGS="-std=gnu99 -Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
+
+    for flag in $DESIRED_FLAGS ; do
+        AC_MSG_CHECKING([whether $CC accepts $flag])
+        if test_gcc_flag $flag ; then 
+           CFLAGS="$CFLAGS $flag"
+           AC_MSG_RESULT([yes])
+        else
+           AC_MSG_RESULT([no])
+        fi
+    done 
+fi
+
 # libtool stuff
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
@@ -79,14 +105,23 @@ if test x$lynx = xyes ; then
    AC_CHECK_PROG(have_lynx, lynx, yes, no)
 
    if test x$have_lynx = xno ; then
-     AC_MSG_WARN([*** lynx not found, plain text README will not be built ***])
+     lynx=no
+     AC_CHECK_PROG(have_links, links, yes, no)
+     if test x$have_links = xno ; then
+       AC_MSG_WARN([*** neither lynx nor links found, plain text README will not be built ***])
+     else
+       links=yes
+     fi
    fi
 fi
 
 AM_CONDITIONAL([USE_LYNX], [test "x$lynx" = xyes])
+AM_CONDITIONAL([USE_LINKS], [test "x$links" = xyes])
+
+### Enable avahi support?
 
 AC_ARG_ENABLE(avahi,
-        AC_HELP_STRING([--enable-avahi],[use Avahi (default=yes)]),
+        AC_HELP_STRING([--enable-avahi],[Enable lookups with Avahi (default=yes)]),
         [case "${enableval}" in
                 yes) ENABLE_AVAHI=yes ;;
                 no)  ENABLE_AVAHI=no ;;
@@ -94,13 +129,32 @@ AC_ARG_ENABLE(avahi,
         esac],
         [ENABLE_AVAHI=yes]) dnl Default value
 
-
 AM_CONDITIONAL([ENABLE_AVAHI], [test "x$ENABLE_AVAHI" = "xyes"])
 
 if test "x$ENABLE_AVAHI" = "xyes" ; then
    AC_DEFINE(ENABLE_AVAHI, [1], [Try to make use of a running avahi mDNS server before resolving on our own behalf])
 fi
 
+### Enable legacy support?
+
+AC_ARG_ENABLE(legacy,
+        AC_HELP_STRING([--enable-legacy],[Enable legacy lookups when Avahi isn't available (default=yes)]),
+        [case "${enableval}" in
+                yes) ENABLE_LEGACY=yes ;;
+                no)  ENABLE_LEGACY=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-legacy) ;;
+        esac],
+        [ENABLE_LEGACY=yes]) dnl Default value
+
+if test "x$ENABLE_AVAHI" = "xno" -a "x$ENABLE_LEGACY" = "xno"; then
+	AC_MSG_ERROR(Can't disable legacy lookups if Avahi support is disabled)
+fi
+
+if test "x$ENABLE_LEGACY" = "xyes" ; then
+   AC_DEFINE(ENABLE_LEGACY, [1], [Enable legacy lookups when Avahi isn't available])
+fi
+
+AM_CONDITIONAL([ENABLE_LEGACY], [test "x$ENABLE_LEGACY" = "xyes"])
 
 AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile doc/README.html ])
 AC_OUTPUT

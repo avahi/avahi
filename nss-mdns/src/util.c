@@ -31,6 +31,8 @@
 
 #include "util.h"
 
+#ifdef ENABLE_LEGACY
+
 /* Calculate the difference between the two specfified timeval
  * timestamsps. */
 usec_t timeval_diff(const struct timeval *a, const struct timeval *b) {
@@ -100,19 +102,6 @@ void timeval_add(struct timeval *tv, usec_t v) {
         tv->tv_sec++;
         tv->tv_usec -= 1000000;
     }
-}
-
-int set_cloexec(int fd) {
-    int n;
-    assert(fd >= 0);
-    
-    if ((n = fcntl(fd, F_GETFD)) < 0)
-        return -1;
-
-    if (n & FD_CLOEXEC)
-        return 0;
-
-    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
 }
 
 int set_nonblock(int fd) {
@@ -201,5 +190,20 @@ int wait_for_read(int fd, struct timeval *end) {
         if (end)
             gettimeofday(&now, NULL);
     }
+}
+
+#endif
+
+int set_cloexec(int fd) {
+    int n;
+    assert(fd >= 0);
+    
+    if ((n = fcntl(fd, F_GETFD)) < 0)
+        return -1;
+
+    if (n & FD_CLOEXEC)
+        return 0;
+
+    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
 }
 

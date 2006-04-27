@@ -29,6 +29,13 @@ README: README.html
 CLEANFILES += README
 endif
 
+if USE_LINKS
+README: README.html
+	links -dump $^ | sed 's,file://localhost/.*/doc/README.html,README,' > $@
+
+CLEANFILES += README
+endif
+
 tidy: README.html
 	tidy -qe < README.html ; true
 

@@ -27,38 +27,85 @@ AM_CFLAGS = \
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-noinst_PROGRAMS = nss-test mdns-test
-lib_LTLIBRARIES = libnss_mdns.la libnss_mdns4.la libnss_mdns6.la
+lib_LTLIBRARIES= \
+	libnss_mdns.la \
+	libnss_mdns4.la \
+	libnss_mdns6.la \
+	libnss_mdns_minimal.la \
+	libnss_mdns4_minimal.la \
+	libnss_mdns6_minimal.la
 
-mdns_test_SOURCES = query.c dns.c util.c mdns-test.c \
-		    query.h dns.h util.h
+noinst_PROGRAMS= \
+	nss-test
 
-nss_test_SOURCES = nss-test.c
+libnss_mdns_la_SOURCES= \
+	nss.c \
+	util.c util.h
 
-libnss_mdns_la_SOURCES = query.c dns.c util.c nss.c query.h dns.h util.h
 libnss_mdns_la_CFLAGS=$(AM_CFLAGS) 
 libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2
 
 if ENABLE_AVAHI
+libnss_mdns_la_SOURCES += \
+	avahi.c	avahi.h
+
 noinst_PROGRAMS += avahi-test
-avahi_test_SOURCES = avahi.c util.c avahi.h util.h avahi-test.c
-libnss_mdns_la_SOURCES += avahi.c avahi.h
 endif
+
+if ENABLE_LEGACY
+libnss_mdns_la_SOURCES += \
+	query.c query.h \
+	dns.c dns.h
+
+noinst_PROGRAMS += mdns-test
+endif
+
+libnss_mdns_minimal_la_SOURCES=$(libnss_mdns_la_SOURCES)
+libnss_mdns_minimal_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DMDNS_MINIMAL
+libnss_mdns_minimal_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
 
 libnss_mdns4_la_SOURCES=$(libnss_mdns_la_SOURCES)
 libnss_mdns4_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DNSS_IPV4_ONLY=1
 libnss_mdns4_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
 
+libnss_mdns4_minimal_la_SOURCES=$(libnss_mdns_la_SOURCES)
+libnss_mdns4_minimal_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DNSS_IPV4_ONLY=1 -DMDNS_MINIMAL
+libnss_mdns4_minimal_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
+
 libnss_mdns6_la_SOURCES=$(libnss_mdns_la_SOURCES)
 libnss_mdns6_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DNSS_IPV6_ONLY=1
 libnss_mdns6_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
 
+libnss_mdns6_minimal_la_SOURCES=$(libnss_mdns_la_SOURCES)
+libnss_mdns6_minimal_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DNSS_IPV6_ONLY=1 -DMDNS_MINIMAL
+libnss_mdns6_minimal_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
+
+avahi_test_SOURCES = \
+	avahi.c avahi.h \
+	util.c util.h \
+	avahi-test.c
+
+mdns_test_SOURCES = \
+	query.c query.h \
+	dns.c dns.h \
+	util.c util.h \
+	mdns-test.c
+
+nss_test_SOURCES = \
+	nss-test.c
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns.la 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns_minimal.la 
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns4.la 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns4_minimal.la 
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns6.la 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns6_minimal.la 
 
 uninstall-hook:
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns.so.2 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns_minimal.so.2 
 	rm -f $(DESTDIR)$(libdir)/libnss_mdns4.so.2 
-	rm -f $(DESTDIR)$(libdir)/libnss_mdns6.so.2
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns4_minimal.so.2 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns6.so.2 
+	rm -f $(DESTDIR)$(libdir)/libnss_mdns6_minimal.so.2 

@@ -304,6 +304,13 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 
 /*     DEBUG_TRAP; */
 
+    if (af == AF_UNSPEC)
+#ifdef NSS_IPV6_ONLY
+        af = AF_INET6;
+#else
+        af = AF_INET;
+#endif
+
 #ifdef NSS_IPV4_ONLY
     if (af != AF_INET) 
 #elif NSS_IPV6_ONLY
@@ -358,8 +365,8 @@ enum nss_status _nss_mdns_gethostbyname2_r(
                 ipv4_func((ipv4_address_t*) data, &u);
             if (af == AF_INET6 && ipv6_func)
                 ipv6_func((ipv6_address_t*)data, &u);
-        }
-        
+        } else
+            status = NSS_STATUS_NOTFOUND;
     }
 
     if (u.count == 0 && avahi_works && !ends_with(name, ".")) {
@@ -387,15 +394,19 @@ enum nss_status _nss_mdns_gethostbyname2_r(
                     free(fullname);
                     
                     if (r < 0) {
+                        /* Lookup failed */
                         avahi_works = 0;
                         break;
                     } else if (r == 0) {
+                        /* Lookup succeeded */
                         if (af == AF_INET && ipv4_func)
                             ipv4_func((ipv4_address_t*) data, &u);
                         if (af == AF_INET6 && ipv6_func)
                             ipv6_func((ipv6_address_t*)data, &u);
                         break;
-                    }
+                    } else
+                        /* Lookup suceeded, but nothing found */
+                        status = NSS_STATUS_NOTFOUND;
                     
 		} else
                     free(fullname);
@@ -418,9 +429,13 @@ enum nss_status _nss_mdns_gethostbyname2_r(
             goto finish;
         }
 
-        if (name_allowed)
+        if (name_allowed) {
             /* Ignore return value */
             mdns_query_name(fd, name, ipv4_func, ipv6_func, &u);
+
+            if (!u.count)
+                status = NSS_STATUS_NOTFOUND;
+        }
 
         if (u.count == 0 && !ends_with(name, ".")) {
             char **domains;
@@ -446,10 +461,12 @@ enum nss_status _nss_mdns_gethostbyname2_r(
                         mdns_query_name(fd, fullname, ipv4_func, ipv6_func, &u);
                         
                         if (u.count > 0) {
-                            /* We found somethings, so let's quit */
+                            /* We found something, so let's quit */
                             free(fullname);
                             break;
-                        }
+                        } else
+                            status = NSS_STATUS_NOTFOUND;
+
                     }
                     
                     free(fullname);
@@ -464,7 +481,6 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     if (u.count == 0) {
         *errnop = ETIMEDOUT;
         *h_errnop = HOST_NOT_FOUND;
-        status = NSS_STATUS_NOTFOUND;
         goto finish;
     }
     
@@ -512,7 +528,7 @@ finish:
     if (fd >= 0)
         close(fd);
 #endif
-    
+
     return status;
 }
 
@@ -526,11 +542,7 @@ enum nss_status _nss_mdns_gethostbyname_r (
 
     return _nss_mdns_gethostbyname2_r(
         name,
-#ifdef NSS_IPV6_ONLY
-        AF_INET6,
-#else
-        AF_INET,
-#endif        
+        AF_UNSPEC,
         result,
         buffer,
         buflen,
@@ -596,9 +608,10 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     }
 
 #ifdef MDNS_MINIMAL
+
     /* Only query for 169.254.0.0/16 IPv4 in minimal mode */
-    if ((af == AF_INET && ((*(uint32_t*)  &addr) & 0xFFFF0000UL) != 0xA9FE0000UL) ||
-        (af == AF_INET6 && !(((uint8_t*) &addr)[0] == 0xFE && (((uint8_t*) &addr)[1] >> 6) == 2))) {
+    if ((af == AF_INET && ((ntohl(*(const uint32_t*)  addr) & 0xFFFF0000UL) != 0xA9FE0000UL)) ||
+        (af == AF_INET6 && !(((const uint8_t*) addr)[0] == 0xFE && (((const uint8_t*) addr)[1] >> 6) == 2))) {
 
         *errnop = EINVAL;
         *h_errnop = NO_RECOVERY;
@@ -637,13 +650,13 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
 #if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
         if (af == AF_INET)
 #endif
-#ifndef NSS_IPV6_ONLY        
+#ifndef NSS_IPV6_ONLY
             r = mdns_query_ipv4(fd, (const ipv4_address_t*) addr, name_callback, &u);
 #endif
 #if ! defined(NSS_IPV6_ONLY) && ! defined(NSS_IPV4_ONLY)
         else
 #endif
-#ifndef NSS_IPV4_ONLY        
+#ifndef NSS_IPV4_ONLY
             r = mdns_query_ipv6(fd, (const ipv6_address_t*) addr, name_callback, &u);
 #endif
         if (r < 0) {
@@ -698,7 +711,7 @@ finish:
     if (fd >= 0)
         close(fd);
 #endif
-    
+
     return status;
 }
 

@@ -321,6 +321,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     {    
         *errnop = EINVAL;
         *h_errnop = NO_RECOVERY;
+
         goto finish;
     }
 
@@ -332,7 +333,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
         *errnop = ERANGE;
         *h_errnop = NO_RECOVERY;
         status = NSS_STATUS_TRYAGAIN;
-
+        
         goto finish;
     }
     
@@ -581,7 +582,7 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     /* Check for address types */
     address_length = af == AF_INET ? sizeof(ipv4_address_t) : sizeof(ipv6_address_t);
 
-    if (len != (int) address_length ||
+    if (len < (int) address_length ||
 #ifdef NSS_IPV4_ONLY
         af != AF_INET
 #elif NSS_IPV6_ONLY
@@ -592,6 +593,7 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
         ) {
         *errnop = EINVAL;
         *h_errnop = NO_RECOVERY;
+
         goto finish;
     }
 

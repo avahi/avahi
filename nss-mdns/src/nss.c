@@ -670,12 +670,20 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     }
 #endif /* ENABLE_LEGACY */
 
+    if (u.count == 0) {
+        *errnop = ETIMEDOUT;
+        *h_errnop = NO_RECOVERY;
+        goto finish;
+    }
+
     /* Alias names */
     *((char**) buffer) = NULL;
     result->h_aliases = (char**) buffer;
     idx = sizeof(char*);
 
-    assert(u.count > 0 && u.data.name[0]);
+    assert(u.count > 0);
+    assert(u.data.name[0]);
+    
     if (buflen <
         strlen(u.data.name[0])+1+ /* official names */
         sizeof(char*)+ /* alias names */

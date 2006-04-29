@@ -184,7 +184,9 @@ use <tt>glibc</tt>'s <tt>getent</tt> tool:
 192.168.50.4    foo.local</pre>
 
 <p>Replace <i>foo</i> whith a host name that has been registered with
-an mDNS responder.</p>
+an mDNS responder. (Don't try to use the tools <tt>host</tt> or
+<tt>nslookup</tt> for these tests! They bypass the NSS and thus
+<tt>nss-mdns</tt> and issue their DNS queries directly.) </p>
 
 <p>If you run a firewall, don't forget to allow UDP traffic to the the
 mDNS multicast address <tt>224.0.0.251</tt> on port 5353.</p>

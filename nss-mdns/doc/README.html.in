@@ -10,13 +10,13 @@
 <body>
 <h1><a name="top">nss-mdns @PACKAGE_VERSION@</a></h1>
 
-<p><i>Copyright 2004,2005 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
+<p><i>Copyright 2004-2006 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
 
 <ul class="toc">
     <li><a href="#license">License</a></li>
     <li><a href="#news">News</a></li>
     <li><a href="#overview">Overview</a></li>
-    <li><a href="#status">Status</a></li>
+    <li><a href="#status">Current Status</a></li>
     <li><a href="#documentation">Documentation</a></li>
     <li><a href="#requirements">Requirements</a></li>
     <li><a href="#installation">Installation</a></li>
@@ -41,6 +41,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
+
+<div class="news-date">Fri Apr 28 2006: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.8.tar.gz">Version 0.8</a>
+released. Changes include: Build time option to disable legacy mDNS
+request, i.e. resolve exclusively with Avahi; buil a special
+<tt>_minimal</tt> flavour of the shared objects to minimize
+unnecessary name lookup timeouts; fix IPv6 resolving when using
+Avahi; <b>Please note that starting with nss-mdns 0.8 we encourage you to use a different <tt>/etc/nsswitch.conf</tt> configuration line. See below for more information!</b></p>
 
 <div class="news-date">Sat Nov 19 2005: </div> <p class="news-text"><a
 href="@PACKAGE_URL@nss-mdns-0.7.tar.gz">Version 0.7</a>
@@ -95,7 +103,7 @@ means that you have to run a mDNS responder daemon seperately
 from <tt>nss-mdns</tt> if you want to register the local host name via
 mDNS. I recommend <a href="http://www.freedesktop.org/Software/Avahi">Avahi</a>.</p>
 
-<p><tt>nss-mdns</tt> is very lightweight (23 KByte stripped binary
+<p><tt>nss-mdns</tt> is very lightweight (24 KByte stripped binary
 <tt>.so</tt> compiled with <tt>-DNDEBUG=1 -Os</tt> on i386, <tt>gcc</tt>
 4.0), has no dependencies besides the <tt>glibc</tt> and requires only
 minimal configuration.</p>
@@ -108,7 +116,7 @@ make use of its superior record cacheing.</p>
 
 <p>It works!</p>
 
-<p>While <tt>nss-mdns</tt> supports resolving IPv6 addresses it does
+<p>Although <tt>nss-mdns</tt> supports resolving IPv6 addresses it does
 so via IPv4 multicasts only. (Unless, of course, it finds a running
 Avahi daemon which supports IPv6 properly.)</p>
 

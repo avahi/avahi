@@ -150,7 +150,7 @@ don't end in <tt>.local</tt> or addresses that aren't in the range
 <tt>169.254.x.x</tt> (the range used by <a
 href="http://files.zeroconf.org/rfc3927.txt">IPV4LL/APIPA/RFC3927</a>.)
 Combining the <tt>_minimal</tt> and the normal NSS modules allows us
-to make mDNS authoritative for ZeroConf host names and addresses (and
+to make mDNS authoritative for Zeroconf host names and addresses (and
 thus creating no extra burden on DNS servers with always failing
 requests) and use it as fallback for everything else.</p>
 

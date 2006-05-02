@@ -22,6 +22,7 @@ EXTRA_DIST=build-db.in service-types
 pkgdata_DATA=service-types
 
 if HAVE_PYTHON
+if HAVE_GDBM
 
 noinst_SCRIPTS=build-db
 pkgdata_DATA+=service-types.db
@@ -35,4 +36,5 @@ service-types.db: service-types build-db
 
 CLEANFILES = service-types.db build-db
 
+endif
 endif

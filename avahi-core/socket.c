@@ -31,6 +31,9 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <assert.h>
 
 #include <sys/types.h>

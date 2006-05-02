@@ -32,7 +32,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/param.h>
+#ifdef HAVE_SYS_SYSCTL_H
 #include <sys/sysctl.h>
+#endif
 
 #include <net/route.h>
 #include <net/if.h>
@@ -108,7 +110,11 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 
 #define ROUNDUP(a) \
      ((a) > 0 ? (1 + (((a) - 1) | (sizeof(long) - 1))) : sizeof(long))
+#ifdef HAVE_SYS_SYSCTL_H
 #define ADVANCE(x, n) (x += ROUNDUP((n)->sa_len))
+#else
+#define ADVANCE(x, n) (x += ROUNDUP(sizeof(struct sockaddr)))
+#endif
 
 static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 {
@@ -140,8 +146,10 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
       if (!(addrs & 1<<i))
 	continue;
       sa = (struct sockaddr *)cp;
+#ifdef HAVE_SYS_SYSCTL_H
       if (sa->sa_len == 0) 
 	continue;
+#endif
       switch(sa->sa_family) {
       case AF_INET:
 	switch (1<<i) {
@@ -317,6 +325,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   assert(m);
   
  retry2:
+#ifdef HAVE_SYS_SYSCTL_H
   mib[0] = CTL_NET;
   mib[1] = PF_ROUTE;
   mib[2] = 0;             /* protocol */
@@ -329,11 +338,13 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
       avahi_log_error("route-sysctl-estimate");
       return;
     }
+#endif
   if ((buf = avahi_malloc(needed)) == NULL)
     {
       avahi_log_error("malloc failed in avahi_interface_monitor_sync");
       return;
     }
+#ifdef HAVE_SYS_SYSCTL_H
   if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
     avahi_log_warn("sysctl failed: %s", strerror(errno));
     if (errno == ENOMEM && count++ < 10) {
@@ -343,6 +354,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
       goto retry2;
     }
   }
+#endif
   lim = buf + needed;
   for (next = buf; next < lim; next += rtm->rtm_msglen) {
     rtm = (struct rt_msghdr *)next;

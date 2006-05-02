@@ -49,6 +49,13 @@
 #include "chroot.h"
 #endif
 
+#ifndef AF_LOCAL
+#define AF_LOCAL AF_UNIX
+#endif
+#ifndef PF_LOCAL
+#define PF_LOCAL PF_UNIX
+#endif
+
 #define BUFFER_SIZE (20*1024)
 
 #define CLIENTS_MAX 50

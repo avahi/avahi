@@ -85,6 +85,28 @@ AC_DEFINE([HAVE_PF_ROUTE],[],[Support for PF_ROUTE])
 AM_CONDITIONAL(HAVE_PF_ROUTE, [ test x"$HAVE_PF_ROUTE" = xyes ])
 
 #
+# Check for sys/filio.h; needed for FIONREAD on Solaris
+#
+AC_CHECK_HEADER(sys/filio.h, 
+HAVE_SYS_FILIO_H=yes
+AC_DEFINE([HAVE_SYS_FILIO_H],[],[Support for sys/filio.h])
+, [], [
+])
+
+AM_CONDITIONAL(HAVE_SYS_FILIO_H, [ test x"$HAVE_SYS_FILIO_H" = xyes ])
+
+#
+# Check for sys/sysctl.h; not present on Solaris
+#
+AC_CHECK_HEADER(sys/sysctl.h, 
+HAVE_SYS_SYSCTL=yes
+AC_DEFINE([HAVE_SYS_SYSCTL_H],[],[Support for sys/sysctl.h])
+, [], [
+])
+
+AM_CONDITIONAL(HAVE_SYS_SYSCTL_H, [ test x"$HAVE_SYS_SYSCTL_H" = xyes ])
+
+#
 # Check for struct ip_mreqn
 #
 AC_MSG_CHECKING(for struct ip_mreqn)
@@ -541,7 +563,9 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         fi
 
         AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
-        AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
+        if test "x$HAVE_GDBM" = "xyes"; then
+            AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
+        fi
     fi
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])

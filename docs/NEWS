@@ -1,3 +1,46 @@
+Avahi 0.6.10
+============
+
+This is mostly a bugfix release. Two of the bugs fixed are security
+sensitive: a remote denial-of-service vulnerability and a buffer
+overflow that can allow local users to become the 'avahi' user. We do
+not consider either of them major security threats. 
+
+The DoS vulnerability can be exploited from a local network only. It
+is not worth much, though, since mDNS can easily be flooded with
+nonsense anyway. It is easy to kick remote mDNS/DNS-SD services by
+provoking a name conflict in perfect accordance with the specs. 
+
+The buffer overflow is hard to exploit remotely, only local users can
+become the 'avahi' user. In addition the user is trapped inside a
+chroot() environment (at least on Linux). 
+
+Anyhow, our security assessments are possibly as buggy as our
+code. Hence:
+
+     *** PLEASE UPDATE YOUR INSTALLATION ASAP! ***
+
+Changes:
+ * Fix a buffer overflow in avahi-core
+ * Refuse to process invalid UTF8 data
+ * Automatically reconnect to the DBUS if we're kicked. (Works only if
+   chroot() is disabled)
+ * Don't hit an assert() in the client libs when the Avahi daemon is
+   terminated
+ * Enumerate all service types in the database in the Service
+   Discovery Applet for Gnome
+ * Improve the Bonjour compatibility layer to make it survive
+   GnomeMeeting's broken usage
+ * Deal properly with local non-ASCII hostnames
+ * AMD64 and FreeBSD portability fixes
+ * Filter double DNS server entries in avahi-dnsconfd
+ * Fix a locking bug in avahi-sharp's EntryGroup.AddService()
+ * Ported to Solaris (incomplete)
+ * Add _airport._tcp to our service type database
+
+This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
+0.6.3, 0.6.4, 0.6.5, 0.6.6, 0.6.7, 0.6.8 and 0.6.9.
+
 Avahi 0.6.9
 ===========
 

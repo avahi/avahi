@@ -462,16 +462,23 @@ static int sendmsg_loop(int fd, struct msghdr *msg, int flags) {
     return 0;
 }
 
-int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p, const AvahiIPv4Address *src_address, const AvahiIPv4Address *dst_address, uint16_t dst_port) {
+int avahi_send_dns_packet_ipv4(
+        int fd,
+        AvahiIfIndex interface,
+        AvahiDnsPacket *p,
+        const AvahiIPv4Address *src_address,
+        const AvahiIPv4Address *dst_address,
+        uint16_t dst_port) {
+    
     struct sockaddr_in sa;
     struct msghdr msg;
     struct iovec io;
 #ifdef IP_PKTINFO
     struct cmsghdr *cmsg;
-    size_t cmsg_data[( CMSG_SPACE(sizeof(struct in_pktinfo)) / sizeof(size_t)) + 1];
+    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_pktinfo))];
 #elif defined(IP_SENDSRCADDR)
     struct cmsghdr *cmsg;
-    size_t cmsg_data[( CMSG_SPACE(sizeof(struct in_addr)) / sizeof(size_t)) + 1];
+    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in_addr))];
 #endif
 
     assert(fd >= 0);
@@ -523,19 +530,21 @@ int avahi_send_dns_packet_ipv4(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
 #elif defined(IP_SENDSRCADDR)
     if (src_address) {
         struct in_addr *addr;
-      
-	memset(cmsg_data, 0, sizeof(cmsg_data));
-	cmsg = (struct cmsghdr*) cmsg_data;
-	cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_addr));
+
+        memset(cmsg_data, 0, sizeof(cmsg_data));
+     	msg.msg_control = cmsg_data;
+     	msg.msg_controllen = sizeof(cmsg_data);
+        
+ 	cmsg = CMSG_FIRSTHDR(&msg);
+        cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_addr));
 	cmsg->cmsg_level = IPPROTO_IP;
 	cmsg->cmsg_type = IP_SENDSRCADDR;
 	
 	addr = (struct in_addr *)CMSG_DATA(cmsg);
 	addr->s_addr =  src_address->address;
-	
-	msg.msg_control = cmsg_data;
-	msg.msg_controllen = CMSG_SPACE(sizeof(struct in_addr));
-    }
+
+        msg.msg_controllen = cmsg->cmsg_len;
+}
 #elif defined(IP_MULTICAST_IF)
     {
         struct in_addr any = { INADDR_ANY };
@@ -556,7 +565,7 @@ int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
     struct msghdr msg;
     struct iovec io;
     struct cmsghdr *cmsg;
-    size_t cmsg_data[(CMSG_SPACE(sizeof(struct in6_pktinfo))/sizeof(size_t)) + 1];
+    uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in6_pktinfo))];
 
     assert(fd >= 0);
     assert(p);
@@ -581,9 +590,12 @@ int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
 
     if (interface > 0 || src_address) {
         struct in6_pktinfo *pkti;
-    
+
         memset(cmsg_data, 0, sizeof(cmsg_data));
-        cmsg = (struct cmsghdr*) cmsg_data;
+        msg.msg_control = cmsg_data;
+        msg.msg_controllen = sizeof(cmsg_data);
+	
+        cmsg = CMSG_FIRSTHDR(&msg);
         cmsg->cmsg_len = CMSG_LEN(sizeof(struct in6_pktinfo));
         cmsg->cmsg_level = IPPROTO_IPV6;
         cmsg->cmsg_type = IPV6_PKTINFO;
@@ -596,8 +608,7 @@ int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
         if (src_address)
             memcpy(&pkti->ipi6_addr, src_address->address, sizeof(src_address->address));
         
-        msg.msg_control = cmsg_data;
-        msg.msg_controllen = CMSG_SPACE(sizeof(struct in6_pktinfo));
+        msg.msg_controllen = cmsg->cmsg_len;
     } else {
         msg.msg_control = NULL;
         msg.msg_controllen = 0;

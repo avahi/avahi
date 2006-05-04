@@ -303,7 +303,7 @@ char *avahi_record_to_string(const AvahiRecord *r) {
             
             for (c = r->data.generic.data, n = r->data.generic.size, i = 0;
                  n > 0 && i < 20;
-                 c ++, n --) {
+                 c ++, n --, i++) {
 
                 sprintf(e, " %02X", *c);
                 e = strchr(e, 0);

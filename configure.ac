@@ -102,6 +102,8 @@ AC_CHECK_HEADER(sys/sysctl.h,
 HAVE_SYS_SYSCTL=yes
 AC_DEFINE([HAVE_SYS_SYSCTL_H],[],[Support for sys/sysctl.h])
 , [], [
+#include <sys/types.h>
+#include <sys/socket.h>
 ])
 
 AM_CONDITIONAL(HAVE_SYS_SYSCTL_H, [ test x"$HAVE_SYS_SYSCTL_H" = xyes ])

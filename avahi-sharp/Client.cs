@@ -271,7 +271,6 @@ namespace Avahi
                 throw new ClientException (error);
 
             thread = new Thread (PollLoop);
-            thread.IsBackground = true;
             thread.Start ();
         }
 
@@ -286,10 +285,12 @@ namespace Avahi
         public void Dispose ()
         {
             if (handle != IntPtr.Zero) {
-                avahi_client_free (handle);
-                avahi_simple_poll_quit (spoll);
-                avahi_simple_poll_free (spoll);
-                handle = IntPtr.Zero;
+                lock (this) {
+                    avahi_client_free (handle);
+                    avahi_simple_poll_quit (spoll);
+                    avahi_simple_poll_free (spoll);
+                    handle = IntPtr.Zero;
+                }
             }
         }
 

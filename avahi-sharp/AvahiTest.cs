@@ -42,6 +42,7 @@ public class AvahiTest {
         BrowseServiceTypes ("local");
         Console.WriteLine ("Press enter to quit");
         Console.ReadLine ();
+        client.Dispose ();
     }
 
     private static void OnEntryGroupChanged (object o, EntryGroupStateArgs args)

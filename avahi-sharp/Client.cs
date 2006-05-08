@@ -271,6 +271,7 @@ namespace Avahi
                 throw new ClientException (error);
 
             thread = new Thread (PollLoop);
+            thread.IsBackground = true;
             thread.Start ();
         }
 
@@ -287,9 +288,12 @@ namespace Avahi
             if (handle != IntPtr.Zero) {
                 lock (this) {
                     avahi_client_free (handle);
-                    avahi_simple_poll_quit (spoll);
-                    avahi_simple_poll_free (spoll);
                     handle = IntPtr.Zero;
+
+                    avahi_simple_poll_quit (spoll);
+                    Monitor.Wait (this);
+                    
+                    avahi_simple_poll_free (spoll);
                 }
             }
         }
@@ -371,6 +375,7 @@ namespace Avahi
             try {
                 lock (this) {
                     avahi_simple_poll_loop (spoll);
+                    Monitor.Pulse (this);
                 }
             } catch (Exception e) {
                 Console.Error.WriteLine ("Error in avahi-sharp event loop: " + e);

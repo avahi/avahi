@@ -50,7 +50,6 @@ static void avahi_entry_group2_callback (AvahiEntryGroup *g, AvahiEntryGroupStat
     printf ("ENTRY-GROUP2: Callback on %p, state -> %d, data -> %s\n", (void*) g, state, (char*)userdata);
 }
 
-
 static void avahi_domain_browser_callback(
     AvahiDomainBrowser *b,
     AvahiIfIndex interface,
@@ -224,6 +223,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     int error;
     uint32_t cookie;
     struct timeval tv;
+    AvahiAddress a;
 
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
@@ -287,7 +287,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     else
         printf ("Successfully created hostname resolver object\n");
 
-    aar = avahi_address_parse ("224.0.0.251", AVAHI_PROTO_UNSPEC, aar);
+    aar = avahi_address_parse ("224.0.0.251", AVAHI_PROTO_UNSPEC, &a);
     if (aar == NULL) {
         printf ("failed to create address object\n");
     } else {

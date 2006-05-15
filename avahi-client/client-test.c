@@ -59,7 +59,7 @@ static void avahi_domain_browser_callback(
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
-    printf ("DOMAIN-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, domain, (char*)userdata);
+    printf ("DOMAIN-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, domain ? domain : "NULL", (char*)userdata);
 }
 
 static void avahi_service_resolver_callback(
@@ -102,7 +102,7 @@ static void avahi_service_browser_callback (
     
     AvahiServiceResolver *sr;
 
-    printf ("SERVICE-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, name, type, domain, (char*)userdata);
+    printf ("SERVICE-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), name (%s), type (%s), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, name ? name : "NULL", type, domain ? domain : "NULL", (char*)userdata);
 
     if (b && name)
     {
@@ -121,7 +121,7 @@ static void avahi_service_type_browser_callback (
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void *userdata) {
     
-    printf ("SERVICE-TYPE-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, type, domain, (char*)userdata);
+    printf ("SERVICE-TYPE-BROWSER: Callback on %p, interface (%d), protocol (%d), event (%d), type (%s), domain (%s), data (%s)\n", (void*) b, interface, protocol, event, type ? type : "NULL", domain ? domain : "NULL", (char*)userdata);
 }
 
 static void avahi_address_resolver_callback (

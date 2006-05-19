@@ -231,7 +231,7 @@ if test "x$acx_pthread_ok" = xyes; then
    # First, check whether caller wants us to skip -shared checks
    # this is useful
    AC_MSG_CHECKING([whether to check for GCC pthread/shared inconsistencies])
-   if test x"$3" = x1; then
+   if test x"$GCC" != xyes; then
       AC_MSG_RESULT([no])
    else
       AC_MSG_RESULT([yes])

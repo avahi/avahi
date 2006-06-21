@@ -34,6 +34,8 @@
 #include <sys/param.h>
 #ifdef HAVE_SYS_SYSCTL_H
 #include <sys/sysctl.h>
+#else
+#include <sys/sockio.h>
 #endif
 
 #include <net/route.h>
@@ -316,7 +318,117 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
     }
 }
 
+#ifndef HAVE_SYS_SYSCTL_H
+/*
+ * I got this function from GNU zsbra
+ */
+static int ip6_masklen (struct in6_addr netmask) {
+    int len = 0;
+    unsigned char val;
+    unsigned char *pnt;
+
+    pnt = (unsigned char *) & netmask;
+
+    while ((*pnt == 0xff) && len < 128) {
+        len += 8;
+        pnt++;
+    }
+
+    if (len < 128) {
+        val = *pnt;
+        while (val) {
+            len++;
+            val <<= 1;
+        }
+    }
+    return len;
+}
+
+static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, int fd, int count)
+{
+    AvahiHwInterface *hw;
+    AvahiAddress addr;
+    struct lifreq lifrcopy;
+    unsigned int index;
+    int flags;
+    int mtu;
+    int prefixlen;
+    AvahiInterfaceAddress *addriface;
+    AvahiInterface *iface;
+    struct sockaddr_in mask;
+    struct sockaddr_in6 mask6;
+    char caddr[AVAHI_ADDRESS_STR_MAX];
+
+    lifrcopy = *lifreq;
+
+    if (ioctl(fd, SIOCGLIFFLAGS, &lifrcopy) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFFLAGS) %s", strerror(errno));
+        return;
+    }
+    flags = lifrcopy.lifr_flags;
+
+    if (ioctl(fd, SIOCGLIFMTU, &lifrcopy) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFMTU) %s", strerror(errno));
+        return;
+    }
+    mtu = lifrcopy.lifr_metric;
+
+    if (ioctl(fd, SIOCGLIFADDR, &lifrcopy) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFADDR) %s", strerror(errno));
+        return;
+    }
+    addr.proto = avahi_af_to_proto(lifreq->lifr_addr.ss_family);
+    if (ioctl(fd, SIOCGLIFNETMASK, &lifrcopy) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFNETMASK) %s", strerror(errno));
+        return;
+    }
+    switch (lifreq->lifr_addr.ss_family) {
+        case AF_INET:
+	    memcpy(addr.data.data, &((struct sockaddr_in *)&lifreq->lifr_addr)->sin_addr,  sizeof(struct in_addr));
+	    memcpy(&mask, &((struct sockaddr_in *)&lifrcopy.lifr_addr)->sin_addr,  sizeof(struct in_addr));
+            prefixlen = bitcount((unsigned int) mask.sin_addr.s_addr);
+            break;
+        case AF_INET6:
+	    memcpy(addr.data.data, &((struct sockaddr_in6 *)&lifreq->lifr_addr)->sin6_addr,  sizeof(struct in6_addr));
+	    memcpy(&mask6, &((struct sockaddr_in6 *)&lifrcopy.lifr_addr)->sin6_addr,  sizeof(struct in6_addr));
+            prefixlen = lifrcopy.lifr_addrlen;
+            break;
+        default:
+            break;
+    }
+    index = if_nametoindex(lifreq->lifr_name);
+
+    if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) index))) {
+        if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex) index))) 
+            return; /* OOM */
+
+        hw->flags_ok =
+            (flags & IFF_UP) &&
+            (!m->server->config.use_iff_running || (flags & IFF_RUNNING)) &&
+            !(flags & IFF_LOOPBACK) &&
+            (flags & IFF_MULTICAST) &&
+            (m->server->config.allow_point_to_point || !(flags & IFF_POINTOPOINT));
+        hw->name = avahi_strdup(lifreq->lifr_name);
+        hw->mtu = mtu;
+        /* TODO get mac address */
+    }
+
+    if (!(iface = avahi_interface_monitor_get_interface(m, (AvahiIfIndex)index, addr.proto)))
+        return;
+
+    if (!(addriface = avahi_interface_monitor_get_address(m, iface, &addr)))
+        if (!(addriface = avahi_interface_address_new(m, iface, &addr, prefixlen)))
+            return; /* OOM */
+
+    addriface->global_scope = 1;
+    
+    avahi_hw_interface_check_relevant(hw);
+    avahi_hw_interface_update_rrs(hw, 0);
+}
+#endif
+
 void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
+#ifdef HAVE_SYS_SYSCTL_H
   size_t needed;
   int mib[6];
   char *buf, *lim, *next, count = 0;
@@ -325,7 +437,6 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   assert(m);
   
  retry2:
-#ifdef HAVE_SYS_SYSCTL_H
   mib[0] = CTL_NET;
   mib[1] = PF_ROUTE;
   mib[2] = 0;             /* protocol */
@@ -338,13 +449,11 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
       avahi_log_error("route-sysctl-estimate");
       return;
     }
-#endif
   if ((buf = avahi_malloc(needed)) == NULL)
     {
       avahi_log_error("malloc failed in avahi_interface_monitor_sync");
       return;
     }
-#ifdef HAVE_SYS_SYSCTL_H
   if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
     avahi_log_warn("sysctl failed: %s", strerror(errno));
     if (errno == ENOMEM && count++ < 10) {
@@ -354,7 +463,6 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
       goto retry2;
     }
   }
-#endif
   lim = buf + needed;
   for (next = buf; next < lim; next += rtm->rtm_msglen) {
     rtm = (struct rt_msghdr *)next;
@@ -365,4 +473,49 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   avahi_interface_monitor_check_relevant(m);
   avahi_interface_monitor_update_rrs(m, 0);
   avahi_log_info("Network interface enumeration completed.");
+#else
+    int sockfd;
+    int ret;
+    int n;
+    struct lifnum lifn;
+    struct lifconf lifc;
+    struct lifreq *lifreq;
+
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        avahi_log_error(__FILE__": socket(PFROUTE): %s", strerror(errno));
+        return;
+    }
+    lifc.lifc_buf = NULL;
+    lifn.lifn_family = AF_UNSPEC;
+    lifn.lifn_flags = 0;
+    if (ioctl(sockfd, SIOCGLIFNUM, &lifn) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFNUM): %s", strerror(errno));
+        goto end;
+    }
+    lifc.lifc_len = lifn.lifn_count * sizeof (struct lifreq);
+    if ((lifc.lifc_buf = avahi_malloc(lifc.lifc_len)) == NULL) {
+            avahi_log_error("malloc failed in avahi_interface_monitor_sync");
+            goto end;
+    }
+    lifc.lifc_family = NULL;
+    lifc.lifc_flags = 0;
+    if(ioctl(sockfd, SIOCGLIFCONF, &lifc) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFCONF): %s", strerror(errno));
+        goto end;
+    }
+    lifreq = lifc.lifc_req;
+
+    for (n = 0; n < lifc.lifc_len; n += sizeof(struct lifreq)) {
+        if_add_interface(lifreq, m, sockfd, lifn.lifn_count);
+        lifreq++;
+    }
+    m->list_complete = 1;
+    avahi_interface_monitor_check_relevant(m);
+    avahi_interface_monitor_update_rrs(m, 0);
+end:
+    close(sockfd);
+    avahi_free(lifc.lifc_buf);
+
+    avahi_log_info("Network interface enumeration completed.");
+#endif
 }

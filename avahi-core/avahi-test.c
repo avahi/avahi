@@ -192,9 +192,11 @@ static void create_entries(int new_name) {
     r->data.cname.name = avahi_strdup("cocaine.local");
     
     if (avahi_server_add(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, r) < 0) {
+        avahi_record_unref(r);
         avahi_log_error("Failed to add CNAME record");
         goto fail;
     }
+    avahi_record_unref(r);
 
     avahi_s_entry_group_commit(group);
     return;

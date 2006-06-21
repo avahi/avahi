@@ -195,7 +195,6 @@ static void browser_cancel(AvahiSRecordBrowser *b) {
     }
 }
 
-
 static void lookup_wide_area_callback(
     AvahiWideAreaLookupEngine *e,
     AvahiBrowserEvent event,
@@ -208,6 +207,7 @@ static void lookup_wide_area_callback(
 
     assert(e);
     assert(l);
+    assert(l->ref >= 1);
 
     b = l->record_browser;
 
@@ -422,6 +422,7 @@ static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, Avahi
     l->cname_lookups = avahi_rlist_prepend(l->cname_lookups, lookup_ref(n));
 
     lookup_go(n);
+    lookup_unref(n);
 }
 
 static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiRecord *r) {

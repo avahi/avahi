@@ -109,3 +109,8 @@ _dpap._tcp:Digital Photo Sharing
 _skype._tcp:Skype VoIP
 
 _airport._tcp:Apple AirPort
+
+_pulse-server._tcp:PulseAudio Sound Server
+_pulse-sink._tcp:PulseAudio Sound Sink
+_pulse-source._tcp:PulseAudio Sound Source
+

@@ -1,3 +1,18 @@
+Avahi 0.6.11
+============
+
+This is a bugfix and portability release.
+
+Changes:
+  * Ported to Solaris
+  * avahi-sharp: fix a fatal error in object disposal code
+  * add a few new entries to the servivce type database
+  * fix potential crash when the daemon shuts down
+  * compatibility with newer autoconf versions
+
+This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
+0.6.3, 0.6.4, 0.6.5, 0.6.6, 0.6.7, 0.6.9 and 0.6.10.
+
 Avahi 0.6.10
 ============
 

@@ -114,3 +114,5 @@ _pulse-server._tcp:PulseAudio Sound Server
 _pulse-sink._tcp:PulseAudio Sound Sink
 _pulse-source._tcp:PulseAudio Sound Source
 
+_mpd._tcp:Music Player Daemon
+_smb._tcp:Microsoft Windows Network

@@ -148,6 +148,7 @@ static void print_service_line(Config *config, char c, AvahiIfIndex interface, A
            interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
            protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
            n_columns-35, name, type, domain);
+    fflush(stdout);
 }
 
 static void service_resolver_callback(
@@ -206,6 +207,7 @@ static void service_resolver_callback(
     assert(n_resolving > 0);
     n_resolving--;
     check_terminate(i->config);
+    fflush(stdout);
 }
 
 static ServiceInfo *add_service(Config *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {

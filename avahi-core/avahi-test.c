@@ -250,7 +250,7 @@ static void db_callback(
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void* userdata) {
 
-    avahi_log_debug("DB: (%i.%i) <%s> [%s]", iface, protocol, domain, browser_event_to_string(event));
+    avahi_log_debug("DB: (%i.%i) <%s> [%s]", iface, protocol, domain ? domain : "NULL", browser_event_to_string(event));
 }
 
 static void stb_callback(
@@ -263,7 +263,7 @@ static void stb_callback(
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void* userdata) {
 
-    avahi_log_debug("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type, domain, browser_event_to_string(event));
+    avahi_log_debug("STB: (%i.%i) %s in <%s> [%s]", iface, protocol, service_type ? service_type : "NULL", domain ? domain : "NULL", browser_event_to_string(event));
 }
 
 static void sb_callback(
@@ -276,7 +276,7 @@ static void sb_callback(
     const char *domain,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void* userdata) {
-    avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain, browser_event_to_string(event));
+    avahi_log_debug("SB: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name ? name : "NULL", service_type ? service_type : "NULL", domain ? domain : "NULL", browser_event_to_string(event));
 }
 
 static void sr_callback(
@@ -323,7 +323,7 @@ static void dsb_callback(
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
-    avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname, t, port, browser_event_to_string(event));
+    avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname ? hostname : "NULL", t, port, browser_event_to_string(event));
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {

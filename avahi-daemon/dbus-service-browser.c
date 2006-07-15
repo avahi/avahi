@@ -38,8 +38,12 @@ void avahi_dbus_service_browser_free(ServiceBrowserInfo *i) {
 
     if (i->service_browser)
         avahi_s_service_browser_free(i->service_browser);
-    dbus_connection_unregister_object_path(server->bus, i->path);
-    avahi_free(i->path);
+
+    if (i->path) {
+        dbus_connection_unregister_object_path(server->bus, i->path);
+        avahi_free(i->path);
+    }
+    
     AVAHI_LLIST_REMOVE(ServiceBrowserInfo, service_browsers, i->client->service_browsers, i);
 
     i->client->n_objects--;

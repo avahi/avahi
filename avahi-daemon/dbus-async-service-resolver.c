@@ -39,7 +39,11 @@ void avahi_dbus_async_service_resolver_free(AsyncServiceResolverInfo *i) {
     if (i->service_resolver)
         avahi_s_service_resolver_free(i->service_resolver);
 
-    dbus_connection_unregister_object_path(server->bus, i->path);
+    if (i->path) {
+        dbus_connection_unregister_object_path(server->bus, i->path);
+        avahi_free(i->path);
+    }
+    
     AVAHI_LLIST_REMOVE(AsyncServiceResolverInfo, async_service_resolvers, i->client->async_service_resolvers, i);
 
     i->client->n_objects--;

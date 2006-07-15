@@ -38,7 +38,12 @@ void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i) {
 
     if (i->address_resolver)
         avahi_s_address_resolver_free(i->address_resolver);
-    dbus_connection_unregister_object_path(server->bus, i->path);
+
+    if (i->path) {
+        dbus_connection_unregister_object_path(server->bus, i->path);
+        avahi_free(i->path);
+    }
+    
     AVAHI_LLIST_REMOVE(AsyncAddressResolverInfo, async_address_resolvers, i->client->async_address_resolvers, i);
 
     i->client->n_objects--;

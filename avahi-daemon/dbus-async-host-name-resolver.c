@@ -38,7 +38,11 @@ void avahi_dbus_async_host_name_resolver_free(AsyncHostNameResolverInfo *i) {
 
     if (i->host_name_resolver)
         avahi_s_host_name_resolver_free(i->host_name_resolver);
-    dbus_connection_unregister_object_path(server->bus, i->path);
+
+    if (i->path) {
+        dbus_connection_unregister_object_path(server->bus, i->path);
+        avahi_free(i->path);
+    }
     AVAHI_LLIST_REMOVE(AsyncHostNameResolverInfo, async_host_name_resolvers, i->client->async_host_name_resolvers, i);
 
     i->client->n_objects--;

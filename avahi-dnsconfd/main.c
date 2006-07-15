@@ -393,6 +393,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { "version",   no_argument,       NULL, 'V' },
         { "refresh",   no_argument,       NULL, 'r' },
         { "check",     no_argument,       NULL, 'c' },
+        { NULL, 0, NULL, 0 }
     };
 
     opterr = 0;

@@ -67,7 +67,11 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
     switch (client->state) {
         case AVAHI_CLIENT_FAILURE:
             if (client->bus) {
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+                dbus_connection_close(client->bus);
+#else
                 dbus_connection_disconnect(client->bus);
+#endif
                 dbus_connection_unref(client->bus);
                 client->bus = NULL;
             }
@@ -598,7 +602,11 @@ void avahi_client_free(AvahiClient *client) {
     if (client->bus)
         /* Disconnect in advance, so that the free() functions won't
          * issue needless server calls */
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+        dbus_connection_close(client->bus);
+#else
         dbus_connection_disconnect(client->bus);
+#endif
     
     while (client->groups)
         avahi_entry_group_free(client->groups);

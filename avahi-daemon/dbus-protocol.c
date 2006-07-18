@@ -1115,7 +1115,11 @@ fail:
         dbus_error_free(&error);
 
     if (server->bus) {
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+        dbus_connection_close(server->bus);
+#else
         dbus_connection_disconnect(server->bus);
+#endif
         dbus_connection_unref(server->bus);
         server->bus = NULL;
     }
@@ -1132,7 +1136,11 @@ static void dbus_disconnect(void) {
     assert(server->n_clients == 0);
 
     if (server->bus) {
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+        dbus_connection_close(server->bus);
+#else
         dbus_connection_disconnect(server->bus);
+#endif
         dbus_connection_unref(server->bus);
         server->bus = NULL;
     }
@@ -1167,7 +1175,11 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
 
 fail:
     if (server->bus) {
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+        dbus_connection_close(server->bus);
+#else
         dbus_connection_disconnect(server->bus);
+#endif
         dbus_connection_unref(server->bus);
     }
 

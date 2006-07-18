@@ -92,7 +92,23 @@ static void cleanup_watches(AvahiGLibPoll *g, int all) {
     g->watch_req_cleanup = 0;
 }
 
-static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata) {
+static gushort map_events_to_glib(AvahiWatchEvent events) {
+    return
+        (events & AVAHI_WATCH_IN ? G_IO_IN : 0) |
+        (events & AVAHI_WATCH_OUT ? G_IO_OUT : 0) |
+        (events & AVAHI_WATCH_ERR ? G_IO_ERR : 0) |
+        (events & AVAHI_WATCH_HUP ? G_IO_HUP : 0);
+}
+
+static AvahiWatchEvent map_events_from_glib(gushort events) {
+    return
+        (events & G_IO_IN ? AVAHI_WATCH_IN : 0) |
+        (events & G_IO_OUT ? AVAHI_WATCH_OUT : 0) |
+        (events & G_IO_ERR ? AVAHI_WATCH_ERR : 0) |
+        (events & G_IO_HUP ? AVAHI_WATCH_HUP : 0);
+}
+
+static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent events, AvahiWatchCallback callback, void *userdata) {
     AvahiWatch *w;
     AvahiGLibPoll *g;
     
@@ -108,11 +124,7 @@ static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event
     
     w->glib_poll = g;
     w->pollfd.fd = fd;
-    w->pollfd.events =
-        (event & AVAHI_WATCH_IN ? G_IO_IN : 0) |
-        (event & AVAHI_WATCH_OUT ? G_IO_OUT : 0) |
-        (event & AVAHI_WATCH_ERR ? G_IO_ERR : 0) |
-        (event & AVAHI_WATCH_HUP ? G_IO_HUP : 0);
+    w->pollfd.events = map_events_to_glib(events);
     w->pollfd.revents = 0;
     w->callback = callback;
     w->userdata = userdata;
@@ -130,14 +142,14 @@ static void watch_update(AvahiWatch *w, AvahiWatchEvent events) {
     assert(w);
     assert(!w->dead);
 
-    w->pollfd.events = events;
+    w->pollfd.events = map_events_to_glib(events);
 }
 
 static AvahiWatchEvent watch_get_events(AvahiWatch *w) {
     assert(w);
     assert(!w->dead);
 
-    return w->pollfd.revents;
+    return map_events_from_glib(w->pollfd.revents);
 }
 
 static void watch_free(AvahiWatch *w) {
@@ -146,7 +158,7 @@ static void watch_free(AvahiWatch *w) {
 
     if (w->pollfd_added) {
         g_source_remove_poll(&w->glib_poll->source, &w->pollfd);
-        w->pollfd_added = TRUE;
+        w->pollfd_added = FALSE;
     }
     
     w->dead = TRUE;
@@ -266,11 +278,14 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
     
         usec = avahi_timeval_diff(&next_timeout->expiry, &tvnow);
 
-        if (usec <= 0)
+        if (usec <= 0) {
+	   *timeout = 0;
             return TRUE;
+	}
 
         *timeout = (gint) (usec / 1000);
-    }
+    } else
+        *timeout = -1;
         
     return FALSE;
 }
@@ -289,7 +304,7 @@ static gboolean check_func(GSource *source) {
         tvnow.tv_sec = now.tv_sec;
         tvnow.tv_usec = now.tv_usec;
         
-        if (avahi_timeval_compare(&next_timeout->expiry, &tvnow) < 0)
+        if (avahi_timeval_compare(&next_timeout->expiry, &tvnow) <= 0)
             return TRUE;
     }
 
@@ -323,7 +338,7 @@ static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc call
     for (w = g->watches; w; w = w->watches_next)
         if (w->pollfd.revents > 0) {
             assert(w->callback);
-            w->callback(w, w->pollfd.fd, w->pollfd.revents, w->userdata);
+            w->callback(w, w->pollfd.fd, map_events_from_glib(w->pollfd.revents), w->userdata);
             w->pollfd.revents = 0;
             return TRUE;
         }
@@ -365,6 +380,7 @@ AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, gint priority) {
     
     g_source_attach(&g->source, g->context);
     g_source_set_priority(&g->source, priority);
+    g_source_set_can_recurse(&g->source, FALSE);
 
     return g;
 }

@@ -6,9 +6,11 @@ This is a bugfix and general cleanups release.
 Changes:
   * Compatibility with newer D-Bus releases (0.9x)
   * Compatibility with DBUS builds with --disable-checks
+  * Fix an error in the DBUS event loop wrapping which
+    caused the avahi client libraries to dispatch some events
+    too late when used with D-BUS 0.62 and newer.
   * avahi-daemon: fix a minor memory leak in the DBUS code.
-  * avahi-glib: some important fixes in the GLIB adapter which are 
-    required when used with newer D-Bus releases. (0.62 and up)
+  * avahi-glib: some GLIB adapter cleanups
   * avahi-dnsconfd: fix segfault when passing an invalid command 
     line option
   * avahi-test: portability patches for Solaris

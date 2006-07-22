@@ -81,13 +81,15 @@ static void connection_data_unref(ConnectionData *d) {
     }
 }
 
-static void request_dispatch(ConnectionData *d) {
+static void request_dispatch(ConnectionData *d, int enable) {
     static const struct timeval tv = { 0, 0 };
     assert(d);
 
-    assert(dbus_connection_get_dispatch_status(d->connection) == DBUS_DISPATCH_DATA_REMAINS);
-
-    d->poll_api->timeout_update(d->dispatch_timeout, &tv);
+    if (enable) {
+        assert(dbus_connection_get_dispatch_status(d->connection) == DBUS_DISPATCH_DATA_REMAINS);
+        d->poll_api->timeout_update(d->dispatch_timeout, &tv);
+    } else
+        d->poll_api->timeout_update(d->dispatch_timeout, NULL);
 }
 
 static void dispatch_timeout_callback(AvahiTimeout *t, void *userdata) {
@@ -100,7 +102,9 @@ static void dispatch_timeout_callback(AvahiTimeout *t, void *userdata) {
 
     if (dbus_connection_dispatch(d->connection) == DBUS_DISPATCH_DATA_REMAINS)
         /* If there's still data, request that this handler is called again */
-        request_dispatch(d);
+        request_dispatch(d, 1);
+    else
+        request_dispatch(d, 0);
 
     dbus_connection_unref(d->connection);
     connection_data_unref(d);
@@ -301,7 +305,7 @@ static void dispatch_status(AVAHI_GCC_UNUSED DBusConnection *connection, DBusDis
     ConnectionData *d = userdata;
     
     if (new_status == DBUS_DISPATCH_DATA_REMAINS)
-        request_dispatch(d);
+        request_dispatch(d, 1);
  }
 
 int avahi_dbus_connection_glue(DBusConnection *c, const AvahiPoll *poll_api) {
@@ -329,7 +333,7 @@ int avahi_dbus_connection_glue(DBusConnection *c, const AvahiPoll *poll_api) {
     dbus_connection_set_dispatch_status_function(c, dispatch_status, connection_data_ref(d), (DBusFreeFunction)connection_data_unref);
 
     if (dbus_connection_get_dispatch_status(c) == DBUS_DISPATCH_DATA_REMAINS)
-        request_dispatch(d);
+        request_dispatch(d, 1);
 
     connection_data_unref(d);
     

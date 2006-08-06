@@ -37,7 +37,7 @@ typedef struct AvahiGLibPoll AvahiGLibPoll;
 /** Create a new GLib main loop adapter attached to the specified
  context. If context is NULL, the default main loop context is
  used. You can attach as many AvahiGLibPoll objects to the same context
- as you want. priority takes on of GLib's G_PRIORITY constants. */
+ as you want. priority takes one of GLib's G_PRIORITY constants. */
 AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, gint priority);
 
 /** Free  GLib main loop adapter */

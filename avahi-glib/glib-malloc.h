@@ -32,7 +32,7 @@
 AVAHI_C_DECL_BEGIN
 
 /** Return a pointer to a memory allocator that uses GLib's g_malloc()
- and frinds. Th returned structure is statically allocated, and needs
+ and friends. The returned structure is statically allocated, and needs
  not to be copied or freed. Pass this directly to avahi_set_allocator(). */
 const AvahiAllocator * avahi_glib_allocator(void);
 

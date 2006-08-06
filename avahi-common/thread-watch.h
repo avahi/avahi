@@ -46,7 +46,7 @@ void avahi_threaded_poll_free(AvahiThreadedPoll *p);
  * called. \since 0.6.4 */
 const AvahiPoll* avahi_threaded_poll_get(AvahiThreadedPoll *p);
 
-/** Start the event loop helper thread. After the thread has startet
+/** Start the event loop helper thread. After the thread has started
  * you must make sure to access the event loop object
  * (AvahiThreadedPoll, AvahiPoll and all its associated objects)
  * synchronized, i.e. with proper locking. You may want to use

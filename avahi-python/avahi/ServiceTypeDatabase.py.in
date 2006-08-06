@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import gdbm
+import @DBM@
 import locale
 import re
 
@@ -29,7 +29,7 @@ class ServiceTypeDatabase:
 
     def __init__(self, filename = "@pkgdatadir@/service-types.db"):
 
-        self.db = gdbm.open(filename, "r")
+        self.db = @DBM@.open(filename, "r")
 
         l = locale.getlocale(locale.LC_MESSAGES)
 
@@ -69,12 +69,12 @@ class ServiceTypeDatabase:
     def items(self):
 
         items = []
-        key = self.db.firstkey()
-        while key is not None:
+        @FIRST_KEY@
+        @CHECK_KEY@
             if re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+', key) and not re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+\[.*\]', key):
                 localized_service_name = self[key]
                 items.append((key, localized_service_name))
-            key = self.db.nextkey(key)
+            @NEXT_KEY@
         return items
 
     def has_key(self, key):

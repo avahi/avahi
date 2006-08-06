@@ -19,7 +19,14 @@
   USA.
 ***/
 
+#include <config.h>
+#ifdef HAVE_GDBM
 #include <gdbm.h>
+#endif
+#ifdef HAVE_DBM
+#include <ndbm.h>
+#include <fcntl.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
@@ -29,16 +36,30 @@
 
 #include "stdb.h"
 
+#ifdef HAVE_GDBM
 static GDBM_FILE gdbm_file = NULL;
+#endif
+#ifdef HAVE_DBM
+static DBM *dbm_file = NULL;
+#endif
 static char *buffer = NULL;
 
 static int init(void) {
 
+#ifdef HAVE_GDBM
     if (gdbm_file)
         return 0;
 
     if (!(gdbm_file = gdbm_open((char*) DATABASE_FILE, 0, GDBM_READER, 0, NULL)))
         return -1;
+#endif
+#ifdef HAVE_DBM
+    if (dbm_file)
+        return 0;
+
+    if (!(dbm_file = dbm_open((char*) DATABASE_FILE, O_RDONLY, 0)))
+        return -1;
+#endif
 
     return 0;
 }
@@ -59,7 +80,12 @@ const char* stdb_lookup(const char *name) {
         snprintf(k, sizeof(k), "%s[%s]", name, loc);
         key.dptr = k;
         key.dsize = strlen(k);
+#ifdef HAVE_GDBM
         data = gdbm_fetch(gdbm_file, key);
+#endif
+#ifdef HAVE_DBM
+        data = dbm_fetch(dbm_file, key);
+#endif
 
         if (!data.dptr) {
             char l[32], *e;
@@ -70,7 +96,12 @@ const char* stdb_lookup(const char *name) {
                 snprintf(k, sizeof(k), "%s[%s]", name, l);
                 key.dptr = k;
                 key.dsize = strlen(k);
+#ifdef HAVE_GDBM
                 data = gdbm_fetch(gdbm_file, key);
+#endif
+#ifdef HAVE_DBM
+                data = dbm_fetch(dbm_file, key);
+#endif
             }
 
             if (!data.dptr) {
@@ -79,7 +110,12 @@ const char* stdb_lookup(const char *name) {
                     snprintf(k, sizeof(k), "%s[%s]", name, l);
                     key.dptr = k;
                     key.dsize = strlen(k);
+#ifdef HAVE_GDBM
                     data = gdbm_fetch(gdbm_file, key);
+#endif
+#ifdef HAVE_DBM
+                    data = dbm_fetch(dbm_file, key);
+#endif
                 }
             }
         }
@@ -88,7 +124,12 @@ const char* stdb_lookup(const char *name) {
     if (!data.dptr) {
         key.dptr = (char*) name;
         key.dsize = strlen(name);
+#ifdef HAVE_GDBM
         data = gdbm_fetch(gdbm_file, key);
+#endif
+#ifdef HAVE_DBM
+        data = dbm_fetch(dbm_file, key);
+#endif
     }
 
     if (!data.dptr)
@@ -106,8 +147,14 @@ fail:
 }
 
 void stdb_shutdown(void) {
+#ifdef HAVE_GDBM
     if (gdbm_file)
         gdbm_close(gdbm_file);
+#endif
+#ifdef HAVE_DBM
+    if (dbm_file)
+        dbm_close(dbm_file);
+#endif
 
     avahi_free(buffer);
 }

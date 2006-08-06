@@ -43,7 +43,7 @@
 
 #include "sigint.h"
 
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
 #include "stdb.h"
 #endif
 
@@ -65,7 +65,7 @@ typedef struct Config {
     Command command;
     int resolve;
     int no_fail;
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
     int no_db_lookup;
 #endif
 } Config;
@@ -138,7 +138,7 @@ static ServiceInfo *find_service(AvahiIfIndex interface, AvahiProtocol protocol,
 static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {
     char ifname[IF_NAMESIZE];
 
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
     if (!config->no_db_lookup)
         type = stdb_lookup(type);
 #endif
@@ -596,7 +596,7 @@ static void help(FILE *f, const char *argv0) {
             "    -l --ignore-local    Ignore local services\n"
             "    -r --resolve         Resolve services found\n"
             "    -f --no-fail         Don't fail if the daemon is not available\n"
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
             "    -k --no-db-lookup    Don't lookup service types\n"
 #endif
             );
@@ -617,7 +617,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "ignore-local",   no_argument,       NULL, 'l' },
         { "resolve",        no_argument,       NULL, 'r' },
         { "no-fail",        no_argument,       NULL, 'f' },
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
         { "no-db-lookup",   no_argument,       NULL, 'k' },
 #endif
         { NULL, 0, NULL, 0 }
@@ -634,13 +634,13 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         c->no_fail = 0;
     c->domain = c->stype = NULL;
 
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
     c->no_db_lookup = 0;
 #endif
     
     opterr = 0;
     while ((o = getopt_long(argc, argv, "hVd:avtclrDf"
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
                             "k"
 #endif
                             , long_options, NULL)) >= 0) {
@@ -680,7 +680,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
             case 'f':
                 c->no_fail = 1;
                 break;
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
             case 'k':
                 c->no_db_lookup = 1;
                 break;
@@ -783,7 +783,7 @@ fail:
 
     avahi_string_list_free(browsed_types);
 
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
     stdb_shutdown();
 #endif    
 

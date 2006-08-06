@@ -43,7 +43,7 @@
 
 #include "sigint.h"
 
-#ifdef HAVE_GDBM
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
 #include "stdb.h"
 #endif
 

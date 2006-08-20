@@ -23,9 +23,10 @@ if HAVE_PYTHON
 
 avahidir = $(pythondir)/avahi
 
-avahi_SCRIPTS = ServiceTypeDatabase.py
 
 if HAVE_GDBM
+avahi_SCRIPTS = ServiceTypeDatabase.py
+
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@DBM\@,gdbm,g' \
@@ -37,6 +38,8 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 endif
 
 if HAVE_DBM
+avahi_SCRIPTS = ServiceTypeDatabase.py
+
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@DBM\@,dbm,g' \

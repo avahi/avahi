@@ -48,12 +48,10 @@ interfaces_DATA = $(interfaces)
 
 else 
 
-if HAVE_PYTHON 
-if HAVE_DBUS
+if HAVE_PYTHON_DBUS
 
 interfaces_DATA = $(interfaces)
 
-endif
 endif
 endif
 

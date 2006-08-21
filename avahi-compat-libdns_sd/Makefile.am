@@ -32,7 +32,7 @@ avahi_compat_libdns_sd_HEADERS = dns_sd.h
 lib_LTLIBRARIES = libdns_sd.la
 
 if ENABLE_TESTS
-noinst_PROGRAMS = txt-test
+noinst_PROGRAMS = txt-test null-test
 endif
 
 libdns_sd_la_SOURCES = \
@@ -51,6 +51,14 @@ txt_test_SOURCES = \
 	warn.c warn.h
 txt_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
 txt_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la
+
+null_test_SOURCES = \
+	dns_sd.h \
+	compat.c \
+	null-test.c \
+	warn.c warn.h
+null_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS)
+null_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 # You can test the compatibility layer by sticking in mDNSResponder's
 # dns-sd.c source here, naming it "libdns_sd-test.c" and running "make

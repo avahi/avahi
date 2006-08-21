@@ -790,7 +790,8 @@ static void reg_report_error(DNSServiceRef sdref, DNSServiceErrorType error) {
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
-    assert(sdref->service_register_callback);
+    if (!sdref->service_register_callback)
+        return;
 
     regtype = add_trailing_dot(sdref->service_regtype, regtype_fixed, sizeof(regtype_fixed));
     domain = add_trailing_dot(sdref->service_domain, domain_fixed, sizeof(domain_fixed));
@@ -983,7 +984,6 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     AVAHI_WARN_LINKAGE;
 
     assert(ret_sdref);
-    assert(callback);
     assert(regtype);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags) {

@@ -28,7 +28,7 @@
 #include <stdio.h>
 
 #include <avahi-common/gccmacro.h>
-#include "dns_sd.h"
+#include <dns_sd.h>
 
 static void hexdump(const void* p, size_t size) {
     const uint8_t *c = p;

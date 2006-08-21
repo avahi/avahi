@@ -29,19 +29,54 @@
 #include "malloc.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    char *r = NULL;
-    int i, k;
-
-    for (k = 0; k < 2; k++) {
+    const char* const test_strings[] = {
+        "gurke",
+        "",
+        "-",
+        " #",
+        "1",
+        "#0",
+        " #0",
+        " #1",
+        "#-1",
+        " #-1",
+        "-0",
+        "--0",
+        "-1",
+        "--1",
+        "-2",
+        "gurke1",
+        "gurke0",
+        "gurke-2",
+        "gurke #0",
+        "gurke #1",
+        "gurke #",
+        "gurke#1",
+        "gurke-",
+        "gurke---",
+        "gurke #",
+        "gurke ###",
+        NULL
+    };
         
-        for (i = 0; i < 20; i++) {
-            char *n;
-            
-            n = i == 0 ? avahi_strdup("gurke") : (k ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
-            avahi_free(r);
-            r = n;
-            
-            printf("%s\n", r);
+    char *r = NULL;
+    int i, j, k;
+
+    for (k = 0; test_strings[k]; k++) {
+
+        printf(">>>>>%s<<<<\n", test_strings[k]);
+        
+        for (j = 0; j < 2; j++) {
+        
+            for (i = 0; i < 20; i++) {
+                char *n;
+                
+                n = i == 0 ? avahi_strdup(test_strings[k]) : (j ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
+                avahi_free(r);
+                r = n;
+                
+                printf("%s\n", r);
+            }
         }
     }
 

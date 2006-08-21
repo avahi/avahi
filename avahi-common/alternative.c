@@ -32,20 +32,31 @@
 #include "malloc.h"
 
 char * avahi_alternative_host_name(const char *s) {
-    const char *p, *e;
+    const char *e;
     char *r;
 
     assert(s);
 
-    e = s;
-    
-    for (p = s; *p; p++)
-        if (!isdigit(*p))
-            e = p+1;
+    e = strrchr(s, '-');
 
-    if (*e) {
+    if (e) {
+        const char *p;
+        
+        for (p = e+1; *p; p++)
+            if (!isdigit(*p)) {
+                e = NULL;
+                break;
+            }
+
+        if (e && (*(e+1) == '0' || (*(e+1) == 0)))
+            e = NULL;
+    }
+
+    if (e) {
         char *c;
 
+        e++;
+        
         if (!(c = avahi_strndup(s, e-s)))
             return NULL;
 
@@ -53,7 +64,7 @@ char * avahi_alternative_host_name(const char *s) {
         avahi_free(c);
         
     } else
-        r = avahi_strdup_printf("%s2", s);
+        r = avahi_strdup_printf("%s-2", s);
     
     return r;
 }
@@ -76,6 +87,9 @@ char *avahi_alternative_service_name(const char *s) {
                 e = NULL;
                 break;
             }
+
+        if (e && (*e == '0' || *e == 0))
+            e = NULL;
     }
     
     if (e) {

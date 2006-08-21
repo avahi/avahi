@@ -683,7 +683,7 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
             static_hosts_load(0);
 #endif            
             static_service_add_to_server();
-            static_service_remove_from_server();
+            static_hosts_add_to_server();
 
             if (resolv_conf_entry_group)
                 avahi_s_entry_group_reset(resolv_conf_entry_group);

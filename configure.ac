@@ -709,6 +709,16 @@ DX_PDF_FEATURE(OFF)
 DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(avahi, doxygen.cfg, doxygen)
 
+AC_ARG_ENABLE(core-docs,
+        AS_HELP_STRING([--enable-core-docs],[Enable building of documentation for avahi-core]),
+[case "${enableval}" in
+  yes) ENABLE_CORE_DOCS=yes ;;
+  no)  ENABLE_CORE_DOCS=no ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-core-docs]) ;;
+esac],[ENABLE_CORE_DOCS=no])
+
+AM_CONDITIONAL([ENABLE_CORE_DOCS], [test "x$ENABLE_CORE_DOCS" = xyes])
+
 #
 # Build and Install man pages
 #
@@ -902,4 +912,5 @@ echo "\
     Building avahi-compat-libdns_sd:    ${ENABLE_COMPAT_LIBDNS_SD}
     Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}
     Building tests:                     ${ENABLE_TESTS}
+    Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
 "

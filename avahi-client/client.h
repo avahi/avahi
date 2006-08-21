@@ -33,9 +33,6 @@
 
 /** \file client.h Definitions and functions for the client API over D-Bus */
 
-/** \example glib-integration.c Example of how to integrate
- * avahi use with GLIB/GTK applications */
-
 AVAHI_C_DECL_BEGIN
 
 /** A connection context */

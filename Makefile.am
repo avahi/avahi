@@ -71,32 +71,52 @@ SUBDIRS = \
 
 
 DX_INPUT = \
-	$(srcdir)/avahi-core/core.h \
-	$(srcdir)/avahi-core/lookup.h \
-	$(srcdir)/avahi-core/publish.h \
 	$(srcdir)/avahi-common/address.h \
-	$(srcdir)/avahi-core/rr.h \
 	$(srcdir)/avahi-common/strlst.h \
 	$(srcdir)/avahi-common/alternative.h \
-	$(srcdir)/avahi-core/log.h \
 	$(srcdir)/avahi-common/defs.h \
-	$(srcdir)/avahi-client/client.h \
-	$(srcdir)/avahi-client/lookup.h \
-	$(srcdir)/avahi-client/publish.h \
 	$(srcdir)/avahi-common/error.h \
 	$(srcdir)/avahi-common/malloc.h \
 	$(srcdir)/avahi-common/domain.h \
 	$(srcdir)/avahi-common/watch.h \
 	$(srcdir)/avahi-common/simple-watch.h \
 	$(srcdir)/avahi-common/thread-watch.h \
-	$(srcdir)/avahi-glib/glib-watch.h \
-	$(srcdir)/avahi-glib/glib-malloc.h \
-	$(srcdir)/avahi-common/timeval.h \
-	$(srcdir)/avahi-qt/qt-watch.h
+	$(srcdir)/avahi-common/timeval.h
 
 DX_EXAMPLE_PATH = $(srcdir)/examples
-
 DX_EXAMPLE_PATTERNS = *.c
+
+if HAVE_QT3
+DX_INPUT += \
+	$(srcdir)/avahi-qt/qt-watch.h
+else
+if HAVE_QT4
+DX_INPUT += \
+	$(srcdir)/avahi-qt/qt-watch.h
+endif
+endif
+
+if HAVE_GLIB
+DX_INPUT += \
+	$(srcdir)/avahi-glib/glib-watch.h \
+	$(srcdir)/avahi-glib/glib-malloc.h
+endif
+
+if HAVE_DBUS
+DX_INPUT += \
+	$(srcdir)/avahi-client/client.h \
+	$(srcdir)/avahi-client/lookup.h \
+	$(srcdir)/avahi-client/publish.h
+endif
+
+if ENABLE_CORE_DOCS
+DX_INPUT += \
+	$(srcdir)/avahi-core/core.h \
+	$(srcdir)/avahi-core/lookup.h \
+	$(srcdir)/avahi-core/publish.h \
+	$(srcdir)/avahi-core/rr.h \
+	$(srcdir)/avahi-core/log.h
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = avahi-core.pc

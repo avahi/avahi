@@ -69,8 +69,8 @@ avahi-sharp-docs.zip: avahi-sharp-docs.tree
 avahi-sharp-docs.tree: $(srcdir)/en/*/*
 	$(MDASSEMBLER) --out avahi-sharp-docs --ecma $(srcdir)/en
 
-docdir = $(MONODOC_DIR)
-doc_DATA = avahi-sharp-docs.zip avahi-sharp-docs.tree avahi-sharp-docs.source
+monodocdir = $(MONODOC_DIR)
+monodoc_DATA = avahi-sharp-docs.zip avahi-sharp-docs.tree avahi-sharp-docs.source
 
 endif
 

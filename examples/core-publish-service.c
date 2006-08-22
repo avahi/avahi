@@ -72,6 +72,8 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
             
         case AVAHI_ENTRY_GROUP_FAILURE :
 
+            fprintf(stderr, "Entry group failure: %s\n", avahi_strerror(avahi_server_errno(s)));
+            
             /* Some kind of failure happened while we were registering our services */
             avahi_simple_poll_quit(simple_poll);
             break;
@@ -162,14 +164,19 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
                 return;
             }
 
-            /* Let's drop our registered services. When the server is back
+        }
+
+            /* Fall through */
+
+        case AVAHI_SERVER_REGISTERING:
+            
+	    /* Let's drop our registered services. When the server is back
              * in AVAHI_SERVER_RUNNING state we will register them
              * again with the new host name. */
             if (group)
                 avahi_s_entry_group_reset(group);
 
             break;
-        }
 
         case AVAHI_SERVER_FAILURE:
             
@@ -180,7 +187,6 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
             break;
 
         case AVAHI_SERVER_INVALID:
-        case AVAHI_SERVER_REGISTERING:
             ;
     }
 }

@@ -897,6 +897,7 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
         }
             
         case AVAHI_CLIENT_S_COLLISION:
+        case AVAHI_CLIENT_S_REGISTERING:
 
             /* Remove our entry */
             avahi_entry_group_reset(sdref->entry_group);
@@ -904,7 +905,6 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
             break;
 
         case AVAHI_CLIENT_CONNECTING:
-        case AVAHI_CLIENT_S_REGISTERING:
             /* Ignore */
             break;
     }

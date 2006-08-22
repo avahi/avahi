@@ -71,6 +71,8 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
 
         case AVAHI_ENTRY_GROUP_FAILURE :
 
+            fprintf(stderr, "Entry group failure: %s\n", avahi_strerror(avahi_client_errno(avahi_entry_group_get_client(g))));
+
             /* Some kind of failure happened while we were registering our services */
             avahi_simple_poll_quit(simple_poll);
             break;
@@ -142,15 +144,6 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
                 create_services(c);
             break;
 
-        case AVAHI_CLIENT_S_COLLISION:
-        
-            /* Let's drop our registered services. When the server is back
-             * in AVAHI_SERVER_RUNNING state we will register them
-             * again with the new host name. */
-            if (group)
-                avahi_entry_group_reset(group);
-            break;
-            
         case AVAHI_CLIENT_FAILURE:
             
             fprintf(stderr, "Client failure: %s\n", avahi_strerror(avahi_client_errno(c)));
@@ -158,8 +151,25 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
             
             break;
 
-        case AVAHI_CLIENT_CONNECTING:
+        case AVAHI_CLIENT_S_COLLISION:
+        
+            /* Let's drop our registered services. When the server is back
+             * in AVAHI_SERVER_RUNNING state we will register them
+             * again with the new host name. */
+            
         case AVAHI_CLIENT_S_REGISTERING:
+
+            /* The server records are now being established. This
+             * might be caused by a host name change. We need to wait
+             * for our own records to register until the host name is
+             * properly esatblished. */
+            
+            if (group)
+                avahi_entry_group_reset(group);
+            
+            break;
+
+        case AVAHI_CLIENT_CONNECTING:
             ;
     }
 }

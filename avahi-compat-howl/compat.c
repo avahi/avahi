@@ -711,13 +711,13 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
         }
             
         case AVAHI_CLIENT_S_COLLISION:
+        case AVAHI_CLIENT_S_REGISTERING:
 
             /* Remove our entry */
             avahi_entry_group_reset(data->object);
             break;
 
         case AVAHI_CLIENT_CONNECTING:
-        case AVAHI_CLIENT_S_REGISTERING:
             /* Ignore */
             break;
     }

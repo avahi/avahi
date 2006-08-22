@@ -43,7 +43,6 @@
 #include <avahi-common/dbus.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
-#include <avahi-common/dbus.h>
 #include <avahi-common/dbus-watch-glue.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/error.h>
@@ -264,6 +263,22 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
         }
 
         return avahi_dbus_respond_string(c, m, avahi_server_get_host_name(avahi_server));
+        
+    } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "SetHostName")) {
+
+        char *name;
+        
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &name, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing Server::SetHostName message");
+            goto fail;
+        }
+        
+        if (avahi_server_set_host_name(avahi_server, name) < 0) 
+            return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+
+        avahi_log_info("Changing host name to '%s'.", name);
+        
+        return avahi_dbus_respond_ok(c, m);
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetDomainName")) {
 

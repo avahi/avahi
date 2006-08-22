@@ -44,6 +44,9 @@
     <method name="GetHostName">
       <arg name="name" type="s" direction="out"/>
     </method>
+    <method name="SetHostName">
+      <arg name="name" type="s" direction="in"/>
+    </method>
     <method name="GetHostNameFqdn">
       <arg name="name" type="s" direction="out"/>
     </method>

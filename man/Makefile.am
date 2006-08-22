@@ -34,6 +34,7 @@ noinst_DATA = \
 	avahi-browse.1.xml \
 	avahi-publish.1.xml \
 	avahi-resolve.1.xml \
+	avahi-set-host-name.1.xml \
 	avahi-daemon.8.xml \
 	avahi-discover.1.xml \
 	avahi-bookmarks.1.xml \
@@ -51,7 +52,8 @@ if HAVE_DBUS
 man_MANS += \
 	avahi-browse.1 \
 	avahi-resolve.1 \
-	avahi-publish.1
+	avahi-publish.1 \
+	avahi-set-host-name.1
 
 if HAVE_PYTHON
 man_MANS += \
@@ -69,6 +71,10 @@ avahi-publish.1.xml: avahi-publish.1.xml.in Makefile
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
 avahi-resolve.1.xml: avahi-resolve.1.xml.in Makefile
+	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
+avahi-set-host-name.1.xml: avahi-set-host-name.1.xml.in Makefile
 	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
@@ -125,6 +131,9 @@ avahi-publish.1: avahi-publish.1.xml Makefile
 avahi-resolve.1: avahi-resolve.1.xml Makefile
 	xmltoman $< > $@
 
+avahi-set-host-name.1: avahi-set-host-name.1.xml Makefile
+	xmltoman $< > $@
+
 avahi-daemon.8: avahi-daemon.8.xml Makefile
 	xmltoman $< > $@
 
@@ -163,6 +172,7 @@ EXTRA_DIST = \
 	avahi-browse.1.xml.in \
 	avahi-publish.1.xml.in \
 	avahi-resolve.1.xml.in \
+	avahi-set-host-name.1.xml.in \
 	avahi-daemon.8.xml.in \
 	avahi-discover.1.xml.in \
 	avahi-bookmarks.1.xml.in \

@@ -158,7 +158,7 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-daemon.conf" section="5"/>, <manref name="avahi.hosts" section="5"/>, <manref name="avahi.service" section="5"/>, <manref name="avahi-dnsconfd" section="8"/>
+        <manref name="avahi-daemon.conf" section="5"/>, <manref name="avahi.hosts" section="5"/>, <manref name="avahi.service" section="5"/>, <manref name="avahi-dnsconfd" section="8"/>, <manref name="avahi-set-host-name" section="1"/>
 	  </p>
 	</section>
 	

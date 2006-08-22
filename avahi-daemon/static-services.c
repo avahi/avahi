@@ -222,7 +222,9 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         /* This service group is already registered in the server */
         return;
     
-    if (!g->chosen_name) {
+    if (!g->chosen_name || (g->replace_wildcards && strstr(g->name, "%h"))) {
+
+        avahi_free(g->chosen_name);
         
         if (g->replace_wildcards)
             g->chosen_name = replacestr(g->name, "%h", avahi_server_get_host_name(avahi_server));

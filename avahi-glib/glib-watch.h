@@ -24,7 +24,7 @@
 
 /** \file glib-watch.h GLib main loop adapter */
 
-/** \example yglib-integration.c Example of how to integrate
+/** \example glib-integration.c Example of how to integrate
  * avahi use with GLIB/GTK applications */
 
 #include <glib.h>

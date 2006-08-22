@@ -33,17 +33,17 @@
  * Avahi provides three programming APIs for integration of
  * mDNS/DNS-SD features into your progams:
  *
- * \li avahi-core: an API for embedding a complete mDNS/DNS-SD stack
+ * \li <b>avahi-core</b>: an API for embedding a complete mDNS/DNS-SD stack
  * into your software. This is intended for developers of embedded
  * ampliances only. We dissuade from using this API in normal desktop
  * applications since it is not a good idea to run multiple mDNS
  * stacks simultaneously on the same host.
- * \li The DBUS API: an extensive DBUS interface for browsing and
+ * \li <b>the D-Bus API</b>: an extensive D-Bus interface for browsing and
  * registering mDNS/DNS-SD services using avahi-daemon. We recommend
  * to use this API for software written in any language but
- * C. (i.e. python)
- * \li avahi-client: a simplifying C wrapper around the DBUS API. We
- * recommend to use this API in C or C++ progams. The DBUS internals
+ * C. (i.e. Python)
+ * \li <b>avahi-client</b>: a simplifying C wrapper around the D-Bus API. We
+ * recommend to use this API in C or C++ progams. The D-Bus internals
  * are hidden completely.
  * 
  * All three APIs are very similar, however avahi-core is the most powerful.
@@ -60,44 +60,42 @@
  * Please note that these compatibility layers are incomplete and
  * generally a waste of resources. We strongly encourage everyone to
  * use our native APIs for newly written programs and to port older
- * programs to one of them!
+ * programs to avahi-client!
  * 
  * \section error_reporting Error Reporting
  *
  * Some notes on the Avahi error handling:
  *
  * - Error codes are negative integers and defined as AVAHI_ERR_xx
- * - If a function returns some kind of non-negative integer value
- * on success, a failure is indicated by returning the error code
+ * - If a function returns some kind of non-negative integer value on
+ * success, a failure is indicated by returning the error code
  * directly.
  * - If a function returns a pointer of some kind on success, a
  * failure is indicated by returning NULL
  * - The last error number may be retrieved by calling
- * avahi_server_errno() (for the server API) or avahi_client_errno()
- * (for the client API)
- * - Just like the libc errno variable the Avahi errno is NOT reset
- * to AVAHI_OK if a function call succeeds.
- * - You may convert a numeric error code into a human readable
- * string using avahi_strerror()
- * - The constructor functions avahi_server_new() and
- * avahi_client_new() return the error code in a call-by-reference
- * argument
+ * avahi_client_errno()
+ * - Just like the libc errno variable the Avahi errno is NOT reset to
+ * AVAHI_OK if a function call succeeds.
+ * - You may convert a numeric error code into a human readable string
+ * using avahi_strerror()
+ * - The constructor function avahi_client_new() returns the error
+ * code in a call-by-reference argument
  *
  * \section event_loop Event Loop Abstraction
  *
- * Avahi uses for both avahi-client and avahi-core a simple event loop
- * abstraction layer.A table AvahiPoll which contains function
- * pointers for user defined timeout and I/O condition event source
- * implementations, needs to be passed to avahi_server_new() and
+ * Avahi uses a simple event loop abstraction laye. A table AvahiPoll
+ * which contains function pointers for user defined timeout and I/O
+ * condition event source implementations needs to be passed to
  * avahi_client_new(). An adapter for this abstraction layer is
  * available for the GLib main loop in the object AvahiGLibPoll. A
  * simple stand-alone implementation is available under the name
- * AvahiSimplePoll.
+ * AvahiSimplePoll. An adpater for the Qt main loop is available from
+ * avahi_qt_poll_get().
  *
  * \section good_publish How to Register Services
  *
  * - Subscribe to server state changes. Pass a callback function
- * pointer to avahi_client_new()/avahi_server_new(). It will be called
+ * pointer to avahi_client_new(). It will be called
  * whenever the server state changes.
  * - Only register your services when the server is in state
  * AVAHI_SERVER_RUNNING. If you register your services in other server
@@ -129,8 +127,6 @@
  * that's exactly what you should do in that case. First call
  * avahi_entry_group_reset() to remove it and than readd it normally.
  *
- * The linked functions belong to avahi-client. They all have counterparts in the DBUS API and avahi-core.
- *
  * \section good_browse How to Browse for Services
  *
  * - For normal applications you need to call avahi_service_browser_new()
@@ -143,11 +139,10 @@
  * - Network monitor software may use avahi_service_type_browser_new()
  * to browse for the list of available service types on the LAN. This
  * API should NOT be used in normal software since it increases
- * traffic heavily.
+ * traffic immensly. In addition not all DNS-SD implementations
+ * announce their services in away that they can be found with
+ * avahi_server_type_browser_new().
  * - There is no need to subscribe to server state changes.
- *  
- * The linked functions belong to avahi-client. They all have
- * counterparts in the DBUS API and avahi-core.
  *
  * \section daemon_dies How to Write a Client That Can Deal with Daemon Restarts
  *
@@ -172,7 +167,7 @@
  * all kinds of background daemons, but not in software like iChat
  * compatible IM software.
  *
- * For now AVAHI_CLIENT_NO_FAIL cannot deal with DBUS daemon restarts.
+ * For now AVAHI_CLIENT_NO_FAIL cannot deal with D-Bus daemon restarts.
  *
  * \section domains How to Deal Properly with Browsing Domains
  *

@@ -102,8 +102,10 @@
  * states they might not be accessible since the local host name is
  * not established.
  * - Remove your services when the server enters
- * AVAHI_SERVER_COLLISION state. Your services may no be reachable
- * anymore since the local host name is no longer established.
+ * AVAHI_SERVER_COLLISION or AVAHI_SERVER_REGISTERING state. Your
+ * services may no be reachable anymore since the local host name is
+ * no longer established or is currently in the process of being
+ * established.
  * - When registering services, use the following algorithm:
  *   - Create a new entry group (i.e. avahi_entry_group_new())
  *   - Add your service(s)/additional host names (i.e. avahi_entry_group_add_service())

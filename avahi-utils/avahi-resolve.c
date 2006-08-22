@@ -43,10 +43,6 @@
 
 #include "sigint.h"
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
-#include "stdb.h"
-#endif
-
 typedef enum {
     COMMAND_UNSPEC, 
     COMMAND_HELP,

@@ -24,7 +24,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_DBUS
 
-bin_PROGRAMS = avahi-browse avahi-resolve avahi-publish
+bin_PROGRAMS = avahi-browse avahi-resolve avahi-publish avahi-set-host-name
 
 avahi_browse_SOURCES = avahi-browse.c sigint.c sigint.h
 avahi_browse_CFLAGS = $(AM_CFLAGS)
@@ -48,6 +48,10 @@ avahi_resolve_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-co
 avahi_publish_SOURCES = avahi-publish.c sigint.c sigint.h
 avahi_publish_CFLAGS = $(AM_CFLAGS)
 avahi_publish_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
+
+avahi_set_host_name_SOURCES = avahi-set-host-name.c sigint.c sigint.h
+avahi_set_host_name_CFLAGS = $(AM_CFLAGS)
+avahi_set_host_name_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
 install-exec-local:
 	cd $(DESTDIR)/$(bindir) && \

@@ -875,3 +875,58 @@ int avahi_client_is_connected(AvahiClient *client) {
         dbus_connection_get_is_connected(client->bus) &&
         (client->state == AVAHI_CLIENT_S_RUNNING || client->state == AVAHI_CLIENT_S_REGISTERING || client->state == AVAHI_CLIENT_S_COLLISION);
 }
+
+int avahi_client_set_host_name(AvahiClient* client, const char *name) {
+    DBusMessage *message = NULL, *reply = NULL;
+    DBusError error;
+
+    assert(client);
+    
+    if (!avahi_client_is_connected(client))
+        return avahi_client_set_errno(client, AVAHI_ERR_BAD_STATE);
+
+    dbus_error_init (&error);
+
+    if (!(message = dbus_message_new_method_call (AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "SetHostName"))) {
+        avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+
+    if (!dbus_message_append_args (message, DBUS_TYPE_STRING, &name, DBUS_TYPE_INVALID)) {
+        avahi_client_set_errno (client, AVAHI_ERR_NO_MEMORY);
+        goto fail;
+    }
+    
+    reply = dbus_connection_send_with_reply_and_block(client->bus, message, -1, &error);
+
+    if (!reply || dbus_error_is_set (&error))
+        goto fail;
+
+    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_INVALID) ||
+        dbus_error_is_set (&error))
+        goto fail;
+
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
+
+    avahi_free(client->host_name);
+    client->host_name = NULL;
+    avahi_free(client->host_name_fqdn);
+    client->host_name_fqdn = NULL;
+    
+    return 0;
+
+fail:
+
+    if (message)
+        dbus_message_unref(message);
+    if (reply)
+        dbus_message_unref(reply);
+    
+    if (dbus_error_is_set(&error)) {
+        avahi_client_set_dbus_error(client, &error);
+        dbus_error_free(&error);
+    }
+
+    return client->error;
+}

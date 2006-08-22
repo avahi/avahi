@@ -77,6 +77,9 @@ const char* avahi_client_get_version_string (AvahiClient*);
 /** Get host name */
 const char* avahi_client_get_host_name (AvahiClient*);
 
+/** Set host name. \since 0.6.13 */
+int avahi_client_set_host_name(AvahiClient*, const char *name);
+
 /** Get domain name */
 const char* avahi_client_get_domain_name (AvahiClient*);
 

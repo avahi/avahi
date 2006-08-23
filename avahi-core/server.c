@@ -1226,17 +1226,27 @@ static void update_fqdn(AvahiServer *s) {
 }
 
 int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
+    char *hn = NULL;
     assert(s);
-    assert(host_name);
+    
+    AVAHI_CHECK_VALIDITY(s, !host_name || avahi_is_valid_host_name(host_name), AVAHI_ERR_INVALID_HOST_NAME);
 
-    if (host_name && !avahi_is_valid_host_name(host_name))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
+    if (!host_name) {
+        hn = avahi_get_host_name_strdup();
+        hn[strcspn(hn, ".")] = 0;
+        host_name = hn;
+    }
 
+    if (avahi_domain_equal(s->host_name, host_name) && s->state != AVAHI_SERVER_COLLISION) {
+        avahi_free(hn);
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_CHANGE);
+    }
+    
     withdraw_host_rrs(s);
 
     avahi_free(s->host_name);
-    s->host_name = host_name ? avahi_normalize_name_strdup(host_name) : avahi_get_host_name_strdup();
-    s->host_name[strcspn(s->host_name, ".")] = 0;
+    s->host_name = hn ? hn : avahi_strdup(host_name);
+    
     update_fqdn(s);
 
     register_stuff(s);
@@ -1244,19 +1254,30 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
 }
 
 int avahi_server_set_domain_name(AvahiServer *s, const char *domain_name) {
+    char *dn = NULL;
     assert(s);
-    assert(domain_name);
 
-    if (domain_name && !avahi_is_valid_domain_name(domain_name))
-        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_DOMAIN_NAME);
+    AVAHI_CHECK_VALIDITY(s, !domain_name || avahi_is_valid_domain_name(domain_name), AVAHI_ERR_INVALID_DOMAIN_NAME);
+
+    if (!domain_name) {
+        dn = avahi_strdup("local");
+        domain_name = dn;
+    }
+    
+    if (avahi_domain_equal(s->domain_name, domain_name)) {
+        avahi_free(dn);
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_CHANGE);
+    }
 
     withdraw_host_rrs(s);
 
     avahi_free(s->domain_name);
-    s->domain_name = domain_name ? avahi_normalize_name_strdup(domain_name) : avahi_strdup("local");
+    s->domain_name = avahi_normalize_name_strdup(domain_name);
     update_fqdn(s);
 
     register_stuff(s);
+
+    avahi_free(dn);
     return AVAHI_OK;
 }
 

@@ -88,6 +88,7 @@ enum {
     AVAHI_ERR_NOT_PERMITTED = -50,           /**< Operation not permitted */
     AVAHI_ERR_INVALID_ARGUMENT = -51,        /**< Invalid argument */
     AVAHI_ERR_IS_EMPTY = -52,                /**< Is empty */
+    AVAHI_ERR_NO_CHANGE = -53,               /**< The requested operation is invalid because redundant */
     
     /****
      ****    IF YOU ADD A NEW ERROR CODE HERE, PLEASE DON'T FORGET TO ADD
@@ -97,7 +98,7 @@ enum {
      ****    Also remember to update the MAX value below.
      ****/
     
-    AVAHI_ERR_MAX = -53
+    AVAHI_ERR_MAX = -54
 };
 
 /** Return a human readable error string for the specified error code */

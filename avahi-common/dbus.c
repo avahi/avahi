@@ -88,7 +88,8 @@ static const char * const table[- AVAHI_ERR_MAX] = {
 
     AVAHI_DBUS_ERR_NOT_PERMITTED,
     AVAHI_DBUS_ERR_INVALID_ARGUMENT,
-    AVAHI_DBUS_ERR_IS_EMPTY
+    AVAHI_DBUS_ERR_IS_EMPTY,
+    AVAHI_DBUS_ERR_NO_CHANGE
 };
 
 struct error_map {

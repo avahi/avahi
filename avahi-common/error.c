@@ -85,7 +85,8 @@ const char *avahi_strerror(int error) {
 
         "Not permitted",
         "Invalid argument",
-	"Is empty"
+	"Is empty",
+        "The requested operation is invalid because redundant"
     };
 
     if (-error < 0 || -error >= -AVAHI_ERR_MAX)

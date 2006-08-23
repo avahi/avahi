@@ -108,6 +108,7 @@ Avahi 0.6.1 implements API version 0x0202 */
 #define AVAHI_DBUS_ERR_NOT_PERMITTED "org.freedesktop.Avahi.NotPermittedError"
 #define AVAHI_DBUS_ERR_INVALID_ARGUMENT "org.freedesktop.Avahi.InvalidArgumentError"
 #define AVAHI_DBUS_ERR_IS_EMPTY "org.freedesktop.Avahi.IsEmptyError"
+#define AVAHI_DBUS_ERR_NO_CHANGE "org.freedesktop.Avahi.NoChangeError"
 
 /** Convert a DBus error string into an Avahi error number */
 int avahi_error_dbus_to_number(const char *s);

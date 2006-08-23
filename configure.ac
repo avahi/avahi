@@ -21,7 +21,7 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([avahi],[0.6.12],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.6.13],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
@@ -680,6 +680,15 @@ fi
 AC_SUBST(AVAHI_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_GROUP,"$AVAHI_GROUP", [Group for Avahi])
 
+AC_ARG_WITH(avahi_priv_access_group,AS_HELP_STRING([--with-avahi-priv-access-group=<group>],[Priviliged access group for Avahi clients (netdev)]))
+if test -z "$with_priv_access_group" ; then
+    AVAHI_PRIV_ACCESS_GROUP=netdev
+else
+    AVAHI_PRIV_ACCESS_GROUP=$with_priv_access_group
+fi
+AC_SUBST(AVAHI_PRIV_ACCESS_GROUP)
+AC_DEFINE_UNQUOTED(AVAHI_PRIV_ACCESS_GROUP,"$AVAHI_PRIV_ACCESS_GROUP", [Privileged access group for Avahi clients])
+
 #
 # Avahi runtime dir
 #
@@ -842,33 +851,34 @@ AC_OUTPUT
 echo "
  ---{ $PACKAGE_NAME $VERSION }---
 
-    prefix:                 ${prefix}
-    sysconfdir:             ${sysconfdir}
-    localstatedir:          ${localstatedir}
-    avahi socket:           ${avahi_socket}
-    dbus-1 system.d dir:    ${DBUS_SYS_DIR}
-    dbus-1 version:         ${DBUS_VERSION}
-    dbus-1 system socket    ${DBUS_SYSTEM_BUS_DEFAULT_ADDRESS}
-    compiler:               ${CC}
-    cflags:                 ${CFLAGS}
-    Enable GLIB:            ${HAVE_GLIB}
-    Enable GTK:             ${HAVE_GTK}
-    Enable D-BUS:           ${HAVE_DBUS}
-    Enable Expat:           ${HAVE_EXPAT}
-    Enable GDBM:            ${HAVE_GDBM}
-    Enable DBM:             ${HAVE_DBM}
-    Enable libdaemon:       ${HAVE_LIBDAEMON}
-    Enable Python:          ${HAVE_PYTHON}
-    Enable pygtk:           ${HAVE_PYGTK}
-    Enable python-dbus:     ${HAVE_PYTHON_DBUS}
-    Enable QT3:             ${HAVE_QT3}
-    Enable QT4:             ${HAVE_QT4}
-    Enable Mono:            ${HAVE_MONO}
-    Enable Monodoc:         ${HAVE_MONODOC}
-    Distribution/OS:        ${with_distro}
-    User for Avahi:         ${AVAHI_USER}
-    Group for Avahi:        ${AVAHI_GROUP}
-    Enable chroot():        ${enable_chroot}
+    prefix:                                    ${prefix}
+    sysconfdir:                                ${sysconfdir}
+    localstatedir:                             ${localstatedir}
+    avahi socket:                              ${avahi_socket}
+    dbus-1 system.d dir:                       ${DBUS_SYS_DIR}
+    dbus-1 version:                            ${DBUS_VERSION}
+    dbus-1 system socket:                      ${DBUS_SYSTEM_BUS_DEFAULT_ADDRESS}
+    C Compiler:                                ${CC}
+    CFLAGS:                                    ${CFLAGS}
+    Enable GLIB:                               ${HAVE_GLIB}
+    Enable GTK:                                ${HAVE_GTK}
+    Enable D-BUS:                              ${HAVE_DBUS}
+    Enable Expat:                              ${HAVE_EXPAT}
+    Enable GDBM:                               ${HAVE_GDBM}
+    Enable DBM:                                ${HAVE_DBM}
+    Enable libdaemon:                          ${HAVE_LIBDAEMON}
+    Enable Python:                             ${HAVE_PYTHON}
+    Enable pygtk:                              ${HAVE_PYGTK}
+    Enable python-dbus:                        ${HAVE_PYTHON_DBUS}
+    Enable QT3:                                ${HAVE_QT3}
+    Enable QT4:                                ${HAVE_QT4}
+    Enable Mono:                               ${HAVE_MONO}
+    Enable Monodoc:                            ${HAVE_MONODOC}
+    Distribution/OS:                           ${with_distro}
+    User for Avahi daemon:                     ${AVAHI_USER}
+    Group for Avahi daemon:                    ${AVAHI_GROUP}
+    Priviliged Access Group for Avahi Clients: ${AVAHI_PRIV_ACCESS_GROUP}
+    Enable chroot():                           ${enable_chroot}
 "
 
 BUILD_DAEMON="no   (You need libdaemon and expat!)"

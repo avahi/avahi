@@ -1024,6 +1024,7 @@ static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState st
 
     switch (state) {
         case AVAHI_ENTRY_GROUP_ESTABLISHED:
+
             /* Inform the user */
             reg_report_error(sdref, kDNSServiceErr_NoError);
 
@@ -1092,13 +1093,14 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
 
     assert(ret_sdref);
     assert(regtype);
+    assert(txtRecord || txtLen == 0);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags) {
         AVAHI_WARN_UNSUPPORTED;
         return kDNSServiceErr_Unsupported;
     }
 
-    if (txtRecord && txtLen > 0) 
+    if (txtLen > 0) 
         if (avahi_string_list_parse(txtRecord, txtLen, &txt) < 0)
             return kDNSServiceErr_Invalid;
 
@@ -1186,6 +1188,66 @@ finish:
     if (ret != kDNSServiceErr_NoError)
         DNSServiceRefDeallocate(sdref);
 
+    return ret;
+}
+
+DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(
+         DNSServiceRef sdref,
+         DNSRecordRef rref,     
+         DNSServiceFlags flags,
+         uint16_t rdlen,
+         const void *rdata,
+         AVAHI_GCC_UNUSED uint32_t ttl) {
+
+    int ret = kDNSServiceErr_Unknown;
+    AvahiStringList *txt = NULL;
+    assert(sdref);
+
+    AVAHI_WARN_LINKAGE;
+
+    if (flags || rref) {
+        AVAHI_WARN_UNSUPPORTED;
+        return kDNSServiceErr_Unsupported;
+    }
+
+    if (rdlen > 0) 
+        if (avahi_string_list_parse(rdata, rdlen, &txt) < 0)
+            return kDNSServiceErr_Invalid;
+
+    ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
+
+    if (!avahi_string_list_equal(txt, sdref->service_txt)) {
+
+        avahi_string_list_free(sdref->service_txt);
+        sdref->service_txt = txt;
+
+        if (avahi_client_get_state(sdref->client) == AVAHI_CLIENT_S_RUNNING &&
+            sdref->entry_group &&
+            (avahi_entry_group_get_state(sdref->entry_group) == AVAHI_ENTRY_GROUP_ESTABLISHED ||
+            avahi_entry_group_get_state(sdref->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING))
+
+            if (avahi_entry_group_update_service_txt_strlst(
+                        sdref->entry_group,
+                        sdref->service_interface,
+                        AVAHI_PROTO_UNSPEC,
+                        0,
+                        sdref->service_name_chosen,
+                        sdref->type_info.type,
+                        sdref->service_domain,
+                        sdref->service_txt) < 0) {
+                
+                ret = map_error(avahi_client_errno(sdref->client));
+                goto finish;
+            }
+
+    } else
+        avahi_string_list_free(txt);
+
+    ret = kDNSServiceErr_NoError;
+    
+finish:
+    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
+    
     return ret;
 }
 

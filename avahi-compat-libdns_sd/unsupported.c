@@ -96,19 +96,6 @@ DNSServiceErrorType DNSSD_API DNSServiceAddRecord(
     return kDNSServiceErr_Unsupported;
 }
 
-DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(
-    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
-    AVAHI_GCC_UNUSED DNSRecordRef RecordRef,     
-    AVAHI_GCC_UNUSED DNSServiceFlags flags,
-    AVAHI_GCC_UNUSED uint16_t rdlen,
-    AVAHI_GCC_UNUSED const void *rdata,
-    AVAHI_GCC_UNUSED uint32_t ttl) {
-
-    AVAHI_WARN_UNSUPPORTED;
-    
-    return kDNSServiceErr_Unsupported;
-}
-
 DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord(
     AVAHI_GCC_UNUSED DNSServiceRef sdRef,
     AVAHI_GCC_UNUSED DNSRecordRef RecordRef,

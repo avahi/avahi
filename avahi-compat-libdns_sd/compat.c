@@ -56,6 +56,12 @@ enum {
     COMMAND_POLL_FAILED = 'F'
 };
 
+struct type_info {
+    char *type;
+    AvahiStringList *subtypes;
+    int n_subtypes;
+};
+
 struct _DNSServiceRef_t {
     int n_ref;
     
@@ -79,7 +85,8 @@ struct _DNSServiceRef_t {
     AvahiServiceResolver *service_resolver;
     AvahiDomainBrowser *domain_browser;
 
-    char *service_name, *service_name_chosen, *service_regtype, *service_domain, *service_host;
+    struct type_info type_info;
+    char *service_name, *service_name_chosen, *service_domain, *service_host;
     uint16_t service_port;
     AvahiIfIndex service_interface;
     AvahiStringList *service_txt;
@@ -152,6 +159,91 @@ static DNSServiceErrorType map_error(int error) {
     }
 
     return kDNSServiceErr_Unknown;
+}
+
+static void type_info_init(struct type_info *i) {
+    assert(i);
+    i->type = NULL;
+    i->subtypes = NULL;
+    i->n_subtypes = 0;
+}
+
+static void type_info_free(struct type_info *i) {
+    assert(i);
+
+    avahi_free(i->type);
+    avahi_string_list_free(i->subtypes);
+
+    type_info_init(i);
+}
+
+static int type_info_parse(struct type_info *i, const char *t) {
+    char *token = NULL;
+    
+    assert(i);
+    assert(t);
+
+    type_info_init(i);
+
+    for (;;) {
+        size_t l;
+
+        if (*t == 0)
+            break;
+        
+        l = strcspn(t, ",");
+
+        if (l <= 0)
+            goto fail;
+        
+        token = avahi_strndup(t, l);
+
+        if (!token)
+            goto fail;
+
+        if (!i->type) {
+            /* This is the first token, hence the main type */
+
+            if (!avahi_is_valid_service_type_strict(token))
+                goto fail;
+
+            i->type = token;
+            token = NULL;
+        } else {
+            char *fst;
+            
+            /* This is not the first token, hence a subtype */
+
+            if (!(fst = avahi_strdup_printf("%s._sub.%s", token, i->type)))
+                goto fail;
+
+            if (!avahi_is_valid_service_subtype(fst)) {
+                avahi_free(fst);
+                goto fail;
+            }
+
+            i->subtypes = avahi_string_list_add(i->subtypes, fst);
+            avahi_free(fst);
+
+            avahi_free(token);
+            token = NULL;
+
+            i->n_subtypes++;
+        }
+
+        t += l;
+
+        if (*t == ',')
+            t++;
+    }
+
+    if (i->type)
+        return 0;
+    
+fail:
+    type_info_free(i);
+    avahi_free(token);
+    return -1;
 }
 
 static const char *add_trailing_dot(const char *s, char *buf, size_t buf_len) {
@@ -287,8 +379,10 @@ static DNSServiceRef sdref_new(void) {
     sdref->domain_browser = NULL;
     sdref->entry_group = NULL;
 
-    sdref->service_name = sdref->service_name_chosen = sdref->service_regtype = sdref->service_domain = sdref->service_host = NULL;
+    sdref->service_name = sdref->service_name_chosen = sdref->service_domain = sdref->service_host = NULL;
     sdref->service_txt = NULL;
+
+    type_info_init(&sdref->type_info);
 
     ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
@@ -349,10 +443,11 @@ static void sdref_free(DNSServiceRef sdref) {
 
     avahi_free(sdref->service_name);
     avahi_free(sdref->service_name_chosen);
-    avahi_free(sdref->service_regtype);
     avahi_free(sdref->service_domain);
     avahi_free(sdref->service_host);
 
+    type_info_free(&sdref->type_info);
+    
     avahi_string_list_free(sdref->service_txt);
     
     avahi_free(sdref);
@@ -500,18 +595,19 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceBrowse(
-    DNSServiceRef *ret_sdref,
-    DNSServiceFlags flags,
-    uint32_t interface,
-    const char *regtype,
-    const char *domain,
-    DNSServiceBrowseReply callback,
-    void *context) {
+        DNSServiceRef *ret_sdref,
+        DNSServiceFlags flags,
+        uint32_t interface,
+        const char *regtype,
+        const char *domain,
+        DNSServiceBrowseReply callback,
+        void *context) {
 
     DNSServiceErrorType ret = kDNSServiceErr_Unknown;
     int error;
     DNSServiceRef sdref = NULL;
     AvahiIfIndex ifindex;
+    struct type_info type_info;
     
     AVAHI_WARN_LINKAGE;
     
@@ -524,8 +620,20 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
         return kDNSServiceErr_Unsupported;
     }
 
-    if (!(sdref = sdref_new()))
+    type_info_init(&type_info);
+    
+    if (type_info_parse(&type_info, regtype) < 0 || type_info.n_subtypes > 1) {
+        type_info_free(&type_info);
+
+        if (!avahi_is_valid_service_type_generic(regtype))
+            return kDNSServiceErr_Unsupported;
+    } else
+        regtype = type_info.subtypes ? (char*) type_info.subtypes->text : type_info.type;
+    
+    if (!(sdref = sdref_new())) {
+        type_info_free(&type_info);
         return kDNSServiceErr_Unknown;
+    }
 
     sdref->context = context;
     sdref->service_browser_callback = callback;
@@ -553,6 +661,8 @@ finish:
     
     if (ret != kDNSServiceErr_NoError)
         DNSServiceRefDeallocate(sdref);
+
+    type_info_free(&type_info);
 
     return ret;
 }
@@ -793,7 +903,7 @@ static void reg_report_error(DNSServiceRef sdref, DNSServiceErrorType error) {
     if (!sdref->service_register_callback)
         return;
 
-    regtype = add_trailing_dot(sdref->service_regtype, regtype_fixed, sizeof(regtype_fixed));
+    regtype = add_trailing_dot(sdref->type_info.type, regtype_fixed, sizeof(regtype_fixed));
     domain = add_trailing_dot(sdref->service_domain, domain_fixed, sizeof(domain_fixed));
     
     sdref->service_register_callback(
@@ -806,28 +916,25 @@ static void reg_report_error(DNSServiceRef sdref, DNSServiceErrorType error) {
 
 static int reg_create_service(DNSServiceRef sdref) {
     int ret;
-    const char *real_type;
+    AvahiStringList *l;
     
     assert(sdref);
     assert(sdref->n_ref >= 1);
 
-    real_type = avahi_get_type_from_subtype(sdref->service_regtype);
-    
     if ((ret = avahi_entry_group_add_service_strlst(
         sdref->entry_group,
         sdref->service_interface,
         AVAHI_PROTO_UNSPEC,
         0,
         sdref->service_name_chosen,
-        real_type ? real_type : sdref->service_regtype,
+        sdref->type_info.type,
         sdref->service_domain,
         sdref->service_host,
         sdref->service_port,
         sdref->service_txt)) < 0)
         return ret;
 
-    
-    if (real_type) {
+    for (l = sdref->type_info.subtypes; l; l = l->next) {
         /* Create a subtype entry */
 
         if (avahi_entry_group_add_service_subtype(
@@ -836,11 +943,10 @@ static int reg_create_service(DNSServiceRef sdref) {
                 AVAHI_PROTO_UNSPEC,
                 0,
                 sdref->service_name_chosen,
-                real_type,
+                sdref->type_info.type,
                 sdref->service_domain,
-                sdref->service_regtype) < 0)
+                (const char*) l->text) < 0)
             return ret;
-
     }
 
     if ((ret = avahi_entry_group_commit(sdref->entry_group)) < 0)
@@ -963,23 +1069,24 @@ static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState st
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceRegister (
-    DNSServiceRef *ret_sdref,
-    DNSServiceFlags flags,
-    uint32_t interface,
-    const char *name,        
-    const char *regtype,
-    const char *domain,      
-    const char *host,        
-    uint16_t port,
-    uint16_t txtLen,
-    const void *txtRecord,   
-    DNSServiceRegisterReply callback,    
-    void *context) {
+        DNSServiceRef *ret_sdref,
+        DNSServiceFlags flags,
+        uint32_t interface,
+        const char *name,        
+        const char *regtype,
+        const char *domain,      
+        const char *host,        
+        uint16_t port,
+        uint16_t txtLen,
+        const void *txtRecord,   
+        DNSServiceRegisterReply callback,    
+        void *context) {
 
     DNSServiceErrorType ret = kDNSServiceErr_Unknown;
     int error;
     DNSServiceRef sdref = NULL;
     AvahiStringList *txt = NULL;
+    struct type_info type_info;
 
     AVAHI_WARN_LINKAGE;
 
@@ -994,17 +1101,23 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
     if (txtRecord && txtLen > 0) 
         if (avahi_string_list_parse(txtRecord, txtLen, &txt) < 0)
             return kDNSServiceErr_Invalid;
+
+    if (type_info_parse(&type_info, regtype) < 0) {
+        avahi_string_list_free(txt);
+        return kDNSServiceErr_Invalid;
+    }
     
     if (!(sdref = sdref_new())) {
         avahi_string_list_free(txt);
+        type_info_free(&type_info);
         return kDNSServiceErr_Unknown;
     }
 
     sdref->context = context;
     sdref->service_register_callback = callback;
 
+    sdref->type_info = type_info;
     sdref->service_name = avahi_strdup(name);
-    sdref->service_regtype = regtype ? avahi_normalize_name_strdup(regtype) : NULL;
     sdref->service_domain = domain ? avahi_normalize_name_strdup(domain) : NULL;
     sdref->service_host = host ? avahi_normalize_name_strdup(host) : NULL;
     sdref->service_interface = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;

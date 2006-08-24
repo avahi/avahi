@@ -32,15 +32,42 @@
 #include <avahi-common/gccmacro.h>
 #include <dns_sd.h>
 
+static void reply(
+        AVAHI_GCC_UNUSED DNSServiceRef sdRef,
+        AVAHI_GCC_UNUSED DNSServiceFlags flags,
+        AVAHI_GCC_UNUSED uint32_t interfaceIndex,
+        AVAHI_GCC_UNUSED DNSServiceErrorType errorCode,
+        AVAHI_GCC_UNUSED const char *serviceName,
+        AVAHI_GCC_UNUSED const char *regtype,
+        AVAHI_GCC_UNUSED const char *replyDomain,
+        AVAHI_GCC_UNUSED void *context) {
+}
+
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
 
-    DNSServiceRef ref;
+    DNSServiceRef ref1, ref2, ref3, ref4 = NULL;
 
-    DNSServiceRegister(&ref, 0, 0, "fucker", "_fuck._tcp", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    DNSServiceRegister(&ref1, 0, 0, "simple", "_simple._tcp", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    DNSServiceRegister(&ref2, 0, 0, "subtype #1", "_simple._tcp,_subtype1", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    DNSServiceRegister(&ref3, 0, 0, "subtype #2", "_simple._tcp,_subtype1,_subtype2", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+
+    DNSServiceRegister(&ref4, 0, 0, "subtype #3", "_simple._tcp,,", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    assert(!ref4);
+    DNSServiceRegister(&ref4, 0, 0, "subtype #3", "", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    assert(!ref4);
+    DNSServiceRegister(&ref4, 0, 0, "subtype #3", ",", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    assert(!ref4);
+    DNSServiceRegister(&ref4, 0, 0, "subtype #3", ",,", NULL, NULL, 4711, 0, NULL, NULL, NULL);
+    assert(!ref4);
+
+    DNSServiceBrowse(&ref4, 0, 0, "_simple._tcp,_gurke", NULL, reply, NULL);
 
     sleep(20);
 
-    DNSServiceRefDeallocate(ref);
+    DNSServiceRefDeallocate(ref1);
+    DNSServiceRefDeallocate(ref2);
+    DNSServiceRefDeallocate(ref3);
+    DNSServiceRefDeallocate(ref4);
 
     return 0;
 }

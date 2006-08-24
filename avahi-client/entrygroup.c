@@ -249,21 +249,31 @@ int avahi_entry_group_free(AvahiEntryGroup *group) {
 }
 
 int avahi_entry_group_commit(AvahiEntryGroup *group) {
+    int ret;
     assert(group);
     
     if (!group->path || !avahi_client_is_connected(group->client))
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
-    return entry_group_simple_method_call(group, "Commit");
+    if ((ret = entry_group_simple_method_call(group, "Commit")) < 0)
+        return ret;
+
+    avahi_entry_group_set_state(group, AVAHI_ENTRY_GROUP_REGISTERING);
+    return 0;
 }
 
 int avahi_entry_group_reset(AvahiEntryGroup *group) {
+    int ret;
     assert(group);
     
     if (!group->path || !avahi_client_is_connected(group->client))
         return avahi_client_set_errno(group->client, AVAHI_ERR_BAD_STATE);
 
-    return entry_group_simple_method_call(group, "Reset");
+    if ((ret = entry_group_simple_method_call(group, "Reset")) < 0)
+        return ret;
+
+    avahi_entry_group_set_state(group, AVAHI_ENTRY_GROUP_UNCOMMITED);
+    return 0;
 }
 
 int avahi_entry_group_get_state (AvahiEntryGroup *group) {

@@ -41,10 +41,11 @@
 void avahi_entry_group_set_state(AvahiEntryGroup *group, AvahiEntryGroupState state) {
     assert(group);
 
-    if (group->state == state)
+    if (group->state_valid && group->state == state)
         return;
 
     group->state = state;
+    group->state_valid = 1;
 
     if (group->callback)
         group->callback(group, state, group->userdata);
@@ -82,9 +83,7 @@ static int retrieve_state(AvahiEntryGroup *group) {
     dbus_message_unref(message);
     dbus_message_unref(reply);
 
-    avahi_entry_group_set_state(group, (AvahiEntryGroupState) state);
-    
-    return AVAHI_OK;
+    return state;
     
 fail:
     if (dbus_error_is_set(&error)) {
@@ -106,6 +105,7 @@ AvahiEntryGroup* avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCall
     DBusMessage *message = NULL, *reply = NULL;
     DBusError error;
     char *path;
+    int state;
 
     assert(client);
 
@@ -124,7 +124,7 @@ AvahiEntryGroup* avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCall
     group->client = client;
     group->callback = callback;
     group->userdata = userdata;
-    group->state = AVAHI_ENTRY_GROUP_UNCOMMITED;
+    group->state_valid = 0;
     group->path = NULL;
     AVAHI_LLIST_PREPEND(AvahiEntryGroup, groups, client->groups, group);
     
@@ -157,8 +157,12 @@ AvahiEntryGroup* avahi_entry_group_new (AvahiClient *client, AvahiEntryGroupCall
         goto fail;
     }
 
-    if (retrieve_state(group) < 0)
+    if ((state = retrieve_state(group)) < 0) {
+        avahi_client_set_errno(client, state);
         goto fail;
+    }
+    
+    avahi_entry_group_set_state(group, (AvahiEntryGroupState) state);
 
     dbus_message_unref(message);
     dbus_message_unref(reply);
@@ -258,8 +262,8 @@ int avahi_entry_group_commit(AvahiEntryGroup *group) {
     if ((ret = entry_group_simple_method_call(group, "Commit")) < 0)
         return ret;
 
-    avahi_entry_group_set_state(group, AVAHI_ENTRY_GROUP_REGISTERING);
-    return 0;
+    group->state_valid = 0;
+    return ret;
 }
 
 int avahi_entry_group_reset(AvahiEntryGroup *group) {
@@ -271,15 +275,18 @@ int avahi_entry_group_reset(AvahiEntryGroup *group) {
 
     if ((ret = entry_group_simple_method_call(group, "Reset")) < 0)
         return ret;
-
-    avahi_entry_group_set_state(group, AVAHI_ENTRY_GROUP_UNCOMMITED);
-    return 0;
+    
+    group->state_valid = 0;
+    return ret;
 }
 
 int avahi_entry_group_get_state (AvahiEntryGroup *group) {
     assert (group);
 
-    return group->state;
+    if (group->state_valid)
+        return group->state;
+    
+    return retrieve_state(group);
 }
 
 AvahiClient* avahi_entry_group_get_client (AvahiEntryGroup *group) {

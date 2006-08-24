@@ -56,6 +56,7 @@ struct AvahiClient {
 struct AvahiEntryGroup {
     char *path;
     AvahiEntryGroupState state;
+    int state_valid;
     AvahiClient *client;
     AvahiEntryGroupCallback callback;
     void *userdata;

@@ -1,3 +1,49 @@
+Avahi 0.6.13
+============
+
+This release fixes some bugs and includes minor enhancements.
+
+Changes:
+  * Add a new D-Bus method for changing the mDNS host name during
+    runtime. This functionality is only available to members of the
+    UNIX group "netdev", which is the same access group that is
+    enforced by GNOME's NetworkManager daemon. Since NM will probably
+    be the most prominent user of this new method, we decided to limit
+    access to the same group. The access group can be set by passing
+    --with-avahi-priv-access-group= to "configure". If you need more
+    sophisticated access control you can freely edit
+    /etc/dbus/system.d/avahi-dbus.conf.
+  * Add a new utility "avahi-set-host-name" which is a command line
+    wrapper around the aforementioned SetHostName() method.
+  * Bonjour API compatibility library:
+        * Implement DNSServiceUpdateRecord() 
+        * Allow passing NULL as callback function for
+          DNSServiceRegister()
+        * Implement subtype registration in DNSServiceRegister() in a
+          way that is compatible with Bonjour.
+  * If the host name changes update names of static services wich
+    contain wildcards.
+  * Don't build documentation about embedding the Avahi mDNS stack into
+    other programs by default. This is a feature used only by embedded
+    developers. Pass --enable-core-docs to "configure" to enable
+    building these docs, like in Avahi <= 0.6.12.
+  * Build Qt documentation only when Qt support is enabled in
+    the configuration. Same for GLib.
+  * Change algorithm used to find a new host name on conflict. In
+    Avahi <= 0.6.12 a conflicting host name of "foobar" would be
+    changed to the new name "foobar2". With 0.6.13 "foobar-2" will be
+    picked instead. This follows Bonjour's behaviour and has the
+    advantage not confusing people with regular host names ending in
+    numbers.
+  * Don't disable all static services when SIGHUP is recieved.
+  * Fix build when Avahi is configured without Gtk+ but with Python
+    support
+  * Support using Solaris DBM instead of gdbm for the service type
+    database. The latter is still recommended
+  * Minor other fixes and documentation updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 13.
+
 Avahi 0.6.12
 ============
 

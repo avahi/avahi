@@ -32,7 +32,7 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 		-e 's,@DBM\@,gdbm,g' \
 		-e 's,@FIRST_KEY\@,key = self.db.firstkey(),g' \
 		-e 's,@CHECK_KEY\@,while key is not None:,g' \
-		-e 's,@NEXT_KEY\@,key = self.db.nextkey(),g' \
+		-e 's,@NEXT_KEY\@,key = self.db.nextkey(key),g' \
 		-e 's,@pkgdatadir\@,$(pkgdatadir),g' $< > $@
 	chmod +x $@
 endif

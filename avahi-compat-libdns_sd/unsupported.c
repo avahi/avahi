@@ -62,7 +62,7 @@ DNSServiceErrorType DNSSD_API DNSServiceQueryRecord (
     return kDNSServiceErr_Unsupported;
 }
 
-void DNSSD_API DNSServiceReconfirmRecord (
+DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord (
     AVAHI_GCC_UNUSED DNSServiceFlags flags,
     AVAHI_GCC_UNUSED uint32_t interfaceIndex,
     AVAHI_GCC_UNUSED const char *fullname,
@@ -73,7 +73,7 @@ void DNSSD_API DNSServiceReconfirmRecord (
 
     AVAHI_WARN_UNSUPPORTED;
     
-    return;
+    return kDNSServiceErr_Unsupported;
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(AVAHI_GCC_UNUSED DNSServiceRef *sdRef) {

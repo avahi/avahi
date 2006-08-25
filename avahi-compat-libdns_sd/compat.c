@@ -707,7 +707,7 @@ static void service_resolver_callback(
 
             strcat(full_name, ".");
             
-            sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoError, full_name, host_name, htons(port), l, p, sdref->context);
+            sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoError, full_name, host_name, htons(port), l, (unsigned char*) p, sdref->context);
 
             avahi_free(p);
             break;

@@ -35,10 +35,11 @@ Changes:
     changed to the new name "foobar2". With 0.6.13 "foobar-2" will be
     picked instead. This follows Bonjour's behaviour and has the
     advantage not confusing people with regular host names ending in
-    numbers.
+    digits.
   * Don't disable all static services when SIGHUP is recieved.
   * Fix build when Avahi is configured without Gtk+ but with Python
     support
+  * Fix build on MacOS X
   * Support using Solaris DBM instead of gdbm for the service type
     database. The latter is still recommended
   * Minor other fixes and documentation updates

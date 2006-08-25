@@ -21,6 +21,7 @@ Changes:
           DNSServiceRegister()
         * Implement subtype registration in DNSServiceRegister() in a
           way that is compatible with Bonjour.
+	* Update to newer copy of dns_sd.h
   * If the host name changes update names of static services wich
     contain wildcards.
   * Don't build documentation about embedding the Avahi mDNS stack into

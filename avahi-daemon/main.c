@@ -1023,7 +1023,7 @@ static void init_rand_seed(void) {
     }
 
     /* If the initialization failed by some reason, we add the time to the seed*/
-    seed |= (unsigned) time(NULL);
+    seed ^= (unsigned) time(NULL);
 
     srand(seed);
 }

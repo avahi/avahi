@@ -26,9 +26,21 @@
 
 #include "main.h"
 
+/* Subscribe to network configuration changes. The only events we are
+ * interested in are when routable addresses are removed/added to the
+ * monitored interface and when our monitored interface disappears. */
+
+
+/* Return a valid fd that we listen on for events */
 int iface_init(int ifindex);
+
+/* Process events */
 int iface_process(Event *event);
 void iface_done(void);
+
+/* Deduce the initial state of our state machine. If a routable
+ * address is configured for the interface, *state should be set to
+ * STATE_SLEEPING., otherwide STATE_START */
 
 int iface_get_initial_state(State *state);
 

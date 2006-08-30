@@ -230,14 +230,14 @@ static void set_state(State st, int reset_counter) {
 static int add_address(int iface, uint32_t addr) {
     char buf[64];
 
-    daemon_log(LOG_INFO, "Selected address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
+    daemon_log(LOG_INFO, "Configuring address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
     return 0;
 }
 
 static int remove_address(int iface, uint32_t addr) {
     char buf[64];
     
-    daemon_log(LOG_INFO, "Removing address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
+    daemon_log(LOG_INFO, "Unconfiguring address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
     return 0;
 }
 
@@ -464,6 +464,8 @@ static int loop(int iface, uint32_t addr) {
 
             daemon_log(LOG_INFO, "Successfully claimed IP address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
             set_state(STATE_RUNNING, 0);
+
+            next_wakeup_valid = 0;
             
         } else if (event == EVENT_PACKET) {
             ArpPacketInfo info;
@@ -514,10 +516,11 @@ static int loop(int iface, uint32_t addr) {
 
             daemon_log(LOG_INFO, "A routable address has been configured.");
 
-            set_state(STATE_SLEEPING, 1);
-            
             if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
                 remove_address(iface, addr);
+
+            set_state(STATE_SLEEPING, 1);
+            next_wakeup_valid = 0;
             
         } else if (event == EVENT_ROUTABLE_ADDR_UNCONFIGURED && state == STATE_SLEEPING) {
 
@@ -655,7 +658,6 @@ fail:
 
 /* TODO:
 
-- netlink
 - man page
 - user script
 - chroot/drop privs/caps

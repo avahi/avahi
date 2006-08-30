@@ -121,7 +121,6 @@ static int process_nlmsg(struct nlmsghdr *n) {
         int l;
         uint32_t address = 0;
         Address *i;
-        char buf[32];
         
         ifa = NLMSG_DATA(n);
 
@@ -143,8 +142,6 @@ static int process_nlmsg(struct nlmsghdr *n) {
             
             a = RTA_NEXT(a, l);
         }
-
-        daemon_log(LOG_INFO, "%s", inet_ntop(AF_INET, &address, buf, sizeof(buf)));
 
         if (!address || is_ll_address(address))
             return 0;
@@ -189,7 +186,7 @@ static int process_response(int wait_for_done, unsigned seq) {
                 return -1;
             }
 
-            if (p->nlmsg_type == NLMSG_DONE && wait_for_done && p->nlmsg_seq == seq)
+            if (p->nlmsg_type == NLMSG_DONE && wait_for_done && p->nlmsg_seq == seq && (pid_t) p->nlmsg_pid == getpid())
                 return 0;
 
             if (p->nlmsg_type == NLMSG_ERROR) {
@@ -200,9 +197,6 @@ static int process_response(int wait_for_done, unsigned seq) {
                     return -1;
                 }
             }
-
-            if ((pid_t) p->nlmsg_pid != getpid())
-                continue;
 
             if (process_nlmsg(p) < 0)
                 return -1;
@@ -272,7 +266,7 @@ int iface_process(Event *event) {
     if (process_response(0, 0) < 0)
         return -1;
 
-    if (b && !!addresses)
+    if (b && !addresses)
         *event = EVENT_ROUTABLE_ADDR_UNCONFIGURED;
     else if (!b && addresses)
         *event = EVENT_ROUTABLE_ADDR_CONFIGURED;

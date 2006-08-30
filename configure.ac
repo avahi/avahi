@@ -660,6 +660,20 @@ fi
 AM_CONDITIONAL(HAVE_MONODOC, test "x$HAVE_MONODOC" = "xyes")
 
 #
+# Build autoipd?
+#
+AC_ARG_ENABLE(autoipd,
+        AS_HELP_STRING([--disable-autoipd],[Disable building of avahi-autoipd]),
+        [case "${enableval}" in
+                yes) ENABLE_AUTOIPD=yes ;;
+                no)  ENABLE_AUTOIPD=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --disable-autoipd) ;;
+        esac],
+        [ENABLE_AUTOIPD=yes])
+
+AM_CONDITIONAL(ENABLE_AUTOIPD, test "x$ENABLE_AUTOIPD" = "xyes")
+
+#
 # Defining Avahi User and Group.
 #
 AC_ARG_WITH(avahi_user, AS_HELP_STRING([--with-avahi-user=<user>],[User for running the Avahi daemon (avahi)]))
@@ -844,6 +858,7 @@ avahi-sharp/Makefile
 avahi-compat-libdns_sd/Makefile
 avahi-compat-howl/Makefile
 avahi-compat-howl/samples/Makefile
+avahi-autoipd/Makefile
 ])
 AC_OUTPUT
 
@@ -923,4 +938,5 @@ echo "\
     Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}
     Building tests:                     ${ENABLE_TESTS}
     Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
+    Building avahi-autoipd:             ${ENABLE_AUTOIPD}
 "

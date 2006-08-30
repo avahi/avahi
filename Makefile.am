@@ -67,8 +67,8 @@ SUBDIRS = \
 	tests \
 	service-type-database \
 	avahi-compat-libdns_sd \
-	avahi-compat-howl 
-
+	avahi-compat-howl \
+	avahi-autoipd
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/address.h \

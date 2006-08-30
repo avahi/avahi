@@ -98,7 +98,8 @@ static void static_host_free(StaticHost *s) {
 
     AVAHI_LLIST_REMOVE(StaticHost, hosts, hosts, s);
 
-    avahi_s_entry_group_free (s->group);
+    if (s->group)
+        avahi_s_entry_group_free (s->group);
 
     avahi_free(s->host);
     avahi_free(s->ip);
@@ -112,7 +113,10 @@ static void add_static_host_to_server(StaticHost *h)
     int err;
 
     if (!h->group)
-        h->group = avahi_s_entry_group_new (avahi_server, entry_group_callback, h);
+        if (!(h->group = avahi_s_entry_group_new (avahi_server, entry_group_callback, h))) {
+            avahi_log_error("avahi_s_entry_group_new() failed: %s", avahi_strerror(err));
+            return;
+        }
 
     if (!avahi_address_parse (h->ip, AVAHI_PROTO_UNSPEC, &a)) {
         avahi_log_error("Static host name %s: avahi_address_parse failed", h->host);
@@ -129,7 +133,8 @@ static void add_static_host_to_server(StaticHost *h)
 
 static void remove_static_host_from_server(StaticHost *h)
 {
-    avahi_s_entry_group_reset (h->group);
+    if (h->group)
+        avahi_s_entry_group_reset (h->group);
 }
  
 void static_hosts_add_to_server(void) {

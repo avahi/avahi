@@ -43,11 +43,16 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
 
+#include <avahi-daemon/setproctitle.h>
+
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
 #include <libdaemon/dlog.h>
 #include <libdaemon/dpid.h>
 #include <libdaemon/dexec.h>
+
+#include "main.h"
+#include "iface.h"
 
 #ifndef __linux__
 #error "avahi-autoipd is only available on Linux for now"
@@ -74,17 +79,6 @@
 #define ETHER_ADDRLEN 6
 #define ARP_PACKET_SIZE (8+4+4+2*ETHER_ADDRLEN)
 
-typedef enum State {
-    STATE_INVALID,
-    STATE_WAITING_PROBE,
-    STATE_PROBING,
-    STATE_WAITING_ANNOUNCE,
-    STATE_ANNOUNCING,
-    STATE_RUNNING,
-    STATE_SLEEPING,
-    STATE_MAX
-} State;
-
 typedef enum ArpOperation {
     ARP_REQUEST = 1,
     ARP_RESPONSE = 2
@@ -97,7 +91,7 @@ typedef struct ArpPacketInfo {
     uint8_t sender_hw_address[ETHER_ADDRLEN], target_hw_address[ETHER_ADDRLEN];
 } ArpPacketInfo;
 
-static State state = STATE_INVALID;
+static State state = STATE_START;
 static int n_iteration = 0;
 static int n_conflict = 0;
 
@@ -212,7 +206,7 @@ static int packet_parse(const void *data, size_t packet_len, ArpPacketInfo *info
 
 static void set_state(State st, int reset_counter) {
     const char* const state_table[] = {
-        [STATE_INVALID] = "INVALID",
+        [STATE_START] = "START",
         [STATE_WAITING_PROBE] = "WAITING_PROBE",
         [STATE_PROBING] = "PROBING",
         [STATE_WAITING_ANNOUNCE] = "WAITING_ANNOUNCE", 
@@ -347,7 +341,7 @@ fail:
     return -1;
 }
  
-static int is_ll_address(uint32_t addr) {
+int is_ll_address(uint32_t addr) {
     return (ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK;
 }
 
@@ -366,6 +360,12 @@ static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned j
 }
 
 static int loop(int iface, uint32_t addr) {
+    enum {
+        FD_ARP,
+        FD_IFACE,
+        FD_MAX
+    };
+
     int fd = -1, ret = -1;
     struct timeval next_wakeup;
     int next_wakeup_valid = 0;
@@ -375,17 +375,19 @@ static int loop(int iface, uint32_t addr) {
     void *out_packet = NULL;
     size_t out_packet_len;
     uint8_t hw_address[ETHER_ADDRLEN];
-    struct pollfd pollfds[1];
+    struct pollfd pollfds[FD_MAX];
+    int iface_fd;
+    Event event = EVENT_NULL;
 
-    enum {
-        EVENT_NULL,
-        EVENT_PACKET,
-        EVENT_TIMEOUT
-    } event = EVENT_NULL;
-    
     if ((fd = open_socket(iface, hw_address)) < 0)
         goto fail;
 
+    if ((iface_fd = iface_init(iface)) < 0)
+        goto fail;
+
+    if (iface_get_initial_state(&state) < 0)
+        goto fail;
+    
     if (addr && !is_ll_address(addr)) {
         daemon_log(LOG_WARNING, "Requested address %s is not from IPv4LL range 169.254/16, ignoring.", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
         addr = 0;
@@ -403,15 +405,20 @@ static int loop(int iface, uint32_t addr) {
 
     daemon_log(LOG_INFO, "Starting with address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
 
+    if (state == STATE_SLEEPING)
+        daemon_log(LOG_INFO, "Routable address already assigned, sleeping.");
+
     memset(pollfds, 0, sizeof(pollfds));
-    pollfds[0].fd = fd;
-    pollfds[0].events = POLLIN;
+    pollfds[FD_ARP].fd = fd;
+    pollfds[FD_ARP].events = POLLIN;
+    pollfds[FD_IFACE].fd = iface_fd;
+    pollfds[FD_IFACE].events = POLLIN;
     
     for (;;) {
         int r, timeout;
         AvahiUsec usec;
 
-        if (state == STATE_INVALID) {
+        if (state == STATE_START) {
 
             /* First, wait a random time */
             set_state(STATE_WAITING_PROBE, 1);
@@ -488,10 +495,10 @@ static int loop(int iface, uint32_t addr) {
 
                     daemon_log(LOG_INFO, "Trying address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
 
-                    set_state(STATE_WAITING_PROBE, 1);
-
                     n_conflict++;
 
+                    set_state(STATE_WAITING_PROBE, 1);
+                    
                     if (n_conflict >= MAX_CONFLICTS) {
                         daemon_log(LOG_WARNING, "Got too many conflicts, rate limiting new probes.");
                         elapse_time(&next_wakeup, RATE_LIMIT_INTERVAL*1000, PROBE_WAIT*1000);
@@ -502,6 +509,25 @@ static int loop(int iface, uint32_t addr) {
                 } else
                     daemon_log(LOG_DEBUG, "Ignoring ARP packet.");
             }
+            
+        } else if (event == EVENT_ROUTABLE_ADDR_CONFIGURED) {
+
+            daemon_log(LOG_INFO, "A routable address has been configured.");
+
+            set_state(STATE_SLEEPING, 1);
+            
+            if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
+                remove_address(iface, addr);
+            
+        } else if (event == EVENT_ROUTABLE_ADDR_UNCONFIGURED && state == STATE_SLEEPING) {
+
+            daemon_log(LOG_INFO, "No longer a routable address configured, restarting probe process.");
+
+            set_state(STATE_WAITING_PROBE, 1);
+
+            elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
+            next_wakeup_valid = 1;
+            
         }
         
         if (out_packet) {
@@ -519,6 +545,7 @@ static int loop(int iface, uint32_t addr) {
             in_packet = NULL;
         }
 
+        event = EVENT_NULL;
         timeout = -1;
         
         if (next_wakeup_valid) {
@@ -528,7 +555,7 @@ static int loop(int iface, uint32_t addr) {
 
         daemon_log(LOG_DEBUG, "sleeping %ims", timeout);
                     
-        while ((r = poll(pollfds, 1, timeout)) < 0 && errno == EINTR)
+        while ((r = poll(pollfds, FD_MAX, timeout)) < 0 && errno == EINTR)
             ;
 
         if (r < 0) {
@@ -538,13 +565,21 @@ static int loop(int iface, uint32_t addr) {
             event = EVENT_TIMEOUT;
             next_wakeup_valid = 0;
         } else {
-            assert(pollfds[0].revents == POLLIN);
 
-            if (recv_packet(fd, &in_packet, &in_packet_len) < 0)
-                goto fail;
+            if (pollfds[FD_ARP].revents == POLLIN) {
+                if (recv_packet(fd, &in_packet, &in_packet_len) < 0)
+                    goto fail;
+                
+                if (in_packet)
+                    event = EVENT_PACKET;
+            }
 
-            if (in_packet)
-                event = EVENT_PACKET;
+            if (event == EVENT_NULL &&
+                pollfds[FD_IFACE].revents == POLLIN) {
+                
+                if (iface_process(&event) < 0)
+                    goto fail;
+            }
         }
     }
 
@@ -557,6 +592,9 @@ fail:
     
     if (fd >= 0)
         close(fd);
+
+    if (iface_fd >= 0)
+        iface_done();
     
     return ret;
 }
@@ -594,6 +632,8 @@ int main(int argc, char*argv[]) {
     int ifindex;
     uint32_t addr = 0;
 
+    avahi_init_proc_title(argc, argv);
+    
     init_rand_seed();
 
     if ((ifindex = get_ifindex(argc >= 2 ? argv[1] : "eth0")) < 0)
@@ -624,5 +664,6 @@ fail:
 - signals
 - store last used address
 - cmdline
+- setproctitle
 
 */

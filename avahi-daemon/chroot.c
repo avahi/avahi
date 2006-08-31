@@ -314,7 +314,9 @@ int avahi_chroot_helper_start(const char *argv0) {
         /* Drop all remaining capabilities */
         avahi_caps_drop_all();
 
-        avahi_set_proc_title(argv0, "%s: chroot helper process", argv0);
+        avahi_set_proc_title(argv0, "%s: chroot helper", argv0);
+
+        daemon_retval_done();
         
         close(sock[0]);
         helper_main(sock[1]);

@@ -267,7 +267,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         case AVAHI_SERVER_RUNNING:
             avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
             
-            avahi_set_proc_title("%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
+            avahi_set_proc_title(argv0, "%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
             
             static_service_add_to_server();
             static_hosts_add_to_server();
@@ -286,7 +286,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         case AVAHI_SERVER_COLLISION: {
             char *n;
             
-            avahi_set_proc_title("%s: collision", argv0);
+            avahi_set_proc_title(argv0, "%s: collision", argv0);
             
             static_service_remove_from_server();
             static_hosts_remove_from_server();
@@ -308,7 +308,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
 
         case AVAHI_SERVER_REGISTERING:
 
-            avahi_set_proc_title("%s: registering [%s]", argv0, avahi_server_get_host_name_fqdn(s));
+            avahi_set_proc_title(argv0, "%s: registering [%s]", argv0, avahi_server_get_host_name_fqdn(s));
             
             static_service_remove_from_server();
             static_hosts_remove_from_server();
@@ -1193,7 +1193,7 @@ int main(int argc, char *argv[]) {
 #endif
         avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
 
-        avahi_set_proc_title("%s: starting up", argv0);
+        avahi_set_proc_title(argv0, "%s: starting up", argv0);
         
         if (run_server(&config) == 0)
             r = 0;

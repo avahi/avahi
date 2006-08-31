@@ -267,13 +267,13 @@ static void set_state(State st, int reset_counter, uint32_t address) {
 
     if (modify_proc_title) {
         if (state == STATE_SLEEPING) 
-            avahi_set_proc_title("%s: sleeping", argv0);
+            avahi_set_proc_title(argv0, "%s(%s): sleeping", argv0, interface_name);
         else if (state == STATE_ANNOUNCING)
-            avahi_set_proc_title("%s: announcing %s", argv0, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+            avahi_set_proc_title(argv0, "%s(%s): announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
         else if (state == STATE_RUNNING)
-            avahi_set_proc_title("%s: bound %s", argv0, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+            avahi_set_proc_title(argv0, "%s(%s): bound %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
         else
-            avahi_set_proc_title("%s: probing %s", argv0, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+            avahi_set_proc_title(argv0, "%s(%s): probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
     }
 }
 
@@ -840,7 +840,7 @@ static int parse_command_line(int argc, char *argv[]) {
     };
 
     opterr = 0;
-    while ((c = getopt_long(argc, argv, "hDkVrcS:", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "hDskrcVS:w", long_options, NULL)) >= 0) {
 
         switch(c) {
             case 's':
@@ -903,7 +903,7 @@ static int parse_command_line(int argc, char *argv[]) {
             return -1;
         }
 
-        interface_name = argv[optind++];
+        interface_name = avahi_strdup(argv[optind++]);
     }
 
     if (optind != argc) {
@@ -921,6 +921,7 @@ static const char* pid_file_proc(void) {
 int main(int argc, char*argv[]) {
     int r = 1;
     int wrote_pid_file = 0;
+    char *log_ident = NULL;
 
     avahi_init_proc_title(argc, argv);
 
@@ -929,12 +930,15 @@ int main(int argc, char*argv[]) {
     else
         argv0 = argv[0];
 
-    daemon_pid_file_ident = daemon_log_ident = argv0;
-    daemon_pid_file_proc = pid_file_proc;
+    argv0 = avahi_strdup(argv0);
+
+    daemon_log_ident = argv0;
     
     if (parse_command_line(argc, argv) < 0)
         goto finish;
 
+    daemon_log_ident = log_ident = avahi_strdup_printf("%s(%s)", argv0, interface_name);
+    daemon_pid_file_proc = pid_file_proc;
     pid_file_name = avahi_strdup_printf(AVAHI_RUNTIME_DIR"/avahi-autoipd.%s.pid", interface_name);
 
     if (command == DAEMON_RUN) {
@@ -993,6 +997,8 @@ int main(int argc, char*argv[]) {
         } else
             wrote_pid_file = 1;
 
+        avahi_set_proc_title(argv0, "%s(%s): starting up", argv0, interface_name);
+        
         if (loop(ifindex, start_address) < 0)
             goto finish;
 
@@ -1030,6 +1036,11 @@ finish:
     
     if (wrote_pid_file)
         daemon_pid_file_remove();
+
+    avahi_free(log_ident);
+    avahi_free(pid_file_name);
+    avahi_free(argv0);
+    avahi_free(interface_name);
 
     return r;
 }

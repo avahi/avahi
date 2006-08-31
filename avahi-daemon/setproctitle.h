@@ -22,7 +22,9 @@
   USA.
 ***/
 
+#include <avahi-common/gccmacro.h>
+
 void avahi_init_proc_title(int argc, char **argv);
-void avahi_set_proc_title(const char *fmt, ...);
+void avahi_set_proc_title(const char *name, const char *fmt, ...) AVAHI_GCC_PRINTF_ATTR23;
 
 #endif

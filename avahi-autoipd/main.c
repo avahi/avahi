@@ -127,6 +127,19 @@ typedef enum CalloutEvent {
     CALLOUT_MAX
 } CalloutEvent;
 
+static const char * const callout_event_table[CALLOUT_MAX] = {
+    [CALLOUT_BIND] = "BIND",
+    [CALLOUT_CONFLICT] = "CONFLICT",
+    [CALLOUT_UNBIND] = "UNBIND",
+    [CALLOUT_STOP] = "STOP"
+};
+
+typedef struct CalloutEventInfo {
+    CalloutEvent event;
+    uint32_t address;
+    int ifindex;
+} CalloutEventInfo;
+
 #define RANDOM_DEVICE "/dev/urandom"
 
 #define DEBUG(x) do {\
@@ -243,7 +256,7 @@ static int packet_parse(const void *data, size_t packet_len, ArpPacketInfo *info
 }
 
 static void set_state(State st, int reset_counter, uint32_t address) {
-    const char* const state_table[] = {
+    static const char* const state_table[] = {
         [STATE_START] = "START",
         [STATE_WAITING_PROBE] = "WAITING_PROBE",
         [STATE_PROBING] = "PROBING",
@@ -313,23 +326,6 @@ fail:
         close(fd);
     
     return -1;
-}
-
-static int do_callout(CalloutEvent event, int iface, uint32_t addr) {
-    char buf[64], ifname[IFNAMSIZ];
-    const char * const event_table[CALLOUT_MAX] = {
-        [CALLOUT_BIND] = "BIND",
-        [CALLOUT_CONFLICT] = "CONFLICT",
-        [CALLOUT_UNBIND] = "UNBIND",
-        [CALLOUT_STOP] = "STOP"
-    };
-
-    daemon_log(LOG_INFO, "Callout %s, address %s on interface %s",
-               event_table[event],
-               inet_ntop(AF_INET, &addr, buf, sizeof(buf)),
-               if_indextoname(iface, ifname));
-    
-    return 0;
 }
 
 static int open_socket(int iface, uint8_t *hw_address) {
@@ -458,6 +454,125 @@ static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned j
     return tv;
 }
 
+static FILE* fork_dispatcher(void) {
+    FILE *ret;
+    int fds[2];
+    pid_t pid;
+
+    if (pipe(fds) < 0) {
+        daemon_log(LOG_ERR, "pipe() failed: %s", strerror(errno));
+        goto fail;
+    }
+
+    if ((pid = fork()) < 0)
+        goto fail;
+    else if (pid == 0) {
+        FILE *f = NULL; 
+        int r = 1;
+
+        /* Please note that the signal pipe is not closed at this
+         * point, signals will thus be dispatched in the main
+         * process. */
+
+        daemon_retval_done();
+        
+        setsid();
+
+        avahi_set_proc_title(argv0, "%s(%s): callout dispatcher", argv0, interface_name);
+
+        close(fds[1]);
+
+        if (!(f = fdopen(fds[0], "r"))) {
+            daemon_log(LOG_ERR, "fdopen() failed: %s", strerror(errno));
+            goto dispatcher_fail;
+        }
+        
+        for (;;) {
+            CalloutEventInfo info;
+            char name[IFNAMSIZ], buf[64];
+            int k;
+
+            if (fread(&info, sizeof(info), 1, f) != 1) {
+                if (feof(f))
+                    break;
+
+                daemon_log(LOG_ERR, "fread() failed: %s", strerror(errno));
+                goto dispatcher_fail;
+            }
+
+            assert(info.event <= CALLOUT_MAX);
+
+            if (!if_indextoname(info.ifindex, name)) {
+                daemon_log(LOG_ERR, "if_indextoname() failed: %s", strerror(errno));
+                continue;
+            }
+            
+            if (daemon_exec("/", &k,
+                            AVAHI_IPCONF_SCRIPT, AVAHI_IPCONF_SCRIPT,
+                            callout_event_table[info.event],
+                            name,
+                            inet_ntop(AF_INET, &info.address, buf, sizeof(buf)), NULL) < 0) {
+                
+                daemon_log(LOG_ERR, "Failed to run script: %s", strerror(errno));
+                continue;
+            }
+
+            if (k != 0)
+                daemon_log(LOG_WARNING, "Script execution failed with return value %i", k);
+        }
+
+        r = 0;
+
+    dispatcher_fail:
+
+        if (f)
+            fclose(f);
+        
+        _exit(r);
+    }
+
+    /* parent */
+
+    close(fds[0]);
+    fds[0] = -1;
+
+    if (!(ret = fdopen(fds[1], "w"))) {
+        daemon_log(LOG_ERR, "fdopen() failed: %s", strerror(errno));
+        goto fail;
+    }
+    
+    return ret;
+
+fail:
+    if (fds[0] >= 0)
+        close(fds[0]);
+    if (fds[1] >= 0)
+        close(fds[1]);
+
+    return NULL;
+}
+
+static int do_callout(FILE *f, CalloutEvent event, int iface, uint32_t addr) {
+    CalloutEventInfo info;
+    char buf[64], ifname[IFNAMSIZ];
+
+    daemon_log(LOG_INFO, "Callout %s, address %s on interface %s",
+               callout_event_table[event],
+               inet_ntop(AF_INET, &addr, buf, sizeof(buf)),
+               if_indextoname(iface, ifname));
+
+    info.event = event;
+    info.ifindex = iface;
+    info.address = addr;
+
+    if (fwrite(&info, sizeof(info), 1, f) != 1 || fflush(f) != 0) {
+        daemon_log(LOG_ERR, "Failed to write callout event: %s", strerror(errno));
+        return -1;
+    }
+    
+    return 0;
+}
+
 static int loop(int iface, uint32_t addr) {
     enum {
         FD_ARP,
@@ -480,14 +595,21 @@ static int loop(int iface, uint32_t addr) {
     Event event = EVENT_NULL;
     int retval_sent = !daemonize;
     State st;
+    FILE *dispatcher = NULL;
 
     daemon_signal_init(SIGINT, SIGTERM, SIGCHLD, SIGHUP,0);
+
+    if (!(dispatcher = fork_dispatcher()))
+        goto fail;
 
     if ((fd = open_socket(iface, hw_address)) < 0)
         goto fail;
 
     if ((iface_fd = iface_init(iface)) < 0)
         goto fail;
+
+/*     if (drop_privs() < 0) */
+/*         goto fail; */
 
     if (force_bind)
         st = STATE_START;
@@ -571,7 +693,9 @@ static int loop(int iface, uint32_t addr) {
             next_wakeup_valid = 1;
             
             if (n_iteration == 0) {
-                do_callout(CALLOUT_BIND, iface, addr);
+                if (do_callout(dispatcher, CALLOUT_BIND, iface, addr) < 0)
+                    goto fail;
+                
                 n_conflict = 0;
 
                 if (!retval_sent) {
@@ -610,7 +734,8 @@ static int loop(int iface, uint32_t addr) {
                 if (conflict) {
                     
                     if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
-                        do_callout(CALLOUT_CONFLICT, iface, addr);
+                        if (do_callout(dispatcher, CALLOUT_CONFLICT, iface, addr) < 0)
+                            goto fail;
                     
                     /* Pick a new address */
                     addr = pick_addr(addr);
@@ -637,7 +762,8 @@ static int loop(int iface, uint32_t addr) {
             daemon_log(LOG_INFO, "A routable address has been configured.");
 
             if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
-                do_callout(CALLOUT_UNBIND, iface, addr);
+                if (do_callout(dispatcher, CALLOUT_UNBIND, iface, addr) < 0)
+                    goto fail;
 
             if (!retval_sent) {
                 daemon_retval_send(0);
@@ -775,7 +901,7 @@ static int loop(int iface, uint32_t addr) {
 fail:
 
     if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
-        do_callout(CALLOUT_STOP, iface, addr);
+        do_callout(dispatcher, CALLOUT_STOP, iface, addr);
 
     avahi_free(out_packet);
     avahi_free(in_packet);
@@ -788,6 +914,9 @@ fail:
 
     if (daemonize && !retval_sent)
         daemon_retval_send(ret);
+
+    if (dispatcher)
+        fclose(dispatcher);
     
     return ret;
 }
@@ -925,6 +1054,8 @@ int main(int argc, char*argv[]) {
 
     avahi_init_proc_title(argc, argv);
 
+    signal(SIGPIPE, SIG_IGN);
+    
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
     else
@@ -1048,7 +1179,6 @@ finish:
 /* TODO:
 
 - chroot/drop privs/caps
-- user script
 - store last used address
 - man page
 

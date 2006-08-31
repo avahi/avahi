@@ -20,13 +20,15 @@
 if ENABLE_AUTOIPD
 if HAVE_LIBDAEMON
 
+pkgsysconfdir=$(sysconfdir)/avahi
+
 AM_CFLAGS= \
 	-I$(top_srcdir)
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")' \
 	-DAVAHI_RUNTIME_DIR=\"$(avahi_runtime_dir)/\" \
-	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-autoipd.action\"
+	-DAVAHI_IPCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-autoipd.action\"
 
 sbin_PROGRAMS = avahi-autoipd
 

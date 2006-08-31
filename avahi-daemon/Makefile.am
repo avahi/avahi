@@ -70,7 +70,8 @@ pkgsysconf_DATA = \
 	hosts
 
 service_DATA = \
-	ssh.service
+	ssh.service \
+	sftp-ssh.service
 
 pkgdata_DATA = \
 	avahi-service.dtd
@@ -148,6 +149,7 @@ EXTRA_DIST = \
 	HostNameResolver.introspect \
 	RecordBrowser.introspect \
 	ssh.service \
+	sftp-ssh.service \
 	hosts \
 	example.service \
 	introspect.dtd \

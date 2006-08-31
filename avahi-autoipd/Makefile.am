@@ -36,5 +36,7 @@ avahi_autoipd_SOURCES = main.c  ../avahi-daemon/setproctitle.c iface.h main.h if
 avahi_autoipd_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS)
 avahi_autoipd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(LIBDAEMON_LIBS)
 
+pkgsysconf_SCRIPTS=avahi-autoipd.action
+
 endif
 endif

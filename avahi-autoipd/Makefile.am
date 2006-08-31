@@ -28,7 +28,8 @@ AM_CFLAGS= \
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")' \
 	-DAVAHI_RUNTIME_DIR=\"$(avahi_runtime_dir)/\" \
-	-DAVAHI_IPCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-autoipd.action\"
+	-DAVAHI_IPCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-autoipd.action\" \
+	-DAVAHI_IPDATA_DIR=\"$(localstatedir)/lib/avahi-autoipd\"
 
 sbin_PROGRAMS = avahi-autoipd
 

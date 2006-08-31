@@ -43,6 +43,8 @@
 #include <getopt.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
@@ -109,6 +111,11 @@ static int use_syslog = 0;
 static int debug = 0;
 static int modify_proc_title = 1;
 static int force_bind = 0;
+#ifdef HAVE_CHROOT
+static int no_chroot = 0;
+#endif
+static int no_drop_root = 0;
+static int wrote_pid_file = 0;
 
 static enum {
     DAEMON_RUN,
@@ -278,16 +285,14 @@ static void set_state(State st, int reset_counter, uint32_t address) {
         n_iteration = 0;
     }
 
-    if (modify_proc_title) {
-        if (state == STATE_SLEEPING) 
-            avahi_set_proc_title(argv0, "%s: [%s] sleeping", argv0, interface_name);
-        else if (state == STATE_ANNOUNCING)
-            avahi_set_proc_title(argv0, "%s: [%s] announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
-        else if (state == STATE_RUNNING)
-            avahi_set_proc_title(argv0, "%s: [%s] bound %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
-        else
-            avahi_set_proc_title(argv0, "%s: [%s] probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
-    }
+    if (state == STATE_SLEEPING) 
+        avahi_set_proc_title(argv0, "%s: [%s] sleeping", argv0, interface_name);
+    else if (state == STATE_ANNOUNCING)
+        avahi_set_proc_title(argv0, "%s: [%s] announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+    else if (state == STATE_RUNNING)
+        avahi_set_proc_title(argv0, "%s: [%s] bound %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+    else
+        avahi_set_proc_title(argv0, "%s: [%s] probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
 }
 
 static int interface_up(int iface) {
@@ -527,6 +532,14 @@ static FILE* fork_dispatcher(void) {
 
         if (f)
             fclose(f);
+
+#ifdef HAVE_CHROOT
+        /* If the main process is trapped inside a chroot() we have to
+         * remove the PID file for it */
+        
+        if (!no_chroot && wrote_pid_file)
+            daemon_pid_file_remove();
+#endif
         
         _exit(r);
     }
@@ -573,6 +586,126 @@ static int do_callout(FILE *f, CalloutEvent event, int iface, uint32_t addr) {
     return 0;
 }
 
+#define set_env(key, value) putenv(avahi_strdup_printf("%s=%s", (key), (value)))
+
+static int drop_privs(void) {
+    struct passwd *pw;
+    struct group * gr;
+    int r;
+    mode_t u;
+
+    /* Get user/group ID */
+    
+    if (!no_drop_root) {
+    
+        if (!(pw = getpwnam(AVAHI_AUTOIPD_USER))) {
+            daemon_log(LOG_ERR, "Failed to find user '"AVAHI_AUTOIPD_USER"'.");
+            return -1;
+        }
+        
+        if (!(gr = getgrnam(AVAHI_AUTOIPD_GROUP))) {
+            daemon_log(LOG_ERR, "Failed to find group '"AVAHI_AUTOIPD_GROUP"'.");
+            return -1;
+        }
+        
+        daemon_log(LOG_INFO, "Found user '"AVAHI_AUTOIPD_USER"' (UID %lu) and group '"AVAHI_AUTOIPD_GROUP"' (GID %lu).", (unsigned long) pw->pw_uid, (unsigned long) gr->gr_gid);
+    }
+
+    /* Create directory */
+    u = umask(0000);
+    r = mkdir(AVAHI_IPDATA_DIR, 0755);
+    umask(u);
+    
+    if (r < 0 && errno != EEXIST) {
+        daemon_log(LOG_ERR, "mkdir(\""AVAHI_IPDATA_DIR"\"): %s", strerror(errno));
+        return -1;
+    }
+
+    /* Convey working directory */
+    
+    if (!no_drop_root) {
+        struct stat st;
+        
+        chown(AVAHI_IPDATA_DIR, pw->pw_uid, gr->gr_gid);
+        
+        if (stat(AVAHI_IPDATA_DIR, &st) < 0) {
+            daemon_log(LOG_ERR, "stat(): %s\n", strerror(errno));
+            return -1;
+        }
+        
+        if (!S_ISDIR(st.st_mode) || st.st_uid != pw->pw_uid || st.st_gid != gr->gr_gid) {
+            daemon_log(LOG_ERR, "Failed to create runtime directory "AVAHI_IPDATA_DIR".");
+            return -1;
+        }
+    }
+
+#ifdef HAVE_CHROOT
+
+    if (!no_chroot) {
+        if (chroot(AVAHI_IPDATA_DIR) < 0) {
+            daemon_log(LOG_ERR, "Failed to chroot(): %s", strerror(errno));
+            return -1;
+        }
+
+        daemon_log(LOG_INFO, "Successfully called chroot().");
+        chdir("/");
+
+        /* Since we are now trapped inside a chroot we cannot remove
+         * the pid file anymore, the helper process will do that for us. */
+        wrote_pid_file = 0;
+    }
+    
+#endif
+
+    if (!no_drop_root) {
+
+        if (initgroups(AVAHI_AUTOIPD_USER, gr->gr_gid) != 0) {
+            daemon_log(LOG_ERR, "Failed to change group list: %s", strerror(errno));
+            return -1;
+        }
+        
+#if defined(HAVE_SETRESGID)
+        r = setresgid(gr->gr_gid, gr->gr_gid, gr->gr_gid);
+#elif defined(HAVE_SETEGID)
+        if ((r = setgid(gr->gr_gid)) >= 0)
+            r = setegid(gr->gr_gid);
+#elif defined(HAVE_SETREGID)
+        r = setregid(gr->gr_gid, gr->gr_gid);
+#else
+#error "No API to drop priviliges"
+#endif
+
+        if (r < 0) {
+            daemon_log(LOG_ERR, "Failed to change GID: %s", strerror(errno));
+            return -1;
+        }
+        
+#if defined(HAVE_SETRESUID)
+        r = setresuid(pw->pw_uid, pw->pw_uid, pw->pw_uid);
+#elif defined(HAVE_SETEUID)
+        if ((r = setuid(pw->pw_uid)) >= 0)
+            r = seteuid(pw->pw_uid);
+#elif defined(HAVE_SETREUID)
+        r = setreuid(pw->pw_uid, pw->pw_uid);
+#else
+#error "No API to drop priviliges"
+#endif
+        
+        if (r < 0) {
+            daemon_log(LOG_ERR, "Failed to change UID: %s", strerror(errno));
+            return -1;
+        }
+
+        set_env("USER", pw->pw_name);
+        set_env("LOGNAME", pw->pw_name);
+        set_env("HOME", pw->pw_dir);
+        
+        daemon_log(LOG_ERR, "Successfully dropped root privileges.");
+    }
+    
+    return 0;
+}
+
 static int loop(int iface, uint32_t addr) {
     enum {
         FD_ARP,
@@ -608,8 +741,8 @@ static int loop(int iface, uint32_t addr) {
     if ((iface_fd = iface_init(iface)) < 0)
         goto fail;
 
-/*     if (drop_privs() < 0) */
-/*         goto fail; */
+    if (drop_privs() < 0)
+        goto fail;
 
     if (force_bind)
         st = STATE_START;
@@ -936,9 +1069,13 @@ static void help(FILE *f, const char *a0) {
             "                        169.254.0.0/16\n"
             "    -w --wait           Wait until an address has been acquired before\n"
             "                        daemonizing\n"
-            "       --no-proc-title  Don't modify process title\n"
             "       --force-bind     Assign an IPv4LL address even if routable address\n"
             "                        is already assigned\n"
+            "       --no-drop-root   Don't drop privileges\n"
+#ifdef HAVE_CHROOT            
+            "       --no-chroot      Don't chroot()\n"
+#endif            
+            "       --no-proc-title  Don't modify process title\n"
             "       --debug          Increase verbosity\n",
             a0);
 }
@@ -949,7 +1086,11 @@ static int parse_command_line(int argc, char *argv[]) {
     enum {
         OPTION_NO_PROC_TITLE = 256,
         OPTION_FORCE_BIND,
-        OPTION_DEBUG
+        OPTION_DEBUG,
+        OPTION_NO_DROP_ROOT,
+#ifdef HAVE_CHROOT
+        OPTION_NO_CHROOT
+#endif        
     };
     
     static const struct option long_options[] = {
@@ -962,8 +1103,12 @@ static int parse_command_line(int argc, char *argv[]) {
         { "version",       no_argument,       NULL, 'V' },
         { "start",         required_argument, NULL, 'S' },
         { "wait",          no_argument,       NULL, 'w' },
-        { "no-proc-title", no_argument,       NULL, OPTION_NO_PROC_TITLE },
         { "force-bind",    no_argument,       NULL, OPTION_FORCE_BIND },
+        { "no-drop-root",  no_argument,       NULL, OPTION_NO_DROP_ROOT },
+#ifdef HAVE_CHROOT            
+        { "no-chroot",     no_argument,       NULL, OPTION_NO_CHROOT },
+#endif        
+        { "no-proc-title", no_argument,       NULL, OPTION_NO_PROC_TITLE },
         { "debug",         no_argument,       NULL, OPTION_DEBUG },
         { NULL, 0, NULL, 0 }
     };
@@ -1016,6 +1161,16 @@ static int parse_command_line(int argc, char *argv[]) {
                 force_bind = 1;
                 break;
 
+            case OPTION_NO_DROP_ROOT:
+                no_drop_root = 1;
+                break;
+
+#ifdef HAVE_CHROOT
+            case OPTION_NO_CHROOT:
+                no_chroot = 1;
+                break;
+#endif
+
             default:
                 fprintf(stderr, "Invalid command line argument: %c\n", c);
                 return -1;
@@ -1049,24 +1204,22 @@ static const char* pid_file_proc(void) {
 
 int main(int argc, char*argv[]) {
     int r = 1;
-    int wrote_pid_file = 0;
     char *log_ident = NULL;
-
-    avahi_init_proc_title(argc, argv);
 
     signal(SIGPIPE, SIG_IGN);
     
     if ((argv0 = strrchr(argv[0], '/')))
-        argv0++;
+        argv0 = avahi_strdup(argv0 + 1);
     else
-        argv0 = argv[0];
-
-    argv0 = avahi_strdup(argv0);
+        argv0 = avahi_strdup(argv[0]);
 
     daemon_log_ident = argv0;
     
     if (parse_command_line(argc, argv) < 0)
         goto finish;
+
+    if (modify_proc_title)
+        avahi_init_proc_title(argc, argv);
 
     daemon_log_ident = log_ident = avahi_strdup_printf("%s(%s)", argv0, interface_name);
     daemon_pid_file_proc = pid_file_proc;
@@ -1178,7 +1331,6 @@ finish:
 
 /* TODO:
 
-- chroot/drop privs/caps
 - store last used address
 - man page
 

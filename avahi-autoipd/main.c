@@ -276,6 +276,44 @@ static void set_state(State st, int reset_counter, uint32_t address) {
     }
 }
 
+static int interface_up(int iface) {
+    int fd = -1;
+    struct ifreq ifreq;
+
+    if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0) {
+        daemon_log(LOG_ERR, "socket() failed: %s", strerror(errno));
+        goto fail;
+    }
+
+    memset(&ifreq, 0, sizeof(ifreq));
+    if (!if_indextoname(iface, ifreq.ifr_name)) {
+        daemon_log(LOG_ERR, "if_indextoname() failed: %s", strerror(errno));
+        goto fail;
+    }
+    
+    if (ioctl(fd, SIOCGIFFLAGS, &ifreq) < 0) {
+        daemon_log(LOG_ERR, "SIOCGIFFLAGS failed: %s", strerror(errno));
+        goto fail;
+    }
+
+    ifreq.ifr_flags |= IFF_UP;
+
+    if (ioctl(fd, SIOCSIFFLAGS, &ifreq) < 0) {
+        daemon_log(LOG_ERR, "SIOCSIFFLAGS failed: %s", strerror(errno));
+        goto fail;
+    }
+
+    close(fd);
+
+    return 0;
+    
+fail:
+    if (fd >= 0)
+        close(fd);
+    
+    return -1;
+}
+
 static int do_callout(CalloutEvent event, int iface, uint32_t addr) {
     char buf[64], ifname[IFNAMSIZ];
     const char * const event_table[CALLOUT_MAX] = {
@@ -297,6 +335,9 @@ static int open_socket(int iface, uint8_t *hw_address) {
     int fd = -1;
     struct sockaddr_ll sa;
     socklen_t sa_len;
+
+    if (interface_up(iface) < 0)
+        goto fail;
     
     if ((fd = socket(PF_PACKET, SOCK_DGRAM, 0)) < 0) {
         daemon_log(LOG_ERR, "socket() failed: %s", strerror(errno));
@@ -307,18 +348,18 @@ static int open_socket(int iface, uint8_t *hw_address) {
     sa.sll_family = AF_PACKET;
     sa.sll_protocol = htons(ETH_P_ARP);
     sa.sll_ifindex = iface;
-
+    
     if (bind(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "bind() failed: %s", strerror(errno));
         goto fail;
     }
-
+    
     sa_len = sizeof(sa);
     if (getsockname(fd, (struct sockaddr*) &sa, &sa_len) < 0) {
         daemon_log(LOG_ERR, "getsockname() failed: %s", strerror(errno));
         goto fail;
     }
-
+    
     if (sa.sll_halen != ETHER_ADDRLEN) {
         daemon_log(LOG_ERR, "getsockname() returned invalid hardware address.");
         goto fail;
@@ -361,6 +402,7 @@ static int recv_packet(int fd, void **packet, size_t *packet_len) {
     int s;
     struct sockaddr_ll sa;
     socklen_t sa_len;
+    ssize_t r;
     
     assert(fd >= 0);
     assert(packet);
@@ -373,22 +415,26 @@ static int recv_packet(int fd, void **packet, size_t *packet_len) {
         goto fail;
     }
 
-    assert(s > 0);
+    if (s <= 0)
+        s = 4096;
 
-    *packet_len = (size_t) s;
     *packet = avahi_new(uint8_t, s);
 
     sa_len = sizeof(sa);
-    if (recvfrom(fd, *packet, s, 0, (struct sockaddr*) &sa, &sa_len) < 0) {
+    if ((r = recvfrom(fd, *packet, s, 0, (struct sockaddr*) &sa, &sa_len)) < 0) {
         daemon_log(LOG_ERR, "recvfrom() failed: %s", strerror(errno));
         goto fail;
     }
     
+    *packet_len = (size_t) r;
+    
     return 0;
     
 fail:
-    if (*packet)
+    if (*packet) {
         avahi_free(*packet);
+        *packet = NULL;
+    }
 
     return -1;
 }
@@ -655,26 +701,46 @@ static int loop(int iface, uint32_t addr) {
             event = EVENT_TIMEOUT;
             next_wakeup_valid = 0;
         } else {
+            
+            
+            if (pollfds[FD_ARP].revents) {
 
-            if (pollfds[FD_ARP].revents == POLLIN) {
-                if (recv_packet(fd, &in_packet, &in_packet_len) < 0)
-                    goto fail;
+                if (pollfds[FD_ARP].revents == POLLERR) {
+                    /* The interface is probably down, let's recreate our socket */
+                    
+                    close(fd);
+
+                    if ((fd = open_socket(iface, hw_address)) < 0)
+                        goto fail;
+
+                    pollfds[FD_ARP].fd = fd;
+                    
+                } else {
                 
-                if (in_packet)
-                    event = EVENT_PACKET;
+                    assert(pollfds[FD_ARP].revents == POLLIN);
+                    
+                    if (recv_packet(fd, &in_packet, &in_packet_len) < 0)
+                        goto fail;
+                    
+                    if (in_packet)
+                        event = EVENT_PACKET;
+                }
             }
 
             if (event == EVENT_NULL &&
-                pollfds[FD_IFACE].revents == POLLIN) {
+                pollfds[FD_IFACE].revents) {
                 
+                assert(pollfds[FD_IFACE].revents == POLLIN);
+
                 if (iface_process(&event) < 0)
                     goto fail;
             }
 
             if (event == EVENT_NULL &&
-                pollfds[FD_SIGNAL].revents == POLLIN) {
+                pollfds[FD_SIGNAL].revents) {
 
                 int sig;
+                assert(pollfds[FD_SIGNAL].revents == POLLIN);
 
                 if ((sig = daemon_signal_next()) <= 0) {
                     daemon_log(LOG_ERR, "daemon_signal_next() failed");

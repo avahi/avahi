@@ -106,7 +106,6 @@ static int process_nlmsg(struct nlmsghdr *n) {
         
         if ((ifi->ifi_flags & IFF_LOOPBACK) ||
             (ifi->ifi_flags & IFF_NOARP) ||
-            !(ifi->ifi_flags & IFF_UP) ||
             ifi->ifi_type != ARPHRD_ETHER) {
             daemon_log(LOG_ERR, "Interface not suitable.");
             return -1;

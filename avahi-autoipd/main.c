@@ -108,6 +108,7 @@ static int wait_for_address = 0;
 static int use_syslog = 0;
 static int debug = 0;
 static int modify_proc_title = 1;
+static int force_bind = 0;
 
 static enum {
     DAEMON_RUN,
@@ -488,7 +489,9 @@ static int loop(int iface, uint32_t addr) {
     if ((iface_fd = iface_init(iface)) < 0)
         goto fail;
 
-    if (iface_get_initial_state(&st) < 0)
+    if (force_bind)
+        st = STATE_START;
+    else if (iface_get_initial_state(&st) < 0)
         goto fail;
 
     if (addr && !is_ll_address(addr)) {
@@ -644,7 +647,7 @@ static int loop(int iface, uint32_t addr) {
             set_state(STATE_SLEEPING, 1, addr);
             next_wakeup_valid = 0;
             
-        } else if (event == EVENT_ROUTABLE_ADDR_UNCONFIGURED && state == STATE_SLEEPING) {
+        } else if (event == EVENT_ROUTABLE_ADDR_UNCONFIGURED && state == STATE_SLEEPING && !force_bind) {
 
             daemon_log(LOG_INFO, "No longer a routable address configured, restarting probe process.");
 
@@ -653,7 +656,7 @@ static int loop(int iface, uint32_t addr) {
             elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
             next_wakeup_valid = 1;
 
-        } else if (event == EVENT_REFRESH_REQUEST && state == STATE_RUNNING) {
+        } else if (event == EVENT_REFRESH_REQUEST && state == STATE_RUNNING && !force_bind) {
 
             /* The user requested a reannouncing of the address by a SIGHUP */
             daemon_log(LOG_INFO, "Reannouncing address.");
@@ -800,9 +803,13 @@ static void help(FILE *f, const char *a0) {
             "    -r --refresh        Request a running daemon to refresh it's IP address\n"
             "    -c --check          Return 0 if a daemon is already running\n"
             "    -V --version        Show version\n"
-            "    -S --start=ADDRESS  Start with this address from the IPv4LL range 169.254.0.0/16\n"
-            "    -w --wait           Wait until an address has been acquired before daemonizing\n"
+            "    -S --start=ADDRESS  Start with this address from the IPv4LL range\n"
+            "                        169.254.0.0/16\n"
+            "    -w --wait           Wait until an address has been acquired before\n"
+            "                        daemonizing\n"
             "       --no-proc-title  Don't modify process title\n"
+            "       --force-bind     Assign an IPv4LL address even if routable address\n"
+            "                        is already assigned\n"
             "       --debug          Increase verbosity\n",
             a0);
 }
@@ -812,6 +819,7 @@ static int parse_command_line(int argc, char *argv[]) {
     
     enum {
         OPTION_NO_PROC_TITLE = 256,
+        OPTION_FORCE_BIND,
         OPTION_DEBUG
     };
     
@@ -826,6 +834,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { "start",         required_argument, NULL, 'S' },
         { "wait",          no_argument,       NULL, 'w' },
         { "no-proc-title", no_argument,       NULL, OPTION_NO_PROC_TITLE },
+        { "force-bind",    no_argument,       NULL, OPTION_FORCE_BIND },
         { "debug",         no_argument,       NULL, OPTION_DEBUG },
         { NULL, 0, NULL, 0 }
     };
@@ -872,6 +881,10 @@ static int parse_command_line(int argc, char *argv[]) {
 
             case OPTION_DEBUG:
                 debug = 1;
+                break;
+
+            case OPTION_FORCE_BIND:
+                force_bind = 1;
                 break;
 
             default:

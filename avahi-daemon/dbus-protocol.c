@@ -346,9 +346,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;
-        int fd;
 	char name[IF_NAMESIZE];
-
         
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INT32, &idx, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetNetworkInterfaceNameByIndex message");
@@ -358,29 +356,17 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 #ifdef VALGRIND_WORKAROUND
         return respond_string(c, m, "blah");
 #else
-        
-        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
-            if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
-                char txt[256];
-                snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-                return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
-            }
-
         if ((!if_indextoname(idx, name))) {
             char txt[256];
             snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-            close(fd);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
         }
-
-        close(fd);
         
         return avahi_dbus_respond_string(c, m, name);
 #endif
         
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceIndexByName")) {
         char *n;
-        int fd;
         int32_t idx;
         
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &n, DBUS_TYPE_INVALID)) || !n) {
@@ -391,21 +377,11 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 #ifdef VALGRIND_WORKAROUND
         return respond_int32(c, m, 1);
 #else
-        if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
-            if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
-                char txt[256];
-                snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-                return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
-            }
-
         if (!(idx = if_nametoindex(n))) {
             char txt[256];
             snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
-            close(fd);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_OS, txt);
         }
-
-        close(fd);
         
         return avahi_dbus_respond_int32(c, m, idx);
 #endif

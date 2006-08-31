@@ -5,7 +5,7 @@
  * the embeddable mDNS stack for embedded applications.
  *
  * End user applications should *not* use this API and should use
- * the DBUS or C APIs, please see
+ * the D-Bus or C APIs, please see
  * client-browse-services.c and glib-integration.c
  * 
  * I repeat, you probably do *not* want to use this example.

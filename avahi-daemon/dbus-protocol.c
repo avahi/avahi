@@ -1102,7 +1102,7 @@ static int dbus_connect(void) {
             goto fail;
         }
 
-        avahi_log_error("Failed to acquire DBUS name '"AVAHI_DBUS_NAME"'");
+        avahi_log_error("Failed to acquire D-Bus name '"AVAHI_DBUS_NAME"'");
         goto fail;
     }
 

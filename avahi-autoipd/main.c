@@ -81,6 +81,7 @@
 #define IPV4LL_NETWORK 0xA9FE0000L
 #define IPV4LL_NETMASK 0xFFFF0000L
 #define IPV4LL_HOSTMASK 0x0000FFFFL
+#define IPV4LL_BROADCAST 0xA9FEFFFFL
 
 #define ETHER_ADDRLEN 6
 #define ARP_PACKET_SIZE (8+4+4+2*ETHER_ADDRLEN)
@@ -185,9 +186,67 @@ static uint32_t pick_addr(uint32_t old_addr) {
         
         addr = htonl(IPV4LL_NETWORK | (uint32_t) r);
 
-    } while (addr == old_addr);
+    } while (addr == old_addr || !is_ll_address(addr));
 
     return addr;
+}
+
+static int load_address(const char *fn, uint32_t *addr) {
+    FILE *f;
+    unsigned a, b, c, d;
+
+    assert(fn);
+    assert(addr);
+    
+    if (!(f = fopen(fn, "r"))) {
+
+        if (errno == ENOENT) {
+            *addr = 0;
+            return 0;
+        }
+        
+        daemon_log(LOG_ERR, "fopen() failed: %s", strerror(errno));
+        goto fail;
+    }
+
+    if (fscanf(f, "%u.%u.%u.%u\n", &a, &b, &c, &d) != 4) {
+        daemon_log(LOG_ERR, "Parse failure");
+        goto fail;
+    }
+
+    fclose(f);
+
+    *addr = htonl((a << 24) | (b << 16) | (c << 8) | d);
+    return 0;
+    
+fail:
+    if (f)
+        fclose(f);
+
+    return -1;
+}
+
+static int save_address(const char *fn, uint32_t addr) {
+    FILE *f;
+    char buf[32];
+
+    assert(fn);
+    
+    if (!(f = fopen(fn, "w"))) {
+        daemon_log(LOG_ERR, "fopen() failed: %s", strerror(errno));
+        goto fail;
+    }
+
+    fprintf(f, "%s\n", inet_ntop(AF_INET, &addr, buf, sizeof (buf)));
+    fclose(f);
+
+    return 0;
+    
+fail:
+    if (f)
+        fclose(f);
+
+    return -1;
 }
 
 static void* packet_new(const ArpPacketInfo *info, size_t *packet_len) {
@@ -442,7 +501,10 @@ fail:
 }
  
 int is_ll_address(uint32_t addr) {
-    return (ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK;
+    return
+        (ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK &&
+        ntohl(addr) != IPV4LL_NETWORK &&
+        ntohl(addr) != IPV4LL_BROADCAST;
 }
 
 static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
@@ -729,6 +791,8 @@ static int loop(int iface, uint32_t addr) {
     int retval_sent = !daemonize;
     State st;
     FILE *dispatcher = NULL;
+    char *address_fn = NULL;
+    const char *p;
 
     daemon_signal_init(SIGINT, SIGTERM, SIGCHLD, SIGHUP,0);
 
@@ -748,6 +812,22 @@ static int loop(int iface, uint32_t addr) {
         st = STATE_START;
     else if (iface_get_initial_state(&st) < 0)
         goto fail;
+
+#ifdef HAVE_CHROOT
+    if (!no_chroot)
+        p = "";
+    else
+#endif
+        p = AVAHI_IPDATA_DIR;
+    
+    address_fn = avahi_strdup_printf(
+            "%s/%02x:%02x:%02x:%02x:%02x:%02x", p,
+            hw_address[0], hw_address[1],
+            hw_address[2], hw_address[3],
+            hw_address[4], hw_address[5]);
+    
+    if (!addr)
+        load_address(address_fn, &addr);
 
     if (addr && !is_ll_address(addr)) {
         daemon_log(LOG_WARNING, "Requested address %s is not from IPv4LL range 169.254/16, ignoring.", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
@@ -830,11 +910,6 @@ static int loop(int iface, uint32_t addr) {
                     goto fail;
                 
                 n_conflict = 0;
-
-                if (!retval_sent) {
-                    daemon_retval_send(0);
-                    retval_sent = 1;
-                }
             }
 
         } else if ((state == STATE_ANNOUNCING && event == EVENT_TIMEOUT && n_iteration >= ANNOUNCE_NUM-1)) {
@@ -843,7 +918,14 @@ static int loop(int iface, uint32_t addr) {
             set_state(STATE_RUNNING, 0, addr);
 
             next_wakeup_valid = 0;
+
+            save_address(address_fn, addr);
             
+            if (!retval_sent) {
+                daemon_retval_send(0);
+                retval_sent = 1;
+            }
+
         } else if (event == EVENT_PACKET) {
             ArpPacketInfo info;
 
@@ -1050,6 +1132,9 @@ fail:
 
     if (dispatcher)
         fclose(dispatcher);
+
+    if (address_fn)
+        avahi_free(address_fn);
     
     return ret;
 }
@@ -1331,7 +1416,6 @@ finish:
 
 /* TODO:
 
-- store last used address
 - man page
 
 */

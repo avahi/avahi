@@ -28,6 +28,7 @@ typedef enum Event {
     EVENT_TIMEOUT,
     EVENT_ROUTABLE_ADDR_CONFIGURED,
     EVENT_ROUTABLE_ADDR_UNCONFIGURED,
+    EVENT_REFRESH_REQUEST
 } Event;
 
 typedef enum State {

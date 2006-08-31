@@ -39,6 +39,10 @@
 #include <sys/ioctl.h>
 #include <poll.h>
 #include <net/if.h>
+#include <stdio.h>
+#include <getopt.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
@@ -95,7 +99,40 @@ static State state = STATE_START;
 static int n_iteration = 0;
 static int n_conflict = 0;
 
+static char *interface_name = NULL;
+static char *pid_file_name = NULL;
+static uint32_t start_address = 0;
+static char *argv0 = NULL;
+static int daemonize = 0;
+static int wait_for_address = 0;
+static int use_syslog = 0;
+static int debug = 0;
+static int modify_proc_title = 1;
+
+static enum {
+    DAEMON_RUN,
+    DAEMON_KILL,
+    DAEMON_REFRESH,
+    DAEMON_VERSION,
+    DAEMON_HELP,
+    DAEMON_CHECK
+} command = DAEMON_RUN;
+
+typedef enum CalloutEvent {
+    CALLOUT_BIND,
+    CALLOUT_CONFLICT,
+    CALLOUT_UNBIND,
+    CALLOUT_STOP,
+    CALLOUT_MAX
+} CalloutEvent;
+
 #define RANDOM_DEVICE "/dev/urandom"
+
+#define DEBUG(x) do {\
+if (debug) { \
+    x; \
+} \
+} while (0)
 
 static void init_rand_seed(void) {
     int fd;
@@ -204,7 +241,7 @@ static int packet_parse(const void *data, size_t packet_len, ArpPacketInfo *info
     return 0;
 }
 
-static void set_state(State st, int reset_counter) {
+static void set_state(State st, int reset_counter, uint32_t address) {
     const char* const state_table[] = {
         [STATE_START] = "START",
         [STATE_WAITING_PROBE] = "WAITING_PROBE",
@@ -214,30 +251,45 @@ static void set_state(State st, int reset_counter) {
         [STATE_RUNNING] = "RUNNING",
         [STATE_SLEEPING] = "SLEEPING"
     };
+    char buf[64];
     
     assert(st < STATE_MAX);
 
     if (st == state && !reset_counter) {
         n_iteration++;
-        daemon_log(LOG_DEBUG, "State iteration %s-%i", state_table[state], n_iteration);
+        DEBUG(daemon_log(LOG_DEBUG, "State iteration %s-%i", state_table[state], n_iteration));
     } else {
-        daemon_log(LOG_DEBUG, "State transition %s-%i -> %s-0", state_table[state], n_iteration, state_table[st]);
+        DEBUG(daemon_log(LOG_DEBUG, "State transition %s-%i -> %s-0", state_table[state], n_iteration, state_table[st]));
         state = st;
         n_iteration = 0;
     }
+
+    if (modify_proc_title) {
+        if (state == STATE_SLEEPING) 
+            avahi_set_proc_title("%s: sleeping", argv0);
+        else if (state == STATE_ANNOUNCING)
+            avahi_set_proc_title("%s: announcing %s", argv0, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+        else if (state == STATE_RUNNING)
+            avahi_set_proc_title("%s: bound %s", argv0, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+        else
+            avahi_set_proc_title("%s: probing %s", argv0, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+    }
 }
 
-static int add_address(int iface, uint32_t addr) {
-    char buf[64];
+static int do_callout(CalloutEvent event, int iface, uint32_t addr) {
+    char buf[64], ifname[IFNAMSIZ];
+    const char * const event_table[CALLOUT_MAX] = {
+        [CALLOUT_BIND] = "BIND",
+        [CALLOUT_CONFLICT] = "CONFLICT",
+        [CALLOUT_UNBIND] = "UNBIND",
+        [CALLOUT_STOP] = "STOP"
+    };
 
-    daemon_log(LOG_INFO, "Configuring address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
-    return 0;
-}
-
-static int remove_address(int iface, uint32_t addr) {
-    char buf[64];
+    daemon_log(LOG_INFO, "Callout %s, address %s on interface %s",
+               event_table[event],
+               inet_ntop(AF_INET, &addr, buf, sizeof(buf)),
+               if_indextoname(iface, ifname));
     
-    daemon_log(LOG_INFO, "Unconfiguring address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
     return 0;
 }
 
@@ -363,7 +415,8 @@ static int loop(int iface, uint32_t addr) {
     enum {
         FD_ARP,
         FD_IFACE,
-        FD_MAX
+        FD_SIGNAL,
+        FD_MAX,
     };
 
     int fd = -1, ret = -1;
@@ -378,6 +431,10 @@ static int loop(int iface, uint32_t addr) {
     struct pollfd pollfds[FD_MAX];
     int iface_fd;
     Event event = EVENT_NULL;
+    int retval_sent = !daemonize;
+    State st;
+
+    daemon_signal_init(SIGINT, SIGTERM, SIGCHLD, SIGHUP,0);
 
     if ((fd = open_socket(iface, hw_address)) < 0)
         goto fail;
@@ -385,9 +442,9 @@ static int loop(int iface, uint32_t addr) {
     if ((iface_fd = iface_init(iface)) < 0)
         goto fail;
 
-    if (iface_get_initial_state(&state) < 0)
+    if (iface_get_initial_state(&st) < 0)
         goto fail;
-    
+
     if (addr && !is_ll_address(addr)) {
         daemon_log(LOG_WARNING, "Requested address %s is not from IPv4LL range 169.254/16, ignoring.", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
         addr = 0;
@@ -403,16 +460,25 @@ static int loop(int iface, uint32_t addr) {
         addr = htonl(IPV4LL_NETWORK | (uint32_t) a);
     }
 
+    set_state(st, 1, addr);
+    
     daemon_log(LOG_INFO, "Starting with address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
 
     if (state == STATE_SLEEPING)
         daemon_log(LOG_INFO, "Routable address already assigned, sleeping.");
+
+    if (!retval_sent && (!wait_for_address || state == STATE_SLEEPING)) {
+        daemon_retval_send(0);
+        retval_sent = 1;
+    }
 
     memset(pollfds, 0, sizeof(pollfds));
     pollfds[FD_ARP].fd = fd;
     pollfds[FD_ARP].events = POLLIN;
     pollfds[FD_IFACE].fd = iface_fd;
     pollfds[FD_IFACE].events = POLLIN;
+    pollfds[FD_SIGNAL].fd = daemon_signal_fd();
+    pollfds[FD_SIGNAL].events = POLLIN;
     
     for (;;) {
         int r, timeout;
@@ -421,7 +487,7 @@ static int loop(int iface, uint32_t addr) {
         if (state == STATE_START) {
 
             /* First, wait a random time */
-            set_state(STATE_WAITING_PROBE, 1);
+            set_state(STATE_WAITING_PROBE, 1, addr);
 
             elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
             next_wakeup_valid = 1;
@@ -431,7 +497,7 @@ static int loop(int iface, uint32_t addr) {
 
             /* Send a probe */
             out_packet = packet_new_probe(addr, hw_address, &out_packet_len);
-            set_state(STATE_PROBING, 0);
+            set_state(STATE_PROBING, 0, addr);
 
             elapse_time(&next_wakeup, PROBE_MIN*1000, (PROBE_MAX-PROBE_MIN)*1000);
             next_wakeup_valid = 1;
@@ -440,7 +506,7 @@ static int loop(int iface, uint32_t addr) {
 
             /* Send the last probe */
             out_packet = packet_new_probe(addr, hw_address, &out_packet_len);
-            set_state(STATE_WAITING_ANNOUNCE, 1);
+            set_state(STATE_WAITING_ANNOUNCE, 1, addr);
 
             elapse_time(&next_wakeup, ANNOUNCE_WAIT*1000, 0);
             next_wakeup_valid = 1;
@@ -450,20 +516,25 @@ static int loop(int iface, uint32_t addr) {
 
             /* Send announcement packet */
             out_packet = packet_new_announcement(addr, hw_address, &out_packet_len);
-            set_state(STATE_ANNOUNCING, 0);
+            set_state(STATE_ANNOUNCING, 0, addr);
 
             elapse_time(&next_wakeup, ANNOUNCE_INTERVAL*1000, 0);
             next_wakeup_valid = 1;
             
             if (n_iteration == 0) {
-                add_address(iface, addr);
+                do_callout(CALLOUT_BIND, iface, addr);
                 n_conflict = 0;
+
+                if (!retval_sent) {
+                    daemon_retval_send(0);
+                    retval_sent = 1;
+                }
             }
 
         } else if ((state == STATE_ANNOUNCING && event == EVENT_TIMEOUT && n_iteration >= ANNOUNCE_NUM-1)) {
 
             daemon_log(LOG_INFO, "Successfully claimed IP address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
-            set_state(STATE_RUNNING, 0);
+            set_state(STATE_RUNNING, 0, addr);
 
             next_wakeup_valid = 0;
             
@@ -490,7 +561,7 @@ static int loop(int iface, uint32_t addr) {
                 if (conflict) {
                     
                     if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
-                        remove_address(iface, addr);
+                        do_callout(CALLOUT_CONFLICT, iface, addr);
                     
                     /* Pick a new address */
                     addr = pick_addr(addr);
@@ -499,7 +570,7 @@ static int loop(int iface, uint32_t addr) {
 
                     n_conflict++;
 
-                    set_state(STATE_WAITING_PROBE, 1);
+                    set_state(STATE_WAITING_PROBE, 1, addr);
                     
                     if (n_conflict >= MAX_CONFLICTS) {
                         daemon_log(LOG_WARNING, "Got too many conflicts, rate limiting new probes.");
@@ -509,7 +580,7 @@ static int loop(int iface, uint32_t addr) {
 
                     next_wakeup_valid = 1;
                 } else
-                    daemon_log(LOG_DEBUG, "Ignoring ARP packet.");
+                    DEBUG(daemon_log(LOG_DEBUG, "Ignoring irrelevant ARP packet."));
             }
             
         } else if (event == EVENT_ROUTABLE_ADDR_CONFIGURED) {
@@ -517,24 +588,40 @@ static int loop(int iface, uint32_t addr) {
             daemon_log(LOG_INFO, "A routable address has been configured.");
 
             if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
-                remove_address(iface, addr);
+                do_callout(CALLOUT_UNBIND, iface, addr);
 
-            set_state(STATE_SLEEPING, 1);
+            if (!retval_sent) {
+                daemon_retval_send(0);
+                retval_sent = 1;
+            }
+            
+            set_state(STATE_SLEEPING, 1, addr);
             next_wakeup_valid = 0;
             
         } else if (event == EVENT_ROUTABLE_ADDR_UNCONFIGURED && state == STATE_SLEEPING) {
 
             daemon_log(LOG_INFO, "No longer a routable address configured, restarting probe process.");
 
-            set_state(STATE_WAITING_PROBE, 1);
+            set_state(STATE_WAITING_PROBE, 1, addr);
 
             elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
             next_wakeup_valid = 1;
+
+        } else if (event == EVENT_REFRESH_REQUEST && state == STATE_RUNNING) {
+
+            /* The user requested a reannouncing of the address by a SIGHUP */
+            daemon_log(LOG_INFO, "Reannouncing address.");
             
+            /* Send announcement packet */
+            out_packet = packet_new_announcement(addr, hw_address, &out_packet_len);
+            set_state(STATE_ANNOUNCING, 1, addr);
+
+            elapse_time(&next_wakeup, ANNOUNCE_INTERVAL*1000, 0);
+            next_wakeup_valid = 1;
         }
         
         if (out_packet) {
-            daemon_log(LOG_DEBUG, "sending...");
+            DEBUG(daemon_log(LOG_DEBUG, "sending..."));
             
             if (send_packet(fd, iface, out_packet, out_packet_len) < 0)
                 goto fail;
@@ -556,14 +643,14 @@ static int loop(int iface, uint32_t addr) {
             timeout = usec < 0 ? (int) (-usec/1000) : 0;
         }
 
-        daemon_log(LOG_DEBUG, "sleeping %ims", timeout);
+        DEBUG(daemon_log(LOG_DEBUG, "sleeping %ims", timeout));
                     
         while ((r = poll(pollfds, FD_MAX, timeout)) < 0 && errno == EINTR)
             ;
 
         if (r < 0) {
             daemon_log(LOG_ERR, "poll() failed: %s", strerror(r));
-            break;
+            goto fail;
         } else if (r == 0) {
             event = EVENT_TIMEOUT;
             next_wakeup_valid = 0;
@@ -583,12 +670,43 @@ static int loop(int iface, uint32_t addr) {
                 if (iface_process(&event) < 0)
                     goto fail;
             }
+
+            if (event == EVENT_NULL &&
+                pollfds[FD_SIGNAL].revents == POLLIN) {
+
+                int sig;
+
+                if ((sig = daemon_signal_next()) <= 0) {
+                    daemon_log(LOG_ERR, "daemon_signal_next() failed");
+                    goto fail;
+                }
+
+                switch(sig) {
+                    case SIGINT:
+                    case SIGTERM:
+                        daemon_log(LOG_INFO, "Got %s, quitting.", sig == SIGINT ? "SIGINT" : "SIGTERM");
+                        ret = 0;
+                        goto fail;
+
+                    case SIGCHLD:
+                        waitpid(-1, NULL, WNOHANG);
+                        break;
+                    
+                    case SIGHUP:
+                        event = EVENT_REFRESH_REQUEST;
+                        break;
+                }
+                
+            }
         }
     }
 
     ret = 0;
     
 fail:
+
+    if (state == STATE_RUNNING || state == STATE_ANNOUNCING)
+        do_callout(CALLOUT_STOP, iface, addr);
 
     avahi_free(out_packet);
     avahi_free(in_packet);
@@ -598,74 +716,250 @@ fail:
 
     if (iface_fd >= 0)
         iface_done();
+
+    if (daemonize && !retval_sent)
+        daemon_retval_send(ret);
     
     return ret;
 }
 
-static int get_ifindex(const char *name) {
-    int fd = -1;
-    struct ifreq ifreq;
 
-    if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0) {
-        daemon_log(LOG_ERR, "socket() failed: %s", strerror(errno));
-        goto fail;
-    }
+static void help(FILE *f, const char *a0) {
+    fprintf(f,
+            "%s [options] INTERFACE\n"
+            "    -h --help           Show this help\n"
+            "    -D --daemonize      Daemonize after startup\n"
+            "    -s --syslog         Write log messages to syslog(3) instead of STDERR\n"
+            "    -k --kill           Kill a running daemon\n"
+            "    -r --refresh        Request a running daemon to refresh it's IP address\n"
+            "    -c --check          Return 0 if a daemon is already running\n"
+            "    -V --version        Show version\n"
+            "    -S --start=ADDRESS  Start with this address from the IPv4LL range 169.254.0.0/16\n"
+            "    -w --wait           Wait until an address has been acquired before daemonizing\n"
+            "       --no-proc-title  Don't modify process title\n"
+            "       --debug          Increase verbosity\n",
+            a0);
+}
 
-    memset(&ifreq, 0, sizeof(ifreq));
-    strncpy(ifreq.ifr_name, name, IFNAMSIZ-1);
-    ifreq.ifr_name[IFNAMSIZ-1] = 0;
-
-    if (ioctl(fd, SIOCGIFINDEX, &ifreq) < 0) {
-        daemon_log(LOG_ERR, "SIOCGIFINDEX failed: %s", strerror(errno));
-        goto fail;
-    }
-
-    return ifreq.ifr_ifindex;
-
-fail:
-
-    if (fd >= 0)
-        close(fd);
+static int parse_command_line(int argc, char *argv[]) {
+    int c;
     
-    return -1;
+    enum {
+        OPTION_NO_PROC_TITLE = 256,
+        OPTION_DEBUG
+    };
+    
+    static const struct option long_options[] = {
+        { "help",          no_argument,       NULL, 'h' },
+        { "daemonize",     no_argument,       NULL, 'D' },
+        { "syslog",        no_argument,       NULL, 's' },
+        { "kill",          no_argument,       NULL, 'k' },
+        { "refresh",       no_argument,       NULL, 'r' },
+        { "check",         no_argument,       NULL, 'c' },
+        { "version",       no_argument,       NULL, 'V' },
+        { "start",         required_argument, NULL, 'S' },
+        { "wait",          no_argument,       NULL, 'w' },
+        { "no-proc-title", no_argument,       NULL, OPTION_NO_PROC_TITLE },
+        { "debug",         no_argument,       NULL, OPTION_DEBUG },
+        { NULL, 0, NULL, 0 }
+    };
+
+    opterr = 0;
+    while ((c = getopt_long(argc, argv, "hDkVrcS:", long_options, NULL)) >= 0) {
+
+        switch(c) {
+            case 's':
+                use_syslog = 1;
+                break;
+            case 'h':
+                command = DAEMON_HELP;
+                break;
+            case 'D':
+                daemonize = 1;
+                break;
+            case 'k':
+                command = DAEMON_KILL;
+                break;
+            case 'V':
+                command = DAEMON_VERSION;
+                break;
+            case 'r':
+                command = DAEMON_REFRESH;
+                break;
+            case 'c':
+                command = DAEMON_CHECK;
+                break;
+            case 'S':
+                
+                if ((start_address = inet_addr(optarg)) == (uint32_t) -1) {
+                    fprintf(stderr, "Failed to parse IP address '%s'.", optarg);
+                    return -1;
+                }
+                break;
+            case 'w':
+                wait_for_address = 1;
+                break;
+                
+            case OPTION_NO_PROC_TITLE:
+                modify_proc_title = 0;
+                break;
+
+            case OPTION_DEBUG:
+                debug = 1;
+                break;
+
+            default:
+                fprintf(stderr, "Invalid command line argument: %c\n", c);
+                return -1;
+        }
+    }
+
+    if (command == DAEMON_RUN ||
+        command == DAEMON_KILL ||
+        command == DAEMON_REFRESH ||
+        command == DAEMON_CHECK) {
+
+        if (optind >= argc) {
+            fprintf(stderr, "Missing interface name.\n");
+            return -1;
+        }
+
+        interface_name = argv[optind++];
+    }
+
+    if (optind != argc) {
+        fprintf(stderr, "Too many arguments\n");
+        return -1;
+    }
+        
+    return 0;
+}
+
+static const char* pid_file_proc(void) {
+    return pid_file_name;
 }
 
 int main(int argc, char*argv[]) {
-    int ret = 1;
-    int ifindex;
-    uint32_t addr = 0;
+    int r = 1;
+    int wrote_pid_file = 0;
 
     avahi_init_proc_title(argc, argv);
-    
-    init_rand_seed();
 
-    if ((ifindex = get_ifindex(argc >= 2 ? argv[1] : "eth0")) < 0)
-        goto fail;
+    if ((argv0 = strrchr(argv[0], '/')))
+        argv0++;
+    else
+        argv0 = argv[0];
 
-    if (argc >= 3)
-        addr = inet_addr(argv[2]);
+    daemon_pid_file_ident = daemon_log_ident = argv0;
+    daemon_pid_file_proc = pid_file_proc;
     
-    if (loop(ifindex, addr) < 0)
-        goto fail;
-    
-    ret = 0;
+    if (parse_command_line(argc, argv) < 0)
+        goto finish;
 
+    pid_file_name = avahi_strdup_printf(AVAHI_RUNTIME_DIR"/avahi-autoipd.%s.pid", interface_name);
+
+    if (command == DAEMON_RUN) {
+        pid_t pid;
+        int ifindex;
+
+        init_rand_seed();
+        
+        if ((ifindex = if_nametoindex(interface_name)) <= 0) {
+            daemon_log(LOG_ERR, "Failed to get index for interface name '%s': %s", interface_name, strerror(errno));
+            goto finish;
+        }
+
+        if (getuid() != 0) {
+            daemon_log(LOG_ERR, "This program is intended to be run as root.");
+            goto finish;
+        }
+
+        if ((pid = daemon_pid_file_is_running()) >= 0) {
+            daemon_log(LOG_ERR, "Daemon already running on PID %u", pid);
+            goto finish;
+        }
+
+        if (daemonize) {
+            daemon_retval_init();
+            
+            if ((pid = daemon_fork()) < 0)
+                goto finish;
+            else if (pid != 0) {
+                int ret;
+                /** Parent **/
+
+                if ((ret = daemon_retval_wait(20)) < 0) {
+                    daemon_log(LOG_ERR, "Could not receive return value from daemon process.");
+                    goto finish;
+                }
+
+                r = ret;
+                goto finish;
+            }
+
+            /* Child */
+        }
+
+        if (use_syslog || daemonize)
+            daemon_log_use = DAEMON_LOG_SYSLOG;
+
+        chdir("/");
+
+        if (daemon_pid_file_create() < 0) {
+            daemon_log(LOG_ERR, "Failed to create PID file: %s", strerror(errno));
+
+            if (daemonize)
+                daemon_retval_send(1);
+            goto finish;
+        } else
+            wrote_pid_file = 1;
+
+        if (loop(ifindex, start_address) < 0)
+            goto finish;
+
+        r = 0;
+    } else if (command == DAEMON_HELP) {
+        help(stdout, argv0);
+        
+        r = 0;
+    } else if (command == DAEMON_VERSION) {
+        printf("%s "PACKAGE_VERSION"\n", argv0);
+        
+        r = 0;
+    } else if (command == DAEMON_KILL) {
+        if (daemon_pid_file_kill_wait(SIGTERM, 5) < 0) {
+            daemon_log(LOG_WARNING, "Failed to kill daemon: %s", strerror(errno));
+            goto finish;
+        }
+        
+        r = 0;
+    } else if (command == DAEMON_REFRESH) {
+        if (daemon_pid_file_kill(SIGHUP) < 0) {
+            daemon_log(LOG_WARNING, "Failed to kill daemon: %s", strerror(errno));
+            goto finish;
+        }
+
+        r = 0;
+    } else if (command == DAEMON_CHECK)
+        r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
+
+
+finish:
+
+    if (daemonize)
+        daemon_retval_done();
     
-fail:
-    
-    return ret;
+    if (wrote_pid_file)
+        daemon_pid_file_remove();
+
+    return r;
 }
 
 /* TODO:
 
-- man page
-- user script
 - chroot/drop privs/caps
-- daemonize
-- defend
-- signals
+- user script
 - store last used address
-- cmdline
-- setproctitle
+- man page
 
 */

@@ -67,7 +67,7 @@ static void client_set_state (AvahiClient *client, AvahiServerState state) {
     switch (client->state) {
         case AVAHI_CLIENT_FAILURE:
             if (client->bus) {
-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
                 dbus_connection_close(client->bus);
 #else
                 dbus_connection_disconnect(client->bus);
@@ -441,12 +441,18 @@ static int init_server(AvahiClient *client, int *ret_error) {
 }
 
 /* This function acts like dbus_bus_get but creates a private
- * connection instead. Eventually this should be replaced by a DBUS
- * provided version. */
+ * connection instead.  */
 static DBusConnection* avahi_dbus_bus_get(DBusError *error) {
     DBusConnection *c;
-    const char *a;
 
+#ifdef HAVE_DBUS_BUS_GET_PRIVATE
+    if (!(c = dbus_bus_get_private(DBUS_BUS_SYSTEM, error)))
+        return NULL;
+    
+    dbus_connection_set_exit_on_disconnect(c, FALSE);
+#else
+    const char *a;
+    
     if (!(a = getenv("DBUS_SYSTEM_BUS_ADDRESS")) || !*a)
         a = DBUS_SYSTEM_BUS_DEFAULT_ADDRESS;
     
@@ -456,10 +462,15 @@ static DBusConnection* avahi_dbus_bus_get(DBusError *error) {
     dbus_connection_set_exit_on_disconnect(c, FALSE);
 
     if (!dbus_bus_register(c, error)) {
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
         dbus_connection_close(c);
+#else
+        dbus_connection_disconnect(c);
+#endif
         dbus_connection_unref(c);
         return NULL;
     }
+#endif
 
     return c;
 }
@@ -602,7 +613,7 @@ void avahi_client_free(AvahiClient *client) {
     if (client->bus)
         /* Disconnect in advance, so that the free() functions won't
          * issue needless server calls */
-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
         dbus_connection_close(client->bus);
 #else
         dbus_connection_disconnect(client->bus);

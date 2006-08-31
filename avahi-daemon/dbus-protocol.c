@@ -1130,7 +1130,7 @@ fail:
         dbus_error_free(&error);
 
     if (server->bus) {
-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
         dbus_connection_close(server->bus);
 #else
         dbus_connection_disconnect(server->bus);
@@ -1151,7 +1151,7 @@ static void dbus_disconnect(void) {
     assert(server->n_clients == 0);
 
     if (server->bus) {
-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
         dbus_connection_close(server->bus);
 #else
         dbus_connection_disconnect(server->bus);
@@ -1180,7 +1180,7 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
         if (!force)
             goto fail;
 
-        avahi_log_warn("WARNING: Failed to contact D-BUS daemon, retrying in %ims.", RECONNECT_MSEC);
+        avahi_log_warn("WARNING: Failed to contact D-Bus daemon, retrying in %ims.", RECONNECT_MSEC);
         
         avahi_elapse_time(&tv, RECONNECT_MSEC, 0);
         server->reconnect_timeout = server->poll_api->timeout_new(server->poll_api, &tv, reconnect_callback, NULL);
@@ -1190,7 +1190,7 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
 
 fail:
     if (server->bus) {
-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 62)
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
         dbus_connection_close(server->bus);
 #else
         dbus_connection_disconnect(server->bus);

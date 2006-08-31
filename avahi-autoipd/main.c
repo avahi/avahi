@@ -280,13 +280,13 @@ static void set_state(State st, int reset_counter, uint32_t address) {
 
     if (modify_proc_title) {
         if (state == STATE_SLEEPING) 
-            avahi_set_proc_title(argv0, "%s(%s): sleeping", argv0, interface_name);
+            avahi_set_proc_title(argv0, "%s: [%s] sleeping", argv0, interface_name);
         else if (state == STATE_ANNOUNCING)
-            avahi_set_proc_title(argv0, "%s(%s): announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+            avahi_set_proc_title(argv0, "%s: [%s] announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
         else if (state == STATE_RUNNING)
-            avahi_set_proc_title(argv0, "%s(%s): bound %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+            avahi_set_proc_title(argv0, "%s: [%s] bound %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
         else
-            avahi_set_proc_title(argv0, "%s(%s): probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+            avahi_set_proc_title(argv0, "%s: [%s] probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
     }
 }
 
@@ -478,7 +478,7 @@ static FILE* fork_dispatcher(void) {
         
         setsid();
 
-        avahi_set_proc_title(argv0, "%s(%s): callout dispatcher", argv0, interface_name);
+        avahi_set_proc_title(argv0, "%s: [%s] callout dispatcher", argv0, interface_name);
 
         close(fds[1]);
 
@@ -1128,7 +1128,7 @@ int main(int argc, char*argv[]) {
         } else
             wrote_pid_file = 1;
 
-        avahi_set_proc_title(argv0, "%s(%s): starting up", argv0, interface_name);
+        avahi_set_proc_title(argv0, "%s: [%s] starting up", argv0, interface_name);
         
         if (loop(ifindex, start_address) < 0)
             goto finish;

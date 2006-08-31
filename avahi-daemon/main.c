@@ -756,7 +756,7 @@ static int run_server(DaemonConfig *c) {
 #endif
             ) < 0) {
 
-            avahi_log_warn("WARNING: Failed to contact D-BUS daemon.");
+            avahi_log_warn("WARNING: Failed to contact D-Bus daemon.");
 
             if (c->fail_on_missing_dbus)
                 goto finish;

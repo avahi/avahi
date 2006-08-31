@@ -189,7 +189,7 @@ static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection 
         struct timeval tv;
 
         if (server->reconnect) {
-            avahi_log_warn("Disconnnected from D-BUS, trying to reconnect in %ims...", RECONNECT_MSEC);
+            avahi_log_warn("Disconnnected from D-Bus, trying to reconnect in %ims...", RECONNECT_MSEC);
             
             dbus_disconnect();
             
@@ -200,7 +200,7 @@ static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection 
             else
                 server->reconnect_timeout = server->poll_api->timeout_new(server->poll_api, &tv, reconnect_callback, NULL);
         } else {
-            avahi_log_warn("Disconnnected from D-BUS, exiting.");
+            avahi_log_warn("Disconnnected from D-Bus, exiting.");
             raise(SIGQUIT);
         }
             

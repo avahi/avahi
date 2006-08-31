@@ -41,13 +41,15 @@ endif
 if HAVE_DBM
 
 noinst_SCRIPTS=build-db
-pkgdata_DATA+=service-types.db.*
+pkgdata_DATA+=service-types.db.pag service-types.db.dir
 
 build-db: build-db.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
 	    -e 's,@DBM\@,dbm,g' $< > $@
 	chmod +x $@
 
+service-types.db.pag: service-types.db
+service-types.db.dir: service-types.db
 service-types.db: service-types build-db
 	$(PYTHON) build-db $(srcdir)/$< $@
 

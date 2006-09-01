@@ -33,11 +33,19 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")' \
 
 sbin_PROGRAMS = avahi-autoipd
 
-avahi_autoipd_SOURCES = main.c  ../avahi-daemon/setproctitle.c iface.h main.h iface-linux.c
+avahi_autoipd_SOURCES = \
+	main.c main.h \
+	 ../avahi-daemon/setproctitle.c  ../avahi-daemon/setproctitle.h \
+	iface.h iface-linux.c \
+	../avahi-common/malloc.h ../avahi-common/malloc.c \
+	../avahi-common/timeval.h ../avahi-common/timeval.c
+
 avahi_autoipd_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS)
-avahi_autoipd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(LIBDAEMON_LIBS)
+avahi_autoipd_LDADD = $(AM_LDADD) $(LIBDAEMON_LIBS)
 
 pkgsysconf_SCRIPTS=avahi-autoipd.action
 
 endif
 endif
+
+EXTRA_DIST=avahi-autoipd.action

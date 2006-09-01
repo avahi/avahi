@@ -1413,9 +1413,3 @@ finish:
 
     return r;
 }
-
-/* TODO:
-
-- man page
-
-*/

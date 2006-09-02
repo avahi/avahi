@@ -943,7 +943,9 @@ static int loop(int iface, uint32_t addr) {
                 } else if (state == STATE_WAITING_PROBE || state == STATE_PROBING || state == STATE_WAITING_ANNOUNCE) {
                     /* Probe conflict */
                     conflict = info.target_ip_address == addr && memcmp(hw_address, info.sender_hw_address, ETHER_ADDRLEN);
-                    daemon_log(LOG_INFO, "Recieved conflicting probe ARP packet.");
+
+                    if (conflict)
+                        daemon_log(LOG_INFO, "Recieved conflicting probe ARP packet.");
                 }
 
                 if (conflict) {

@@ -45,7 +45,33 @@ avahi_autoipd_LDADD = $(AM_LDADD) $(LIBDAEMON_LIBS)
 
 pkgsysconf_SCRIPTS=avahi-autoipd.action
 
+if TARGET_DEBIAN
+
+noinst_SCRIPTS = dhclient-enter-hook dhclient-exit-hook
+
+dhclient-enter-hook: dhclient-enter-hook.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@
+
+dhclient-exit-hook: dhclient-exit-hook.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	chmod +x $@
+
+BUILD = dhclient-exit-hook dhclient-enter-hook
+
+dhcliententerdir = $(sysconfdir)/dhcp3/dhclient-enter-hooks.d
+dhclientexitdir = $(sysconfdir)/dhcp3/dhclient-exit-hooks.d
+
+install-exec-hook: dhclient-exit-hook dhclient-enter-hook
+	$(INSTALL) $(srcdir)/dhclient-enter-hook $(DESTDIR)$(dhcliententerdir)/avahi-autoipd
+	$(INSTALL) $(srcdir)/dhclient-exit-hook $(DESTDIR)$(dhclientexitdir)/avahi-autoipd
+
+endif
+
+
 endif
 endif
 
-EXTRA_DIST=avahi-autoipd.action
+EXTRA_DIST=avahi-autoipd.action dhclient-enter-hook.in dhclient-exit-hook.in
+
+CLEANFILES=dhclient-enter-hook dhclient-exit-hook

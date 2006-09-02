@@ -42,7 +42,9 @@ noinst_DATA = \
 	avahi-daemon.conf.5.xml \
 	avahi-dnsconfd.action.8.xml \
 	avahi.service.5.xml \
-	avahi.hosts.5.xml
+	avahi.hosts.5.xml \
+	avahi-autoipd.8.xml \
+	avahi-autoipd.action.8.xml
 
 CLEANFILES = \
 	$(noinst_DATA)
@@ -59,6 +61,16 @@ if HAVE_PYTHON
 man_MANS += \
 	avahi-discover.1 \
 	avahi-bookmarks.1
+endif
+endif
+
+if ENABLE_AUTOIPD
+if HAVE_LIBDAEMON
+
+man_MANS += \
+	avahi-autoipd.8 \
+	avahi-autoipd.action.8
+
 endif
 endif
 
@@ -118,6 +130,17 @@ avahi.hosts.5.xml: avahi.hosts.5.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+avahi-autoipd.action.8.xml: avahi-autoipd.action.8.xml.in Makefile
+	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
+avahi-autoipd.8.xml: avahi-autoipd.8.xml.in Makefile
+	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+
+
 if USE_XMLTOMAN
 
 CLEANFILES += $(man_MANS)
@@ -158,6 +181,12 @@ avahi.service.5: avahi.service.5.xml Makefile
 avahi.hosts.5: avahi.hosts.5.xml Makefile
 	xmltoman $< > $@
 
+avahi-autoipd.action.8: avahi-autoipd.action.8.xml Makefile
+	xmltoman $< > $@
+
+avahi-autoipd.8: avahi-autoipd.8.xml Makefile
+	xmltoman $< > $@
+
 xmllint: $(noinst_DATA)
 	for f in $(noinst_DATA) ; do \
 			xmllint --noout --valid "$$f" || exit 1 ; \
@@ -181,6 +210,8 @@ EXTRA_DIST = \
 	avahi-dnsconfd.action.8.xml.in \
 	avahi.service.5.xml.in \
 	avahi.hosts.5.xml.in \
+	avahi-autoipd.action.8.xml.in \
+	avahi-autoipd.8.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd

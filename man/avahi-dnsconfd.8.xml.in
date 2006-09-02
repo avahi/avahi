@@ -76,7 +76,7 @@
 
     <section name="Files">
       
-      <p><file>@pkgsysconfdir@/dnsconfd.action</file>: the script to run when a DNS server is found or removed.</p>
+      <p><file>@pkgsysconfdir@/avahi-dnsconfd.action</file>: the script to run when a DNS server is found or removed.</p>
     
     </section>
 
@@ -86,7 +86,7 @@
     </section>
 
 	<section name="Authors">
-	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
+	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>
 	</section>
 	

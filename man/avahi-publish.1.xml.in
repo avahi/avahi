@@ -104,7 +104,7 @@
 	</options>
 	
 	<section name="Authors">
-	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
+	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>
 	</section>
 	

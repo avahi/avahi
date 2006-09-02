@@ -42,8 +42,8 @@
       exclusively by avahi-dnsconfd (a daemon which configures unicast
       DNS servers using server info published via mDNS) and nss-mdns
       (a libc NSS plugin, providing name resolution via mDNS). Finally
-      there is the DBUS interface which provides a rich object
-      oriented interface to DBUS enabled applications.</p>
+      there is the D-Bus interface which provides a rich object
+      oriented interface to D-Bus enabled applications.</p>
       
       <p>Upon startup avahi-daemon interprets its configuration file
       <file>@pkgsysconfdir@/avahi-daemon.conf</file> and reads XML
@@ -63,17 +63,17 @@
 
 	  <option>
 		<p><opt>-D | --daemonize</opt></p>
-		<optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt></p></optdesc>
+		<optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt>.</p></optdesc>
 	  </option>
 
       <option>
         <p><opt>-s | --syslog</opt></p>
-        <optdesc><p>Log to syslog instead of STDERR. Implied by <opt>--daemonize</opt></p></optdesc>
+        <optdesc><p>Log to syslog instead of STDERR. Implied by <opt>--daemonize</opt>.</p></optdesc>
       </option>
 
       <option>
         <p><opt>--debug</opt></p>
-        <optdesc><p>Increase verbosity to debug level</p></optdesc>
+        <optdesc><p>Increase verbosity to debug level.</p></optdesc>
       </option>
 
       <option>
@@ -92,10 +92,10 @@
       </option>
 
       <option>
-        <p><opt>--no-proctitle</opt></p>
+        <p><opt>--no-proc-title</opt></p>
         <optdesc><p>Don't change the process name while
-        running. Unless this option is specified avahi will reflect
-        it's current state and selected host name in the process
+        running. Unless this option is specified avahi-daemon will reflect
+        it's current state and the selected host name in the process
         title.</p></optdesc>
       </option>
 
@@ -144,15 +144,15 @@
     </section>
 
     <section name="Signals">
-      <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-daemon will shutdown. This is issued by passing --kill to avahi-daemon.</p>
+      <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-daemon will shutdown. (Same as <opt>--kill</opt>).</p>
       <p><arg>SIGHUP</arg>: avahi-daemon will reload unicast DNS
       server data from <file>/etc/resolv.conf</file> and static
-      service definitions from <file>@servicedir@/</file>.</p>
+      service definitions from <file>@servicedir@/</file>. (Same as <opt>--reload</opt>)</p>
       <p><arg>SIGUSR1</arg>: avahi-daemon will dump local and remote cached resource record data to syslog.</p>
     </section>
 
 	<section name="Authors">
-	  <p>The avahi developers &lt;@PACKAGE_BUGREPORT@&gt;; avahi is
+	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>
 	</section>
 	

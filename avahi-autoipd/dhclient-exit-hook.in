@@ -19,14 +19,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-set -e
-
 case "$reason" in
     MEDIUM|ARPCHECK|ARPSEND|NBI)
         ;;
 
     PREINIT|BOUND|RENEW|REBIND|REBOOT|STOP)
-        # Stoping avahi-autoipd is left for the enter hook
+        # Stopping avahi-autoipd is left for the enter hook
         ;;
     
     EXPIRE|FAIL|RELEASE|TIMEOUT)

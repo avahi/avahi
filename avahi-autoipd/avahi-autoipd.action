@@ -58,8 +58,15 @@ elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
             ifconfig "$2" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255
             ;;
 
-        CONFLICT|UNBIND|STOP)
+        CONFLICT|STOP)
             ifconfig "$2" inet 0
+            ;;
+
+        UNBIND)
+            # This event is triggered when some other tool configured
+            # a routable address for this interface. That IP address
+            # probably overwrote ours, so let's not remove it again
+            # here.
             ;;
 
         *)

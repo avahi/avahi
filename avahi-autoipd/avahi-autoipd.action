@@ -36,11 +36,11 @@ if [ -x /bin/ip -o -x /sbin/ip ] ; then
 
     case "$1" in
         BIND)
-            ip addr add "$3"/16 label "$2:avahi" scope link dev "$2" 
+            ip addr add "$3"/16 brd 169.254.255.255 label "$2:avahi" scope link dev "$2" 
             ;;
 
         CONFLICT|UNBIND|STOP)
-            ip addr del "$3"/16 label "$2:avahi" scope link dev "$2" 
+            ip addr del "$3"/16 brd 169.254.255.255 label "$2:avahi" scope link dev "$2" 
             ;;
 
         *)
@@ -55,7 +55,7 @@ elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
 
     case "$1" in
         BIND)
-            ifconfig "$2" inet "$3" netmask 255.255.0.0
+            ifconfig "$2" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255
             ;;
 
         CONFLICT|UNBIND|STOP)

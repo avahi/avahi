@@ -1156,7 +1156,7 @@ static void help(FILE *f, const char *a0) {
             "                        169.254.0.0/16\n"
             "    -w --wait           Wait until an address has been acquired before\n"
             "                        daemonizing\n"
-            "       --force-bind     Assign an IPv4LL address even if routable address\n"
+            "       --force-bind     Assign an IPv4LL address even if a routable address\n"
             "                        is already assigned\n"
             "       --no-drop-root   Don't drop privileges\n"
 #ifdef HAVE_CHROOT            

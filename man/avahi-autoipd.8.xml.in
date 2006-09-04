@@ -45,6 +45,16 @@
       <p>avahi-autoipd can be used as stand-alone address allocator
       or as plugin for a DHCP client such as ISC's dhclient, where it
       can be used as fallback solution if no DHCP server is found.</p>
+
+      <p>To allow communication between hosts that have only an IPv4LL
+      address assigned and hosts that only have a routable IP address
+      assigned you may add the following routes to both network
+      configurations:</p>
+
+      <p><opt>route add -net 169.254.0.0 netmask 255.255.0.0 dev eth0 metric 99</opt></p>
+      <p><opt>route add default dev eth0 metric 99</opt></p>
+
+      <p>See http://developer.apple.com/qa/qa2004/qa1357.html for more information.</p>
 	</description>
 	
 	<options>

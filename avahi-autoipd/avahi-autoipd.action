@@ -55,18 +55,11 @@ elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
 
     case "$1" in
         BIND)
-            ifconfig "$2" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255
+            ifconfig "$2:3" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255 up
             ;;
 
-        CONFLICT|STOP)
-            ifconfig "$2" inet 0
-            ;;
-
-        UNBIND)
-            # This event is triggered when some other tool configured
-            # a routable address for this interface. That IP address
-            # probably overwrote ours, so let's not remove it again
-            # here.
+        CONFLICT|STOP|UNBIND)
+            ifconfig "$2:3" down
             ;;
 
         *)
@@ -74,6 +67,7 @@ elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
             exit 1
             ;;
     esac
+
 else
 
     echo "No network configuration tool found." >&2

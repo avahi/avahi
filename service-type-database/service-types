@@ -116,3 +116,5 @@ _pulse-source._tcp:PulseAudio Sound Source
 
 _mpd._tcp:Music Player Daemon
 _smb._tcp:Microsoft Windows Network
+
+_pgpkey-hkp._tcp:GnuPG/PGP HKP Key Server

@@ -6,15 +6,17 @@ This release fixes some bugs and includes a new component.
 Changes:
 
   * Add new daemon "avahi-autoipd" which is an implementation of
-    IPv4LL as defined in RFC3927. While it is not the first
-    implemenatation of this technology for Free operating systems it
-    is clearly the most powerful and hopefully even the most
-    secure. (Because it chroot()s and drops priviliges and suchlike)
-    For more information, especially about packaging this new tool for
-    distributions, please make sure to read:
+    IPv4LL as defined in RFC3927, a technology for assigning link-local IP
+    addresses without DHCP server. The same functionality has been available on
+    Windows under the name APIPA. While it is not the first implemenatation of
+    this technology for Free operating systems it is clearly the most powerful
+    and hopefully even the most secure. (Because it chroot()s and drops
+    priviliges and suchlike) For more information, especially about packaging
+    this new tool for distributions, please make sure to read:
     http://avahi.org/wiki/AvahiAutoipd 
-    For the rationale for adding this program to the Avahi toolset
-    please read this mailing list thread:
+    and of course the man page included in the tarball.  For the rationale for
+    adding this program to the Avahi toolset please read this mailing list
+    thread:
     http://lists.freedesktop.org/archives/avahi/2006-September/000863.html
   * Fix a segfault in the code handling static host name registrations
   * Add a few new entries to the service type database

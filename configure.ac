@@ -104,9 +104,25 @@ AC_DEFINE([HAVE_SYS_SYSCTL_H],[],[Support for sys/sysctl.h])
 , [], [
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/param.h>
 ])
 
 AM_CONDITIONAL(HAVE_SYS_SYSCTL_H, [ test x"$HAVE_SYS_SYSCTL_H" = xyes ])
+
+#
+# Check for lifconf struct; only present on Solaris
+#
+AC_MSG_CHECKING(for struct lifconf)
+AC_CACHE_VAL(avahi_cv_has_struct_lifconf,
+[AC_TRY_COMPILE(
+[#include <sys/socket.h>
+#include <net/if.h>
+],[sizeof (struct lifconf);],
+avahi_cv_has_struct_lifconf=yes,avahi_cv_has_struct_lifconf=no)])
+AC_MSG_RESULT($avahi_cv_has_struct_lifconf)
+if test $avahi_cv_has_struct_lifconf = yes; then
+    AC_DEFINE(HAVE_STRUCT_LIFCONF,1,[Define if there is a struct lifconf.])
+fi
 
 #
 # Check for struct ip_mreqn

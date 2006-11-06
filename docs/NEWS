@@ -1,3 +1,15 @@
+Avahi 0.6.15
+============
+
+This is a bugfix release, this bug is potentially security sensitive
+
+ * Check that netlink messages actually originate from the kernel
+   and not another process.
+ * Fix build on NetBSD (thanks to Daniel S. Haischt)
+ * Fix dbus_service_browser not setting AVAHI_LOOKUP_RESULT_OUR_OWN.
+
+This release is backwards compatible with Avahi 0.6.x with x < 15.
+
 Avahi 0.6.14
 ============
 

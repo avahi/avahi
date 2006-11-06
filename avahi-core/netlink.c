@@ -62,6 +62,12 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
 
     p = (struct nlmsghdr *) nl->buffer;
     
+    /* Check that this message originated from the kernel,
+       or a request from avahi itself, and not another process */
+    if ((p->nlmsg_pid != 0) && (p->nlmsg_pid != getpid())) {
+        return -1;
+    }
+
     assert(nl->callback);
     
     for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {

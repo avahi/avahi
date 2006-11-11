@@ -1067,10 +1067,10 @@ static int dbus_connect(void) {
     if (dbus_bus_request_name(
             server->bus,
             AVAHI_DBUS_NAME,
-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 60)
-            DBUS_NAME_FLAG_DO_NOT_QUEUE,
-#else
+#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR < 60)
             DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT,
+#else
+            DBUS_NAME_FLAG_DO_NOT_QUEUE,
 #endif
             &error) != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
         if (dbus_error_is_set(&error)) {
@@ -1106,11 +1106,6 @@ fail:
         dbus_error_free(&error);
 
     if (server->bus) {
-#ifdef HAVE_DBUS_CONNECTION_CLOSE
-        dbus_connection_close(server->bus);
-#else
-        dbus_connection_disconnect(server->bus);
-#endif
         dbus_connection_unref(server->bus);
         server->bus = NULL;
     }
@@ -1127,11 +1122,6 @@ static void dbus_disconnect(void) {
     assert(server->n_clients == 0);
 
     if (server->bus) {
-#ifdef HAVE_DBUS_CONNECTION_CLOSE
-        dbus_connection_close(server->bus);
-#else
-        dbus_connection_disconnect(server->bus);
-#endif
         dbus_connection_unref(server->bus);
         server->bus = NULL;
     }
@@ -1166,11 +1156,6 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
 
 fail:
     if (server->bus) {
-#ifdef HAVE_DBUS_CONNECTION_CLOSE
-        dbus_connection_close(server->bus);
-#else
-        dbus_connection_disconnect(server->bus);
-#endif
         dbus_connection_unref(server->bus);
     }
 

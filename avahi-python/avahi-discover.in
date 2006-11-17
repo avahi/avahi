@@ -28,6 +28,10 @@ except ImportError:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
     sys.exit(1)
 
+
+## !!NOTE!! ##
+# It's really important to do this, else you won't see any events
+##
 try:
     import dbus.glib
 except ImportError, e:

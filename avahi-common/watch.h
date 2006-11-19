@@ -42,10 +42,10 @@ typedef struct AvahiPoll AvahiPoll;
 
 /** Type of watch events */
 typedef enum {
-    AVAHI_WATCH_IN = POLLIN,      /** Input event */
-    AVAHI_WATCH_OUT = POLLOUT,    /** Output event */
-    AVAHI_WATCH_ERR = POLLERR,    /** Error event */
-    AVAHI_WATCH_HUP = POLLHUP     /** Hangup event */
+    AVAHI_WATCH_IN = POLLIN,      /**< Input event */
+    AVAHI_WATCH_OUT = POLLOUT,    /**< Output event */
+    AVAHI_WATCH_ERR = POLLERR,    /**< Error event */
+    AVAHI_WATCH_HUP = POLLHUP     /**< Hangup event */
 } AvahiWatchEvent;
 
 /** Called whenever an I/O event happens  on an I/O watch */

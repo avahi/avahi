@@ -47,27 +47,49 @@ struct AvahiNetlink {
 
 int avahi_netlink_work(AvahiNetlink *nl, int block) {
     ssize_t bytes;
+    struct msghdr smsg;
+    struct cmsghdr *cmsg;
+    struct ucred *cred;
+    struct iovec iov;
     struct nlmsghdr *p;
+    char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
     
     assert(nl);
-    
-    if ((bytes = recv(nl->fd, nl->buffer, nl->buffer_length, block ? 0 : MSG_DONTWAIT)) < 0) {
-        
+
+    iov.iov_base = nl->buffer;
+    iov.iov_len = nl->buffer_length;
+
+    smsg.msg_name = (void*) NULL;
+    smsg.msg_namelen = 0;
+    smsg.msg_iov = &iov;
+    smsg.msg_iovlen = 1;
+    smsg.msg_control = cred_msg;
+    smsg.msg_controllen = sizeof(cred_msg);
+    smsg.msg_flags = (block ? 0 : MSG_DONTWAIT);
+
+    if ((bytes = recvmsg(nl->fd, &smsg, 0)) < 0) {
         if (errno == EAGAIN || errno == EINTR)
             return 0;
         
-        avahi_log_error(__FILE__": recv() failed: %s", strerror(errno));
+        avahi_log_error(__FILE__": recvmsg() failed: %s", strerror(errno));
+        return -1;
+    }
+
+    cmsg = CMSG_FIRSTHDR(&smsg);
+    cred = (struct ucred *) CMSG_DATA (cmsg);
+
+    if (cmsg == NULL || cmsg->cmsg_type != SCM_CREDENTIALS) {
+        avahi_log_error("No sender credentials received, ignoring data.");
+        return -1;
+    }
+
+    if (cred->uid != 0) {
+        avahi_log_warn("Netlink message received from cred->uid != 0 (%d)", cred->uid);
         return -1;
     }
 
     p = (struct nlmsghdr *) nl->buffer;
     
-    /* Check that this message originated from the kernel,
-       or a request from avahi itself, and not another process */
-    if ((p->nlmsg_pid != 0) && (p->nlmsg_pid != getpid())) {
-        return -1;
-    }
-
     assert(nl->callback);
     
     for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
@@ -94,6 +116,7 @@ static void socket_event(AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent
 
 AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, void* userdata), void* userdata) {
     int fd = -1;
+    const int on = 1;
     struct sockaddr_nl addr;
     AvahiNetlink *nl = NULL;
 
@@ -111,6 +134,11 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
     addr.nl_pid = getpid();
 
     if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        avahi_log_error(__FILE__": bind(): %s", strerror(errno));
+        goto fail;
+    }
+
+    if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) < 0) {
         avahi_log_error(__FILE__": bind(): %s", strerror(errno));
         goto fail;
     }

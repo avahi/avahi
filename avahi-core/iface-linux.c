@@ -30,6 +30,15 @@
 
 #include <avahi-common/malloc.h>
 
+#include <linux/if_addr.h>
+#ifndef IFLA_RTA
+#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
+#endif
+
+#ifndef IFA_RTA
+#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
+#endif
+
 #include "log.h"
 #include "iface.h"
 #include "iface-linux.h"

@@ -715,10 +715,10 @@ AC_SUBST(AVAHI_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_GROUP,"$AVAHI_GROUP", [Group for Avahi])
 
 AC_ARG_WITH(avahi_priv_access_group,AS_HELP_STRING([--with-avahi-priv-access-group=<group>],[Priviliged access group for Avahi clients (netdev)]))
-if test -z "$with_priv_access_group" ; then
+if test -z "$with_avahi_priv_access_group" ; then
     AVAHI_PRIV_ACCESS_GROUP=netdev
 else
-    AVAHI_PRIV_ACCESS_GROUP=$with_priv_access_group
+    AVAHI_PRIV_ACCESS_GROUP=$with_avahi_priv_access_group
 fi
 AC_SUBST(AVAHI_PRIV_ACCESS_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_PRIV_ACCESS_GROUP,"$AVAHI_PRIV_ACCESS_GROUP", [Privileged access group for Avahi clients])

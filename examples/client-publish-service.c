@@ -44,7 +44,7 @@ static char *name = NULL;
 static void create_services(AvahiClient *c);
 
 static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
-    assert(g == group);
+    assert(g == group || group == NULL);
 
     /* Called whenever the entry group state changes */
 

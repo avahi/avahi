@@ -92,7 +92,7 @@
 	
 	<section name="See also">
 	  <p>
-        <manref name="avahi-daemon" section="8"/>, <manref name="dnsconfd.action" section="8"/>
+        <manref name="avahi-daemon" section="8"/>, <manref name="avahi-dnsconfd.action" section="8"/>
 	  </p>
 	</section>
 	

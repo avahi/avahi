@@ -30,6 +30,10 @@
 
 #include <avahi-common/malloc.h>
 
+#include "log.h"
+#include "iface.h"
+#include "iface-linux.h"
+
 #ifndef IFLA_RTA
 #include <linux/if_addr.h>
 #define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
@@ -39,10 +43,6 @@
 #include <linux/if_addr.h>
 #define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
 #endif
-
-#include "log.h"
-#include "iface.h"
-#include "iface-linux.h"
 
 static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq) {
     struct nlmsghdr *n;

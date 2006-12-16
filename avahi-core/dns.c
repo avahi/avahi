@@ -332,9 +332,10 @@ static int consume_labels(AvahiDnsPacket *p, unsigned idx, char *ret_name, size_
     int ret = 0;
     int compressed = 0;
     int first_label = 1;
+    int i;
     assert(p && ret_name && l);
     
-    for (;;) {
+    for (i = 0; i < 127; i++) {
         uint8_t n;
 
         if (idx+1 > p->size)

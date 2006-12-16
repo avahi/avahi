@@ -332,6 +332,7 @@ static int consume_labels(AvahiDnsPacket *p, unsigned idx, char *ret_name, size_
     int ret = 0;
     int compressed = 0;
     int first_label = 1;
+    unsigned label_ptr;
     int i;
     assert(p && ret_name && l);
     
@@ -385,7 +386,12 @@ static int consume_labels(AvahiDnsPacket *p, unsigned idx, char *ret_name, size_
             if (idx+2 > p->size)
                 return -1;
 
-            idx = ((unsigned) (AVAHI_DNS_PACKET_DATA(p)[idx] & ~0xC0)) << 8 | AVAHI_DNS_PACKET_DATA(p)[idx+1];
+            label_ptr = ((unsigned) (AVAHI_DNS_PACKET_DATA(p)[idx] & ~0xC0)) << 8 | AVAHI_DNS_PACKET_DATA(p)[idx+1];
+
+            if ((label_ptr < AVAHI_DNS_PACKET_HEADER_SIZE) || (label_ptr >= idx))
+                return -1;
+
+            idx = label_ptr;
 
             if (!compressed)
                 ret += 2;

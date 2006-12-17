@@ -24,8 +24,8 @@ import os, sys
 try:
     import avahi, gtk, gobject, dbus, avahi.ServiceTypeDatabase
     from avahi.SimpleGladeApp import SimpleGladeApp
-except ImportError:
-    print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
+except ImportError, e:
+    print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e
     sys.exit(1)
 
 
@@ -33,12 +33,22 @@ except ImportError:
 # It's really important to do this, else you won't see any events
 ##
 try:
+from dbus.dbus_bindings import DBusException
+
     import dbus.glib
 except ImportError, e:
     pass
 
 service_type_browsers = {}
 service_browsers = {}
+
+def error_msg(msg):
+    d = gtk.MessageDialog(parent=None, flags=gtk.DIALOG_MODAL,
+                          type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK)
+    d.set_markup(msg)
+    d.show_all()
+    d.run()
+    d.destroy()
 
 glade_dir = "@interfacesdir@"
 
@@ -162,8 +172,14 @@ class Main_window(SimpleGladeApp):
 
         if self.stype is None:
             print "Browsing domain '%s' on %i.%i ..." % (domain, interface, protocol)
-        
-            b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceTypeBrowserNew(interface, protocol, domain, dbus.UInt32(0))),  avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
+
+            try:
+                b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceTypeBrowserNew(interface, protocol, domain, dbus.UInt32(0))),  avahi.DBUS_INTERFACE_SERVICE_TYPE_BROWSER)
+            except DBusException, e:
+                print e
+                error_msg("You should check that the avahi daemon is running.\n\nError : %s" % e)
+                sys.exit(0)
+                
             b.connect_to_signal('ItemNew', self.new_service_type)
 
             service_type_browsers[(interface, protocol, domain)] = b

@@ -83,9 +83,18 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi mDNS/DNS-SD Daemon"
 NAME="avahi-daemon"
 DAEMON="@sbindir@/$NAME"
+SCRIPTNAME=/etc/init.d/$NAME
 
 # Gracefully exit if the package has been removed.
 test -x $DAEMON || exit 0
+
+# don't start if /etc/default/avahi-daemon says so.
+AVAHI_DAEMON_START=1
+test -f /etc/default/avahi-daemon && . /etc/default/avahi-daemon
+
+if [ "$AVAHI_DAEMON_START" != "1" -a "$1" != "stop" ]; then
+    exit 0
+fi
 
 #
 #       Function that starts the daemon/service.

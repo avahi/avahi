@@ -83,9 +83,18 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi Unicast DNS Configuration Daemon"
 NAME="avahi-dnsconfd"
 DAEMON="@sbindir@/$NAME"
+SCRIPTNAME=/etc/init.d/$NAME
 
 # Gracefully exit if the package has been removed.
 test -x $DAEMON || exit 0
+
+# don't start if /etc/default/avahi-dnsconfd says so.
+AVAHI_DNSCONFD_START=1
+test -f /etc/default/avahi-dnsconfd && . /etc/default/avahi-dnsconfd
+
+if [ "$AVAHI_DNSCONFD_START" != "1" -a "$1" != "stop" ]; then
+    exit 0
+fi
 
 #
 #       Function that starts the daemon/service.

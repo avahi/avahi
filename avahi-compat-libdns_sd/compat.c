@@ -610,10 +610,13 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
     struct type_info type_info;
     
     AVAHI_WARN_LINKAGE;
-    
-    assert(ret_sdref);
+
+    if (!ret_sdref)
+        return kDNSServiceErr_BadParam;
+
+    *ret_sdref = NULL;
+
     assert(regtype);
-    assert(callback);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {
         AVAHI_WARN_UNSUPPORTED;
@@ -1091,8 +1094,14 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
 
     AVAHI_WARN_LINKAGE;
 
-    assert(ret_sdref);
-    assert(regtype);
+    if (!ret_sdref)
+        return kDNSServiceErr_BadParam;
+
+    *ret_sdref = NULL;
+    
+    if (!regtype)
+	    return kDNSServiceErr_BadParam;
+	
     assert(txtRecord || txtLen == 0);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags) {

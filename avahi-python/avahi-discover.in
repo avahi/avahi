@@ -33,8 +33,7 @@ except ImportError, e:
 # It's really important to do this, else you won't see any events
 ##
 try:
-from dbus.dbus_bindings import DBusException
-
+    from dbus.dbus_bindings import DBusException
     import dbus.glib
 except ImportError, e:
     pass

@@ -1,3 +1,28 @@
+Avahi 0.6.16
+============
+
+This is a bugfix release, it fixes one DoS (100% CPU Usage) and a regression
+from the last release
+
+ * Revert previous patch to check nlmsg_pid as it is bogus and breaks in
+   many cases, notably when using NetworkManager (Closes: #72)
+ * Replace with new SO_PASSCRED-based check of the sending UID, which
+   seems to work better (Closes: #72)
+ * Handle some errors in libdns_sd more gracefully the way the real
+   libdns_sd does (Closes: #64)
+ * Apply fix for Linux 2.6.19+ where IFA_RTA / IFLA_RTA is no longer
+   defined (Closes: #86)
+ * Fix doxygen comments for avahi watch, thanks to tedp (Closes: #77)
+ * Make d-bus version detection work for >= 1.0 (Closes: #71)
+ * Dont dbus_connection_close on shared dbus connections (Closes: #68)
+ * Fix potential endless loop in dns label unpacking code (Closes: #84)
+ * Fix bogus assertion in client-publish-service.c example
+ * Mild fix to some doxygen docs for avahi-common/address.h
+ * Fix passing in custom priviledged group (previously ignored setting)
+   (Closes: #85) 
+
+This release is backwards compatible with Avahi 0.6.x with x < 16.
+
 Avahi 0.6.15
 ============
 

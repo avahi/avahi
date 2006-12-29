@@ -19,7 +19,7 @@
     <deny send_interface="org.freedesktop.Avahi.Server" send_member="SetHostName"/>
   </policy>
 
-  <!-- Allow everything, including access to SetHostName to users of the group "netdev" -->
+  <!-- Allow everything, including access to SetHostName to users of the group "@AVAHI_PRIV_ACCESS_GROUP@" -->
   <policy group="@AVAHI_PRIV_ACCESS_GROUP@">
     <allow send_destination="org.freedesktop.Avahi"/>
     <allow receive_sender="org.freedesktop.Avahi"/>

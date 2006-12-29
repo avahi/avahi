@@ -400,6 +400,8 @@ static int consume_labels(AvahiDnsPacket *p, unsigned idx, char *ret_name, size_
         } else
             return -1;
     }
+
+    return -1;
 }
 
 int avahi_dns_packet_consume_name(AvahiDnsPacket *p, char *ret_name, size_t l) {

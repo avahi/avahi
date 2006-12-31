@@ -43,7 +43,7 @@ libnss_mdns_la_SOURCES= \
 	util.c util.h
 
 libnss_mdns_la_CFLAGS=$(AM_CFLAGS) 
-libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2
+libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2 -Wl,-version-script=map-file
 
 if ENABLE_AVAHI
 libnss_mdns_la_SOURCES += \

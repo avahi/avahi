@@ -171,9 +171,11 @@ static ssize_t consume_labels(struct dns_packet *p, size_t idx, char *ret_name, 
     ssize_t ret = 0;
     int compressed = 0;
     int first_label = 1;
+    int j;
+    
     assert(p && ret_name && l);
     
-    for (;;) {
+    for (j = 0; j < 63; j++) {
         uint8_t n;
 
         if (idx+1 > p->size)
@@ -218,12 +220,18 @@ static ssize_t consume_labels(struct dns_packet *p, size_t idx, char *ret_name, 
             if (!compressed)
                 ret += n;
         } else if ((n & 0xC0) == 0xC0) {
+            size_t nptr;
             /* Compressed label */
 
             if (idx+2 > p->size)
                 return -1;
 
-            idx = ((size_t) (p->data[idx] & ~0xC0)) << 8 | p->data[idx+1];
+            nptr = ((size_t) (p->data[idx] & ~0xC0)) << 8 | p->data[idx+1];
+
+            if (nptr >= idx || nptr < 12)
+                return -1;
+
+            idx = nptr;
 
             if (!compressed)
                 ret += 2;
@@ -232,6 +240,8 @@ static ssize_t consume_labels(struct dns_packet *p, size_t idx, char *ret_name, 
         } else
             return -1;
     }
+
+    return -1;
 }
 
 int dns_packet_consume_name(struct dns_packet *p, char *ret_name, size_t l) {

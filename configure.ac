@@ -58,6 +58,16 @@ AC_PROG_GCC_TRADITIONAL
 # libtool stuff
 AC_PROG_LIBTOOL
 
+AC_CACHE_CHECK([whether the C++ compiler works], [avahi_cv_sys_cxx_works], [
+    AC_LANG_PUSH([C++])
+    AC_COMPILE_IFELSE([int main() { }], [avahi_cv_sys_cxx_works=yes],
+        [avahi_cv_sys_cxx_works=no])
+    AC_LANG_POP([C++])
+    ])
+[ if [ "x$avahi_cv_sys_cxx_works" = "xno" ]; then ]
+    AC_MSG_FAILURE([The C++ compiler does not work])
+[ fi ]
+
 ACX_PTHREAD(,AC_MSG_ERROR([Missing POSIX Threads support]))
 
 #

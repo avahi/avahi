@@ -635,6 +635,9 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_add
         goto fail;
     }
 
+    if (ms <= 0)
+        goto fail;
+
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
@@ -650,7 +653,14 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_add
     msg.msg_flags = 0;
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
-        avahi_log_warn("recvmsg(): %s", strerror(errno));
+        /* Linux returns EAGAIN when an invalid IP packet has been
+        recieved. We suppress warnings in this case because this might
+        create quite a bit of log traffic on machines with unstable
+        links. (See #60) */
+
+        if (errno != EAGAIN)
+            avahi_log_warn("recvmsg(): %s", strerror(errno));
+
         goto fail;
     }
 
@@ -768,6 +778,9 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_add
         avahi_log_warn("ioctl(): %s", strerror(errno));
         goto fail;
     }
+
+    if (ms <= 0)
+        goto fail;
     
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
@@ -785,7 +798,14 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_add
     msg.msg_flags = 0;
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
-        avahi_log_warn("recvmsg(): %s", strerror(errno));
+        /* Linux returns EAGAIN when an invalid IP packet has been
+        recieved. We suppress warnings in this case because this might
+        create quite a bit of log traffic on machines with unstable
+        links. (See #60) */
+
+        if (errno != EAGAIN)
+            avahi_log_warn("recvmsg(): %s", strerror(errno));
+        
         goto fail;
     }
 

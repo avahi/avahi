@@ -62,7 +62,7 @@ typedef void (*AvahiClientCallback) (
 AvahiClient* avahi_client_new (
     const AvahiPoll *poll_api /**< The abstract event loop API to use */,
     AvahiClientFlags flags /**< Some flags to modify the behaviour of  the client library */,
-    AvahiClientCallback callback /**< A callback that is called whenever the state of the client changes. This may be NULL */,
+    AvahiClientCallback callback /**< A callback that is called whenever the state of the client changes. This may be NULL. Please note that this function is called for the first time from within the avahi_client_new() context! Thus, in the callback you should not make use of global variables that are initialized only after your call to avahi_client_new(). A common mistake is to store the AvahiClient pointer returned by avahi_client_new() in a global variable and assume that this global variable already contains the valid pointer when the callback is called for the first time. A work-around for this is to always use the AvahiClient pointer passed to the callback function instead of the global pointer.  */,
     void *userdata /**< Some arbitrary user data pointer that will be passed to the callback function */,
     int *error /**< If creation of the client fails, this integer will contain the error cause. May be NULL if you aren't interested in the reason why avahi_client_new() failed. */);
 

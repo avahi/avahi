@@ -341,12 +341,9 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
 
         dbus_message_iter_recurse(&sub, &sub2);
             
-        if (dbus_message_iter_get_array_len(&sub2) > 0) 
-            dbus_message_iter_get_fixed_array(&sub2, &k, &n);
-        else {
-            k = (const uint8_t*) "";
-            n = 0;
-        }
+        k = (const uint8_t*) "";
+        n = 0;
+        dbus_message_iter_get_fixed_array(&sub2, &k, &n);
             
         strlst = avahi_string_list_add_arbitrary(strlst, k, n);
         

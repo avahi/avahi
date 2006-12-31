@@ -426,7 +426,7 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
                 c->debug = 1;
                 break;
             default:
-                fprintf(stderr, "Invalid command line argument: %c\n", o);
+                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

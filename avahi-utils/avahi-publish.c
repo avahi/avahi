@@ -290,7 +290,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 c->subtypes = avahi_string_list_add(c->subtypes, optarg);
                 break;
             default:
-                fprintf(stderr, "Invalid command line argument: %c\n", o);
+                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

@@ -419,7 +419,7 @@ static int parse_command_line(int argc, char *argv[]) {
                 command = DAEMON_CHECK;
                 break;
             default:
-                fprintf(stderr, "Invalid command line argument: %c\n", c);
+                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

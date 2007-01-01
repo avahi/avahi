@@ -138,13 +138,13 @@ fi
 ### Enable legacy unicast mDNS support?
 
 AC_ARG_ENABLE(legacy,
-        AC_HELP_STRING([--enable-legacy],[Enable legacy unicast mDNS lookups when Avahi isn't available (default=yes)]),
+        AC_HELP_STRING([--enable-legacy],[Enable legacy unicast mDNS lookups when Avahi isn't available (default=no)]),
         [case "${enableval}" in
                 yes) ENABLE_LEGACY=yes ;;
                 no)  ENABLE_LEGACY=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-legacy) ;;
         esac],
-        [ENABLE_LEGACY=yes]) dnl Default value
+        [ENABLE_LEGACY=no]) dnl Default value
 
 if test "x$ENABLE_AVAHI" = "xno" -a "x$ENABLE_LEGACY" = "xno"; then
 	AC_MSG_ERROR(Can't disable legacy unicast mDNS lookups if Avahi support is disabled)

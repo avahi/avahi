@@ -60,7 +60,7 @@ AC_PROG_LIBTOOL
 
 AC_CACHE_CHECK([whether the C++ compiler works], [avahi_cv_sys_cxx_works], [
     AC_LANG_PUSH([C++])
-    AC_COMPILE_IFELSE([int main() { }], [avahi_cv_sys_cxx_works=yes],
+    AC_COMPILE_IFELSE([int main() { return 0; }], [avahi_cv_sys_cxx_works=yes],
         [avahi_cv_sys_cxx_works=no])
     AC_LANG_POP([C++])
     ])

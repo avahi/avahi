@@ -17,6 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+EXTRA_DIST = map-file
+
 AM_CFLAGS = \
 	-DMDNS_ALLOW_FILE=\"$(sysconfdir)/mdns.allow\" \
 	-DRESOLV_CONF_FILE=\"$(sysconfdir)/resolv.conf\" \
@@ -43,7 +45,7 @@ libnss_mdns_la_SOURCES= \
 	util.c util.h
 
 libnss_mdns_la_CFLAGS=$(AM_CFLAGS) 
-libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2 -Wl,-version-script=map-file
+libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2 -Wl,-version-script=$(srcdir)/map-file
 
 if ENABLE_AVAHI
 libnss_mdns_la_SOURCES += \

@@ -220,6 +220,16 @@ an mDNS responder. (Don't try to use the tools <tt>host</tt> or
 <p>If you run a firewall, don't forget to allow UDP traffic to the the
 mDNS multicast address <tt>224.0.0.251</tt> on port 5353.</p>
 
+<p><b>Please note:</b> The line above makes <tt>nss-mdns</tt>
+authoritative for the <tt>.local</tt> domain. If you have a unicast
+DNS domain with the same name you will no longer be able to resolve
+hosts from it. mDNS and a unicast DNS domain named <tt>.local</tt> are
+inherently incompatible. Please contact your local admistrator and ask
+him to move to a different domain name since <tt>.local</tt> is to be
+used exclusively for Zeroconf technology. <a
+href="http://avahi.org/wiki/AvahiAndUnicastDotLocal">Further
+information</a>.</p>
+
 <p>Starting with version 0.5, <tt>nss-mdns</tt> has a simple
 configuration file <tt>/etc/mdns.allow</tt> for enabling name lookups
 via mDNS in other domains than <tt>.local</tt>. The file contains

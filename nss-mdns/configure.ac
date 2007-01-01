@@ -156,5 +156,21 @@ fi
 
 AM_CONDITIONAL([ENABLE_LEGACY], [test "x$ENABLE_LEGACY" = "xyes"])
 
+### Honour search domains from /etc/resolv.conf?
+
+AC_ARG_ENABLE(search-domains,
+        AC_HELP_STRING([--enable-search-domains],[Honour search domains from /etc/resolv.conf (default=no)]),
+        [case "${enableval}" in
+                yes) HONOUR_SEARCH_DOMAINS=yes ;;
+                no)  HONOUR_SEARCH_DOMAINS=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-search-domains) ;;
+        esac],
+        [HONOUR_SEARCH_DOMAINS=no]) dnl Default value
+
+if test "x$HONOUR_SEARCH_DOMAINS" = "xyes" ; then
+   AC_DEFINE(HONOUR_SEARCH_DOMAINS, [1], [Honour search domains from /etc/resolv.conf])
+fi
+
+
 AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile doc/README.html ])
 AC_OUTPUT

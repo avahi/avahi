@@ -172,6 +172,8 @@ static int verify_name_allowed(const char *name) {
     return ends_with(name, ".local") || ends_with(name, ".local."); 
 }
 
+#ifdef HONOUR_SEARCH_DOMAINS
+
 static char **alloc_domains(unsigned ndomains) {
     char **domains;
 
@@ -276,6 +278,8 @@ static char** get_search_domains(void) {
     return domains;
 }
 
+#endif
+
 enum nss_status _nss_mdns_gethostbyname2_r(
     const char *name,
     int af,
@@ -370,6 +374,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
             status = NSS_STATUS_NOTFOUND;
     }
 
+#ifdef HONOUR_SEARCH_DOMAINS
     if (u.count == 0 && avahi_works && !ends_with(name, ".")) {
         char **domains;
 
@@ -416,7 +421,8 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 	    free_domains(domains);
 	}
     }
-#endif
+#endif /* HONOUR_SEARCH_DOMAINS */
+#endif /* ENABLE_AVAHI */
 
 #if defined(ENABLE_LEGACY) && defined(ENABLE_AVAHI)
     if (u.count == 0 && !avahi_works) 
@@ -438,6 +444,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
                 status = NSS_STATUS_NOTFOUND;
         }
 
+#ifdef HONOUR_SEARCH_DOMAINS
         if (u.count == 0 && !ends_with(name, ".")) {
             char **domains;
             
@@ -476,8 +483,9 @@ enum nss_status _nss_mdns_gethostbyname2_r(
                 free_domains(domains);
 	    }
         }
+#endif /* HONOUR_SEARCH_DOMAINS */
     }
-#endif
+#endif /* ENABLE_LEGACY */
 
     if (u.count == 0) {
         *errnop = ETIMEDOUT;

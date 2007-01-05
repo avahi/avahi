@@ -1051,12 +1051,34 @@ static int dbus_connect(void) {
     assert(!server->bus);
 
     dbus_error_init(&error);
-    
-    if (!(server->bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error))) {
+
+#ifdef HAVE_DBUS_BUS_GET_PRIVATE    
+    if (!(server->bus = dbus_bus_get_private(DBUS_BUS_SYSTEM, &error))) {
         assert(dbus_error_is_set(&error));
-        avahi_log_error("dbus_bus_get(): %s", error.message);
+        avahi_log_error("dbus_bus_get_private(): %s", error.message);
         goto fail;
     }
+#else
+    {
+        const char *a;
+
+        if (!(a = getenv("DBUS_SYSTEM_BUS_ADDRESS")) || !*a)
+            a = DBUS_SYSTEM_BUS_DEFAULT_ADDRESS;
+        
+        if (!(server->bus = dbus_connection_open_private(a, &error))) {
+            assert(dbus_error_is_set(&error));
+            avahi_log_error("dbus_bus_open_private(): %s", error.message);
+            goto fail;
+        }
+
+        if (!dbus_bus_register(server->bus, &error)) {
+            assert(dbus_error_is_set(&error));
+            avahi_log_error("dbus_bus_register(): %s", error.message);
+            goto fail;
+        }
+    }
+#endif
+    
     if (avahi_dbus_connection_glue(server->bus, server->poll_api) < 0) {
         avahi_log_error("avahi_dbus_connection_glue() failed");
         goto fail;
@@ -1106,6 +1128,11 @@ fail:
         dbus_error_free(&error);
 
     if (server->bus) {
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
+        dbus_connection_close(server->bus);
+#else
+        dbus_connection_disconnect(server->bus);
+#endif
         dbus_connection_unref(server->bus);
         server->bus = NULL;
     }
@@ -1122,6 +1149,11 @@ static void dbus_disconnect(void) {
     assert(server->n_clients == 0);
 
     if (server->bus) {
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
+        dbus_connection_close(server->bus);
+#else
+        dbus_connection_disconnect(server->bus);
+#endif
         dbus_connection_unref(server->bus);
         server->bus = NULL;
     }
@@ -1156,6 +1188,12 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
 
 fail:
     if (server->bus) {
+#ifdef HAVE_DBUS_CONNECTION_CLOSE
+        dbus_connection_close(server->bus);
+#else
+        dbus_connection_disconnect(server->bus);
+#endif
+
         dbus_connection_unref(server->bus);
     }
 

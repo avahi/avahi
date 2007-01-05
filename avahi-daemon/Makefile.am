@@ -115,7 +115,7 @@ avahi_daemon_SOURCES += \
 avahi_daemon_LDADD += \
 	$(DBUS_LIBS)
 
-avahi_daemon_CFLAGS += $(DBUS_CFLAGS)
+avahi_daemon_CFLAGS += $(DBUS_CFLAGS) -DDBUS_SYSTEM_BUS_DEFAULT_ADDRESS=\"$(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)\"
 
 dbusservice_DATA = avahi-dbus.conf
 

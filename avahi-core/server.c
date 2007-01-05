@@ -803,7 +803,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->id);
     
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (avahi_interface_is_relevant(j) &&
+        if (j->announcing &&
             j != i &&
             (s->config.reflect_ipv || j->protocol == i->protocol)) {
 
@@ -884,7 +884,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
     assert(src_address->proto == dst_address->proto);
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, src_address->proto)) ||
-        !avahi_interface_is_relevant(i)) {
+        !i->announcing) {
         avahi_log_warn("Recieved packet from invalid interface.");
         return;
     }
@@ -977,7 +977,7 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p) {
     }
 
     if (!(j = avahi_interface_monitor_get_interface(s->monitor, slot->interface, slot->address.proto)) ||
-        !avahi_interface_is_relevant(j))
+        !j->announcing)
         return;
 
     /* Patch the original ID into this response */
@@ -1560,6 +1560,8 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->browse_domains = NULL;
     c->disable_publishing = 0;
     c->allow_point_to_point = 0;
+    c->publish_aaaa_on_ipv4 = 1;
+    c->publish_a_on_ipv6 = 0;
     
     return c;
 }
@@ -1720,4 +1722,10 @@ int avahi_server_set_wide_area_servers(AvahiServer *s, const AvahiAddress *a, un
 
     avahi_wide_area_set_servers(s->wide_area_lookup_engine, a, n);
     return AVAHI_OK;
+}
+
+const AvahiServerConfig* avahi_server_get_config(AvahiServer *s) {
+    assert(s);
+
+    return &s->config;
 }

@@ -50,9 +50,9 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
     assert(a);
     m = a->monitor;
 
-    if (a->interface->announcing &&
-        m->list_complete &&
+    if (m->list_complete &&
         avahi_interface_address_is_relevant(a) &&
+        avahi_interface_is_relevant(a->interface) &&
         !remove_rrs &&
         m->server->config.publish_addresses &&
         (m->server->state == AVAHI_SERVER_RUNNING ||
@@ -67,11 +67,15 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
         
         if (avahi_s_entry_group_is_empty(a->entry_group)) {
             char t[AVAHI_ADDRESS_STR_MAX];
+            AvahiProtocol p;
+
+            p = (a->interface->protocol == AVAHI_PROTO_INET && m->server->config.publish_a_on_ipv6) ||
+                (a->interface->protocol == AVAHI_PROTO_INET6 && m->server->config.publish_aaaa_on_ipv4) ? AVAHI_PROTO_UNSPEC : a->interface->protocol;
+            
             avahi_address_snprint(t, sizeof(t), &a->address);
+            avahi_log_info("Registering new address record for %s on %s.%s.", t, a->interface->hardware->name, p == AVAHI_PROTO_UNSPEC ? "*" : avahi_proto_to_string(p));
 
-            avahi_log_info("Registering new address record for %s on %s.", t, a->interface->hardware->name);
-
-            if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, a->interface->protocol, 0, NULL, &a->address) < 0) {
+            if (avahi_server_add_address(m->server, a->entry_group, a->interface->hardware->index, p, 0, NULL, &a->address) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_address() failed: %s", avahi_strerror(m->server->error));
                 avahi_s_entry_group_free(a->entry_group);
                 a->entry_group = NULL;
@@ -171,6 +175,10 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
 
     if (!!join  == !!i->mcast_joined)
         return 0;
+
+    if ((i->protocol == AVAHI_PROTO_INET6 && i->monitor->server->fd_ipv6 < 0) ||
+        (i->protocol == AVAHI_PROTO_INET && i->monitor->server->fd_ipv4 < 0))
+        return -1;
     
     if (join) {
         AvahiInterfaceAddress *a;
@@ -186,10 +194,8 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
             a = i->addresses;
 
         /* Hmm, there is no address available. */
-        if (!a) {
-            avahi_log_warn(__FILE__": interface_mdns_mcast_join() called but no local address available."); 
+        if (!a)
             return -1;
-        }
 
         i->local_mcast_address = a->address;
     }
@@ -387,9 +393,9 @@ AvahiHwInterface *avahi_hw_interface_new(AvahiInterfaceMonitor *m, AvahiIfIndex 
             
     avahi_hashmap_insert(m->hashmap, &hw->index, hw);
 
-    if (m->server->fd_ipv4 >= 0)
+    if (m->server->fd_ipv4 >= 0 || m->server->config.publish_a_on_ipv6)
         avahi_interface_new(m, hw, AVAHI_PROTO_INET);
-    if (m->server->fd_ipv6 >= 0)
+    if (m->server->fd_ipv6 >= 0 || m->server->config.publish_aaaa_on_ipv4)
         avahi_interface_new(m, hw, AVAHI_PROTO_INET6);
 
     return hw;
@@ -426,13 +432,16 @@ void avahi_interface_check_relevant(AvahiInterface *i) {
     b = avahi_interface_is_relevant(i);
 
     if (m->list_complete && b && !i->announcing) {
-        avahi_log_info("New relevant interface %s.%s for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
-
         interface_mdns_mcast_join(i, 1);
 
-        i->announcing = 1;
-        avahi_announce_interface(m->server, i);
-        avahi_multicast_lookup_engine_new_interface(m->server->multicast_lookup_engine, i);
+        if (i->mcast_joined) {
+            avahi_log_info("New relevant interface %s.%s for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
+
+            i->announcing = 1;
+            avahi_announce_interface(m->server, i);
+            avahi_multicast_lookup_engine_new_interface(m->server->multicast_lookup_engine, i);
+        }
+        
     } else if (!b && i->announcing) {
         avahi_log_info("Interface %s.%s no longer relevant for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
 
@@ -553,7 +562,7 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
     assert(i);
     assert(p);
 
-    if (!avahi_interface_is_relevant(i))
+    if (!i->announcing)
         return;
     
     assert(!a || a->proto == i->protocol);
@@ -575,10 +584,10 @@ int avahi_interface_post_query(AvahiInterface *i, AvahiKey *key, int immediately
     assert(i);
     assert(key);
 
-    if (avahi_interface_is_relevant(i))
-        return avahi_query_scheduler_post(i->query_scheduler, key, immediately, ret_id);
-
-    return 0;
+    if (!i->announcing)
+        return 0;
+    
+    return avahi_query_scheduler_post(i->query_scheduler, key, immediately, ret_id);
 }
 
 int avahi_interface_withraw_query(AvahiInterface *i, unsigned id) {
@@ -590,20 +599,20 @@ int avahi_interface_post_response(AvahiInterface *i, AvahiRecord *record, int fl
     assert(i);
     assert(record);
 
-    if (avahi_interface_is_relevant(i))
-        return avahi_response_scheduler_post(i->response_scheduler, record, flush_cache, querier, immediately);
-
-    return 0;
+    if (!i->announcing)
+        return 0;
+    
+    return avahi_response_scheduler_post(i->response_scheduler, record, flush_cache, querier, immediately);
 }
 
 int avahi_interface_post_probe(AvahiInterface *i, AvahiRecord *record, int immediately) {
     assert(i);
     assert(record);
     
-    if (avahi_interface_is_relevant(i))
-        return avahi_probe_scheduler_post(i->probe_scheduler, record, immediately);
+    if (!i->announcing)
+        return 0;
 
-    return 0;
+    return avahi_probe_scheduler_post(i->probe_scheduler, record, immediately);
 }
 
 int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void* userdata) {
@@ -625,21 +634,19 @@ int avahi_dump_caches(AvahiInterfaceMonitor *m, AvahiDumpCallback callback, void
 
 int avahi_interface_is_relevant(AvahiInterface *i) {
     AvahiInterfaceAddress *a;
-    int relevant_address;
     
     assert(i);
 
-    relevant_address = 0;
+    if (!i->hardware->flags_ok)
+        return 0;
     
     for (a = i->addresses; a; a = a->address_next)
-        if (avahi_interface_address_is_relevant(a)) {
-            relevant_address = 1;
-            break;
-        }
+        if (avahi_interface_address_is_relevant(a))
+            return 1;
 
-    return i->hardware->flags_ok && relevant_address;
+    return 0;
 }
-
+    
 int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {
     AvahiInterfaceAddress *b;
     assert(a);

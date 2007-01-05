@@ -498,7 +498,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye
     assert(i);
 
     if (send_goodbye)
-        if (avahi_interface_is_relevant(i)) {
+        if (i->announcing) {
             AvahiEntry *e;
             
             for (e = s->entries; e; e = e->entries_next)

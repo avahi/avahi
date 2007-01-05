@@ -75,6 +75,16 @@ else
 	return $1
     }
     
+    log_warning_msg () {
+	if log_use_fancy_output; then
+	    YELLOW=`$TPUT setaf 3`
+	    NORMAL=`$TPUT op`
+	    echo "$YELLOW*$NORMAL $@"
+	else
+	    echo "$@"
+	fi
+    }
+
 fi
 
 #set -e
@@ -93,6 +103,7 @@ AVAHI_DNSCONFD_START=1
 test -f /etc/default/avahi-dnsconfd && . /etc/default/avahi-dnsconfd
 
 if [ "$AVAHI_DNSCONFD_START" != "1" -a "$1" != "stop" ]; then
+    log_warning_msg "Not starting $DESC $NAME, disabled via /etc/default/$NAME"
     exit 0
 fi
 

@@ -442,7 +442,7 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
 static int is_yes(const char *s) {
     assert(s);
     
-    return *s == 'y' || *s == 'Y';
+    return *s == 'y' || *s == 'Y' || *s == '1' || *s == 't' || *s == 'T';
 }
 
 static int load_config_file(DaemonConfig *c) {
@@ -541,8 +541,12 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.add_service_cookie = is_yes(p->value);
                 else if (strcasecmp(p->key, "publish-dns-servers") == 0) {
                     avahi_strfreev(c->publish_dns_servers);
-                    c->publish_dns_servers = avahi_split_csv(p->value); 
-                } else {
+                    c->publish_dns_servers = avahi_split_csv(p->value);
+                } else if (strcasecmp(p->key, "publish-a-on-ipv6") == 0)
+                    c->server_config.publish_a_on_ipv6 = is_yes(p->value);
+                else if (strcasecmp(p->key, "publish-aaaa-on-ipv4") == 0)
+                    c->server_config.publish_aaaa_on_ipv4 = is_yes(p->value);
+                else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;
                 }

@@ -34,11 +34,22 @@ if HAVE_PYTHON_DBUS
 if HAVE_PYGTK
 
 pythonscripts = \
-	avahi-bookmarks \
-	avahi-discover
+	avahi-bookmarks
 
 desktopdir = $(datadir)/applications
-desktop_DATA = avahi-discover.desktop
+desktop_DATA = 
+
+if HAVE_GDBM
+pythonscripts += \
+	avahi-discover
+desktop_DATA += avahi-discover.desktop
+endif
+
+if HAVE_DBM
+pythonscripts += \
+	avahi-discover
+desktop_DATA += avahi-discover.desktop
+endif
 
 avahi-discover.desktop: avahi-discover.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@

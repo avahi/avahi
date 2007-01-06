@@ -160,6 +160,8 @@
 	  <p>
         <manref name="avahi-daemon.conf" section="5"/>, <manref name="avahi.hosts" section="5"/>, <manref name="avahi.service" section="5"/>, <manref name="avahi-dnsconfd" section="8"/>, <manref name="avahi-set-host-name" section="1"/>
 	  </p>
+
+      <p>http://avahi.org/wiki/AvahiAndUnicastDotLocal documents the problems when using Avahi in a unicast DNS zone .local.</p>
 	</section>
 	
 	<section name="Comments">

@@ -560,7 +560,14 @@ int avahi_send_dns_packet_ipv4(
     return sendmsg_loop(fd, &msg, 0);
 }
 
-int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p, const AvahiIPv6Address *src_address, const AvahiIPv6Address *dst_address, uint16_t dst_port) {
+int avahi_send_dns_packet_ipv6(
+        int fd,
+        AvahiIfIndex interface,
+        AvahiDnsPacket *p,
+        const AvahiIPv6Address *src_address,
+        const AvahiIPv6Address *dst_address,
+        uint16_t dst_port) {
+    
     struct sockaddr_in6 sa;
     struct msghdr msg;
     struct iovec io;
@@ -617,7 +624,14 @@ int avahi_send_dns_packet_ipv6(int fd, AvahiIfIndex interface, AvahiDnsPacket *p
     return sendmsg_loop(fd, &msg, 0);
 }
 
-AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_address, uint16_t *ret_src_port, AvahiIPv4Address *ret_dst_address, AvahiIfIndex *ret_iface, uint8_t *ret_ttl) {
+AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
+        int fd,
+        AvahiIPv4Address *ret_src_address,
+        uint16_t *ret_src_port,
+        AvahiIPv4Address *ret_dst_address,
+        AvahiIfIndex *ret_iface,
+        uint8_t *ret_ttl) {
+    
     AvahiDnsPacket *p= NULL;
     struct msghdr msg;
     struct iovec io;
@@ -635,8 +649,10 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(int fd, AvahiIPv4Address *ret_src_add
         goto fail;
     }
 
-    if (ms <= 0)
+    if (ms < 0) {
+        avahi_log_warn("FIONREAD returned negative value.");
         goto fail;
+    }
 
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
@@ -761,7 +777,14 @@ fail:
     return NULL;
 }
 
-AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_address, uint16_t *ret_src_port, AvahiIPv6Address *ret_dst_address, AvahiIfIndex *ret_iface, uint8_t *ret_ttl) {
+AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
+        int fd,
+        AvahiIPv6Address *ret_src_address,
+        uint16_t *ret_src_port,
+        AvahiIPv6Address *ret_dst_address,
+        AvahiIfIndex *ret_iface,
+        uint8_t *ret_ttl) {
+    
     AvahiDnsPacket *p = NULL;
     struct msghdr msg;
     struct iovec io;
@@ -779,8 +802,10 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_add
         goto fail;
     }
 
-    if (ms <= 0)
+    if (ms < 0) {
+        avahi_log_warn("FIONREAD returned negative value.");
         goto fail;
+    }
     
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
@@ -860,7 +885,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(int fd, AvahiIPv6Address *ret_src_add
 
     assert(found_iface);
     assert(found_ttl);
-
+    
     return p;
 
 fail:
@@ -912,13 +937,19 @@ fail:
 
 int avahi_open_unicast_socket_ipv6(void) {
     struct sockaddr_in6 local;
-    int fd = -1;
+    int fd = -1, yes;
         
     if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
         avahi_log_warn("socket() failed: %s", strerror(errno));
         goto fail;
     }
     
+    yes = 1;
+    if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &yes, sizeof(yes)) < 0) {
+        avahi_log_warn("IPV6_V6ONLY failed: %s", strerror(errno));
+        goto fail;
+    }
+
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
     

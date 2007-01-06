@@ -116,7 +116,7 @@ static void add_static_host_to_server(StaticHost *h)
 
     if (!h->group)
         if (!(h->group = avahi_s_entry_group_new (avahi_server, entry_group_callback, h))) {
-            avahi_log_error("avahi_s_entry_group_new() failed: %s", avahi_strerror(err));
+            avahi_log_error("avahi_s_entry_group_new() failed: %s", avahi_strerror(avahi_server_errno(avahi_server)));
             return;
         }
 
@@ -130,7 +130,7 @@ static void add_static_host_to_server(StaticHost *h)
     p = (a.proto == AVAHI_PROTO_INET && config->publish_a_on_ipv6) ||
         (a.proto == AVAHI_PROTO_INET6 && config->publish_aaaa_on_ipv4) ? AVAHI_PROTO_UNSPEC : a.proto;
     
-    if ((err = avahi_server_add_address(avahi_server, h->group, AVAHI_IF_UNSPEC, p, 0, h->host, &a))) {
+    if ((err = avahi_server_add_address(avahi_server, h->group, AVAHI_IF_UNSPEC, p, 0, h->host, &a)) < 0) {
         avahi_log_error ("Static host name %s: avahi_server_add_address failure: %s", h->host, avahi_strerror(err));
         return;
     }

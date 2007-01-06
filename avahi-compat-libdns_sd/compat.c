@@ -469,25 +469,26 @@ static void sdref_unref(DNSServiceRef sdref) {
 }
 
 int DNSSD_API DNSServiceRefSockFD(DNSServiceRef sdref) {
-    if (!sdref || sdref->n_ref <= 0)
-        return -1;
 
     AVAHI_WARN_LINKAGE;
     
+    if (!sdref || sdref->n_ref <= 0)
+        return -1;
+
     return sdref->main_fd;
 }
 
 DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     DNSServiceErrorType ret = kDNSServiceErr_Unknown;
 
-    assert(sdref);
-    assert(sdref->n_ref >= 1);
-    
     AVAHI_WARN_LINKAGE;
 
-    ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
-
+    if (!sdref || sdref->n_ref <= 0)
+        return kDNSServiceErr_BadParam;
+    
     sdref_ref(sdref);
+
+    ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
     
     /* Cleanup notification socket */
     if (read_command(sdref->main_fd) != COMMAND_POLL_DONE)
@@ -512,10 +513,10 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdref) {
     
 finish:
 
-    sdref_unref(sdref);
-
     ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
     
+    sdref_unref(sdref);
+
     return ret;
 }
 
@@ -613,7 +614,6 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
 
     if (!ret_sdref)
         return kDNSServiceErr_BadParam;
-
     *ret_sdref = NULL;
 
     assert(regtype);
@@ -739,7 +739,10 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve(
 
     AVAHI_WARN_LINKAGE;
 
-    assert(ret_sdref);
+    if (!ret_sdref)
+        return kDNSServiceErr_BadParam;
+    *ret_sdref = NULL;
+
     assert(name);
     assert(regtype);
     assert(domain);
@@ -853,7 +856,10 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
 
     AVAHI_WARN_LINKAGE;
 
-    assert(ret_sdref);
+    if (!ret_sdref)
+        return kDNSServiceErr_BadParam;
+    *ret_sdref = NULL;
+
     assert(callback);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly ||
@@ -1096,7 +1102,6 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
 
     if (!ret_sdref)
         return kDNSServiceErr_BadParam;
-
     *ret_sdref = NULL;
     
     if (!regtype)
@@ -1210,9 +1215,11 @@ DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(
 
     int ret = kDNSServiceErr_Unknown;
     AvahiStringList *txt = NULL;
-    assert(sdref);
 
     AVAHI_WARN_LINKAGE;
+
+    if (!sdref || sdref->n_ref <= 0)
+        return kDNSServiceErr_BadParam;
 
     if (flags || rref) {
         AVAHI_WARN_UNSUPPORTED;

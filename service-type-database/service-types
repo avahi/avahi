@@ -134,3 +134,4 @@ _rtp._udp:RTP Realtime Streaming Server
 
 _svn._tcp:Subversion Revision Control
 
+_presence_olpc._tcp:OLPC Presence

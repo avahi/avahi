@@ -33,6 +33,7 @@
 
 #include <avahi-common/malloc.h>
 
+#include "log.h"
 #include "domain-util.h"
 #include "util.h"
 
@@ -51,6 +52,40 @@ static void strip_bad_chars(char *s) {
     *d = 0;
 }
 
+#ifdef __linux__
+static int load_lsb_distrib_id(char *ret_s, size_t size) {
+    FILE *f;
+    
+    assert(ret_s);
+    assert(size > 0);
+
+    if (!(f = fopen("/etc/lsb-release", "r")))
+        return -1;
+
+    while (!feof(f)) {
+        char ln[256], *p;
+
+        if (!fgets(ln, sizeof(ln), f))
+            break;
+
+        if (strncmp(ln, "DISTRIB_ID=", 11))
+            continue;
+
+        p = ln + 11;
+        p += strspn(p, "\"");
+        p[strcspn(p, "\"")] = 0;
+
+        snprintf(ret_s, size, "%s", p);
+
+        fclose(f);
+        return 0;
+    }
+
+    fclose(f);
+    return -1;
+}
+#endif
+
 char *avahi_get_host_name(char *ret_s, size_t size) {
     assert(ret_s);
     assert(size > 0);
@@ -61,19 +96,39 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
     } else
         *ret_s = 0;
 
+    if (strcmp(ret_s, "localhost") == 0 || strncmp(ret_s, "localhost.", 10) == 0) {
+        *ret_s = 0;
+        avahi_log_warn("System host name is set to 'localhost'. This is not a suitable mDNS host name, looking for alternatives.");
+    }
+    
     if (*ret_s == 0) {
-        struct utsname utsname;
-        
         /* No hostname was set, so let's take the OS name */
 
-        if (uname(&utsname) >= 0) {
-            snprintf(ret_s, size, "%s", utsname.sysname);
+#ifdef __linux__
+
+        /* Try LSB distribution name first */
+        if (load_lsb_distrib_id(ret_s, size) >= 0) {
             strip_bad_chars(ret_s);
             avahi_strdown(ret_s);
         }
 
         if (*ret_s == 0)
-            snprintf(ret_s, size, "unnamed");
+#endif
+
+        {
+            /* Try uname() second */
+            struct utsname utsname;
+            
+            if (uname(&utsname) >= 0) {
+                snprintf(ret_s, size, "%s", utsname.sysname);
+                strip_bad_chars(ret_s);
+                avahi_strdown(ret_s);
+            }
+
+            /* Give up */
+            if (*ret_s == 0)
+                snprintf(ret_s, size, "unnamed");
+        }
     }
 
     if (size >= AVAHI_LABEL_MAX)

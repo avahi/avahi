@@ -59,7 +59,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     iov.iov_base = nl->buffer;
     iov.iov_len = nl->buffer_length;
 
-    smsg.msg_name = (void*) NULL;
+    smsg.msg_name = NULL;
     smsg.msg_namelen = 0;
     smsg.msg_iov = &iov;
     smsg.msg_iovlen = 1;
@@ -76,17 +76,16 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     }
 
     cmsg = CMSG_FIRSTHDR(&smsg);
-    cred = (struct ucred *) CMSG_DATA (cmsg);
 
-    if (cmsg == NULL || cmsg->cmsg_type != SCM_CREDENTIALS) {
-        avahi_log_error("No sender credentials received, ignoring data.");
+    if (!cmsg || cmsg->cmsg_type != SCM_CREDENTIALS) {
+        avahi_log_warn("No sender credentials received, ignoring data.");
         return -1;
     }
 
-    if (cred->uid != 0) {
-        avahi_log_warn("Netlink message received from cred->uid != 0 (%d)", cred->uid);
+    cred = (struct ucred*) CMSG_DATA(cmsg);
+
+    if (cred->uid != 0)
         return -1;
-    }
 
     p = (struct nlmsghdr *) nl->buffer;
     
@@ -139,7 +138,7 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
     }
 
     if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) < 0) {
-        avahi_log_error(__FILE__": bind(): %s", strerror(errno));
+        avahi_log_error(__FILE__": SO_PASSCRED: %s", strerror(errno));
         goto fail;
     }
 

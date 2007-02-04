@@ -66,6 +66,7 @@ AVAHI_LLIST_HEAD(Address, addresses) = NULL;
 
 int iface_init(int i) {
     struct sockaddr_nl addr;
+    int on = 1;
     
     if ((fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
         daemon_log(LOG_ERR, "socket(PF_NETLINK): %s", strerror(errno));
@@ -79,6 +80,11 @@ int iface_init(int i) {
 
     if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         daemon_log(LOG_ERR, "bind(): %s", strerror(errno));
+        goto fail;
+    }
+    
+    if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) < 0) {
+        daemon_log(LOG_ERR, "SO_PASSCRED: %s", strerror(errno));
         goto fail;
     }
 
@@ -179,12 +185,40 @@ static int process_response(int wait_for_done, unsigned seq) {
         size_t bytes;
         ssize_t r;
         char replybuf[2048];
+        char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
+        struct msghdr msghdr;
+        struct cmsghdr *cmsghdr;
+        struct ucred *ucred;
+        struct iovec iov; 
         struct nlmsghdr *p = (struct nlmsghdr *) replybuf;
+        
+        memset(&iov, 0, sizeof(iov));
+        iov.iov_base = replybuf; 
+ 	iov.iov_len = sizeof(replybuf);
 
-        if ((r = recv(fd, replybuf, sizeof(replybuf), 0)) < 0) {
-            daemon_log(LOG_ERR, "recv() failed: %s", strerror(errno));
+        memset(&msghdr, 0, sizeof(msghdr));
+        msghdr.msg_name = (void*) NULL;
+        msghdr.msg_namelen = 0; 
+        msghdr.msg_iov = &iov; 
+        msghdr.msg_iovlen = 1; 
+        msghdr.msg_control = cred_msg; 
+        msghdr.msg_controllen = sizeof(cred_msg); 
+ 	msghdr.msg_flags = 0;
+        
+        if ((r = recvmsg(fd, &msghdr, 0)) < 0) {
+            daemon_log(LOG_ERR, "recvmsg() failed: %s", strerror(errno));
             return -1;
         }
+
+        if (!(cmsghdr = CMSG_FIRSTHDR(&msghdr)) || cmsghdr->cmsg_type != SCM_CREDENTIALS) {
+            daemon_log(LOG_WARNING, "No sender credentials received, ignoring data."); 
+            return -1;
+        }
+
+        ucred = (struct ucred*) CMSG_DATA(cmsghdr);
+        
+        if (ucred->uid != 0)
+            return -1;
 
         bytes = (size_t) r;
         

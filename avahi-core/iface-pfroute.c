@@ -262,9 +262,10 @@ static void socket_event(AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent
 
 int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
     int fd = -1;
-    m->osdep.pfroute = NULL;
 
     assert(m);
+
+    m->osdep.pfroute = NULL;
 
     if ((fd = socket(PF_ROUTE, SOCK_RAW, AF_UNSPEC)) < 0) {
         avahi_log_error(__FILE__": socket(PF_ROUTE): %s", strerror(errno));

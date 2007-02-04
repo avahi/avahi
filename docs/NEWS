@@ -1,3 +1,18 @@
+Avahi 0.6.17
+============
+
+This is a bugfix release.
+
+ * Don't accept "localhost" as a local mDNS host name
+ * Allow running avahi-bookmarks as CGI script
+ * Improve libdns_sd compatibility
+ * Stability: libdns_sd mutex locking order fix
+ * Publish IPv6 addresses via IPv4 and vice versa
+ * IA64 fixes
+ * A lot of minor cleanups and fixes
+
+This release is backwards compatible with Avahi 0.6.x with x < 17.
+
 Avahi 0.6.16
 ============
 

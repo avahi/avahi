@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <sys/types.h>
 #include <netinet/in.h>
 
 #include <avahi-common/defs.h>

@@ -684,20 +684,25 @@ void static_service_load(int in_chroot) {
     }
 
     memset(&globbuf, 0, sizeof(globbuf));
+    
     if ((globret = glob(in_chroot ? "/services/*.service" : AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf)) != 0)
+        
         switch (globret) {
+#ifdef GLOB_NOSPACE
 	    case GLOB_NOSPACE:
-	        avahi_log_error("Not enough memory to read service directory.");
+	        avahi_log_error("Not enough memory to read service directory "AVAHI_SERVICE_DIR".");
 	        break;
-
-	    case GLOB_ABORTED:
-	        avahi_log_error("Failed to read %s.", AVAHI_SERVICE_DIR);
-	        break;
-
+#endif
+#ifdef GLOB_NOMATCH
             case GLOB_NOMATCH:
-	        avahi_log_info("No service found in %s.", AVAHI_SERVICE_DIR);
+	        avahi_log_info("No service file found in "AVAHI_SERVICE_DIR".");
 	        break;
-	        }
+#endif
+            default:
+	        avahi_log_error("Failed to read "AVAHI_SERVICE_DIR".");
+	        break;
+        }
+    
     else {
         for (p = globbuf.gl_pathv; *p; p++)
             load_file(*p);

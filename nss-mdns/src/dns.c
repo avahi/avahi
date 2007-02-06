@@ -32,6 +32,33 @@
 
 #include "dns.h"
 
+#define SET_16_P(data, value)                              \
+  do {                                                     \
+    uint16_t __value = value;                              \
+    memcpy(data, &__value, sizeof(uint16_t));              \
+  } while(0)
+
+#define SET_16(data, idx, value)                         \
+  SET_16_P(((uint8_t *)data) + idx * sizeof(uint16_t)/sizeof(uint8_t), value) 
+
+#define GET_16_P(data, value)                   \
+  do {                                          \
+    uint8_t *__value = ((uint8_t *)&value);     \
+    memcpy(__value, data, sizeof(uint16_t));    \
+  } while(0)
+    
+#define GET_16(data, idx, value) \
+  GET_16_P(((uint8_t *)data) + idx * sizeof(uint16_t)/sizeof(uint8_t), value) 
+
+#define GET_32_P(data, value)                   \
+  do {                                          \
+    uint8_t *__value = ((uint8_t *)&value);     \
+    memcpy(__value, data, sizeof(uint32_t));    \
+  } while(0)
+    
+#define GET_32(data, idx, value) \
+  GET_32_P(((uint8_t *)data) + idx * sizeof(uint32_t)/sizeof(uint8_t), value) 
+
 struct dns_packet* dns_packet_new(void) {
     struct dns_packet *p;
 
@@ -51,15 +78,19 @@ void dns_packet_free(struct dns_packet *p) {
 void dns_packet_set_field(struct dns_packet *p, unsigned idx, uint16_t v) {
     assert(p);
     assert(idx < 2*6);
+
     
-    ((uint16_t*) p->data)[idx] = htons(v);
+    SET_16(p->data, idx, htons(v));
 }
 
 uint16_t dns_packet_get_field(struct dns_packet *p, unsigned idx) {
     assert(p);
     assert(idx < 2*6);
+    uint16_t r;
 
-    return ntohs(((uint16_t*) p->data)[idx]);
+    GET_16(p->data, idx, r);
+
+    return ntohs(r);
 }
 
 uint8_t* dns_packet_append_name(struct dns_packet *p, const char *name) {
@@ -102,7 +133,7 @@ uint8_t* dns_packet_append_uint16(struct dns_packet *p, uint16_t v) {
     assert(p);
     
     d = dns_packet_extend(p, sizeof(uint16_t));
-    *((uint16_t*) d) = htons(v);
+    SET_16_P(d, htons(v));
     
     return d;
 }
@@ -120,7 +151,7 @@ uint8_t *dns_packet_extend(struct dns_packet *p, size_t l) {
 }
 
 uint8_t *dns_packet_append_name_compressed(struct dns_packet *p, const char *name, uint8_t *prev) {
-    int16_t *d;
+    uint8_t *d;
     signed long k;
     assert(p);
 
@@ -131,8 +162,8 @@ uint8_t *dns_packet_append_name_compressed(struct dns_packet *p, const char *nam
     if (k < 0 || k >= 0x4000 || (size_t) k >= p->size)
         return dns_packet_append_name(p, name);
 
-    d = (int16_t*) dns_packet_extend(p, sizeof(uint16_t));
-    *d = htons((0xC000 | k));
+    d = dns_packet_extend(p, sizeof(uint16_t));
+    SET_16_P(d, htons((0xC000 | k)));
     
     return prev;
 }
@@ -256,11 +287,13 @@ int dns_packet_consume_name(struct dns_packet *p, char *ret_name, size_t l) {
 
 int dns_packet_consume_uint16(struct dns_packet *p, uint16_t *ret_v) {
     assert(p && ret_v);
+    uint16_t r;
 
     if (p->rindex + sizeof(uint16_t) > p->size)
         return -1;
-
-    *ret_v = ntohs(*((uint16_t*) (p->data + p->rindex)));
+    
+    GET_16_P(p->data + p->rindex, r);
+    *ret_v =  ntohs(r);
     p->rindex += sizeof(uint16_t);
 
     return 0;
@@ -268,11 +301,13 @@ int dns_packet_consume_uint16(struct dns_packet *p, uint16_t *ret_v) {
 
 int dns_packet_consume_uint32(struct dns_packet *p, uint32_t *ret_v) {
     assert(p && ret_v);
+    uint32_t r;
 
     if (p->rindex + sizeof(uint32_t) > p->size)
         return -1;
 
-    *ret_v = ntohl(*((uint32_t*) (p->data + p->rindex)));
+    GET_32_P(p->data + p->rindex, r);
+    *ret_v = ntohl(r);
     p->rindex += sizeof(uint32_t);
     
     return 0;

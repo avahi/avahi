@@ -46,7 +46,8 @@ EXTRA_DIST = \
 	avahi-qt4.pc.in \
 	avahi-sharp.pc.in \
 	avahi-compat-libdns_sd.pc.in \
-	avahi-compat-howl.pc.in
+	avahi-compat-howl.pc.in \
+	avahi-ui.pc.in
 
 SUBDIRS = \
 	common \

@@ -42,7 +42,7 @@
 #include "../avahi-utils/stdb.h"
 #endif
 
-/* todo: props, i18n, HIGify */
+/* todo: i18n, HIGify */
 
 struct _AuiServiceDialog {
     GtkDialog parent_instance;
@@ -91,6 +91,17 @@ struct _AuiServiceDialog {
 
 enum {
     PROP_0,
+    PROP_BROWSE_SERVICE_TYPES,
+    PROP_DOMAIN,
+    PROP_SERVICE_TYPE,
+    PROP_SERVICE_NAME,
+    PROP_ADDRESS,
+    PROP_PORT,
+    PROP_HOST_NAME,
+    PROP_TXT_DATA,
+    PROP_RESOLVE_SERVICE,
+    PROP_RESOLVE_HOST_NAME,
+    PROP_ADDRESS_FAMILY
 };
 
 enum {
@@ -110,19 +121,83 @@ enum {
 };
 
 static void aui_service_dialog_finalize(GObject *object);
+static void aui_service_dialog_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void aui_service_dialog_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
 G_DEFINE_TYPE(AuiServiceDialog, aui_service_dialog, GTK_TYPE_DIALOG)
 
 static void aui_service_dialog_class_init(AuiServiceDialogClass *klass) {
     GObjectClass *object_class;
-/*     GtkWidgetClass *widget_class; */
-/*     GtkDialogClass *dialog_class; */
     
     object_class = (GObjectClass*) klass;
-/*     widget_class = (GtkWidgetClass*) klass; */
-/*     dialog_class = (GtkDialogClass*) klass; */
 
     object_class->finalize = aui_service_dialog_finalize;
+    object_class->set_property = aui_service_dialog_set_property;
+    object_class->get_property = aui_service_dialog_get_property;
+
+    g_object_class_install_property(
+            object_class,
+            PROP_BROWSE_SERVICE_TYPES,
+            g_param_spec_pointer("browse_service_types", "Browse Service Types", "A NULL terminated list of service types to browse for",
+                                G_PARAM_READABLE | G_PARAM_WRITABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_DOMAIN,
+            g_param_spec_string("domain", "Domain", "The domain to browse in, or NULL for the default domain",
+                                NULL,
+                                G_PARAM_READABLE | G_PARAM_WRITABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_SERVICE_TYPE,
+            g_param_spec_string("service_type", "Service Type", "The service type of the selected service",
+                                NULL,
+                                G_PARAM_READABLE | G_PARAM_WRITABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_SERVICE_NAME,
+            g_param_spec_string("service_name", "Service Name", "The service name of the selected service",
+                                NULL,
+                                G_PARAM_READABLE | G_PARAM_WRITABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_ADDRESS,
+            g_param_spec_pointer("address", "Address", "The address of the resolved service",
+                                G_PARAM_READABLE));    
+    g_object_class_install_property(
+            object_class,
+            PROP_PORT,
+            g_param_spec_uint("port", "Port", "The IP port number of the resolved service",
+                             0, 0xFFFF, 0,
+                             G_PARAM_READABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_HOST_NAME,
+            g_param_spec_string("host_name", "Host Name", "The host name of the resolved service",
+                                NULL,
+                                G_PARAM_READABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_TXT_DATA,
+            g_param_spec_pointer("txt_data", "TXT Data", "The TXT data of the resolved service",
+                                G_PARAM_READABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_RESOLVE_SERVICE,
+            g_param_spec_boolean("resolve_service", "Resolve service", "Resolve service",
+                                 TRUE,
+                                 G_PARAM_READABLE | G_PARAM_WRITABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_RESOLVE_HOST_NAME,
+            g_param_spec_boolean("resolve_host_name", "Resolve service host name", "Resolve service host name",
+                                 TRUE,
+                                 G_PARAM_READABLE | G_PARAM_WRITABLE));
+    g_object_class_install_property(
+            object_class,
+            PROP_ADDRESS_FAMILY,
+            g_param_spec_int("address_family", "Address family", "The address family for host name resolution",
+                             AVAHI_PROTO_UNSPEC, AVAHI_PROTO_INET6, AVAHI_PROTO_UNSPEC,
+                             G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
 
@@ -1057,10 +1132,10 @@ const gchar*const* aui_service_dialog_get_browse_service_types(AuiServiceDialog 
 
 void aui_service_dialog_set_domain(AuiServiceDialog *d, const char *domain) {
     g_return_if_fail(AUI_IS_SERVICE_DIALOG(d));
-    g_return_if_fail(is_valid_domain_suffix(domain));
+    g_return_if_fail(!domain || is_valid_domain_suffix(domain));
 
     g_free(d->domain);
-    d->domain = avahi_normalize_name_strdup(domain);
+    d->domain = domain ? avahi_normalize_name_strdup(domain) : NULL;
     
     restart_browsing(d);
 }
@@ -1161,3 +1236,96 @@ AvahiProtocol aui_service_dialog_get_address_family(AuiServiceDialog *d) {
 
     return d->address_family;
 }
+
+static void aui_service_dialog_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
+    AuiServiceDialog *d = AUI_SERVICE_DIALOG(object);
+    
+    switch (prop_id) {
+        case PROP_BROWSE_SERVICE_TYPES:
+            aui_service_dialog_set_browse_service_typesv(d, g_value_get_pointer(value));
+            break;
+
+        case PROP_DOMAIN:
+            aui_service_dialog_set_domain(d, g_value_get_string(value));
+            break;
+
+        case PROP_SERVICE_TYPE:
+            aui_service_dialog_set_service_type(d, g_value_get_string(value));
+            break;
+
+        case PROP_SERVICE_NAME:
+            aui_service_dialog_set_service_name(d, g_value_get_string(value));
+            break;
+            
+        case PROP_RESOLVE_SERVICE:
+            aui_service_dialog_set_resolve_service(d, g_value_get_boolean(value));
+            break;
+
+        case PROP_RESOLVE_HOST_NAME:
+            aui_service_dialog_set_resolve_host_name(d, g_value_get_boolean(value));
+            break;
+
+        case PROP_ADDRESS_FAMILY:
+            aui_service_dialog_set_address_family(d, g_value_get_int(value));
+            break;
+            
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
+    }
+}
+
+static void aui_service_dialog_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec) {
+    AuiServiceDialog *d = AUI_SERVICE_DIALOG(object);
+    
+    switch (prop_id) {
+        case PROP_BROWSE_SERVICE_TYPES:
+            g_value_set_pointer(value, (gpointer) aui_service_dialog_get_browse_service_types(d));
+            break;
+
+        case PROP_DOMAIN:
+            g_value_set_string(value, aui_service_dialog_get_domain(d));
+            break;
+
+        case PROP_SERVICE_TYPE:
+            g_value_set_string(value, aui_service_dialog_get_service_type(d));
+            break;
+
+        case PROP_SERVICE_NAME:
+            g_value_set_string(value, aui_service_dialog_get_service_name(d));
+            break;
+
+        case PROP_ADDRESS:
+            g_value_set_pointer(value, (gpointer) aui_service_dialog_get_address(d));
+            break;
+
+        case PROP_PORT:
+            g_value_set_uint(value, aui_service_dialog_get_port(d));
+            break;
+
+        case PROP_HOST_NAME:
+            g_value_set_string(value, aui_service_dialog_get_host_name(d));
+            break;
+                               
+        case PROP_TXT_DATA:
+            g_value_set_pointer(value, aui_service_dialog_get_txt_data(d));
+            break;
+            
+        case PROP_RESOLVE_SERVICE:
+            g_value_set_boolean(value, aui_service_dialog_get_resolve_service(d));
+            break;
+
+        case PROP_RESOLVE_HOST_NAME:
+            g_value_set_boolean(value, aui_service_dialog_get_resolve_host_name(d));
+            break;
+
+        case PROP_ADDRESS_FAMILY:
+            g_value_set_int(value, aui_service_dialog_get_address_family(d));
+            break;
+            
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
+    }
+}
+

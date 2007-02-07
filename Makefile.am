@@ -201,16 +201,18 @@ CLEANFILES += avahi-glib.pc
 endif
 
 if HAVE_GTK
+if HAVE_DBUS
 
-pkgconfig_DATA += avahi-gtk.pc
+pkgconfig_DATA += avahi-ui.pc
 
-avahi-gtk.pc: avahi-gtk.pc.in
+avahi-ui.pc: avahi-ui.pc.in
 	sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
-CLEANFILES += avahi-gtk.pc
+CLEANFILES += avahi-ui.pc
 
+endif
 endif
 
 if HAVE_QT3

@@ -32,6 +32,7 @@
 #include <avahi-client/client.h>
 #include <avahi-common/strlst.h>
 #include <avahi-common/malloc.h>
+#include <avahi-common/domain.h>
 
 #include "avahi-ui.h"
 
@@ -39,53 +40,74 @@ int main(int argc, char*argv[]) {
     GtkWidget *d;
 
     gtk_init(&argc, &argv);
-    
-    d = aui_service_dialog_new("Choose SSH server");
-    aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp",  /*"_ftp._tcp", "_http._tcp",*/ NULL);
+
+    if (g_str_has_suffix(argv[0], "zvnc")) {
+        d = aui_service_dialog_new("Choose VNC server");
+        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
+    } else {
+        d = aui_service_dialog_new("Choose SSH server");
+        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
+    }
+        
     aui_service_dialog_set_resolve_service(AUI_SERVICE_DIALOG(d), TRUE);
     aui_service_dialog_set_resolve_host_name(AUI_SERVICE_DIALOG(d), !avahi_nss_support());
 
     gtk_window_present(GTK_WINDOW(d));
 
     if (gtk_dialog_run(GTK_DIALOG(d)) == GTK_RESPONSE_OK) {
-        char p[16], a[AVAHI_ADDRESS_STR_MAX], *u = NULL;
-        char *h = NULL;
+        char a[AVAHI_ADDRESS_STR_MAX], *u = NULL;
+        char *h = NULL, *t = NULL;
         const AvahiStringList *txt;
         
-        snprintf(p, sizeof(p), "%u", aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d)));
-
+        t = g_strdup(aui_service_dialog_get_service_type(AUI_SERVICE_DIALOG(d)));
+        
         if (avahi_nss_support())
             h = g_strdup(aui_service_dialog_get_host_name(AUI_SERVICE_DIALOG(d)));
         else
             h = g_strdup(avahi_address_snprint(a, sizeof(a), aui_service_dialog_get_address(AUI_SERVICE_DIALOG(d))));
+        
+        if (avahi_domain_equal(t, "_rfb._tcp")) {
+            char p[AVAHI_DOMAIN_NAME_MAX+16];
+            snprintf(p, sizeof(p), "%s:%u", h, aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d))-5900);
 
-        for (txt = aui_service_dialog_get_txt_data(AUI_SERVICE_DIALOG(d)); txt; txt = txt->next) {
-            char *key, *value;
+            gtk_widget_destroy(d);
             
-            if (avahi_string_list_get_pair((AvahiStringList*) txt, &key, &value, NULL) < 0)
-                break;
-
-            if (strcmp(key, "u") == 0)
-                u = g_strdup(value);
+            g_print("xvncviewer %s\n", p);
+            execlp("xvncviewer", "xvncviewer", p, NULL); 
             
-            avahi_free(key);
-            avahi_free(value);
-        }
-
-        gtk_widget_destroy(d);
-
-        if (u) {
-            g_print("ssh -p %s -l %s %s\n", p, u, h);
-            execlp("ssh", "ssh", "-p", p, "-l", u, h, NULL); 
         } else {
-            g_print("ssh -p %s %s\n", p, h);
-            execlp("ssh", "ssh", "-p", p, h, NULL); 
+            char p[16];
+            snprintf(p, sizeof(p), "%u", aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d)));
+            
+            for (txt = aui_service_dialog_get_txt_data(AUI_SERVICE_DIALOG(d)); txt; txt = txt->next) {
+                char *key, *value;
+                
+                if (avahi_string_list_get_pair((AvahiStringList*) txt, &key, &value, NULL) < 0)
+                    break;
+                
+                if (strcmp(key, "u") == 0)
+                    u = g_strdup(value);
+                
+                avahi_free(key);
+                avahi_free(value);
+            }
+
+            gtk_widget_destroy(d);
+            
+            if (u) {
+                g_print("ssh -p %s -l %s %s\n", p, u, h);
+                execlp("ssh", "ssh", "-p", p, "-l", u, h, NULL); 
+            } else {
+                g_print("ssh -p %s %s\n", p, h);
+                execlp("ssh", "ssh", "-p", p, h, NULL); 
+            }
         }
 
         g_warning("execlp() failed: %s", strerror(errno));
 
         g_free(h);
         g_free(u);
+        g_free(t);
         
     } else {
         gtk_widget_destroy(d);

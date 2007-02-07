@@ -56,5 +56,10 @@ zssh_SOURCES = zssh.c
 zssh_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
 zssh_LDADD = $(AM_LDADD) $(GTK20_LIBS) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la libavahi-ui.la
 
+install-exec-local:
+	cd $(DESTDIR)/$(bindir) && \
+		rm -f zvnc && \
+		$(LN_S) zssh zvnc
+
 endif
 endif

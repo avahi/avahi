@@ -34,6 +34,7 @@ AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:2:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:1:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:1:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:1:0])
+AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [0:0:0])
 
 # Do not touch these, since they we took this version-info from upstream HOWL/Bonjour
 AC_SUBST(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO, [1:0:0])
@@ -909,6 +910,7 @@ avahi-compat-libdns_sd/Makefile
 avahi-compat-howl/Makefile
 avahi-compat-howl/samples/Makefile
 avahi-autoipd/Makefile
+avahi-ui/Makefile
 ])
 AC_OUTPUT
 
@@ -973,6 +975,10 @@ if test "x$ENABLE_COMPAT_HOWL" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
    ENABLE_COMPAT_HOWL="no   (You need libavahi-client!)"
 fi
 
+BUILD_UI="no"
+if test "x$HAVE_GTK" = "xyes" -a "x$BUILD_CLIENT" = "xyes" ; then
+   BUILD_UI="yes"
+fi
 
 echo "\
     Building libavahi-core              yes
@@ -991,4 +997,5 @@ echo "\
     Building tests:                     ${ENABLE_TESTS}
     Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
     Building avahi-autoipd:             ${ENABLE_AUTOIPD}
+    Building libavahi-ui:               ${BUILD_UI}
 "

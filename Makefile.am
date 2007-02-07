@@ -68,7 +68,8 @@ SUBDIRS = \
 	service-type-database \
 	avahi-compat-libdns_sd \
 	avahi-compat-howl \
-	avahi-autoipd
+	avahi-autoipd \
+	avahi-ui
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/address.h \
@@ -116,6 +117,11 @@ DX_INPUT += \
 	$(srcdir)/avahi-core/publish.h \
 	$(srcdir)/avahi-core/rr.h \
 	$(srcdir)/avahi-core/log.h
+endif
+
+if HAVE_GTK
+DX_INPUT += \
+	$(srcdir)/avahi-ui/avahi-ui.h
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -190,6 +196,19 @@ avahi-glib.pc: avahi-glib.pc.in
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 CLEANFILES += avahi-glib.pc
+
+endif
+
+if HAVE_GTK
+
+pkgconfig_DATA += avahi-gtk.pc
+
+avahi-gtk.pc: avahi-gtk.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-gtk.pc
 
 endif
 

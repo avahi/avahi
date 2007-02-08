@@ -29,38 +29,45 @@ AM_CFLAGS = \
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-lib_LTLIBRARIES= \
+AM_LDFLAGS=-avoid-version -module -export-dynamic
+
+lib_LTLIBRARIES = 
+
+if FREEBSD_NSS
+lib_LTLIBRARIES += \
+	nss_mdns.la \
+	nss_mdns4.la \
+	nss_mdns6.la \
+	nss_mdns_minimal.la \
+	nss_mdns4_minimal.la \
+	nss_mdns6_minimal.la
+else
+lib_LTLIBRARIES += \
 	libnss_mdns.la \
 	libnss_mdns4.la \
 	libnss_mdns6.la \
 	libnss_mdns_minimal.la \
 	libnss_mdns4_minimal.la \
 	libnss_mdns6_minimal.la
+endif
 
-noinst_PROGRAMS= \
-	nss-test
-
-libnss_mdns_la_SOURCES= \
-	nss.c \
-	util.c util.h
-
-libnss_mdns_la_CFLAGS=$(AM_CFLAGS) 
-libnss_mdns_la_LDFLAGS=-avoid-version -module -export-dynamic -shrext .so.2 -Wl,-version-script=$(srcdir)/map-file
+noinst_PROGRAMS = nss-test
+sources = util.c util.h
 
 if ENABLE_AVAHI
-libnss_mdns_la_SOURCES += \
-	avahi.c	avahi.h
-
+sources += avahi.c avahi.h
 noinst_PROGRAMS += avahi-test
 endif
 
 if ENABLE_LEGACY
-libnss_mdns_la_SOURCES += \
-	query.c query.h \
-	dns.c dns.h
-
+sources += query.c query.h dns.c dns.h
 noinst_PROGRAMS += mdns-test
 endif
+
+# GNU Libc
+libnss_mdns_la_SOURCES= $(sources) nss.c
+libnss_mdns_la_CFLAGS=$(AM_CFLAGS) 
+libnss_mdns_la_LDFLAGS=$(AM_LDFLAGS) -shrext .so.2 -Wl,-version-script=$(srcdir)/map-file
 
 libnss_mdns_minimal_la_SOURCES=$(libnss_mdns_la_SOURCES)
 libnss_mdns_minimal_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DMDNS_MINIMAL
@@ -81,6 +88,31 @@ libnss_mdns6_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
 libnss_mdns6_minimal_la_SOURCES=$(libnss_mdns_la_SOURCES)
 libnss_mdns6_minimal_la_CFLAGS=$(libnss_mdns_la_CFLAGS) -DNSS_IPV6_ONLY=1 -DMDNS_MINIMAL
 libnss_mdns6_minimal_la_LDFLAGS=$(libnss_mdns_la_LDFLAGS)
+
+# FreeBSD
+nss_mdns_la_SOURCES=$(sources) bsdnss.c
+nss_mdns_la_CFLAGS=$(AM_CFLAGS)
+nss_mdns_la_LDFLAGS=$(AM_LDFLAGS) -shrext .so.1
+
+nss_mdns_minimal_la_SOURCES=$(nss_mdns_la_SOURCES)
+nss_mdns_minimal_la_CFLAGS=$(nss_mdns_la_CFLAGS) -DMDNS_MINIMAL
+nss_mdns_minimal_la_LDFLAGS=$(nss_mdns_la_LDFLAGS)
+
+nss_mdns4_la_SOURCES=$(nss_mdns_la_SOURCES)
+nss_mdns4_la_CFLAGS=$(nss_mdns_la_CFLAGS) -DNSS_IPV4_ONLY=1
+nss_mdns4_la_LDFLAGS=$(nss_mdns_la_LDFLAGS)
+
+nss_mdns4_minimal_la_SOURCES=$(nss_mdns_la_SOURCES)
+nss_mdns4_minimal_la_CFLAGS=$(nss_mdns_la_CFLAGS) -DNSS_IPV4_ONLY=1 -DMDNS_MINIMAL
+nss_mdns4_minimal_la_LDFLAGS=$(nss_mdns_la_LDFLAGS)
+
+nss_mdns6_la_SOURCES=$(nss_mdns_la_SOURCES)
+nss_mdns6_la_CFLAGS=$(nss_mdns_la_CFLAGS) -DNSS_IPV6_ONLY=1
+nss_mdns6_la_LDFLAGS=$(nss_mdns_la_LDFLAGS)
+
+nss_mdns6_minimal_la_SOURCES=$(nss_mdns_la_SOURCES)
+nss_mdns6_minimal_la_CFLAGS=$(nss_mdns_la_CFLAGS) -DNSS_IPV6_ONLY=1 -DMDNS_MINIMAL
+nss_mdns6_minimal_la_LDFLAGS=$(nss_mdns_la_LDFLAGS)
 
 avahi_test_SOURCES = \
 	avahi.c avahi.h \

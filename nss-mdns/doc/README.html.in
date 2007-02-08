@@ -284,6 +284,8 @@ compilation and <tt>make install</tt> (as root) for installation of
 
 <p>Philipp Zabel for ARM support.</p>
 
+<p>Bruce M Simpson for porting it to FreeBSD.</p>
+
 <h2><a name="download">Download</a></h2>
 
 <p>The newest release is always available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a></p>

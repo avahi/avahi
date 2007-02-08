@@ -50,10 +50,12 @@ build-db: build-db.in
 	chmod +x $@
 
 service-types.db.pag: service-types.db
+	mv service-types.db.coming.pag service-types.db.pag
 service-types.db.dir: service-types.db
+	mv service-types.db.coming.dir service-types.db.dir
 service-types.db: service-types build-db
 	$(PYTHON) build-db $< $@.coming
-	mv $@.coming $@
+	if test -f "$@.coming"; then mv $@.coming $@; fi
 
 CLEANFILES = service-types.db* build-db
 

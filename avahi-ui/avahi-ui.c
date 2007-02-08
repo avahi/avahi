@@ -365,8 +365,9 @@ static void browse_callback(
             selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(d->service_tree_view));
             if (!gtk_tree_selection_get_selected(selection, NULL, NULL)) {
 
-                if (d->service_type && d->service_name &&
-                    avahi_domain_equal(d->service_type, type) && strcasecmp(d->service_name, name) == 0) {
+                if (!d->service_type ||
+                    !d->service_name ||
+                    (avahi_domain_equal(d->service_type, type) && strcasecmp(d->service_name, name) == 0)) {
                     GtkTreePath *path;
                     
                     gtk_tree_selection_select_iter(selection, &iter);
@@ -1308,7 +1309,7 @@ static void aui_service_dialog_get_property(GObject *object, guint prop_id, GVal
             break;
                                
         case PROP_TXT_DATA:
-            g_value_set_pointer(value, aui_service_dialog_get_txt_data(d));
+            g_value_set_pointer(value, (gpointer) aui_service_dialog_get_txt_data(d));
             break;
             
         case PROP_RESOLVE_SERVICE:

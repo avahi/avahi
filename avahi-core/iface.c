@@ -539,7 +539,7 @@ AvahiInterface* avahi_interface_monitor_get_interface(AvahiInterfaceMonitor *m, 
 
 AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor *m, AvahiIfIndex idx) {
     assert(m);
-    assert(idx > 0);
+    assert(idx >= 0);
 
     return avahi_hashmap_lookup(m->hashmap, &idx);
 }

@@ -30,32 +30,56 @@
 ### documentation. If you're looking for the correct service type to
 ### use for your application please refer to the URL mentioned above.
 
+
+# Devices
+
+_workstation._tcp:Workstation
+_workstation._tcp[de]:Arbeitsplatzrechner
+
+
+# Web
+
 _http._tcp:Web Site
 _http._tcp[de]:Web-Angebot
 
 _https._tcp:Secure Web Site
 _https._tcp[de]:Sicheres Web-Angebot
 
-_ftp._tcp:FTP File Transfer
-_ftp._tcp[de]:FTP Dateifreigabe
+_rss._tcp:Web Syndication RSS
 
-_h323._tcp:H.323 Telephony
-_h323._tcp[de]:H.323 Telefonie
 
-_sip._udp:SIP Telephony
-_sip._udp[de]:SIP Telefonie
-
-_ssh._tcp:SSH Remote Terminal
-_ssh._tcp[de]:SSH Fernzugriff
-
-_distcc._tcp:Distributed Compiler
-_distcc._tcp[de]:Verteilter Compiler
-
-_daap._tcp:iTunes Audio Access
-_daap._tcp[de]:iTunes Audio-Zugriff
+# Network
 
 _domain._udp:DNS Server
-_domain._udp[de]: DNS Dienst
+_domain._udp[de]: DNS-Dienst
+
+_ntp._udp:NTP Time Server
+
+_smb._tcp:Microsoft Windows Network
+
+_airport._tcp:Apple AirPort
+
+
+# File and data access
+
+_ftp._tcp:FTP File Transfer
+_ftp._tcp[de]:FTP-Dateifreigabe
+
+_webdav._tcp:WebDAV File Share
+
+_webdavs._tcp:Secure WebDAV File Share
+
+_afpovertcp._tcp:Apple File Sharing
+
+_nfs._tcp:Network File System
+
+_apt._tcp:APT Package Repository
+
+
+# Remote access
+
+_ssh._tcp:SSH Remote Terminal
+_ssh._tcp[de]:SSH-Fernzugriff
 
 _imap._tcp:IMAP Mail Access
 
@@ -67,74 +91,86 @@ _sftp-ssh._tcp:SFTP File Transfer
 
 _telnet._tcp:Telnet Remote Terminal
 
-_presence._tcp:iChat Presence
+_timbuktu._tcp:Timbuktu Remote Desktop Control
 
-_webdav._tcp:WebDAV File Share
 
-_webdavs._tcp:Secure WebDAV File Share
-
-_workstation._tcp:Workstation
-_workstation._tcp[de]:Arbeitsplatzrechner
+# Printing
 
 _printer._tcp:UNIX Printer
-
-_afpovertcp._tcp:Apple File Sharing
 
 _pdl-datastream._tcp:PDL Printer
 
 _ipp._tcp:Internet Printer
 
-_rss._tcp:Web Syndication RSS
+
+# Multimedia
+
+_daap._tcp:iTunes Audio Access
+_daap._tcp[de]:iTunes Audio-Zugriff
 
 _dacp._tcp:iTunes Remote Control
 
 _realplayfavs._tcp:RealPlayer Shared Favorites
-
-_timbuktu._tcp:Timbuktu Remote Desktop Control
-
-_see._tcp:SubEthaEdit Collaborative Text Editor
-
-_postgresql._tcp:PostgreSQL Server
-
-_ksysguard._tcp:KDE System Guard
-
-_omni-bookmark._tcp:OmniWeb Bookmark Sharing
-
-_MacOSXDupSuppress._tcp:MacOS X Duplicate Machine Suppression
-
-_lobby._tcp:Gobby Collaborative Editor Session
-
-_dpap._tcp:Digital Photo Sharing
-
-_skype._tcp:Skype VoIP
-
-_airport._tcp:Apple AirPort
-
-_pulse-server._tcp:PulseAudio Sound Server
-_pulse-sink._tcp:PulseAudio Sound Sink
-_pulse-source._tcp:PulseAudio Sound Source
-
-_mpd._tcp:Music Player Daemon
-_smb._tcp:Microsoft Windows Network
-
-_pgpkey-hkp._tcp:GnuPG/PGP HKP Key Server
-
-_ldap._tcp:LDAP Directory Server
-
-_iax._udp:Asterisk Exchange
-
-_nfs._tcp:Network File System
-
-_ntp._udp:NTP Time Server
 
 _raop._tcp:AirTunes Remote Audio
 
 _rtsp._tcp:RTSP Realtime Streaming Server
 _rtp._udp:RTP Realtime Streaming Server
 
-_svn._tcp:Subversion Revision Control
+_dpap._tcp:Digital Photo Sharing
+
+_pulse-server._tcp:PulseAudio Sound Server
+_pulse-sink._tcp:PulseAudio Sound Sink
+_pulse-source._tcp:PulseAudio Sound Source
+
+_mpd._tcp:Music Player Daemon
+
+
+# Communication, presence, working together
+
+_presence._tcp:iChat Presence
+
+_sip._udp:SIP Telephony
+_sip._udp[de]:SIP-Telefonie
+
+_h323._tcp:H.323 Telephony
+_h323._tcp[de]:H.323-Telefonie
 
 _presence_olpc._tcp:OLPC Presence
 
-_apt._tcp:APT Package Repository
+_iax._udp:Asterisk Exchange
 
+_skype._tcp:Skype VoIP
+
+_see._tcp:SubEthaEdit Collaborative Text Editor
+
+_lobby._tcp:Gobby Collaborative Editor Session
+
+
+# Databases
+
+_postgresql._tcp:PostgreSQL Server
+
+
+# Development
+
+_svn._tcp:Subversion Revision Control
+
+_distcc._tcp:Distributed Compiler
+_distcc._tcp[de]:Verteilter Compiler
+
+
+# Vendor specific
+
+_MacOSXDupSuppress._tcp:MacOS X Duplicate Machine Suppression
+
+_ksysguard._tcp:KDE System Guard
+
+_omni-bookmark._tcp:OmniWeb Bookmark Sharing
+
+
+# Other
+
+_pgpkey-hkp._tcp:GnuPG/PGP HKP Key Server
+
+_ldap._tcp:LDAP Directory Server

@@ -91,6 +91,6 @@ endif
 endif
 endif
 
-EXTRA_DIST=avahi-autoipd.action dhclient-enter-hook.in dhclient-exit-hook.in
+EXTRA_DIST=avahi-autoipd.action dhclient-enter-hook.in dhclient-exit-hook.in avahi-autoipd.action.linux avahi-autoipd.action.bsd
 
 CLEANFILES=dhclient-enter-hook dhclient-exit-hook avahi-autoipd.action

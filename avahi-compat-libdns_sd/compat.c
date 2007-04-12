@@ -612,11 +612,9 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse(
     
     AVAHI_WARN_LINKAGE;
 
-    if (!ret_sdref)
+    if (!ret_sdref || !regtype)
         return kDNSServiceErr_BadParam;
     *ret_sdref = NULL;
-
-    assert(regtype);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {
         AVAHI_WARN_UNSUPPORTED;
@@ -739,14 +737,9 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve(
 
     AVAHI_WARN_LINKAGE;
 
-    if (!ret_sdref)
+    if (!ret_sdref || !name || !regtype || !domain || !callback)
         return kDNSServiceErr_BadParam;
     *ret_sdref = NULL;
-
-    assert(name);
-    assert(regtype);
-    assert(domain);
-    assert(callback);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {
         AVAHI_WARN_UNSUPPORTED;
@@ -795,9 +788,8 @@ int DNSSD_API DNSServiceConstructFullName (
 
     AVAHI_WARN_LINKAGE;
 
-    assert(fullName);
-    assert(regtype);
-    assert(domain);
+    if (!fullName || !regtype || !domain)
+        return -1;
 
     if (avahi_service_name_join(fullName, kDNSServiceMaxDomainName, service, regtype, domain) < 0)
         return -1;
@@ -856,11 +848,9 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(
 
     AVAHI_WARN_LINKAGE;
 
-    if (!ret_sdref)
+    if (!ret_sdref || !callback)
         return kDNSServiceErr_BadParam;
     *ret_sdref = NULL;
-
-    assert(callback);
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly ||
         (flags != kDNSServiceFlagsBrowseDomains &&  flags != kDNSServiceFlagsRegistrationDomains)) {
@@ -1100,14 +1090,14 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister (
 
     AVAHI_WARN_LINKAGE;
 
-    if (!ret_sdref)
+    if (!ret_sdref || !regtype)
         return kDNSServiceErr_BadParam;
     *ret_sdref = NULL;
     
-    if (!regtype)
-	    return kDNSServiceErr_BadParam;
-	
-    assert(txtRecord || txtLen == 0);
+    if (!txtRecord) {
+        txtLen = 1;
+        txtRecord = "";
+    }
 
     if (interface == kDNSServiceInterfaceIndexLocalOnly || flags) {
         AVAHI_WARN_UNSUPPORTED;

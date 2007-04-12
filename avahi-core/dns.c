@@ -589,6 +589,7 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
             if (rdlength > 0) {
 
                 r->data.generic.data = avahi_memdup(avahi_dns_packet_get_rptr(p), rdlength);
+                r->data.generic.size = rdlength; 
                 
                 if (avahi_dns_packet_skip(p, rdlength) < 0)
                     return -1;
@@ -754,7 +755,7 @@ static int append_rdata(AvahiDnsPacket *p, AvahiRecord *r) {
         default:
 
             if (r->data.generic.size)
-                if (avahi_dns_packet_append_bytes(p, r->data.generic.data, r->data.generic.size))
+                if (!avahi_dns_packet_append_bytes(p, r->data.generic.data, r->data.generic.size))
                     return -1;
 
             break;

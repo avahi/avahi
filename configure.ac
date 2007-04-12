@@ -736,7 +736,7 @@ fi
 AC_SUBST(AVAHI_PRIV_ACCESS_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_PRIV_ACCESS_GROUP,"$AVAHI_PRIV_ACCESS_GROUP", [Privileged access group for Avahi clients])
 
-AC_ARG_WITH(autoipd_user, AS_HELP_STRING([--with-autipd-user=<user>],[User for running the avahi-autoipd daemon (avahi-autoipd)]))
+AC_ARG_WITH(autoipd_user, AS_HELP_STRING([--with-autoipd-user=<user>],[User for running the avahi-autoipd daemon (avahi-autoipd)]))
 if test -z "$with_autoipd_user" ; then
     AVAHI_AUTOIPD_USER=avahi-autoipd
 else

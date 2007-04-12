@@ -1026,7 +1026,7 @@ static int drop_privs(void) {
         set_env("LOGNAME", pw->pw_name);
         set_env("HOME", pw->pw_dir);
         
-        daemon_log(LOG_ERR, "Successfully dropped root privileges.");
+        daemon_log(LOG_INFO, "Successfully dropped root privileges.");
     }
     
     return 0;

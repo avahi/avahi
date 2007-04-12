@@ -786,7 +786,7 @@ uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int c
         goto fail;
     
     size = avahi_dns_packet_extend(p, 0) - start;
-    assert(size <= 0xFFFF);
+    assert(size <= AVAHI_DNS_RDATA_MAX);
 
 /*     avahi_log_debug("appended %u", size); */
 

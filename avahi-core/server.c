@@ -370,7 +370,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
         AvahiDnsPacket *reply;
         AvahiRecord *r;
 
-        if (!(reply = avahi_dns_packet_new_reply(p, 512 /* unicast DNS maximum packet size is 512 */ , 1, 1)))
+        if (!(reply = avahi_dns_packet_new_reply(p, 512 + AVAHI_DNS_PACKET_EXTRA_SIZE /* unicast DNS maximum packet size is 512 */ , 1, 1)))
             return; /* OOM */
         
         while ((r = avahi_record_list_next(s->record_list, NULL, NULL, NULL))) {
@@ -438,7 +438,6 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                          * the specific header field, and return to the caller */
                         
                         avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
-
                         break;
                     }
 
@@ -449,21 +448,32 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
 
                         avahi_dns_packet_free(reply);
                         size = avahi_record_get_estimate_size(r) + AVAHI_DNS_PACKET_HEADER_SIZE;
-                        if (size > AVAHI_DNS_PACKET_SIZE_MAX)
-                            size = AVAHI_DNS_PACKET_SIZE_MAX;
 
-                        if (!(reply = avahi_dns_packet_new_reply(p, size, 0, 1)))
+                        if (!(reply = avahi_dns_packet_new_reply(p, size + AVAHI_DNS_PACKET_EXTRA_SIZE, 0, 1)))
                             break; /* OOM */
 
-                        if (!avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
+                        if (avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
+
+                            /* Appending this record succeeded, so incremeant
+                             * the specific header field, and return to the caller */
+                            
+                            avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
+                            break;
+
+                        }  else {
+
+                            /* We completely fucked up, there's
+                             * nothing we can do. The RR just doesn't
+                             * fit in. Let's ignore it. */
+                            
                             char *t;
                             avahi_dns_packet_free(reply);
+                            reply = NULL;
                             t = avahi_record_to_string(r);
                             avahi_log_warn("Record [%s] too large, doesn't fit in any packet!", t);
                             avahi_free(t);
                             break;
-                        } else
-                            avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
+                        }
                     }
 
                     /* Appending the record didn't succeeed, so let's send this packet, and create a new one */

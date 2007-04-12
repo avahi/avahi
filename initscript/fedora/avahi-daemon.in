@@ -80,7 +80,8 @@ case "$1" in
 	;;
   status)
         $AVAHI_BIN -c
-	[ $? = 0 ] && echo $"Avahi daemon is running" || echo $"Avahi daemon is not running"
+    	RETVAL=$?
+    	[ $RETVAL = 0 ] && echo $"Avahi daemon is running" || echo $"Avahi daemon is not running"
 	;;
   restart)
 	restart
@@ -98,5 +99,5 @@ case "$1" in
 	exit 1
 esac
 
-exit $?
+exit $RETVAL
 

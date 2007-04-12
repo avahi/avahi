@@ -76,7 +76,8 @@ case "$1" in
 	;;
   status)
         $AVAHI_BIN -c
-	[ $? = 0 ] && echo "Avahi DNS daemon is running" || echo "Avahi DNS daemon is not running"
+        RETVAL=$?
+        [ $RETVAL = 0 ] && echo "Avahi DNS daemon is running" || echo "Avahi DNS daemon is not running"
 	;;
   restart)
 	restart
@@ -95,5 +96,5 @@ case "$1" in
 	;;
 esac
 
-exit $?
+exit $RETVAL
 

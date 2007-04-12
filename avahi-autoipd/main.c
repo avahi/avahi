@@ -23,32 +23,49 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
-#include <unistd.h>
+#include <sys/param.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
+#ifdef __FreeBSD__
+#include <sys/sysctl.h>
+#endif
+
+#ifdef __linux__
 #include <netpacket/packet.h>
+#endif
 #include <net/ethernet.h>
-#include <fcntl.h>
-#include <time.h>
+#include <net/if.h>
+#ifdef __FreeBSD__
+#include <net/if_dl.h>
+#include <net/route.h>
+#endif
+#include <arpa/inet.h>
+
 #include <assert.h>
 #include <errno.h>
-#include <string.h>
 #include <inttypes.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <sys/ioctl.h>
-#include <poll.h>
-#include <net/if.h>
+#include <fcntl.h>
+#include <stdlib.h>
 #include <stdio.h>
-#include <getopt.h>
 #include <signal.h>
-#include <sys/wait.h>
-#include <pwd.h>
+#include <string.h>
+#include <time.h>
+#include <getopt.h>
+
 #include <grp.h>
+#include <poll.h>
+#include <pwd.h>
+#include <unistd.h>
+
+#ifndef __linux__
+#include <pcap.h>
+#endif
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
-
 #include <avahi-daemon/setproctitle.h>
 
 #include <libdaemon/dfork.h>
@@ -59,10 +76,6 @@
 
 #include "main.h"
 #include "iface.h"
-
-#ifndef __linux__
-#error "avahi-autoipd is only available on Linux for now"
-#endif
 
 /* An implementation of RFC 3927 */
 
@@ -84,6 +97,7 @@
 #define IPV4LL_BROADCAST 0xA9FEFFFFL
 
 #define ETHER_ADDRLEN 6
+#define ETHER_HDR_SIZE (2+2*ETHER_ADDRLEN)
 #define ARP_PACKET_SIZE (8+4+4+2*ETHER_ADDRLEN)
 
 typedef enum ArpOperation {
@@ -97,6 +111,11 @@ typedef struct ArpPacketInfo {
     uint32_t sender_ip_address, target_ip_address;
     uint8_t sender_hw_address[ETHER_ADDRLEN], target_hw_address[ETHER_ADDRLEN];
 } ArpPacketInfo;
+
+typedef struct ArpPacket {
+    uint8_t *ether_header;
+    uint8_t *ether_payload;
+} ArpPacket;
 
 static State state = STATE_START;
 static int n_iteration = 0;
@@ -249,16 +268,44 @@ fail:
     return -1;
 }
 
-static void* packet_new(const ArpPacketInfo *info, size_t *packet_len) {
+/*
+ * Allocate a buffer with two pointers in front, one of which is
+ * guaranteed to point ETHER_HDR_SIZE bytes into it.
+ */
+static ArpPacket* packet_new(size_t packet_len) {
+    ArpPacket *p;
+    uint8_t *b;
+
+    assert(packet_len > 0);
+
+#ifdef __linux__
+    b = avahi_new0(uint8_t, sizeof(struct ArpPacket) + packet_len);
+    p = (ArpPacket*) b;
+    p->ether_header = NULL;
+    p->ether_payload = b + sizeof(struct ArpPacket);
+    
+#else
+    b = avahi_new0(uint8_t, sizeof(struct ArpPacket) + ETHER_HDR_SIZE + packet_len);
+    p = (ArpPacket*) b;
+    p->ether_header = b + sizeof(struct ArpPacket);
+    p->ether_payload = b + sizeof(struct ArpPacket) + ETHER_HDR_SIZE;
+#endif
+
+    return p;
+}
+
+static ArpPacket* packet_new_with_info(const ArpPacketInfo *info, size_t *packet_len) {
+    ArpPacket *p = NULL;
     uint8_t *r;
 
     assert(info);
-    assert(packet_len);
     assert(info->operation == ARP_REQUEST || info->operation == ARP_RESPONSE);
+    assert(packet_len != NULL);
 
     *packet_len = ARP_PACKET_SIZE;
-    r = avahi_new0(uint8_t, *packet_len);
-    
+    p = packet_new(*packet_len);
+    r = p->ether_payload;
+
     r[1] = 1; /* HTYPE */
     r[2] = 8; /* PTYPE */
     r[4] = ETHER_ADDRLEN; /* HLEN */
@@ -270,10 +317,10 @@ static void* packet_new(const ArpPacketInfo *info, size_t *packet_len) {
     memcpy(r+18, info->target_hw_address, ETHER_ADDRLEN);
     memcpy(r+24, &info->target_ip_address, 4);
 
-    return r;
+    return p;
 }
 
-static void *packet_new_probe(uint32_t ip_address, const uint8_t*hw_address, size_t *packet_len) {
+static ArpPacket *packet_new_probe(uint32_t ip_address, const uint8_t*hw_address, size_t *packet_len) {
     ArpPacketInfo info;
     
     memset(&info, 0, sizeof(info));
@@ -281,10 +328,10 @@ static void *packet_new_probe(uint32_t ip_address, const uint8_t*hw_address, siz
     memcpy(info.sender_hw_address, hw_address, ETHER_ADDRLEN);
     info.target_ip_address = ip_address;
 
-    return packet_new(&info, packet_len);
+    return packet_new_with_info(&info, packet_len);
 }
 
-static void *packet_new_announcement(uint32_t ip_address, const uint8_t* hw_address, size_t *packet_len) {
+static ArpPacket *packet_new_announcement(uint32_t ip_address, const uint8_t* hw_address, size_t *packet_len) {
     ArpPacketInfo info;
 
     memset(&info, 0, sizeof(info));
@@ -293,13 +340,15 @@ static void *packet_new_announcement(uint32_t ip_address, const uint8_t* hw_addr
     info.target_ip_address = ip_address;
     info.sender_ip_address = ip_address;
 
-    return packet_new(&info, packet_len);
+    return packet_new_with_info(&info, packet_len);
 }
 
-static int packet_parse(const void *data, size_t packet_len, ArpPacketInfo *info) {
-    const uint8_t *p = data;
+static int packet_parse(const ArpPacket *packet, size_t packet_len, ArpPacketInfo *info) {
+    const uint8_t *p;
     
-    assert(data);
+    assert(packet);
+    p = (uint8_t *)packet->ether_payload;
+    assert(p);
 
     if (packet_len < ARP_PACKET_SIZE)
         return -1;
@@ -392,6 +441,10 @@ fail:
     return -1;
 }
 
+#ifdef __linux__
+
+/* Linux 'packet socket' specific implementation */
+
 static int open_socket(int iface, uint8_t *hw_address) {
     int fd = -1;
     struct sockaddr_ll sa;
@@ -437,7 +490,7 @@ fail:
     return -1;
 }
 
-static int send_packet(int fd, int iface, void *packet, size_t packet_len) {
+static int send_packet(int fd, int iface, ArpPacket *packet, size_t packet_len) {
     struct sockaddr_ll sa;
     
     assert(fd >= 0);
@@ -459,7 +512,7 @@ static int send_packet(int fd, int iface, void *packet, size_t packet_len) {
     return 0;
 }
 
-static int recv_packet(int fd, void **packet, size_t *packet_len) {
+static int recv_packet(int fd, ArpPacket **packet, size_t *packet_len) {
     int s;
     struct sockaddr_ll sa;
     socklen_t sa_len;
@@ -479,10 +532,10 @@ static int recv_packet(int fd, void **packet, size_t *packet_len) {
     if (s <= 0)
         s = 4096;
 
-    *packet = avahi_new(uint8_t, s);
+    *packet = packet_new(s);
 
     sa_len = sizeof(sa);
-    if ((r = recvfrom(fd, *packet, s, 0, (struct sockaddr*) &sa, &sa_len)) < 0) {
+    if ((r = recvfrom(fd, (*packet)->ether_payload, s, 0, (struct sockaddr*) &sa, &sa_len)) < 0) {
         daemon_log(LOG_ERR, "recvfrom() failed: %s", strerror(errno));
         goto fail;
     }
@@ -499,13 +552,221 @@ fail:
 
     return -1;
 }
- 
+
+static void
+close_socket(int fd) {
+    close(fd);
+}
+
+#else /* !__linux__ */
+/* PCAP-based implementation */
+
+static pcap_t *__pp;
+static char __pcap_errbuf[PCAP_ERRBUF_SIZE];
+static uint8_t __lladdr[ETHER_ADDRLEN];
+
+#ifndef elementsof
+#define elementsof(array)	(sizeof(array)/sizeof(array[0]))
+#endif
+
+static int
+__get_ether_addr(int ifindex, u_char *lladdr)
+{
+	int			 mib[6];
+	char			*buf;
+	struct if_msghdr	*ifm;
+	char			*lim;
+	char			*next;
+	struct sockaddr_dl	*sdl;
+	size_t			 len;
+
+	mib[0] = CTL_NET;
+	mib[1] = PF_ROUTE;
+	mib[2] = 0;
+	mib[3] = 0;
+	mib[4] = NET_RT_IFLIST;
+	mib[5] = ifindex;
+
+	if (sysctl(mib, elementsof(mib), NULL, &len, NULL, 0) != 0) {
+		daemon_log(LOG_ERR, "sysctl(NET_RT_IFLIST): %s",
+		    strerror(errno));
+		return (-1);
+	}
+
+	buf = malloc(len);
+	if (buf == NULL) {
+		daemon_log(LOG_ERR, "malloc(%d): %s", len, strerror(errno));
+		return (-1);
+	}
+
+	if (sysctl(mib, elementsof(mib), buf, &len, NULL, 0) != 0) {
+		daemon_log(LOG_ERR, "sysctl(NET_RT_IFLIST): %s",
+		    strerror(errno));
+		free(buf);
+		return (-1);
+	}
+
+	lim = buf + len;
+	for (next = buf; next < lim; next += ifm->ifm_msglen) {
+		ifm = (struct if_msghdr *)next;
+		if (ifm->ifm_type == RTM_IFINFO) {
+			sdl = (struct sockaddr_dl *)(ifm + 1);
+			memcpy(lladdr, LLADDR(sdl), ETHER_ADDRLEN);
+		}
+	}
+	free(buf);
+
+	return (0);
+}
+
+static int
+open_socket(int iface, uint8_t *hw_address)
+{
+	struct bpf_program	 bpf;
+	char			 ifname[IFNAMSIZ];
+	pcap_t			*pp;
+	int			 err;
+	int			 fd;
+
+	assert(__pp == NULL);
+
+	if (interface_up(iface) < 0) {
+		return (-1);
+	}
+	if (__get_ether_addr(iface, __lladdr) == -1) {
+		return (-1);
+	}
+	if (if_indextoname(iface, ifname) == NULL) {
+		return (-1);
+	}
+
+	pp = pcap_open_live(ifname, 1500, 0, 0, __pcap_errbuf);
+	if (pp == NULL) {
+		return (-1);
+	}
+	err = pcap_set_datalink(pp, DLT_EN10MB);
+	if (err == -1) {
+		daemon_log(LOG_ERR, "pcap_set_datalink: %s", pcap_geterr(pp));
+		pcap_close(pp);
+		return (-1);
+	}
+	err = pcap_setdirection(pp, PCAP_D_IN);
+	if (err == -1) {
+		daemon_log(LOG_ERR, "pcap_setdirection: %s", pcap_geterr(pp));
+		pcap_close(pp);
+		return (-1);
+	}
+
+	fd = pcap_get_selectable_fd(pp);
+	if (fd == -1) {
+		pcap_close(pp);
+		return (-1);
+	}
+#if 0
+	/* XXX: can we use this with pcap_next_ex() ? */
+	err = pcap_setnonblock(pp, 1, __pcap_errbuf);
+	if (err == -1) {
+		pcap_close(pp);
+		return (-1);
+	}
+#endif
+
+	err = pcap_compile(pp, &bpf,
+			   "arp and ether dst ff:ff:ff:ff:ff:ff", 1, 0);
+	if (err == -1) {
+		daemon_log(LOG_ERR, "pcap_compile: %s", pcap_geterr(pp));
+		pcap_close(pp);
+		return (-1);
+	}
+	err = pcap_setfilter(pp, &bpf);
+	if (err == -1) {
+		daemon_log(LOG_ERR, "pcap_setfilter: %s", pcap_geterr(pp));
+		pcap_close(pp);
+		return (-1);
+	}
+	pcap_freecode(&bpf);
+
+	/* Stash pcap-specific context away. */
+	memcpy(hw_address, __lladdr, ETHER_ADDRLEN);
+	__pp = pp;
+
+	return (fd);
+}
+
+static void
+close_socket(int fd __unused)
+{
+
+	assert(__pp != NULL);
+	pcap_close(__pp);
+	__pp = NULL;
+}
+
+/*
+ * We trick avahi into allocating sizeof(packet) + sizeof(ether_header),
+ * and prepend the required ethernet header information before sending.
+ */
+static int
+send_packet(int fd __unused, int iface __unused, ArpPacket *packet,
+    size_t packet_len)
+{
+	struct ether_header *eh;
+
+	assert(__pp != NULL);
+	assert(packet != NULL);
+
+	eh = (struct ether_header *)packet->ether_header;
+	memset(eh->ether_dhost, 0xFF, ETHER_ADDRLEN);
+	memcpy(eh->ether_shost, __lladdr, ETHER_ADDRLEN);
+	eh->ether_type = htons(0x0806);
+
+	return (pcap_inject(__pp, (void *)eh, packet_len + sizeof(*eh)));
+}
+
+static int
+recv_packet(int fd __unused, ArpPacket **packet, size_t *packet_len)
+{
+	struct pcap_pkthdr	*ph;
+	u_char			*pd;
+	ArpPacket		*ap;
+	int			 err;
+	int			 retval;
+
+	assert(__pp != NULL);
+	assert(packet != NULL);
+	assert(packet_len != NULL);
+
+	*packet = NULL;
+	*packet_len = 0;
+	retval = -1;
+
+	err = pcap_next_ex(__pp, &ph, (const u_char **)&pd);
+	if (err == 1 && ph->caplen <= ph->len) {
+		ap = packet_new(ph->caplen);
+		memcpy(ap->ether_header, pd, ph->caplen);
+		*packet = ap;
+		*packet_len = (ph->caplen - sizeof(struct ether_header));
+		retval = 0;
+	} else {
+		if (err == 1) {
+			daemon_log(LOG_ERR, "pcap len > caplen");
+		} else {
+			daemon_log(LOG_ERR, "pcap_next_ex: %s",
+			    pcap_geterr(__pp));
+		}
+	}
+
+	return (retval);
+}
+#endif /* __linux__ */
+
 int is_ll_address(uint32_t addr) {
     return
         (ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK &&
         ntohl(addr) != IPV4LL_NETWORK &&
         ntohl(addr) != IPV4LL_BROADCAST;
 }
+
 
 static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
     assert(tv);
@@ -656,6 +917,9 @@ static int drop_privs(void) {
     int r;
     mode_t u;
 
+    pw = NULL;
+    gr = NULL;
+
     /* Get user/group ID */
     
     if (!no_drop_root) {
@@ -780,13 +1044,13 @@ static int loop(int iface, uint32_t addr) {
     struct timeval next_wakeup;
     int next_wakeup_valid = 0;
     char buf[64];
-    void *in_packet = NULL;
+    ArpPacket *in_packet = NULL;
     size_t in_packet_len;
-    void *out_packet = NULL;
+    ArpPacket *out_packet = NULL;
     size_t out_packet_len;
     uint8_t hw_address[ETHER_ADDRLEN];
     struct pollfd pollfds[FD_MAX];
-    int iface_fd;
+    int iface_fd = -1;
     Event event = EVENT_NULL;
     int retval_sent = !daemonize;
     State st;
@@ -1054,7 +1318,7 @@ static int loop(int iface, uint32_t addr) {
                 if (pollfds[FD_ARP].revents == POLLERR) {
                     /* The interface is probably down, let's recreate our socket */
                     
-                    close(fd);
+                    close_socket(fd);
 
                     if ((fd = open_socket(iface, hw_address)) < 0)
                         goto fail;
@@ -1124,7 +1388,7 @@ fail:
     avahi_free(in_packet);
     
     if (fd >= 0)
-        close(fd);
+        close_socket(fd);
 
     if (iface_fd >= 0)
         iface_done();

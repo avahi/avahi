@@ -945,7 +945,7 @@ echo "
     User for avahi-daemon:                     ${AVAHI_USER}
     Group for avahi-daemon:                    ${AVAHI_GROUP}
     Priviliged access group for Avahi clients: ${AVAHI_PRIV_ACCESS_GROUP}
-    User for avahi-autopid:                    ${AVAHI_AUTOIPD_USER}
+    User for avahi-autoipd:                    ${AVAHI_AUTOIPD_USER}
     Group for avahi-autoipd:                   ${AVAHI_AUTOIPD_GROUP}
     Enable chroot():                           ${enable_chroot}
 "

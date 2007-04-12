@@ -50,10 +50,12 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	chmod +x $@
 endif
 
+avahi_PYTHON = $(avahi_SCRIPTS)
+
 if HAVE_PYGTK
 if HAVE_PYTHON_DBUS
 
-avahi_PYTHON = __init__.py SimpleGladeApp.py 
+avahi_PYTHON += __init__.py SimpleGladeApp.py 
 
 endif
 endif

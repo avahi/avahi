@@ -41,10 +41,16 @@ noinst_PROGRAMS = \
 	conformance-test \
 	avahi-reflector \
 	dns-test \
+	dns-spin-test \
 	timeeventq-test \
 	hashmap-test \
 	querier-test \
 	update-test
+
+TESTS = \
+	dns-spin-test \
+	dns-test \
+	hashmap-test
 endif  
 
 libavahi_core_la_SOURCES = \
@@ -137,6 +143,11 @@ dns_test_SOURCES = \
 	domain-util.c domain-util.h
 dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+
+dns_spin_test_SOURCES = \
+	dns-spin-test.c
+dns_spin_test_CFLAGS = $(AM_CFLAGS)
+dns_spin_test_LDADD = $(AM_LDADD) libavahi-core.la
 
 timeeventq_test_SOURCES = \
 	timeeventq-test.c \

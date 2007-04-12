@@ -184,7 +184,7 @@ static int process_response(int wait_for_done, unsigned seq) {
     do {
         size_t bytes;
         ssize_t r;
-        char replybuf[2048];
+        char replybuf[8*1024];
         char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
         struct msghdr msghdr;
         struct cmsghdr *cmsghdr;

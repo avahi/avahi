@@ -53,6 +53,9 @@ typedef enum {
     COMMAND_BROWSE_SERVICES,
     COMMAND_BROWSE_ALL_SERVICES,
     COMMAND_BROWSE_DOMAINS
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+    , COMMAND_DUMP_STDB
+#endif
 } Command;
 
 typedef struct Config {
@@ -581,7 +584,11 @@ static void help(FILE *f, const char *argv0) {
         fprintf(f,
                 "%s [options] <service type>\n"
                 "%s [options] -a\n"
-                "%s [options] -D\n\n",
+                "%s [options] -D\n"
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+                "%s [options] -b\n",
+#endif
+                "\n",
                 argv0, argv0, argv0);
 
             fprintf(f, 
@@ -598,6 +605,7 @@ static void help(FILE *f, const char *argv0) {
             "    -f --no-fail         Don't fail if the daemon is not available\n"
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
             "    -k --no-db-lookup    Don't lookup service types\n"
+            "    -b --dump-db         Dump service type database\n"        
 #endif
             );
 }
@@ -619,6 +627,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "no-fail",        no_argument,       NULL, 'f' },
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
         { "no-db-lookup",   no_argument,       NULL, 'k' },
+        { "dump-db",        no_argument,       NULL, 'b' },
 #endif
         { NULL, 0, NULL, 0 }
     };
@@ -641,7 +650,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     opterr = 0;
     while ((o = getopt_long(argc, argv, "hVd:avtclrDf"
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
-                            "k"
+                            "kb"
 #endif
                             , long_options, NULL)) >= 0) {
 
@@ -683,6 +692,9 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
             case 'k':
                 c->no_db_lookup = 1;
+                break;
+            case 'b':
+                c->command = COMMAND_DUMP_STDB;
                 break;
 #endif
             default:
@@ -762,6 +774,23 @@ int main(int argc, char *argv[]) {
             avahi_simple_poll_loop(simple_poll);
             ret = 0;
             break;
+
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+        case COMMAND_DUMP_STDB: {
+            char *t;
+            stdb_setent();
+
+            while ((t = stdb_getent())) {
+                if (config.no_db_lookup)
+                    printf("%s\n", t);
+                else
+                    printf("%s\n", stdb_lookup(t));
+            }
+            
+            ret = 0;
+            break;
+        }
+#endif
     }
     
     

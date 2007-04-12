@@ -29,6 +29,7 @@
       <cmd>avahi-browse [<arg>options</arg>] <arg>service-type</arg></cmd>
       <cmd>avahi-browse [<arg>options</arg>] <opt>--all</opt></cmd>
       <cmd>avahi-browse [<arg>options</arg>] <opt>--browse-domains</opt></cmd>
+      <cmd>avahi-browse [<arg>options</arg>] <opt>--dump-db</opt></cmd>
       <cmd>avahi-browse-domains [<arg>options</arg>]</cmd>
 	</synopsis>
 	
@@ -93,6 +94,11 @@
 	  <option>
 		<p><opt>-k | --no-db-lookup</opt></p>
 		<optdesc><p>Don't lookup services types in service type database.</p></optdesc>
+	  </option>
+
+	  <option>
+		<p><opt>-b | --dump-db</opt></p>
+		<optdesc><p>Dump the service type database (may be combined with -k)</p></optdesc>
 	  </option>
 
 	  <option>

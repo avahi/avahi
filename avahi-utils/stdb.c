@@ -43,6 +43,7 @@ static GDBM_FILE gdbm_file = NULL;
 static DBM *dbm_file = NULL;
 #endif
 static char *buffer = NULL;
+static char *enum_key = NULL;
 
 static int init(void) {
 
@@ -150,11 +151,64 @@ void stdb_shutdown(void) {
 #ifdef HAVE_GDBM
     if (gdbm_file)
         gdbm_close(gdbm_file);
+
+    gdbm_file = NULL;
 #endif
 #ifdef HAVE_DBM
     if (dbm_file)
         dbm_close(dbm_file);
+
+    dbm_file = NULL;
 #endif
 
     avahi_free(buffer);
+    avahi_free(enum_key);
+
+    buffer = enum_key = NULL;
+}
+
+char *stdb_getent(void) {
+    datum key;
+    
+    if (init() < 0)
+        return NULL;
+
+    for (;;) {
+    
+        if (!enum_key) {
+#ifdef HAVE_GDBM
+            key = gdbm_firstkey(gdbm_file);
+#endif
+#ifdef HAVE_DBM
+            key = dbm_firstkey(dbm_file);
+#endif
+        } else {
+            key.dptr = enum_key;
+            key.dsize = strlen(enum_key);
+            
+#ifdef HAVE_GDBM
+            key = gdbm_nextkey(gdbm_file, key);
+#endif
+#ifdef HAVE_DBM
+            key = dbm_nextkey(dbm_file, key);
+#endif
+        }
+
+        avahi_free(enum_key);
+        enum_key = NULL;
+        
+        if (!key.dptr)
+            return NULL;
+    
+        enum_key = avahi_strndup(key.dptr, key.dsize);
+        free(key.dptr);
+
+        if (!strchr(enum_key, '['))
+            return enum_key;
+    }
+}
+
+void stdb_setent(void) {
+    avahi_free(enum_key);
+    enum_key = NULL;
 }

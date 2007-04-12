@@ -26,5 +26,7 @@
 
 const char* stdb_lookup(const char *name);
 void stdb_shutdown(void);
+char *stdb_getent(void);
+void stdb_setent(void);
 
 #endif

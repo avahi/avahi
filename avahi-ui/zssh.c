@@ -26,6 +26,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include <gtk/gtk.h>
 
@@ -66,6 +67,8 @@ int main(int argc, char*argv[]) {
             h = g_strdup(aui_service_dialog_get_host_name(AUI_SERVICE_DIALOG(d)));
         else
             h = g_strdup(avahi_address_snprint(a, sizeof(a), aui_service_dialog_get_address(AUI_SERVICE_DIALOG(d))));
+
+        g_print("Connecting to '%s' ...\n", n);
         
         if (avahi_domain_equal(t, "_rfb._tcp")) {
             char p[AVAHI_DOMAIN_NAME_MAX+16];
@@ -99,7 +102,7 @@ int main(int argc, char*argv[]) {
             if (u) {
                 g_print("ssh -p %s -l %s %s\n", p, u, h);
 
-                if (isatty(0))
+                if (isatty(0) || !getenv("DISPLAY"))
                     execlp("ssh", "ssh", "-p", p, "-l", u, h, NULL);
                 else {
                     execlp("x-terminal-emulator", "x-terminal-emulator", "-T", n, "-e", "ssh", "-p", p, "-l", u, h, NULL); 
@@ -109,7 +112,7 @@ int main(int argc, char*argv[]) {
             } else {
                 g_print("ssh -p %s %s\n", p, h);
                 
-                if (isatty(0))
+                if (isatty(0) || !getenv("DISPLAY"))
                     execlp("ssh", "ssh", "-p", p, h, NULL); 
                 else {
                     execlp("x-terminal-emulator", "x-terminal-emulator", "-T", n, "-e", "ssh", "-p", p, h, NULL); 
@@ -119,7 +122,7 @@ int main(int argc, char*argv[]) {
             }
         }
 
-        g_warning("execlp() failed: %s", strerror(errno));
+        g_warning("execlp() failed: %s\n", strerror(errno));
 
         g_free(h);
         g_free(u);

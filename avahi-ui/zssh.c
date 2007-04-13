@@ -55,11 +55,12 @@ int main(int argc, char*argv[]) {
     gtk_window_present(GTK_WINDOW(d));
 
     if (gtk_dialog_run(GTK_DIALOG(d)) == GTK_RESPONSE_OK) {
-        char a[AVAHI_ADDRESS_STR_MAX], *u = NULL;
+        char a[AVAHI_ADDRESS_STR_MAX], *u = NULL, *n = NULL;
         char *h = NULL, *t = NULL;
         const AvahiStringList *txt;
         
         t = g_strdup(aui_service_dialog_get_service_type(AUI_SERVICE_DIALOG(d)));
+        n = g_strdup(aui_service_dialog_get_service_name(AUI_SERVICE_DIALOG(d)));
         
         if (avahi_nss_support())
             h = g_strdup(aui_service_dialog_get_host_name(AUI_SERVICE_DIALOG(d)));
@@ -77,6 +78,7 @@ int main(int argc, char*argv[]) {
             
         } else {
             char p[16];
+            
             snprintf(p, sizeof(p), "%u", aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d)));
             
             for (txt = aui_service_dialog_get_txt_data(AUI_SERVICE_DIALOG(d)); txt; txt = txt->next) {
@@ -93,13 +95,27 @@ int main(int argc, char*argv[]) {
             }
 
             gtk_widget_destroy(d);
-            
+
             if (u) {
                 g_print("ssh -p %s -l %s %s\n", p, u, h);
-                execlp("ssh", "ssh", "-p", p, "-l", u, h, NULL); 
+
+                if (isatty(0))
+                    execlp("ssh", "ssh", "-p", p, "-l", u, h, NULL);
+                else {
+                    execlp("x-terminal-emulator", "x-terminal-emulator", "-T", n, "-e", "ssh", "-p", p, "-l", u, h, NULL); 
+                    execlp("gnome-terminal", "gnome-terminal", "-t", n, "-x", "ssh", "-p", p, "-l", u, h, NULL);
+                    execlp("xterm", "xterm", "-T", n, "-e", "ssh", "-p", p, "-l", u, h, NULL);
+                }
             } else {
                 g_print("ssh -p %s %s\n", p, h);
-                execlp("ssh", "ssh", "-p", p, h, NULL); 
+                
+                if (isatty(0))
+                    execlp("ssh", "ssh", "-p", p, h, NULL); 
+                else {
+                    execlp("x-terminal-emulator", "x-terminal-emulator", "-T", n, "-e", "ssh", "-p", p, h, NULL); 
+                    execlp("gnome-terminal", "gnome-terminal", "-t", n, "-x", "ssh", "-p", p, h, NULL);
+                    execlp("xterm", "xterm", "-T", n, "-e", "ssh", "-p", p, h, NULL);
+                }
             }
         }
 
@@ -108,6 +124,7 @@ int main(int argc, char*argv[]) {
         g_free(h);
         g_free(u);
         g_free(t);
+        g_free(n);
         
     } else {
         gtk_widget_destroy(d);

@@ -1464,7 +1464,6 @@ static int parse_command_line(int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    opterr = 0;
     while ((c = getopt_long(argc, argv, "hDskrcVS:w", long_options, NULL)) >= 0) {
 
         switch(c) {
@@ -1523,7 +1522,6 @@ static int parse_command_line(int argc, char *argv[]) {
 #endif
 
             default:
-                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

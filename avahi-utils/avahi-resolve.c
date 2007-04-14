@@ -186,7 +186,6 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     c->proto = AVAHI_PROTO_UNSPEC;
     c->verbose = 0;
 
-    opterr = 0;
     while ((o = getopt_long(argc, argv, "hVnav46", long_options, NULL)) >= 0) {
 
         switch(o) {
@@ -212,7 +211,6 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 c->proto = AVAHI_PROTO_INET6;
                 break;
             default:
-                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

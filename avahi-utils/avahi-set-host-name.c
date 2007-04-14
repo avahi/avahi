@@ -93,7 +93,6 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
     c->command = COMMAND_UNSPEC;
     c->verbose = 0;
 
-    opterr = 0;
     while ((o = getopt_long(argc, argv, "hVv", long_options, NULL)) >= 0) {
 
         switch(o) {
@@ -107,7 +106,6 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
                 c->verbose = 1;
                 break;
             default:
-                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

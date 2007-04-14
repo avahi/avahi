@@ -647,7 +647,6 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     c->no_db_lookup = 0;
 #endif
     
-    opterr = 0;
     while ((o = getopt_long(argc, argv, "hVd:avtclrDf"
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
                             "kb"
@@ -698,7 +697,6 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 break;
 #endif
             default:
-                fprintf(stderr, "Invalid command line argument: %s\n", argv[optind-1]);
                 return -1;
         }
     }

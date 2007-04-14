@@ -523,17 +523,13 @@ int avahi_simple_poll_run(AvahiSimplePoll *s) {
     
     s->state = STATE_RUNNING;
 
-    if (s->prepared_timeout != 0) {
-    
-        if (s->poll_func(s->pollfds, s->n_pollfds, s->prepared_timeout, s->poll_func_userdata) < 0) {
-            s->state = STATE_FAILURE;
-            return -1;
-        }
+    if (s->poll_func(s->pollfds, s->n_pollfds, s->prepared_timeout, s->poll_func_userdata) < 0) {
+        s->state = STATE_FAILURE;
+        return -1;
+    }
         
-        /* The poll events are now valid again */
-        s->events_valid = 1;
-    } else
-        s->events_valid = 0;
+    /* The poll events are now valid again */
+    s->events_valid = 1;
         
     /* Update state */
     s->state = STATE_RAN;

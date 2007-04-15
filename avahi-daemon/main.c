@@ -33,6 +33,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <time.h>
@@ -40,6 +41,12 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
+
+#ifdef HAVE_SYS_INOTIFY_H
+#include <sys/inotify.h>
+#else
+#include "inotify-nosys.h"
+#endif
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
@@ -654,6 +661,81 @@ static void dump(const char *text, AVAHI_GCC_UNUSED void* userdata) {
     avahi_log_info("%s", text);
 }
 
+#ifdef HAVE_INOTIFY
+
+static int inotify_fd = -1;
+
+static void add_inotify_watches(void) {
+    int c = 0;
+    /* We ignore the return values, because one or more of these files
+     * might not exist and we're OK with that. In addition we never
+     * want to remove these watches, hence we keep their ids? */
+
+#ifdef ENABLE_CHROOT
+    c = config.use_chroot;
+#endif
+    
+    inotify_add_watch(inotify_fd, c ? "/services" : AVAHI_SERVICE_DIR, IN_CLOSE_WRITE|IN_DELETE|IN_DELETE_SELF|IN_MOVED_FROM|IN_MOVED_TO|IN_MOVE_SELF|IN_ONLYDIR);
+    inotify_add_watch(inotify_fd, c ? "/" : AVAHI_CONFIG_DIR, IN_CLOSE_WRITE|IN_DELETE|IN_DELETE_SELF|IN_MOVED_FROM|IN_MOVED_TO|IN_MOVE_SELF|IN_ONLYDIR);
+}
+
+#endif
+
+static void reload_config(void) {
+
+#ifdef HAVE_INOTIFY
+    /* Refresh in case the config dirs have been removed */
+    add_inotify_watches();
+#endif
+
+#ifdef ENABLE_CHROOT
+    static_service_load(config.use_chroot);
+    static_hosts_load(config.use_chroot);
+#else
+    static_service_load(0);
+    static_hosts_load(0);
+#endif            
+    static_service_add_to_server();
+    static_hosts_add_to_server();
+    
+    if (resolv_conf_entry_group)
+        avahi_s_entry_group_reset(resolv_conf_entry_group);
+    
+    load_resolv_conf();
+    
+    update_wide_area_servers();
+    
+    if (config.publish_resolv_conf && resolv_conf && resolv_conf[0])
+        resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf);
+}
+
+#ifdef HAVE_INOTIFY
+
+static void inotify_callback(AvahiWatch *watch, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
+    char* buffer;
+    int n = 0;
+
+    assert(fd == inotify_fd);
+    assert(watch);
+
+    ioctl(inotify_fd, FIONREAD, &n);
+    if (n <= 0)
+        n = 128;
+
+    buffer = avahi_malloc(n);
+    if (read(inotify_fd, buffer, n) < 0 ) {
+        avahi_free(buffer);
+        avahi_log_error("Failed to read inotify event: %s", avahi_strerror(errno));
+	return;
+    }
+    avahi_free(buffer);
+
+    avahi_log_info("Files changed, reloading.");
+    reload_config();
+}
+
+#endif
+
 static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
     int sig;
     const AvahiPoll *poll_api;
@@ -682,26 +764,8 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
 
         case SIGHUP:
             avahi_log_info("Got SIGHUP, reloading.");
-#ifdef ENABLE_CHROOT
-            static_service_load(config.use_chroot);
-            static_hosts_load(config.use_chroot);
-#else
-            static_service_load(0);
-            static_hosts_load(0);
-#endif            
-            static_service_add_to_server();
-            static_hosts_add_to_server();
 
-            if (resolv_conf_entry_group)
-                avahi_s_entry_group_reset(resolv_conf_entry_group);
-
-            load_resolv_conf();
-
-            update_wide_area_servers();
-            
-            if (config.publish_resolv_conf && resolv_conf && resolv_conf[0])
-                resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf);
-
+            reload_config();
             break;
 
         case SIGUSR1:
@@ -724,6 +788,9 @@ static int run_server(DaemonConfig *c) {
     const AvahiPoll *poll_api = NULL;
     AvahiWatch *sig_watch = NULL;
     int retval_is_sent = 0;
+#ifdef HAVE_INOTIFY
+    AvahiWatch *inotify_watch = NULL;
+#endif
 
     assert(c);
 
@@ -784,6 +851,19 @@ static int run_server(DaemonConfig *c) {
         avahi_log_info("Successfully dropped remaining capabilities.");
     }
     
+#endif
+
+#ifdef HAVE_INOTIFY
+    if ((inotify_fd = inotify_init()) < 0)
+        avahi_log_warn( "Failed to initialize inotify: %s", strerror(errno));
+    else {
+        add_inotify_watches();
+        
+        if (!(inotify_watch = poll_api->watch_new(poll_api, inotify_fd, AVAHI_WATCH_IN, inotify_callback, NULL))) {
+            avahi_log_error( "Failed to create inotify watcher");
+            goto finish;
+        }
+    }
 #endif
 
     load_resolv_conf();
@@ -849,6 +929,13 @@ finish:
     if (sig_watch)
         poll_api->watch_free(sig_watch);
 
+#ifdef HAVE_INOTIFY
+    if (inotify_watch)
+        poll_api->watch_free(inotify_watch);
+    if (inotify_fd >= 0)
+        close(inotify_fd);
+#endif
+    
     if (simple_poll_api) {
         avahi_simple_poll_free(simple_poll_api);
         simple_poll_api = NULL;

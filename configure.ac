@@ -296,6 +296,16 @@ if test "x$HAVE_DLOPEN" = "xyes" ; then
 fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
 
+have_inotify=no
+AC_CHECK_HEADERS([linux/inotify.h], [have_inotify=yes])
+AC_CHECK_HEADERS([sys/inotify.h], [have_inotify=yes])
+
+AM_CONDITIONAL(HAVE_INOTIFY, test "x$have_inotify" = "xyes")
+
+if test "x$have_inotify" = "xyes" ; then
+   AC_DEFINE([HAVE_INOTIFY], 1, [Enable Linux inotify() usage])
+fi
+
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.
 AC_CHECK_PROG(have_pkg_config, pkg-config, yes, no)
@@ -948,6 +958,7 @@ echo "
     User for avahi-autoipd:                    ${AVAHI_AUTOIPD_USER}
     Group for avahi-autoipd:                   ${AVAHI_AUTOIPD_GROUP}
     Enable chroot():                           ${enable_chroot}
+    Enable Linux inotify:                      ${have_inotify}
 "
 
 BUILD_DAEMON="no   (You need libdaemon and expat!)"

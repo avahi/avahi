@@ -43,10 +43,10 @@ int main(int argc, char*argv[]) {
     gtk_init(&argc, &argv);
 
     if (g_str_has_suffix(argv[0], "zvnc")) {
-        d = aui_service_dialog_new("Choose VNC server");
+        d = aui_service_dialog_new("Choose VNC server", NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
         aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
     } else {
-        d = aui_service_dialog_new("Choose SSH server");
+        d = aui_service_dialog_new("Choose SSH server", NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
         aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
     }
         
@@ -55,7 +55,7 @@ int main(int argc, char*argv[]) {
 
     gtk_window_present(GTK_WINDOW(d));
 
-    if (gtk_dialog_run(GTK_DIALOG(d)) == GTK_RESPONSE_OK) {
+    if (gtk_dialog_run(GTK_DIALOG(d)) == GTK_RESPONSE_ACCEPT) {
         char a[AVAHI_ADDRESS_STR_MAX], *u = NULL, *n = NULL;
         char *h = NULL, *t = NULL;
         const AvahiStringList *txt;

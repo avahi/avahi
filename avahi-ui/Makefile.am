@@ -22,7 +22,7 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-if HAVE_GLIB
+if HAVE_GTK
 if HAVE_DBUS
 
 avahiincludedir=$(includedir)/avahi-ui

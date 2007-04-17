@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Encoding=UTF-8
-Name=Avahi VNC Service Browser
-Comment=Browse for Zeroconf-enabled VNC Services
+Name=Avahi VNC Server Browser
+Comment=Browse for Zeroconf-enabled VNC Servers
 Exec=@bindir@/zvnc
 Terminal=false
 Type=Application

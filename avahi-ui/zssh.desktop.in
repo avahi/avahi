@@ -2,7 +2,7 @@
 Version=1.0
 Encoding=UTF-8
 Name=Avahi SSH Server Browser
-Comment=Browse for Zeroconf-enabled SSH Services
+Comment=Browse for Zeroconf-enabled SSH Servers
 Exec=@bindir@/zssh
 Terminal=false
 Type=Application

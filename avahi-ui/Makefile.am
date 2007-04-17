@@ -22,6 +22,9 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+desktopdir = $(datadir)/applications
+desktop_DATA = 
+
 if HAVE_GTK
 if HAVE_DBUS
 
@@ -51,6 +54,7 @@ libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkgdatadir)/service-types.db\"
 endif
 
 bin_PROGRAMS = zssh
+desktop_DATA += zssh.desktop zvnc.desktop
 
 zssh_SOURCES = zssh.c
 zssh_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
@@ -60,6 +64,14 @@ install-exec-local:
 	cd $(DESTDIR)/$(bindir) && \
 		rm -f zvnc && \
 		$(LN_S) zssh zvnc
+
+zssh.desktop: zssh.desktop.in
+	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+	chmod +x $@
+
+zvnc.desktop: zvnc.desktop.in
+	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+	chmod +x $@
 
 endif
 endif

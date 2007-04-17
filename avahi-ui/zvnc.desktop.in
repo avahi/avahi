@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Avahi VNC Service Browser
+Comment=Browse for Zeroconf-enabled VNC Services
+Exec=@bindir@/zvnc
+Terminal=false
+Type=Application
+Icon=network-wired
+Categories=GNOME;Application;System;Utility;
+StartupNotify=false
+GenericName=

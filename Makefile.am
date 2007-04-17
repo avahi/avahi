@@ -111,6 +111,13 @@ DX_INPUT += \
 	$(srcdir)/avahi-client/publish.h
 endif
 
+if HAVE_DBUS
+if HAVE_GTK
+DX_INPUT += \
+	$(srcdir)/avahi-ui/avahi-ui.h
+endif
+endif
+
 if ENABLE_CORE_DOCS
 DX_INPUT += \
 	$(srcdir)/avahi-core/core.h \

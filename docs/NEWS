@@ -1,3 +1,29 @@
+Avahi 0.6.18
+============
+
+This is a bugfix release, adds a few new features and includes a new
+component.
+
+ * Add a new library libavahi-ui which contains a standard Gtk dialog
+   for browsing for services, and a new tool "zssh" that makes use of
+   it, which allows browsing for SSH and VNC servers and starts ssh or
+   xvncviewer if one item is selected.
+ * avahi-autoipd has been ported to FreeBSD (original patch from Bruce M Simpson)
+ * Improve OpenBSD, Solaris, MacOS X compatibility
+ * Linux inotify support for monitoring /etc/avahi/services/ and
+   /etc/avahi/hosts for changes. (Original patch from "behanw")
+ * Add the ability to dump the service type database from avahi-browse
+   with the new option "-b".
+ * Improve compatibility with Bonjour's libdns_sd (patch from Chris Rivera)
+ * Various updates to the service type database (based on patches from uws)
+ * Fix a local DoS vulnerability (very low priority, all you can do is 
+   make Avahi hit an assert()); problem identified by "jamesh"
+ * Fix a problem when constantly generating conflict events for an RR
+ * Fix registration of very large RRs (original patch from Sjoerd Simons)
+ * Various minor fixes
+
+This release is backwards compatible with Avahi 0.6.x with x < 18.
+
 Avahi 0.6.17
 ============
 

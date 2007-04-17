@@ -25,6 +25,9 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 desktopdir = $(datadir)/applications
 desktop_DATA = 
 
+EXTRA_DIST = zssh.desktop.in zvnc.desktop.in
+
+
 if HAVE_GTK
 if HAVE_DBUS
 
@@ -67,11 +70,11 @@ install-exec-local:
 
 zssh.desktop: zssh.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
-	chmod +x $@
 
 zvnc.desktop: zvnc.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
-	chmod +x $@
 
 endif
 endif
+
+CLEANFILES = $(desktop_DATA)

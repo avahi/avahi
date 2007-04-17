@@ -937,7 +937,7 @@ static void domain_button_clicked(GtkButton *button,  gpointer user_data) {
     g_signal_connect(selection, "changed", G_CALLBACK(domain_selection_changed_callback), d);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", DOMAIN_COLUMN_NAME, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Service Name", renderer, "text", DOMAIN_COLUMN_NAME, NULL);
     gtk_tree_view_column_set_expand(column, TRUE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(p->domain_tree_view), column);
 

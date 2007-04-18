@@ -14,6 +14,7 @@ component.
    /etc/avahi/hosts for changes. (Original patch from "behanw")
  * Add the ability to dump the service type database from avahi-browse
    with the new option "-b".
+ * Enable GCC stack smashing protection if available and working (Patch from tedp)
  * Improve compatibility with Bonjour's libdns_sd (patch from Chris Rivera)
  * Various updates to the service type database (based on patches from uws)
  * Fix a local DoS vulnerability (very low priority, all you can do is 

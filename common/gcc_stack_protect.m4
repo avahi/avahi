@@ -6,19 +6,23 @@ dnl     * Stricter language checking (C or C++)
 dnl     * Adds GCC_STACK_PROTECT_LIB to add -lssp to LDFLAGS as necessary
 dnl     * Caches all results
 dnl     * Uses macros to ensure correct ouput in quiet/silent mode
+dnl 1.2 - April 2007 - Ted Percival <ted@midg3t.net>
+dnl     * Added GCC_STACK_PROTECTOR macro for simpler (one-line) invocation
+dnl     * GCC_STACK_PROTECT_LIB now adds -lssp to LIBS rather than LDFLAGS
 dnl
 dnl About ssp:
 dnl GCC extension for protecting applications from stack-smashing attacks
 dnl http://www.research.ibm.com/trl/projects/security/ssp/
 dnl
 dnl Usage:
-dnl Call GCC_STACK_PROTECT_LIB to determine if the library implementing SSP is
-dnl available, then the appropriate C or C++ language's test. If you are using
-dnl both C and C++ you will need to use AC_LANG_PUSH and AC_LANG_POP to ensure
-dnl the right language is being used for each test.
+dnl Most people will simply call GCC_STACK_PROTECTOR.
+dnl If you only use one of C or C++, you can save time by only calling the
+dnl macro appropriate for that language. In that case you should also call
+dnl GCC_STACK_PROTECT_LIB first.
 dnl
-dnl GCC_STACK_PROTECT_LIB
-dnl adds libssp to the LDFLAGS if it is available
+dnl GCC_STACK_PROTECTOR
+dnl Tries to turn on stack protection for C and C++ by calling the following
+dnl three macros with the right languages.
 dnl
 dnl GCC_STACK_PROTECT_CC
 dnl checks -fstack-protector with the C compiler, if it exists then updates
@@ -28,16 +32,22 @@ dnl GCC_STACK_PROTECT_CXX
 dnl checks -fstack-protector with the C++ compiler, if it exists then updates
 dnl CXXFLAGS and defines ENABLE_SSP_CXX
 dnl
+dnl GCC_STACK_PROTECT_LIB
+dnl adds -lssp to LIBS if it is available
+dnl ssp is usually provided as part of libc, but was previously a separate lib
+dnl It does not hurt to add -lssp even if libc provides SSP - in that case
+dnl libssp will simply be ignored.
+dnl
 
 AC_DEFUN([GCC_STACK_PROTECT_LIB],[
   AC_CACHE_CHECK([whether libssp exists], ssp_cv_lib,
-    [ssp_old_ldflags="$LDFLAGS"
-     LDFLAGS="$LDFLAGS -lssp"
+    [ssp_old_libs="$LIBS"
+     LIBS="$LIBS -lssp"
      AC_TRY_LINK(,, ssp_cv_lib=yes, ssp_cv_lib=no)
-     LDFLAGS="$ssp_old_ldflags"
+     LIBS="$ssp_old_libs"
     ])
   if test $ssp_cv_lib = yes; then
-    LDFLAGS="$LDFLAGS -lssp"
+    LIBS="$LIBS -lssp"
   fi
 ])
 
@@ -73,5 +83,17 @@ AC_DEFUN([GCC_STACK_PROTECT_CXX],[
       AC_DEFINE([ENABLE_SSP_CXX], 1, [Define if SSP C++ support is enabled.])
     fi
   fi
+])
+
+AC_DEFUN([GCC_STACK_PROTECTOR],[
+  GCC_STACK_PROTECT_LIB
+
+  AC_LANG_PUSH([C])
+  GCC_STACK_PROTECT_CC
+  AC_LANG_POP([C])
+
+  AC_LANG_PUSH([C++])
+  GCC_STACK_PROTECT_CXX
+  AC_LANG_POP([C++])
 ])
 

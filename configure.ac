@@ -989,6 +989,7 @@ man/Makefile
 tests/Makefile
 service-type-database/Makefile
 avahi-sharp/Makefile
+avahi-ui-sharp/Makefile
 avahi-compat-libdns_sd/Makefile
 avahi-compat-howl/Makefile
 avahi-compat-howl/samples/Makefile

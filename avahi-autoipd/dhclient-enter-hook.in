@@ -23,11 +23,11 @@ case "$reason" in
     MEDIUM|ARPCHECK|ARPSEND|NBI)
         ;;
 
-    PREINIT|BOUND|RENEW|REBIND|REBOOT|STOP)
+    PREINIT|BOUND|RENEW|REBIND|REBOOT|STOP|RELEASE)
         @sbindir@/avahi-autoipd -k $interface 2> /dev/null
         ;;
     
-    EXPIRE|FAIL|RELEASE|TIMEOUT)
+    EXPIRE|FAIL|TIMEOUT)
         # Starting avahi-autoipd is left for the exit hook
         ;;
 esac

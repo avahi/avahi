@@ -7,7 +7,9 @@ public class EntryPoint {
     public static void Main () {
         Application.Init (); 
 		
-        ServiceDialog dialog = new ServiceDialog ("Choose SSH Server", null, Stock.Close, ResponseType.Cancel);
+        ServiceDialog dialog = new ServiceDialog ("Choose SSH Server", null,
+                                                  Stock.Cancel, ResponseType.Cancel,
+                                                  Stock.Connect, ResponseType.Accept);
 	dialog.BrowseServiceTypes = new string[] { "_ssh._tcp" };
         dialog.ResolveServiceEnabled = true;
 

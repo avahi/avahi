@@ -37,9 +37,12 @@ $(ASSEMBLY): $(AVAHISOURCES)
 $(ASSEMBLY).config: $(ASSEMBLY).config.in
 	$(srcdir)/gencfg.sh $(top_builddir)/avahi-common/libavahi-common.la < $< > $@
 
+zssh.exe: zssh.cs
+	mcs -out:$@ zssh.cs -r:./avahi-ui-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
+
 if HAVE_MONO
 if HAVE_DBUS
-all: $(ASSEMBLY) $(ASSEMBLY).config
+all: $(ASSEMBLY) $(ASSEMBLY).config zssh.exe
 
 if HAVE_MONODOC
 update-docs: $(ASSEMBLY)

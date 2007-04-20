@@ -29,7 +29,9 @@ EXTRA_DIST =					\
 	$(srcdir)/avahi-ui-sharp-docs.source	\
 	$(srcdir)/en/*.xml			\
 	$(srcdir)/en/*/*.xml			\
-	$(srcdir)/gencfg.sh
+	$(srcdir)/gencfg.sh                     \
+	$(srcdir)/$(ASSEMBLY).config.in         \
+	$(srcdir)/zssh.cs
 
 $(ASSEMBLY): $(AVAHISOURCES)
 	mcs -keyfile:$(top_srcdir)/avahi-sharp/avahi.snk -target:library -out:$@ -debug $(AVAHISOURCES) -pkg:gtk-sharp-2.0 -r:$(top_builddir)/avahi-sharp/avahi-sharp.dll -r:Mono.Posix
@@ -37,8 +39,8 @@ $(ASSEMBLY): $(AVAHISOURCES)
 $(ASSEMBLY).config: $(ASSEMBLY).config.in
 	$(srcdir)/gencfg.sh $(top_builddir)/avahi-common/libavahi-common.la < $< > $@
 
-zssh.exe: zssh.cs
-	mcs -out:$@ zssh.cs -r:./avahi-ui-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
+zssh.exe: $(srcdir)/zssh.cs
+	mcs -out:$@ $^ -r:./avahi-ui-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
 
 if HAVE_MONO
 if HAVE_DBUS

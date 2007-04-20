@@ -196,7 +196,9 @@ AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *);
 /** Cleans up and frees an AvahiServiceBrowser object */
 int avahi_service_browser_free (AvahiServiceBrowser *);
 
-/** Create a new service resolver object */
+/** Create a new service resolver object. Please make sure to pass all
+ * the service data you received via avahi_service_browser_new()'s
+ * callback function, especially interface and protocol. */
 AvahiServiceResolver * avahi_service_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,

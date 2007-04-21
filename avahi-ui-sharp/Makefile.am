@@ -19,7 +19,7 @@
 
 ASSEMBLY = avahi-ui-sharp.dll
 
-CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb $(ASSEMBLY).config
+CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb $(ASSEMBLY).config zssh.exe
 
 AVAHISOURCES = 				\
 	$(srcdir)/ServiceDialog.cs
@@ -64,7 +64,7 @@ install-data-hook: $(ASSEMBLY)
 	$(GACUTIL) /i $(ASSEMBLY) /package avahi-ui-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
 uninstall-hook: $(ASSEMBLY)
-	$(GACUTIL) /u avahi-sharp /package avahi-ui-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(GACUTIL) /u avahi-ui-sharp /package avahi-ui-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
 endif
 endif

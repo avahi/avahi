@@ -25,7 +25,7 @@ avahidir = $(pythondir)/avahi
 
 
 if HAVE_GDBM
-avahi_SCRIPTS = ServiceTypeDatabase.py
+nodist_avahi_SCRIPTS = ServiceTypeDatabase.py
 
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
@@ -38,7 +38,7 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 endif
 
 if HAVE_DBM
-avahi_SCRIPTS = ServiceTypeDatabase.py
+nodist_avahi_SCRIPTS = ServiceTypeDatabase.py
 
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
@@ -62,5 +62,3 @@ endif
 endif
 
 CLEANFILES=*.pyc *.pyo ServiceTypeDatabase.py
-
-

@@ -50,7 +50,7 @@ else
 avahi_autoipd_SOURCES += iface-linux.c
 endif
 
-pkgsysconf_SCRIPTS=avahi-autoipd.action
+nodist_pkgsysconf_SCRIPTS = avahi-autoipd.action
 
 if TARGET_FREEBSD
 avahi-autoipd.action: avahi-autoipd.action.bsd
@@ -91,6 +91,6 @@ endif
 endif
 endif
 
-EXTRA_DIST=avahi-autoipd.action dhclient-enter-hook.in dhclient-exit-hook.in avahi-autoipd.action.linux avahi-autoipd.action.bsd
+EXTRA_DIST = dhclient-enter-hook.in dhclient-exit-hook.in avahi-autoipd.action.linux avahi-autoipd.action.bsd
 
-CLEANFILES=dhclient-enter-hook dhclient-exit-hook avahi-autoipd.action
+CLEANFILES = dhclient-enter-hook dhclient-exit-hook avahi-autoipd.action

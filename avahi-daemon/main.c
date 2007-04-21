@@ -42,10 +42,12 @@
 #include <sys/resource.h>
 #include <sys/socket.h>
 
+#ifdef HAVE_INOTIFY
 #ifdef HAVE_SYS_INOTIFY_H
 #include <sys/inotify.h>
 #else
 #include "inotify-nosys.h"
+#endif
 #endif
 
 #include <libdaemon/dfork.h>

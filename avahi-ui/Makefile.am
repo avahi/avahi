@@ -25,7 +25,7 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 desktopdir = $(datadir)/applications
 desktop_DATA = 
 
-EXTRA_DIST = zssh.desktop.in zvnc.desktop.in
+EXTRA_DIST = bssh.desktop.in bvnc.desktop.in
 
 
 if HAVE_GTK
@@ -56,22 +56,22 @@ libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
 libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkgdatadir)/service-types.db\"
 endif
 
-bin_PROGRAMS = zssh
-desktop_DATA += zssh.desktop zvnc.desktop
+bin_PROGRAMS = bssh
+desktop_DATA += bssh.desktop bvnc.desktop
 
-zssh_SOURCES = zssh.c
-zssh_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
-zssh_LDADD = $(AM_LDADD) $(GTK20_LIBS) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la libavahi-ui.la
+bssh_SOURCES = bssh.c
+bssh_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
+bssh_LDADD = $(AM_LDADD) $(GTK20_LIBS) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la libavahi-ui.la
 
 install-exec-local:
 	cd $(DESTDIR)/$(bindir) && \
-		rm -f zvnc && \
-		$(LN_S) zssh zvnc
+		rm -f bvnc && \
+		$(LN_S) bssh bvnc
 
-zssh.desktop: zssh.desktop.in
+bssh.desktop: bssh.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
-zvnc.desktop: zvnc.desktop.in
+bvnc.desktop: bvnc.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
 endif

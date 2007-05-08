@@ -42,7 +42,7 @@ int main(int argc, char*argv[]) {
 
     gtk_init(&argc, &argv);
 
-    if (g_str_has_suffix(argv[0], "zvnc")) {
+    if (g_str_has_suffix(argv[0], "bvnc")) {
         d = aui_service_dialog_new("Choose VNC server", NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
         aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
     } else {

@@ -127,7 +127,7 @@ typedef int						sw_result;
 
 #if !defined(SW_ENDIAN)
 
-#	if WORDS_BIGENDIAN == 1
+#	if defined(WORDS_BIGENDIAN) && WORDS_BIGENDIAN == 1
 
 #		define SW_ENDIAN	0
 

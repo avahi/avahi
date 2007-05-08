@@ -57,7 +57,7 @@ AC_DEFUN([GCC_STACK_PROTECT_CC],[
     AC_CACHE_CHECK([whether ${CC} accepts -fstack-protector],
       ssp_cv_cc,
       [ssp_old_cflags="$CFLAGS"
-       CFLAGS="$CFLAGS -fstack-protector"
+       CFLAGS="$CFLAGS -fstack-protector -Werror"
        AC_TRY_COMPILE(,, ssp_cv_cc=yes, ssp_cv_cc=no)
        CFLAGS="$ssp_old_cflags"
       ])
@@ -74,7 +74,7 @@ AC_DEFUN([GCC_STACK_PROTECT_CXX],[
     AC_CACHE_CHECK([whether ${CXX} accepts -fstack-protector],
       ssp_cv_cxx,
       [ssp_old_cxxflags="$CXXFLAGS"
-       CXXFLAGS="$CXXFLAGS -fstack-protector"
+       CXXFLAGS="$CXXFLAGS -fstack-protector -Werror"
        AC_TRY_COMPILE(,, ssp_cv_cxx=yes, ssp_cv_cxx=no)
        CXXFLAGS="$ssp_old_cxxflags"
       ])

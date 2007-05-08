@@ -84,7 +84,7 @@ if test x"$enable_ssp" = x"yes"; then
     AC_MSG_CHECKING([whether stack-smashing protection is available])
     ssp_old_cflags="$CFLAGS"
     ssp_old_ldflags="$LDFLAGS"
-    CFLAGS="$CFLAGS -fstack-protector-all -fPIC"
+    CFLAGS="$CFLAGS -Werror -fstack-protector-all -fPIC"
     LDFLAGS="$LDFLAGS -Wl,-z,defs"
     cat confdefs.h > conftest.c
     cat >>conftest.c <<_ACEOF

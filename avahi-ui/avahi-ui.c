@@ -84,6 +84,8 @@ struct _AuiServiceDialogPrivate {
     GtkWidget *domain_tree_view;
     GtkWidget *domain_progress_bar;
     GtkWidget *domain_ok_button;
+
+    gint forward_response_id;
 };
 
 enum {
@@ -120,6 +122,47 @@ enum {
 static void aui_service_dialog_finalize(GObject *object);
 static void aui_service_dialog_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void aui_service_dialog_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+
+static int get_default_response(GtkDialog *dlg) {
+    gint ret = GTK_RESPONSE_NONE;
+
+    if (GTK_WINDOW(dlg)->default_widget)
+        /* Use the response of the default widget, if possible */
+        ret = gtk_dialog_get_response_for_widget(dlg, GTK_WINDOW(dlg)->default_widget);
+
+    if (ret == GTK_RESPONSE_NONE) {
+        /* Fall back to finding the first positive response */
+        GList *children, *t;
+        gint bad = GTK_RESPONSE_NONE;
+        
+        t = children = gtk_container_get_children(GTK_CONTAINER(dlg->action_area));
+        
+        while (t) {
+            GtkWidget *child = t->data;
+            
+            ret = gtk_dialog_get_response_for_widget(dlg, child);
+            
+            if (ret == GTK_RESPONSE_ACCEPT ||
+                ret == GTK_RESPONSE_OK ||
+                ret == GTK_RESPONSE_YES ||
+                ret == GTK_RESPONSE_APPLY)
+                break;
+            
+            if (ret != GTK_RESPONSE_NONE && bad == GTK_RESPONSE_NONE)
+                bad = ret;
+            
+            t = t->next;
+        }
+        
+        g_list_free (children);
+
+        /* Fall back to finding the first negative response */
+        if (ret == GTK_RESPONSE_NONE)
+            ret = bad;
+    }
+
+    return ret;
+}
 
 G_DEFINE_TYPE(AuiServiceDialog, aui_service_dialog, GTK_TYPE_DIALOG)
 
@@ -205,6 +248,7 @@ GtkWidget *aui_service_dialog_new_valist(
         va_list varargs) {
     
     const gchar *button_text;
+    gint dr;
     
     GtkWidget *w = GTK_WIDGET(g_object_new(
                                       AUI_TYPE_SERVICE_DIALOG,
@@ -224,6 +268,14 @@ GtkWidget *aui_service_dialog_new_valist(
         button_text = va_arg(varargs, const gchar *);
     }
     
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(w), GTK_RESPONSE_ACCEPT, FALSE);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(w), GTK_RESPONSE_OK, FALSE);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(w), GTK_RESPONSE_YES, FALSE);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(w), GTK_RESPONSE_APPLY, FALSE);
+
+    if ((dr = get_default_response(GTK_DIALOG(w))) != GTK_RESPONSE_NONE)
+        gtk_dialog_set_default_response(GTK_DIALOG(w), dr);
+
     return w;
 }
 
@@ -318,7 +370,7 @@ static void resolve_callback(
                 d->priv->address = *a;
             }
 
-            gtk_dialog_response(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT);
+            gtk_dialog_response(GTK_DIALOG(d), d->priv->forward_response_id);
 
             break;
 
@@ -772,19 +824,27 @@ static void aui_service_dialog_finalize(GObject *object) {
 static void service_row_activated_callback(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data) {
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
 
-    gtk_dialog_response(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT);
+    gtk_dialog_response(GTK_DIALOG(d), get_default_response(GTK_DIALOG(d)));
 }
 
 static void service_selection_changed_callback(GtkTreeSelection *selection, gpointer user_data) {
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
+    gboolean b;
 
-    gtk_dialog_set_response_sensitive(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT, gtk_tree_selection_get_selected(selection, NULL, NULL));
+    b = gtk_tree_selection_get_selected(selection, NULL, NULL);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT, b);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(d), GTK_RESPONSE_OK, b);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(d), GTK_RESPONSE_YES, b);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(d), GTK_RESPONSE_APPLY, b);
 }
 
 static void response_callback(GtkDialog *dialog, gint response, gpointer user_data) {
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
 
-    if (response == GTK_RESPONSE_ACCEPT &&
+    if ((response == GTK_RESPONSE_ACCEPT ||
+        response == GTK_RESPONSE_OK ||
+        response == GTK_RESPONSE_YES ||
+        response == GTK_RESPONSE_APPLY) &&
         ((d->priv->resolve_service && !d->priv->resolve_service_done) ||
          (d->priv->resolve_host_name && !d->priv->resolve_host_name_done))) {
         
@@ -794,6 +854,7 @@ static void response_callback(GtkDialog *dialog, gint response, gpointer user_da
         GdkCursor *cursor;
 
         g_signal_stop_emission(dialog, g_signal_lookup("response", gtk_dialog_get_type()), 0);
+        d->priv->forward_response_id = response;
 
         if (d->priv->resolver)
             return;
@@ -1022,6 +1083,8 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     p->domain_progress_bar = NULL;
     p->domain_ok_button = NULL;
 
+    p->forward_response_id = GTK_RESPONSE_NONE;
+
     p->service_list_store = p->domain_list_store = NULL;
     
     gtk_widget_push_composite_child();
@@ -1086,7 +1149,6 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_widget_show(p->domain_button); 
     
     gtk_dialog_set_default_response(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT);
-    gtk_dialog_set_response_sensitive(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT, FALSE);
 
     gtk_widget_grab_focus(p->service_tree_view);
 

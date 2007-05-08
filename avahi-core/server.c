@@ -1563,7 +1563,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->use_iff_running = 0;
     c->enable_reflector = 0;
     c->reflect_ipv = 0;
-    c->add_service_cookie = 1;
+    c->add_service_cookie = 0;
     c->enable_wide_area = 0;
     c->n_wide_area_servers = 0;
     c->disallow_other_stacks = 0;

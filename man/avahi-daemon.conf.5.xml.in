@@ -165,7 +165,7 @@
         which is chosen randomly on daemon startup. This can be used
         to detect if two services on two different
         interfaces/protocols are actually identical. Defaults to
-        "yes".</p>
+        "no".</p>
       </option>
 
       <option>

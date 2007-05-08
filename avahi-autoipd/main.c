@@ -762,9 +762,9 @@ recv_packet(int fd __unused, ArpPacket **packet, size_t *packet_len)
 
 int is_ll_address(uint32_t addr) {
     return
-        (ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK &&
-        ntohl(addr) != IPV4LL_NETWORK &&
-        ntohl(addr) != IPV4LL_BROADCAST;
+        ((ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK) &&
+        ((ntohl(addr) & 0x0000FF00) != 0x0000) &&
+        ((ntohl(addr) & 0x0000FF00) != 0xFF00);
 }
 
 
@@ -1094,7 +1094,7 @@ static int loop(int iface, uint32_t addr) {
         load_address(address_fn, &addr);
 
     if (addr && !is_ll_address(addr)) {
-        daemon_log(LOG_WARNING, "Requested address %s is not from IPv4LL range 169.254/16, ignoring.", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
+        daemon_log(LOG_WARNING, "Requested address %s is not from IPv4LL range 169.254/16 or a reserved address, ignoring.", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
         addr = 0;
     }
 

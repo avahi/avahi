@@ -73,25 +73,30 @@ _afpovertcp._tcp:Apple File Sharing
 
 _nfs._tcp:Network File System
 
+_sftp-ssh._tcp:SFTP File Transfer
+
 _apt._tcp:APT Package Repository
 
 
-# Remote access
+# Remote machine access
 
 _ssh._tcp:SSH Remote Terminal
 _ssh._tcp[de]:SSH-Fernzugriff
 
-_imap._tcp:IMAP Mail Access
-
-_pop3._tcp:POP3 Mail Access
-
 _rfb._tcp:VNC Remote Access
-
-_sftp-ssh._tcp:SFTP File Transfer
 
 _telnet._tcp:Telnet Remote Terminal
 
 _timbuktu._tcp:Timbuktu Remote Desktop Control
+
+_net-assistant._udp:Apple Net Assistant
+
+
+# Mail
+
+_imap._tcp:IMAP Mail Access
+
+_pop3._tcp:POP3 Mail Access
 
 
 # Printing
@@ -167,6 +172,10 @@ _MacOSXDupSuppress._tcp:MacOS X Duplicate Machine Suppression
 _ksysguard._tcp:KDE System Guard
 
 _omni-bookmark._tcp:OmniWeb Bookmark Sharing
+
+_acrobatSRV._tcp:Adobe Acrobat
+
+_adobe-vc._tcp:Adobe Version Cue
 
 
 # Other

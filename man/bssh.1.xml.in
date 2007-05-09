@@ -50,7 +50,7 @@
 	
     <section name="See also">
       <p>
-        <manref name="avahi-browse" section="1"/>
+        <manref name="avahi-browse" section="1"/>, <manref name="ssh" section="1"/>, <manref name="xvncviewer" section="1"/>
       </p>
     </section>
     

@@ -1,3 +1,27 @@
+Avahi 0.6.19
+============
+
+This is a bugfix release, but also adds a new component "avahi-ui-sharp".
+
+ * Rename zssh/zvnc to bssh/bvnc to avoid a name collision with another
+   free software tool, on request of the Debian developers. I hope
+   this name change early in the life of bssh/bvnc won't be too
+   difficult to handle by the distributors. 
+ * avahi-ui: fix segfault when browsing in empty domains
+ * avahi-ui: allow GTK_RESPONSE_OK, _YES and _APPLY besides _ACCEPT as
+   positive dialog response codes
+ * avahi-ui-sharp: Add Mono/C# API wrapper for avahi-ui
+ * Don't pick the first and the last 256 IP addresses from the IPV4LL
+   range in avahi-autoipd, as required by RC3927 section 2.1
+ * No longer publish the Avahi service identification cookie anymore
+   by default. It was a bad idea in the first place. A better
+   replacement will hopefully be made available in Avahi eventually.
+ * Properly set umask before writing to /var/lib/avahi-autoipd
+ * Update .deskop files to work around KDE menu issue
+ * Various build fixes and other minor fixes and updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 19.
+
 Avahi 0.6.18
 ============
 

@@ -44,7 +44,8 @@ noinst_DATA = \
 	avahi.service.5.xml \
 	avahi.hosts.5.xml \
 	avahi-autoipd.8.xml \
-	avahi-autoipd.action.8.xml
+	avahi-autoipd.action.8.xml \
+	bssh.1.xml
 
 CLEANFILES = \
 	$(noinst_DATA)
@@ -56,6 +57,11 @@ man_MANS += \
 	avahi-resolve.1 \
 	avahi-publish.1 \
 	avahi-set-host-name.1
+
+if HAVE_GTK
+man_MANS += \
+	bssh.1
+endif
 
 if HAVE_PYTHON
 man_MANS += \
@@ -140,6 +146,10 @@ avahi-autoipd.8.xml: avahi-autoipd.8.xml.in Makefile
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
         -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
+bssh.1.xml: bssh.1.xml.in Makefile
+	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
+        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
 if USE_XMLTOMAN
 
@@ -187,6 +197,9 @@ avahi-autoipd.action.8: avahi-autoipd.action.8.xml Makefile
 avahi-autoipd.8: avahi-autoipd.8.xml Makefile
 	xmltoman $< > $@
 
+bssh.1: bssh.1.xml Makefile
+	xmltoman $< > $@
+
 xmllint: $(noinst_DATA)
 	for f in $(noinst_DATA) ; do \
 			xmllint --noout --valid "$$f" || exit 1 ; \
@@ -212,6 +225,7 @@ EXTRA_DIST = \
 	avahi.hosts.5.xml.in \
 	avahi-autoipd.action.8.xml.in \
 	avahi-autoipd.8.xml.in \
+	bssh.1.xml.in \
 	xmltoman.css \
 	xmltoman.xsl \
 	xmltoman.dtd
@@ -227,6 +241,8 @@ install-exec-local:
 		$(LN_S) avahi-resolve.1 avahi-resolve-address.1 && \
 		$(LN_S) avahi-browse.1 avahi-browse-domains.1 && \
 		$(LN_S) avahi-publish.1 avahi-publish-address.1 && \
-		$(LN_S) avahi-publish.1 avahi-publish-service.1
+                $(LN_S) avahi-publish.1 avahi-publish-service.1 && \
+                $(LN_S) bssh.1 bvnc.1
+
 
 endif

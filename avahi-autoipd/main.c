@@ -248,13 +248,16 @@ fail:
 static int save_address(const char *fn, uint32_t addr) {
     FILE *f;
     char buf[32];
+    mode_t u;
 
     assert(fn);
-    
+
+    u = umask(0033);
     if (!(f = fopen(fn, "w"))) {
         daemon_log(LOG_ERR, "fopen() failed: %s", strerror(errno));
         goto fail;
     }
+    umask(u);
 
     fprintf(f, "%s\n", inet_ntop(AF_INET, &addr, buf, sizeof (buf)));
     fclose(f);
@@ -265,6 +268,8 @@ fail:
     if (f)
         fclose(f);
 
+    umask(u);
+    
     return -1;
 }
 
@@ -767,7 +772,6 @@ int is_ll_address(uint32_t addr) {
         ((ntohl(addr) & 0x0000FF00) != 0xFF00);
 }
 
-
 static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
     assert(tv);
 
@@ -1028,7 +1032,7 @@ static int drop_privs(void) {
         
         daemon_log(LOG_INFO, "Successfully dropped root privileges.");
     }
-    
+
     return 0;
 }
 

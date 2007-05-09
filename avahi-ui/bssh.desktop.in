@@ -7,6 +7,6 @@ Exec=@bindir@/bssh
 Terminal=false
 Type=Application
 Icon=network-wired
-Categories=GNOME;Application;System;Utility;
+Categories=GNOME;Application;Network;
 StartupNotify=false
 GenericName=

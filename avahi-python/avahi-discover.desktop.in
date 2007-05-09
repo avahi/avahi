@@ -7,6 +7,6 @@ Exec=@bindir@/avahi-discover
 Terminal=false
 Type=Application
 Icon=network-wired
-Categories=GNOME;Application;Utility;
+Categories=GNOME;Application;System;
 StartupNotify=false
 GenericName=

@@ -164,8 +164,8 @@ static void help(FILE *f, const char *argv0) {
             "    -v --verbose         Enable verbose mode\n"
             "    -6                   Lookup IPv6 address\n"
             "    -4                   Lookup IPv4 address\n",
-            argv0, strstr(argv0, "address") ? "[-a]" : "-a",
-            argv0, strstr(argv0, "host-name") ? "[-n]" : "-n");
+            argv0, strstr(argv0, "host-name") ? "[-n]" : "-n",
+            argv0, strstr(argv0, "address") ? "[-a]" : "-a");
 }
 
 static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {

@@ -2,10 +2,10 @@
 #
 # avahi-daemon:       Starts the Avahi dns configuration daemon
 #
-# chkconfig: - 34 98 02
-# description: avahi-dnsconfd connects to a running avahi-daemon and runs  the  script
-#       /etc/avahi/dnsconf.action for each unicast DNS server that is announced
-#       on the local LAN. This is useful for configuring unicast DNS servers in
+# chkconfig: - 98 02
+# description: avahi-dnsconfd connects to a running avahi-daemon and runs  the  script \
+#       /etc/avahi/dnsconf.action for each unicast DNS server that is announced \
+#       on the local LAN. This is useful for configuring unicast DNS servers in \
 #       a DHCP-like fashion with mDNS.
 # processname: avahi-dnsconfd
 # config: 
@@ -23,7 +23,7 @@ OTHER_AVAHI_OPTS=""
 AVAHI_BIN=@sbindir@/avahi-dnsconfd
 test -x $AVAHI_BIN || exit 5
 
-LOCKFILE=/var/lock/subsys/avahi-daemon
+LOCKFILE=/var/lock/subsys/avahi-dnsconfd
 
 start() {
 	echo -n $"Starting Avahi DNS daemon... "
@@ -40,7 +40,7 @@ start() {
 }
 
 stop() {
-        echo -n "Shutting down Avahi DNS daemon: "
+        echo -n $"Shutting down Avahi DNS daemon: "
         $AVAHI_BIN -k
 	RETVAL=$?
 	[ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
@@ -50,7 +50,7 @@ stop() {
 }
 
 reload() {
-        echo -n "Reloading Avahi DNS daemon... "
+        echo -n $"Reloading Avahi DNS daemon... "
         $AVAHI_BIN -r
 	RETVAL=$?
 	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
@@ -77,7 +77,7 @@ case "$1" in
   status)
         $AVAHI_BIN -c
         RETVAL=$?
-        [ $RETVAL = 0 ] && echo "Avahi DNS daemon is running" || echo "Avahi DNS daemon is not running"
+        [ $RETVAL = 0 ] && echo $"Avahi DNS daemon is running" || echo $"Avahi DNS daemon is not running"
 	;;
   restart)
 	restart

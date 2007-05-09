@@ -79,19 +79,31 @@ typedef struct AvahiAddress {
     } data;
 } AvahiAddress;
 
+/** @{ \name Comparison */
+
 /** Compare two addresses. Returns 0 when equal, a negative value when a < b, a positive value when a > b. */
 int avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b);
+
+/** @} */
+
+/** @{ \name String conversion */
 
 /** Convert the specified address *a to a human readable character string, use AVAHI_ADDRESS_STR_MAX to allocate an array of the right size */
 char *avahi_address_snprint(char *ret_s, size_t length, const AvahiAddress *a);
 
-/** Convert the specifeid human readable character string to an
+/** Convert the specified human readable character string to an
  * address structure. Set af to AVAHI_UNSPEC for automatic address
  * family detection. */
 AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol af, AvahiAddress *ret_addr);
 
+/** @} */
+
+/** \cond fulldocs */
 /** Generate the DNS reverse lookup name for an IPv4 or IPv6 address. */
 char* avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length);
+/** \endcond */
+
+/** @{ \name Protocol/address family handling */
 
 /** Map AVAHI_PROTO_xxx constants to Unix AF_xxx constants */
 int avahi_proto_to_af(AvahiProtocol proto);
@@ -101,6 +113,8 @@ AvahiProtocol avahi_af_to_proto(int af);
 
 /** Return a textual representation of the specified protocol number. i.e. "IPv4", "IPv6" or "UNSPEC" */
 const char* avahi_proto_to_string(AvahiProtocol proto);
+
+/** @} */
 
 AVAHI_C_DECL_END
 

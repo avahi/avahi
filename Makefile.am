@@ -76,16 +76,15 @@ SUBDIRS = \
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/address.h \
+	$(srcdir)/avahi-common/malloc.h \
 	$(srcdir)/avahi-common/strlst.h \
 	$(srcdir)/avahi-common/alternative.h \
 	$(srcdir)/avahi-common/defs.h \
 	$(srcdir)/avahi-common/error.h \
-	$(srcdir)/avahi-common/malloc.h \
 	$(srcdir)/avahi-common/domain.h \
 	$(srcdir)/avahi-common/watch.h \
 	$(srcdir)/avahi-common/simple-watch.h \
-	$(srcdir)/avahi-common/thread-watch.h \
-	$(srcdir)/avahi-common/timeval.h
+	$(srcdir)/avahi-common/thread-watch.h
 
 DX_EXAMPLE_PATH = $(srcdir)/examples
 DX_EXAMPLE_PATTERNS = *.c

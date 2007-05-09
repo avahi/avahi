@@ -66,6 +66,8 @@ GType aui_service_dialog_get_type(void) G_GNUC_CONST;
 /** The GTK service dialog structure */
 typedef struct _AuiServiceDialog AuiServiceDialog;
 
+/** @{ \name Construction */
+
 /** Create a new service browser dialog with the specific title,
  * parent window and the speicified buttons. The buttons are specified
  * in a similar way to GtkFileChooserDialog. Please note that at least
@@ -75,13 +77,17 @@ GtkWidget* aui_service_dialog_new(
         GtkWindow *parent,
         const gchar *first_button_text, ...) G_GNUC_NULL_TERMINATED;
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+/** \cond fulldocs */
 GtkWidget *aui_service_dialog_new_valist(
         gchar *title,
         GtkWindow *parent,
         const gchar *first_button_text,
         va_list varargs);
-#endif
+/** \endcond }
+
+/** @} */
+
+/** @{ \name Service types to browse for */
 
 /** Select the service types to browse for. Takes a NULL terminated list of DNS-SD service types. i.e. _http._tcp */
 void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const gchar *type, ...) G_GNUC_NULL_TERMINATED;
@@ -90,10 +96,18 @@ void aui_service_dialog_set_browse_service_typesv(AuiServiceDialog *d, const gch
 /** Return the service types currently browsed for. i.e. what was previously set with aui_service_dialog_set_browse_service_types() */
 const gchar*const* aui_service_dialog_get_browse_service_types(AuiServiceDialog *d);
 
+/** @} */
+
+/** @{ \name Domain to browse in */
+
 /** Set the domain to browse in */
 void aui_service_dialog_set_domain(AuiServiceDialog *d, const gchar *domain);
 /** Query the domain that is browsed in */
 const gchar* aui_service_dialog_get_domain(AuiServiceDialog *d);
+
+/** @} */
+
+/** @{ \name Selected service item */
 
 /** Set the service type for the service to select */
 void aui_service_dialog_set_service_type(AuiServiceDialog *d, const gchar *name);
@@ -107,6 +121,10 @@ void aui_service_dialog_set_service_name(AuiServiceDialog *d, const gchar *name)
 /** Query the service name of the currently select service */
 const gchar* aui_service_dialog_get_service_name(AuiServiceDialog *d);
 
+/** @} */
+
+/** @{ \name Resolved service information */
+
 /** Return the IP address of the selected service. (Only valid if host name resolving has not been disabled via aui_service_dialog_set_resolve_host_name()) */
 const AvahiAddress* aui_service_dialog_get_address(AuiServiceDialog *d);
 
@@ -118,6 +136,10 @@ const gchar* aui_service_dialog_get_host_name(AuiServiceDialog *d);
 
 /** Return the TXT metadata of the selected service */
 const AvahiStringList *aui_service_dialog_get_txt_data(AuiServiceDialog *d);
+
+/** @} */
+
+/** @{ \name Resolving settings */
 
 /** Disable/Enable automatic service resolving. Disabling this feature
  * will require you to resolve the selected service on our own. I.e. the port
@@ -141,6 +163,10 @@ void aui_service_dialog_set_resolve_host_name(AuiServiceDialog *d, gboolean reso
 /** Query the last status of aui_service_dialog_set_resolve_host_name() */
 gboolean aui_service_dialog_get_resolve_host_name(AuiServiceDialog *d);
 
+/** @} */
+
+/** @{ \name Address family */
+
 /** Select the address family to look for services of. This can be
 used to look only for IPv6 services or only for IPv4 services. By
 default avahi-ui will browse for both IPv4 and IPv6 services.*/
@@ -148,6 +174,8 @@ void aui_service_dialog_set_address_family(AuiServiceDialog *d, AvahiProtocol pr
 
 /** Query the address family we're looking for. */
 AvahiProtocol aui_service_dialog_get_address_family(AuiServiceDialog *d);
+
+/** @} */
 
 G_END_DECLS
 

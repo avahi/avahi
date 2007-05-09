@@ -58,6 +58,8 @@ typedef void (*AvahiClientCallback) (
     AvahiClientState state /**< The new state of the client */,
     void* userdata /**< The user data that was passed to avahi_client_new() */);
 
+/** @{ \name Construction and destruction */
+
 /** Creates a new client instance */
 AvahiClient* avahi_client_new (
     const AvahiPoll *poll_api /**< The abstract event loop API to use */,
@@ -70,6 +72,10 @@ AvahiClient* avahi_client_new (
  * associated browser, resolve and entry group objects. All pointers
  * to such objects become invalid! */
 void avahi_client_free(AvahiClient *client);
+
+/** @} */
+
+/** @{ \name Properties */
 
 /** Get the version of the server */
 const char* avahi_client_get_version_string (AvahiClient*);
@@ -89,14 +95,24 @@ const char* avahi_client_get_host_name_fqdn (AvahiClient*);
 /** Get state */
 AvahiClientState avahi_client_get_state(AvahiClient *client); 
 
-/** Get the last error number */
+/** @{ \name Error Handling */
+
+/** Get the last error number. See avahi_strerror() for converting this error code into a human readable string. */
 int avahi_client_errno (AvahiClient*);
 
+/** @} */
+
+/** \cond fulldocs */
 /** Return the local service cookie. returns AVAHI_SERVICE_COOKIE_INVALID on failure. */
 uint32_t avahi_client_get_local_service_cookie(AvahiClient *client);
+/** \endcond */
+
+/** @{ \name Libc NSS Support */
 
 /** Return 1 if gethostbyname() supports mDNS lookups, 0 otherwise. \since 0.6.5 */
 int avahi_nss_support(void);
+
+/** @} */
 
 AVAHI_C_DECL_END
 

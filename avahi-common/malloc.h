@@ -88,8 +88,10 @@ void avahi_set_allocator(const AvahiAllocator *a);
 /** Like sprintf() but store the result in a freshly allocated buffer. Free this with avahi_free() */
 char *avahi_strdup_printf(const char *fmt, ... ) AVAHI_GCC_PRINTF_ATTR12;
 
+/** \cond fulldocs */
 /** Same as avahi_strdup_printf() but take a va_list instead of varargs */
 char *avahi_strdup_vprintf(const char *fmt, va_list ap);
+/** \endcond */
 
 AVAHI_C_DECL_END
 

@@ -50,6 +50,8 @@ typedef void (*AvahiEntryGroupCallback) (
     AvahiEntryGroupState state /**< The new state of the entry group */,
     void* userdata /* The arbitrary user data pointer originally passed to avahi_entry_group_new()*/);
 
+/** @{ \name Construction and destruction */
+
 /** Create a new AvahiEntryGroup object */
 AvahiEntryGroup* avahi_entry_group_new(
     AvahiClient* c,
@@ -58,6 +60,10 @@ AvahiEntryGroup* avahi_entry_group_new(
 
 /** Clean up and free an AvahiEntryGroup object */
 int avahi_entry_group_free (AvahiEntryGroup *);
+
+/** @} */
+
+/** @{ \name State */
 
 /** Commit an AvahiEntryGroup. The entries in the entry group are now registered on the network. Commiting empty entry groups is considered an error. */
 int avahi_entry_group_commit (AvahiEntryGroup*);
@@ -73,6 +79,10 @@ int avahi_entry_group_is_empty (AvahiEntryGroup*);
 
 /** Get an AvahiEntryGroup's owning client instance */
 AvahiClient* avahi_entry_group_get_client (AvahiEntryGroup*);
+
+/** @} */
+
+/** @{ \name Adding and updating entries */
 
 /** Add a service. Takes a variable NULL terminated list of TXT record strings as last arguments. Please note that this service is not announced on the network before avahi_entry_group_commit() is called. */
 int avahi_entry_group_add_service(
@@ -133,6 +143,7 @@ int avahi_entry_group_update_service_txt_strlst(
     const char *domain,   
     AvahiStringList *strlst);
 
+/** \cond fulldocs */
 /** Add a host/address pair */
 int avahi_entry_group_add_address(
     AvahiEntryGroup *group,
@@ -141,6 +152,7 @@ int avahi_entry_group_add_address(
     AvahiPublishFlags flags,
     const char *name /**< The FDQN of the new hostname to register */,
     const AvahiAddress *a /**< The address this host name shall map to */);
+/** \endcond */
 
 /** Add an arbitrary record. I hope you know what you do. */
 int avahi_entry_group_add_record(
@@ -154,6 +166,8 @@ int avahi_entry_group_add_record(
     uint32_t ttl,
     const void *rdata,
     size_t size);
+
+/** @} */
 
 AVAHI_C_DECL_END
 

@@ -31,7 +31,7 @@
  * \section choose_api Choosing an API
  *
  * Avahi provides three programming APIs for integration of
- * mDNS/DNS-SD features into your progams:
+ * mDNS/DNS-SD features into your C progams:
  *
  * \li <b>avahi-core</b>: an API for embedding a complete mDNS/DNS-SD stack
  * into your software. This is intended for developers of embedded
@@ -51,16 +51,41 @@
  * In addition to the three APIs described above Avahi supports two
  * compatibility libraries:
  *
- * \li avahi-compat-libdns_sd: the original Bonjour API as documented
+ * \li <b>avahi-compat-libdns_sd</b>: the original Bonjour API as documented
  * in the header file "dns_sd.h" by Apple Computer, Inc.
  *
- * \li avahi-compat-howl: the HOWL API as released with HOWL 0.9.8 by
+ * \li <b>avahi-compat-howl</b>: the HOWL API as released with HOWL 0.9.8 by
  * Porchdog Software.
  *
  * Please note that these compatibility layers are incomplete and
  * generally a waste of resources. We strongly encourage everyone to
  * use our native APIs for newly written programs and to port older
  * programs to avahi-client!
+ *
+ * The native APIs (avahi-client and avahi-core) can be integrated
+ * into external event loops. We provide adapters for the following
+ * event loop implementations:
+ *
+ * \li <b>avahi-glib</b>: The GLIB main loop as used by GTk+/GNOME
+ *
+ * \li <b>avahi-qt</b>: The Qt main loop as used by Qt/KDE
+ *
+ * Finally, we provide a high-level Gtk+ GUI dialog called
+ * <b>avahi-ui</b> for user-friendly browsing for services.
+ *
+ * The doxygen-generated API documentation covers avahi-client
+ * (including its auxiliary APIs), the event loop adapters and
+ * avahi-ui. For the other APIs please consult the original
+ * documentation (for the compatibility APIs) or the header files.
+ *
+ * Please note that the doxygen-generated API documentation of the
+ * native Avahi API is not complete. A few definitions that are part
+ * of the Avahi API have been removed from this documentation, either
+ * because they are only relevant in a very few low-level applications
+ * or because they are considered obsolete. Please consult the C header
+ * files for all definitions that are part of the Avahi API. Please
+ * note that these hidden definitions are considered part of the Avahi
+ * API and will stay available in the API in the future.
  * 
  * \section error_reporting Error Reporting
  *
@@ -99,8 +124,8 @@
  * whenever the server state changes.
  * - Only register your services when the server is in state
  * AVAHI_SERVER_RUNNING. If you register your services in other server
- * states they might not be accessible since the local host name is
- * not established.
+ * states they might not be accessible since the local host name might not necessarily
+ * be established.
  * - Remove your services when the server enters
  * AVAHI_SERVER_COLLISION or AVAHI_SERVER_REGISTERING state. Your
  * services may no be reachable anymore since the local host name is
@@ -108,7 +133,7 @@
  * established.
  * - When registering services, use the following algorithm:
  *   - Create a new entry group (i.e. avahi_entry_group_new())
- *   - Add your service(s)/additional host names (i.e. avahi_entry_group_add_service())
+ *   - Add your service(s)/additional RRs/subtypes (e.g. avahi_entry_group_add_service())
  *   - Commit the entry group (i.e. avahi_entry_group_commit())
  * - Subscribe to entry group state changes.
  * - If the entry group enters AVAHI_ENTRY_GROUP_COLLISION state the
@@ -133,17 +158,11 @@
  *
  * - For normal applications you need to call avahi_service_browser_new()
  * for the service type you want to browse for. Use
- * avahi_client_resolve_service() to acquire service data for a a service
+ * avahi_service_resolver_new() to acquire service data for a service
  * name.
  * - You can use avahi_domain_browser_new() to get a list of announced
  * browsing domains. Please note that not all domains whith services
  * on the LAN are mandatorily announced.
- * - Network monitor software may use avahi_service_type_browser_new()
- * to browse for the list of available service types on the LAN. This
- * API should NOT be used in normal software since it increases
- * traffic immensly. In addition not all DNS-SD implementations
- * announce their services in away that they can be found with
- * avahi_server_type_browser_new().
  * - There is no need to subscribe to server state changes.
  *
  * \section daemon_dies How to Write a Client That Can Deal with Daemon Restarts
@@ -194,6 +213,17 @@
 
 AVAHI_C_DECL_BEGIN
 
+/** @{ \name States */
+
+/** States of a server object */
+typedef enum {
+    AVAHI_SERVER_INVALID,          /**< Invalid state (initial) */ 
+    AVAHI_SERVER_REGISTERING,      /**< Host RRs are being registered */
+    AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
+    AVAHI_SERVER_COLLISION,        /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
+    AVAHI_SERVER_FAILURE           /**< Some fatal failure happened, the server is unable to proceed */
+} AvahiServerState;
+
 /** States of an entry group object */
 typedef enum {
     AVAHI_ENTRY_GROUP_UNCOMMITED,    /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
@@ -203,15 +233,9 @@ typedef enum {
     AVAHI_ENTRY_GROUP_FAILURE        /**< Some kind of failure happened, the entries have been withdrawn */
 } AvahiEntryGroupState;
 
-/** The type of domain to browse for */
-typedef enum {
-    AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
-    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT,    /**< Browse for the default browsing domain */
-    AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
-    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
-    AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY,     /**< Legacy browse domain - see DNS-SD spec for more information */
-    AVAHI_DOMAIN_BROWSER_MAX
-} AvahiDomainBrowserType;
+/** @} */
+
+/** @{ \name Flags */
 
 /** Some flags for publishing functions */
 typedef enum {
@@ -219,17 +243,23 @@ typedef enum {
     AVAHI_PUBLISH_NO_PROBE = 2,         /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
     AVAHI_PUBLISH_NO_ANNOUNCE = 4,      /**< For raw records: Do not announce this RR to other hosts */
     AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,   /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
+/** \cond fulldocs */
     AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
     AVAHI_PUBLISH_NO_COOKIE = 32,       /**< For service records: do not implicitly add the local service cookie to TXT data */
+/** \endcond */
     AVAHI_PUBLISH_UPDATE = 64,          /**< Update existing records instead of adding new ones */
+/** \cond fulldocs */
     AVAHI_PUBLISH_USE_WIDE_AREA = 128,  /**< Register the record using wide area DNS (i.e. unicast DNS update) */
     AVAHI_PUBLISH_USE_MULTICAST = 256   /**< Register the record using multicast DNS */
+/** \endcond */
 } AvahiPublishFlags;
 
 /** Some flags for lookup functions */
 typedef enum {
+/** \cond fulldocs */
     AVAHI_LOOKUP_USE_WIDE_AREA = 1,    /**< Force lookup via wide area DNS */
     AVAHI_LOOKUP_USE_MULTICAST = 2,    /**< Force lookup via multicast DNS */
+/** \endcond */
     AVAHI_LOOKUP_NO_TXT = 4,           /**< When doing service resolving, don't lookup TXT record */
     AVAHI_LOOKUP_NO_ADDRESS = 8        /**< When doing service resolving, don't lookup A/AAAA record */
 } AvahiLookupFlags;
@@ -243,6 +273,10 @@ typedef enum {
     AVAHI_LOOKUP_RESULT_OUR_OWN = 16,       /**< This service belongs to the same local client as the browser object. Only available in avahi-client, and only for service browsers and only on AVAHI_BROWSER_NEW. */
     AVAHI_LOOKUP_RESULT_STATIC = 32         /**< The returned data has been defined statically by some configuration option */
 } AvahiLookupResultFlags;
+
+/** @} */
+
+/** @{ \name Events */
 
 /** Type of callback event when browsing */
 typedef enum {
@@ -259,15 +293,23 @@ typedef enum {
     AVAHI_RESOLVER_FAILURE         /**< Resolving failed due to some reason which can be retrieved using avahi_server_errno()/avahi_client_errno() */
 } AvahiResolverEvent;
 
-/** States of a server object */
-typedef enum {
-    AVAHI_SERVER_INVALID,          /**< Invalid state (initial) */ 
-    AVAHI_SERVER_REGISTERING,      /**< Host RRs are being registered */
-    AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
-    AVAHI_SERVER_COLLISION,        /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */
-    AVAHI_SERVER_FAILURE           /**< Some fatal failure happened, the server is unable to proceed */
-} AvahiServerState;
+/** @} */
 
+/** @{ \name Other definitions */
+
+/** The type of domain to browse for */
+typedef enum {
+    AVAHI_DOMAIN_BROWSER_BROWSE,            /**< Browse for a list of available browsing domains */
+    AVAHI_DOMAIN_BROWSER_BROWSE_DEFAULT,    /**< Browse for the default browsing domain */
+    AVAHI_DOMAIN_BROWSER_REGISTER,          /**< Browse for a list of available registering domains */
+    AVAHI_DOMAIN_BROWSER_REGISTER_DEFAULT,  /**< Browse for the default registering domain */
+    AVAHI_DOMAIN_BROWSER_BROWSE_LEGACY,     /**< Legacy browse domain - see DNS-SD spec for more information */
+    AVAHI_DOMAIN_BROWSER_MAX
+} AvahiDomainBrowserType;
+
+/** @} */
+
+/** \cond fulldocs */
 /** For every service a special TXT item is implicitly added, which
  * contains a random cookie which is private to the local daemon. This
  * can be used by clients to determine if two services on two
@@ -276,6 +318,9 @@ typedef enum {
 
 /** In invalid cookie as special value */
 #define AVAHI_SERVICE_COOKIE_INVALID (0)
+/** \endcond fulldocs */
+
+/** @{ \name DNS RR definitions */
 
 /** DNS record types, see RFC 1035 */
 enum {
@@ -295,6 +340,8 @@ enum {
 enum {
     AVAHI_DNS_CLASS_IN = 0x01,          /**< Probably the only class we will ever use */
 };
+
+/** @} */
 
 /** The default TTL for RRs which contain a host name of some kind. */
 #define AVAHI_DEFAULT_TTL_HOST_NAME (120)

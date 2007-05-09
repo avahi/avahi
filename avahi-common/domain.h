@@ -45,6 +45,8 @@ AVAHI_C_DECL_BEGIN
 /** Maximum size of an unescaped label */
 #define AVAHI_LABEL_MAX 64
 
+/** @{ \name Normalization */
+
 /** Normalize a domain name into canonical form. This drops trailing
  * dots and removes useless backslash escapes. */
 char *avahi_normalize_name(const char *s, char *ret_s, size_t size);
@@ -54,8 +56,19 @@ char *avahi_normalize_name(const char *s, char *ret_s, size_t size);
  * result! */
 char *avahi_normalize_name_strdup(const char *s);
 
+/** @} */
+
+/** @{ \name Comparison */
+
 /** Return 1 when the specified domain names are equal, 0 otherwise */
 int avahi_domain_equal(const char *a, const char *b);
+
+/** Return some kind of hash value for the domain, useful for using domains as hash table keys. */
+unsigned avahi_domain_hash(const char *name);
+
+/** @} */
+
+/** @{ \name Escaping */
 
 /** Read the first label from the textual domain name *name, unescape
  * it and write it to dest, *name is changed to point to the next label*/
@@ -64,26 +77,28 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size);
 /** Escape the domain name in *src and write it to *ret_name */
 char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, size_t *ret_size);
 
-/** Return a pointer to the type section of a subtype i.e. _foo._sub._bar._tcp => _bar._tcp */
-const char *avahi_get_type_from_subtype(const char *t);
+/** @} */
 
-/** Return 1 when the specified string contains a valid generic
+/** @{ \name Validity Checks */
+
+/** Return 1 when the specified string contains a valid generic DNS-SD
  * service type (i.e. a series of words starting with "_"), 0
  * otherwise */
 int avahi_is_valid_service_type_generic(const char *t);
 
-/** Return 1 when the specified string contains a valid strict service
- * type (i.e. consisting of only two words, the latter being either
- * _udp or _tcp), 0 otherwise */
+/** Return 1 when the specified string contains a valid strict DNS-SD
+ * service type (i.e. consisting of only two words, the latter being
+ * either _udp or _tcp), 0 otherwise */
 int avahi_is_valid_service_type_strict(const char *t);
 
-/** Return 1 when the specified string contains a valid service subtype, 0 otherwise */
+/** Return 1 when the specified string contains a valid DNS-SD service
+ * subtype, 0 otherwise */
 int avahi_is_valid_service_subtype(const char *t);
 
 /** Return 1 when the specified string contains a valid domain name, 0 otherwise */
 int avahi_is_valid_domain_name(const char *t);
 
-/** Return 1 when the specified string contains a valid service name, 0 otherwise */
+/** Return 1 when the specified string contains a valid DNS-SD service name, 0 otherwise */
 int avahi_is_valid_service_name(const char *t);
 
 /** Return 1 when the specified string contains a valid non-FQDN host name (i.e. without dots), 0 otherwise */
@@ -92,14 +107,24 @@ int avahi_is_valid_host_name(const char *t);
 /** Return 1 when the specified string contains a valid FQDN host name (i.e. with more than one label and non-numerical), 0 otherwise. \since 0.6.9 */
 int avahi_is_valid_fqdn(const char *t);
 
-/** Return some kind of hash value for the domain, useful for using domains as hash table keys. */
-unsigned avahi_domain_hash(const char *name);
+/** @} */
 
-/** Construct a valid complete service name from a name, a type and a domain */
+/** @{ \name DNS-SD service name handling */
+
+/** Construct a valid complete DNS-SD service name from a name, a type and a domain */
 int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain);
 
 /** Split a full service name into name, type and domain */
 int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain, size_t domain_size);
+
+/** @} */
+
+/** @{ \name DNS-SD Subtype handling */
+
+/** Return a pointer to the type section of a subtype i.e. _foo._sub._bar._tcp => _bar._tcp */
+const char *avahi_get_type_from_subtype(const char *t);
+
+/** @} */
 
 AVAHI_C_DECL_END
 

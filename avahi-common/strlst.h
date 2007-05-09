@@ -45,13 +45,17 @@ typedef struct AvahiStringList {
     uint8_t text[1]; /**< Character data */
 } AvahiStringList;
 
+/** @{ \name Construction and destruction */
+
 /** Create a new string list by taking a variable list of NUL
  * terminated strings. The strings are copied using g_strdup(). The
  * argument list must be terminated by a NULL pointer. */
 AvahiStringList *avahi_string_list_new(const char *txt, ...) AVAHI_GCC_SENTINEL;
 
+/** \cond fulldocs */
 /** Same as avahi_string_list_new() but pass a va_list structure */
 AvahiStringList *avahi_string_list_new_va(va_list va);
+/** \endcond */
 
 /** Create a new string list from a string array. The strings are
  * copied using g_strdup(). length should contain the length of the
@@ -61,6 +65,10 @@ AvahiStringList *avahi_string_list_new_from_array(const char **array, int length
 /** Free a string list */
 void avahi_string_list_free(AvahiStringList *l);
 
+/** @} */
+
+/** @{ \name Adding strings */
+
 /** Append a NUL terminated string to the specified string list. The
  * passed string is copied using g_strdup(). Returns the new list
  * start. */
@@ -69,8 +77,10 @@ AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text);
 /** Append a new NUL terminated formatted string to the specified string list */
 AvahiStringList *avahi_string_list_add_printf(AvahiStringList *l, const char *format, ...) AVAHI_GCC_PRINTF_ATTR23;
 
+/** \cond fulldocs */
 /** Append a new NUL terminated formatted string to the specified string list */
 AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *format, va_list va);
+/** \endcond */
 
 /** Append an arbitrary length byte string to the list. Returns the
  * new list start. */
@@ -88,21 +98,29 @@ AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size)
  * NULL pointer. Returns the new list start. */
 AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) AVAHI_GCC_SENTINEL;
 
+/** \cond fulldocs */
 /** Same as avahi_string_list_add_many(), but use a va_list
  * structure. Returns the new list start. */
 AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
+/** \endcond */
+
+/** @} */
+
+/** @{ \name String list operations */
 
 /** Convert the string list object to a single character string,
  * seperated by spaces and enclosed in "". avahi_free() the result! This
  * function doesn't work well with string that contain NUL bytes. */
 char* avahi_string_list_to_string(AvahiStringList *l);
 
+/** \cond fulldocs */
 /** Serialize the string list object in a way that is compatible with
  * the storing of DNS TXT records. Strings longer than 255 bytes are truncated. */
 size_t avahi_string_list_serialize(AvahiStringList *l, void * data, size_t size);
 
 /** Inverse of avahi_string_list_serialize() */
 int avahi_string_list_parse(const void *data, size_t size, AvahiStringList **ret);
+/** \endcond */
 
 /** Compare to string lists */
 int avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b);
@@ -115,6 +133,23 @@ AvahiStringList* avahi_string_list_reverse(AvahiStringList *l);
 
 /** Return the number of elements in the string list */
 unsigned avahi_string_list_length(const AvahiStringList *l);
+
+/** @} */
+
+/** @{ \name Accessing items */
+
+/** Returns the next item in the string list */
+AvahiStringList *avahi_string_list_get_next(AvahiStringList *l);
+
+/** Returns the text for the current item */
+uint8_t *avahi_string_list_get_text(AvahiStringList *l);
+
+/** Returns the size of the current text */
+size_t avahi_string_list_get_size(AvahiStringList *l);
+
+/** @} */
+
+/** @{ \name DNS-SD TXT pair handling */
 
 /** Find the string list entry for the given DNS-SD TXT key */
 AvahiStringList *avahi_string_list_find(AvahiStringList *l, const char *key);
@@ -133,18 +168,13 @@ AvahiStringList *avahi_string_list_add_pair(AvahiStringList *l, const char *key,
 /** Same as avahi_string_list_add_pair() but allow strings containing NUL bytes in *value. */
 AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const char *key, const uint8_t *value, size_t size);
 
-/** Returns the next item in the string list */
-AvahiStringList *avahi_string_list_get_next(AvahiStringList *l);
+/** @} */
 
-/** Returns the text for the current item */
-uint8_t *avahi_string_list_get_text(AvahiStringList *l);
-
-/** Returns the size of the current text */
-size_t avahi_string_list_get_size(AvahiStringList *l);
-
+/** \cond fulldocs */
 /** Try to find a magic service cookie in the specified DNS-SD string
  * list. Or return AVAHI_SERVICE_COOKIE_INVALID if none is found. */
 uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l);
+/** \endcond */
 
 AVAHI_C_DECL_END
 

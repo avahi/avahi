@@ -7,6 +7,7 @@ This is a bugfix release, but also adds a new component "avahi-ui-sharp".
    free software tool, on request of the Debian developers. I hope
    this name change early in the life of bssh/bvnc won't be too
    difficult to handle by the distributors. 
+ * Add man page for bssh/bvnc
  * avahi-ui: fix segfault when browsing in empty domains
  * avahi-ui: allow GTK_RESPONSE_OK, _YES and _APPLY besides _ACCEPT as
    positive dialog response codes

@@ -40,7 +40,7 @@ $(ASSEMBLY).config: $(ASSEMBLY).config.in
 	$(srcdir)/gencfg.sh $(top_builddir)/avahi-common/libavahi-common.la < $< > $@
 
 zssh.exe: $(srcdir)/zssh.cs
-	mcs -out:$@ $^ -r:./avahi-ui-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
+	mcs -out:$@ $^ -r:./avahi-ui-sharp.dll -r:../avahi-sharp/avahi-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
 
 if HAVE_MONO
 if HAVE_DBUS

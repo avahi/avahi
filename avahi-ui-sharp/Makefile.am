@@ -19,7 +19,7 @@
 
 ASSEMBLY = avahi-ui-sharp.dll
 
-CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb $(ASSEMBLY).config zssh.exe
+CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb $(ASSEMBLY).config bssh.exe
 
 AVAHISOURCES = 				\
 	$(srcdir)/ServiceDialog.cs
@@ -31,7 +31,7 @@ EXTRA_DIST =					\
 	$(srcdir)/en/*/*.xml			\
 	$(srcdir)/gencfg.sh                     \
 	$(srcdir)/$(ASSEMBLY).config.in         \
-	$(srcdir)/zssh.cs
+	$(srcdir)/bssh.cs
 
 $(ASSEMBLY): $(AVAHISOURCES)
 	mcs -keyfile:$(top_srcdir)/avahi-sharp/avahi.snk -target:library -out:$@ -debug $(AVAHISOURCES) -pkg:gtk-sharp-2.0 -r:$(top_builddir)/avahi-sharp/avahi-sharp.dll -r:Mono.Posix
@@ -39,12 +39,12 @@ $(ASSEMBLY): $(AVAHISOURCES)
 $(ASSEMBLY).config: $(ASSEMBLY).config.in
 	$(srcdir)/gencfg.sh $(top_builddir)/avahi-common/libavahi-common.la < $< > $@
 
-zssh.exe: $(srcdir)/zssh.cs $(ASSEMBLY)
-	mcs -out:$@ $(srcdir)/zssh.cs -r:./avahi-ui-sharp.dll -r:../avahi-sharp/avahi-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
+bssh.exe: $(srcdir)/bssh.cs $(ASSEMBLY)
+	mcs -out:$@ $(srcdir)/bssh.cs -r:./avahi-ui-sharp.dll -r:../avahi-sharp/avahi-sharp.dll -pkg:gtk-sharp-2.0 -r:Mono.Posix
 
 if HAVE_MONO
 if HAVE_DBUS
-all: $(ASSEMBLY) $(ASSEMBLY).config zssh.exe
+all: $(ASSEMBLY) $(ASSEMBLY).config bssh.exe
 
 if HAVE_MONODOC
 update-docs: $(ASSEMBLY)

@@ -42,6 +42,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Sat May 12 2007: </div>
+
+<p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.10.tar.gz">Version 0.10</a>
+released. Changes include: Ported to FreeBSD; alignment fixes for SPARC.</p>
+
 <div class="news-date">Mon Jan 1 2007: </div>
 
 <p class="news-text"><a
@@ -278,7 +284,7 @@ compilation and <tt>make install</tt> (as root) for installation of
 
 <h2><a name="acks">Acknowledgements</a></h2>
 
-<p>SHIROYAMA Takayuki, Anand Kumria and Bastien Nocera for patches.</p>
+<p>SHIROYAMA Takayuki, Anand Kumria and Bastien Nocera, Sjoerd Simons for patches.</p>
 
 <p>Sean Meiners for search list support.</p>
 
@@ -301,7 +307,7 @@ compilation and <tt>make install</tt> (as root) for installation of
 <p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
 
 <hr/>
-<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, January 2007</address>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, May 2007</address>
 <div class="grey"><i>$Id$</i></div>
 
 </body>

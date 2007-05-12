@@ -67,6 +67,11 @@
 /* The resolv.conf page states that they only support 6 domains */
 #define MAX_SEARCH_DOMAINS 6
 
+#define ALIGN(idx) do { \
+  if (idx % sizeof(void*)) \
+    idx += (sizeof(void*) - idx % sizeof(void*)); /* Align on 32 bit boundary */ \
+} while(0)
+
 struct userdata {
     int count;
     int data_len; /* only valid when doing reverse lookup */
@@ -299,7 +304,7 @@ enum nss_status _nss_mdns_gethostbyname2_r(
 
 #ifdef ENABLE_AVAHI
     int avahi_works = 1;
-    uint8_t data[128];
+    void * data[32];
 #endif
 
 #ifdef ENABLE_LEGACY
@@ -502,12 +507,11 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     strcpy(buffer+idx, name); 
     result->h_name = buffer+idx;
     idx += strlen(name)+1;
+
+    ALIGN(idx);
     
     result->h_addrtype = af;
     result->h_length = address_length;
-    
-    if (idx%sizeof(char*))
-        idx+=(sizeof(char*)-idx%sizeof(char*)); /* Align on 32 bit boundary */
     
     /* Check if there's enough space for the addresses */
     if (buflen < idx+u.data_len+sizeof(char*)*(u.count+1)) {
@@ -521,13 +525,14 @@ enum nss_status _nss_mdns_gethostbyname2_r(
     astart = idx;
     l = u.count*address_length;
     memcpy(buffer+astart, &u.data, l);
+    /* address_length is a multiple of 32bits, so idx is still aligned
+     * correctly */
     idx += l;
 
-    /* Address array */
+    /* Address array address_lenght is always a multiple of 32bits */
     for (i = 0; i < u.count; i++)
         ((char**) (buffer+idx))[i] = buffer+astart+address_length*i;
     ((char**) (buffer+idx))[i] = NULL;
-
     result->h_addr_list = (char**) (buffer+idx);
 
     status = NSS_STATUS_SUCCESS;
@@ -684,7 +689,7 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
         goto finish;
     }
 
-    /* Alias names */
+    /* Alias names, assuming buffer starts a nicely aligned offset */
     *((char**) buffer) = NULL;
     result->h_aliases = (char**) buffer;
     idx = sizeof(char*);
@@ -696,7 +701,8 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
         strlen(u.data.name[0])+1+ /* official names */
         sizeof(char*)+ /* alias names */
         address_length+  /* address */
-        sizeof(void*)*2) {  /* address list */
+        sizeof(void*)*2 + /* address list */
+        sizeof(void*)) {  /* padding to get the alignment right */
 
         *errnop = ERANGE;
         *h_errnop = NO_RECOVERY;
@@ -717,7 +723,10 @@ enum nss_status _nss_mdns_gethostbyaddr_r(
     memcpy(buffer+astart, addr, address_length);
     idx += address_length;
 
-    /* Address array */
+    /* Address array, idx might not be at pointer alignment anymore, so we need
+     * to ensure it is*/
+    ALIGN(idx);
+
     ((char**) (buffer+idx))[0] = buffer+astart;
     ((char**) (buffer+idx))[1] = NULL;
     result->h_addr_list = (char**) (buffer+idx);

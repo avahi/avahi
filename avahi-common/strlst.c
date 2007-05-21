@@ -51,7 +51,7 @@ AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size)
 AvahiStringList *avahi_string_list_add_arbitrary(AvahiStringList *l, const uint8_t*text, size_t size) {
     AvahiStringList *n;
 
-    assert(text);
+    assert(size == 0 || text);
 
     if (!(n = avahi_string_list_add_anonymous(l, size)))
         return NULL;

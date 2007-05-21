@@ -344,6 +344,9 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
         k = (const uint8_t*) "";
         n = 0;
         dbus_message_iter_get_fixed_array(&sub2, &k, &n);
+
+        if (!k)
+            k = (const uint8_t*) "";
             
         strlst = avahi_string_list_add_arbitrary(strlst, k, n);
         

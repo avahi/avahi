@@ -218,7 +218,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
         goto fail;
     }
 
-    /* After 20s do some weird modification to the service */
+    /* After 10s do some weird modification to the service */
     avahi_simple_poll_get(simple_poll)->timeout_new(
         avahi_simple_poll_get(simple_poll),
         avahi_elapse_time(&tv, 1000*10, 0),

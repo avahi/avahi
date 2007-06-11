@@ -190,7 +190,7 @@ char *stdb_getent(void) {
             key = gdbm_nextkey(gdbm_file, key);
 #endif
 #ifdef HAVE_DBM
-            key = dbm_nextkey(dbm_file, key);
+            key = dbm_nextkey(dbm_file);
 #endif
         }
 

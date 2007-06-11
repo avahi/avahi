@@ -338,6 +338,11 @@ AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 
+ # Solaris stuff 
+ AC_SEARCH_LIBS([inet_ntop],[nsl]) 
+ AC_SEARCH_LIBS([recv],[socket]) 
+ AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600 -D__EXTENSIONS__") 
+
 # Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES

@@ -136,6 +136,7 @@ static int no_chroot = 0;
 #endif
 static int no_drop_root = 0;
 static int wrote_pid_file = 0;
+static char *action_script = NULL;
 
 static enum {
     DAEMON_RUN,
@@ -840,7 +841,7 @@ static FILE* fork_dispatcher(void) {
             }
             
             if (daemon_exec("/", &k,
-                            AVAHI_IPCONF_SCRIPT, AVAHI_IPCONF_SCRIPT,
+                            action_script, action_script,
                             callout_event_table[info.event],
                             name,
                             inet_ntop(AF_INET, &info.address, buf, sizeof(buf)), NULL) < 0) {
@@ -1422,6 +1423,8 @@ static void help(FILE *f, const char *a0) {
             "    -V --version        Show version\n"
             "    -S --start=ADDRESS  Start with this address from the IPv4LL range\n"
             "                        169.254.0.0/16\n"
+            "    -t --script=script  Action script to run (defaults to\n"
+            "                        /etc/avahi/avahi-autoipd.action)\n"
             "    -w --wait           Wait until an address has been acquired before\n"
             "                        daemonizing\n"
             "       --force-bind     Assign an IPv4LL address even if a routable address\n"
@@ -1457,6 +1460,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { "check",         no_argument,       NULL, 'c' },
         { "version",       no_argument,       NULL, 'V' },
         { "start",         required_argument, NULL, 'S' },
+        { "script",        required_argument, NULL, 't' },
         { "wait",          no_argument,       NULL, 'w' },
         { "force-bind",    no_argument,       NULL, OPTION_FORCE_BIND },
         { "no-drop-root",  no_argument,       NULL, OPTION_NO_DROP_ROOT },
@@ -1468,7 +1472,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    while ((c = getopt_long(argc, argv, "hDskrcVS:w", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "hDskrcVS:t:w", long_options, NULL)) >= 0) {
 
         switch(c) {
             case 's':
@@ -1498,6 +1502,10 @@ static int parse_command_line(int argc, char *argv[]) {
                     fprintf(stderr, "Failed to parse IP address '%s'.", optarg);
                     return -1;
                 }
+                break;
+            case 't':
+                avahi_free(action_script);
+                action_script = avahi_strdup(optarg);
                 break;
             case 'w':
                 wait_for_address = 1;
@@ -1547,6 +1555,9 @@ static int parse_command_line(int argc, char *argv[]) {
         fprintf(stderr, "Too many arguments\n");
         return -1;
     }
+
+    if (!action_script)
+        action_script = avahi_strdup(AVAHI_IPCONF_SCRIPT);
         
     return 0;
 }
@@ -1678,6 +1689,7 @@ finish:
     avahi_free(pid_file_name);
     avahi_free(argv0);
     avahi_free(interface_name);
+    avahi_free(action_script);
 
     return r;
 }

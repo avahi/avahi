@@ -1,3 +1,21 @@
+Avahi 0.6.20
+============
+
+This is a bugfix release and contains a fix for a low risk security
+vulnerability.
+
+ * Fix a local DoS vulnerability, where an assert() could be hit by
+   passing empty TXT data over D-Bus to the Avahi daemon. (Low Risk)
+ * Solaris/dbm portability fixes
+ * Close all open file descriptors when daemonizing. Is generally
+   safer and fixes a few issues with broken init systems of several
+   distributions.
+ * avahi-autoipd: allow passing the path of the action script on the
+   command line.
+ * Several minor build fixes and other cleanups
+
+This release is backwards compatible with Avahi 0.6.x with x < 20.
+
 Avahi 0.6.19
 ============
 

@@ -44,6 +44,7 @@ bssh.exe: $(srcdir)/bssh.cs $(ASSEMBLY)
 
 if HAVE_MONO
 if HAVE_DBUS
+if HAVE_GTK
 all: $(ASSEMBLY) $(ASSEMBLY).config bssh.exe
 
 if HAVE_MONODOC
@@ -66,5 +67,6 @@ install-data-hook: $(ASSEMBLY)
 uninstall-hook: $(ASSEMBLY)
 	$(GACUTIL) /u avahi-ui-sharp /package avahi-ui-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
+endif
 endif
 endif

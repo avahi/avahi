@@ -153,6 +153,22 @@ void avahi_dns_packet_inc_field(AvahiDnsPacket *p, unsigned idx) {
     avahi_dns_packet_set_field(p, idx, avahi_dns_packet_get_field(p, idx) + 1);
 }   
 
+
+static void
+name_table_cleanup(void *key, void *value, void *user_data) {
+  AvahiDnsPacket *p = (AvahiDnsPacket *)user_data;
+
+  if ((uint8_t *)value >= AVAHI_DNS_PACKET_DATA(p) + p->size) {
+    avahi_hashmap_remove(p->name_table, key);
+  }
+}
+
+void
+avahi_dns_packet_cleanup_name_table(AvahiDnsPacket *p) {
+  if (p->name_table)
+    avahi_hashmap_foreach(p->name_table, name_table_cleanup, p);
+}
+
 uint8_t* avahi_dns_packet_append_name(AvahiDnsPacket *p, const char *name) {
     uint8_t *d, *saved_ptr = NULL;
     size_t saved_size;
@@ -216,6 +232,8 @@ uint8_t* avahi_dns_packet_append_name(AvahiDnsPacket *p, const char *name) {
 
 fail:
     p->size = saved_size;
+    avahi_dns_packet_cleanup_name_table(p);
+
     return NULL;
 }
 
@@ -685,6 +703,8 @@ uint8_t* avahi_dns_packet_append_key(AvahiDnsPacket *p, AvahiKey *k, int unicast
         !avahi_dns_packet_append_uint16(p, k->type) ||
         !avahi_dns_packet_append_uint16(p, k->clazz | (unicast_response ? AVAHI_DNS_UNICAST_RESPONSE : 0))) {
         p->size = size;
+        avahi_dns_packet_cleanup_name_table(p);
+
         return NULL;
     }
 
@@ -799,6 +819,8 @@ uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int c
 
 fail:
     p->size = size;
+    avahi_dns_packet_cleanup_name_table(p);
+
     return NULL;
 }
 

@@ -384,6 +384,15 @@ if test "x$have_inotify" = "xyes" ; then
    AC_DEFINE([HAVE_INOTIFY], 1, [Enable Linux inotify() usage])
 fi
 
+have_kqueue=yes
+AC_CHECK_FUNCS([kqueue],,have_kqueue=no)
+
+AM_CONDITIONAL(HAVE_KQUEUE, test "x$have_kqueue" = "xyes")
+
+if test "x$have_kqueue" = "xyes" ; then
+    AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
+fi
+
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.
 AC_CHECK_PROG(have_pkg_config, pkg-config, yes, no)

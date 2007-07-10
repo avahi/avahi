@@ -610,11 +610,9 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
                 goto fail;
             }
             
-            if (handle_conflict(s, i, record, unique)) {
-                avahi_response_scheduler_suppress(i->response_scheduler, record, a);
-                avahi_record_list_drop(s->record_list, record);
-                avahi_cache_stop_poof(i->cache, record, a);
-            }
+            avahi_response_scheduler_suppress(i->response_scheduler, record, a);
+            avahi_record_list_drop(s->record_list, record);
+            avahi_cache_stop_poof(i->cache, record, a);
             
             avahi_record_unref(record);
         }

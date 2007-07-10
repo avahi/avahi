@@ -23,6 +23,7 @@
 #include <config.h>
 #endif
 
+#include <sys/select.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>

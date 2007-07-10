@@ -23,6 +23,8 @@
 #include <config.h>
 #endif
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <string.h>
 #include <stdarg.h>
 #include <net/if.h>

@@ -161,6 +161,11 @@ static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiPr
         if ((flags & AVAHI_PUBLISH_ALLOW_MULTIPLE) && (e->flags & AVAHI_PUBLISH_ALLOW_MULTIPLE) )
             continue;
 
+        if (avahi_record_equal_no_ttl(r, e->record)) {
+            /* The records are the same, not a conflict in any case */
+            continue;
+        }
+
         if ((interface <= 0 ||
              e->interface <= 0 ||
              e->interface == interface) &&

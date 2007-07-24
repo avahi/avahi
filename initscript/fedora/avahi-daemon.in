@@ -2,7 +2,7 @@
 #
 # avahi-daemon:       Starts the Avahi Daemon
 #
-# chkconfig: 345 98 02
+# chkconfig: 345 97 02
 # description: This is a daemon which runs on client machines to perform \
 #              Zeroconf service discovery on a network. avahi-daemon must be \
 #              running on systems  that use Avahi for service discovery. \

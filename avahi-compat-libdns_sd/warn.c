@@ -113,14 +113,14 @@ void avahi_warn_linkage(void) {
     pthread_mutex_unlock(&linkage_mutex);
 
     if (!w && !getenv("AVAHI_COMPAT_NOWARN")) {
-        avahi_warn("The programme '%s' uses the "COMPAT_LAYER" compatiblity layer of Avahi.", avahi_exe_name());
+        avahi_warn("The program '%s' uses the "COMPAT_LAYER" compatibility layer of Avahi.", avahi_exe_name());
         avahi_warn("Please fix your application to use the native API of Avahi!");
         avahi_warn("For more information see <http://0pointer.de/avahi-compat?s="CGI_SUBSYSTEM"&e=%s>", avahi_exe_name());
     }
 }
 
 void avahi_warn_unsupported(const char *function) {
-    avahi_warn("The programme '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatiblity layer of Avahi.", avahi_exe_name(), function);
+    avahi_warn("The program '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatibility layer of Avahi.", avahi_exe_name(), function);
     avahi_warn("Please fix your application to use the native API of Avahi!");
     avahi_warn("For more information see <http://0pointer.de/avahi-compat?s="CGI_SUBSYSTEM"&e=%s&f=%s>", avahi_exe_name(), function);
 }

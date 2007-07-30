@@ -90,7 +90,7 @@ int avahi_entry_group_add_service(
     AvahiIfIndex interface /**< The interface this service shall be announced on. We recommend to pass AVAHI_IF_UNSPEC here, to announce on all interfaces. */,
     AvahiProtocol protocol /**< The protocol this service shall be announced with, i.e. MDNS over IPV4 or MDNS over IPV6. We recommend to pass AVAHI_PROTO_UNSPEC here, to announce this service on all protocols the daemon supports. */,
     AvahiPublishFlags flags /**< Usually 0, unless you know what you do */,
-    const char *name        /**< The name for the new service. May not be NULL. */,
+    const char *name        /**< The name for the new service. Must be valid service name. i.e. a string shorter than 63 characters and valid UTF-8. May not be NULL. */,
     const char *type        /**< The service type for the new service, such as _http._tcp. May not be NULL. */,
     const char *domain      /**< The domain to register this domain in. We recommend to pass NULL here, to let the daemon decide */,   
     const char *host        /**< The host this services is residing on. We recommend to pass NULL here, the daemon will than automatically insert the local host name in that case */,

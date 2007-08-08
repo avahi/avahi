@@ -510,7 +510,7 @@ static int send_packet(int fd, int iface, ArpPacket *packet, size_t packet_len) 
     sa.sll_halen = ETHER_ADDRLEN;
     memset(sa.sll_addr, 0xFF, ETHER_ADDRLEN);
 
-    if (sendto(fd, packet, packet_len, 0, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
+    if (sendto(fd, packet->ether_payload, packet_len, 0, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "sendto() failed: %s", strerror(errno));
         return -1;
     }

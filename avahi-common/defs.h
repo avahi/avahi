@@ -333,12 +333,12 @@ enum {
     AVAHI_DNS_TYPE_MX = 0x0F,
     AVAHI_DNS_TYPE_TXT = 0x10,
     AVAHI_DNS_TYPE_AAAA = 0x1C,
-    AVAHI_DNS_TYPE_SRV = 0x21,
+    AVAHI_DNS_TYPE_SRV = 0x21
 };
 
 /** DNS record classes, see RFC 1035 */
 enum {
-    AVAHI_DNS_CLASS_IN = 0x01,          /**< Probably the only class we will ever use */
+    AVAHI_DNS_CLASS_IN = 0x01          /**< Probably the only class we will ever use */
 };
 
 /** @} */

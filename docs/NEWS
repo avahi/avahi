@@ -1,3 +1,24 @@
+Avahi 0.6.21
+============
+
+This is an important bugfix release.
+
+ * Make avahi-autoipd actually produce correct ARP packets 
+   (Identified and patched by Pauline Yeung)
+ * Add FreeBSD kqueue support for watching /etc/avahi/services
+   (Contributed by Marcus Clarke)
+ * Use search domain from /etc/resolv.conf as additional browse
+   domains.
+ * No longer return a conflict error when two local applications
+   register identical RRs.
+ * Properly find alternative service/host names for very long names
+ * DNS name compression fix (Sjoerd Simons)
+ * Fedora init script order fix
+ * Several fixes to make gcc produces less warnings
+ * Minor documentation and build fixes
+
+This release is backwards compatible with Avahi 0.6.x with x < 21.
+
 Avahi 0.6.20
 ============
 

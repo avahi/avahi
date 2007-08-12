@@ -134,7 +134,7 @@ static dbus_bool_t update_watch(const AvahiPoll *poll_api, DBusWatch *dbus_watch
 
         if (!(avahi_watch = poll_api->watch_new(
                   poll_api,
-                  dbus_watch_get_fd(dbus_watch),
+                  dbus_watch_get_unix_fd(dbus_watch),
                   translate_dbus_to_avahi(dbus_watch_get_flags(dbus_watch)),
                   watch_callback,
                   dbus_watch)))

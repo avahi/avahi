@@ -27,11 +27,13 @@
 
 #include "alternative.h"
 #include "malloc.h"
+#include "domain.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     const char* const test_strings[] = {
+        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXüüüüüüü",
         "gurke",
-        "",
         "-",
         " #",
         "1",
@@ -68,12 +70,17 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         
         for (j = 0; j < 2; j++) {
         
-            for (i = 0; i < 20; i++) {
+            for (i = 0; i <= 100; i++) {
                 char *n;
                 
                 n = i == 0 ? avahi_strdup(test_strings[k]) : (j ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
                 avahi_free(r);
                 r = n;
+
+                if (j)
+                    assert(avahi_is_valid_service_name(n));
+                else
+                    assert(avahi_is_valid_host_name(n));
                 
                 printf("%s\n", r);
             }

@@ -134,11 +134,13 @@ typedef struct {
 } DaemonConfig;
 
 #define RESOLV_CONF "/etc/resolv.conf"
+#define BROWSE_DOMAINS_MAX 16
 
 static AvahiSEntryGroup *dns_servers_entry_group = NULL;
 static AvahiSEntryGroup *resolv_conf_entry_group = NULL;
 
-static char **resolv_conf = NULL;
+static char **resolv_conf_name_servers = NULL;
+static char **resolv_conf_search_domains = NULL;
 
 static DaemonConfig config;
 
@@ -153,11 +155,14 @@ static int has_prefix(const char *s, const char *prefix) {
 static int load_resolv_conf(void) {
     int ret = -1;
     FILE *f;
-    int i = 0;
+    int i = 0, j = 0;
     
-    avahi_strfreev(resolv_conf);
-    resolv_conf = NULL;
+    avahi_strfreev(resolv_conf_name_servers);
+    resolv_conf_name_servers = NULL;
 
+    avahi_strfreev(resolv_conf_search_domains);
+    resolv_conf_search_domains = NULL;
+    
 #ifdef ENABLE_CHROOT
     f = avahi_chroot_helper_get_file(RESOLV_CONF);
 #else
@@ -169,9 +174,10 @@ static int load_resolv_conf(void) {
         goto finish;
     }
 
-    resolv_conf = avahi_new0(char*, AVAHI_WIDE_AREA_SERVERS_MAX+1);
+    resolv_conf_name_servers = avahi_new0(char*, AVAHI_WIDE_AREA_SERVERS_MAX+1);
+    resolv_conf_search_domains = avahi_new0(char*, BROWSE_DOMAINS_MAX+1);
 
-    while (!feof(f) && i < AVAHI_WIDE_AREA_SERVERS_MAX) {
+    while (!feof(f)) {
         char ln[128];
         char *p;
 
@@ -181,11 +187,32 @@ static int load_resolv_conf(void) {
         ln[strcspn(ln, "\r\n#")] = 0;
         p = ln + strspn(ln, "\t ");
 
-        if (has_prefix(p, "nameserver")) {
+        if ((has_prefix(p, "nameserver ") || has_prefix(p, "nameserver\t")) && i < AVAHI_WIDE_AREA_SERVERS_MAX) {
             p += 10;
             p += strspn(p, "\t ");
             p[strcspn(p, "\t ")] = 0;
-            resolv_conf[i++] = avahi_strdup(p);
+            resolv_conf_name_servers[i++] = avahi_strdup(p);
+        }
+
+        if ((has_prefix(p, "search ") || has_prefix(p, "search\t") ||
+             has_prefix(p, "domain ") || has_prefix(p, "domain\t"))) {
+
+            p += 6;
+
+            while (j < BROWSE_DOMAINS_MAX) {
+                size_t k;
+
+                p += strspn(p, "\t ");
+                k = strcspn(p, "\t ");
+
+                if (k > 0) {
+                    resolv_conf_search_domains[j++] = avahi_strndup(p, k);
+                    p += k;
+                }
+
+                if (!*p)
+                    break;
+            }
         }
     }
 
@@ -194,10 +221,13 @@ static int load_resolv_conf(void) {
 finish:
 
     if (ret != 0) {
-        avahi_strfreev(resolv_conf);
-        resolv_conf = NULL;
-    }
+        avahi_strfreev(resolv_conf_name_servers);
+        resolv_conf_name_servers = NULL;
         
+        avahi_strfreev(resolv_conf_search_domains);
+        resolv_conf_search_domains = NULL;
+    }
+
     if (f)
         fclose(f);
 
@@ -247,12 +277,12 @@ static void update_wide_area_servers(void) {
     unsigned n = 0;
     char **p;
 
-    if (!resolv_conf) {
+    if (!resolv_conf_name_servers) {
         avahi_server_set_wide_area_servers(avahi_server, NULL, 0);
         return;
     }
 
-    for (p = resolv_conf; *p && n < AVAHI_WIDE_AREA_SERVERS_MAX; p++) {
+    for (p = resolv_conf_name_servers; *p && n < AVAHI_WIDE_AREA_SERVERS_MAX; p++) {
         if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a[n]))
             avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
         else
@@ -260,6 +290,45 @@ static void update_wide_area_servers(void) {
     }
 
     avahi_server_set_wide_area_servers(avahi_server, a, n);
+}
+
+static AvahiStringList *filter_duplicate_domains(AvahiStringList *l) {
+    AvahiStringList *e, *n, *p;
+
+    if (!l)
+        return l;
+    
+    for (p = l, e = l->next; e; e = n) {
+        n = e->next;
+        
+        if (avahi_domain_equal((char*) e->text, (char*) l->text)) {
+            p->next = e->next;
+            avahi_free(e);
+        } else
+            p = e;
+    }
+
+    l->next = filter_duplicate_domains(l->next);
+    return l;
+}
+
+static void update_browse_domains(void) {
+    AvahiStringList *l;
+    int n;
+    char **p;
+
+    l = avahi_string_list_copy(config.server_config.browse_domains);
+    
+    for (p = resolv_conf_search_domains, n = 0; *p && n < BROWSE_DOMAINS_MAX; p++, n++) {
+        if (!avahi_is_valid_domain_name(*p))
+            avahi_log_warn("'%s' is no valid domain name, ignoring.", *p);
+        else
+            l = avahi_string_list_add(l, *p);
+    }
+
+    l = filter_duplicate_domains(l);
+    
+    avahi_server_set_browse_domains(avahi_server, l);
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
@@ -289,8 +358,8 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             
             remove_dns_server_entry_groups();
             
-            if (c->publish_resolv_conf && resolv_conf && resolv_conf[0])
-                resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf);
+            if (c->publish_resolv_conf && resolv_conf_name_servers && resolv_conf_name_servers[0])
+                resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf_name_servers);
             
             if (c->publish_dns_servers && c->publish_dns_servers[0])
                 dns_servers_entry_group = add_dns_servers(s, dns_servers_entry_group, c->publish_dns_servers);
@@ -499,6 +568,8 @@ static int load_config_file(DaemonConfig *c) {
                     }
                     
                     avahi_strfreev(e);
+
+                    c->server_config.browse_domains = filter_duplicate_domains(c->server_config.browse_domains);
                 } else if (strcasecmp(p->key, "use-ipv4") == 0)
                     c->server_config.use_ipv4 = is_yes(p->value);
                 else if (strcasecmp(p->key, "use-ipv6") == 0)
@@ -708,38 +779,38 @@ static int num_kfds = 0;
 static void add_kqueue_watch(const char *dir);
 
 static void add_kqueue_watches(void) {
-	int c = 0;
+    int c = 0;
 
 #ifdef ENABLE_CHROOT
-	c = config.use_chroot;
+    c = config.use_chroot;
 #endif
 
-	add_kqueue_watch(c ? "/" : AVAHI_CONFIG_DIR);
-	add_kqueue_watch(c ? "/services" : AVAHI_SERVICE_DIR);
+    add_kqueue_watch(c ? "/" : AVAHI_CONFIG_DIR);
+    add_kqueue_watch(c ? "/services" : AVAHI_SERVICE_DIR);
 }
 
 static void add_kqueue_watch(const char *dir) {
-	int fd;
-	struct kevent ev;
+    int fd;
+    struct kevent ev;
 
-	if (kq < 0)
-		return;
+    if (kq < 0)
+        return;
 
-	if (num_kfds >= NUM_WATCHES)
-		return;
+    if (num_kfds >= NUM_WATCHES)
+        return;
 
-	fd = open(dir, O_RDONLY);
-	if (fd < 0)
-		return;
-	EV_SET(&ev, fd, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR,
-			NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_RENAME,
-			0, 0);
-	if (kevent(kq, &ev, 1, NULL, 0, NULL) == -1) {
-		close(fd);
-		return;
-	}
+    fd = open(dir, O_RDONLY);
+    if (fd < 0)
+        return;
+    EV_SET(&ev, fd, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR,
+           NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_RENAME,
+           0, 0);
+    if (kevent(kq, &ev, 1, NULL, 0, NULL) == -1) {
+        close(fd);
+        return;
+    }
 
-	kfds[num_kfds++] = fd;
+    kfds[num_kfds++] = fd;
 }
 
 #endif
@@ -771,9 +842,10 @@ static void reload_config(void) {
     load_resolv_conf();
     
     update_wide_area_servers();
+    update_browse_domains();
     
-    if (config.publish_resolv_conf && resolv_conf && resolv_conf[0])
-        resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf);
+    if (config.publish_resolv_conf && resolv_conf_name_servers && resolv_conf_name_servers[0])
+        resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf_name_servers);
 }
 
 #ifdef HAVE_INOTIFY
@@ -793,7 +865,7 @@ static void inotify_callback(AvahiWatch *watch, int fd, AVAHI_GCC_UNUSED AvahiWa
     if (read(inotify_fd, buffer, n) < 0 ) {
         avahi_free(buffer);
         avahi_log_error("Failed to read inotify event: %s", avahi_strerror(errno));
-	return;
+        return;
     }
     avahi_free(buffer);
 
@@ -806,24 +878,24 @@ static void inotify_callback(AvahiWatch *watch, int fd, AVAHI_GCC_UNUSED AvahiWa
 #ifdef HAVE_KQUEUE
 
 static void kqueue_callback(AvahiWatch *watch, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
-	struct kevent ev;
-	struct timespec nullts = { 0, 0 };
-	int res;
+    struct kevent ev;
+    struct timespec nullts = { 0, 0 };
+    int res;
 
-	assert(fd == kq);
-	assert(watch);
+    assert(fd == kq);
+    assert(watch);
 
-	res = kevent(kq, NULL, 0, &ev, 1, &nullts);
+    res = kevent(kq, NULL, 0, &ev, 1, &nullts);
 
-	if (res > 0) {
-		/* Sleep for a half-second to avoid potential races
-		 * during install/uninstall. */
-		usleep(500000);
-		avahi_log_info("Files changed, reloading.");
-		reload_config();
-	} else {
-		avahi_log_error("Failed to read kqueue event: %s", avahi_strerror(errno));
-	}
+    if (res > 0) {
+        /* Sleep for a half-second to avoid potential races
+         * during install/uninstall. */
+        usleep(500000);
+        avahi_log_info("Files changed, reloading.");
+        reload_config();
+    } else {
+        avahi_log_error("Failed to read kqueue event: %s", avahi_strerror(errno));
+    }
 }
 
 #endif
@@ -848,9 +920,9 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
         case SIGQUIT:
         case SIGTERM:
             avahi_log_info(
-                "Got %s, quitting.",
-                sig == SIGINT ? "SIGINT" :
-                (sig == SIGQUIT ? "SIGQUIT" : "SIGTERM"));
+                    "Got %s, quitting.",
+                    sig == SIGINT ? "SIGINT" :
+                    (sig == SIGQUIT ? "SIGQUIT" : "SIGTERM"));
             avahi_simple_poll_quit(simple_poll_api);
             break;
 
@@ -964,14 +1036,14 @@ static int run_server(DaemonConfig *c) {
 
 #ifdef HAVE_KQUEUE
     if ((kq = kqueue()) < 0)
-	    avahi_log_warn( "Failed to initialize kqueue: %s", strerror(errno));
+        avahi_log_warn( "Failed to initialize kqueue: %s", strerror(errno));
     else {
-	    add_kqueue_watches();
+        add_kqueue_watches();
 
-	    if (!(kqueue_watch = poll_api->watch_new(poll_api, kq, AVAHI_WATCH_IN, kqueue_callback, NULL))) {
-		    avahi_log_error( "Failed to create kqueue watcher");
-		    goto finish;
-	    }
+        if (!(kqueue_watch = poll_api->watch_new(poll_api, kq, AVAHI_WATCH_IN, kqueue_callback, NULL))) {
+            avahi_log_error( "Failed to create kqueue watcher");
+            goto finish;
+        }
     }
 #endif
 
@@ -990,10 +1062,11 @@ static int run_server(DaemonConfig *c) {
     }
 
     update_wide_area_servers();
+    update_browse_domains();
 
     if (c->daemonize) {
         daemon_retval_send(0);
-	retval_is_sent = 1;
+        retval_is_sent = 1;
     }
 
     for (;;) {
@@ -1047,12 +1120,12 @@ finish:
 
 #ifdef HAVE_KQUEUE
     if (kqueue_watch)
-	poll_api->watch_free(kqueue_watch);
+        poll_api->watch_free(kqueue_watch);
     if (kq >= 0)
-	close(kq);
+        close(kq);
     for (i = 0; i < num_kfds; i++) {
-	if (kfds[i] >= 0)
-	    close(kfds[i]);
+        if (kfds[i] >= 0)
+            close(kfds[i]);
     }
 #endif
     
@@ -1421,7 +1494,8 @@ finish:
     avahi_server_config_free(&config.server_config);
     avahi_free(config.config_file);
     avahi_strfreev(config.publish_dns_servers);
-    avahi_strfreev(resolv_conf);
+    avahi_strfreev(resolv_conf_name_servers);
+    avahi_strfreev(resolv_conf_search_domains);
 
     if (wrote_pid_file) {
 #ifdef ENABLE_CHROOT

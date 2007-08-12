@@ -43,7 +43,7 @@
 typedef enum {
     COMMAND_UNSPEC, 
     COMMAND_HELP,
-    COMMAND_VERSION,
+    COMMAND_VERSION
 } Command;
 
 typedef struct Config {

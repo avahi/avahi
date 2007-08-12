@@ -586,9 +586,12 @@ static void help(FILE *f, const char *argv0) {
                 "%s [options] -a\n"
                 "%s [options] -D\n"
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
-                "%s [options] -b\n",
+                "%s [options] -b\n"
 #endif
                 "\n",
+#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+                argv0,
+#endif
                 argv0, argv0, argv0);
 
             fprintf(f, 

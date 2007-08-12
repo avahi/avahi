@@ -29,4 +29,5 @@
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     printf("NSS Support available: %s\n", avahi_nss_support() ? "yes" : "no");
+    return 0;
 }

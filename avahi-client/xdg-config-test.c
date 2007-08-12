@@ -35,4 +35,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     
     if (f)
         fclose(f);
+
+    return 0;
 }

@@ -89,4 +89,5 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 1000*10, 0), modify_txt_callback, server);
 
     avahi_simple_poll_loop(simple_poll);
+    return 0;
 }

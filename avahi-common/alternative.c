@@ -30,51 +30,101 @@
 
 #include "alternative.h"
 #include "malloc.h"
+#include "domain.h"
+#include "utf8.h"
 
-char * avahi_alternative_host_name(const char *s) {
+static void drop_incomplete_utf8(char *c) {
+    char *e;
+
+    e = strchr(c, 0) - 1;
+    
+    while (e >= c) {
+
+        if (avahi_utf8_valid(c))
+            break;
+        
+        assert(*e & 128);
+        *e = 0;
+
+        e--;
+    }
+}
+
+char *avahi_alternative_host_name(const char *s) {
     const char *e;
     char *r;
 
     assert(s);
 
-    e = strrchr(s, '-');
-
-    if (e) {
+    if (!avahi_is_valid_host_name(s))
+        return NULL;
+    
+    if ((e = strrchr(s, '-'))) {
         const char *p;
+
+        e++;
         
-        for (p = e+1; *p; p++)
+        for (p = e; *p; p++)
             if (!isdigit(*p)) {
                 e = NULL;
                 break;
             }
 
-        if (e && (*(e+1) == '0' || (*(e+1) == 0)))
+        if (e && (*e == '0' || *e == 0))
             e = NULL;
     }
 
     if (e) {
-        char *c;
+        char *c, *m;
+        size_t l;
+        int n;
 
-        e++;
-        
-        if (!(c = avahi_strndup(s, e-s)))
+        n = atoi(e)+1;
+        if (!(m = avahi_strdup_printf("%i", n)))
             return NULL;
 
-        r = avahi_strdup_printf("%s%i", c, atoi(e)+1);
-        avahi_free(c);
+        l = e-s-1;
+
+        if (l >= AVAHI_LABEL_MAX-1-strlen(m)-1)
+            l = AVAHI_LABEL_MAX-1-strlen(m)-1;
+
+        if (!(c = avahi_strndup(s, l))) {
+            avahi_free(m);
+            return NULL;
+        }
+
+        drop_incomplete_utf8(c);
         
-    } else
-        r = avahi_strdup_printf("%s-2", s);
-    
+        r = avahi_strdup_printf("%s-%s", c, m);
+        avahi_free(c);
+        avahi_free(m);
+        
+    } else {
+        char *c;
+
+        if (!(c = avahi_strndup(s, AVAHI_LABEL_MAX-1-2)))
+            return NULL;
+
+        drop_incomplete_utf8(c);
+        
+        r = avahi_strdup_printf("%s-2", c);
+        avahi_free(c);
+    }
+
+    assert(avahi_is_valid_host_name(r));
+
     return r;
 }
 
 char *avahi_alternative_service_name(const char *s) {
     const char *e;
     char *r;
-    
+
     assert(s);
 
+    if (!avahi_is_valid_service_name(s))
+        return NULL;
+    
     if ((e = strstr(s, " #"))) {
         const char *n, *p;
         e += 2;
@@ -93,15 +143,42 @@ char *avahi_alternative_service_name(const char *s) {
     }
     
     if (e) {
+        char *c, *m;
+        size_t l;
+        int n;
+
+        n = atoi(e)+1;
+        if (!(m = avahi_strdup_printf("%i", n)))
+            return NULL;
+
+        l = e-s-2;
+
+        if (l >= AVAHI_LABEL_MAX-1-strlen(m)-2)
+            l = AVAHI_LABEL_MAX-1-strlen(m)-2;
+
+        if (!(c = avahi_strndup(s, l))) {
+            avahi_free(m);
+            return NULL;
+        }
+
+        drop_incomplete_utf8(c);
+        
+        r = avahi_strdup_printf("%s #%s", c, m);
+        avahi_free(c);
+        avahi_free(m);
+    } else {
         char *c;
 
-        if (!(c = avahi_strndup(s, e-s)))
+        if (!(c = avahi_strndup(s, AVAHI_LABEL_MAX-1-3)))
             return NULL;
         
-        r = avahi_strdup_printf("%s%i", c, atoi(e)+1);
+        drop_incomplete_utf8(c);
+        
+        r = avahi_strdup_printf("%s #2", c);
         avahi_free(c);
-    } else
-        r = avahi_strdup_printf("%s #2", s);
+    }
 
+    assert(avahi_is_valid_service_name(r));
+    
     return r;
 }

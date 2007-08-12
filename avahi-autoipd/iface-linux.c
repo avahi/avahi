@@ -110,7 +110,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
         struct ifinfomsg *ifi;
         ifi = NLMSG_DATA(n);
 
-        if (ifi->ifi_family != AF_UNSPEC || ifi->ifi_index != ifindex)
+        if (ifi->ifi_family != AF_UNSPEC || (int) ifi->ifi_index != ifindex)
             return 0;
         
         if (n->nlmsg_type == RTM_DELLINK) {
@@ -139,7 +139,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
         
         ifa = NLMSG_DATA(n);
 
-        if (ifa->ifa_family != AF_INET || ifa->ifa_index != ifindex)
+        if (ifa->ifa_family != AF_INET || (int) ifa->ifa_index != ifindex)
             return 0;
 
         l = NLMSG_PAYLOAD(n, sizeof(*ifa));

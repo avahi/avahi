@@ -1042,7 +1042,7 @@ static int loop(int iface, uint32_t addr) {
         FD_ARP,
         FD_IFACE,
         FD_SIGNAL,
-        FD_MAX,
+        FD_MAX
     };
 
     int fd = -1, ret = -1;

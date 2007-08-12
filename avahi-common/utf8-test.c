@@ -34,4 +34,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(avahi_utf8_valid("hallo"));
     assert(!avahi_utf8_valid("üxknürz"));
     assert(avahi_utf8_valid("Ã¼xknÃ¼rz"));
+    
+    return 0;
 }

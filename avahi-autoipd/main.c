@@ -62,6 +62,12 @@
 
 #ifndef __linux__
 #include <pcap.h>
+
+/* Old versions of PCAP defined it as D_IN */
+#ifndef PCAP_D_IN
+#define PCAP_D_IN D_IN
+#endif
+
 #endif
 
 #include <avahi-common/malloc.h>
@@ -76,6 +82,8 @@
 
 #include "main.h"
 #include "iface.h"
+
+
 
 /* An implementation of RFC 3927 */
 

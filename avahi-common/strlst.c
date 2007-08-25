@@ -337,8 +337,11 @@ AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *f
     for (;;) {
         int n;
         AvahiStringList *nr;
+        va_list va2;
         
-        n = vsnprintf((char*) r->text, len+1, format, va);
+        va_copy(va2, va);
+        n = vsnprintf((char*) r->text, len, format, va2);
+        va_end(va2);
 
         if (n >= 0 && n < (int) len)
             break;
@@ -355,7 +358,6 @@ AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *f
 
         r = nr;
     }
-
     
     r->next = l;
     r->size = strlen((char*) r->text); 

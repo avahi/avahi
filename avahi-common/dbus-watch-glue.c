@@ -134,7 +134,7 @@ static dbus_bool_t update_watch(const AvahiPoll *poll_api, DBusWatch *dbus_watch
 
         if (!(avahi_watch = poll_api->watch_new(
                   poll_api,
-#if (DBUS_VERSION_MAJOR == 1 && DBUS_VERSION_MINOR == 1 && DBUS_VERSION_MICRO >= 1) || (DBUS_VERSION_MAJOR == 1 && DBUS_VERSION_MAJOR > 1) || (DBUS_VERSION_MAJOR > 1)
+#if (DBUS_VERSION_MAJOR == 1 && DBUS_VERSION_MINOR == 1 && DBUS_VERSION_MICRO >= 1) || (DBUS_VERSION_MAJOR == 1 && DBUS_VERSION_MINOR > 1) || (DBUS_VERSION_MAJOR > 1)
                   dbus_watch_get_unix_fd(dbus_watch),
 #else
                   dbus_watch_get_fd(dbus_watch),

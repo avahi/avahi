@@ -42,7 +42,7 @@
 
       <p>Specify a DNS-SD service type (e.g. _http._tcp) to browse for
       on the command line, or <opt>-a</opt> to browse for all
-      available service types. Items that appear on the network are prefixed with "+", items that disappear are prefixed with "-".</p>
+      available service types. Items that appear on the network are prefixed with "+", items that disappear are prefixed with "-". If <opt>--resolve</opt> is passed items that are resolved are prefixed with "=".</p>
 	  
       <option>
 		<p><opt>-a | --all</opt></p>
@@ -89,6 +89,11 @@
 	  <option>
 		<p><opt>-f | --no-fail</opt></p>
 		<optdesc><p>Don't fail if the daemon is not found running. Instead, wait until it appears. If it disconnects, try to reconnect.</p></optdesc>
+	  </option>
+
+	  <option>
+                <p><opt>-p | --parsable</opt></p>
+		<optdesc><p>Make output easily parsable for usage in scripts. If enabled fields are seperated by semicolons (;), service names are escaped. It is recommended to combine this with <opt>--no-db-lookup</opt>.</p></optdesc>
 	  </option>
 
 	  <option>

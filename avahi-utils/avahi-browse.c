@@ -68,6 +68,7 @@ typedef struct Config {
     Command command;
     int resolve;
     int no_fail;
+    int parsable;
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
     int no_db_lookup;
 #endif
@@ -102,7 +103,7 @@ static void check_terminate(Config *c) {
     
     if (n_all_for_now <= 0 && n_resolving <= 0) {
 
-        if (c->verbose) {
+        if (c->verbose && !c->parsable) {
             printf(": All for now\n");
             n_all_for_now++; /* Make sure that this event is not repeated */
         }
@@ -113,7 +114,7 @@ static void check_terminate(Config *c) {
     
     if (n_cache_exhausted <= 0 && n_resolving <= 0) {
 
-        if (c->verbose) {
+        if (c->verbose && !c->parsable) {
             printf(": Cache exhausted\n");
             n_cache_exhausted++; /* Make sure that this event is not repeated */
         }
@@ -138,19 +139,30 @@ static ServiceInfo *find_service(AvahiIfIndex interface, AvahiProtocol protocol,
     return NULL;
 }
 
-static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {
+static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, int nl) {
     char ifname[IF_NAMESIZE];
 
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
     if (!config->no_db_lookup)
         type = stdb_lookup(type);
 #endif
-    
-    printf("%c %4s %4s %-*s %-20s %s\n",
-           c,
-           interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
-           protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
-           n_columns-35, name, type, domain);
+
+    if (config->parsable) {
+        char sn[AVAHI_DOMAIN_NAME_MAX], *e = sn;
+        size_t l = sizeof(sn);
+        
+        printf("%c;%s;%s;%s;%s;%s%s",
+               c,
+               interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
+               protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
+               avahi_escape_label(name, strlen(name), &e, &l), type, domain, nl ? "\n" : "");
+
+    } else
+        printf("%c %4s %4s %-*s %-20s %s\n",
+               c,
+               interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
+               protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
+               n_columns-35, name, type, domain);
     fflush(stdout);
 }
 
@@ -182,16 +194,24 @@ static void service_resolver_callback(
 
             t = avahi_string_list_to_string(txt);
 
-            print_service_line(i->config, '=', interface, protocol, name, type, domain);
-            
-            printf("   hostname = [%s]\n"
-                   "   address = [%s]\n"
-                   "   port = [%i]\n"
-                   "   txt = [%s]\n",
-                   host_name,
-                   address,
-                   port,
-                   t);
+            print_service_line(i->config, '=', interface, protocol, name, type, domain, 0);
+
+            if (i->config->parsable)
+                printf(";%s;%s;%u;%s\n",
+                       host_name,
+                       address,
+                       port,
+                       t);
+            else
+                printf("   hostname = [%s]\n"
+                       "   address = [%s]\n"
+                       "   port = [%u]\n"
+                       "   txt = [%s]\n",
+                       host_name,
+                       address,
+                       port,
+                       t);
+                
             avahi_free(t);
 
             break;
@@ -282,7 +302,7 @@ static void service_browser_callback(
 
             add_service(c, interface, protocol, name, type, domain);
 
-            print_service_line(c, '+', interface, protocol, name, type, domain);
+            print_service_line(c, '+', interface, protocol, name, type, domain, 1);
             break;
 
         }
@@ -295,7 +315,7 @@ static void service_browser_callback(
 
             remove_service(c, info);
             
-            print_service_line(c, '-', interface, protocol, name, type, domain);
+            print_service_line(c, '-', interface, protocol, name, type, domain, 1);
             break;
         }
             
@@ -431,12 +451,19 @@ static void domain_browser_callback(
         case AVAHI_BROWSER_NEW:
         case AVAHI_BROWSER_REMOVE: {
             char ifname[IF_NAMESIZE];
-            
-            printf("%c %4s %4s %s\n",
-                   event == AVAHI_BROWSER_NEW ? '+' : '-',
-                   interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
-                   protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
-                   domain);
+
+            if (c->parsable)
+                printf("%c;%s;%s;%s\n",
+                       event == AVAHI_BROWSER_NEW ? '+' : '-',
+                       interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "",
+                       protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "", 
+                       domain);
+            else
+                printf("%c %4s %4s %s\n",
+                       event == AVAHI_BROWSER_NEW ? '+' : '-',
+                       interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
+                       protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a", 
+                       domain);
             break;
         }
 
@@ -484,7 +511,7 @@ static int start(Config *config) {
 
     assert(!browsing);
     
-    if (config->verbose) {
+    if (config->verbose && !config->parsable) {
         const char *version, *hn;
         
         if (!(version = avahi_client_get_version_string(client))) {
@@ -570,7 +597,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
             
         case AVAHI_CLIENT_CONNECTING:
             
-            if (config->verbose)
+            if (config->verbose && !config->parsable)
                 fprintf(stderr, "Waiting for daemon ...\n");
 
             break;
@@ -606,6 +633,7 @@ static void help(FILE *f, const char *argv0) {
             "    -l --ignore-local    Ignore local services\n"
             "    -r --resolve         Resolve services found\n"
             "    -f --no-fail         Don't fail if the daemon is not available\n"
+            "    -p --parsable        Output in parsable format\n"        
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
             "    -k --no-db-lookup    Don't lookup service types\n"
             "    -b --dump-db         Dump service type database\n"        
@@ -628,6 +656,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "ignore-local",   no_argument,       NULL, 'l' },
         { "resolve",        no_argument,       NULL, 'r' },
         { "no-fail",        no_argument,       NULL, 'f' },
+        { "parsable",      no_argument,       NULL, 'p' },
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
         { "no-db-lookup",   no_argument,       NULL, 'k' },
         { "dump-db",        no_argument,       NULL, 'b' },
@@ -643,14 +672,15 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         c->terminate_on_all_for_now =
         c->ignore_local =
         c->resolve =
-        c->no_fail = 0;
+        c->no_fail =
+        c->parsable = 0;
     c->domain = c->stype = NULL;
 
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
     c->no_db_lookup = 0;
 #endif
     
-    while ((o = getopt_long(argc, argv, "hVd:avtclrDf"
+    while ((o = getopt_long(argc, argv, "hVd:avtclrDfp"
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
                             "kb"
 #endif
@@ -690,6 +720,9 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 break;
             case 'f':
                 c->no_fail = 1;
+                break;
+            case 'p':
+                c->parsable = 1;
                 break;
 #if defined(HAVE_GDBM) || defined(HAVE_DBM)
             case 'k':

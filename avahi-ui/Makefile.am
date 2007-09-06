@@ -47,13 +47,13 @@ libavahi_ui_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_
 
 if HAVE_GDBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
-libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkgdatadir)/service-types.db\"
+libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
 libavahi_ui_la_LIBADD += -lgdbm
 endif
 
 if HAVE_DBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
-libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkgdatadir)/service-types.db\"
+libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
 endif
 
 bin_PROGRAMS = bssh

@@ -20,12 +20,13 @@
 EXTRA_DIST=build-db.in service-types
 
 pkgdata_DATA=service-types
+pkglib_DATA=
 
 if HAVE_PYTHON
 if HAVE_GDBM
 
 noinst_SCRIPTS=build-db
-pkgdata_DATA+=service-types.db
+pkglib_DATA+=service-types.db
 
 build-db: build-db.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
@@ -42,7 +43,7 @@ endif
 if HAVE_DBM
 
 noinst_SCRIPTS=build-db
-pkgdata_DATA+=service-types.db.pag service-types.db.dir
+pkglib_DATA+=service-types.db.pag service-types.db.dir
 
 build-db: build-db.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \

@@ -2,7 +2,7 @@
 #
 # avahi-daemon:       Starts the Avahi Daemon
 #
-# chkconfig: 345 97 02
+# chkconfig: 345 96 02
 # description: This is a daemon which runs on client machines to perform \
 #              Zeroconf service discovery on a network. avahi-daemon must be \
 #              running on systems  that use Avahi for service discovery. \
@@ -15,7 +15,6 @@ OTHER_AVAHI_OPTS=""
 # Source function library.
 . /etc/init.d/functions
 . /etc/sysconfig/network
-
 
 AVAHI_BIN=@sbindir@/avahi-daemon
 
@@ -102,6 +101,7 @@ case "$1" in
   *)
 	echo $"Usage: $0 {start|stop|status|restart|condrestart}"
 	exit 2
+        ;;
 esac
 
 exit $RETVAL

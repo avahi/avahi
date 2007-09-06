@@ -1,8 +1,8 @@
 #! /bin/sh
 #
-# avahi-daemon:       Starts the Avahi dns configuration daemon
+# avahi-dnsconfd:       Starts the Avahi dns configuration daemon
 #
-# chkconfig: - 97 02
+# chkconfig: - 96 02
 # description: avahi-dnsconfd connects to a running avahi-daemon and runs  the  script \
 #       /etc/avahi/dnsconf.action for each unicast DNS server that is announced \
 #       on the local LAN. This is useful for configuring unicast DNS servers in \
@@ -17,6 +17,7 @@ OTHER_AVAHI_OPTS=""
 . /etc/sysconfig/network
 
 AVAHI_BIN=@sbindir@/avahi-dnsconfd
+
 if [ $1 == 'status' ]; then
     test -x $AVAHI_BIN || exit 4
 else 
@@ -24,6 +25,8 @@ else
 fi
 
 LOCKFILE=/var/lock/subsys/avahi-dnsconfd
+
+base=${0##*/}
 
 start() {
     # Check that networking is configured.
@@ -60,7 +63,6 @@ reload() {
 	echo
 	return $RETVAL
 }
-
 
 restart() {
 	stop

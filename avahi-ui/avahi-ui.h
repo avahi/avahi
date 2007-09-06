@@ -83,7 +83,7 @@ GtkWidget *aui_service_dialog_new_valist(
         GtkWindow *parent,
         const gchar *first_button_text,
         va_list varargs);
-/** \endcond }
+/** \endcond */
 
 /** @} */
 

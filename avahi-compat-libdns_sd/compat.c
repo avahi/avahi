@@ -990,6 +990,16 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
                     return;
                 }
             }
+
+            if (!sdref->service_name_chosen) {
+
+                assert(sdref->service_name);
+                
+                if (!(sdref->service_name_chosen = avahi_strdup(sdref->service_name))) {
+                    reg_report_error(sdref, kDNSServiceErr_NoMemory);
+                    return;
+                }
+            }
             
             /* Register the service */
 

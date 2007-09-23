@@ -19,27 +19,48 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 
-# This cool debug trap works on i386/gcc only
-AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
-
 EXTRA_DIST = \
-	avahi-bookmarks.in
-
-SUBDIRS=avahi avahi-discover
+	__init__.py \
+	SimpleGladeApp.py \
+	avahi-discover.in \
+	avahi-discover.desktop.in
 
 if HAVE_PYTHON
 if HAVE_PYTHON_DBUS
 if HAVE_PYGTK
 
-pythonscripts = \
-	avahi-bookmarks
+pythonscripts =
 
-avahi-bookmarks: avahi-bookmarks.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+desktopdir = $(datadir)/applications
+desktop_DATA = 
+
+avahi_discoverdir = $(pythondir)/avahi_discover
+avahi_discover_PYTHON =
+
+if HAVE_GDBM
+pythonscripts += \
+	avahi-discover
+desktop_DATA += avahi-discover.desktop
+avahi_discover_PYTHON += __init__.py SimpleGladeApp.py
+endif
+
+if HAVE_DBM
+pythonscripts += \
+	avahi-discover
+desktop_DATA += avahi-discover.desktop
+avahi_discover_PYTHON += __init__.py SimpleGladeApp.py
+endif
+
+avahi-discover.desktop: avahi-discover.desktop.in
+	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+
+avahi-discover: avahi-discover.in
+	sed -e 's,@PYTHON\@,$(PYTHON),g' \
+		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
 	chmod +x $@
 
 bin_SCRIPTS = $(pythonscripts)
-CLEANFILES = $(pythonscripts)
+CLEANFILES = $(pythonscripts) $(desktop_DATA) *.pyc *.pyo
 
 endif
 endif

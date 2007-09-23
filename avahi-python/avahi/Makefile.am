@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-EXTRA_DIST = __init__.py SimpleGladeApp.py ServiceTypeDatabase.py.in
+EXTRA_DIST = __init__.py ServiceTypeDatabase.py.in
 
 if HAVE_PYTHON
 
@@ -55,7 +55,7 @@ avahi_PYTHON = $(avahi_SCRIPTS)
 if HAVE_PYGTK
 if HAVE_PYTHON_DBUS
 
-avahi_PYTHON += __init__.py SimpleGladeApp.py 
+avahi_PYTHON += __init__.py
 
 endif
 endif

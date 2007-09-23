@@ -997,6 +997,7 @@ avahi-dnsconfd/Makefile
 avahi-utils/Makefile
 avahi-python/Makefile
 avahi-python/avahi/Makefile
+avahi-python/avahi-discover/Makefile
 examples/Makefile
 common/Makefile
 man/Makefile

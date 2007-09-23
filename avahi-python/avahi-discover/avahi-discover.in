@@ -23,7 +23,7 @@ import os, sys
 
 try:
     import avahi, gtk, gobject, dbus, avahi.ServiceTypeDatabase
-    from avahi.SimpleGladeApp import SimpleGladeApp
+    from avahi_discover.SimpleGladeApp import SimpleGladeApp
 except ImportError, e:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e
     sys.exit(1)

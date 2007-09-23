@@ -1,3 +1,5 @@
+#!@PYTHON@
+# -*-python-*-
 # $Id$
 
 # This file is part of avahi.
@@ -16,31 +18,3 @@
 # License along with avahi; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
-
-AM_CFLAGS=-I$(top_srcdir)
-
-# This cool debug trap works on i386/gcc only
-AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
-
-EXTRA_DIST = \
-	avahi-bookmarks.in
-
-SUBDIRS=avahi avahi-discover
-
-if HAVE_PYTHON
-if HAVE_PYTHON_DBUS
-if HAVE_PYGTK
-
-pythonscripts = \
-	avahi-bookmarks
-
-avahi-bookmarks: avahi-bookmarks.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
-	chmod +x $@
-
-bin_SCRIPTS = $(pythonscripts)
-CLEANFILES = $(pythonscripts)
-
-endif
-endif
-endif

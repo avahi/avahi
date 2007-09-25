@@ -507,7 +507,7 @@ static void browse_callback(
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
                                                   "Browsing for service type %s in domain %s failed: %s",
-                                                  type, domain,
+                                                  type, domain ? domain : "n/a",
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);

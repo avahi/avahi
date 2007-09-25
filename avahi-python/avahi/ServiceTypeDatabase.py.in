@@ -27,7 +27,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 class ServiceTypeDatabase:
 
-    def __init__(self, filename = "@pkgdatadir@/service-types.db"):
+    def __init__(self, filename = "@pkglibdir@/service-types.db"):
 
         self.db = @DBM@.open(filename, "r")
 

@@ -33,7 +33,7 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 		-e 's,@FIRST_KEY\@,key = self.db.firstkey(),g' \
 		-e 's,@CHECK_KEY\@,while key is not None:,g' \
 		-e 's,@NEXT_KEY\@,key = self.db.nextkey(key),g' \
-		-e 's,@pkgdatadir\@,$(pkgdatadir),g' $< > $@
+		-e 's,@pkglibdir\@,$(pkglibdir),g' $< > $@
 	chmod +x $@
 endif
 
@@ -46,7 +46,7 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 		-e 's,@FIRST_KEY\@,keys = self.db.keys(),g' \
 		-e 's,@CHECK_KEY\@,for key in keys:,g' \
 		-e 's,@NEXT_KEY\@,,g' \
-		-e 's,@pkgdatadir\@,$(pkgdatadir),g' $< > $@
+		-e 's,@pkglibdir\@,$(pkglibdir),g' $< > $@
 	chmod +x $@
 endif
 

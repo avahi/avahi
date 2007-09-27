@@ -228,9 +228,9 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         char *t = avahi_record_to_string(record);
         
         if (won)
-            avahi_log_debug("Recieved conflicting probe [%s]. Local host won.", t);
+            avahi_log_debug("Received conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            avahi_log_debug("Recieved conflicting probe [%s]. Local host lost. Withdrawing.", t);
+            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Withdrawing.", t);
             withdraw_rrset(s, record->key);
         }
         
@@ -262,7 +262,7 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
 
                 /* Refresh */
                 t = avahi_record_to_string(record); 
-                avahi_log_debug("Recieved goodbye record for one of our records [%s]. Refreshing.", t);
+                avahi_log_debug("Received goodbye record for one of our records [%s]. Refreshing.", t);
                 avahi_server_prepare_matching_responses(s, i, e->record->key, 0);
 
                 valid = 0;
@@ -289,7 +289,7 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
                 /* Refresh */
                 t = avahi_record_to_string(record); 
                 
-                avahi_log_debug("Recieved record with bad TTL [%s]. Refreshing.", t);
+                avahi_log_debug("Received record with bad TTL [%s]. Refreshing.", t);
                 avahi_server_prepare_matching_responses(s, i, e->record->key, 0);
                 valid = 0;
                 
@@ -326,11 +326,11 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
         t = avahi_record_to_string(record); 
  
         if (withdraw_immediately) {
-            avahi_log_debug("Recieved conflicting record [%s] with local record to be. Withdrawing.", t);
+            avahi_log_debug("Received conflicting record [%s] with local record to be. Withdrawing.", t);
             withdraw_rrset(s, record->key);
         } else {
             assert(conflicting_entry);
-            avahi_log_debug("Recieved conflicting record [%s]. Resetting our record.", t);
+            avahi_log_debug("Received conflicting record [%s]. Resetting our record.", t);
             avahi_entry_return_to_initial_state(s, conflicting_entry, i);
 
             /* Local unique records are returned to probing
@@ -579,7 +579,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
         int unicast_response = 0;
 
         if (!(key = avahi_dns_packet_consume_key(p, &unicast_response))) {
-            avahi_log_warn(__FILE__": Packet too short or invalid while reading question key. (Maybe an UTF8 problem?)");
+            avahi_log_warn(__FILE__": Packet too short or invalid while reading question key. (Maybe a UTF-8 problem?)");
             goto fail;
         }
 
@@ -606,7 +606,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             int unique = 0;
             
             if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-                avahi_log_warn(__FILE__": Packet too short or invalid while reading known answer record. (Maybe an UTF8 problem?)");
+                avahi_log_warn(__FILE__": Packet too short or invalid while reading known answer record. (Maybe a UTF-8 problem?)");
                 goto fail;
             }
             
@@ -623,7 +623,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             int unique = 0;
             
             if (!(record = avahi_dns_packet_consume_record(p, &unique))) {
-                avahi_log_warn(__FILE__": Packet too short or invalid while reading probe record. (Maybe an UTF8 problem?)");
+                avahi_log_warn(__FILE__": Packet too short or invalid while reading probe record. (Maybe a UTF-8 problem?)");
                 goto fail;
             }
             
@@ -661,7 +661,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 /*         char *txt; */
         
         if (!(record = avahi_dns_packet_consume_record(p, &cache_flush))) {
-            avahi_log_warn(__FILE__": Packet too short or invalid while reading response record. (Maybe an UTF8 problem?)");
+            avahi_log_warn(__FILE__": Packet too short or invalid while reading response record. (Maybe a UTF-8 problem?)");
             break;
         }
 
@@ -893,7 +893,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
 
     if (!(i = avahi_interface_monitor_get_interface(s->monitor, iface, src_address->proto)) ||
         !i->announcing) {
-        avahi_log_warn("Recieved packet from invalid interface.");
+        avahi_log_warn("Received packet from invalid interface.");
         return;
     }
 
@@ -910,7 +910,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         from_local_iface = originates_from_local_iface(s, iface, src_address, port);
 
     if (avahi_dns_packet_check_valid_multicast(p) < 0) {
-        avahi_log_warn("Recieved invalid packet.");
+        avahi_log_warn("Received invalid packet.");
         return;
     }
 
@@ -941,12 +941,12 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         
     } else {
         if (port != AVAHI_MDNS_PORT) {
-            avahi_log_warn("Recieved repsonse with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
+            avahi_log_warn("Received response with invalid source port %u on interface '%s.%i'", port, i->hardware->name, i->protocol);
             return;
         }
 
         if (ttl != 255 && s->config.check_response_ttl) {
-            avahi_log_warn("Recieved response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
+            avahi_log_warn("Received response with invalid TTL %u on interface '%s.%i'.", ttl, i->hardware->name, i->protocol);
             return;
         }
 
@@ -975,12 +975,12 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p) {
     assert(p);
 
     if (avahi_dns_packet_check_valid(p) < 0 || avahi_dns_packet_is_query(p)) {
-        avahi_log_warn("Recieved invalid packet.");
+        avahi_log_warn("Received invalid packet.");
         return;
     }
 
     if (!(slot = find_slot(s, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ID)))) {
-        avahi_log_warn("Recieved legacy unicast response with unknown id");
+        avahi_log_warn("Received legacy unicast response with unknown id");
         return;
     }
 

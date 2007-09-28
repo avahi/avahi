@@ -40,7 +40,7 @@ void iface_done(void);
 
 /* Deduce the initial state of our state machine. If a routable
  * address is configured for the interface, *state should be set to
- * STATE_SLEEPING., otherwide STATE_START */
+ * STATE_SLEEPING, otherwise STATE_START */
 
 int iface_get_initial_state(State *state);
 

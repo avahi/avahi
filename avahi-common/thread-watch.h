@@ -37,7 +37,7 @@ typedef struct AvahiThreadedPoll AvahiThreadedPoll;
  * AvahiSimplePoll, but will not start the helper thread. \since 0.6.4 */
 AvahiThreadedPoll *avahi_threaded_poll_new(void);
 
-/** Free an event loop object. Ths will stop the associated evet loop
+/** Free an event loop object. This will stop the associated event loop
  * thread (if it is running). \since 0.6.4 */
 void avahi_threaded_poll_free(AvahiThreadedPoll *p);
 

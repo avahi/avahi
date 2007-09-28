@@ -134,7 +134,7 @@ static Client *client_get(const char *name, int create) {
     if (server->n_clients >= CLIENTS_MAX)
         return NULL;
     
-    /* If not existant yet, create a new entry */
+    /* If not existent yet, create a new entry */
     client = avahi_new(Client, 1);
     client->id = server->current_id++;
     client->name = avahi_strdup(name);

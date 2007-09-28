@@ -472,7 +472,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path)-1);
 
     /* We simply remove existing UNIX sockets under this name. The
-       Avahi daemons makes sure that it runs only once on a host,
+       Avahi daemon makes sure that it runs only once on a host,
        therefore sockets that already exist are stale and may be
        removed without any ill effects */
 

@@ -1177,7 +1177,7 @@ static int drop_root(void) {
 #elif defined(HAVE_SETREGID)
     r = setregid(gr->gr_gid, gr->gr_gid);
 #else
-#error "No API to drop priviliges"
+#error "No API to drop privileges"
 #endif
 
     if (r < 0) {
@@ -1193,7 +1193,7 @@ static int drop_root(void) {
 #elif defined(HAVE_SETREUID)
     r = setreuid(pw->pw_uid, pw->pw_uid);
 #else
-#error "No API to drop priviliges"
+#error "No API to drop privileges"
 #endif
 
     if (r < 0) {

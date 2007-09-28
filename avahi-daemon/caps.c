@@ -39,8 +39,8 @@ int avahi_caps_reduce(void) {
     static cap_value_t cap_values[] = { CAP_SYS_CHROOT, CAP_SETUID, CAP_SETGID };
     
     /* Let's reduce our caps to the minimum set and tell Linux to keep
-     * them accross setuid(). This is called before we droppped
-     * priviliges. */
+     * them across setuid(). This is called before we drop
+     * privileges. */
     
     caps = cap_init();
     assert(caps);
@@ -55,7 +55,7 @@ int avahi_caps_reduce(void) {
     }
     cap_free(caps);
 
-    /* Retain capabilities accros setuid() */
+    /* Retain capabilities across setuid() */
     if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) < 0) {
         avahi_log_error("prctl(PR_SET_KEEPCAPS) failed: %s", strerror(errno));
         ret = -1;
@@ -70,8 +70,8 @@ int avahi_caps_reduce2(void) {
     static cap_value_t cap_values[] = { CAP_SYS_CHROOT };
 
     /* Reduce our caps to the bare minimum and tell Linux not to keep
-     * them across setuid(). This is called after we dropped
-     * privilige. */
+     * them across setuid(). This is called after we drop
+     * privileges. */
     
     /* No longer retain caps across setuid() */
     if (prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0) {

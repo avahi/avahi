@@ -115,7 +115,7 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
 
         /* We use the same jitter for 10 seconds. That way our
          * time events elapse in bursts which has the advantage that
-         * packet data can be aggegrated better */
+         * packet data can be aggregated better */
         
         avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*r/(RAND_MAX+1.0)));
     }

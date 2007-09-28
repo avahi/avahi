@@ -35,15 +35,15 @@
  *
  * \li <b>avahi-core</b>: an API for embedding a complete mDNS/DNS-SD stack
  * into your software. This is intended for developers of embedded
- * ampliances only. We dissuade from using this API in normal desktop
+ * appliances only. We dissuade from using this API in normal desktop
  * applications since it is not a good idea to run multiple mDNS
  * stacks simultaneously on the same host.
  * \li <b>the D-Bus API</b>: an extensive D-Bus interface for browsing and
  * registering mDNS/DNS-SD services using avahi-daemon. We recommend
- * to use this API for software written in any language but
- * C. (i.e. Python)
+ * using this API for software written in any language other than
+ * C (e.g. Python).
  * \li <b>avahi-client</b>: a simplifying C wrapper around the D-Bus API. We
- * recommend to use this API in C or C++ progams. The D-Bus internals
+ * recommend using this API in C or C++ progams. The D-Bus internals
  * are hidden completely.
  * 
  * All three APIs are very similar, however avahi-core is the most powerful.
@@ -108,7 +108,7 @@
  *
  * \section event_loop Event Loop Abstraction
  *
- * Avahi uses a simple event loop abstraction laye. A table AvahiPoll
+ * Avahi uses a simple event loop abstraction layer. A table AvahiPoll
  * which contains function pointers for user defined timeout and I/O
  * condition event source implementations needs to be passed to
  * avahi_client_new(). An adapter for this abstraction layer is
@@ -128,7 +128,7 @@
  * be established.
  * - Remove your services when the server enters
  * AVAHI_SERVER_COLLISION or AVAHI_SERVER_REGISTERING state. Your
- * services may no be reachable anymore since the local host name is
+ * services may not be reachable anymore since the local host name is
  * no longer established or is currently in the process of being
  * established.
  * - When registering services, use the following algorithm:
@@ -152,7 +152,7 @@
  * AVAHI_PUBLISH_UPDATE when changing the service name! Renaming a
  * DNS-SD service is identical to deleting and creating a new one, and
  * that's exactly what you should do in that case. First call
- * avahi_entry_group_reset() to remove it and than readd it normally.
+ * avahi_entry_group_reset() to remove it and then read it normally.
  *
  * \section good_browse How to Browse for Services
  *
@@ -183,7 +183,7 @@
  * AvahiClient object in that case and reconnect to the server anew -
  * again with passing AVAHI_CLIENT_NO_FAIL to avahi_client_new().
  *
- * We encourage to implement this in all software where service
+ * We encourage implementing this in all software where service
  * discovery is not an integral part of application. e.g. use it in
  * all kinds of background daemons, but not in software like iChat
  * compatible IM software.
@@ -282,7 +282,7 @@ typedef enum {
 typedef enum {
     AVAHI_BROWSER_NEW,               /**< The object is new on the network */
     AVAHI_BROWSER_REMOVE,            /**< The object has been removed from the network */
-    AVAHI_BROWSER_CACHE_EXHAUSTED,   /**< One-time event, to notify the user that all entries from the caches have been send */
+    AVAHI_BROWSER_CACHE_EXHAUSTED,   /**< One-time event, to notify the user that all entries from the caches have been sent */
     AVAHI_BROWSER_ALL_FOR_NOW,       /**< One-time event, to notify the user that more records will probably not show up in the near future, i.e. all cache entries have been read and all static servers been queried */
     AVAHI_BROWSER_FAILURE            /**< Browsing failed due to some reason which can be retrieved using avahi_server_errno()/avahi_client_errno() */
 } AvahiBrowserEvent;

@@ -55,7 +55,7 @@ typedef void (*AvahiWatchCallback)(AvahiWatch *w, int fd, AvahiWatchEvent event,
 typedef void (*AvahiTimeoutCallback)(AvahiTimeout *t, void *userdata);
 
 /** Defines an abstracted event polling API. This may be used to
- connect Avahi to other main loops. This is losely based on Unix
+ connect Avahi to other main loops. This is loosely based on Unix
  poll(2). A consumer will call watch_new() for all file descriptors it
  wants to listen for events on. In addition he can call timeout_new()
  to define time based events .*/
@@ -86,7 +86,7 @@ struct AvahiPoll {
     AvahiTimeout* (*timeout_new)(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata);
 
     /** Update the absolute expiration time for a timeout, If tv is
-     * null, the timeout is disabled. It is safe to call this function from an AvahiTimeoutCallback */
+     * NULL, the timeout is disabled. It is safe to call this function from an AvahiTimeoutCallback */
     void (*timeout_update)(AvahiTimeout *, const struct timeval *tv);
     
     /** Free a timeout. It is safe to call this function from an AvahiTimeoutCallback */

@@ -799,7 +799,7 @@ AvahiIfIndex avahi_find_interface_for_address(AvahiInterfaceMonitor *m, const Av
     assert(m);
 
     /* Some stupid OS don't support passing the interface index when a
-     * packet is recieved. We have to work around that limitation by
+     * packet is received. We have to work around that limitation by
      * looking for an interface that has the incoming address
      * attached. This is sometimes ambiguous, but we have to live with
      * it. */

@@ -1216,13 +1216,13 @@ static int loop(int iface, uint32_t addr) {
                 if (info.sender_ip_address == addr) {
                     /* Normal conflict */
                     conflict = 1;
-                    daemon_log(LOG_INFO, "Recieved conflicting normal ARP packet.");
+                    daemon_log(LOG_INFO, "Received conflicting normal ARP packet.");
                 } else if (state == STATE_WAITING_PROBE || state == STATE_PROBING || state == STATE_WAITING_ANNOUNCE) {
                     /* Probe conflict */
                     conflict = info.target_ip_address == addr && memcmp(hw_address, info.sender_hw_address, ETHER_ADDRLEN);
 
                     if (conflict)
-                        daemon_log(LOG_INFO, "Recieved conflicting probe ARP packet.");
+                        daemon_log(LOG_INFO, "Received conflicting probe ARP packet.");
                 }
 
                 if (conflict) {
@@ -1426,7 +1426,7 @@ static void help(FILE *f, const char *a0) {
             "    -D --daemonize      Daemonize after startup\n"
             "    -s --syslog         Write log messages to syslog(3) instead of STDERR\n"
             "    -k --kill           Kill a running daemon\n"
-            "    -r --refresh        Request a running daemon to refresh it's IP address\n"
+            "    -r --refresh        Request a running daemon refresh its IP address\n"
             "    -c --check          Return 0 if a daemon is already running\n"
             "    -V --version        Show version\n"
             "    -S --start=ADDRESS  Start with this address from the IPv4LL range\n"

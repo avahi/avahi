@@ -670,7 +670,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
         /* Linux returns EAGAIN when an invalid IP packet has been
-        recieved. We suppress warnings in this case because this might
+        received. We suppress warnings in this case because this might
         create quite a bit of log traffic on machines with unstable
         links. (See #60) */
 
@@ -824,7 +824,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
     
     if ((l = recvmsg(fd, &msg, 0)) < 0) {
         /* Linux returns EAGAIN when an invalid IP packet has been
-        recieved. We suppress warnings in this case because this might
+        received. We suppress warnings in this case because this might
         create quite a bit of log traffic on machines with unstable
         links. (See #60) */
 

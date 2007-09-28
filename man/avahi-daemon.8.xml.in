@@ -95,7 +95,7 @@
         <p><opt>--no-proc-title</opt></p>
         <optdesc><p>Don't change the process name while
         running. Unless this option is specified avahi-daemon will reflect
-        it's current state and the selected host name in the process
+        its current state and the selected host name in the process
         title.</p></optdesc>
       </option>
 

@@ -14,7 +14,7 @@ This is an important bugfix release.
  * Properly find alternative service/host names for very long names
  * DNS name compression fix (Sjoerd Simons)
  * Fedora init script order fix
- * Several fixes to make gcc produces less warnings
+ * Several fixes to make gcc produce less warnings
  * Minor documentation and build fixes
 
 This release is backwards compatible with Avahi 0.6.x with x < 21.
@@ -219,7 +219,7 @@ Changes:
     picked instead. This follows Bonjour's behaviour and has the
     advantage not confusing people with regular host names ending in
     digits.
-  * Don't disable all static services when SIGHUP is recieved.
+  * Don't disable all static services when SIGHUP is received.
   * Fix build when Avahi is configured without Gtk+ but with Python
     support
   * Fix build on MacOS X
@@ -639,7 +639,7 @@ and boasts the following features
 mDNS/DNS-SD is part of a larger set of specifications for easy
 configuration of networking known as "ZeroConf"
 (http://www.zeroconf.org/), with the aim of allowing you to plug into
-a network and instantly be able to interact with it's services.
+a network and instantly be able to interact with its services.
 
 Avahi was designed to be a fully free implementation, and is
 available under the LGPL.  Many other implementations of the mDNS/DNS-SD

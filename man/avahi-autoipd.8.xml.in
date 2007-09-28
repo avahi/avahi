@@ -118,7 +118,7 @@
         <p><opt>--no-proc-title</opt></p>
         <optdesc><p>Don't change the process name while
         running. Unless this option is specified avahi-autoipd will
-        reflect it's current state and the IP address in the process
+        reflect its current state and the IP address in the process
         title.</p></optdesc>
       </option>
 

@@ -1432,7 +1432,7 @@ static void help(FILE *f, const char *a0) {
             "    -S --start=ADDRESS  Start with this address from the IPv4LL range\n"
             "                        169.254.0.0/16\n"
             "    -t --script=script  Action script to run (defaults to\n"
-            "                        /etc/avahi/avahi-autoipd.action)\n"
+            "                        "AVAHI_IPCONF_SCRIPT")\n"
             "    -w --wait           Wait until an address has been acquired before\n"
             "                        daemonizing\n"
             "       --force-bind     Assign an IPv4LL address even if a routable address\n"

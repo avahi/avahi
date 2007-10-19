@@ -56,6 +56,8 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_GCC_TRADITIONAL
 
+AM_PROG_CC_C_O
+
 # -fstack-protector
 AC_ARG_ENABLE([stack-protector],
     [AS_HELP_STRING([--disable-stack-protector],

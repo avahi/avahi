@@ -40,7 +40,7 @@
       
       <p>When passing -n, specify one or more fully qualified mDNS/DNS host name(s)
       (e.g. "foo.local") to resolve into IP addresses on the
-      command line. When passing -a, specifiy one or more IP address
+      command line. When passing -a, specify one or more IP address
       to resolve into host names.</p>
 
       <p>avahi-resolve-host-name is equivalent to avahi-resolve --name.</p>

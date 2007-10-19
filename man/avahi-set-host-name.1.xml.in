@@ -31,8 +31,8 @@
 	
     <description>
       <p>Set the mDNS host name of a currently running Avahi
-      daemon. The effect of this operation is not persistant across
-      daemon restarts. This operation is usually priviliged.</p>
+      daemon. The effect of this operation is not persistent across
+      daemon restarts. This operation is usually privileged.</p>
 	</description>
 	
 	<options>

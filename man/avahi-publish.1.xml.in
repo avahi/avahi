@@ -53,7 +53,7 @@
 
 	  <option>
         <p><opt>-a | --address</opt></p>
-        <optdesc><p>Register an address/host name maping. avahi-publish-address is equivalent to avahi-publish -a.</p></optdesc>
+        <optdesc><p>Register an address/host name mapping. avahi-publish-address is equivalent to avahi-publish -a.</p></optdesc>
       </option>
 
       <option>

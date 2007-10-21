@@ -6,7 +6,7 @@
 
 <!--
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2 of the
@@ -24,17 +24,17 @@
 -->
 
 <node>
-  
+
   <interface name="org.freedesktop.DBus.Introspectable">
     <method name="Introspect">
       <arg name="data" type="s" direction="out" />
     </method>
   </interface>
 
-  <interface name="org.freedesktop.Avahi.ServiceResolver">
+  <interface name="org.freedesktop.Avahi.HostNameResolver">
 
     <method name="Free"/>
-      
+
     <signal name="Found">
       <arg name="interface" type="i" direction="out"/>
       <arg name="protocol" type="i" direction="out"/>
@@ -48,5 +48,5 @@
       <arg name="error" type="s"/>
     </signal>
 
-  </interface> 
+  </interface>
 </node>

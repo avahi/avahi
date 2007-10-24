@@ -53,11 +53,11 @@ EXTRA_DIST = \
 SUBDIRS = \
 	common \
 	avahi-common \
-	avahi-glib \
 	avahi-core \
-	avahi-discover-standalone \
 	avahi-qt \
 	avahi-client \
+	avahi-glib \
+	avahi-discover-standalone \
 	avahi-daemon \
 	avahi-sharp \
 	initscript \

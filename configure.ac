@@ -149,7 +149,7 @@ ACX_PTHREAD(,AC_MSG_ERROR([Missing POSIX Threads support]))
 #
 # Check for netlink.h
 #
-AC_CHECK_HEADER(linux/netlink.h, 
+AC_CHECK_HEADER(linux/netlink.h,
 HAVE_NETLINK=yes
 AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
 , [], [
@@ -162,7 +162,7 @@ AM_CONDITIONAL(HAVE_NETLINK, [ test x"$HAVE_NETLINK" = xyes ])
 #
 # Check for net/route.h
 #
-AC_CHECK_HEADER(net/route.h, 
+AC_CHECK_HEADER(net/route.h,
 HAVE_PF_ROUTE=yes
 AC_DEFINE([HAVE_PF_ROUTE],[],[Support for PF_ROUTE])
 , [], [
@@ -175,7 +175,7 @@ AM_CONDITIONAL(HAVE_PF_ROUTE, [ test x"$HAVE_PF_ROUTE" = xyes ])
 #
 # Check for sys/filio.h; needed for FIONREAD on Solaris
 #
-AC_CHECK_HEADER(sys/filio.h, 
+AC_CHECK_HEADER(sys/filio.h,
 HAVE_SYS_FILIO_H=yes
 AC_DEFINE([HAVE_SYS_FILIO_H],[],[Support for sys/filio.h])
 , [], [
@@ -186,7 +186,7 @@ AM_CONDITIONAL(HAVE_SYS_FILIO_H, [ test x"$HAVE_SYS_FILIO_H" = xyes ])
 #
 # Check for sys/sysctl.h; not present on Solaris
 #
-AC_CHECK_HEADER(sys/sysctl.h, 
+AC_CHECK_HEADER(sys/sysctl.h,
 HAVE_SYS_SYSCTL=yes
 AC_DEFINE([HAVE_SYS_SYSCTL_H],[],[Support for sys/sysctl.h])
 , [], [
@@ -320,13 +320,13 @@ if test "x$GCC" = "xyes" ; then
 
     for flag in $DESIRED_FLAGS ; do
         AC_MSG_CHECKING([whether $CC accepts $flag])
-        if test_gcc_flag $flag ; then 
+        if test_gcc_flag $flag ; then
            CFLAGS="$CFLAGS $flag"
            AC_MSG_RESULT([yes])
         else
            AC_MSG_RESULT([no])
         fi
-    done 
+    done
 fi
 
 # Checks for header files.
@@ -340,10 +340,10 @@ AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 
- # Solaris stuff 
- AC_SEARCH_LIBS([inet_ntop],[nsl]) 
- AC_SEARCH_LIBS([recv],[socket]) 
- AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__") 
+ # Solaris stuff
+ AC_SEARCH_LIBS([inet_ntop],[nsl])
+ AC_SEARCH_LIBS([recv],[socket])
+ AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__")
 
 # Checks for library functions.
 AC_FUNC_MEMCMP
@@ -418,7 +418,7 @@ AC_ARG_ENABLE(glib,
         [HAVE_GLIB=yes])
 
 if test "x$HAVE_GLIB" = "xyes" ; then
-        PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
+        PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 gobject-2.0 ])
         AC_SUBST(GLIB20_CFLAGS)
         AC_SUBST(GLIB20_LIBS)
 fi
@@ -443,7 +443,7 @@ if test "x$HAVE_QT3" = "xyes" ; then
 	    QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
         MOC_QT3="no"
 	    AC_CHECK_FILE( "$QT3_PREFIX/moc-qt3", [ MOC_QT3=$QT3_PREFIX/moc-qt3 ], [
-        	    AC_CHECK_FILE("$QT3_PREFIX/moc", [ MOC_QT3=$QT3_PREFIX/moc ], [ 
+        	    AC_CHECK_FILE("$QT3_PREFIX/moc", [ MOC_QT3=$QT3_PREFIX/moc ], [
                 AC_MSG_ERROR([Couldn't find QT3 moc])])])
         AC_SUBST(MOC_QT3)
 fi
@@ -468,7 +468,7 @@ if test "x$HAVE_QT4" = "xyes" ; then
 	    QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"
         MOC_QT4="no"
 	    AC_CHECK_FILE( "$QT4_PREFIX/moc-qt4", [ MOC_QT4=$QT4_PREFIX/moc-qt4 ], [
-               AC_CHECK_FILE("$QT4_PREFIX/moc", [ MOC_QT4=$QT4_PREFIX/moc ], [ 
+               AC_CHECK_FILE("$QT4_PREFIX/moc", [ MOC_QT4=$QT4_PREFIX/moc ], [
                AC_MSG_ERROR([Couldn't find QT4 moc])])])
         AC_SUBST(MOC_QT4)
 fi
@@ -491,7 +491,7 @@ if test "x$HAVE_GTK" = "xyes" ; then
         PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.4.0 ])
         AC_SUBST(GTK20_CFLAGS)
         AC_SUBST(GTK20_LIBS)
-        
+
         # Check for GLADE 2.0
         PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
         AC_SUBST(GLADE20_CFLAGS)
@@ -509,7 +509,7 @@ AC_ARG_ENABLE(dbus,
                 no)  HAVE_DBUS=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-dbus) ;;
         esac],
-        [HAVE_DBUS=yes]) 
+        [HAVE_DBUS=yes])
 
 AC_ARG_WITH(dbus-sys, AS_HELP_STRING([--with-dbus-sys=<dir>], [Path to D-Bus system.d directory]))
 AC_ARG_WITH(dbus-system-socket, AS_HELP_STRING([--with-dbus-system-address=<address>], [Path to the D-Bus system socket, you probably want to put unix:path= at the start. Only needed for very old D-Bus releases]))
@@ -567,7 +567,7 @@ if test "x$HAVE_DBUS" = "xyes" ; then
         DBUS_SYSTEM_BUS_DEFAULT_ADDRESS="$with_dbus_system_address"
     else
         # This is ugly, but D-Bus doesn't export this address for us
-        # so we have to guess, pretty much all setups i've seen have 
+        # so we have to guess, pretty much all setups i've seen have
         # it in /var/lib/dbus or /var/run/dbus, and its defaulted to
         # /var/run upstream so we will try guess first then default
         # to /var/run/dbus.
@@ -581,7 +581,7 @@ if test "x$HAVE_DBUS" = "xyes" ; then
         done
     fi
     AC_SUBST(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)
-    
+
     SAVED_LIBS="$LIBS"
     LIBS="$LIBS $DBUS_LIBS"
     AC_CHECK_FUNCS([dbus_connection_close dbus_bus_get_private])
@@ -599,7 +599,7 @@ AC_ARG_ENABLE(expat,
                 no)  HAVE_EXPAT=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-expat) ;;
         esac],
-        [HAVE_EXPAT=yes]) 
+        [HAVE_EXPAT=yes])
 
 if test "x$HAVE_EXPAT" = "xyes" ; then
     AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
@@ -623,7 +623,7 @@ AC_ARG_ENABLE(dbm,
                 no)  HAVE_DBM=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-dbm) ;;
         esac],
-        [HAVE_DBM=no]) 
+        [HAVE_DBM=no])
 
 AC_ARG_ENABLE(gdbm,
         AS_HELP_STRING([--disable-gdbm],[Disable use of GDBM]),
@@ -632,7 +632,7 @@ AC_ARG_ENABLE(gdbm,
                 no)  HAVE_GDBM=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --disable-gdbm) ;;
         esac],
-        [HAVE_GDBM=yes]) 
+        [HAVE_GDBM=yes])
 
 if test "x$HAVE_GDBM" = "xyes" ; then
     if test "x$HAVE_DBM" = "xyes" ; then
@@ -667,7 +667,7 @@ AC_ARG_ENABLE(libdaemon,
                 no)  HAVE_LIBDAEMON=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-libdaemon) ;;
         esac],
-        [HAVE_LIBDAEMON=yes]) 
+        [HAVE_LIBDAEMON=yes])
 
 if test "x$HAVE_LIBDAEMON" = "xyes" ; then
     PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.11 ])
@@ -701,7 +701,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-pygtk) ;;
         esac],
         [HAVE_PYGTK=yes])
-    
+
     if test "x$HAVE_PYGTK" = "xyes" ; then
         AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module gtk)])
     fi
@@ -716,7 +716,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
                    *) AC_MSG_ERROR(bad value ${enableval} for --enable-python-dbus) ;;
             esac],
             [HAVE_PYTHON_DBUS=yes])
-    
+
         if test "x$HAVE_PYTHON_DBUS" = "xyes"; then
             AM_CHECK_PYMOD(dbus,,,[AC_MSG_ERROR(Could not find Python module dbus)])
         fi
@@ -780,7 +780,7 @@ AC_ARG_ENABLE(monodoc,
 
 if test "x$HAVE_MONO" = "xyes" && test "x$HAVE_MONODOC" = "xyes" ; then
         PKG_CHECK_MODULES(MONODOC, [monodoc >= 1.1.8])
-        MONODOC_DIR=`$PKG_CONFIG --variable=sourcesdir monodoc`        
+        MONODOC_DIR=`$PKG_CONFIG --variable=sourcesdir monodoc`
 
         AC_PATH_PROG(MONODOCER, monodocer)
         AC_PATH_PROG(MDASSEMBLER, mdassembler)
@@ -914,7 +914,7 @@ if test x$manpages = xyes ; then
       no)  xmltoman=no ;;
       *) AC_MSG_ERROR([bad value ${enableval} for --disable-xmltoman]) ;;
     esac],[xmltoman=yes])
-    
+
     if test x$xmltoman = xyes ; then
         AC_CHECK_PROG(have_xmltoman, xmltoman, yes, no)
     fi
@@ -976,16 +976,16 @@ AM_CONDITIONAL([ENABLE_COMPAT_HOWL], [test "x$ENABLE_COMPAT_HOWL" = "xyes"])
 
 # ==========================================================================
 AC_CONFIG_FILES([
-Makefile 
-avahi-common/Makefile 
-avahi-core/Makefile 
-avahi-glib/Makefile 
+Makefile
+avahi-common/Makefile
+avahi-core/Makefile
+avahi-glib/Makefile
 avahi-qt/Makefile
-avahi-daemon/Makefile 
+avahi-daemon/Makefile
 avahi-daemon/avahi-dbus.conf
-avahi-discover-standalone/Makefile 
-avahi-client/Makefile 
-initscript/Makefile 
+avahi-discover-standalone/Makefile
+avahi-client/Makefile
+initscript/Makefile
 initscript/debian/Makefile
 initscript/gentoo/Makefile
 initscript/archlinux/Makefile

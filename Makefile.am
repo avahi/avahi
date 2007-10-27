@@ -48,7 +48,8 @@ EXTRA_DIST = \
 	avahi-ui-sharp.pc.in \
 	avahi-compat-libdns_sd.pc.in \
 	avahi-compat-howl.pc.in \
-	avahi-ui.pc.in
+	avahi-ui.pc.in \
+	doxygen_to_devhelp.xsl
 
 SUBDIRS = \
 	common \
@@ -253,6 +254,11 @@ avahi-qt4.pc: avahi-qt4.pc.in
 CLEANFILES += avahi-qt4.pc
 
 endif
+
+CLEANFILES += avahi.devhelp
+
+avahi.devhelp: doxygen-run
+	xsltproc -o $@ doxygen_to_devhelp.xsl doxygen/xml/index.xml
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 

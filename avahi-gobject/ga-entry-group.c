@@ -27,7 +27,7 @@
 #include <string.h>
 #include <avahi-common/malloc.h>
 
-#include "ga-errors.h"
+#include "ga-error.h"
 #include "ga-entry-group.h"
 #include "ga-entry-group-enumtypes.h"
 
@@ -386,7 +386,7 @@ GaEntryGroupService *ga_entry_group_add_service_full_strlist(GaEntryGroup *
                                                domain, host, port, txt);
     if (ret) {
         if (error != NULL) {
-            *error = g_error_new(GA_ERRORS, ret,
+            *error = g_error_new(GA_ERROR, ret,
                                  "Adding service to group failed: %s",
                                  avahi_strerror(ret));
         }
@@ -492,7 +492,7 @@ gboolean ga_entry_group_add_record_full(GaEntryGroup * group,
                                        size);
     if (ret) {
         if (error != NULL) {
-            *error = g_error_new(GA_ERRORS, ret,
+            *error = g_error_new(GA_ERROR, ret,
                                  "Setting raw record failed: %s",
                                  avahi_strerror(ret));
         }
@@ -519,7 +519,7 @@ gboolean ga_entry_group_service_thaw(GaEntryGroupService * service, GError ** er
              service->name, service->type, service->domain, txt);
     if (ret) {
         if (error != NULL) {
-            *error = g_error_new(GA_ERRORS, ret,
+            *error = g_error_new(GA_ERROR, ret,
                                  "Updating txt record failed: %s",
                                  avahi_strerror(ret));
         }
@@ -581,7 +581,7 @@ gboolean ga_entry_group_attach(GaEntryGroup * group,
     if (priv->group == NULL) {
         if (error != NULL) {
             int aerrno = avahi_client_errno(client->avahi_client);
-            *error = g_error_new(GA_ERRORS, aerrno,
+            *error = g_error_new(GA_ERROR, aerrno,
                                  "Attaching group failed: %s",
                                  avahi_strerror(aerrno));
         }
@@ -596,7 +596,7 @@ gboolean ga_entry_group_commit(GaEntryGroup * group, GError ** error) {
     ret = avahi_entry_group_commit(priv->group);
     if (ret) {
         if (error != NULL) {
-            *error = g_error_new(GA_ERRORS, ret,
+            *error = g_error_new(GA_ERROR, ret,
                                  "Committing group failed: %s",
                                  avahi_strerror(ret));
         }
@@ -611,7 +611,7 @@ gboolean ga_entry_group_reset(GaEntryGroup * group, GError ** error) {
     ret = avahi_entry_group_reset(priv->group);
     if (ret) {
         if (error != NULL) {
-            *error = g_error_new(GA_ERRORS, ret,
+            *error = g_error_new(GA_ERROR, ret,
                                  "Resetting group failed: %s",
                                  avahi_strerror(ret));
         }

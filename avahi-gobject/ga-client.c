@@ -27,7 +27,7 @@
 #include "ga-client.h"
 
 #include "ga-client-enumtypes.h"
-#include "ga-errors.h"
+#include "ga-error.h"
 
 /* FIXME what to do about glib-malloc ? */
 #include <avahi-glib/glib-watch.h>
@@ -245,7 +245,7 @@ gboolean ga_client_start(GaClient * client, GError ** error) {
                                _avahi_client_cb, client, &aerror);
     if (aclient == NULL) {
         if (error != NULL) {
-            *error = g_error_new(GA_ERRORS, aerror,
+            *error = g_error_new(GA_ERROR, aerror,
                                  "Failed to create avahi client: %s",
                                  avahi_strerror(aerror));
         }

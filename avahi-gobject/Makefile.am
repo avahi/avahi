@@ -30,7 +30,7 @@ avahigobjectinclude_HEADERS = \
 	ga-client.h \
 	ga-entry-group.h \
 	ga-enums.h \
-	ga-errors.h \
+	ga-error.h \
 	ga-record-browser.h \
 	ga-service-browser.h \
 	ga-service-resolver.h
@@ -53,7 +53,7 @@ CORE_SOURCES = \
 	ga-client.c ga-client.h \
 	ga-entry-group.c ga-entry-group.h \
 	ga-enums.h \
-	ga-errors.c ga-errors.h \
+	ga-error.c ga-error.h \
 	ga-record-browser.c ga-record-browser.h \
 	ga-service-browser.c ga-service-browser.h \
 	ga-service-resolver.c ga-service-resolver.h

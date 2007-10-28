@@ -27,7 +27,7 @@
 
 #include "ga-record-browser.h"
 #include "signals-marshal.h"
-#include "ga-errors.h"
+#include "ga-error.h"
 #include "ga-enums-enumtypes.h"
 
 G_DEFINE_TYPE(GaRecordBrowser, ga_record_browser, G_TYPE_OBJECT)
@@ -344,7 +344,7 @@ static void _avahi_record_browser_cb(AVAHI_GCC_UNUSED AvahiRecordBrowser * r, Av
         case AVAHI_BROWSER_FAILURE:{
                 GError *error;
                 int aerrno = avahi_client_errno(priv->client->avahi_client);
-                error = g_error_new(GA_ERRORS, aerrno,
+                error = g_error_new(GA_ERROR, aerrno,
                                     "Browsing failed: %s",
                                     avahi_strerror(aerrno));
                 g_signal_emit(self, signals[FAILURE], 0, error);
@@ -371,7 +371,7 @@ gboolean ga_record_browser_attach(GaRecordBrowser * browser,
     if (priv->browser == NULL) {
         if (error != NULL) {
             int aerrno = avahi_client_errno(client->avahi_client);
-            *error = g_error_new(GA_ERRORS, aerrno,
+            *error = g_error_new(GA_ERROR, aerrno,
                                  "Attaching record browser failed: %s",
                                  avahi_strerror(aerrno));
         }

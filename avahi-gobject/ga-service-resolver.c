@@ -27,7 +27,7 @@
 #include "ga-service-resolver.h"
 #include "signals-marshal.h"
 
-#include "ga-errors.h"
+#include "ga-error.h"
 
 #include "ga-enums.h"
 #include "ga-enums-enumtypes.h"
@@ -332,7 +332,7 @@ static void _avahi_service_resolver_cb(AVAHI_GCC_UNUSED AvahiServiceResolver * r
         case AVAHI_RESOLVER_FAILURE:{
                 GError *error;
                 int aerrno = avahi_client_errno(priv->client->avahi_client);
-                error = g_error_new(GA_ERRORS, aerrno,
+                error = g_error_new(GA_ERROR, aerrno,
                                     "Resolving failed: %s",
                                     avahi_strerror(aerrno));
                 g_signal_emit(self, signals[FAILURE], 0, error);
@@ -378,7 +378,7 @@ gboolean ga_service_resolver_attach(GaServiceResolver * resolver,
     if (priv->resolver == NULL) {
         if (error != NULL) {
             int aerrno = avahi_client_errno(client->avahi_client);
-            *error = g_error_new(GA_ERRORS, aerrno,
+            *error = g_error_new(GA_ERROR, aerrno,
                                  "Attaching group failed: %s",
                                  avahi_strerror(aerrno));
         }

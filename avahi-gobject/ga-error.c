@@ -1,7 +1,6 @@
 /*
- * ga-errors.h - Header for Avahi error types
- * Copyright (C) 2005 Collabora Ltd.
- * Copyright (C) 2005 Nokia Corporation
+ * ga-error.c - Source for error types used
+ * Copyright (C) 2006 Collabora Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,17 +17,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GA_ERRORS_H__
-#define __GA_ERRORS_H__
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include <glib-object.h>
+#include <glib.h>
+#include "ga-error.h"
 
-G_BEGIN_DECLS
-#include <avahi-common/error.h>
-
-GQuark ga_errors_quark(void);
-
-#define GA_ERRORS ga_errors_quark()
-
-G_END_DECLS
-#endif /* #ifndef __GA_ERRORS_H__ */
+GQuark ga_error_quark(void) {
+    static GQuark quark = 0;
+    if (!quark)
+        quark = g_quark_from_static_string("ga_error");
+    return quark;
+}

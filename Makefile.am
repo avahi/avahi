@@ -59,6 +59,7 @@ SUBDIRS = \
 	avahi-qt \
 	avahi-client \
 	avahi-glib \
+	avahi-gobject \
 	avahi-discover-standalone \
 	avahi-daemon \
 	avahi-sharp \

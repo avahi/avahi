@@ -1000,6 +1000,7 @@ Makefile
 avahi-common/Makefile
 avahi-core/Makefile
 avahi-glib/Makefile
+avahi-gobject/Makefile
 avahi-qt/Makefile
 avahi-daemon/Makefile
 avahi-daemon/avahi-dbus.conf

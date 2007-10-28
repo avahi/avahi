@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -27,7 +27,7 @@
 #include <avahi-common/cdecl.h>
 
 /** \mainpage
- *  
+ *
  * \section choose_api Choosing an API
  *
  * Avahi provides three programming APIs for integration of
@@ -45,7 +45,9 @@
  * \li <b>avahi-client</b>: a simplifying C wrapper around the D-Bus API. We
  * recommend using this API in C or C++ progams. The D-Bus internals
  * are hidden completely.
- * 
+ * \li <b>avahi-gobject</b>: an object-oriented C wrapper based on
+ * GLib's GObject. We recommd using this API for GNOME/Gtk programs.
+ *
  * All three APIs are very similar, however avahi-core is the most powerful.
  *
  * In addition to the three APIs described above Avahi supports two
@@ -86,7 +88,7 @@
  * files for all definitions that are part of the Avahi API. Please
  * note that these hidden definitions are considered part of the Avahi
  * API and will stay available in the API in the future.
- * 
+ *
  * \section error_reporting Error Reporting
  *
  * Some notes on the Avahi error handling:
@@ -217,7 +219,7 @@ AVAHI_C_DECL_BEGIN
 
 /** States of a server object */
 typedef enum {
-    AVAHI_SERVER_INVALID,          /**< Invalid state (initial) */ 
+    AVAHI_SERVER_INVALID,          /**< Invalid state (initial) */
     AVAHI_SERVER_REGISTERING,      /**< Host RRs are being registered */
     AVAHI_SERVER_RUNNING,          /**< All host RRs have been established */
     AVAHI_SERVER_COLLISION,        /**< There is a collision with a host RR. All host RRs have been withdrawn, the user should set a new host name via avahi_server_set_host_name() */

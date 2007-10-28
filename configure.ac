@@ -32,6 +32,7 @@ AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [7:5:4])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [5:3:0])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:3:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:1:0])
+AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:0:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:1:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:1:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [0:2:0])
@@ -418,11 +419,30 @@ AC_ARG_ENABLE(glib,
         [HAVE_GLIB=yes])
 
 if test "x$HAVE_GLIB" = "xyes" ; then
-        PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 gobject-2.0 ])
+        PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
         AC_SUBST(GLIB20_CFLAGS)
         AC_SUBST(GLIB20_LIBS)
 fi
 AM_CONDITIONAL(HAVE_GLIB, test "x$HAVE_GLIB" = "xyes")
+
+#
+# Check for GLIB's gobject 2.0
+#
+AC_ARG_ENABLE(gobject,
+        AS_HELP_STRING([--disable-gobject],[Disable use of GLib GObject]),
+        [case "${enableval}" in
+                yes) HAVE_GOBJECT=yes ;;
+                no)  HAVE_GOBJECT=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gobject) ;;
+        esac],
+        [HAVE_GOBJECT=yes])
+
+if test "x$HAVE_GOBJECT" = "xyes" ; then
+        PKG_CHECK_MODULES(GOBJECT, [ glib-2.0 >= 2.4.0 gobject-2.0 ])
+        AC_SUBST(GOBJECT_CFLAGS)
+        AC_SUBST(GOBJECT_LIBS)
+fi
+AM_CONDITIONAL(HAVE_GOBJECT, test "x$HAVE_GOBJECT" = "xyes")
 
 #
 # Check for Qt 3
@@ -1029,6 +1049,7 @@ echo "
     C Compiler:                                ${CC}
     CFLAGS:                                    ${CFLAGS}
     Enable GLIB:                               ${HAVE_GLIB}
+    Enable GLIB GObject:                       ${HAVE_GOBJECT}
     Enable GTK:                                ${HAVE_GTK}
     Enable D-Bus:                              ${HAVE_DBUS}
     Enable Expat:                              ${HAVE_EXPAT}
@@ -1094,6 +1115,7 @@ echo "\
     Building avahi-utils:               ${BUILD_CLIENT}
     Building avahi-python:              ${BUILD_PYTHON}
     Building libavahi-glib:             ${HAVE_GLIB}
+    Building libavahi-gobject:          ${HAVE_GOBJECT}
     Building avahi-discover-standalone: ${HAVE_GTK}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}

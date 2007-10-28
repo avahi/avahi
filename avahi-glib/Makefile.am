@@ -28,7 +28,33 @@ avahiincludedir=$(includedir)/avahi-glib
 
 avahiinclude_HEADERS = \
 	glib-watch.h \
-	glib-malloc.h \
+	glib-malloc.h
+
+lib_LTLIBRARIES = \
+	libavahi-glib.la
+
+if ENABLE_TESTS
+noinst_PROGRAMS = \
+	glib-watch-test
+endif
+
+libavahi_glib_la_SOURCES = \
+	glib-watch.c glib-watch.h \
+	glib-malloc.h glib-malloc.c
+
+libavahi_glib_la_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+libavahi_glib_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
+libavahi_glib_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_GLIB_VERSION_INFO)
+
+glib_watch_test_SOURCES = \
+	glib-watch.c glib-watch.h \
+	glib-watch-test.c
+glib_watch_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
+glib_watch_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
+
+if HAVE_GOBJECT
+
+avahiinclude_HEADERS += \
 	ga-client.h \
 	ga-entry-group.h \
 	ga-enums.h \
@@ -37,27 +63,19 @@ avahiinclude_HEADERS = \
 	ga-service-browser.h \
 	ga-service-resolver.h
 
-lib_LTLIBRARIES = \
-	libavahi-glib.la
-
-if ENABLE_TESTS
-
-noinst_PROGRAMS = \
-	glib-watch-test
-
-endif
+lib_LTLIBRARIES += \
+	libavahi-gobject.la
 
 BUILT_SOURCES = \
-    signals-marshal.list \
-    signals-marshal.h \
-    signals-marshal.c \
-    ga-client-enumtypes.h \
-    ga-client-enumtypes.c  \
-    ga-entry-group-enumtypes.h \
-    ga-entry-group-enumtypes.c  \
-    ga-enums-enumtypes.h \
-    ga-enums-enumtypes.c
-
+	signals-marshal.list \
+	signals-marshal.h \
+	signals-marshal.c \
+	ga-client-enumtypes.h \
+	ga-client-enumtypes.c  \
+	ga-entry-group-enumtypes.h \
+	ga-entry-group-enumtypes.c  \
+	ga-enums-enumtypes.h \
+	ga-enums-enumtypes.c
 
 CORE_SOURCES = \
 	ga-client.c ga-client.h \
@@ -68,22 +86,13 @@ CORE_SOURCES = \
 	ga-service-browser.c ga-service-browser.h \
 	ga-service-resolver.c ga-service-resolver.h
 
-libavahi_glib_la_SOURCES = \
-	glib-watch.c glib-watch.h \
-	glib-malloc.h glib-malloc.c \
+libavahi_gobject_la_SOURCES = \
 	$(CORE_SOURCES) \
 	$(BUILT_SOURCES)
 
-libavahi_glib_la_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
-libavahi_glib_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la $(GLIB20_LIBS)
-libavahi_glib_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_GLIB_VERSION_INFO)
-
-glib_watch_test_SOURCES = \
-	glib-watch.c glib-watch.h \
-	glib-watch-test.c
-glib_watch_test_CFLAGS = $(AM_CFLAGS) $(GLIB20_CFLAGS)
-glib_watch_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(GLIB20_LIBS)
-
+libavahi_gobject_la_CFLAGS = $(AM_CFLAGS) $(GOBJECT_CFLAGS)
+libavahi_gobject_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la libavahi-glib.la $(GOJECT_LIBS)
+libavahi_gobject_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_GOBJECT_VERSION_INFO)
 
 # correctly clean the generated source files
 CLEANFILES = $(BUILT_SOURCES)
@@ -126,6 +135,8 @@ signals-marshal.c: signals-marshal.list
 	--vprod "      { @VALUENAME@, \"@VALUENAME@\", \"@VALUENAME@\" }," \
 	--vtail "      { 0, NULL, NULL }\n    };\n    etype = g_@type@_register_static (\"@EnumName@\", values);\n  }\n  return etype;\n}\n" \
 	$< > $@
+
+endif
 
 endif
 

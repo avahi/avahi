@@ -42,6 +42,7 @@ EXTRA_DIST = \
 	avahi-core.pc.in \
 	avahi-client.pc.in \
 	avahi-glib.pc.in \
+	avahi-gobject.pc.in \
 	avahi-qt3.pc.in \
 	avahi-qt4.pc.in \
 	avahi-sharp.pc.in \
@@ -212,6 +213,18 @@ avahi-glib.pc: avahi-glib.pc.in
 
 CLEANFILES += avahi-glib.pc
 
+if HAVE_GOBJECT
+
+pkgconfig_DATA += avahi-gobject.pc
+
+avahi-gobject.pc: avahi-gobject.pc.in
+	sed -e 's,@prefix\@,$(prefix),g' \
+	    -e 's,@libdir\@,$(libdir),g' \
+	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
+
+CLEANFILES += avahi-gobject.pc
+
+endif
 endif
 
 if HAVE_GTK

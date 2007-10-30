@@ -300,3 +300,10 @@ homepage:
 	$(MAKE) doxygen-run
 	ssh tango rm -rf www/avahi.org/tree/download/doxygen
 	scp -r doxygen/html tango:www/avahi.org/tree/download/doxygen
+
+dist-hook:
+	if test -d .svn ; then \
+		svn update ; \
+		chmod u+w ${distdir}/ChangeLog || true ; \
+		svn2cl -o ${distdir}/ChangeLog ; \
+	fi

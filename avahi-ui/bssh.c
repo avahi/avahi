@@ -42,7 +42,12 @@ int main(int argc, char*argv[]) {
 
     gtk_init(&argc, &argv);
 
-    if (g_str_has_suffix(argv[0], "bvnc")) {
+    if (g_str_has_suffix(argv[0], "bshell")) {
+        d = aui_service_dialog_new("Choose Shell Server", NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "_ssh._tcp", NULL);
+        aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "Desktop");
+        aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_ssh._tcp", "Terminal");
+    } else if (g_str_has_suffix(argv[0], "bvnc")) {
         d = aui_service_dialog_new("Choose VNC server", NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
         aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
     } else {
@@ -59,7 +64,7 @@ int main(int argc, char*argv[]) {
         char a[AVAHI_ADDRESS_STR_MAX], *u = NULL, *n = NULL;
         char *h = NULL, *t = NULL;
         const AvahiStringList *txt;
-        
+
         t = g_strdup(aui_service_dialog_get_service_type(AUI_SERVICE_DIALOG(d)));
         n = g_strdup(aui_service_dialog_get_service_name(AUI_SERVICE_DIALOG(d)));
         
@@ -136,5 +141,4 @@ int main(int argc, char*argv[]) {
     }
     
     return 1;
-    
 }

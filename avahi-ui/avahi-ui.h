@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -45,7 +45,7 @@ typedef struct _AuiServiceDialogClass  AuiServiceDialogClass;
 
 struct _AuiServiceDialogClass {
     GtkDialogClass parent_class;
-    
+
     /* Padding for future expansion */
     void (*_aui_reserved1)(void);
     void (*_aui_reserved2)(void);
@@ -95,6 +95,8 @@ void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const gcha
 void aui_service_dialog_set_browse_service_typesv(AuiServiceDialog *d, const gchar *const*type);
 /** Return the service types currently browsed for. i.e. what was previously set with aui_service_dialog_set_browse_service_types() */
 const gchar*const* aui_service_dialog_get_browse_service_types(AuiServiceDialog *d);
+/** Overwrite the pretty name shown in the service type column. \since 0.6.22 */
+void aui_service_dialog_set_service_type_name(AuiServiceDialog *d, const gchar *type, const gchar *name);
 
 /** @} */
 
@@ -180,5 +182,3 @@ AvahiProtocol aui_service_dialog_get_address_family(AuiServiceDialog *d);
 G_END_DECLS
 
 #endif
-
-

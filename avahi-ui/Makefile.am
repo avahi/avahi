@@ -65,8 +65,9 @@ bssh_LDADD = $(AM_LDADD) $(GTK20_LIBS) ../avahi-client/libavahi-client.la ../ava
 
 install-exec-local:
 	cd $(DESTDIR)/$(bindir) && \
-		rm -f bvnc && \
-		$(LN_S) bssh bvnc
+		rm -f bvnc bshell && \
+		$(LN_S) bssh bvnc && \
+		$(LN_S) bssh bshell
 
 bssh.desktop: bssh.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@

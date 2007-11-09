@@ -749,7 +749,7 @@ static gboolean start_callback(gpointer data) {
     d->priv->common_protocol = AVAHI_PROTO_UNSPEC;
 
     gtk_tree_view_column_set_visible(gtk_tree_view_get_column(GTK_TREE_VIEW(d->priv->service_tree_view), 0), FALSE);
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(d->priv->service_tree_view), gtk_tree_view_column_get_visible(gtk_tree_view_get_column(GTK_TREE_VIEW(d->priv->service_tree_view), 2)));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(d->priv->service_tree_view), FALSE);
     gtk_widget_show(d->priv->service_progress_bar);
 
     if (d->priv->service_pulse_timeout <= 0)
@@ -1214,9 +1214,7 @@ void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const char
     va_end(ap);
 
     if (d->priv->browse_service_types[0] && d->priv->browse_service_types[1]) {
-        /* Multiple service types, enable headers */
-
-        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(d->priv->service_tree_view), TRUE);
+        /* Multiple service types, show type-column */
         gtk_tree_view_column_set_visible(gtk_tree_view_get_column(GTK_TREE_VIEW(d->priv->service_tree_view), 2), TRUE);
     }
 
@@ -1233,9 +1231,7 @@ void aui_service_dialog_set_browse_service_typesv(AuiServiceDialog *d, const cha
     d->priv->browse_service_types = g_strdupv((char**) types);
 
     if (d->priv->browse_service_types[0] && d->priv->browse_service_types[1]) {
-        /* Multiple service types, enable headers */
-
-        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(d->priv->service_tree_view), TRUE);
+        /* Multiple service types, show type-column */
         gtk_tree_view_column_set_visible(gtk_tree_view_get_column(GTK_TREE_VIEW(d->priv->service_tree_view), 2), TRUE);
     }
 

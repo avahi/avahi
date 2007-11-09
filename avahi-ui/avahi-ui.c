@@ -244,7 +244,7 @@ static void aui_service_dialog_class_init(AuiServiceDialogClass *klass) {
 
 
 GtkWidget *aui_service_dialog_new_valist(
-        gchar *title,
+        const gchar *title,
         GtkWindow *parent,
         const gchar *first_button_text,
         va_list varargs) {
@@ -291,7 +291,7 @@ GtkWidget* aui_service_dialog_new(
     
     va_list varargs;
     va_start(varargs, first_button_text);
-    w = aui_service_dialog_new_valist((gchar*) title, parent, first_button_text, varargs);
+    w = aui_service_dialog_new_valist(title, parent, first_button_text, varargs);
     va_end(varargs);
     
     return w;
@@ -329,9 +329,9 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void *userda
 }
 
 static void resolve_callback(
-        AvahiServiceResolver *r,
-        AvahiIfIndex interface,
-        AvahiProtocol protocol,
+        AvahiServiceResolver *r G_GNUC_UNUSED,
+        AvahiIfIndex interface G_GNUC_UNUSED,
+        AvahiProtocol protocol G_GNUC_UNUSED,
         AvahiResolverEvent event,
         const char *name,
         const char *type,
@@ -340,7 +340,7 @@ static void resolve_callback(
         const AvahiAddress *a,
         uint16_t port,
         AvahiStringList *txt,
-        AvahiLookupResultFlags flags,
+        AvahiLookupResultFlags flags G_GNUC_UNUSED,
         void *userdata) {
 
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(userdata);
@@ -394,7 +394,7 @@ static void resolve_callback(
 
 
 static void browse_callback(
-        AvahiServiceBrowser *b,
+        AvahiServiceBrowser *b G_GNUC_UNUSED,
         AvahiIfIndex interface,
         AvahiProtocol protocol,
         AvahiBrowserEvent event,
@@ -548,9 +548,9 @@ static void domain_make_default_selection(AuiServiceDialog *d, const gchar *name
 }
 
 static void domain_browse_callback(
-        AvahiDomainBrowser *b,
-        AvahiIfIndex interface,
-        AvahiProtocol protocol,
+        AvahiDomainBrowser *b G_GNUC_UNUSED,
+        AvahiIfIndex interface G_GNUC_UNUSED,
+        AvahiProtocol protocol G_GNUC_UNUSED,
         AvahiBrowserEvent event,
         const char *name,
         AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
@@ -823,7 +823,7 @@ static void aui_service_dialog_finalize(GObject *object) {
     G_OBJECT_CLASS(aui_service_dialog_parent_class)->finalize(object);
 }
 
-static void service_row_activated_callback(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data) {
+static void service_row_activated_callback(GtkTreeView *tree_view G_GNUC_UNUSED, GtkTreePath *path G_GNUC_UNUSED, GtkTreeViewColumn *column G_GNUC_UNUSED, gpointer user_data) {
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
 
     gtk_dialog_response(GTK_DIALOG(d), get_default_response(GTK_DIALOG(d)));
@@ -910,14 +910,14 @@ static gboolean is_valid_domain_suffix(const gchar *n) {
     return !!label[0];
 }
 
-static void domain_row_activated_callback(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data) {
+static void domain_row_activated_callback(GtkTreeView *tree_view G_GNUC_UNUSED, GtkTreePath *path G_GNUC_UNUSED, GtkTreeViewColumn *column G_GNUC_UNUSED, gpointer user_data) {
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
 
     if (is_valid_domain_suffix(gtk_entry_get_text(GTK_ENTRY(d->priv->domain_entry))))
         gtk_dialog_response(GTK_DIALOG(d->priv->domain_dialog), GTK_RESPONSE_ACCEPT);
 }
 
-static void domain_selection_changed_callback(GtkTreeSelection *selection, gpointer user_data) {
+static void domain_selection_changed_callback(GtkTreeSelection *selection G_GNUC_UNUSED, gpointer user_data) {
     GtkTreeIter iter;
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
     gchar *name;
@@ -930,13 +930,13 @@ static void domain_selection_changed_callback(GtkTreeSelection *selection, gpoin
     gtk_entry_set_text(GTK_ENTRY(d->priv->domain_entry), name);
 }
 
-static void domain_entry_changed_callback(GtkEditable *editable, gpointer user_data) {
+static void domain_entry_changed_callback(GtkEditable *editable G_GNUC_UNUSED, gpointer user_data) {
     AuiServiceDialog *d = AUI_SERVICE_DIALOG(user_data);
 
     gtk_widget_set_sensitive(d->priv->domain_ok_button, is_valid_domain_suffix(gtk_entry_get_text(GTK_ENTRY(d->priv->domain_entry))));
 }
 
-static void domain_button_clicked(GtkButton *button, gpointer user_data) {
+static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user_data) {
     GtkWidget *vbox, *vbox2, *scrolled_window;
     GtkTreeSelection *selection;
     GtkCellRenderer *renderer;
@@ -977,7 +977,8 @@ static void domain_button_clicked(GtkButton *button, gpointer user_data) {
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(p->domain_dialog)->vbox), vbox, TRUE, TRUE, 0);
 
-    p->domain_entry = gtk_entry_new_with_max_length(AVAHI_DOMAIN_NAME_MAX);
+    p->domain_entry = gtk_entry_new();
+    gtk_entry_set_max_length(GTK_ENTRY(p->domain_entry), AVAHI_DOMAIN_NAME_MAX);
     gtk_entry_set_text(GTK_ENTRY(p->domain_entry), domain);
     gtk_entry_set_activates_default(GTK_ENTRY(p->domain_entry), TRUE);
     g_signal_connect(p->domain_entry, "changed", G_CALLBACK(domain_entry_changed_callback), d);
@@ -1176,7 +1177,7 @@ static void restart_browsing(AuiServiceDialog *d) {
 }
 
 void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const char *type, ...) {
-    va_list ap, apcopy;
+    va_list ap;
     const char *t;
     unsigned u;
     
@@ -1184,8 +1185,6 @@ void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const char
     g_return_if_fail(type);
 
     g_strfreev(d->priv->browse_service_types);
-    
-    va_copy(apcopy, ap);
     
     va_start(ap, type);
     for (u = 1; va_arg(ap, const char *); u++)
@@ -1195,10 +1194,10 @@ void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const char
     d->priv->browse_service_types = g_new0(gchar*, u+1);
     d->priv->browse_service_types[0] = g_strdup(type);
     
-    va_start(apcopy, type);
+    va_start(ap, type);
     for (u = 1; (t = va_arg(apcopy, const char*)); u++)
         d->priv->browse_service_types[u] = g_strdup(t);
-    va_end(apcopy);
+    va_end(ap);
 
     if (d->priv->browse_service_types[0] && d->priv->browse_service_types[1]) {
         /* Multiple service types, enable headers */

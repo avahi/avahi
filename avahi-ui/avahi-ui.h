@@ -79,7 +79,7 @@ GtkWidget* aui_service_dialog_new(
 
 /** \cond fulldocs */
 GtkWidget *aui_service_dialog_new_valist(
-        gchar *title,
+        const gchar *title,
         GtkWindow *parent,
         const gchar *first_button_text,
         va_list varargs);

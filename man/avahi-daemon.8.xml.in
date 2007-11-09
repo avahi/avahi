@@ -33,7 +33,7 @@
 	</synopsis>
 	
     <description>
-      <p>The Avahi mDNS/DNS-SD daemon implementing Apple's ZeroConf
+      <p>The Avahi mDNS/DNS-SD daemon implements Apple's Zeroconf
       architecture (also known as "Rendezvous" or "Bonjour"). The daemon
       registers local IP addresses and static services using
       mDNS/DNS-SD and provides two IPC APIs for local programs to make

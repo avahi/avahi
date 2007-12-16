@@ -646,7 +646,7 @@ fi
 
 if $use_expat; then
 	with_xml=expat
-	XML_CLAGS=-DUSE_EXPAT_H
+	XML_CFLAGS=-DUSE_EXPAT_H
 	XML_LIBS=-lexpat
 fi
 if $use_bsdxml; then

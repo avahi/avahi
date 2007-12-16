@@ -621,6 +621,7 @@ AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=tru
 AC_CHECK_LIB(bsdxml, XML_ParserCreate, [ AC_CHECK_HEADERS(bsdxml.h, have_bsdxml=true, have_bsdxml=false) ], have_bsdxml=false)
 
 if test "x$with_xml" = "xnone"; then
+        :
 elif test "x$with_xml" = "xexpat"; then
 	use_expat=true
 	if ! $have_expat ; then

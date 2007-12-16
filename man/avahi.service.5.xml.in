@@ -34,7 +34,7 @@
       file can contain multiple service definitions which share the
       same name. This is useful for publishing service data for
       services which implement multiple protocols. (i.e. a printer
-      implementing _ipp._tcp and _printer.tcp)</p> </description>
+      implementing _ipp._tcp and _printer._tcp)</p> </description>
 	
 	<section name="XML Tags">
       

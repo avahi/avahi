@@ -451,7 +451,11 @@ static int sendmsg_loop(int fd, struct msghdr *msg, int flags) {
             break;
 
         if (errno != EAGAIN) {
-            avahi_log_debug("sendmsg() failed: %s", strerror(errno));
+            char where[64];
+            struct sockaddr_in *sin = msg->msg_name;
+
+            inet_ntop(sin->sin_family, &sin->sin_addr, where, sizeof(where));
+            avahi_log_debug("sendmsg() to %s failed: %s", where, strerror(errno));
             return -1;
         }
 

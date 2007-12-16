@@ -476,7 +476,7 @@ int avahi_send_dns_packet_ipv4(
 #ifdef IP_PKTINFO
     struct cmsghdr *cmsg;
     size_t cmsg_data[( CMSG_SPACE(sizeof(struct in_pktinfo)) / sizeof(size_t)) + 1];
-#elif defined(IP_SENDSRCADDR)
+#elif !defined(IP_MULTICAST_IF) && defined(IP_SENDSRCADDR)
     struct cmsghdr *cmsg;
     size_t cmsg_data[( CMSG_SPACE(sizeof(struct in_addr)) / sizeof(size_t)) + 1];
 #endif
@@ -525,6 +525,14 @@ int avahi_send_dns_packet_ipv4(
         if (src_address)
             pkti->ipi_spec_dst.s_addr = src_address->address;
     }
+#elif defined(IP_MULTICAST_IF)
+    if (src_address) {
+        struct in_addr any = { INADDR_ANY };
+        if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, src_address ? &src_address->address : &any, sizeof(struct in_addr)) < 0) {
+            avahi_log_warn("IP_MULTICAST_IF failed: %s", strerror(errno));
+            return -1;
+        }
+    }
 #elif defined(IP_SENDSRCADDR)
     if (src_address) {
         struct in_addr *addr;
@@ -540,14 +548,6 @@ int avahi_send_dns_packet_ipv4(
 
         addr = (struct in_addr *)CMSG_DATA(cmsg);
         addr->s_addr =  src_address->address;
-    }
-#elif defined(IP_MULTICAST_IF)
-    {
-        struct in_addr any = { INADDR_ANY };
-        if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, src_address ? (const void*) &src_address->address : (const void*) &any, sizeof(struct in_addr)) < 0) {
-            avahi_log_warn("IP_MULTICAST_IF failed: %s", strerror(errno));
-            return -1;
-        }
     }
 #elif defined(__GNUC__)
 #warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO/IP_MULTICAST_IF is not available"

@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -161,12 +161,23 @@ typedef void (*AvahiServiceResolverCallback) (
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags, 
+    AvahiLookupResultFlags flags,
     void *userdata);
 
 /** Create a new service resolver object. Please make sure to pass all
  * the service data you received via avahi_service_browser_new()'s
- * callback function, especially interface and protocol. */
+ * callback function, especially interface and protocol. The protocol
+ * argument specifies the protocol (IPv4 or IPv6) to use as transport
+ * for the queries which are sent out by this resolver. The
+ * aprotocol argument specifies the adress family (IPv4 or IPv6) of
+ * the address of the service we are looking for. Generally, on
+ * "protocol" you should only pass what was supplied to you as
+ * parameter to your AvahiServiceBrowserCallback. In "aprotocol" you
+ * should pass what your application code can deal with when
+ * connecting to the service. Or, more technically speaking: protocol
+ * specifies if the mDNS queries should be sent as UDP/IPv4
+ * resp. UDP/IPv6 packets. aprotocol specifies whether the query is for a A
+ * resp. AAAA resource record. */
 AvahiServiceResolver * avahi_service_resolver_new(
     AvahiClient *client,
     AvahiIfIndex interface,
@@ -199,7 +210,7 @@ typedef void (*AvahiHostNameResolverCallback) (
     AvahiResolverEvent event,
     const char *name,
     const AvahiAddress *a,
-    AvahiLookupResultFlags flags, 
+    AvahiLookupResultFlags flags,
     void *userdata);
 
 /** Create a new hostname resolver object */
@@ -230,7 +241,7 @@ typedef void (*AvahiAddressResolverCallback) (
     AvahiResolverEvent event,
     const AvahiAddress *a,
     const char *name,
-    AvahiLookupResultFlags flags, 
+    AvahiLookupResultFlags flags,
     void *userdata);
 
 /** Create a new address resolver object from an AvahiAddress object */

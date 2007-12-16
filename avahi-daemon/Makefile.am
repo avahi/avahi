@@ -23,7 +23,7 @@ AM_CFLAGS=-I$(top_srcdir)
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_LIBDAEMON
-if HAVE_EXPAT
+if HAVE_XML
 
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
@@ -56,8 +56,8 @@ avahi_daemon_SOURCES = \
 	../avahi-client/check-nss.c \
 	inotify-nosys.h
 
-avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS)
-avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) -lexpat
+avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS)
+avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) $(XML_LIBS)
 
 ini_file_parser_test_SOURCES = \
 	ini-file-parser.c ini-file-parser.h \

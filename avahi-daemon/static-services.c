@@ -31,7 +31,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#ifdef USE_EXPAT_H
 #include <expat.h>
+#endif /* USE_EXPAT_H */
+
+#ifdef USE_BSDXML_H
+#include <bsdxml.h>
+#endif /* USE_BSDXML_H */
 
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>

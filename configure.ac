@@ -612,23 +612,55 @@ AM_CONDITIONAL(HAVE_DBUS, test "x$HAVE_DBUS" = "xyes")
 #
 # Expat
 #
-AC_ARG_ENABLE(expat,
-        AS_HELP_STRING([--disable-expat],[Disable use of Expat]),
-        [case "${enableval}" in
-                yes) HAVE_EXPAT=yes ;;
-                no)  HAVE_EXPAT=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-expat) ;;
-        esac],
-        [HAVE_EXPAT=yes])
+AC_ARG_WITH(xml, AS_HELP_STRING([--with-xml=[expat/bsdxml/none]],[XML library to use]))
+use_expat=false
+use_bsdxml=false
 
-if test "x$HAVE_EXPAT" = "xyes" ; then
-    AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
+# See what we have
+AC_CHECK_LIB(expat, XML_ParserCreate, [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ], have_expat=false)
+AC_CHECK_LIB(bsdxml, XML_ParserCreate, [ AC_CHECK_HEADERS(bsdxml.h, have_bsdxml=true, have_bsdxml=false) ], have_bsdxml=false)
 
-    if ! $have_expat ; then
-        AC_MSG_ERROR([*** libexpat not found ***])
-    fi
+if test "x$with_xml" = "xnone"; then
+elif test "x$with_xml" = "xexpat"; then
+	use_expat=true
+	if ! $have_expat ; then
+		AC_MSG_ERROR([*** libexpat requested, but not found ***])
+	fi
+elif test "x$with_xml" = "xbsdxml"; then
+	use_bsdxml=true
+	if ! $have_bsdxml ; then
+		AC_MSG_ERROR([*** libbsdxml requested, but not found ***])
+	fi
+elif test "x$with_xml" != "x"; then
+	AC_MSG_ERROR([*** unknown with-xml option ***])
+else
+	if $have_expat ; then
+		use_expat=true
+	elif $have_bsdxml ; then
+		use_bsdxml=true
+	else
+		AC_MSG_ERROR([*** neither libexpat not libbsdxml could be found ***])
+	fi
 fi
-AM_CONDITIONAL(HAVE_EXPAT, test "x$HAVE_EXPAT" = "xyes")
+
+if $use_expat; then
+	with_xml=expat
+	XML_CLAGS=-DUSE_EXPAT_H
+	XML_LIBS=-lexpat
+fi
+if $use_bsdxml; then
+	with_xml=bsdxml
+	XML_CFLAGS=-DUSE_BSDXML_H
+	XML_LIBS=-lbsdxml
+fi
+AC_SUBST(XML_LIBS)
+AC_SUBST(XML_CFLAGS)
+
+if $use_expat || $use_bsdxml; then
+	HAVE_XML=yes
+fi
+
+AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
 
 #
 # GDBM
@@ -1053,7 +1085,7 @@ echo "
     Enable GLIB GObject:                       ${HAVE_GOBJECT}
     Enable GTK:                                ${HAVE_GTK}
     Enable D-Bus:                              ${HAVE_DBUS}
-    Enable Expat:                              ${HAVE_EXPAT}
+    With XML:                                  ${with_xml}
     Enable GDBM:                               ${HAVE_GDBM}
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}
@@ -1075,9 +1107,9 @@ echo "
     Enable stack-smashing protection:          ${enable_ssp}
 "
 
-BUILD_DAEMON="no   (You need libdaemon and expat!)"
+BUILD_DAEMON="no   (You need libdaemon and expat/bsdxml!)"
 
-if test "x$HAVE_EXPAT" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
+if test "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
     BUILD_DAEMON=yes
 fi
 

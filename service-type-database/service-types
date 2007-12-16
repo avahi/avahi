@@ -65,6 +65,8 @@ _airport._tcp:Apple AirPort
 _ftp._tcp:FTP File Transfer
 _ftp._tcp[de]:FTP-Dateifreigabe
 
+_tftp._udp:TFTP Trivial File Transfer
+
 _webdav._tcp:WebDAV File Share
 
 _webdavs._tcp:Secure WebDAV File Share

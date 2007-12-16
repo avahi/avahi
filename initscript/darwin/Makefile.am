@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-initddir = /System/Library/LaunchDaemons/
+initddir = /Library/LaunchDaemons/
 
 EXTRA_DIST = \
 	org.freedesktop.avahi-daemon.plist.in \

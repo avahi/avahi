@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #ifdef USE_EXPAT_H
 #include <expat.h>
@@ -54,7 +55,7 @@ typedef struct StaticServiceGroup StaticServiceGroup;
 
 struct StaticService {
     StaticServiceGroup *group;
-    
+
     char *type;
     char *domain_name;
     char *host_name;
@@ -62,9 +63,9 @@ struct StaticService {
     int protocol;
 
     AvahiStringList *subtypes;
-    
+
     AvahiStringList *txt_records;
-    
+
     AVAHI_LLIST_FIELDS(StaticService, services);
 };
 
@@ -115,7 +116,7 @@ static void remove_static_service_group_from_server(StaticServiceGroup *g);
 
 static StaticService *static_service_new(StaticServiceGroup *group) {
     StaticService *s;
-    
+
     assert(group);
     s = avahi_new(StaticService, 1);
     s->group = group;
@@ -151,7 +152,7 @@ static StaticServiceGroup *static_service_group_new(char *filename) {
 
 static void static_service_free(StaticService *s) {
     assert(s);
-    
+
     AVAHI_LLIST_REMOVE(StaticService, services, s->group->services, s);
 
     avahi_free(s->type);
@@ -160,7 +161,7 @@ static void static_service_free(StaticService *s) {
 
     avahi_string_list_free(s->txt_records);
     avahi_string_list_free(s->subtypes);
-    
+
     avahi_free(s);
 }
 
@@ -183,32 +184,32 @@ static void static_service_group_free(StaticServiceGroup *g) {
 
 static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *eg, AvahiEntryGroupState state, void* userdata) {
     StaticServiceGroup *g = userdata;
-    
+
     assert(s);
     assert(g);
 
     switch (state) {
-        
+
         case AVAHI_ENTRY_GROUP_COLLISION: {
             char *n;
-            
+
             remove_static_service_group_from_server(g);
-            
+
             n = avahi_alternative_service_name(g->chosen_name);
             avahi_free(g->chosen_name);
             g->chosen_name = n;
-            
+
             avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
-            
+
             add_static_service_group_to_server(g);
             break;
         }
-            
-        case AVAHI_ENTRY_GROUP_ESTABLISHED: 
+
+        case AVAHI_ENTRY_GROUP_ESTABLISHED:
             avahi_log_info("Service \"%s\" (%s) successfully established.", g->chosen_name, g->filename);
             break;
 
-        case AVAHI_ENTRY_GROUP_FAILURE: 
+        case AVAHI_ENTRY_GROUP_FAILURE:
             avahi_log_warn("Failed to publish service \"%s\" (%s): %s", g->chosen_name, g->filename, avahi_strerror(avahi_server_errno(s)));
             remove_static_service_group_from_server(g);
             break;
@@ -227,23 +228,23 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
     if (g->entry_group && !avahi_s_entry_group_is_empty(g->entry_group))
         /* This service group is already registered in the server */
         return;
-    
+
     if (!g->chosen_name || (g->replace_wildcards && strstr(g->name, "%h"))) {
 
         avahi_free(g->chosen_name);
-        
+
         if (g->replace_wildcards)
             g->chosen_name = replacestr(g->name, "%h", avahi_server_get_host_name(avahi_server));
         else
             g->chosen_name = avahi_strdup(g->name);
 
     }
-        
+
     if (!g->entry_group)
         g->entry_group = avahi_s_entry_group_new(avahi_server, entry_group_callback, g);
 
     assert(avahi_s_entry_group_is_empty(g->entry_group));
-    
+
     for (s = g->services; s; s = s->services_next) {
         AvahiStringList *i;
 
@@ -251,7 +252,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                 avahi_server,
                 g->entry_group,
                 AVAHI_IF_UNSPEC, s->protocol,
-                0, 
+                0,
                 g->chosen_name, s->type, s->domain_name,
                 s->host_name, s->port,
                 s->txt_records) < 0) {
@@ -271,7 +272,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                     0,
                     g->chosen_name, s->type, s->domain_name,
                     (char*) i->text) < 0) {
-                
+
                 avahi_log_error("Failed to add subtype '%s' for service '%s' of type '%s', ignoring subtype (%s): %s",
                                 i->text, g->chosen_name, s->type, g->filename,
                                 avahi_strerror(avahi_server_errno(avahi_server)));
@@ -316,7 +317,7 @@ struct xml_userdata {
 
 static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
     struct xml_userdata *u = data;
-    
+
     assert(u);
 
     if (u->failed)
@@ -332,7 +333,7 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
         u->current_tag = XML_TAG_NAME;
 
         if (attr[0]) {
-            if (strcmp(attr[0], "replace-wildcards") == 0) 
+            if (strcmp(attr[0], "replace-wildcards") == 0)
                 u->group->replace_wildcards = strcmp(attr[1], "yes") == 0;
             else
                 goto invalid_attr;
@@ -340,7 +341,7 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
             if (attr[2])
                 goto invalid_attr;
         }
-        
+
     } else if (u->current_tag == XML_TAG_SERVICE_GROUP && strcmp(el, "service") == 0) {
         u->current_tag = XML_TAG_SERVICE;
 
@@ -350,7 +351,7 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
         if (attr[0]) {
             if (strcmp(attr[0], "protocol") == 0) {
                 AvahiProtocol protocol;
-                
+
                 if (strcmp(attr[1], "ipv4") == 0) {
                     protocol = AVAHI_PROTO_INET;
                 } else if (strcmp(attr[1], "ipv6") == 0) {
@@ -384,22 +385,22 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "domain-name") == 0) {
         if (attr[0])
             goto invalid_attr;
-        
+
         u->current_tag = XML_TAG_DOMAIN_NAME;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "host-name") == 0) {
         if (attr[0])
             goto invalid_attr;
-        
+
         u->current_tag = XML_TAG_HOST_NAME;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "port") == 0) {
         if (attr[0])
             goto invalid_attr;
-        
+
         u->current_tag = XML_TAG_PORT;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "txt-record") == 0) {
         if (attr[0])
             goto invalid_attr;
-        
+
         u->current_tag = XML_TAG_TXT_RECORD;
     } else {
         avahi_log_error("%s: parse failure: didn't expect element <%s>.", u->group->filename, el);
@@ -413,14 +414,14 @@ invalid_attr:
     u->failed = 1;
     return;
 }
-    
+
 static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
     struct xml_userdata *u = data;
     assert(u);
 
     if (u->failed)
         return;
-    
+
     switch (u->current_tag) {
         case XML_TAG_SERVICE_GROUP:
 
@@ -429,7 +430,7 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
                 u->failed = 1;
                 return;
             }
-            
+
             u->current_tag = XML_TAG_INVALID;
             break;
 
@@ -440,7 +441,7 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
                 u->failed = 1;
                 return;
             }
-            
+
             u->service = NULL;
             u->current_tag = XML_TAG_SERVICE_GROUP;
             break;
@@ -452,7 +453,7 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
         case XML_TAG_PORT: {
             int p;
             assert(u->service);
-            
+
             p = u->buf ? atoi(u->buf) : 0;
 
             if (p < 0 || p > 0xFFFF) {
@@ -469,7 +470,7 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
 
         case XML_TAG_TXT_RECORD: {
             assert(u->service);
-            
+
             u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
             u->current_tag = XML_TAG_SERVICE;
             break;
@@ -477,12 +478,12 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
 
         case XML_TAG_SUBTYPE: {
             assert(u->service);
-            
+
             u->service->subtypes = avahi_string_list_add(u->service->subtypes, u->buf ? u->buf : "");
             u->current_tag = XML_TAG_SERVICE;
             break;
         }
-            
+
         case XML_TAG_TYPE:
         case XML_TAG_DOMAIN_NAME:
         case XML_TAG_HOST_NAME:
@@ -499,11 +500,11 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
 
 static char *append_cdata(char *t, const char *n, int length) {
     char *r, *k;
-    
+
     if (!length)
         return t;
 
-    
+
     k = avahi_strndup(n, length);
 
     if (t) {
@@ -512,7 +513,7 @@ static char *append_cdata(char *t, const char *n, int length) {
         avahi_free(t);
     } else
         r = k;
-    
+
     return r;
 }
 
@@ -527,7 +528,7 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
         case XML_TAG_NAME:
             u->group->name = append_cdata(u->group->name, s, len);
             break;
-            
+
         case XML_TAG_TYPE:
             assert(u->service);
             u->service->type = append_cdata(u->service->type, s, len);
@@ -582,7 +583,7 @@ static int static_service_group_load(StaticServiceGroup *g) {
     avahi_free(g->chosen_name);
     g->name = g->chosen_name = NULL;
     g->replace_wildcards = 0;
-    
+
     if (!(parser = XML_ParserCreate(NULL))) {
         avahi_log_error("XML_ParserCreate() failed.");
         goto finish;
@@ -599,7 +600,7 @@ static int static_service_group_load(StaticServiceGroup *g) {
     }
 
     g->mtime = st.st_mtime;
-    
+
     XML_SetUserData(parser, &u);
 
     XML_SetElementHandler(parser, xml_start, xml_end);
@@ -652,7 +653,7 @@ static void load_file(char *n) {
             return;
 
     avahi_log_info("Loading service file %s.", n);
-    
+
     g = static_service_group_new(n);
     if (static_service_group_load(g) < 0) {
         avahi_log_error("Failed to load service group file %s, ignoring.", g->filename);
@@ -677,11 +678,11 @@ void static_service_load(int in_chroot) {
                 avahi_log_info("Service group file %s vanished, removing services.", g->filename);
             else
                 avahi_log_warn("Failed to stat() file %s, ignoring: %s", g->filename, strerror(errno));
-            
+
             static_service_group_free(g);
         } else if (st.st_mtime != g->mtime) {
             avahi_log_info("Service group file %s changed, reloading.", g->filename);
-            
+
             if (static_service_group_load(g) < 0) {
                 avahi_log_warn("Failed to load service group file %s, removing service.", g->filename);
                 static_service_group_free(g);
@@ -690,9 +691,9 @@ void static_service_load(int in_chroot) {
     }
 
     memset(&globbuf, 0, sizeof(globbuf));
-    
+
     if ((globret = glob(in_chroot ? "/services/*.service" : AVAHI_SERVICE_DIR "/*.service", GLOB_ERR, NULL, &globbuf)) != 0)
-        
+
         switch (globret) {
 #ifdef GLOB_NOSPACE
 	    case GLOB_NOSPACE:
@@ -708,17 +709,17 @@ void static_service_load(int in_chroot) {
 	        avahi_log_error("Failed to read "AVAHI_SERVICE_DIR".");
 	        break;
         }
-    
+
     else {
         for (p = globbuf.gl_pathv; *p; p++)
             load_file(*p);
-        
+
         globfree(&globbuf);
     }
 }
 
 void static_service_free_all(void) {
-    
+
     while (groups)
         static_service_group_free(groups);
 }

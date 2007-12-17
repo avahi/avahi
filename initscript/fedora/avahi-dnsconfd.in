@@ -8,7 +8,7 @@
 #       on the local LAN. This is useful for configuring unicast DNS servers in \
 #       a DHCP-like fashion with mDNS.
 # processname: avahi-dnsconfd
-# config: 
+# config:
 
 OTHER_AVAHI_OPTS=""
 
@@ -18,9 +18,9 @@ OTHER_AVAHI_OPTS=""
 
 AVAHI_BIN=@sbindir@/avahi-dnsconfd
 
-if [ $1 == 'status' ]; then
+if [ "$1" == 'status' ]; then
     test -x $AVAHI_BIN || exit 4
-else 
+else
     test -x $AVAHI_BIN || exit 5
 fi
 
@@ -88,7 +88,7 @@ case "$1" in
 	restart
 	;;
   reload)
-        reload 
+        reload
 	;;
   condrestart)
   	if [ -f $LOCKFILE ]; then
@@ -102,4 +102,3 @@ case "$1" in
 esac
 
 exit $RETVAL
-

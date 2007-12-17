@@ -37,6 +37,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/address.h>
 #include <avahi-common/domain.h>
+#include <avahi-common/i18n.h>
 
 #include "avahi-ui.h"
 
@@ -171,6 +172,8 @@ G_DEFINE_TYPE(AuiServiceDialog, aui_service_dialog, GTK_TYPE_DIALOG)
 
 static void aui_service_dialog_class_init(AuiServiceDialogClass *klass) {
     GObjectClass *object_class;
+
+    avahi_init_i18n();
 
     object_class = (GObjectClass*) klass;
 
@@ -320,7 +323,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void *userda
                                               GTK_DIALOG_DESTROY_WITH_PARENT,
                                               GTK_MESSAGE_ERROR,
                                               GTK_BUTTONS_CLOSE,
-                                              "Avahi client failure: %s",
+                                              _("Avahi client failure: %s"),
                                               avahi_strerror(avahi_client_errno(c)));
         gtk_dialog_run(GTK_DIALOG(m));
         gtk_widget_destroy(m);
@@ -382,7 +385,7 @@ static void resolve_callback(
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
-                                                  "Avahi resolver failure: %s",
+                                                  _("Avahi resolver failure: %s"),
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);
@@ -512,8 +515,8 @@ static void browse_callback(
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
-                                                  "Browsing for service type %s in domain %s failed: %s",
-                                                  type, domain ? domain : "n/a",
+                                                  _("Browsing for service type %s in domain %s failed: %s"),
+                                                  type, domain ? domain : _("n/a"),
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);
@@ -643,7 +646,7 @@ static void domain_browse_callback(
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
-                                                  "Avahi domain browser failure: %s",
+                                                  _("Avahi domain browser failure: %s"),
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);
@@ -678,7 +681,7 @@ static const gchar *get_domain_name(AuiServiceDialog *d) {
                                               GTK_DIALOG_DESTROY_WITH_PARENT,
                                               GTK_MESSAGE_ERROR,
                                               GTK_BUTTONS_CLOSE,
-                                              "Failed to read Avahi domain : %s",
+                                              _("Failed to read Avahi domain : %s"),
                                               avahi_strerror(avahi_client_errno(d->priv->client)));
         gtk_dialog_run(GTK_DIALOG(m));
         gtk_widget_destroy(m);
@@ -711,7 +714,7 @@ static gboolean start_callback(gpointer data) {
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
-                                                  "Failed to connect to Avahi server: %s",
+                                                  _("Failed to connect to Avahi server: %s"),
                                                   avahi_strerror(error));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);
@@ -729,9 +732,9 @@ static gboolean start_callback(gpointer data) {
     g_assert(domain);
 
     if (avahi_domain_equal(domain, "local."))
-        gtk_label_set_markup(GTK_LABEL(d->priv->domain_label), "Browsing for services on <b>local network</b>:");
+        gtk_label_set_markup(GTK_LABEL(d->priv->domain_label), _("Browsing for services on <b>local network</b>:"));
     else {
-        gchar *t = g_strdup_printf("Browsing for services in domain <b>%s</b>:", domain);
+        gchar *t = g_strdup_printf(_("Browsing for services in domain <b>%s</b>:"), domain);
         gtk_label_set_markup(GTK_LABEL(d->priv->domain_label), t);
         g_free(t);
     }
@@ -767,7 +770,7 @@ static gboolean start_callback(gpointer data) {
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
-                                                  "Failed to create browser for %s: %s",
+                                                  _("Failed to create browser for %s: %s"),
                                                   *st,
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
@@ -897,7 +900,7 @@ static void response_callback(GtkDialog *dialog, gint response, gpointer user_da
                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_MESSAGE_ERROR,
                                                   GTK_BUTTONS_CLOSE,
-                                                  "Failed to create resolver for %s of type %s in domain %s: %s",
+                                                  _("Failed to create resolver for %s of type %s in domain %s: %s"),
                                                   name, type, d->priv->domain,
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
@@ -972,7 +975,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
                                               GTK_DIALOG_DESTROY_WITH_PARENT,
                                               GTK_MESSAGE_ERROR,
                                               GTK_BUTTONS_CLOSE,
-                                              "Failed to create domain browser: %s",
+                                              _("Failed to create domain browser: %s"),
                                               avahi_strerror(avahi_client_errno(p->client)));
         gtk_dialog_run(GTK_DIALOG(m));
         gtk_widget_destroy(m);
@@ -983,7 +986,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
 
     p->domain_dialog = gtk_dialog_new();
     gtk_container_set_border_width(GTK_CONTAINER(p->domain_dialog), 5);
-    gtk_window_set_title(GTK_WINDOW(p->domain_dialog), "Change domain");
+    gtk_window_set_title(GTK_WINDOW(p->domain_dialog), _("Change domain"));
     gtk_dialog_set_has_separator(GTK_DIALOG(p->domain_dialog), FALSE);
 
     vbox = gtk_vbox_new(FALSE, 8);
@@ -1015,7 +1018,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     g_signal_connect(selection, "changed", G_CALLBACK(domain_selection_changed_callback), d);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Service Name", renderer, "text", DOMAIN_COLUMN_NAME, NULL);
+    column = gtk_tree_view_column_new_with_attributes(_("Service Name"), renderer, "text", DOMAIN_COLUMN_NAME, NULL);
     gtk_tree_view_column_set_expand(column, TRUE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(p->domain_tree_view), column);
 
@@ -1023,7 +1026,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     gtk_container_add(GTK_CONTAINER(scrolled_window), p->domain_tree_view);
 
     p->domain_progress_bar = gtk_progress_bar_new();
-    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->domain_progress_bar), "Browsing ...");
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->domain_progress_bar), _("Browsing ..."));
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->domain_progress_bar), 0.1);
     gtk_box_pack_end(GTK_BOX(vbox2), p->domain_progress_bar, FALSE, FALSE, 0);
 
@@ -1112,7 +1115,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(d)->vbox), vbox, TRUE, TRUE, 0);
 
-    p->domain_label = gtk_label_new("Initializing...");
+    p->domain_label = gtk_label_new(_("Initializing..."));
     gtk_label_set_ellipsize(GTK_LABEL(p->domain_label), TRUE);
     gtk_misc_set_alignment(GTK_MISC(p->domain_label), 0, 0.5);
     gtk_box_pack_start(GTK_BOX(vbox), p->domain_label, FALSE, FALSE, 0);
@@ -1154,11 +1157,11 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_container_add(GTK_CONTAINER(scrolled_window), p->service_tree_view);
 
     p->service_progress_bar = gtk_progress_bar_new();
-    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->service_progress_bar), "Browsing ...");
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->service_progress_bar), _("Browsing ..."));
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->service_progress_bar), 0.1);
     gtk_box_pack_end(GTK_BOX(vbox2), p->service_progress_bar, FALSE, FALSE, 0);
 
-    p->domain_button = gtk_button_new_with_mnemonic("_Domain...");
+    p->domain_button = gtk_button_new_with_mnemonic(_("_Domain..."));
     gtk_button_set_image(GTK_BUTTON(p->domain_button), gtk_image_new_from_stock(GTK_STOCK_NETWORK, GTK_ICON_SIZE_BUTTON));
     g_signal_connect(p->domain_button, "clicked", G_CALLBACK(domain_button_clicked), d);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(d)->action_area), p->domain_button, FALSE, TRUE, 0);

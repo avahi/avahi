@@ -1,0 +1,353 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Avahi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-12-17 13:17+0100\n"
+"PO-Revision-Date: 2007-12-17 13:26+0100\n"
+"Last-Translator: \n"
+"Language-Team: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: DE\n"
+
+#: ../avahi-common/error.c:32
+msgid "OK"
+msgstr "OK"
+
+#: ../avahi-common/error.c:33
+msgid "Operation failed"
+msgstr "Operation fehlgeschlagen"
+
+#: ../avahi-common/error.c:34
+msgid "Bad state"
+msgstr "Ungültiger Zustand"
+
+#: ../avahi-common/error.c:35
+msgid "Invalid host name"
+msgstr "Ungültiger Maschinenname"
+
+#: ../avahi-common/error.c:36
+msgid "Invalid domain name"
+msgstr "Ungültiger Domänenname"
+
+#: ../avahi-common/error.c:37
+msgid "No suitable network protocol available"
+msgstr "Kein passendes Netzwerkprotokoll verfügbar"
+
+#: ../avahi-common/error.c:38
+msgid "Invalid DNS TTL"
+msgstr "Ungültige DNS TTL"
+
+#: ../avahi-common/error.c:39
+msgid "Resource record key is pattern"
+msgstr "Datensatzschlüssel ist Muster"
+
+#: ../avahi-common/error.c:40
+msgid "Local name collision"
+msgstr "Lokale Namenskollision"
+
+#: ../avahi-common/error.c:41
+msgid "Invalid record"
+msgstr "Ungültiger Datensatz"
+
+#: ../avahi-common/error.c:43
+msgid "Invalid service name"
+msgstr "Ungültiger Dienstename"
+
+#: ../avahi-common/error.c:44
+msgid "Invalid service type"
+msgstr "Ungültiger Dienstetyp"
+
+#: ../avahi-common/error.c:45
+msgid "Invalid port number"
+msgstr "Ungültige Port-Nummer"
+
+#: ../avahi-common/error.c:46
+msgid "Invalid record key"
+msgstr "Ungültiger Datensatzschlüssel"
+
+#: ../avahi-common/error.c:47
+msgid "Invalid address"
+msgstr "Ungültige Adresse"
+
+#: ../avahi-common/error.c:48
+msgid "Timeout reached"
+msgstr "Zeit abgelaufen"
+
+#: ../avahi-common/error.c:49
+msgid "Too many clients"
+msgstr "Zu viele Clients"
+
+#: ../avahi-common/error.c:50
+msgid "Too many objects"
+msgstr "Zu viele Objekte"
+
+#: ../avahi-common/error.c:51
+msgid "Too many entries"
+msgstr "Zu viele Einträge"
+
+#: ../avahi-common/error.c:52
+msgid "OS Error"
+msgstr "Betriebssystemfehler"
+
+#: ../avahi-common/error.c:54
+msgid "Access denied"
+msgstr "Zugriff abgelehnt"
+
+#: ../avahi-common/error.c:55
+msgid "Invalid operation"
+msgstr "Ungültige Operation"
+
+#: ../avahi-common/error.c:56
+msgid "An unexpected D-Bus error occured"
+msgstr "Ein unerwarteter D-Bus-Fehler ist aufgetreten"
+
+#: ../avahi-common/error.c:57
+msgid "Daemon connection failed"
+msgstr "Verbindung zum Daemon fehlgeschlagen"
+
+#: ../avahi-common/error.c:58
+msgid "Memory exhausted"
+msgstr "Ungültiges Argument"
+
+#: ../avahi-common/error.c:59
+msgid "The object passed in was not valid"
+msgstr "Das übergebene Objekt ist nicht gültig"
+
+#: ../avahi-common/error.c:60
+msgid "Daemon not running"
+msgstr "Daemon läuft nicht"
+
+#: ../avahi-common/error.c:61
+msgid "Invalid interface index"
+msgstr "Ungültiger Schnittstellenindex"
+
+#: ../avahi-common/error.c:62
+msgid "Invalid protocol specification"
+msgstr "Ungültige Protokollspezifikation"
+
+#: ../avahi-common/error.c:63
+msgid "Invalid flags"
+msgstr "Ungültige Flags"
+
+#: ../avahi-common/error.c:65
+msgid "Not found"
+msgstr "Nicht gefunden"
+
+#: ../avahi-common/error.c:66
+msgid "Invalid configuration"
+msgstr "Ungültige Konfiguration"
+
+#: ../avahi-common/error.c:67
+msgid "Version mismatch"
+msgstr "Unpassende Version"
+
+#: ../avahi-common/error.c:68
+msgid "Invalid service subtype"
+msgstr "Ungültiger Dienstesubtyp"
+
+#: ../avahi-common/error.c:69
+msgid "Invalid packet"
+msgstr "Ungültiges Paket"
+
+#: ../avahi-common/error.c:70
+msgid "Invalid DNS return code"
+msgstr "Ungültiger DNS Rückgabewert"
+
+#: ../avahi-common/error.c:71
+msgid "DNS failure: FORMERR"
+msgstr "DNS-Fehler: FORMERR"
+
+#: ../avahi-common/error.c:72
+msgid "DNS failure: SERVFAIL"
+msgstr "DNS-Fehler: SERVFAIL"
+
+#: ../avahi-common/error.c:73
+msgid "DNS failure: NXDOMAIN"
+msgstr ""
+
+#: ../avahi-common/error.c:74
+msgid "DNS failure: NOTIMP"
+msgstr ""
+
+#: ../avahi-common/error.c:76
+msgid "DNS failure: REFUSED"
+msgstr ""
+
+#: ../avahi-common/error.c:77
+msgid "DNS failure: YXDOMAIN"
+msgstr ""
+
+#: ../avahi-common/error.c:78
+msgid "DNS failure: YXRRSET"
+msgstr ""
+
+#: ../avahi-common/error.c:79
+msgid "DNS failure: NXRRSET"
+msgstr ""
+
+#: ../avahi-common/error.c:80
+msgid "DNS failure: NOTAUTH"
+msgstr ""
+
+#: ../avahi-common/error.c:81
+msgid "DNS failure: NOTZONE"
+msgstr ""
+
+#: ../avahi-common/error.c:82
+msgid "Invalid RDATA"
+msgstr ""
+
+#: ../avahi-common/error.c:83
+msgid "Invalid DNS type"
+msgstr ""
+
+#: ../avahi-common/error.c:84
+msgid "Invalid DNS class"
+msgstr ""
+
+#: ../avahi-common/error.c:85
+msgid "Not supported"
+msgstr ""
+
+#: ../avahi-common/error.c:87
+msgid "Not permitted"
+msgstr ""
+
+#: ../avahi-common/error.c:88
+msgid "Invalid argument"
+msgstr "Ungültiges Argument"
+
+#: ../avahi-common/error.c:89
+msgid "Is empty"
+msgstr "Leer"
+
+#: ../avahi-common/error.c:90
+msgid "The requested operation is invalid because redundant"
+msgstr ""
+
+#: ../avahi-common/error.c:96
+msgid "Invalid Error Code"
+msgstr "Ungültiger Fehlercode"
+
+#: ../avahi-ui/avahi-ui.c:326
+#, c-format
+msgid "Avahi client failure: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:388
+#, c-format
+msgid "Avahi resolver failure: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:518
+#, c-format
+msgid "Browsing for service type %s in domain %s failed: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:519
+msgid "n/a"
+msgstr "n/a"
+
+#: ../avahi-ui/avahi-ui.c:649
+#, c-format
+msgid "Avahi domain browser failure: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:684
+#, c-format
+msgid "Failed to read Avahi domain : %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:717
+#, c-format
+msgid "Failed to connect to Avahi server: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:735
+msgid "Browsing for services on <b>local network</b>:"
+msgstr "Durchsuche <b>lokales Netzwerk</b> nach Diensten:"
+
+#: ../avahi-ui/avahi-ui.c:737
+#, c-format
+msgid "Browsing for services in domain <b>%s</b>:"
+msgstr "Durchsuche Domäne <b>%s</b> nach Diensten:"
+
+#: ../avahi-ui/avahi-ui.c:773
+#, c-format
+msgid "Failed to create browser for %s: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:903
+#, c-format
+msgid "Failed to create resolver for %s of type %s in domain %s: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:978
+#, c-format
+msgid "Failed to create domain browser: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:989
+msgid "Change domain"
+msgstr "Domäne Ändern"
+
+#: ../avahi-ui/avahi-ui.c:1021
+msgid "Service Name"
+msgstr "Dienstename"
+
+#: ../avahi-ui/avahi-ui.c:1029
+#: ../avahi-ui/avahi-ui.c:1160
+msgid "Browsing ..."
+msgstr "Durchsuchen..."
+
+#: ../avahi-ui/avahi-ui.c:1118
+msgid "Initializing..."
+msgstr "Initialisieren..."
+
+#: ../avahi-ui/avahi-ui.c:1164
+msgid "_Domain..."
+msgstr "_Domäne..."
+
+#: ../avahi-ui/bssh.c:49
+msgid "Choose Shell Server"
+msgstr "Shell-Dienst Auswählen"
+
+#: ../avahi-ui/bssh.c:51
+msgid "Desktop"
+msgstr "Arbeitsplatz"
+
+#: ../avahi-ui/bssh.c:52
+msgid "Terminal"
+msgstr "Terminal"
+
+#: ../avahi-ui/bssh.c:54
+msgid "Choose VNC server"
+msgstr "VNC-Dienst Auswählen"
+
+#: ../avahi-ui/bssh.c:57
+msgid "Choose SSH server"
+msgstr "SSH-Dienst Auswählen"
+
+#: ../avahi-ui/bssh.c:79
+#, c-format
+msgid "Connecting to '%s' ...\n"
+msgstr "Verbinde zu '%s' ...\n"
+
+#: ../avahi-ui/bssh.c:133
+#, c-format
+msgid "execlp() failed: %s\n"
+msgstr "execlp() fehlgeschlagen: %s\n"
+
+#: ../avahi-ui/bssh.c:143
+#, c-format
+msgid "Canceled.\n"
+msgstr "Abgebrochen.\n"
+

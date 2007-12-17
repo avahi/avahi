@@ -49,8 +49,15 @@ else
     rm -rf autom4te.cache
     rm -f config.cache
 
+    rm -f Makefile.am~ configure.ac~
+    # Evil, evil, evil, evil hack
+    sed 's/read dummy/\#/' `which gettextize` | sh -s -- --copy --force
+    test -f Makefile.am~ && mv Makefile.am~ Makefile.am
+    test -f configure.ac~ && mv configure.ac~ configure.ac
+
     test "x$LIBTOOLIZE" = "x" && LIBTOOLIZE=libtoolize
 
+    intltoolize --copy --force --automake
     "$LIBTOOLIZE" -c --force
     run_versioned aclocal "$VERSION" -I common
     run_versioned autoconf 2.59 -Wall

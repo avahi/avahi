@@ -1,0 +1,9 @@
+# List of source files which contain translatable strings.
+avahi-common/error.c
+avahi-ui/avahi-ui.c
+avahi-ui/bssh.c
+avahi-utils/avahi-browse.c
+avahi-utils/avahi-publish.c
+avahi-utils/avahi-resolve.c
+avahi-utils/avahi-set-host-name.c
+

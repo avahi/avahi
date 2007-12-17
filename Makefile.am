@@ -50,7 +50,10 @@ EXTRA_DIST = \
 	avahi-compat-libdns_sd.pc.in \
 	avahi-compat-howl.pc.in \
 	avahi-ui.pc.in \
-	doxygen_to_devhelp.xsl
+	doxygen_to_devhelp.xsl \
+	intltool-merge.in \
+        intltool-update.in \
+        intltool-extract.in
 
 SUBDIRS = \
 	common \
@@ -75,7 +78,8 @@ SUBDIRS = \
 	avahi-compat-howl \
 	avahi-autoipd \
 	avahi-ui \
-	avahi-ui-sharp
+	avahi-ui-sharp \
+	po
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/address.h \
@@ -307,3 +311,9 @@ dist-hook:
 		chmod u+w ${distdir}/ChangeLog || true ; \
 		svn2cl -o ${distdir}/ChangeLog ; \
 	fi
+
+DISTCLEANFILES = \
+        intltool-extract \
+        intltool-merge \
+        intltool-update \
+	po/.intltool-merge-cache

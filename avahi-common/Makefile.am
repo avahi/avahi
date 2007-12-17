@@ -1,7 +1,7 @@
 # $Id: Makefile.am 90 2005-05-23 16:15:12Z lennart $
 #
 # This file is part of avahi.
-# 
+#
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -53,7 +53,7 @@ noinst_PROGRAMS = \
 endif
 
 lib_LTLIBRARIES = \
-	libavahi-common.la 
+	libavahi-common.la
 
 libavahi_common_la_SOURCES = \
 	malloc.c malloc.h \
@@ -67,9 +67,10 @@ libavahi_common_la_SOURCES = \
 	thread-watch.c thread-watch.h \
 	watch.h gccmacro.h \
 	rlist.h rlist.c \
-	utf8.c utf8.h
+	utf8.c utf8.h \
+	i18n.c i18n.h
 
-libavahi_common_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) 
+libavahi_common_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -DAVAHI_LOCALEDIR=\"$(avahilocaledir)\"
 libavahi_common_la_LIBADD = $(AM_LDADD) $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 libavahi_common_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMMON_VERSION_INFO)
 
@@ -128,4 +129,3 @@ noinst_HEADERS = \
 	dbus-watch-glue.h
 
 endif
-

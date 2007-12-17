@@ -86,7 +86,7 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
 }
 
 static void create_services(AvahiClient *c) {
-    char r[128];
+    char *n, r[128];
     int ret;
     assert(c);
 
@@ -108,23 +108,16 @@ static void create_services(AvahiClient *c) {
         /* Create some random TXT data */
         snprintf(r, sizeof(r), "random=%i", rand());
 
+        /* We will now add two services and one subtype to the entry
+         * group. The two services have the same name, but differ in
+         * the service type (IPP vs. BSD LPR). Only services with the
+         * same name should be put in the same entry group. */
+
         /* Add the service for IPP */
         if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
 
-            if (ret == AVAHI_ERR_COLLISION) {
-                char *n;
-
-                /* A service name collision with a local service
-                 * happened. Let's pick a new name */
-                n = avahi_alternative_service_name(name);
-                avahi_free(name);
-                name = n;
-
-                fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
-
-                create_services(c);
-                return;
-            }
+            if (ret == AVAHI_ERR_COLLISION)
+                goto collision;
 
             fprintf(stderr, "Failed to add _ipp._tcp service: %s\n", avahi_strerror(ret));
             goto fail;
@@ -132,6 +125,10 @@ static void create_services(AvahiClient *c) {
 
         /* Add the same service for BSD LPR */
         if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
+
+            if (ret == AVAHI_ERR_COLLISION)
+                goto collision;
+
             fprintf(stderr, "Failed to add _printer._tcp service: %s\n", avahi_strerror(ret));
             goto fail;
         }
@@ -149,6 +146,21 @@ static void create_services(AvahiClient *c) {
         }
     }
 
+    return;
+
+collision:
+
+    /* A service name collision with a local service happened. Let's
+     * pick a new name */
+    n = avahi_alternative_service_name(name);
+    avahi_free(name);
+    name = n;
+
+    fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+
+    avahi_entry_group_reset(group);
+
+    create_services(c);
     return;
 
 fail:

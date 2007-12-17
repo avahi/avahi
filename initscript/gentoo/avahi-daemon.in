@@ -1,11 +1,12 @@
 #!/sbin/runscript
 # $Id$
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-opts="${opts} reload"
+opts="reload"
 
 depend() {
+	before netmount nfsmount
 	use net
 	need dbus
 }

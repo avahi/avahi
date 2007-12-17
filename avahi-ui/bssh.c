@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <locale.h>
 
 #include <gtk/gtk.h>
 
@@ -42,6 +43,7 @@ int main(int argc, char*argv[]) {
     GtkWidget *d;
 
     avahi_init_i18n();
+    setlocale(LC_ALL, "");
 
     gtk_init(&argc, &argv);
 

@@ -681,7 +681,7 @@ static const gchar *get_domain_name(AuiServiceDialog *d) {
                                               GTK_DIALOG_DESTROY_WITH_PARENT,
                                               GTK_MESSAGE_ERROR,
                                               GTK_BUTTONS_CLOSE,
-                                              _("Failed to read Avahi domain : %s"),
+                                              _("Failed to read Avahi domain: %s"),
                                               avahi_strerror(avahi_client_errno(d->priv->client)));
         gtk_dialog_run(GTK_DIALOG(m));
         gtk_widget_destroy(m);

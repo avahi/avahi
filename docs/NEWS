@@ -1,9 +1,30 @@
+Avahi 0.6.22
+============
+
+This is an important bugfix release, and adds a couple of new
+features.
+
+ * i18n support
+ * Documentation and example code updates
+ * Support for registering the Avahi documentation in devhelp (needs
+   manual setup)
+ * Added a new component libavahi-gobject, which is a GObjectified
+   version of the Avahi API, contributed by Sjoerd Simons
+ * Major BSD compatibility improvements, contributed by "zml"
+ * avahi-ui: Allow overwriting of pretty service name by the
+   application
+ * Service type database updates
+ * Add new option --parsable to avahi-browse
+ * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 22.
+
 Avahi 0.6.21
 ============
 
 This is an important bugfix release.
 
- * Make avahi-autoipd actually produce correct ARP packets 
+ * Make avahi-autoipd actually produce correct ARP packets
    (Identified and patched by Pauline Yeung)
  * Add FreeBSD kqueue support for watching /etc/avahi/services
    (Contributed by Marcus Clarke)
@@ -45,7 +66,7 @@ This is a bugfix release, but also adds a new component "avahi-ui-sharp".
  * Rename zssh/zvnc to bssh/bvnc to avoid a name collision with another
    free software tool, on request of the Debian developers. I hope
    this name change early in the life of bssh/bvnc won't be too
-   difficult to handle by the distributors. 
+   difficult to handle by the distributors.
  * Add man page for bssh/bvnc
  * avahi-ui: fix segfault when browsing in empty domains
  * avahi-ui: allow GTK_RESPONSE_OK, _YES and _APPLY besides _ACCEPT as
@@ -81,7 +102,7 @@ component.
  * Enable GCC stack smashing protection if available and working (Patch from tedp)
  * Improve compatibility with Bonjour's libdns_sd (patch from Chris Rivera)
  * Various updates to the service type database (based on patches from uws)
- * Fix a local DoS vulnerability (very low priority, all you can do is 
+ * Fix a local DoS vulnerability (very low priority, all you can do is
    make Avahi hit an assert()); problem identified by "jamesh"
  * Fix a problem when constantly generating conflict events for an RR
  * Fix registration of very large RRs (original patch from Sjoerd Simons)
@@ -125,7 +146,7 @@ from the last release
  * Fix bogus assertion in client-publish-service.c example
  * Mild fix to some doxygen docs for avahi-common/address.h
  * Fix passing in custom priviledged group (previously ignored setting)
-   (Closes: #85) 
+   (Closes: #85)
 
 This release is backwards compatible with Avahi 0.6.x with x < 16.
 
@@ -156,7 +177,7 @@ Changes:
     and hopefully even the most secure. (Because it chroot()s and drops
     priviliges and suchlike) For more information, especially about packaging
     this new tool for distributions, please make sure to read:
-    http://avahi.org/wiki/AvahiAutoipd 
+    http://avahi.org/wiki/AvahiAutoipd
     and of course the man page included in the tarball.  For the rationale for
     adding this program to the Avahi toolset please read this mailing list
     thread:
@@ -199,7 +220,7 @@ Changes:
   * Add a new utility "avahi-set-host-name" which is a command line
     wrapper around the aforementioned SetHostName() method.
   * Bonjour API compatibility library:
-        * Implement DNSServiceUpdateRecord() 
+        * Implement DNSServiceUpdateRecord()
         * Allow passing NULL as callback function for
           DNSServiceRegister()
         * Implement subtype registration in DNSServiceRegister() in a
@@ -242,10 +263,10 @@ Changes:
     too late when used with D-BUS 0.62 and newer.
   * avahi-daemon: fix a minor memory leak in the DBUS code.
   * avahi-glib: some GLIB adapter cleanups
-  * avahi-dnsconfd: fix segfault when passing an invalid command 
+  * avahi-dnsconfd: fix segfault when passing an invalid command
     line option
   * avahi-test: portability patches for Solaris
-  * avahi-browse: flush STDOUT after each line, making it useful 
+  * avahi-browse: flush STDOUT after each line, making it useful
     in shell scripts.
   * update service type database
 
@@ -272,16 +293,16 @@ Avahi 0.6.10
 This is mostly a bugfix release. Two of the bugs fixed are security
 sensitive: a remote denial-of-service vulnerability and a buffer
 overflow that can allow local users to become the 'avahi' user. We do
-not consider either of them major security threats. 
+not consider either of them major security threats.
 
 The DoS vulnerability can be exploited from a local network only. It
 is not worth much, though, since mDNS can easily be flooded with
 nonsense anyway. It is easy to kick remote mDNS/DNS-SD services by
-provoking a name conflict in perfect accordance with the specs. 
+provoking a name conflict in perfect accordance with the specs.
 
 The buffer overflow is hard to exploit remotely, only local users can
 become the 'avahi' user. In addition the user is trapped inside a
-chroot() environment (at least on Linux). 
+chroot() environment (at least on Linux).
 
 Anyhow, our security assessments are possibly as buggy as our
 code. Hence:
@@ -315,7 +336,7 @@ Avahi 0.6.9
 This release fixes some bugs and includes minor enhancements.
 
  * Don't allow registration of address records with invalid host names
- * Clean up argument validity checking for AvahiHostNameResolver and 
+ * Clean up argument validity checking for AvahiHostNameResolver and
    AvahiAddressResolver
  * Fix Avahi builds without DBUS
 
@@ -328,7 +349,7 @@ Avahi 0.6.8
 This release fixes some bugs and adds a few new features. Users of 0.6.7,
 please update ASAP!
 
- * Fix broken parsing of static hosts file 
+ * Fix broken parsing of static hosts file
  * Improve out-of-the-box Debian support
  * Add configuration option to allow mDNS over POINTOPOINT links.
    This is a potential security hole and YMMV. See man page for details.
@@ -361,7 +382,7 @@ This release fixes some bugs and includes some documentation updates
  * Add a bunch of new types to the service type database
  * Return errors of avahi_entry_group_commit() properly
  * Many doxygen documentation improvements
- * Fix destruction of AvahiEntryGroup objects using 
+ * Fix destruction of AvahiEntryGroup objects using
    avahi_entry_group_free().
  * Don't allow commiting of empty entry groups
  * Use a little less memory in avahi-qt
@@ -376,10 +397,10 @@ Avahi 0.6.5
 ===========
 
 This release fixes some bugs and adds a new API function.
- 
- * avahi-browse: properly show services that are removed from the 
+
+ * avahi-browse: properly show services that are removed from the
    network
- * fix build on bi-arch platforms, on GNU/kFreeBSD, on MIPS and 
+ * fix build on bi-arch platforms, on GNU/kFreeBSD, on MIPS and
    for non-DBUS builds
  * add new API function avahi_nss_support() and DBUS function
    IsNSSSupportAvailable() which may be used to detect whether
@@ -404,7 +425,7 @@ Avahi 0.6.4
 
 This is a bugfix release and adds a new event loop implementation to
 avahi-common's public interface.
- 
+
  * avahi-common: add new AvahiThreadedPool event loop implementation
  * avahi-sharp: compatibility with newer mono versions
  * avahi-publish-service: don't ignore the port number specified
@@ -433,7 +454,7 @@ Avahi 0.6.2
 
 This is mostly a bugfix release.
 
- * Compatibility with DBUS 0.60 (Full compatibility with DBUS 0.3x and 
+ * Compatibility with DBUS 0.60 (Full compatibility with DBUS 0.3x and
    0.5 is retained)
  * Fix introspection for some auxiliary DBUS objects
  * Miscellaneous documentation updates
@@ -454,7 +475,7 @@ And, most importantly, we now have a Logo:
 
 Avahi 0.6.1
 ===========
-        
+
 This is mostly a bugfix release.
 
  * Fix a segfault when shutting down the daemon. Please note that this
@@ -495,7 +516,7 @@ Avahi 0.6, the "Goddag" release
  * Bugfixes, cleanups
 
 This release is not API/ABI compatible with Avahi 0.5. Please see
-docs/API-CHANGES-0.6 for a rough overview over the changes. 
+docs/API-CHANGES-0.6 for a rough overview over the changes.
 
 Avahi 0.5.2
 ===========
@@ -510,7 +531,7 @@ Avahi 0.5.1
  * This is a bug fix release, before the big changes coming in 0.6
  * Fix reporting of the NO_DAEMON error
  * Fix commit throttling algorithm for entry groups
- * Fix counting of the number of resources in an entry group 
+ * Fix counting of the number of resources in an entry group
 
 Avahi 0.5, the 'Bom Dia' release
 ================================
@@ -570,7 +591,7 @@ Avahi 0.2, the 'Dzień Dobry' release
    Note that while the libavahi-client API changed slightly, the DBUS
    API itself has only had additions and no existing definitions
    have changed.
- 
+
  * avahi-daemon will now ignore local IP addresses with the "link" scope
    unless it is the only IP address on the interface.
  * avahi-daemon will no longer fail to start if D-BUS is not
@@ -591,7 +612,7 @@ Avahi 0.2, the 'Dzień Dobry' release
    in addition to the ServiceResolver provided in 0.1
  * Added support for Arch and Gentoo linux distributions.
  * Allowed configuration on non-supported distributions
- * Fixed a critical bug where you cannot use more than one AvahiClient 
+ * Fixed a critical bug where you cannot use more than one AvahiClient
    or use it in an application already using D-BUS
  * Fixed assembly of empty string lists to RFC compliant TXT records
  * Added a new service type description database with human

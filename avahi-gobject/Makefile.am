@@ -23,6 +23,7 @@ AM_CFLAGS=-I$(top_srcdir)
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 if HAVE_GOBJECT
+if HAVE_DBUS
 
 avahigobjectincludedir=$(includedir)/avahi-gobject
 
@@ -108,6 +109,7 @@ signals-marshal.c: signals-marshal.list
 	--vtail "      { 0, NULL, NULL }\n    };\n    etype = g_@type@_register_static (\"@EnumName@\", values);\n  }\n  return etype;\n}\n" \
 	$< > $@
 
+endif
 endif
 
 indent:

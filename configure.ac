@@ -1154,6 +1154,11 @@ if test "x$HAVE_GTK" = "xyes" -a "x$BUILD_CLIENT" = "xyes" ; then
    BUILD_UI="yes"
 fi
 
+BUILD_GOBJECT="no"
+if test "x$BUILD_CLIENT" = "xyes" -a "x$HAVE_GOBJECT" = "xyes" ; then
+   BUILD_GOBJECT="yes"
+fi
+
 echo "\
     Building libavahi-core              yes
     Building avahi-daemon:              ${BUILD_DAEMON}
@@ -1162,7 +1167,7 @@ echo "\
     Building avahi-utils:               ${BUILD_CLIENT}
     Building avahi-python:              ${BUILD_PYTHON}
     Building libavahi-glib:             ${HAVE_GLIB}
-    Building libavahi-gobject:          ${HAVE_GOBJECT}
+    Building libavahi-gobject:          ${BUILD_GOBJECT}
     Building avahi-discover-standalone: ${HAVE_GTK}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}

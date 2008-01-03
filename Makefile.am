@@ -112,6 +112,7 @@ DX_INPUT += \
 	$(srcdir)/avahi-glib/glib-malloc.h
 
 if HAVE_GOBJECT
+if HAVE_DBUS
 DX_INPUT += \
 	$(srcdir)/avahi-gobject/ga-client.h \
 	$(srcdir)/avahi-gobject/ga-entry-group.h \
@@ -120,6 +121,7 @@ DX_INPUT += \
 	$(srcdir)/avahi-gobject/ga-record-browser.h \
 	$(srcdir)/avahi-gobject/ga-service-browser.h \
 	$(srcdir)/avahi-gobject/ga-service-resolver.h
+endif
 endif
 endif
 

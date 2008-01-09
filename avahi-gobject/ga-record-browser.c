@@ -257,7 +257,7 @@ static void ga_record_browser_class_init(GaRecordBrowserClass * ga_record_browse
 
     param_spec = g_param_spec_enum("flags", "Lookup flags for the browser",
                                    "Browser lookup flags",
-                                   GA_TYPE_PROTOCOL,
+                                   GA_TYPE_LOOKUP_FLAGS,
                                    GA_LOOKUP_NO_FLAGS,
                                    G_PARAM_READWRITE |
                                    G_PARAM_STATIC_NAME |

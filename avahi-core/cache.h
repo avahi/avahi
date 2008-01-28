@@ -48,8 +48,10 @@ struct AvahiCacheEntry {
     AvahiCache *cache;
     AvahiRecord *record;
     struct timeval timestamp;
+    struct timeval poof_timestamp;
     struct timeval expiry;
     int cache_flush;
+    int poof_num;
     
     AvahiAddress origin;
 

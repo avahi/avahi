@@ -585,7 +585,8 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
 
         if (!legacy_unicast && !from_local_iface) {
             reflect_query(s, i, key);
-            avahi_cache_start_poof(i->cache, key, a);
+            if (!unicast_response)
+              avahi_cache_start_poof(i->cache, key, a);
         }
 
         if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ANCOUNT) == 0 &&

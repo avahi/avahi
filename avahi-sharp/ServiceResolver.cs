@@ -184,7 +184,7 @@ namespace Avahi
             info.Address = Utility.PtrToAddress (address);
             info.Port = port;
 
-            if (proto == IPv6)
+            if (proto == Protocol.IPv6)
               info.Address.ScopeId = iface;
 
             ArrayList txtlist = new ArrayList ();

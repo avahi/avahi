@@ -182,6 +182,7 @@ namespace Avahi
             info.Name = Utility.PtrToString (name);
             info.HostName = Utility.PtrToString (host);
             info.Address = Utility.PtrToAddress (address);
+            info.Address.ScopeId = iface;
             info.Port = port;
 
             ArrayList txtlist = new ArrayList ();

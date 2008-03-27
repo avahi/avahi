@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <getopt.h>
 
 #include <gtk/gtk.h>
 
@@ -39,27 +40,128 @@
 
 #include "avahi-ui.h"
 
+typedef enum {
+    COMMAND_HELP,
+    COMMAND_SSH,
+    COMMAND_VNC,
+    COMMAND_SHELL
+} Command;
+
+typedef struct Config {
+    char *domain;
+    Command command;
+} Config;
+
+static void help(FILE *f, const char *argv0) {
+    fprintf(f,
+            _("%s [options]\n\n"
+              "    -h --help            Show this help\n"
+              "    -s --ssh             Browse SSH servers\n"
+              "    -v --vnc             Browse VNC servers\n"
+              "    -S --shell           Browse both SSH and VNC\n"
+              "    -d --domain=DOMAIN   The domain to browse in\n"),
+            argv0);
+}
+
+static int parse_command_line(Config *c, int argc, char *argv[]) {
+    int o;
+
+    static const struct option long_options[] = {
+        { "help",           no_argument,       NULL, 'h' },
+        { "ssh",            no_argument,       NULL, 's' },
+        { "vnc",            no_argument,       NULL, 'v' },
+        { "shell",          no_argument,       NULL, 'S' },
+        { "domain",         required_argument, NULL, 'd' },
+        { NULL, 0, NULL, 0 }
+    };
+
+    while ((o = getopt_long(argc, argv, "hVd:svS", long_options, NULL)) >= 0) {
+
+        switch(o) {
+            case 'h':
+                c->command = COMMAND_HELP;
+                break;
+            case 's':
+                c->command = COMMAND_SSH;
+                break;
+            case 'v':
+                c->command = COMMAND_VNC;
+                break;
+            case 'S':
+                c->command = COMMAND_SHELL;
+                break;
+            case 'd':
+                avahi_free(c->domain);
+                c->domain = avahi_strdup(optarg);
+                break;
+            default:
+                return -1;
+        }
+    }
+
+    if (optind < argc) {
+        fprintf(stderr, _("Too many arguments\n"));
+        return -1;
+    }
+
+    return 0;
+}
+
 int main(int argc, char*argv[]) {
     GtkWidget *d;
+    Config config;
+    const char *argv0;
 
     avahi_init_i18n();
     setlocale(LC_ALL, "");
 
-    gtk_init(&argc, &argv);
+    if ((argv0 = strrchr(argv[0], '/')))
+        argv0++;
+    else
+        argv0 = argv[0];
 
-    if (g_str_has_suffix(argv[0], "bshell")) {
-        d = aui_service_dialog_new(_("Choose Shell Server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
-        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "_ssh._tcp", NULL);
-        aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_rfb._tcp", _("Desktop"));
-        aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_ssh._tcp", _("Terminal"));
-    } else if (g_str_has_suffix(argv[0], "bvnc")) {
-        d = aui_service_dialog_new(_("Choose VNC server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
-        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
-    } else {
-        d = aui_service_dialog_new(_("Choose SSH server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
-        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
+    if (g_str_has_suffix(argv[0], "bshell"))
+        config.command = COMMAND_SHELL;
+    else if (g_str_has_suffix(argv[0], "bvnc"))
+        config.command = COMMAND_VNC;
+    else
+        config.command = COMMAND_SSH;
+
+    /* defaults to local */
+    config.domain = NULL;
+
+    if (parse_command_line(&config, argc, argv) < 0) {
+        help(stderr, argv0);
+        return 1;
     }
 
+    gtk_init(&argc, &argv);
+
+    switch (config.command) {
+        case COMMAND_HELP:
+            help(stdout, argv0);
+            return 0;
+            break;
+
+        case COMMAND_SHELL:
+            d = aui_service_dialog_new(_("Choose Shell Server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+            aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "_ssh._tcp", NULL);
+            aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_rfb._tcp", _("Desktop"));
+            aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_ssh._tcp", _("Terminal"));
+            break;
+
+        case COMMAND_VNC:
+            d = aui_service_dialog_new(_("Choose VNC server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+            aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
+            break;
+
+        case COMMAND_SSH:
+            d = aui_service_dialog_new(_("Choose SSH server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+            aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
+            break;
+    }
+
+    aui_service_dialog_set_domain (AUI_SERVICE_DIALOG(d), config.domain);
     aui_service_dialog_set_resolve_service(AUI_SERVICE_DIALOG(d), TRUE);
     aui_service_dialog_set_resolve_host_name(AUI_SERVICE_DIALOG(d), !avahi_nss_support());
 
@@ -86,8 +188,9 @@ int main(int argc, char*argv[]) {
 
             gtk_widget_destroy(d);
 
-            g_print("xvncviewer %s\n", p);
+            g_print("vncviewer %s\n", p);
             execlp("xvncviewer", "xvncviewer", p, NULL);
+            execlp("vncviewer", "vncviewer", p, NULL);
 
         } else {
             char p[16];
@@ -144,6 +247,8 @@ int main(int argc, char*argv[]) {
 
         g_print(_("Canceled.\n"));
     }
+
+    g_free(config.domain);
 
     return 1;
 }

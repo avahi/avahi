@@ -10,12 +10,6 @@
 # processname: avahi-daemon
 # config: 
 
-OTHER_AVAHI_OPTS=""
-
-# Source function library.
-. /etc/init.d/functions
-. /etc/sysconfig/network
-
 AVAHI_BIN=@sbindir@/avahi-daemon
 
 if [ "$1" == 'status' ]; then
@@ -23,6 +17,12 @@ if [ "$1" == 'status' ]; then
 else 
     test -x $AVAHI_BIN || exit 5
 fi
+
+OTHER_AVAHI_OPTS=""
+
+# Source function library.
+. /etc/init.d/functions
+. /etc/sysconfig/network
 
 LOCKFILE=/var/lock/subsys/avahi-daemon
 

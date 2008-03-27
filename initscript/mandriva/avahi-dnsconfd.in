@@ -8,6 +8,9 @@
 # Description: A DNS configuration daemon using mDNS in a DHCP-like fashion
 ### END INIT INFO
 
+AVAHI_BIN=@sbindir@/avahi-dnsconfd
+test -x $AVAHI_BIN || exit 5
+
 # Source function library.
 . /etc/init.d/functions
 
@@ -15,9 +18,6 @@
 
 # Check that networking is configured.
 [ ${NETWORKING} = "no" ] && exit 0
-
-AVAHI_BIN=@sbindir@/avahi-dnsconfd
-test -x $AVAHI_BIN || exit 5
 
 start() {
 	echo -n $"Starting Avahi DNS daemon: "

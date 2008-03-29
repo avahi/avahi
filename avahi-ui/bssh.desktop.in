@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Encoding=UTF-8
-Name=Avahi SSH Server Browser
-Comment=Browse for Zeroconf-enabled SSH Servers
+_Name=Avahi SSH Server Browser
+_Comment=Browse for Zeroconf-enabled SSH Servers
 Exec=@bindir@/bssh
 Terminal=false
 Type=Application

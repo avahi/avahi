@@ -2,6 +2,8 @@
 avahi-common/error.c
 avahi-ui/avahi-ui.c
 avahi-ui/bssh.c
+avahi-ui/bssh.desktop.in
+avahi-ui/bvnc.desktop.in
 avahi-utils/avahi-browse.c
 avahi-utils/avahi-publish.c
 avahi-utils/avahi-resolve.c

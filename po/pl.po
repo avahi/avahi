@@ -1,13 +1,13 @@
 # translation of pl.po to Polish
-# Piotr Drąg <raven@pmail.pl>, 2007.
+# Piotr Drąg <piotrdrag@gmail.com>, 2007.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-17 15:52+0100\n"
-"PO-Revision-Date: 2007-12-22 19:31+0200\n"
-"Last-Translator: Piotr Drąg <raven@pmail.pl>\n"
+"POT-Creation-Date: 2008-03-29 18:14+0000\n"
+"PO-Revision-Date: 2008-03-29 20:10+0200\n"
+"Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -248,10 +248,8 @@ msgstr "Resolver Avahi nie powiódł się: %s"
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Przeglądanie typu usług %s w domenie %s nie powiodło się: %s"
 
-#: ../avahi-ui/avahi-ui.c:519
-#: ../avahi-utils/avahi-browse.c:157
-#: ../avahi-utils/avahi-browse.c:158
-#: ../avahi-utils/avahi-browse.c:164
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
 #: ../avahi-utils/avahi-browse.c:165
 msgid "n/a"
 msgstr "Nie dotyczy"
@@ -303,8 +301,7 @@ msgstr "Zmień domenę"
 msgid "Service Name"
 msgstr "Nazwa usługi"
 
-#: ../avahi-ui/avahi-ui.c:1029
-#: ../avahi-ui/avahi-ui.c:1160
+#: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
 msgid "Browsing ..."
 msgstr "Przeglądanie..."
 
@@ -316,40 +313,79 @@ msgstr "Inicjowanie..."
 msgid "_Domain..."
 msgstr "_Domena..."
 
-#: ../avahi-ui/bssh.c:50
+#: ../avahi-ui/bssh.c:57
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+"%s [opcje]\n"
+"\n"
+"    -h --help            Wyświetla tę pomoc\n"
+"    -s --ssh             Przegląda serwery SSH\n"
+"    -v --vnc             Przegląda serwery VNC\n"
+"    -S --shell           Przegląda SSH i VNC\n"
+"    -d --domain=DOMENA   Domena do przeglądania\n"
+
+#: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:754
+#, c-format
+msgid "Too many arguments\n"
+msgstr "Za dużo argumentów\n"
+
+#: ../avahi-ui/bssh.c:147
 msgid "Choose Shell Server"
-msgstr "Wybierz serwer powłoki"
+msgstr "Wybierz powłokę serwera"
 
-#: ../avahi-ui/bssh.c:52
+#: ../avahi-ui/bssh.c:149
 msgid "Desktop"
-msgstr "Środowisko graficzne"
+msgstr "Pulpit"
 
-#: ../avahi-ui/bssh.c:53
+#: ../avahi-ui/bssh.c:150
 msgid "Terminal"
 msgstr "Terminal"
 
-#: ../avahi-ui/bssh.c:55
+#: ../avahi-ui/bssh.c:154
 msgid "Choose VNC server"
 msgstr "Wybierz serwer VNC"
 
-#: ../avahi-ui/bssh.c:58
+#: ../avahi-ui/bssh.c:159
 msgid "Choose SSH server"
 msgstr "Wybierz serwer SSH"
 
-#: ../avahi-ui/bssh.c:80
+#: ../avahi-ui/bssh.c:183
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Łączenie się z \"%s\"...\n"
 
-#: ../avahi-ui/bssh.c:134
+#: ../avahi-ui/bssh.c:238
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "execlp() nie powiodło się: %s\n"
 
-#: ../avahi-ui/bssh.c:144
-#, c-format
+#: ../avahi-ui/bssh.c:248
 msgid "Canceled.\n"
 msgstr "Anulowano.\n"
+
+#: ../avahi-ui/bssh.desktop.in.h:1
+msgid "Avahi SSH Server Browser"
+msgstr "Przeglądarka serwerów SSH Avahi"
+
+#: ../avahi-ui/bssh.desktop.in.h:2
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr "Przeglądanie serwerów SSH z włączonym Zeroconf"
+
+#: ../avahi-ui/bvnc.desktop.in.h:1
+msgid "Avahi VNC Server Browser"
+msgstr "Przeglądarka serwerów VNC Avahi"
+
+#: ../avahi-ui/bvnc.desktop.in.h:2
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr "Przeglądanie serwerów VNC z włączonym Zeroconf"
 
 #: ../avahi-utils/avahi-browse.c:108
 #, c-format
@@ -361,11 +397,11 @@ msgstr ": Wszystko\n"
 msgid ": Cache exhausted\n"
 msgstr ": Wyczerpano pamięć podręczną\n"
 
-#: ../avahi-utils/avahi-browse.c:223
-#: ../avahi-utils/avahi-browse.c:245
+#: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "Rozwiązanie usługi \"%s\" typu \"%s\" w domenie \"%s\": %s\n"
+msgstr ""
+"Rozwiązanie usługi \"%s\" typu \"%s\" w domenie \"%s\" nie powiodło się: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:324
 #, c-format
@@ -392,27 +428,21 @@ msgstr "avahi_service_type_browser_new() nie powiodło się: %s\n"
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr "avahi_domain_browser_new() nie powiodło się: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:519
-#: ../avahi-utils/avahi-publish.c:391
-#: ../avahi-utils/avahi-resolve.c:282
-#: ../avahi-utils/avahi-set-host-name.c:170
+#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:391
+#: ../avahi-utils/avahi-resolve.c:282 ../avahi-utils/avahi-set-host-name.c:170
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr "Odpytanie łańcucha wersji nie powiodło się: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:524
-#: ../avahi-utils/avahi-publish.c:396
-#: ../avahi-utils/avahi-resolve.c:287
-#: ../avahi-utils/avahi-set-host-name.c:175
+#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:396
+#: ../avahi-utils/avahi-resolve.c:287 ../avahi-utils/avahi-set-host-name.c:175
 #: ../avahi-utils/avahi-set-host-name.c:191
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr "Odpytanie nazwy komputera nie powiodło się: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:528
-#: ../avahi-utils/avahi-publish.c:400
-#: ../avahi-utils/avahi-resolve.c:291
-#: ../avahi-utils/avahi-set-host-name.c:179
+#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:400
+#: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Wersja serwera: %s; nazwa komputera: %s\n"
@@ -435,32 +465,26 @@ msgstr "Nazwa"
 msgid "Type"
 msgstr "Typ"
 
-#: ../avahi-utils/avahi-browse.c:564
-#: ../avahi-utils/avahi-publish.c:165
+#. We have been disconnected, so let reconnect
+#: ../avahi-utils/avahi-browse.c:564 ../avahi-utils/avahi-publish.c:165
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Rozłączono, ponowne łączenie...\n"
 
-#: ../avahi-utils/avahi-browse.c:578
-#: ../avahi-utils/avahi-browse.c:808
-#: ../avahi-utils/avahi-publish.c:172
-#: ../avahi-utils/avahi-publish.c:383
-#: ../avahi-utils/avahi-resolve.c:274
-#: ../avahi-utils/avahi-set-host-name.c:162
+#: ../avahi-utils/avahi-browse.c:578 ../avahi-utils/avahi-browse.c:808
+#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
+#: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "Utworzenie obiektu klienta nie powiodło się: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:583
-#: ../avahi-utils/avahi-publish.c:177
-#: ../avahi-utils/avahi-resolve.c:145
-#: ../avahi-utils/avahi-set-host-name.c:61
+#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
 #, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Klient nie powiódł się, wyłączanie: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:602
-#: ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:602 ../avahi-utils/avahi-publish.c:208
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Oczekiwanie na demona...\n"
@@ -473,7 +497,8 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -483,11 +508,14 @@ msgstr ""
 "    -h --help            Wyświetla tę pomoc\n"
 "    -V --version         Wyświetla wersję\n"
 "    -D --browse-domains  Przegląda domeny zamiast usług\n"
-"    -a --all             Wyświetla wszystkie usługi, niezależnie od ich typu\n"
+"    -a --all             Wyświetla wszystkie usługi, niezależnie od ich "
+"typu\n"
 "    -d --domain=DOMENA   Domena do przeglądania\n"
 "    -v --verbose         Wyświetla więcej informacji\n"
-"    -t --terminate       Wyłącza po zrzuceniu bardziej lub mniej kompletnej listy\n"
-"    -c --cache           Wyłącza po zrzuceniu wszystkich wpisów z pamięci podręcznej\n"
+"    -t --terminate       Wyłącza po zrzuceniu bardziej lub mniej kompletnej "
+"listy\n"
+"    -c --cache           Wyłącza po zrzuceniu wszystkich wpisów z pamięci "
+"podręcznej\n"
 "    -l --ignore-local    Ignoruje lokalne usługi\n"
 "    -r --resolve         Rozwiązuje znalezione usługi\n"
 "    -f --no-fail         Nie wyłącza, jeśli demon nie jest dostępny\n"
@@ -501,21 +529,13 @@ msgstr ""
 "    -k --no-db-lookup    Nie przeszukuje typów usług\n"
 "    -b --dump-db         Zrzuca bazę danych typów usług\n"
 
-#: ../avahi-utils/avahi-browse.c:745
-#: ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:745 ../avahi-utils/avahi-resolve.c:221
 #, c-format
 msgid "Too few arguments\n"
 msgstr "Za mało argumentów\n"
 
-#: ../avahi-utils/avahi-browse.c:754
-#, c-format
-msgid "Too many arguments\n"
-msgstr "Za dużo argumentów\n"
-
-#: ../avahi-utils/avahi-browse.c:800
-#: ../avahi-utils/avahi-publish.c:375
-#: ../avahi-utils/avahi-resolve.c:266
-#: ../avahi-utils/avahi-set-host-name.c:154
+#: ../avahi-utils/avahi-browse.c:800 ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr "Utworzenie prostego obiektu typu \"poll\" nie powiodło się.\n"
@@ -533,7 +553,7 @@ msgstr "Zarejestrowanie nie powiodło się: %s\n"
 #: ../avahi-utils/avahi-publish.c:96
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr "Kolizja nazw, wybieranie nowej \"%s\".\n"
+msgstr "Kolizja nazw, wybieranie nowej nazwy \"%s\".\n"
 
 #: ../avahi-utils/avahi-publish.c:116
 #, c-format
@@ -573,7 +593,8 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 "%s [opcje] %s <nazwa> <typ> <port> [<tekst...>]\n"
@@ -589,8 +610,7 @@ msgstr ""
 "       --subtype=PODTYP  Dodatkowy podtyp do zarejestrowania tej usługi\n"
 "    -f --no-fail         Nie wyłącza, jeśli demon nie jest dostępny\n"
 
-#: ../avahi-utils/avahi-publish.c:300
-#: ../avahi-utils/avahi-publish.c:315
+#: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr "Błędna liczba argumentów\n"
@@ -600,8 +620,7 @@ msgstr "Błędna liczba argumentów\n"
 msgid "Failed to parse port number: %s\n"
 msgstr "Przeanalizowanie numeru portu nie powiodło się: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:358
-#: ../avahi-utils/avahi-resolve.c:248
+#: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
 #, c-format
 msgid "No command specified.\n"
 msgstr "Nie podano polecenia.\n"
@@ -641,8 +660,7 @@ msgstr ""
 "    -6                   Przeszukuje adresy IPv6\n"
 "    -4                   Przeszukuje adresy IPv4\n"
 
-#: ../avahi-utils/avahi-resolve.c:301
-#: ../avahi-utils/avahi-set-host-name.c:183
+#: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr "Utworzenie resolvera nazwy komputera nie powiodło się: %s\n"

@@ -4,13 +4,14 @@
 # This file is distributed under the same license as the avahi package.
 #
 # Nikola Pajtić <salgeras@gmail.com>, 2008.
+# Milos Mijatovic <mijatix@gmail.com>, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-02 18:19+0000\n"
-"PO-Revision-Date: 2008-03-13 11:42+0100\n"
-"Last-Translator: Nikola Pajtić <salgeras@gmail.com>\n"
+"POT-Creation-Date: 2008-04-05 10:28+0000\n"
+"PO-Revision-Date: 2008-04-05 17:40+0200\n"
+"Last-Translator: Milos Mijatovic <mijatix@gmail.com>\n"
 "Language-Team: Serbian (sr) <fedora-trans-sr@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,7 +22,7 @@ msgstr ""
 
 #: ../avahi-common/error.c:32
 msgid "OK"
-msgstr "ОК"
+msgstr "У реду"
 
 #: ../avahi-common/error.c:33
 msgid "Operation failed"
@@ -309,7 +310,7 @@ msgstr "Назив услуге"
 
 #: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
 msgid "Browsing ..."
-msgstr "Претражујем..."
+msgstr "Претражујем ..."
 
 #: ../avahi-ui/avahi-ui.c:1118
 msgid "Initializing..."
@@ -330,6 +331,13 @@ msgid ""
 "    -S --shell           Browse both SSH and VNC\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
+"%s [options]\n"
+"\n"
+"    -h --help            Прикажи ову помоћ\n"
+"    -s --ssh             Претражи SSH сервере\n"
+"    -v --vnc             Претражи VNC сервере\n"
+"    -S --shell           Претражи и SSH и VNC\n"
+"    -d --domain=DOMAIN   Домен у коме ће се вршити претраживање\n"
 
 #: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:754
 #, c-format
@@ -372,19 +380,19 @@ msgstr "Отказано.\n"
 
 #: ../avahi-ui/bssh.desktop.in.h:1
 msgid "Avahi SSH Server Browser"
-msgstr ""
+msgstr "Претраживач Avahi SSH сервера"
 
 #: ../avahi-ui/bssh.desktop.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr ""
+msgstr "Претражујем SSH сервере на којима је омогућен Zeroconf"
 
 #: ../avahi-ui/bvnc.desktop.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr ""
+msgstr "Претраживач Avahi VNC сервера"
 
 #: ../avahi-ui/bvnc.desktop.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr ""
+msgstr "Претражујем VNC сервере на којима је омогућен Zeroconf"
 
 #: ../avahi-utils/avahi-browse.c:108
 #, c-format
@@ -394,7 +402,7 @@ msgstr ": за сада све\n"
 #: ../avahi-utils/avahi-browse.c:119
 #, c-format
 msgid ": Cache exhausted\n"
-msgstr ": кеш препуњен\n"
+msgstr ": кеш je препуњен\n"
 
 #: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
 #, c-format
@@ -409,7 +417,7 @@ msgstr "Неуспешна функција service_browser: %s\n"
 #: ../avahi-utils/avahi-browse.c:362
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr "Функција avahi_service_browser_new() неуспешна: %s\n"
+msgstr "Неуспешна функција avahi_service_browser_new(): %s\n"
 
 #: ../avahi-utils/avahi-browse.c:398
 #, c-format
@@ -628,7 +636,7 @@ msgstr "Команда није одређена.\n"
 #: ../avahi-utils/avahi-resolve.c:91
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "Неуспешно разрешавање имена домаћина '%s': %s\n"
+msgstr "Неуспешно разрешавање имена домаћина „%s“: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:128
 #, c-format
@@ -668,7 +676,7 @@ msgstr "Неуспешно прављење разрешивача назива 
 #: ../avahi-utils/avahi-resolve.c:311
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr "Неуспешно рашчлањивање адресе '%s'\n"
+msgstr "Неуспешно рашчлањивање адресе „%s“\n"
 
 #: ../avahi-utils/avahi-resolve.c:316
 #, c-format

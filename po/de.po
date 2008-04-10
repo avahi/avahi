@@ -231,7 +231,7 @@ msgstr "Leer"
 
 #: ../avahi-common/error.c:90
 msgid "The requested operation is invalid because redundant"
-msgstr "Die angeforderte Operation ist ungültig, da sie doppelt ausgeführt wurde"
+msgstr "Die angeforderte Operation ist ungültig, da sie redundant ist"
 
 #: ../avahi-common/error.c:96
 msgid "Invalid Error Code"
@@ -258,7 +258,7 @@ msgstr "Durchsuchen nach Dienst-Typen %s in Domäne %s fehlgeschlagen: %s"
 #: ../avahi-utils/avahi-browse.c:164
 #: ../avahi-utils/avahi-browse.c:165
 msgid "n/a"
-msgstr "n/a"
+msgstr "k.A."
 
 #: ../avahi-ui/avahi-ui.c:649
 #, c-format
@@ -292,12 +292,12 @@ msgstr "Browser-Erzeugung für %s fehlgeschlagen: %s"
 #: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Auslöser-Erzeugung für %s vom Typ %s in Domäne %s fehlgeschlagen: %s"
+msgstr "Erzeugen eines Resolvers für %s vom Typ %s in Domäne %s fehlgeschlagen: %s"
 
 #: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr "Domänenbrowser-Erzeugung fehlgeschlagen: %s"
+msgstr "Erzeugen eines Domänenbrowser fehlgeschlagen: %s"
 
 #: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
@@ -357,7 +357,7 @@ msgstr "Abgebrochen.\n"
 #: ../avahi-utils/avahi-browse.c:108
 #, c-format
 msgid ": All for now\n"
-msgstr ": Alle Einträge für jetzt\n"
+msgstr ": Alle Einträge bisher\n"
 
 #: ../avahi-utils/avahi-browse.c:119
 #, c-format

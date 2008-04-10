@@ -115,7 +115,7 @@ msgstr "Verbindung zum Daemon fehlgeschlagen"
 
 #: ../avahi-common/error.c:58
 msgid "Memory exhausted"
-msgstr "Ungültiges Argument"
+msgstr "Verfügbarer Speicher ausgeschöpft"
 
 #: ../avahi-common/error.c:59
 msgid "The object passed in was not valid"

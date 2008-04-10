@@ -527,10 +527,15 @@ static int start(Config *config) {
 
         fprintf(stderr, _("Server version: %s; Host name: %s\n"), version, hn);
 
-        if (config->command == COMMAND_BROWSE_DOMAINS)
+        if (config->command == COMMAND_BROWSE_DOMAINS) {
+            /* Translators: This is a column heading with abbreviations for
+             *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain */
             fprintf(stderr, _("E Ifce Prot Domain\n"));
-        else
+        } else {
+            /* Translators: This is a column heading with abbreviations for
+             *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain */
             fprintf(stderr, _("E Ifce Prot %-*s %-20s Domain\n"), n_columns-35, _("Name"), _("Type"));
+        }
     }
 
     if (config->command == COMMAND_BROWSE_SERVICES)

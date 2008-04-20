@@ -30,6 +30,7 @@ EXTRA_DIST = bssh.desktop.in bvnc.desktop.in
 
 if HAVE_GTK
 if HAVE_DBUS
+if HAVE_GLIB
 
 avahiincludedir=$(includedir)/avahi-ui
 
@@ -75,6 +76,7 @@ bssh.desktop: bssh.desktop.in
 bvnc.desktop: bvnc.desktop.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
+endif # HAVE_GLIB
 endif
 endif
 

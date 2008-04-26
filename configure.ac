@@ -246,13 +246,17 @@ AC_TRY_COMPILE([#include <netinet/in.h>], [
 #
 AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the distribution to target: One of debian, gentoo, archlinux, fedora, mandriva, darwin, netbsd, freebsd, slackware or none]))
 if test "z$with_distro" = "z"; then
-    AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
-    AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
-    AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
-    AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
-    AC_CHECK_FILE(/etc/redhat-release,with_distro="fedora")
-    AC_CHECK_FILE(/etc/mandriva-release,with_distro="mandriva")
-    AC_CHECK_FILE(/etc/slackware-version,with_distro="slackware")
+    if test "$cross_compiling" = yes; then
+        AC_MSG_WARN([Target distribution cannot be reliably detected when cross-compiling. You should specify it with --with-distro (see $0 --help for recognized distros)])
+    else
+        AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
+        AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
+        AC_CHECK_FILE(/etc/arch-release,with_distro="archlinux")
+        AC_CHECK_FILE(/etc/debian_version,with_distro="debian")
+        AC_CHECK_FILE(/etc/redhat-release,with_distro="fedora")
+        AC_CHECK_FILE(/etc/mandriva-release,with_distro="mandriva")
+        AC_CHECK_FILE(/etc/slackware-version,with_distro="slackware")
+    fi
     if test "z$with_distro" = "z"; then
         with_distro=`uname -s`
     fi
@@ -473,10 +477,10 @@ if test "x$HAVE_QT3" = "xyes" ; then
         AC_SUBST(QT3_CFLAGS)
         AC_SUBST(QT3_LIBS)
 	    QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
-        MOC_QT3="no"
-	    AC_CHECK_FILE( "$QT3_PREFIX/moc-qt3", [ MOC_QT3=$QT3_PREFIX/moc-qt3 ], [
-        	    AC_CHECK_FILE("$QT3_PREFIX/moc", [ MOC_QT3=$QT3_PREFIX/moc ], [
-                AC_MSG_ERROR([Couldn't find QT3 moc])])])
+        AC_PATH_PROGS(MOC_QT3, [moc-qt3 moc], no, [$QT3_PREFIX])
+        if test "$MOC_QT3" = no; then
+            AC_MSG_ERROR([Could not find QT3 moc])
+        fi
         AC_SUBST(MOC_QT3)
 fi
 AM_CONDITIONAL(HAVE_QT3, test "x$HAVE_QT3" = "xyes")
@@ -498,10 +502,10 @@ if test "x$HAVE_QT4" = "xyes" ; then
         AC_SUBST(QT4_CFLAGS)
         AC_SUBST(QT4_LIBS)
 	    QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"
-        MOC_QT4="no"
-	    AC_CHECK_FILE( "$QT4_PREFIX/moc-qt4", [ MOC_QT4=$QT4_PREFIX/moc-qt4 ], [
-               AC_CHECK_FILE("$QT4_PREFIX/moc", [ MOC_QT4=$QT4_PREFIX/moc ], [
-               AC_MSG_ERROR([Couldn't find QT4 moc])])])
+        AC_PATH_PROGS(MOC_QT4, [moc-qt4 moc], no, [$QT4_PREFIX])
+        if test "$MOC_QT4" = no; then
+            AC_MSG_ERROR([Could not find QT4 moc])
+        fi
         AC_SUBST(MOC_QT4)
 fi
 AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")

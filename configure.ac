@@ -353,8 +353,10 @@ AC_HEADER_SYS_WAIT
 # Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
+# avahi_malloc actually returns NULL for avahi_malloc(0), so it does not matter
+# whether libc's malloc does too. (Same for realloc.)
+#AC_FUNC_MALLOC
+#AC_FUNC_REALLOC
 AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid setresgid setregid strcasecmp gettimeofday putenv strncasecmp strlcpy gethostbyname seteuid setegid setproctitle getprogname])
 
 AC_FUNC_CHOWN

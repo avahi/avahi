@@ -556,8 +556,12 @@ gboolean ga_entry_group_service_set_arbitrary(GaEntryGroupService * service,
 gboolean ga_entry_group_service_remove_key(GaEntryGroupService * service,
                                   const gchar * key, GError ** error) {
     GaEntryGroupServicePrivate *priv = (GaEntryGroupServicePrivate *) service;
+    GaEntryGroupServiceEntry entry;
 
-    g_hash_table_remove(priv->entries, key);
+    entry.value = key;
+    entry.size = strlen(key);
+
+    g_hash_table_remove(priv->entries, &entry);
 
     if (!priv->frozen)
         return ga_entry_group_service_thaw(service, error);

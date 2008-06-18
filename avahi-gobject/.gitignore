@@ -1,0 +1,12 @@
+ga-*-enumtypes.c
+ga-*-enumtypes.h
+*.o
+*.lo
+*.la
+Makefile
+Makefile.in
+.deps
+.libs
+signals-marshal.c
+signals-marshal.h
+signals-marshal.list

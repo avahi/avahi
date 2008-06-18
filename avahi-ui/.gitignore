@@ -1,0 +1,11 @@
+bssh
+bvnc
+bssh.desktop
+bvnc.desktop
+*.o
+*.lo
+*.la
+Makefile
+Makefile.in
+.deps
+.libs

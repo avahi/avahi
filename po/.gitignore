@@ -1,0 +1,15 @@
+ChangeLog
+Makefile
+Makefile.in
+Makefile.in.in
+Makevars.template
+POTFILES
+Rules-quot
+boldquot.sed
+en@boldquot.header
+en@quot.header
+insert-header.sin
+quot.sed
+remove-potcdate.sin
+stamp-it
+*.gmo

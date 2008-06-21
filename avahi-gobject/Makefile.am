@@ -65,7 +65,7 @@ libavahi_gobject_la_SOURCES = \
 
 libavahi_gobject_la_CFLAGS = $(AM_CFLAGS) $(GOBJECT_CFLAGS)
 libavahi_gobject_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la ../avahi-glib/libavahi-glib.la $(GOBJECT_LIBS)
-libavahi_gobject_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_GOBJECT_VERSION_INFO)
+libavahi_gobject_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBAVAHI_GOBJECT_VERSION_INFO) -export-symbols-regex '^ga_'
 
 # correctly clean the generated source files
 CLEANFILES = $(BUILT_SOURCES)

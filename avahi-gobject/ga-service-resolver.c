@@ -183,7 +183,7 @@ static void ga_service_resolver_class_init(GaServiceResolverClass *
                          G_SIGNAL_RUN_LAST,
                          0,
                          NULL, NULL,
-                         ga_signals_marshal_VOID__INT_ENUM_STRING_STRING_STRING_STRING_POINTER_INT_POINTER_INT,
+                         _ga_signals_marshal_VOID__INT_ENUM_STRING_STRING_STRING_STRING_POINTER_INT_POINTER_INT,
                          G_TYPE_NONE, 10,
                          G_TYPE_INT,
                          GA_TYPE_PROTOCOL,

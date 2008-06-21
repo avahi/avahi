@@ -75,7 +75,7 @@ dist-hook:
 
 signals-marshal.list: $(CORE_SOURCES) Makefile.am
 	( cd $(srcdir) && \
-	sed -n -e 's/.*ga_signals_marshal_\([A-Z]*__[A-Z_]*\).*/\1/p' \
+	sed -n -e 's/.*_ga_signals_marshal_\([A-Z]*__[A-Z_]*\).*/\1/p' \
 		$(CORE_SOURCES) ) \
 		| sed -e 's/__/:/' -e 'y/_/,/' | sort -u > $@.tmp
 	if cmp -s $@.tmp $@; then \
@@ -85,10 +85,10 @@ signals-marshal.list: $(CORE_SOURCES) Makefile.am
 	fi
 
 signals-marshal.h: signals-marshal.list
-	glib-genmarshal --header --prefix=ga_signals_marshal $< > $@
+	glib-genmarshal --header --prefix=_ga_signals_marshal $< > $@
 
 signals-marshal.c: signals-marshal.list
-	glib-genmarshal --body --prefix=ga_signals_marshal $< > $@
+	glib-genmarshal --body --prefix=_ga_signals_marshal $< > $@
 
 
 # rules for making the glib enum objects

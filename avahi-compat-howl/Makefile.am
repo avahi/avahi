@@ -83,7 +83,7 @@ libhowl_la_SOURCES = \
 	text.c \
 	compat.c
 libhowl_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
-libhowl_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
+libhowl_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_COMPAT_HOWL_VERSION_INFO) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la
 
 address_test_SOURCES = \
 	$(HOWLHEADERS) \

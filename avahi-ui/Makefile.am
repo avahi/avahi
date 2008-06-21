@@ -44,7 +44,7 @@ libavahi_ui_la_SOURCES = \
 	avahi-ui.h avahi-ui.c
 libavahi_ui_la_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
 libavahi_ui_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la ../avahi-glib/libavahi-glib.la $(GTK20_LIBS)
-libavahi_ui_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_UI_VERSION_INFO)
+libavahi_ui_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_UI_VERSION_INFO)
 
 if HAVE_GDBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c

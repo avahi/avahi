@@ -40,10 +40,9 @@ libavahi_qt3_la_SOURCES = \
 qt-watch.moc3: qt-watch.cpp
 	$(MOC_QT3) $^ > $@
 
-libavahi_qt3_la_CPPFLAGS = $(AM_CFLAGS) $(QT3_CFLAGS)
+libavahi_qt3_la_CPPFLAGS = $(AM_CFLAGS) $(QT3_CFLAGS) $(VISIBILITY_HIDDEN_CFLAGS)
 libavahi_qt3_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT3_LIBS)
 libavahi_qt3_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_QT3_VERSION_INFO)
-
 endif
 
 if HAVE_QT4
@@ -63,10 +62,9 @@ libavahi_qt4_la_SOURCES = \
 qt-watch.moc4: qt-watch.cpp
 	$(MOC_QT4) $^ > $@
 
-libavahi_qt4_la_CPPFLAGS = $(AM_CFLAGS) $(QT4_CFLAGS) -DQT4
+libavahi_qt4_la_CPPFLAGS = $(AM_CFLAGS) $(QT4_CFLAGS) -DQT4 $(VISIBILITY_HIDDEN_CFLAGS)
 libavahi_qt4_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT4_LIBS)
-libavahi_qt4_la_LDFLAGS = $(AM_LDFLAGS) -export-dynamic -version-info $(LIBAVAHI_QT4_VERSION_INFO)
-
+libavahi_qt4_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBAVAHI_QT4_VERSION_INFO)
 endif
 
 CLEANFILES = $(BUILT_SOURCES)

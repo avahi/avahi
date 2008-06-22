@@ -366,6 +366,9 @@ AC_TYPE_PID_T
 
 AC_CHECK_DECLS(environ)
 
+# check if gcc's -fvisibility is supported
+CHECK_VISIBILITY_HIDDEN
+
 enable_chroot=yes
 AC_CHECK_HEADERS([sys/capability.h],,enable_chroot=no)
 AC_CHECK_HEADERS([sys/prctl.h],,enable_chroot=no)

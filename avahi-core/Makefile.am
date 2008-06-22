@@ -1,7 +1,7 @@
 # $Id$
 #
 # This file is part of avahi.
-# 
+#
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -32,7 +32,7 @@ avahiinclude_HEADERS = \
 	lookup.h
 
 lib_LTLIBRARIES = \
-	libavahi-core.la 
+	libavahi-core.la
 
 if ENABLE_TESTS
 noinst_PROGRAMS = \
@@ -51,7 +51,7 @@ TESTS = \
 	dns-spin-test \
 	dns-test \
 	hashmap-test
-endif  
+endif
 
 libavahi_core_la_SOURCES = \
 	timeeventq.c timeeventq.h\
@@ -92,9 +92,12 @@ libavahi_core_la_SOURCES += \
        iface-linux.c iface-linux.h \
        netlink.c netlink.h
 else
-if HAVE_PF_ROUTE 
+if HAVE_PF_ROUTE
 libavahi_core_la_SOURCES += \
 	iface-pfroute.c iface-pfroute.h
+else
+libavahi_core_la_SOURCES += \
+	iface-none.c
 endif
 endif
 

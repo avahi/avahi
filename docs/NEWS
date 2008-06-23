@@ -1,3 +1,22 @@
+Avahi 0.6.23
+============
+
+This is an bugfix release.
+
+ * A lot of translation updates
+ * Beef up bnvc quite a bit, including passing a domain to browse in
+   (patch from lkundrak)
+ * Increase numer of open files resource limit to 300 so that we can
+   deal with more clients simultaneously.
+ * Rework 'poof' algorithm a bit to reduce traffic load on noisy links.
+ * Build fixes
+ * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 23.
+
+Please note that Avahi's SVN has been converted to GIT and is now
+available on git://git.0pointer.de/avahi.
+
 Avahi 0.6.22
 ============
 

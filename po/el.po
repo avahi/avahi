@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-24 20:26+0300\n"
-"PO-Revision-Date: 2008-06-24 20:47+0300\n"
+"PO-Revision-Date: 2008-06-24 23:50+0300\n"
 "Last-Translator: Dimitris Glezos <dimitris@glezos.com>\n"
 "Language-Team: American English <fedora-trans-el@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -58,15 +58,15 @@ msgstr ""
 
 #: ../avahi-common/error.c:43
 msgid "Invalid service name"
-msgstr ""
+msgstr "Μη έγκυρο όνομα υπηρεσίας"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid service type"
-msgstr ""
+msgstr "Μη έγκυρος τύπος υπηρεσίας"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid port number"
-msgstr ""
+msgstr "Μη έγκυρος αριθμός θύρας"
 
 #: ../avahi-common/error.c:46
 msgid "Invalid record key"
@@ -74,7 +74,7 @@ msgstr ""
 
 #: ../avahi-common/error.c:47
 msgid "Invalid address"
-msgstr ""
+msgstr "Μη έγκυρη διεύθυνση"
 
 #: ../avahi-common/error.c:48
 msgid "Timeout reached"

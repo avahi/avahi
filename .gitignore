@@ -1,3 +1,5 @@
+*.tar.gz
+doxygen
 Makefile
 Makefile.in
 *~

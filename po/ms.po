@@ -1,0 +1,738 @@
+# avahi Bahasa Melayu (Malay) (ms)
+# Copyright (C) 2008 Avahi Project
+# This file is distributed under the same license as the avahi package.
+# Sharuzzaman Ahmat Raslan <sharuzzaman@myrealbox.com>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: avahi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-06-17 04:34+0000\n"
+"PO-Revision-Date: 2008-07-31 23:28+0800\n"
+"Last-Translator: Sharuzzaman Ahmat Raslan <sharuzzaman@myrealbox.com>\n"
+"Language-Team: Malay <translation-team-ms@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../avahi-common/error.c:32
+msgid "OK"
+msgstr "OK"
+
+#: ../avahi-common/error.c:33
+#, fuzzy
+msgid "Operation failed"
+msgstr "Sambungan Gagal"
+
+#: ../avahi-common/error.c:34
+#, fuzzy
+msgid "Bad state"
+msgstr "@p @h %d (%q): buruk @b nombor %b.\n"
+
+#: ../avahi-common/error.c:35
+#, fuzzy
+msgid "Invalid host name"
+msgstr "Nama Kumpulan Volum Tidak Sah"
+
+#: ../avahi-common/error.c:36
+#, fuzzy
+msgid "Invalid domain name"
+msgstr "Nama domain tetamu"
+
+#: ../avahi-common/error.c:37
+msgid "No suitable network protocol available"
+msgstr ""
+
+#: ../avahi-common/error.c:38
+#, fuzzy
+msgid "Invalid DNS TTL"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:39
+msgid "Resource record key is pattern"
+msgstr ""
+
+#: ../avahi-common/error.c:40
+#, fuzzy
+msgid "Local name collision"
+msgstr "Tetap Nama Imej"
+
+#: ../avahi-common/error.c:41
+#, fuzzy
+msgid "Invalid record"
+msgstr "Nama path tidak sah."
+
+#: ../avahi-common/error.c:43
+#, fuzzy
+msgid "Invalid service name"
+msgstr "Nama Kumpulan Volum Tidak Sah"
+
+#: ../avahi-common/error.c:44
+#, fuzzy
+msgid "Invalid service type"
+msgstr "Jenis Senarai Semasa"
+
+#: ../avahi-common/error.c:45
+#, fuzzy
+msgid "Invalid port number"
+msgstr "Port FTP mestilah nombor."
+
+#: ../avahi-common/error.c:46
+#, fuzzy
+msgid "Invalid record key"
+msgstr "Kekunci ID tidak sah (%s)"
+
+#: ../avahi-common/error.c:47
+#, fuzzy
+msgid "Invalid address"
+msgstr "Buku Alamat"
+
+#: ../avahi-common/error.c:48
+#, fuzzy
+msgid "Timeout reached"
+msgstr "Pelayan masatamat"
+
+#: ../avahi-common/error.c:49
+#, fuzzy
+msgid "Too many clients"
+msgstr "Terlalu banyak gantian"
+
+#: ../avahi-common/error.c:50
+#, fuzzy
+msgid "Too many objects"
+msgstr "Terlalu banyak gantian"
+
+#: ../avahi-common/error.c:51
+#, fuzzy
+msgid "Too many entries"
+msgstr "Terlalu banyak gantian"
+
+#: ../avahi-common/error.c:52
+#, fuzzy
+msgid "OS Error"
+msgstr "Ralat KMail"
+
+#: ../avahi-common/error.c:54
+#, fuzzy
+msgid "Access denied"
+msgstr "Izin ditolak"
+
+#: ../avahi-common/error.c:55
+#, fuzzy
+msgid "Invalid operation"
+msgstr "Nama path tidak sah."
+
+#: ../avahi-common/error.c:56
+#, fuzzy
+msgid "An unexpected D-Bus error occured"
+msgstr ""
+"Ralat tidak dijangka telah berlaku:\n"
+"%s"
+
+#: ../avahi-common/error.c:57
+#, fuzzy
+msgid "Daemon connection failed"
+msgstr "Pelaksanaan gpg gagal (%d)\n"
+
+#: ../avahi-common/error.c:58
+#, fuzzy
+msgid "Memory exhausted"
+msgstr "kehabisan memori"
+
+#: ../avahi-common/error.c:59
+msgid "The object passed in was not valid"
+msgstr ""
+
+#: ../avahi-common/error.c:60
+#, fuzzy
+msgid "Daemon not running"
+msgstr "%s tidak dilaksanakan.\n"
+
+#: ../avahi-common/error.c:61
+#, fuzzy
+msgid "Invalid interface index"
+msgstr "Papar Indeks Bantuan"
+
+#: ../avahi-common/error.c:62
+#, fuzzy
+msgid "Invalid protocol specification"
+msgstr "Titik lekapan tidak sah"
+
+#: ../avahi-common/error.c:63
+#, fuzzy
+msgid "Invalid flags"
+msgstr "Nama path tidak sah."
+
+#: ../avahi-common/error.c:65
+#, fuzzy
+msgid "Not found"
+msgstr "%s tidak dijumpai"
+
+#: ../avahi-common/error.c:66
+#, fuzzy
+msgid "Invalid configuration"
+msgstr "Tetapan KFish"
+
+#: ../avahi-common/error.c:67
+#, fuzzy
+msgid "Version mismatch"
+msgstr "Katalaluan Tidak Sepadan"
+
+#: ../avahi-common/error.c:68
+#, fuzzy
+msgid "Invalid service subtype"
+msgstr "Konfigur penemuan servis"
+
+#: ../avahi-common/error.c:69
+#, fuzzy
+msgid "Invalid packet"
+msgstr "Nama path tidak sah."
+
+#: ../avahi-common/error.c:70
+msgid "Invalid DNS return code"
+msgstr ""
+
+#: ../avahi-common/error.c:71
+#, fuzzy
+msgid "DNS failure: FORMERR"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:72
+#, fuzzy
+msgid "DNS failure: SERVFAIL"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:73
+#, fuzzy
+msgid "DNS failure: NXDOMAIN"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:74
+#, fuzzy
+msgid "DNS failure: NOTIMP"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:76
+#, fuzzy
+msgid "DNS failure: REFUSED"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:77
+#, fuzzy
+msgid "DNS failure: YXDOMAIN"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:78
+#, fuzzy
+msgid "DNS failure: YXRRSET"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:79
+#, fuzzy
+msgid "DNS failure: NXRRSET"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:80
+#, fuzzy
+msgid "DNS failure: NOTAUTH"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:81
+#, fuzzy
+msgid "DNS failure: NOTZONE"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:82
+#, fuzzy
+msgid "Invalid RDATA"
+msgstr "Nama path tidak sah."
+
+#: ../avahi-common/error.c:83
+#, fuzzy
+msgid "Invalid DNS type"
+msgstr "Jenis Senarai Semasa"
+
+#: ../avahi-common/error.c:84
+#, fuzzy
+msgid "Invalid DNS class"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-common/error.c:85
+#, fuzzy
+msgid "Not supported"
+msgstr "Tidak disokong"
+
+#: ../avahi-common/error.c:87
+#, fuzzy
+msgid "Not permitted"
+msgstr "Tiada"
+
+#: ../avahi-common/error.c:88
+#, fuzzy
+msgid "Invalid argument"
+msgstr "hujah tidak sah %s untuk %s"
+
+#: ../avahi-common/error.c:89
+#, fuzzy
+msgid "Is empty"
+msgstr "Pilihan Semasa adalah Kosong"
+
+#: ../avahi-common/error.c:90
+msgid "The requested operation is invalid because redundant"
+msgstr ""
+
+#: ../avahi-common/error.c:96
+#, fuzzy
+msgid "Invalid Error Code"
+msgstr "Ralat mengira nilai!"
+
+#: ../avahi-ui/avahi-ui.c:326
+#, fuzzy, c-format
+msgid "Avahi client failure: %s"
+msgstr "Klien Pelayan Terminal"
+
+#: ../avahi-ui/avahi-ui.c:388
+#, fuzzy, c-format
+msgid "Avahi resolver failure: %s"
+msgstr "Memulakan daemon Avahi:"
+
+#: ../avahi-ui/avahi-ui.c:518
+#, c-format
+msgid "Browsing for service type %s in domain %s failed: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:519
+#: ../avahi-utils/avahi-browse.c:157
+#: ../avahi-utils/avahi-browse.c:158
+#: ../avahi-utils/avahi-browse.c:164
+#: ../avahi-utils/avahi-browse.c:165
+msgid "n/a"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:649
+#, c-format
+msgid "Avahi domain browser failure: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:684
+#, c-format
+msgid "Failed to read Avahi domain: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:717
+#, fuzzy, c-format
+msgid "Failed to connect to Avahi server: %s"
+msgstr "Penambahan %s ke Pelayan Terminal gagal!\n"
+
+#: ../avahi-ui/avahi-ui.c:735
+msgid "Browsing for services on <b>local network</b>:"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:737
+#, c-format
+msgid "Browsing for services in domain <b>%s</b>:"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:773
+#, c-format
+msgid "Failed to create browser for %s: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:903
+#, c-format
+msgid "Failed to create resolver for %s of type %s in domain %s: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:978
+#, c-format
+msgid "Failed to create domain browser: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:989
+#, fuzzy
+msgid "Change domain"
+msgstr "Pentadbir Domain:"
+
+#: ../avahi-ui/avahi-ui.c:1021
+#, fuzzy
+msgid "Service Name"
+msgstr "Nama Medan"
+
+#: ../avahi-ui/avahi-ui.c:1029
+#: ../avahi-ui/avahi-ui.c:1160
+#, fuzzy
+msgid "Browsing ..."
+msgstr "Konfigur pelayaran lanjutan"
+
+#: ../avahi-ui/avahi-ui.c:1118
+#, fuzzy
+msgid "Initializing..."
+msgstr "Persediaan..."
+
+#: ../avahi-ui/avahi-ui.c:1164
+#, fuzzy
+msgid "_Domain..."
+msgstr "<domain>"
+
+#: ../avahi-ui/bssh.c:57
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+
+#: ../avahi-ui/bssh.c:103
+#: ../avahi-utils/avahi-browse.c:759
+#, fuzzy, c-format
+msgid "Too many arguments\n"
+msgstr "%s: terlalu banyak hujah\n"
+
+#: ../avahi-ui/bssh.c:147
+#, fuzzy
+msgid "Choose Shell Server"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-ui/bssh.c:149
+msgid "Desktop"
+msgstr "Desktop"
+
+#: ../avahi-ui/bssh.c:150
+msgid "Terminal"
+msgstr "Terminal"
+
+#: ../avahi-ui/bssh.c:154
+#, fuzzy
+msgid "Choose VNC server"
+msgstr "Pelayan VNC kini terlaksana."
+
+#: ../avahi-ui/bssh.c:159
+#, fuzzy
+msgid "Choose SSH server"
+msgstr "Pelayan Nama DNS"
+
+#: ../avahi-ui/bssh.c:183
+#, fuzzy, c-format
+msgid "Connecting to '%s' ...\n"
+msgstr "Menyambung ke Internet"
+
+#: ../avahi-ui/bssh.c:238
+#, fuzzy, c-format
+msgid "execlp() failed: %s\n"
+msgstr "Sambungan Gagal"
+
+#: ../avahi-ui/bssh.c:248
+msgid "Canceled.\n"
+msgstr ""
+
+#: ../avahi-ui/bssh.desktop.in.h:1
+msgid "Avahi SSH Server Browser"
+msgstr ""
+
+#: ../avahi-ui/bssh.desktop.in.h:2
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr ""
+
+#: ../avahi-ui/bvnc.desktop.in.h:1
+#, fuzzy
+msgid "Avahi VNC Server Browser"
+msgstr "Pelayan VNC kini terlaksana."
+
+#: ../avahi-ui/bvnc.desktop.in.h:2
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:108
+#, fuzzy, c-format
+msgid ": All for now\n"
+msgstr "Pemasang akan keluar sekarang..."
+
+#: ../avahi-utils/avahi-browse.c:119
+#, fuzzy, c-format
+msgid ": Cache exhausted\n"
+msgstr "kehabisan memori"
+
+#: ../avahi-utils/avahi-browse.c:223
+#: ../avahi-utils/avahi-browse.c:245
+#, c-format
+msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:324
+#, fuzzy, c-format
+msgid "service_browser failed: %s\n"
+msgstr "Pelaksanaan gpg gagal (%d)\n"
+
+#: ../avahi-utils/avahi-browse.c:362
+#, c-format
+msgid "avahi_service_browser_new() failed: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:398
+#, c-format
+msgid "service_type_browser failed: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:428
+#, c-format
+msgid "avahi_service_type_browser_new() failed: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:503
+#, c-format
+msgid "avahi_domain_browser_new() failed: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:519
+#: ../avahi-utils/avahi-publish.c:391
+#: ../avahi-utils/avahi-resolve.c:282
+#: ../avahi-utils/avahi-set-host-name.c:170
+#, c-format
+msgid "Failed to query version string: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:524
+#: ../avahi-utils/avahi-publish.c:396
+#: ../avahi-utils/avahi-resolve.c:287
+#: ../avahi-utils/avahi-set-host-name.c:175
+#: ../avahi-utils/avahi-set-host-name.c:191
+#, c-format
+msgid "Failed to query host name: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:528
+#: ../avahi-utils/avahi-publish.c:400
+#: ../avahi-utils/avahi-resolve.c:291
+#: ../avahi-utils/avahi-set-host-name.c:179
+#, fuzzy, c-format
+msgid "Server version: %s; Host name: %s\n"
+msgstr "Menentukan nama hos dan domain..."
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:533
+#, fuzzy, c-format
+msgid "E Ifce Prot Domain\n"
+msgstr "domain NIS default"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:537
+#, c-format
+msgid "E Ifce Prot %-*s %-20s Domain\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Nama"
+
+#: ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Jenis"
+
+#. We have been disconnected, so let reconnect
+#: ../avahi-utils/avahi-browse.c:569
+#: ../avahi-utils/avahi-publish.c:165
+#, fuzzy, c-format
+msgid "Disconnected, reconnecting ...\n"
+msgstr "Mandriva - Kali Pertama - Tidak bersambung"
+
+#: ../avahi-utils/avahi-browse.c:583
+#: ../avahi-utils/avahi-browse.c:813
+#: ../avahi-utils/avahi-publish.c:172
+#: ../avahi-utils/avahi-publish.c:383
+#: ../avahi-utils/avahi-resolve.c:274
+#: ../avahi-utils/avahi-set-host-name.c:162
+#, c-format
+msgid "Failed to create client object: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:588
+#: ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-resolve.c:145
+#: ../avahi-utils/avahi-set-host-name.c:61
+#, fuzzy, c-format
+msgid "Client failure, exiting: %s\n"
+msgstr "Klien Pelayan Terminal"
+
+#: ../avahi-utils/avahi-browse.c:607
+#: ../avahi-utils/avahi-publish.c:208
+#, fuzzy, c-format
+msgid "Waiting for daemon ...\n"
+msgstr "Menunggu sambungan telnet..."
+
+#: ../avahi-utils/avahi-browse.c:631
+msgid ""
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -D --browse-domains  Browse for browsing domains instead of services\n"
+"    -a --all             Show all services, regardless of the type\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -c --cache           Terminate after dumping all entries from the cache\n"
+"    -l --ignore-local    Ignore local services\n"
+"    -r --resolve         Resolve services found\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+"    -p --parsable        Output in parsable format\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:644
+msgid ""
+"    -k --no-db-lookup    Don't lookup service types\n"
+"    -b --dump-db         Dump service type database\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-browse.c:750
+#: ../avahi-utils/avahi-resolve.c:221
+#, fuzzy, c-format
+msgid "Too few arguments\n"
+msgstr "%s: terlalu banyak hujah\n"
+
+#: ../avahi-utils/avahi-browse.c:805
+#: ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-resolve.c:266
+#: ../avahi-utils/avahi-set-host-name.c:154
+#, c-format
+msgid "Failed to create simple poll object.\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-publish.c:78
+#, fuzzy, c-format
+msgid "Established under name '%s'\n"
+msgstr "Simpan dokumen dengan nama lain"
+
+#: ../avahi-utils/avahi-publish.c:83
+#, fuzzy, c-format
+msgid "Failed to register: %s\n"
+msgstr "Menulis ke %s gagal!"
+
+#: ../avahi-utils/avahi-publish.c:96
+#, c-format
+msgid "Name collision, picking new name '%s'.\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-publish.c:116
+#, c-format
+msgid "Failed to create entry group: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-publish.c:126
+#, fuzzy, c-format
+msgid "Failed to add address: %s\n"
+msgstr "Gagal untuk menyelesai alamat '%s': %s\n"
+
+#: ../avahi-utils/avahi-publish.c:136
+#, fuzzy, c-format
+msgid "Failed to add service: %s\n"
+msgstr "Tambah pengguna kepada sistem"
+
+#: ../avahi-utils/avahi-publish.c:142
+#, c-format
+msgid "Failed to add subtype '%s': %s\n"
+msgstr "Gagal untuk menambah sub jenis '%s': %s\n"
+
+#: ../avahi-utils/avahi-publish.c:193
+#, c-format
+msgid "Host name conflict\n"
+msgstr "Konflik nama hos\n"
+
+#: ../avahi-utils/avahi-publish.c:218
+#, c-format
+msgid ""
+"%s [options] %s <name> <type> <port> [<txt ...>]\n"
+"%s [options] %s <host-name> <address>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -s --service         Publish service\n"
+"    -a --address         Publish address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -d --domain=DOMAIN   Domain to publish service in\n"
+"    -H --host=DOMAIN     Host where service resides\n"
+"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-publish.c:300
+#: ../avahi-utils/avahi-publish.c:315
+#, c-format
+msgid "Bad number of arguments\n"
+msgstr "Jumlah hujah tidak tepat\n"
+
+#: ../avahi-utils/avahi-publish.c:326
+#, c-format
+msgid "Failed to parse port number: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-publish.c:358
+#: ../avahi-utils/avahi-resolve.c:248
+#, c-format
+msgid "No command specified.\n"
+msgstr "Tiada arahan dinyatakan.\n"
+
+#: ../avahi-utils/avahi-resolve.c:91
+#, c-format
+msgid "Failed to resolve host name '%s': %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-resolve.c:128
+#, c-format
+msgid "Failed to resolve address '%s': %s\n"
+msgstr "Gagal untuk menyelesai alamat '%s': %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:159
+#, c-format
+msgid ""
+"%s [options] %s <host name ...>\n"
+"%s [options] %s <address ... >\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -n --name            Resolve host name\n"
+"    -a --address         Resolve address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -6                   Lookup IPv6 address\n"
+"    -4                   Lookup IPv4 address\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-resolve.c:301
+#: ../avahi-utils/avahi-set-host-name.c:183
+#, c-format
+msgid "Failed to create host name resolver: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-resolve.c:311
+#, c-format
+msgid "Failed to parse address '%s'\n"
+msgstr "Gagal untuk menghurai alamat '%s'\n"
+
+#: ../avahi-utils/avahi-resolve.c:316
+#, c-format
+msgid "Failed to create address resolver: %s\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-set-host-name.c:75
+#, c-format
+msgid ""
+"%s [options] <new host name>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -v --verbose         Enable verbose mode\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-set-host-name.c:116
+#, c-format
+msgid "Invalid number of arguments, expecting exactly one.\n"
+msgstr ""
+
+#: ../avahi-utils/avahi-set-host-name.c:195
+#, c-format
+msgid "Host name successfully changed to %s\n"
+msgstr ""
+

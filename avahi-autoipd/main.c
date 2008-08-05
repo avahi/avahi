@@ -1144,8 +1144,12 @@ static int loop(int iface, uint32_t addr) {
         for (i = 0; i < ETHER_ADDRLEN; i++)
             a += hw_address[i]*i;
 
+        a = (a % 0xFE00) + 0x0100;
+
         addr = htonl(IPV4LL_NETWORK | (uint32_t) a);
     }
+
+    assert(is_ll_address(addr));
 
     set_state(st, 1, addr);
 

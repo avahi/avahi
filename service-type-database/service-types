@@ -149,6 +149,9 @@ _pulse-source._tcp:PulseAudio Sound Source
 
 _mpd._tcp:Music Player Daemon
 
+# DAAP share provided by iTunes on behalf of an iPod Touch
+_touch-able._tcp:iPod Touch Music Library
+
 _vlc-http._tcp:VLC Streaming
 
 

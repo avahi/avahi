@@ -405,8 +405,6 @@ if test "x$have_kqueue" = "xyes" ; then
     AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
 fi
 
-AM_GNU_GETTEXT([external])
-
 IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=avahi
 AC_SUBST([GETTEXT_PACKAGE])

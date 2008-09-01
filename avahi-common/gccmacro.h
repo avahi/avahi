@@ -28,6 +28,15 @@
 
 AVAHI_C_DECL_BEGIN
 
+#if defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 3)
+#define AVAHI_GCC_ALLOC_SIZE(x) __attribute__ ((__alloc_size__(x)))
+#define AVAHI_GCC_ALLOC_SIZE2(x,y) __attribute__ ((__alloc_size__(x,y)))
+#else
+/** Macro for usage of GCC's alloc_size attribute */
+#define AVAHI_GCC_ALLOC_SIZE(x)
+#define AVAHI_GCC_ALLOC_SIZE2(x,y)
+#endif
+
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 #define AVAHI_GCC_SENTINEL __attribute__ ((sentinel))
 #else

@@ -1,0 +1,708 @@
+# Avahi Finnish translation.
+# Copyright (C) 2008 Timo Jyrinki
+# This file is distributed under the same license as the avahi package.
+# Timo Jyrinki <timo.jyrinki@iki.fi>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: avahi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-02 04:10+0000\n"
+"PO-Revision-Date: 2008-09-02 15:00+0300\n"
+"Last-Translator: Timo Jyrinki <timo.jyrinki@iki.fi>\n"
+"Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../avahi-common/error.c:32
+msgid "OK"
+msgstr "OK"
+
+#: ../avahi-common/error.c:33
+msgid "Operation failed"
+msgstr "Toiminto epäonnistui"
+
+#: ../avahi-common/error.c:34
+msgid "Bad state"
+msgstr "Huono tila"
+
+#: ../avahi-common/error.c:35
+msgid "Invalid host name"
+msgstr "Kelvoton verkkonimi"
+
+#: ../avahi-common/error.c:36
+msgid "Invalid domain name"
+msgstr "Kelvoton verkkoalueen nimi"
+
+#: ../avahi-common/error.c:37
+msgid "No suitable network protocol available"
+msgstr "Sopivaa verkkoyhteyskäytäntöä ei ole saatavilla"
+
+#: ../avahi-common/error.c:38
+msgid "Invalid DNS TTL"
+msgstr "Virheellinen DNS TTL"
+
+#: ../avahi-common/error.c:39
+msgid "Resource record key is pattern"
+msgstr "Resurssin tietueavain on lauseke"
+
+#: ../avahi-common/error.c:40
+msgid "Local name collision"
+msgstr "Paikallinen nimien yhteentörmäys"
+
+#: ../avahi-common/error.c:41
+msgid "Invalid record"
+msgstr "Virheellinen tietue"
+
+#: ../avahi-common/error.c:43
+msgid "Invalid service name"
+msgstr "Virheellinen palvelun nimi"
+
+#: ../avahi-common/error.c:44
+msgid "Invalid service type"
+msgstr "Virheellinen palvelun tyyppi"
+
+#: ../avahi-common/error.c:45
+msgid "Invalid port number"
+msgstr "Virheellinen porttinumero"
+
+#: ../avahi-common/error.c:46
+msgid "Invalid record key"
+msgstr "Virheellinen tietueavain"
+
+#: ../avahi-common/error.c:47
+msgid "Invalid address"
+msgstr "Virheellinen osoite"
+
+#: ../avahi-common/error.c:48
+msgid "Timeout reached"
+msgstr "Tapahtui aikakatkaisu"
+
+#: ../avahi-common/error.c:49
+msgid "Too many clients"
+msgstr "Liian monta asiakasta"
+
+#: ../avahi-common/error.c:50
+msgid "Too many objects"
+msgstr "Liian monta objektia"
+
+#: ../avahi-common/error.c:51
+msgid "Too many entries"
+msgstr "Liian monta kohdetta"
+
+#: ../avahi-common/error.c:52
+msgid "OS Error"
+msgstr "OS-virhe"
+
+#: ../avahi-common/error.c:54
+msgid "Access denied"
+msgstr "Pääsy evätty"
+
+#: ../avahi-common/error.c:55
+msgid "Invalid operation"
+msgstr "Virheellinen toiminto"
+
+#: ../avahi-common/error.c:56
+msgid "An unexpected D-Bus error occured"
+msgstr "Tapahtui odottamaton D-Bus-virhe"
+
+#: ../avahi-common/error.c:57
+msgid "Daemon connection failed"
+msgstr "Taustaprosessiyhteys epäonnistui"
+
+#: ../avahi-common/error.c:58
+msgid "Memory exhausted"
+msgstr "Muisti loppui"
+
+#: ../avahi-common/error.c:59
+msgid "The object passed in was not valid"
+msgstr "Annettu objekti ei ollut kelvollinen"
+
+#: ../avahi-common/error.c:60
+msgid "Daemon not running"
+msgstr "Taustaprosessi ei käynnissä"
+
+#: ../avahi-common/error.c:61
+msgid "Invalid interface index"
+msgstr "Virheellinen liitännän järjestysnumero"
+
+#: ../avahi-common/error.c:62
+msgid "Invalid protocol specification"
+msgstr "Virheellinen yhteyskäytännön määrittely"
+
+#: ../avahi-common/error.c:63
+msgid "Invalid flags"
+msgstr "Virheelliset liput"
+
+#: ../avahi-common/error.c:65
+msgid "Not found"
+msgstr "Ei löytynyt"
+
+#: ../avahi-common/error.c:66
+msgid "Invalid configuration"
+msgstr "Virheelliset asetukset"
+
+#: ../avahi-common/error.c:67
+msgid "Version mismatch"
+msgstr "Versioristiriita"
+
+#: ../avahi-common/error.c:68
+msgid "Invalid service subtype"
+msgstr "Virheellinen palvelun alatyyppi"
+
+#: ../avahi-common/error.c:69
+msgid "Invalid packet"
+msgstr "Virheellinen paketti"
+
+#: ../avahi-common/error.c:70
+msgid "Invalid DNS return code"
+msgstr "Virheellinen DNS-palautuskoodi"
+
+#: ../avahi-common/error.c:71
+msgid "DNS failure: FORMERR"
+msgstr "DNS-toimintahäiriö: FORMERR"
+
+#: ../avahi-common/error.c:72
+msgid "DNS failure: SERVFAIL"
+msgstr "DNS-toimintahäiriö: SERVFAIL"
+
+#: ../avahi-common/error.c:73
+msgid "DNS failure: NXDOMAIN"
+msgstr "DNS-toimintahäiriö: NXDOMAIN"
+
+#: ../avahi-common/error.c:74
+msgid "DNS failure: NOTIMP"
+msgstr "DNS-toimintahäiriö: NOTIMP"
+
+#: ../avahi-common/error.c:76
+msgid "DNS failure: REFUSED"
+msgstr "DNS-toimintahäiriö: REFUSED"
+
+#: ../avahi-common/error.c:77
+msgid "DNS failure: YXDOMAIN"
+msgstr "DNS-toimintahäiriö: YXDOMAIN"
+
+#: ../avahi-common/error.c:78
+msgid "DNS failure: YXRRSET"
+msgstr "DNS-toimintahäiriö: YXRRSET"
+
+#: ../avahi-common/error.c:79
+msgid "DNS failure: NXRRSET"
+msgstr "DNS-toimintahäiriö: NXRRSET"
+
+#: ../avahi-common/error.c:80
+msgid "DNS failure: NOTAUTH"
+msgstr "DNS-toimintahäiriö: NOTAUTH"
+
+#: ../avahi-common/error.c:81
+msgid "DNS failure: NOTZONE"
+msgstr "DNS-toimintahäiriö: NOTZONE"
+
+#: ../avahi-common/error.c:82
+msgid "Invalid RDATA"
+msgstr "Virheellinen RDATA"
+
+#: ../avahi-common/error.c:83
+msgid "Invalid DNS type"
+msgstr "Virheellinen DNS-tyyppi"
+
+#: ../avahi-common/error.c:84
+msgid "Invalid DNS class"
+msgstr "Virheellinen DNS-luokka"
+
+#: ../avahi-common/error.c:85
+msgid "Not supported"
+msgstr "Ei tuettu"
+
+#: ../avahi-common/error.c:87
+msgid "Not permitted"
+msgstr "Ei sallittu"
+
+#: ../avahi-common/error.c:88
+msgid "Invalid argument"
+msgstr "Virheellinen argumentti"
+
+#: ../avahi-common/error.c:89
+msgid "Is empty"
+msgstr "On tyhjä"
+
+#: ../avahi-common/error.c:90
+msgid "The requested operation is invalid because redundant"
+msgstr "Pyydetty toiminto on tarpeettomuudesta johtuen virheellinen"
+
+#: ../avahi-common/error.c:96
+msgid "Invalid Error Code"
+msgstr "Kelvoton virhekoodi"
+
+#: ../avahi-ui/avahi-ui.c:326
+#, c-format
+msgid "Avahi client failure: %s"
+msgstr "Avahi-asiakkaan toimintahäiriö: %s"
+
+#: ../avahi-ui/avahi-ui.c:388
+#, c-format
+msgid "Avahi resolver failure: %s"
+msgstr "Avahi-selvittimen toimintahäiriö: %s"
+
+#: ../avahi-ui/avahi-ui.c:518
+#, c-format
+msgid "Browsing for service type %s in domain %s failed: %s"
+msgstr "Palvelutyypin %s selaaminen verkkoaluuessa %s epäonnistui: %s"
+
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
+#: ../avahi-utils/avahi-browse.c:165
+msgid "n/a"
+msgstr "-"
+
+#: ../avahi-ui/avahi-ui.c:649
+#, c-format
+msgid "Avahi domain browser failure: %s"
+msgstr "Avahi-verkkoalueselaimen toimintahäiriö: %s"
+
+#: ../avahi-ui/avahi-ui.c:684
+#, c-format
+msgid "Failed to read Avahi domain: %s"
+msgstr "Avahi-verkkoaluetta ei voi lukea: %s"
+
+#: ../avahi-ui/avahi-ui.c:717
+#, c-format
+msgid "Failed to connect to Avahi server: %s"
+msgstr "Avahi-palvelimeen ei voi yhdistää: %s"
+
+#: ../avahi-ui/avahi-ui.c:735
+msgid "Browsing for services on <b>local network</b>:"
+msgstr "Selataan palveluita <b>paikallisessa verkossa</b>:"
+
+#: ../avahi-ui/avahi-ui.c:737
+#, c-format
+msgid "Browsing for services in domain <b>%s</b>:"
+msgstr "Selataan palveluita verkkoalueessa <b>%s</b>:"
+
+#: ../avahi-ui/avahi-ui.c:773
+#, c-format
+msgid "Failed to create browser for %s: %s"
+msgstr "Selainta ei voi luoda kohteelle %s: %s"
+
+#: ../avahi-ui/avahi-ui.c:903
+#, c-format
+msgid "Failed to create resolver for %s of type %s in domain %s: %s"
+msgstr "Kohteelle %s ei voi luoda selvitintyyppiä %s verkkoalueessa %s: %s"
+
+#: ../avahi-ui/avahi-ui.c:978
+#, c-format
+msgid "Failed to create domain browser: %s"
+msgstr "Verkkoalueselainta ei voi luoda: %s"
+
+#: ../avahi-ui/avahi-ui.c:989
+msgid "Change domain"
+msgstr "Vaihda verkkoaluetta"
+
+#: ../avahi-ui/avahi-ui.c:1021
+msgid "Service Name"
+msgstr "Palvelun nimi"
+
+#: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
+msgid "Browsing ..."
+msgstr "Selataan..."
+
+#: ../avahi-ui/avahi-ui.c:1118
+msgid "Initializing..."
+msgstr "Alustetaan..."
+
+#: ../avahi-ui/avahi-ui.c:1164
+msgid "_Domain..."
+msgstr "_Verkkoalue..."
+
+#: ../avahi-ui/bssh.c:57
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+"%s [valitsimet]\n"
+"\n"
+"    -h --help            Näytä tämä ohje\n"
+"    -s --ssh             Selaa SSH-palvelimia\n"
+"    -v --vnc             Selaa VNC-palvelimia\n"
+"    -S --shell           Selaa sekä SSH- että VNC-palvelimia\n"
+"    -d --domain=DOMAIN   Selattava verkkoalue\n"
+
+#: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:759
+#, c-format
+msgid "Too many arguments\n"
+msgstr "Liian monta argumenttia\n"
+
+#: ../avahi-ui/bssh.c:147
+msgid "Choose Shell Server"
+msgstr "Valitse päätepalvelin"
+
+#: ../avahi-ui/bssh.c:149
+msgid "Desktop"
+msgstr "Työpöytä"
+
+#: ../avahi-ui/bssh.c:150
+msgid "Terminal"
+msgstr "Pääte"
+
+#: ../avahi-ui/bssh.c:154
+msgid "Choose VNC server"
+msgstr "Valitse VNC-palvelin"
+
+#: ../avahi-ui/bssh.c:159
+msgid "Choose SSH server"
+msgstr "Valitse SSH-palvelin"
+
+#: ../avahi-ui/bssh.c:183
+#, c-format
+msgid "Connecting to '%s' ...\n"
+msgstr "Yhdistetään kohteeseen \"%s\"...\n"
+
+#: ../avahi-ui/bssh.c:238
+#, c-format
+msgid "execlp() failed: %s\n"
+msgstr "execlp() epäonnistui: %s\n"
+
+#: ../avahi-ui/bssh.c:248
+#, c-format
+msgid "Canceled.\n"
+msgstr "Peruttu.\n"
+
+#: ../avahi-ui/bssh.desktop.in.in.h:1
+msgid "Avahi SSH Server Browser"
+msgstr "Avahin SSH-palvelinselain"
+
+#: ../avahi-ui/bssh.desktop.in.in.h:2
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr "Selaa Zeroconf-varustettuja SSH-palvelimia"
+
+#: ../avahi-ui/bvnc.desktop.in.in.h:1
+msgid "Avahi VNC Server Browser"
+msgstr "Avahin VNC-palvelinselain"
+
+#: ../avahi-ui/bvnc.desktop.in.in.h:2
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr "Selaa Zeroconf-varustettuja VNC-palvelimia"
+
+#: ../avahi-utils/avahi-browse.c:108
+#, c-format
+msgid ": All for now\n"
+msgstr ": Kaikki toistaiseksi\n"
+
+#: ../avahi-utils/avahi-browse.c:119
+#, c-format
+msgid ": Cache exhausted\n"
+msgstr ": Välimuisti kulutettu loppuun\n"
+
+#: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
+#, c-format
+msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
+msgstr ""
+"Palvelua \"%s\", tyypiltään \"%s\", ei voi selvittää verkkoalueessa "
+"\"%s\": %s\n"
+
+#: ../avahi-utils/avahi-browse.c:324
+#, c-format
+msgid "service_browser failed: %s\n"
+msgstr "service_browser epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:362
+#, c-format
+msgid "avahi_service_browser_new() failed: %s\n"
+msgstr "avahi_service_browser_new() epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:398
+#, c-format
+msgid "service_type_browser failed: %s\n"
+msgstr "service_type_browser epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:428
+#, c-format
+msgid "avahi_service_type_browser_new() failed: %s\n"
+msgstr "avahi_service_type_browser_new() epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:503
+#, c-format
+msgid "avahi_domain_browser_new() failed: %s\n"
+msgstr "avahi_domain_browser_new() epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:391
+#: ../avahi-utils/avahi-resolve.c:282 ../avahi-utils/avahi-set-host-name.c:170
+#, c-format
+msgid "Failed to query version string: %s\n"
+msgstr "Versiomerkkijonon pyyntö epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:396
+#: ../avahi-utils/avahi-resolve.c:287 ../avahi-utils/avahi-set-host-name.c:175
+#: ../avahi-utils/avahi-set-host-name.c:191
+#, c-format
+msgid "Failed to query host name: %s\n"
+msgstr "Verkko-osoitteen pyyntö epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:400
+#: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
+#, c-format
+msgid "Server version: %s; Host name: %s\n"
+msgstr "Palvelimen versio: %s, palvelinnimi: %s\n"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:533
+#, c-format
+msgid "E Ifce Prot Domain\n"
+msgstr "T Liit Yhtk Verkkonimi\n"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:537
+#, c-format
+msgid "E Ifce Prot %-*s %-20s Domain\n"
+msgstr "T Liit Yhtk %-*s %-20s Verkkonimi\n"
+
+#: ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Nimi"
+
+#: ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Tyyppi"
+
+#. We have been disconnected, so let reconnect
+#: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
+#, c-format
+msgid "Disconnected, reconnecting ...\n"
+msgstr "Yhteys katkaistiin, yhdistetään uudelleen...\n"
+
+#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
+#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
+#: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
+#, c-format
+msgid "Failed to create client object: %s\n"
+msgstr "Asiakasobjektia ei voi luoda: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:588 ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
+#, c-format
+msgid "Client failure, exiting: %s\n"
+msgstr "Asiakkaan toimintahäiriö, poistutaan: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
+#, c-format
+msgid "Waiting for daemon ...\n"
+msgstr "Odotetaan taustaprosessia...\n"
+
+#: ../avahi-utils/avahi-browse.c:631
+msgid ""
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -D --browse-domains  Browse for browsing domains instead of services\n"
+"    -a --all             Show all services, regardless of the type\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
+"    -c --cache           Terminate after dumping all entries from the cache\n"
+"    -l --ignore-local    Ignore local services\n"
+"    -r --resolve         Resolve services found\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+"    -p --parsable        Output in parsable format\n"
+msgstr ""
+"    -h --help            Näytä tämä ohje\n"
+"    -V --version         Näytä versio\n"
+"    -D --browse-domains  Selaa selaavia verkkoalueita palveluiden sijaan\n"
+"    -a --all             Näytä kaikki palvelut tyypistä riippumatta\n"
+"    -d --domain=DOMAIN   Selattava verkkoalue\n"
+"    -v --verbose         Ota käyttöön suulaampi tila\n"
+"    -t --terminate       Poistu enemmän tai vähemmän täydellisen luettelon "
+"tulostuksen jälkeen\n"
+"    -c --cache           Poistu kun kaikki kohteet tulostettu välimuistista\n"
+"    -l --ignore-local    Jätä paikalliset palvelut huomiotta\n"
+"    -r --resolve         Selvitä löydetyt palvelut\n"
+"    -f --no-fail         Älä epäonnistu jos taustaprosessia ei saatavilla\n"
+"    -p --parsable        Tulosta jäsennettävissä olevassa muodossa\n"
+
+#: ../avahi-utils/avahi-browse.c:644
+msgid ""
+"    -k --no-db-lookup    Don't lookup service types\n"
+"    -b --dump-db         Dump service type database\n"
+msgstr ""
+"    -k --no-db-lookup    Älä etsi palvelutyyppejä\n"
+"    -b --dump-db         Tulosta palvelutyyppien tietokanta\n"
+
+#: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
+#, c-format
+msgid "Too few arguments\n"
+msgstr "Liian vähän argumentteja\n"
+
+#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
+#, c-format
+msgid "Failed to create simple poll object.\n"
+msgstr "Yksinkertaisen kyselyobjektin luonti epäonnistui.\n"
+
+#: ../avahi-utils/avahi-publish.c:78
+#, c-format
+msgid "Established under name '%s'\n"
+msgstr "Muodostettiin nimellä \"%s\"\n"
+
+#: ../avahi-utils/avahi-publish.c:83
+#, c-format
+msgid "Failed to register: %s\n"
+msgstr "Rekisteröiminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:96
+#, c-format
+msgid "Name collision, picking new name '%s'.\n"
+msgstr "Nimien yhteentörmäys, valitaan uusi nimi \"%s\".\n"
+
+#: ../avahi-utils/avahi-publish.c:116
+#, c-format
+msgid "Failed to create entry group: %s\n"
+msgstr "Kohderyhmän luominen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:126
+#, c-format
+msgid "Failed to add address: %s\n"
+msgstr "Osoitteen lisääminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:136
+#, c-format
+msgid "Failed to add service: %s\n"
+msgstr "Palvelun lisääminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:142
+#, c-format
+msgid "Failed to add subtype '%s': %s\n"
+msgstr "Alatyypin \"%s\" lisääminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:193
+#, c-format
+msgid "Host name conflict\n"
+msgstr "Palvelinnimen ristiriita\n"
+
+#: ../avahi-utils/avahi-publish.c:218
+#, c-format
+msgid ""
+"%s [options] %s <name> <type> <port> [<txt ...>]\n"
+"%s [options] %s <host-name> <address>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -s --service         Publish service\n"
+"    -a --address         Publish address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -d --domain=DOMAIN   Domain to publish service in\n"
+"    -H --host=DOMAIN     Host where service resides\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+msgstr ""
+"%s [valitsimet] %s <nimi> <tyyppi> <portti> [<teksti ...>]\n"
+"%s [valitsimet] %s <verkkonimi> <osoite>\n"
+"\n"
+"    -h --help            Näytä ohje\n"
+"    -V --version         Näytä versio\n"
+"    -s --service         Julkista palvelu\n"
+"    -a --address         Julkista osoite\n"
+"    -v --verbose         Ota suulaampi tila käyttöön\n"
+"    -d --domain=DOMAIN   Verkkoalue jossa palvelu julkaistaan\n"
+"    -H --host=DOMAIN     Palvelin jolla palvelu sijaitsee\n"
+"       --subtype=SUBTYPE Lisäalatyyppi, jolle tämä palvelu rekisteröidään\n"
+"    -f --no-fail         Älä epäonnistui jos taustaprosessia ei saatavilla\n"
+
+#: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
+#, c-format
+msgid "Bad number of arguments\n"
+msgstr "Virheellinen argumenttien lukumäärä\n"
+
+#: ../avahi-utils/avahi-publish.c:326
+#, c-format
+msgid "Failed to parse port number: %s\n"
+msgstr "Porttinumeron jäsentäminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
+#, c-format
+msgid "No command specified.\n"
+msgstr "Komentoa ei määritelty.\n"
+
+#: ../avahi-utils/avahi-resolve.c:91
+#, c-format
+msgid "Failed to resolve host name '%s': %s\n"
+msgstr "Verkko-osoitteen \"%s\" selvittäminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:128
+#, c-format
+msgid "Failed to resolve address '%s': %s\n"
+msgstr "Osoitteen \"%s\" selvittäminen epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:159
+#, c-format
+msgid ""
+"%s [options] %s <host name ...>\n"
+"%s [options] %s <address ... >\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -n --name            Resolve host name\n"
+"    -a --address         Resolve address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -6                   Lookup IPv6 address\n"
+"    -4                   Lookup IPv4 address\n"
+msgstr ""
+"%s [valitsimet] %s <verkkonimi ...>\n"
+"%s [valitsimet] %s <osoite ... >\n"
+"\n"
+"    -h --help            Näytä ohje\n"
+"    -V --version         Näytä versio\n"
+"    -n --name            Selvitä verkkonimi\n"
+"    -a --address         Selvitä osoite\n"
+"    -v --verbose         Ota suulaampi tila käyttöön\n"
+"    -6                   Etsi IPv6-osoite\n"
+"    -4                   Etsi IPv4-osoite\n"
+
+#: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
+#, c-format
+msgid "Failed to create host name resolver: %s\n"
+msgstr "Verkko-osoitteen selvittimen luonti epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:311
+#, c-format
+msgid "Failed to parse address '%s'\n"
+msgstr "Osoitetta \"%s\" ei voi jäsentää\n"
+
+#: ../avahi-utils/avahi-resolve.c:316
+#, c-format
+msgid "Failed to create address resolver: %s\n"
+msgstr "Osoitteen selvittimen luonti epäonnistui: %s\n"
+
+#: ../avahi-utils/avahi-set-host-name.c:75
+#, c-format
+msgid ""
+"%s [options] <new host name>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -v --verbose         Enable verbose mode\n"
+msgstr ""
+"%s [valitsimet] <uusi verkkonimi>\n"
+"\n"
+"    -h --help            Näytä tämä ohje\n"
+"    -V --version         Näytä versio\n"
+"    -v --verbose         Ota suulaampi tila käyttöön\n"
+
+#: ../avahi-utils/avahi-set-host-name.c:116
+#, c-format
+msgid "Invalid number of arguments, expecting exactly one.\n"
+msgstr "Virheellinen argumenttien lukumäärä, odotettiin täsmälleen yhtä.\n"
+
+#: ../avahi-utils/avahi-set-host-name.c:195
+#, c-format
+msgid "Host name successfully changed to %s\n"
+msgstr "Verkko-osoite muutettiin onnistuneesti nimelle %s\n"
+

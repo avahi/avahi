@@ -1,0 +1,727 @@
+# Swedish translation for avahi.
+# Copyright (C) 2008 Free Software Foundation, Inc.
+# This file is distributed under the same license as the avahi package.
+# Daniel Nylander <po@danielnylander.se>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: avahi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-04 04:23+0000\n"
+"PO-Revision-Date: 2008-09-05 00:18+0100\n"
+"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../avahi-common/error.c:32
+msgid "OK"
+msgstr "OK"
+
+#: ../avahi-common/error.c:33
+msgid "Operation failed"
+msgstr "Åtgärden misslyckades"
+
+#: ../avahi-common/error.c:34
+msgid "Bad state"
+msgstr "Felaktigt tillstånd"
+
+#: ../avahi-common/error.c:35
+msgid "Invalid host name"
+msgstr "Ogiltigt värdnamn"
+
+#: ../avahi-common/error.c:36
+msgid "Invalid domain name"
+msgstr "Ogiltigt domännamn"
+
+#: ../avahi-common/error.c:37
+msgid "No suitable network protocol available"
+msgstr "Inget lämpligt nätverksprotokoll tillgängligt"
+
+#: ../avahi-common/error.c:38
+msgid "Invalid DNS TTL"
+msgstr "Ogiltigt DNS TTL"
+
+#: ../avahi-common/error.c:39
+msgid "Resource record key is pattern"
+msgstr "Resursens postnyckel är mönster"
+
+#: ../avahi-common/error.c:40
+msgid "Local name collision"
+msgstr "Lokal namnkollision"
+
+#: ../avahi-common/error.c:41
+msgid "Invalid record"
+msgstr "Ogiltig post"
+
+#: ../avahi-common/error.c:43
+msgid "Invalid service name"
+msgstr "Ogiltigt tjänstenamn"
+
+#: ../avahi-common/error.c:44
+msgid "Invalid service type"
+msgstr "Ogiltig tjänstetyp"
+
+#: ../avahi-common/error.c:45
+msgid "Invalid port number"
+msgstr "Ogiltigt portnummer"
+
+#: ../avahi-common/error.c:46
+msgid "Invalid record key"
+msgstr "Ogiltig postnyckel"
+
+#: ../avahi-common/error.c:47
+msgid "Invalid address"
+msgstr "Ogiltig adress"
+
+#: ../avahi-common/error.c:48
+msgid "Timeout reached"
+msgstr "Tidsgräns nåddes"
+
+#: ../avahi-common/error.c:49
+msgid "Too many clients"
+msgstr "För många klienter"
+
+#: ../avahi-common/error.c:50
+msgid "Too many objects"
+msgstr "För många objekt"
+
+#: ../avahi-common/error.c:51
+msgid "Too many entries"
+msgstr "För många poster"
+
+#: ../avahi-common/error.c:52
+msgid "OS Error"
+msgstr "Operativsystemsfel"
+
+#: ../avahi-common/error.c:54
+msgid "Access denied"
+msgstr "Åtkomst nekad"
+
+#: ../avahi-common/error.c:55
+msgid "Invalid operation"
+msgstr "Ogiltig åtgärd"
+
+#: ../avahi-common/error.c:56
+msgid "An unexpected D-Bus error occured"
+msgstr "Ett oväntat D-Bus-fel har inträffat"
+
+#: ../avahi-common/error.c:57
+msgid "Daemon connection failed"
+msgstr "Anslutning till demon misslyckades"
+
+#: ../avahi-common/error.c:58
+msgid "Memory exhausted"
+msgstr "Minnet är slut"
+
+#: ../avahi-common/error.c:59
+msgid "The object passed in was not valid"
+msgstr "Objektet som skickades in var inte giltigt"
+
+#: ../avahi-common/error.c:60
+msgid "Daemon not running"
+msgstr "Demonen är inte igång"
+
+#: ../avahi-common/error.c:61
+msgid "Invalid interface index"
+msgstr "Ogiltigt gränssnittsindex"
+
+#: ../avahi-common/error.c:62
+msgid "Invalid protocol specification"
+msgstr "Ogiltig protokollspecifikation"
+
+#: ../avahi-common/error.c:63
+msgid "Invalid flags"
+msgstr "Ogiltiga flaggor"
+
+#: ../avahi-common/error.c:65
+msgid "Not found"
+msgstr "Hittades inte"
+
+#: ../avahi-common/error.c:66
+msgid "Invalid configuration"
+msgstr "Ogiltig konfiguration"
+
+#: ../avahi-common/error.c:67
+msgid "Version mismatch"
+msgstr "Versionen stämmer inte"
+
+#: ../avahi-common/error.c:68
+msgid "Invalid service subtype"
+msgstr "Ogiltig undertyp för tjänst"
+
+#: ../avahi-common/error.c:69
+msgid "Invalid packet"
+msgstr "Ogiltigt paket"
+
+#: ../avahi-common/error.c:70
+msgid "Invalid DNS return code"
+msgstr "Ogiltig DNS-svarskod"
+
+#: ../avahi-common/error.c:71
+msgid "DNS failure: FORMERR"
+msgstr "DNS-fel: FORMERR"
+
+#: ../avahi-common/error.c:72
+msgid "DNS failure: SERVFAIL"
+msgstr "DNS-fel: SERVFAIL"
+
+#: ../avahi-common/error.c:73
+msgid "DNS failure: NXDOMAIN"
+msgstr "DNS-fel: NXDOMAIN"
+
+#: ../avahi-common/error.c:74
+msgid "DNS failure: NOTIMP"
+msgstr "DNS-fel: NOTIMP"
+
+#: ../avahi-common/error.c:76
+msgid "DNS failure: REFUSED"
+msgstr "DNS-fel: REFUSED"
+
+#: ../avahi-common/error.c:77
+msgid "DNS failure: YXDOMAIN"
+msgstr "DNS-fel: YXDOMAIN"
+
+#: ../avahi-common/error.c:78
+msgid "DNS failure: YXRRSET"
+msgstr "DNS-fel: YXRRSET"
+
+#: ../avahi-common/error.c:79
+msgid "DNS failure: NXRRSET"
+msgstr "DNS-fel: NXRRSET"
+
+#: ../avahi-common/error.c:80
+msgid "DNS failure: NOTAUTH"
+msgstr "DNS-fel: NOTAUTH"
+
+#: ../avahi-common/error.c:81
+msgid "DNS failure: NOTZONE"
+msgstr "DNS-fel: NOTZONE"
+
+#: ../avahi-common/error.c:82
+msgid "Invalid RDATA"
+msgstr "Ogiltig RDATA"
+
+#: ../avahi-common/error.c:83
+msgid "Invalid DNS type"
+msgstr "Ogiltig DNS-typ"
+
+#: ../avahi-common/error.c:84
+msgid "Invalid DNS class"
+msgstr "Ogiltig DNS-klass"
+
+#: ../avahi-common/error.c:85
+msgid "Not supported"
+msgstr "Stöds inte"
+
+#: ../avahi-common/error.c:87
+msgid "Not permitted"
+msgstr "Inte tillåten"
+
+#: ../avahi-common/error.c:88
+msgid "Invalid argument"
+msgstr "Ogiltigt argument"
+
+#: ../avahi-common/error.c:89
+msgid "Is empty"
+msgstr "Är tom"
+
+#: ../avahi-common/error.c:90
+msgid "The requested operation is invalid because redundant"
+msgstr "Den begärda åtgärden är ogiltig därför den är redundant"
+
+#: ../avahi-common/error.c:96
+msgid "Invalid Error Code"
+msgstr "Ogiltig felkod"
+
+#: ../avahi-ui/avahi-ui.c:326
+#, c-format
+msgid "Avahi client failure: %s"
+msgstr "Fel i Avahi-klient: %s"
+
+#: ../avahi-ui/avahi-ui.c:388
+#, c-format
+msgid "Avahi resolver failure: %s"
+msgstr "Fel i Avahi-uppslag: %s"
+
+#: ../avahi-ui/avahi-ui.c:518
+#, c-format
+msgid "Browsing for service type %s in domain %s failed: %s"
+msgstr "Bläddring efter tjänstetypen %s i domänen %s misslyckades: %s"
+
+#: ../avahi-ui/avahi-ui.c:519
+#: ../avahi-utils/avahi-browse.c:157
+#: ../avahi-utils/avahi-browse.c:158
+#: ../avahi-utils/avahi-browse.c:164
+#: ../avahi-utils/avahi-browse.c:165
+msgid "n/a"
+msgstr "Inte tillgänglig"
+
+#: ../avahi-ui/avahi-ui.c:649
+#, c-format
+msgid "Avahi domain browser failure: %s"
+msgstr "Fel i Avahi-domänbläddrare: %s"
+
+#: ../avahi-ui/avahi-ui.c:684
+#, c-format
+msgid "Failed to read Avahi domain: %s"
+msgstr "Misslyckades att läsa Avahi-domän: %s"
+
+#: ../avahi-ui/avahi-ui.c:717
+#, c-format
+msgid "Failed to connect to Avahi server: %s"
+msgstr "Misslyckades att ansluta till Avahi-server: %s"
+
+#: ../avahi-ui/avahi-ui.c:735
+msgid "Browsing for services on <b>local network</b>:"
+msgstr "Bläddrar efter tjänster på <b>lokalt nätverk</b>:"
+
+#: ../avahi-ui/avahi-ui.c:737
+#, c-format
+msgid "Browsing for services in domain <b>%s</b>:"
+msgstr "Bläddring efter tjänster i domänen <b>%s</b>:"
+
+#: ../avahi-ui/avahi-ui.c:773
+#, c-format
+msgid "Failed to create browser for %s: %s"
+msgstr "Misslyckades med att skapa bläddrare för %s: %s"
+
+#: ../avahi-ui/avahi-ui.c:903
+#, c-format
+msgid "Failed to create resolver for %s of type %s in domain %s: %s"
+msgstr "Misslyckades med att skapa uppslagare för %s av typen %s i domänen %s: %s"
+
+#: ../avahi-ui/avahi-ui.c:978
+#, c-format
+msgid "Failed to create domain browser: %s"
+msgstr "Misslyckades med att skapa domänbläddrare: %s"
+
+#: ../avahi-ui/avahi-ui.c:989
+msgid "Change domain"
+msgstr "Byt domän"
+
+#: ../avahi-ui/avahi-ui.c:1021
+msgid "Service Name"
+msgstr "Tjänstenamn"
+
+#: ../avahi-ui/avahi-ui.c:1029
+#: ../avahi-ui/avahi-ui.c:1160
+msgid "Browsing ..."
+msgstr "Bläddrar ..."
+
+#: ../avahi-ui/avahi-ui.c:1118
+msgid "Initializing..."
+msgstr "Initierar..."
+
+#: ../avahi-ui/avahi-ui.c:1164
+msgid "_Domain..."
+msgstr "_Domän..."
+
+#: ../avahi-ui/bssh.c:57
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+"%s [flaggor]\n"
+"\n"
+"    -h --help            Visa denna hjälp\n"
+"    -s --ssh             Bläddra bland SSH-servrar\n"
+"    -v --vnc             Bläddra bland VNC-servrar\n"
+"    -S --shell           Bläddra bland både SSH och VNC\n"
+"    -d --domain=DOMÄN    Domänen att bläddra i\n"
+
+#: ../avahi-ui/bssh.c:103
+#: ../avahi-utils/avahi-browse.c:759
+#, c-format
+msgid "Too many arguments\n"
+msgstr "För många argument\n"
+
+#: ../avahi-ui/bssh.c:147
+msgid "Choose Shell Server"
+msgstr "Välj skalserver"
+
+#: ../avahi-ui/bssh.c:149
+msgid "Desktop"
+msgstr "Skrivbord"
+
+#: ../avahi-ui/bssh.c:150
+msgid "Terminal"
+msgstr "Terminal"
+
+#: ../avahi-ui/bssh.c:154
+msgid "Choose VNC server"
+msgstr "Välj VNC-server"
+
+#: ../avahi-ui/bssh.c:159
+msgid "Choose SSH server"
+msgstr "Välj SSH-server"
+
+#: ../avahi-ui/bssh.c:183
+#, c-format
+msgid "Connecting to '%s' ...\n"
+msgstr "Ansluter till \"%s\"...\n"
+
+#: ../avahi-ui/bssh.c:238
+#, c-format
+msgid "execlp() failed: %s\n"
+msgstr "execlp() misslyckades: %s\n"
+
+#: ../avahi-ui/bssh.c:248
+#, c-format
+msgid "Canceled.\n"
+msgstr "Avbruten.\n"
+
+#: ../avahi-ui/bssh.desktop.in.in.h:1
+msgid "Avahi SSH Server Browser"
+msgstr "Avahi SSH-serverbläddrare"
+
+#: ../avahi-ui/bssh.desktop.in.in.h:2
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr "Bläddra efter Zeroconf-aktiverade SSH-servrar"
+
+#: ../avahi-ui/bvnc.desktop.in.in.h:1
+msgid "Avahi VNC Server Browser"
+msgstr "Avahi VNC-serverbläddrare"
+
+#: ../avahi-ui/bvnc.desktop.in.in.h:2
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr "Bläddra efter Zeroconf-aktiverade VNC-servrar"
+
+#: ../avahi-utils/avahi-browse.c:108
+#, c-format
+msgid ": All for now\n"
+msgstr ": Alla just nu\n"
+
+#: ../avahi-utils/avahi-browse.c:119
+#, c-format
+msgid ": Cache exhausted\n"
+msgstr ": Cachen är full\n"
+
+#: ../avahi-utils/avahi-browse.c:223
+#: ../avahi-utils/avahi-browse.c:245
+#, c-format
+msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
+msgstr "Misslyckades med att slå upp tjänsten \"%s\" av typen \"%s\" i domänen \"%s\": %s\n"
+
+#: ../avahi-utils/avahi-browse.c:324
+#, c-format
+msgid "service_browser failed: %s\n"
+msgstr "service_browser misslyckades: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:362
+#, c-format
+msgid "avahi_service_browser_new() failed: %s\n"
+msgstr "avahi_service_browser_new() misslyckades: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:398
+#, c-format
+msgid "service_type_browser failed: %s\n"
+msgstr "service_type_browser misslyckades: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:428
+#, c-format
+msgid "avahi_service_type_browser_new() failed: %s\n"
+msgstr "avahi_service_type_browser_new() misslyckades: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:503
+#, c-format
+msgid "avahi_domain_browser_new() failed: %s\n"
+msgstr "avahi_domain_browser_new() misslyckades: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:519
+#: ../avahi-utils/avahi-publish.c:391
+#: ../avahi-utils/avahi-resolve.c:282
+#: ../avahi-utils/avahi-set-host-name.c:170
+#, c-format
+msgid "Failed to query version string: %s\n"
+msgstr "Misslyckades med att fråga efter versionssträng: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:524
+#: ../avahi-utils/avahi-publish.c:396
+#: ../avahi-utils/avahi-resolve.c:287
+#: ../avahi-utils/avahi-set-host-name.c:175
+#: ../avahi-utils/avahi-set-host-name.c:191
+#, c-format
+msgid "Failed to query host name: %s\n"
+msgstr "Misslyckades med att fråga efter värdnamn: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:528
+#: ../avahi-utils/avahi-publish.c:400
+#: ../avahi-utils/avahi-resolve.c:291
+#: ../avahi-utils/avahi-set-host-name.c:179
+#, c-format
+msgid "Server version: %s; Host name: %s\n"
+msgstr "Serverversion: %s; Värdnamn: %s\n"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:533
+#, c-format
+msgid "E Ifce Prot Domain\n"
+msgstr "H Grän Prot Domän\n"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:537
+#, c-format
+msgid "E Ifce Prot %-*s %-20s Domain\n"
+msgstr "H Grän Prot %-*s %-20s Domän\n"
+
+#: ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Namn"
+
+#: ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Typ"
+
+#. We have been disconnected, so let reconnect
+#: ../avahi-utils/avahi-browse.c:569
+#: ../avahi-utils/avahi-publish.c:165
+#, c-format
+msgid "Disconnected, reconnecting ...\n"
+msgstr "Frånkopplad, återansluter ...\n"
+
+#: ../avahi-utils/avahi-browse.c:583
+#: ../avahi-utils/avahi-browse.c:813
+#: ../avahi-utils/avahi-publish.c:172
+#: ../avahi-utils/avahi-publish.c:383
+#: ../avahi-utils/avahi-resolve.c:274
+#: ../avahi-utils/avahi-set-host-name.c:162
+#, c-format
+msgid "Failed to create client object: %s\n"
+msgstr "Misslyckades med att skapa klientobjekt: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:588
+#: ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-resolve.c:145
+#: ../avahi-utils/avahi-set-host-name.c:61
+#, c-format
+msgid "Client failure, exiting: %s\n"
+msgstr "Klientfel, avslutar: %s\n"
+
+#: ../avahi-utils/avahi-browse.c:607
+#: ../avahi-utils/avahi-publish.c:208
+#, c-format
+msgid "Waiting for daemon ...\n"
+msgstr "Väntar på demon ...\n"
+
+#: ../avahi-utils/avahi-browse.c:631
+msgid ""
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -D --browse-domains  Browse for browsing domains instead of services\n"
+"    -a --all             Show all services, regardless of the type\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -c --cache           Terminate after dumping all entries from the cache\n"
+"    -l --ignore-local    Ignore local services\n"
+"    -r --resolve         Resolve services found\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+"    -p --parsable        Output in parsable format\n"
+msgstr ""
+"    -h --help            Visa denna hjälp\n"
+"    -V --version         Visa version\n"
+"    -D --browse-domains  Bläddra efter bläddringsdomäner istället för tjänster\n"
+"    -a --all             Visa alla tjänster, oavsett typen\n"
+"    -d --domain=DOMÄN    Domänen att bläddra i\n"
+"    -v --verbose         Aktivera informativt läge\n"
+"    -t --terminate       Avsluta efter dumpning av en mer eller mindre komplett lista\n"
+"    -c --cache           Avsluta efter dumpning av alla poster från cachen\n"
+"    -l --ignore-local    Ignorera lokala tjänster\n"
+"    -r --resolve         Slå upp tjänster som hittats\n"
+"    -f --no-fail         Misslycka inte om demonen inte är tillgänglig\n"
+"    -p --parsable        Skriv ut i tolkningsbart format\n"
+
+#: ../avahi-utils/avahi-browse.c:644
+msgid ""
+"    -k --no-db-lookup    Don't lookup service types\n"
+"    -b --dump-db         Dump service type database\n"
+msgstr ""
+"    -k --no-db-lookup    Slå inte upp tjänstetyper\n"
+"    -b --dump-db         Dumpa databasen över tjänstetyper\n"
+
+#: ../avahi-utils/avahi-browse.c:750
+#: ../avahi-utils/avahi-resolve.c:221
+#, c-format
+msgid "Too few arguments\n"
+msgstr "För få argument\n"
+
+#: ../avahi-utils/avahi-browse.c:805
+#: ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-resolve.c:266
+#: ../avahi-utils/avahi-set-host-name.c:154
+#, c-format
+msgid "Failed to create simple poll object.\n"
+msgstr "Misslyckades med att skapa enkelt poll-objekt: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:78
+#, c-format
+msgid "Established under name '%s'\n"
+msgstr "Etablerad under namnet \"%s\"\n"
+
+#: ../avahi-utils/avahi-publish.c:83
+#, c-format
+msgid "Failed to register: %s\n"
+msgstr "Misslyckades att registrera: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:96
+#, c-format
+msgid "Name collision, picking new name '%s'.\n"
+msgstr "Namnkollision, väljer nytt namn \"%s\".\n"
+
+#: ../avahi-utils/avahi-publish.c:116
+#, c-format
+msgid "Failed to create entry group: %s\n"
+msgstr "Misslyckades med att skapa postgrupp: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:126
+#, c-format
+msgid "Failed to add address: %s\n"
+msgstr "Misslyckades att lägga till adress: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:136
+#, c-format
+msgid "Failed to add service: %s\n"
+msgstr "Misslyckades att lägga till tjänst: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:142
+#, c-format
+msgid "Failed to add subtype '%s': %s\n"
+msgstr "Misslyckades med att lägga till undertypen \"%s\": %s\n"
+
+#: ../avahi-utils/avahi-publish.c:193
+#, c-format
+msgid "Host name conflict\n"
+msgstr "Värdnamnskonflikt\n"
+
+#: ../avahi-utils/avahi-publish.c:218
+#, c-format
+msgid ""
+"%s [options] %s <name> <type> <port> [<txt ...>]\n"
+"%s [options] %s <host-name> <address>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -s --service         Publish service\n"
+"    -a --address         Publish address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -d --domain=DOMAIN   Domain to publish service in\n"
+"    -H --host=DOMAIN     Host where service resides\n"
+"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+msgstr ""
+"%s [flaggor] %s <namn> <typ> <port> [<txt ...>]\n"
+"%s [flaggor] %s <värdnamn> <adress>\n"
+"\n"
+"    -h --help            Visa denna hjälp\n"
+"    -V --version         Visa version\n"
+"    -s --service         Publicera tjänst\n"
+"    -a --address         Publicera adress\n"
+"    -v --verbose         Aktivera informativt läge\n"
+"    -d --domain=DOMÄN    Domän att publicera tjänst i\n"
+"    -H --host=DOMÄN      Värd där tjänsten finns\n"
+"       --subtype=UNDERTYP En ytterligare undertyp att registrera denna tjänst med\n"
+"    -f --no-fail         Misslycka inte om demonen inte är tillgänglig\n"
+
+#: ../avahi-utils/avahi-publish.c:300
+#: ../avahi-utils/avahi-publish.c:315
+#, c-format
+msgid "Bad number of arguments\n"
+msgstr "Dåligt antal argument\n"
+
+#: ../avahi-utils/avahi-publish.c:326
+#, c-format
+msgid "Failed to parse port number: %s\n"
+msgstr "Misslyckades med att tolka portnummer: %s\n"
+
+#: ../avahi-utils/avahi-publish.c:358
+#: ../avahi-utils/avahi-resolve.c:248
+#, c-format
+msgid "No command specified.\n"
+msgstr "Inget kommando specificerat.\n"
+
+#: ../avahi-utils/avahi-resolve.c:91
+#, c-format
+msgid "Failed to resolve host name '%s': %s\n"
+msgstr "Misslyckades med att slå upp värdnamnet \"%s\": %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:128
+#, c-format
+msgid "Failed to resolve address '%s': %s\n"
+msgstr "Misslyckades med att slå upp adressen \"%s\": %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:159
+#, c-format
+msgid ""
+"%s [options] %s <host name ...>\n"
+"%s [options] %s <address ... >\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -n --name            Resolve host name\n"
+"    -a --address         Resolve address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -6                   Lookup IPv6 address\n"
+"    -4                   Lookup IPv4 address\n"
+msgstr ""
+"%s [flaggor] %s <värdnamn ...>\n"
+"%s [flaggor] %s <adress ... >\n"
+"\n"
+"    -h --help            Visa denna hjälp\n"
+"    -V --version         Visa version\n"
+"    -n --name            Slå upp värdnamn\n"
+"    -a --address         Slå upp adress\n"
+"    -v --verbose         Aktivera informativt läge\n"
+"    -6                   Slå upp IPv6-adress\n"
+"    -4                   Slå upp IPv4-adress\n"
+
+#: ../avahi-utils/avahi-resolve.c:301
+#: ../avahi-utils/avahi-set-host-name.c:183
+#, c-format
+msgid "Failed to create host name resolver: %s\n"
+msgstr "Misslyckades med att skapa uppslagare för värdnamn: %s\n"
+
+#: ../avahi-utils/avahi-resolve.c:311
+#, c-format
+msgid "Failed to parse address '%s'\n"
+msgstr "Misslyckades med att tolka adressen \"%s\"\n"
+
+#: ../avahi-utils/avahi-resolve.c:316
+#, c-format
+msgid "Failed to create address resolver: %s\n"
+msgstr "Misslyckades med att skapa adressuppslagare: %s\n"
+
+#: ../avahi-utils/avahi-set-host-name.c:75
+#, c-format
+msgid ""
+"%s [options] <new host name>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -v --verbose         Enable verbose mode\n"
+msgstr ""
+"%s [flaggor] <nytt värdnamn>\n"
+"\n"
+"    -h --help            Visa denna hjälp\n"
+"    -V --version         Visa version\n"
+"    -v --verbose         Aktivera informativt läge\n"
+
+#: ../avahi-utils/avahi-set-host-name.c:116
+#, c-format
+msgid "Invalid number of arguments, expecting exactly one.\n"
+msgstr "Ogiltigt antal argument, exakt ett argument förväntas.\n"
+
+#: ../avahi-utils/avahi-set-host-name.c:195
+#, c-format
+msgid "Host name successfully changed to %s\n"
+msgstr "Värdnamnet ändrades till %s\n"
+

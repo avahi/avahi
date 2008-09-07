@@ -29,8 +29,8 @@ desktop_DATA_in_in = bssh.desktop.in.in bvnc.desktop.in.in
 
 EXTRA_DIST = $(desktop_DATA_in_in)
 
-
 if HAVE_GTK
+AM_CFLAGS += -DGNOMELOCALEDIR=\"$(datadir)/locale\"
 if HAVE_DBUS
 if HAVE_GLIB
 
@@ -61,6 +61,7 @@ endif
 
 bin_PROGRAMS = bssh
 desktop_DATA += bssh.desktop bvnc.desktop
+@INTLTOOL_DESKTOP_RULE@
 
 bssh_SOURCES = bssh.c
 bssh_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)

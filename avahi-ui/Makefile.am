@@ -24,8 +24,10 @@ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 desktopdir = $(datadir)/applications
 desktop_DATA = 
+desktop_DATA_in = $(desktop_DATA_in_in:.in.in=.in)
+desktop_DATA_in_in = bssh.desktop.in.in bvnc.desktop.in.in
 
-EXTRA_DIST = bssh.desktop.in bvnc.desktop.in
+EXTRA_DIST = $(desktop_DATA_in_in)
 
 
 if HAVE_GTK
@@ -70,14 +72,16 @@ install-exec-local:
 		$(LN_S) bssh bvnc && \
 		$(LN_S) bssh bshell
 
-bssh.desktop: bssh.desktop.in
+bssh.desktop.in: bssh.desktop.in.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
-bvnc.desktop: bvnc.desktop.in
+bvnc.desktop.in: bvnc.desktop.in.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
 endif # HAVE_GLIB
 endif
 endif
 
-CLEANFILES = $(desktop_DATA)
+@INTLTOOL_DESKTOP_RULE@
+
+CLEANFILES = $(desktop_DATA) $(desktop_DATA_in)

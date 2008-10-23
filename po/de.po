@@ -1,14 +1,14 @@
-# audit-viewer
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# German translation of avahi
+# Copyright (C) 2008 Avahi
+# This file is distributed under the same license as the avahi package.
 # Fabian Affolter <fab@fedoraproject.org>, 2008.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: audit-viewer\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-29 09:30+0000\n"
-"PO-Revision-Date: 2008-08-29 12:13+0100\n"
+"POT-Creation-Date: 2008-10-17 01:51+0000\n"
+"PO-Revision-Date: 2008-10-23 16:07+0100\n"
 "Last-Translator: Fabian Affolter <fab@fedoraproject.org>\n"
 "Language-Team: German <fedora-trans-de@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -31,11 +31,11 @@ msgstr "Ungültiger Zustand"
 
 #: ../avahi-common/error.c:35
 msgid "Invalid host name"
-msgstr "Ungültiger Hostname"
+msgstr "Ungültiger Rechnername"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid domain name"
-msgstr "Ungültiger Domänenname"
+msgstr "Ungültiger Domainname"
 
 #: ../avahi-common/error.c:37
 msgid "No suitable network protocol available"
@@ -79,7 +79,7 @@ msgstr "Ungültige Adresse"
 
 #: ../avahi-common/error.c:48
 msgid "Timeout reached"
-msgstr "Zeit abgelaufen"
+msgstr "Auszeit erreicht"
 
 #: ../avahi-common/error.c:49
 msgid "Too many clients"
@@ -107,7 +107,7 @@ msgstr "Ungültige Operation"
 
 #: ../avahi-common/error.c:56
 msgid "An unexpected D-Bus error occured"
-msgstr "Ein unerwarteter D-Bus-Fehler ist aufgetreten"
+msgstr "Ein unerwarteter DBus-Fehler ist aufgetreten"
 
 #: ../avahi-common/error.c:57
 msgid "Daemon connection failed"
@@ -151,7 +151,7 @@ msgstr "Unpassende Version"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid service subtype"
-msgstr "Ungültiger Dienstesubtyp"
+msgstr "Ungültiger Dienst-Untertyp"
 
 #: ../avahi-common/error.c:69
 msgid "Invalid packet"
@@ -263,12 +263,12 @@ msgstr "k.A."
 #: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
-msgstr "Avahi-Domänenbrowser-Fehler: %s"
+msgstr "Avahi-Domainbrowser-Fehler: %s"
 
 #: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr "Fehler beim Lesen der Avahi-Domäne: %s"
+msgstr "Fehler beim Lesen der Avahi-Domain: %s"
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
@@ -282,7 +282,7 @@ msgstr "Durchsuche <b>lokales Netzwerk</b> nach Diensten:"
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr "Durchsuche Domäne <b>%s</b> nach Diensten:"
+msgstr "Durchsuche Domain <b>%s</b> nach Diensten:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
@@ -292,16 +292,16 @@ msgstr "Browser-Erzeugung für %s fehlgeschlagen: %s"
 #: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Erzeugen eines Resolvers für %s vom Typ %s in Domäne %s fehlgeschlagen: %s"
+msgstr "Erzeugen eines Resolvers für %s vom Typ %s in Domain %s fehlgeschlagen: %s"
 
 #: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr "Erzeugen eines Domänenbrowser fehlgeschlagen: %s"
+msgstr "Erzeugen eines Domainbrowser fehlgeschlagen: %s"
 
 #: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
-msgstr "Domäne ändern"
+msgstr "Domain ändern"
 
 #: ../avahi-ui/avahi-ui.c:1021
 msgid "Service Name"
@@ -310,15 +310,15 @@ msgstr "Dienstname"
 #: ../avahi-ui/avahi-ui.c:1029
 #: ../avahi-ui/avahi-ui.c:1160
 msgid "Browsing ..."
-msgstr "Durchsuchen..."
+msgstr "Durchsuchen ..."
 
 #: ../avahi-ui/avahi-ui.c:1118
 msgid "Initializing..."
-msgstr "Initialisieren..."
+msgstr "Initialisieren ..."
 
 #: ../avahi-ui/avahi-ui.c:1164
 msgid "_Domain..."
-msgstr "_Domäne..."
+msgstr "_Domain ..."
 
 #: ../avahi-ui/bssh.c:57
 #, c-format
@@ -389,7 +389,7 @@ msgstr "Durchsuchen nach Zeroconf-aktivierten SSH-Servern"
 
 #: ../avahi-ui/bvnc.desktop.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr "Avahi VNC Server Browser"
+msgstr "Avahi VNC-Server-Browser"
 
 #: ../avahi-ui/bvnc.desktop.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
@@ -409,7 +409,7 @@ msgstr ": Datencache erschöpft\n"
 #: ../avahi-utils/avahi-browse.c:245
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "Fehler beim Auflösen des Dienstes '%s' des Typ '%s' in Domäne '%s': %s\n"
+msgstr "Fehler beim Auflösen des Dienstes '%s' des Typ '%s' in Domain '%s': %s\n"
 
 #: ../avahi-utils/avahi-browse.c:324
 #, c-format
@@ -466,14 +466,14 @@ msgstr "Server-Version: %s; Rechnername: %s\n"
 #: ../avahi-utils/avahi-browse.c:533
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr "E Ifce Prot-Domäne\n"
+msgstr "E Ifce Prot-Domain\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:537
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr "E Ifce Prot %-*s %-20s-Domäne\n"
+msgstr "E Ifce Prot %-*s %-20s-Domain\n"
 
 #: ../avahi-utils/avahi-browse.c:537
 msgid "Name"
@@ -506,7 +506,7 @@ msgstr "Clientobjekt-Erzeugung fehlgeschlagen: %s\n"
 #: ../avahi-utils/avahi-set-host-name.c:61
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "Client-Fehler, verlassen: %s\n"
+msgstr "Client-Fehler, beende: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:607
 #: ../avahi-utils/avahi-publish.c:208
@@ -531,9 +531,9 @@ msgid ""
 msgstr ""
 "    -h --help            Zeigt diese Hilfe an\n"
 "    -V --version         Zeigt die Version an\n"
-"    -D --browse-domains  Durchsuche nach suchenden Domäne statt nach Diensten\n"
+"    -D --browse-domains  Durchsuche nach suchenden Domain statt nach Diensten\n"
 "    -a --all             Zeigt alle Dienste, ohne Rücksicht auf die Typen\n"
-"    -d --domain=DOMAIN   Die Domäne zum Durchsuchen\n"
+"    -d --domain=DOMAIN   Die Domain zum Durchsuchen\n"
 "    -v --verbose         Aktiviert detaillierten Modus\n"
 "    -t --terminate       Beenden nach Ausgeben einer mehr oder weniger kompletten Liste\n"
 "    -c --cache           Beenden nach Ausgeben aller Einträge aus dem Cache\n"
@@ -602,7 +602,7 @@ msgstr "Fehler beim Hinzufügen des Untertyps: '%s': %s\n"
 #: ../avahi-utils/avahi-publish.c:193
 #, c-format
 msgid "Host name conflict\n"
-msgstr "Hostname-Konflikt\n"
+msgstr "Rechnername-Konflikt\n"
 
 #: ../avahi-utils/avahi-publish.c:218
 #, c-format
@@ -653,7 +653,7 @@ msgstr "Kein Befehl angegeben.\n"
 #: ../avahi-utils/avahi-resolve.c:91
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "Fehler beim Auflösen des Hostnamens '%s': %s\n"
+msgstr "Fehler beim Auflösen des Rechnernamens '%s': %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:128
 #, c-format
@@ -689,7 +689,7 @@ msgstr ""
 #: ../avahi-utils/avahi-set-host-name.c:183
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
-msgstr "Fehler beim Erzeugen des Hostnamen-Auflösers: %s\n"
+msgstr "Fehler beim Erzeugen des Rechneramen-Auflösers: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:311
 #, c-format
@@ -724,7 +724,7 @@ msgstr "Ungültige Anzahl von Argumenten, erwartet wird genau eines.\n"
 #: ../avahi-utils/avahi-set-host-name.c:195
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr "Hostname erfolgreich geändert auf %s\n"
+msgstr "Rechnername erfolgreich geändert auf %s\n"
 
 #~ msgid "."
 #~ msgstr "."

@@ -112,7 +112,7 @@
         to bind to UDP port 5353. This effectively impedes other mDNS
         stacks from running on the host. Use this as a security
         measure to make sure that only Avahi is responsible for mDNS
-        traffic. Please note that we do no recommend running multiple
+        traffic. Please note that we do not recommend running multiple
         mDNS stacks on the same host simultaneously. This hampers
         reliability and is a waste of resources. However, to not annoy
         people this option defaults to "no".</p>

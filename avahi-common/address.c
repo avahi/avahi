@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -48,7 +48,7 @@ static size_t address_get_size(const AvahiAddress *a) {
 int avahi_address_cmp(const AvahiAddress *a, const AvahiAddress *b) {
     assert(a);
     assert(b);
-    
+
     if (a->proto != b->proto)
         return -1;
 
@@ -59,10 +59,10 @@ char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
     assert(s);
     assert(length);
     assert(a);
-    
+
     if (!(inet_ntop(avahi_proto_to_af(a->proto), a->data.data, s, length)))
         return NULL;
-    
+
     return s;
 }
 
@@ -119,10 +119,10 @@ AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol proto, AvahiAddre
     } else {
         if (inet_pton(avahi_proto_to_af(proto), s, ret_addr->data.data) <= 0)
             return NULL;
-        
+
         ret_addr->proto = proto;
     }
-    
+
     return ret_addr;
 }
 

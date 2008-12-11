@@ -898,6 +898,12 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         return;
     }
 
+    if (port <= 0) {
+        /* This fixes RHBZ #475394 */
+        avahi_log_warn("Received packet from invalid source port.");
+        return;
+    }
+
     if (avahi_address_is_ipv4_in_ipv6(src_address))
         /* This is an IPv4 address encapsulated in IPv6, so let's ignore it. */
         return;

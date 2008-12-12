@@ -900,7 +900,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
 
     if (port <= 0) {
         /* This fixes RHBZ #475394 */
-        avahi_log_warn("Received packet from invalid source port.");
+        avahi_log_warn("Received packet from invalid source port %u.", (unsigned) port);
         return;
     }
 

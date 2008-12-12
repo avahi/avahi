@@ -387,7 +387,6 @@ fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
 
 have_inotify=no
-AC_CHECK_HEADERS([linux/inotify.h], [have_inotify=yes])
 AC_CHECK_HEADERS([sys/inotify.h], [have_inotify=yes])
 
 AM_CONDITIONAL(HAVE_INOTIFY, test "x$have_inotify" = "xyes")

@@ -53,8 +53,7 @@ avahi_daemon_SOURCES = \
 	static-hosts.c static-hosts.h \
 	ini-file-parser.c ini-file-parser.h \
 	setproctitle.c setproctitle.h \
-	../avahi-client/check-nss.c \
-	inotify-nosys.h
+	../avahi-client/check-nss.c
 
 avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS)
 avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) $(XML_LIBS)

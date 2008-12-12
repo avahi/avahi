@@ -61,7 +61,9 @@ class Main_window(SimpleGladeApp):
 
     def on_tree_view_cursor_changed(self, widget, *args):
         (model, iter) = widget.get_selection().get_selected()
-        (name,interface,protocol,stype,domain) = self.treemodel.get(iter,1,2,3,4,5)
+        stype = None
+        if iter is not None:
+            (name,interface,protocol,stype,domain) = self.treemodel.get(iter,1,2,3,4,5)
         if stype == None:
             self.info_label.set_markup("<i>No service currently selected.</i>")
             return

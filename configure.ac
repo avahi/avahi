@@ -299,7 +299,7 @@ test_gcc_flag() {
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then
 
-    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -fPIC"
+    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline"
 
     if test "x$HAVE_NETLINK" = "xyes" ; then
         # Test whether rtnetlink.h can be included when compiled with -std=c99
@@ -403,8 +403,6 @@ AM_CONDITIONAL(HAVE_KQUEUE, test "x$have_kqueue" = "xyes")
 if test "x$have_kqueue" = "xyes" ; then
     AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
 fi
-
-AM_GNU_GETTEXT([external])
 
 IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=avahi

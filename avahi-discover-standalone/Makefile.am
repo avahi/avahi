@@ -52,7 +52,7 @@ else
 
 if HAVE_PYTHON_DBUS
 
-interfaces_DATA = $(interfaces)
+interfaces_DATA =
 
 endif
 endif

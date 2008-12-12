@@ -1,3 +1,17 @@
+Avahi 0.6.24
+============
+
+This is mostly a bugfix release.
+
+ * A huge number of bug fixes, including a security relavant one (low
+   risk)
+ * Add two new configuration directives "allow-interfaces" and
+   "deny-interfaces" which can be used to make Avahi ignore certain
+   network interfaces or only use certain network interfaces.
+ * A lot of translation updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 24.
+
 Avahi 0.6.23
 ============
 

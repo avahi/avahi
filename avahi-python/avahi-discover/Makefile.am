@@ -64,7 +64,8 @@ avahi-discover: avahi-discover.in
 	chmod +x $@
 
 bin_SCRIPTS = $(pythonscripts)
-CLEANFILES = $(pythonscripts) $(desktop_DATA) *.pyc *.pyo
+
+CLEANFILES = $(pythonscripts) $(desktop_DATA) *.pyc *.pyo avahi-discover.desktop.in
 
 endif
 endif

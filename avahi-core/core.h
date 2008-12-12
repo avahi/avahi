@@ -47,6 +47,8 @@ typedef struct AvahiServerConfig {
     char *domain_name;                /**< Default domain name. If left empty defaults to .local */
     int use_ipv4;                     /**< Enable IPv4 support */
     int use_ipv6;                     /**< Enable IPv6 support */
+    AvahiStringList *allow_interfaces;/**< Allow specific interface to be used for Avahi */
+    AvahiStringList *deny_interfaces; /**< Deny specific interfaces to be used for Avahi */
     int publish_hinfo;                /**< Register a HINFO record for the host containing the local OS and CPU type */
     int publish_addresses;            /**< Register A, AAAA and PTR records for all local IP addresses */
     int publish_workstation;          /**< Register a _workstation._tcp service */

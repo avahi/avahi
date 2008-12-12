@@ -597,7 +597,29 @@ static int load_config_file(DaemonConfig *c) {
                     }
                 }
 #endif
-                else {
+                else if (strcasecmp(p->key, "allow-interfaces") == 0) {
+                    char **e, **t;
+
+                    avahi_string_list_free(c->server_config.allow_interfaces);
+                    c->server_config.allow_interfaces = NULL;
+                    e = avahi_split_csv(p->value);
+
+                    for (t = e; *t; t++)
+                        c->server_config.allow_interfaces = avahi_string_list_add(c->server_config.allow_interfaces, *t);
+
+                    avahi_strfreev(e);
+                } else if (strcasecmp(p->key, "deny-interfaces") == 0) {
+                    char **e, **t;
+
+                    avahi_string_list_free(c->server_config.deny_interfaces);
+                    c->server_config.deny_interfaces = NULL;
+                    e = avahi_split_csv(p->value);
+
+                    for (t = e; *t; t++)
+                        c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
+
+                    avahi_strfreev(e);
+                } else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;
                 }

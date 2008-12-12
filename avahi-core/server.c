@@ -1572,6 +1572,8 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     memset(c, 0, sizeof(AvahiServerConfig));
     c->use_ipv6 = 1;
     c->use_ipv4 = 1;
+    c->allow_interfaces = NULL;
+    c->deny_interfaces = NULL;
     c->host_name = NULL;
     c->domain_name = NULL;
     c->check_response_ttl = 0;
@@ -1601,11 +1603,13 @@ void avahi_server_config_free(AvahiServerConfig *c) {
     avahi_free(c->host_name);
     avahi_free(c->domain_name);
     avahi_string_list_free(c->browse_domains);
+    avahi_string_list_free(c->allow_interfaces);
+    avahi_string_list_free(c->deny_interfaces);
 }
 
 AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c) {
     char *d = NULL, *h = NULL;
-    AvahiStringList *l = NULL;
+    AvahiStringList *browse = NULL, *allow = NULL, *deny = NULL;
     assert(ret);
     assert(c);
 
@@ -1619,7 +1623,22 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
             return NULL;
         }
 
-    if (!(l = avahi_string_list_copy(c->browse_domains)) && c->browse_domains) {
+    if (!(browse = avahi_string_list_copy(c->browse_domains)) && c->browse_domains) {
+        avahi_free(h);
+        avahi_free(d);
+        return NULL;
+    }
+
+    if (!(allow = avahi_string_list_copy(c->allow_interfaces)) && c->allow_interfaces) {
+        avahi_string_list_free(browse);
+        avahi_free(h);
+        avahi_free(d);
+        return NULL;
+    }
+
+    if (!(deny = avahi_string_list_copy(c->deny_interfaces)) && c->deny_interfaces) {
+        avahi_string_list_free(allow);
+        avahi_string_list_free(browse);
         avahi_free(h);
         avahi_free(d);
         return NULL;
@@ -1628,7 +1647,9 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
     *ret = *c;
     ret->host_name = h;
     ret->domain_name = d;
-    ret->browse_domains = l;
+    ret->browse_domains = browse;
+    ret->allow_interfaces = allow;
+    ret->deny_interfaces = deny;
 
     return ret;
 }

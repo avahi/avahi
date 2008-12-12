@@ -1,22 +1,23 @@
-# translation of avahi.po to italiano
-# Italian translation of avahi.
+# translation of avahi.master-tx.it.po to Italiano
 # Copyright (C) 2008 avahi.
 # This file is distributed under the same license as the avahi package.
 #
 # Silvio Pierro <perplesso82@gmail.com>, 2008.
 # Gianluca Busiello <busiello@ceinge.unina.it>, 2008.
+# Francesco Tombolini <tombo@adamantio.net>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi\n"
+"Project-Id-Version: avahi.master-tx.it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-21 10:21+0000\n"
-"PO-Revision-Date: 2008-03-28 23:26+0100\n"
-"Last-Translator: Gianluca Busiello <busiello@ceinge.unina.it>\n"
-"Language-Team: italiano <fedora-trans-it@redhat.com>\n"
+"POT-Creation-Date: 2008-08-29 09:19+0000\n"
+"PO-Revision-Date: 2008-09-24 03:12+0200\n"
+"Last-Translator: Francesco Tombolini <tombo@adamantio.net>\n"
+"Language-Team: Italiano <fedora-trans-it@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: ../avahi-common/error.c:32
 msgid "OK"
@@ -291,7 +292,9 @@ msgstr "Creazione di browser per %s fallita: %s"
 #: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Fallimento nella creazione del risolutore per %s del tipo %s nel dominio %s: %s"
+msgstr ""
+"Fallimento nella creazione del risolutore per %s del tipo %s nel dominio %s: "
+"%s"
 
 #: ../avahi-ui/avahi-ui.c:978
 #, c-format
@@ -318,39 +321,79 @@ msgstr "Inizializzazione..."
 msgid "_Domain..."
 msgstr "_Dominio..."
 
-#: ../avahi-ui/bssh.c:51
+#: ../avahi-ui/bssh.c:57
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+"%s [opzioni]\n"
+"\n"
+"    -h --help            Mostra questo aiuto\n"
+"    -s --ssh             Sfoglia i server SSH\n"
+"    -v --vnc             Sfoglia i server VNC\n"
+"    -S --shell           Sfoglia sia SSH che VNC\n"
+"    -d --domain=DOMINIO  Il dominio in cui ricercare\n"
+
+#: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:759
+#, c-format
+msgid "Too many arguments\n"
+msgstr "Troppi argomenti\n"
+
+#: ../avahi-ui/bssh.c:147
 msgid "Choose Shell Server"
 msgstr "Selezionare il server shell"
 
-#: ../avahi-ui/bssh.c:53
+#: ../avahi-ui/bssh.c:149
 msgid "Desktop"
 msgstr "Desktop"
 
-#: ../avahi-ui/bssh.c:54
+#: ../avahi-ui/bssh.c:150
 msgid "Terminal"
 msgstr "Terminale"
 
-#: ../avahi-ui/bssh.c:56
+#: ../avahi-ui/bssh.c:154
 msgid "Choose VNC server"
 msgstr "Selezionare il server VNC"
 
-#: ../avahi-ui/bssh.c:59
+#: ../avahi-ui/bssh.c:159
 msgid "Choose SSH server"
 msgstr "Selezionare il server SSH"
 
-#: ../avahi-ui/bssh.c:81
+#: ../avahi-ui/bssh.c:183
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Connessione a '%s' ...\n"
 
-#: ../avahi-ui/bssh.c:135
+#: ../avahi-ui/bssh.c:238
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "fallito execlp(): %s\n"
 
-#: ../avahi-ui/bssh.c:145
+#: ../avahi-ui/bssh.c:248
 msgid "Canceled.\n"
 msgstr "Cancellato.\n"
+
+#: ../avahi-ui/bssh.desktop.in.h:1
+msgid "Avahi SSH Server Browser"
+msgstr "Browser avahi per i server SSH"
+
+#: ../avahi-ui/bssh.desktop.in.h:2
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr "Browser per i server SSH Zeroconf-enabled"
+
+#: ../avahi-ui/bvnc.desktop.in.h:1
+msgid "Avahi VNC Server Browser"
+msgstr "Browser avahi per i server VNC"
+
+#: ../avahi-ui/bvnc.desktop.in.h:2
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr "Browser per i server VNC Zeroconf-enabled"
 
 #: ../avahi-utils/avahi-browse.c:108
 #, c-format
@@ -411,49 +454,53 @@ msgstr "Interrogazione nome host fallita: %s\n"
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Versione server: %s; Nome host: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:531
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:533
 #, c-format
 msgid "E Ifce Prot Domain\n"
 msgstr "E Ifce Prot Domain\n"
 
-#: ../avahi-utils/avahi-browse.c:533
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:537
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "E Ifce Prot %-*s %-20s Domain\n"
 
-#: ../avahi-utils/avahi-browse.c:533
+#: ../avahi-utils/avahi-browse.c:537
 msgid "Name"
 msgstr "Nome"
 
-#: ../avahi-utils/avahi-browse.c:533
+#: ../avahi-utils/avahi-browse.c:537
 msgid "Type"
 msgstr "Tipo"
 
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:564 ../avahi-utils/avahi-publish.c:165
+#: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Disconnesso, riconnessione ...\n"
 
-#: ../avahi-utils/avahi-browse.c:578 ../avahi-utils/avahi-browse.c:808
+#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
 #: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
 #: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "Creazione dell'oggetto client fallita: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-browse.c:588 ../avahi-utils/avahi-publish.c:177
 #: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
 #, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Fallimento client, uscita: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:602 ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "In attesa per il demone ...\n"
 
-#: ../avahi-utils/avahi-browse.c:626
+#: ../avahi-utils/avahi-browse.c:631
 msgid ""
 "    -h --help            Show this help\n"
 "    -V --version         Show version\n"
@@ -471,20 +518,24 @@ msgid ""
 msgstr ""
 "    -h --help            Mostra questo messaggio\n"
 "    -V --version         Mostra la versione\n"
-"    -D --browse-domains  Condividi per i domini condivisi invece dei servizi\n"
+"    -D --browse-domains  Condividi per i domini condivisi invece dei "
+"servizi\n"
 "    -a --all             Mostra tutti i servizi, senza tener conto il tipo\n"
 "    -d --domain=DOMAIN   Il dominio nel quale fare browsing\n"
 "    -v --verbose         Abilita la modalità con dettagli\n"
-"    -t --terminate       Termina dopo lo scaricamento di una lista  piu o meno\n"
+"    -t --terminate       Termina dopo lo scaricamento di una lista  piu o "
+"meno\n"
 "                         completa\n"
-"    -c --cache           Termina dopo lo scaricamento di tutte le voci dalla\n"
+"    -c --cache           Termina dopo lo scaricamento di tutte le voci "
+"dalla\n"
 "                         cache\n"
 "    -l --ignore-local    Ignora i servizi locali\n"
 "    -r --resolve         Risolvi i servizi trovati\n"
-"    -f --no-fail         Non terminare con errore se il demone non è disponibile\n"
+"    -f --no-fail         Non terminare con errore se il demone non è "
+"disponibile\n"
 "    -p --parsable        Ritorna un formato analizzabile\n"
 
-#: ../avahi-utils/avahi-browse.c:639
+#: ../avahi-utils/avahi-browse.c:644
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
@@ -492,17 +543,12 @@ msgstr ""
 "    -k --no-db-lookup    Non guardare i tipi di servizi\n"
 "    -b --dump-db         Scarica il database dei tipi di servizi\n"
 
-#: ../avahi-utils/avahi-browse.c:745 ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
 #, c-format
 msgid "Too few arguments\n"
 msgstr "Troppo pochi argomenti\n"
 
-#: ../avahi-utils/avahi-browse.c:754
-#, c-format
-msgid "Too many arguments\n"
-msgstr "Troppi argomenti\n"
-
-#: ../avahi-utils/avahi-browse.c:800 ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
 #: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
 #, c-format
 msgid "Failed to create simple poll object.\n"
@@ -577,7 +623,8 @@ msgstr ""
 "    -H --host=DOMAIN     L'host dove risiedono i servizi\n"
 "       --subtype=SUBTYPE Un sottotipo addizionale con cui registrare questo\n"
 "                         servizio\n"
-"    -f --no-fail         Non terminare con errore se il demone non è disponibile\n"
+"    -f --no-fail         Non terminare con errore se il demone non è "
+"disponibile\n"
 
 #: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
 #, c-format

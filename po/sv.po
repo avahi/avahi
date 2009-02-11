@@ -1,14 +1,14 @@
 # Swedish translation for avahi.
-# Copyright (C) 2008 Free Software Foundation, Inc.
+# Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the avahi package.
-# Daniel Nylander <po@danielnylander.se>, 2008.
+# Daniel Nylander <po@danielnylander.se>, 2008, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-04 04:23+0000\n"
-"PO-Revision-Date: 2008-09-05 00:18+0100\n"
+"POT-Creation-Date: 2008-11-16 13:27+0000\n"
+"PO-Revision-Date: 2009-02-11 12:39+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -374,23 +374,22 @@ msgid "execlp() failed: %s\n"
 msgstr "execlp() misslyckades: %s\n"
 
 #: ../avahi-ui/bssh.c:248
-#, c-format
 msgid "Canceled.\n"
 msgstr "Avbruten.\n"
 
-#: ../avahi-ui/bssh.desktop.in.in.h:1
+#: ../avahi-ui/bssh.desktop.in.h:1
 msgid "Avahi SSH Server Browser"
 msgstr "Avahi SSH-serverbläddrare"
 
-#: ../avahi-ui/bssh.desktop.in.in.h:2
+#: ../avahi-ui/bssh.desktop.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
 msgstr "Bläddra efter Zeroconf-aktiverade SSH-servrar"
 
-#: ../avahi-ui/bvnc.desktop.in.in.h:1
+#: ../avahi-ui/bvnc.desktop.in.h:1
 msgid "Avahi VNC Server Browser"
 msgstr "Avahi VNC-serverbläddrare"
 
-#: ../avahi-ui/bvnc.desktop.in.in.h:2
+#: ../avahi-ui/bvnc.desktop.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr "Bläddra efter Zeroconf-aktiverade VNC-servrar"
 
@@ -561,7 +560,7 @@ msgstr "För få argument\n"
 #: ../avahi-utils/avahi-set-host-name.c:154
 #, c-format
 msgid "Failed to create simple poll object.\n"
-msgstr "Misslyckades med att skapa enkelt poll-objekt: %s\n"
+msgstr "Misslyckades med att skapa enkelt poll-objekt.\n"
 
 #: ../avahi-utils/avahi-publish.c:78
 #, c-format

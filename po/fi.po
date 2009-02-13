@@ -1,14 +1,14 @@
 # Avahi Finnish translation.
-# Copyright (C) 2008 Timo Jyrinki
+# Copyright (C) 2008-2009 Timo Jyrinki
 # This file is distributed under the same license as the avahi package.
-# Timo Jyrinki <timo.jyrinki@iki.fi>, 2008.
+# Timo Jyrinki <timo.jyrinki@iki.fi>, 2008-2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-22 13:15+0200\n"
-"PO-Revision-Date: 2008-12-22 13:15+0200\n"
+"POT-Creation-Date: 2009-02-13 09:06+0200\n"
+"PO-Revision-Date: 2009-02-13 09:12+0200\n"
 "Last-Translator: Timo Jyrinki <timo.jyrinki@iki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -237,11 +237,11 @@ msgstr "Kelvoton virhekoodi"
 
 #: ../avahi-discover-standalone/avahi-discover.glade.h:1
 msgid "<i>No service currently selected.</i>"
-msgstr "<i>Palvelua ei ole valittuna.</i>"
+msgstr "<i>Palvelua ei tällä hetkellä ole valittu.</i>"
 
 #: ../avahi-discover-standalone/avahi-discover.glade.h:2
 msgid "Avahi Discovery"
-msgstr "Avahi-havaitsin"
+msgstr "Avahi-löytäjä"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -249,7 +249,7 @@ msgstr "Avahin Zeroconf-selain"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
 msgid "Browse for Zeroconf services available on your network"
-msgstr "Selaa verkon Zeroconf-palveluita"
+msgstr "Selaa verkossa saatavilla olevia Zeroconf-palveluita"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "Browse Service Types"
@@ -301,11 +301,11 @@ msgstr "Selvitetyn palvelun IP-porttinumero"
 
 #: ../avahi-ui/avahi-ui.c:222
 msgid "Host Name"
-msgstr "Palvelinnimi"
+msgstr "Verkkonimi"
 
 #: ../avahi-ui/avahi-ui.c:222
 msgid "The host name of the resolved service"
-msgstr "Selvitetyn palvelun palvelinnimi"
+msgstr "Selvitetyn palvelun verkkonimi"
 
 #: ../avahi-ui/avahi-ui.c:228
 msgid "TXT Data"
@@ -321,7 +321,7 @@ msgstr "Selvitä palvelu"
 
 #: ../avahi-ui/avahi-ui.c:239
 msgid "Resolve service host name"
-msgstr "Selvitä palvelun palvelinnimi"
+msgstr "Selvitä palvelun verkkonimi"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "Address family"
@@ -329,7 +329,7 @@ msgstr "Osoiteperhe"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "The address family for host name resolution"
-msgstr "Palvelinnimen selvittämisen osoiteperhe"
+msgstr "Osoiteperhe verkkonimen selvittämistä varten"
 
 #: ../avahi-ui/avahi-ui.c:327
 #, c-format
@@ -364,7 +364,7 @@ msgstr "Avahi-verkkoaluetta ei voi lukea: %s"
 
 #: ../avahi-ui/avahi-ui.c:707
 msgid "Browse service type list is empty!"
-msgstr "Palvelintyyppien selausluettelo on tyhjä."
+msgstr "Selattavien palvelutyyppien luettelo on tyhjä."
 
 #: ../avahi-ui/avahi-ui.c:718
 #, c-format
@@ -557,7 +557,7 @@ msgstr "Verkko-osoitteen pyyntö epäonnistui: %s\n"
 #: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "Palvelimen versio: %s, palvelinnimi: %s\n"
+msgstr "Palvelimen versio: %s, verkkonimi: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain

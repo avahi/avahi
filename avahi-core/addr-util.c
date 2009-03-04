@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -66,7 +66,7 @@ int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
         0x00, 0x00, 0x00, 0x00,
         0xFF, 0xFF, 0xFF, 0xFF
     };
-    
+
     assert(a);
 
     if (a->proto != AVAHI_PROTO_INET6)
@@ -75,5 +75,22 @@ int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
     return memcmp(a->data.ipv6.address, ipv4_in_ipv6, sizeof(ipv4_in_ipv6)) == 0;
 }
 
+#define IPV4LL_NETWORK 0xA9FE0000L
+#define IPV4LL_NETMASK 0xFFFF0000L
+#define IPV6LL_NETWORK 0xFE80
+#define IPV6LL_NETMASK 0xFFC0
 
+int avahi_address_is_link_local(const AvahiAddress *a) {
+    assert(a);
 
+    if (a->proto == AVAHI_PROTO_INET) {
+        uint32_t n = ntohl(a->data.ipv4.address);
+        return (n & IPV4LL_NETMASK) == IPV4LL_NETWORK;
+    }
+    else if (a->proto == AVAHI_PROTO_INET6) {
+        unsigned n = (a->data.ipv6.address[0] << 8) | (a->data.ipv6.address[1] << 0);
+        return (n & IPV6LL_NETMASK) == IPV6LL_NETWORK;
+    }
+
+    return 0;
+}

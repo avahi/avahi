@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -40,6 +40,7 @@
 #include "hashmap.h"
 #include "domain-util.h"
 #include "rr-util.h"
+#include "addr-util.h"
 
 AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
     AvahiKey *k;
@@ -49,13 +50,13 @@ AvahiKey *avahi_key_new(const char *name, uint16_t class, uint16_t type) {
         avahi_log_error("avahi_new() failed.");
         return NULL;
     }
-    
+
     if (!(k->name = avahi_normalize_name_strdup(name))) {
         avahi_log_error("avahi_normalize_name() failed.");
         avahi_free(k);
         return NULL;
     }
-    
+
     k->ref = 1;
     k->clazz = class;
     k->type = type;
@@ -87,7 +88,7 @@ AvahiKey *avahi_key_ref(AvahiKey *k) {
 void avahi_key_unref(AvahiKey *k) {
     assert(k);
     assert(k->ref >= 1);
-    
+
     if ((--k->ref) <= 0) {
         avahi_free(k->name);
         avahi_free(k);
@@ -96,14 +97,14 @@ void avahi_key_unref(AvahiKey *k) {
 
 AvahiRecord *avahi_record_new(AvahiKey *k, uint32_t ttl) {
     AvahiRecord *r;
-    
+
     assert(k);
-    
+
     if (!(r = avahi_new(AvahiRecord, 1))) {
         avahi_log_error("avahi_new() failed.");
         return NULL;
     }
-        
+
     r->ref = 1;
     r->key = avahi_key_ref(k);
 
@@ -119,7 +120,7 @@ AvahiRecord *avahi_record_new_full(const char *name, uint16_t class, uint16_t ty
     AvahiKey *k;
 
     assert(name);
-    
+
     if (!(k = avahi_key_new(name, class, type))) {
         avahi_log_error("avahi_key_new() failed.");
         return NULL;
@@ -173,18 +174,18 @@ void avahi_record_unref(AvahiRecord *r) {
             case AVAHI_DNS_TYPE_A:
             case AVAHI_DNS_TYPE_AAAA:
                 break;
-            
+
             default:
                 avahi_free(r->data.generic.data);
         }
-        
+
         avahi_key_unref(r->key);
         avahi_free(r);
     }
 }
 
 const char *avahi_dns_class_to_string(uint16_t class) {
-    if (class & AVAHI_DNS_CACHE_FLUSH) 
+    if (class & AVAHI_DNS_CACHE_FLUSH)
         return "FLUSH";
 
     switch (class) {
@@ -227,12 +228,12 @@ const char *avahi_dns_type_to_string(uint16_t type) {
 char *avahi_key_to_string(const AvahiKey *k) {
     char class[16], type[16];
     const char *c, *t;
-    
+
     assert(k);
     assert(k->ref >= 1);
 
     /* According to RFC3597 */
-    
+
     if (!(c = avahi_dns_class_to_string(k->clazz))) {
         snprintf(class, sizeof(class), "CLASS%u", k->clazz);
         c = class;
@@ -242,7 +243,7 @@ char *avahi_key_to_string(const AvahiKey *k) {
         snprintf(type, sizeof(type), "TYPE%u", k->type);
         t = type;
     }
-    
+
     return avahi_strdup_printf("%s\t%s\t%s", k->name, c, t);
 }
 
@@ -252,16 +253,16 @@ char *avahi_record_to_string(const AvahiRecord *r) {
 
     assert(r);
     assert(r->ref >= 1);
-    
+
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_A:
             inet_ntop(AF_INET, &r->data.a.address.address, t = buf, sizeof(buf));
             break;
-            
+
         case AVAHI_DNS_TYPE_AAAA:
             inet_ntop(AF_INET6, &r->data.aaaa.address.address, t = buf, sizeof(buf));
             break;
-            
+
         case AVAHI_DNS_TYPE_PTR:
         case AVAHI_DNS_TYPE_CNAME:
         case AVAHI_DNS_TYPE_NS:
@@ -296,11 +297,11 @@ char *avahi_record_to_string(const AvahiRecord *r) {
             char *e;
 
             /* According to RFC3597 */
-            
+
             snprintf(t = buf, sizeof(buf), "\\# %u", r->data.generic.size);
 
             e = strchr(t, 0);
-            
+
             for (c = r->data.generic.data, n = r->data.generic.size, i = 0;
                  n > 0 && i < 20;
                  c ++, n --, i++) {
@@ -317,7 +318,7 @@ char *avahi_record_to_string(const AvahiRecord *r) {
     s = avahi_strdup_printf("%s %s ; ttl=%u", p, t, r->ttl);
     avahi_free(p);
     avahi_free(d);
-    
+
     return s;
 }
 
@@ -327,7 +328,7 @@ int avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
 
     if (a == b)
         return 1;
-    
+
     return avahi_domain_equal(a->name, b->name) &&
         a->type == b->type &&
         a->clazz == b->clazz;
@@ -341,7 +342,7 @@ int avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
 
     if (pattern == k)
         return 1;
-    
+
     return avahi_domain_equal(pattern->name, k->name) &&
         (pattern->type == k->type || pattern->type == AVAHI_DNS_TYPE_ANY) &&
         (pattern->clazz == k->clazz || pattern->clazz == AVAHI_DNS_CLASS_ANY);
@@ -359,7 +360,7 @@ unsigned avahi_key_hash(const AvahiKey *k) {
     assert(k);
 
     return
-        avahi_domain_hash(k->name) + 
+        avahi_domain_hash(k->name) +
         k->type +
         k->clazz;
 }
@@ -400,7 +401,7 @@ static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
             return a->data.generic.size == b->data.generic.size &&
                 (a->data.generic.size == 0 || memcmp(a->data.generic.data, b->data.generic.data, a->data.generic.size) == 0);
     }
-    
+
 }
 
 int avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
@@ -423,7 +424,7 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
         avahi_log_error("avahi_new() failed.");
         return NULL;
     }
-    
+
     copy->ref = 1;
     copy->key = avahi_key_ref(r->key);
     copy->ttl = r->ttl;
@@ -471,7 +472,7 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
                 goto fail;
             copy->data.generic.size = r->data.generic.size;
             break;
-                
+
     }
 
     return copy;
@@ -481,7 +482,7 @@ fail:
 
     avahi_key_unref(copy->key);
     avahi_free(copy);
-    
+
     return NULL;
 }
 
@@ -535,7 +536,7 @@ size_t avahi_record_get_estimate_size(AvahiRecord *r) {
 static int lexicographical_memcmp(const void* a, size_t al, const void* b, size_t bl) {
     size_t c;
     int ret;
-    
+
     assert(a);
     assert(b);
 
@@ -585,7 +586,7 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
                 (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) == 0 &&
                 (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) == 0)
                 r = avahi_binary_domain_cmp(a->data.srv.name, b->data.srv.name);
-            
+
             return r;
         }
 
@@ -606,15 +607,15 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
 
             asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0);
             bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0);
-            
+
             if (asize > 0 && !(ma = avahi_new(uint8_t, asize)))
                 goto fail;
-            
+
             if (bsize > 0 && !(mb = avahi_new(uint8_t, bsize))) {
                 avahi_free(ma);
                 goto fail;
             }
-            
+
             avahi_string_list_serialize(a->data.txt.string_list, ma, asize);
             avahi_string_list_serialize(b->data.txt.string_list, mb, bsize);
 
@@ -626,13 +627,13 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
                 r = -1;
             else
                 r = 0;
-            
+
             avahi_free(ma);
             avahi_free(mb);
 
             return r;
         }
-        
+
         case AVAHI_DNS_TYPE_A:
             return memcmp(&a->data.a.address, &b->data.a.address, sizeof(AvahiIPv4Address));
 
@@ -644,7 +645,7 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
                                           b->data.generic.data, b->data.generic.size);
     }
 
-    
+
 fail:
     avahi_log_error(__FILE__": Out of memory");
     return -1; /* or whatever ... */
@@ -661,7 +662,7 @@ int avahi_key_is_valid(AvahiKey *k) {
 
     if (!avahi_is_valid_domain_name(k->name))
         return 0;
-    
+
     return 1;
 }
 
@@ -685,7 +686,7 @@ int avahi_record_is_valid(AvahiRecord *r) {
             return
                 strlen(r->data.hinfo.os) <= 255 &&
                 strlen(r->data.hinfo.cpu) <= 255;
-            
+
         case AVAHI_DNS_TYPE_TXT: {
 
             AvahiStringList *strlst;
@@ -697,7 +698,38 @@ int avahi_record_is_valid(AvahiRecord *r) {
             return 1;
         }
     }
-            
 
     return 1;
+}
+
+static AvahiAddress *get_address(const AvahiRecord *r, AvahiAddress *a) {
+    assert(r);
+
+    switch (r->key->type) {
+        case AVAHI_DNS_TYPE_A:
+            a->proto = AVAHI_PROTO_INET;
+            a->data.ipv4 = r->data.a.address;
+            break;
+
+        case AVAHI_DNS_TYPE_AAAA:
+            a->proto = AVAHI_PROTO_INET6;
+            a->data.ipv6 = r->data.aaaa.address;
+            break;
+
+        default:
+            return NULL;
+    }
+
+    return a;
+}
+
+int avahi_record_is_link_local_address(const AvahiRecord *r) {
+    AvahiAddress a;
+
+    assert(r);
+
+    if (!get_address(r, &a))
+        return 0;
+
+    return avahi_address_is_link_local(&a);
 }

@@ -169,6 +169,9 @@ int avahi_rdata_parse(AvahiRecord *record, const void* rdata, size_t size);
 /** Serialize an AvahiRecord object into binary rdata. This function is actually implemented in dns.c */
 size_t avahi_rdata_serialize(AvahiRecord *record, void *rdata, size_t max_size);
 
+/** Return TRUE if the AvahiRecord object is a link-local A or AAAA address */
+int avahi_record_is_link_local_address(const AvahiRecord *r);
+
 AVAHI_C_DECL_END
 
 #endif

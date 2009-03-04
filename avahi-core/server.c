@@ -666,7 +666,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
             break;
         }
 
-        if (!avahi_key_is_pattern(record->key)) {
+        if (!avahi_key_is_pattern(record->key) && !avahi_record_is_link_local_address(record)) {
 
             if (handle_conflict(s, i, record, cache_flush)) {
                 if (!from_local_iface)

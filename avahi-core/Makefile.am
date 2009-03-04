@@ -143,7 +143,8 @@ dns_test_SOURCES = \
 	util.c util.h \
 	rr.c rr.h \
 	hashmap.c hashmap.h \
-	domain-util.c domain-util.h
+	domain-util.c domain-util.h \
+	addr-util.c addr-util.h
 dns_test_CFLAGS = $(AM_CFLAGS)
 dns_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 

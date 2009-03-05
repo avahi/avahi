@@ -22,8 +22,11 @@
 import os, sys
 
 try:
-    import avahi, gtk, gobject, dbus, avahi.ServiceTypeDatabase
+    import avahi, gettext, gtk, gobject, dbus, avahi.ServiceTypeDatabase
     from avahi_discover.SimpleGladeApp import SimpleGladeApp
+    gtk.glade.bindtextdomain(@GETTEXT_PACKAGE@, @LOCALEDIR@)
+    gtk.glade.textdomain(@GETTEXT_PACKAGE@)
+    _ = gettext.gettext
 except ImportError, e:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e
     sys.exit(1)
@@ -61,7 +64,9 @@ class Main_window(SimpleGladeApp):
 
     def on_tree_view_cursor_changed(self, widget, *args):
         (model, iter) = widget.get_selection().get_selected()
-        (name,interface,protocol,stype,domain) = self.treemodel.get(iter,1,2,3,4,5)
+        stype = None
+        if iter is not None:
+            (name,interface,protocol,stype,domain) = self.treemodel.get(iter,1,2,3,4,5)
         if stype == None:
             self.info_label.set_markup("<i>No service currently selected.</i>")
             return

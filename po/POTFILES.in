@@ -1,5 +1,7 @@
 # List of source files which contain translatable strings.
 avahi-common/error.c
+avahi-discover-standalone/avahi-discover.glade
+avahi-python/avahi-discover/avahi-discover.desktop.in.in
 avahi-ui/avahi-ui.c
 avahi-ui/bssh.c
 avahi-ui/bssh.desktop.in.in
@@ -8,4 +10,3 @@ avahi-utils/avahi-browse.c
 avahi-utils/avahi-publish.c
 avahi-utils/avahi-resolve.c
 avahi-utils/avahi-set-host-name.c
-

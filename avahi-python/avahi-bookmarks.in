@@ -24,7 +24,7 @@ import sys, getopt, os
 try:
     import avahi, gobject, dbus
 except ImportError:
-    print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus."
+    print "Sorry, to use this tool you need to install Avahi and python-dbus."
     sys.exit(1)
 
 try:

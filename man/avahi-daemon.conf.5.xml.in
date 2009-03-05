@@ -4,19 +4,19 @@
 
 <!-- $Id$ -->
 
-<!-- 
+<!--
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -28,11 +28,11 @@
 	<synopsis>
       <cmd>@pkgsysconfdir@/avahi-daemon.conf</cmd>
 	</synopsis>
-	
+
     <description>
       <p><file>avahi-daemon.conf</file> is the configuration file for avahi-daemon.</p>
 	</description>
-	
+
 	<section name="Section [Server]">
 
       <option>
@@ -56,7 +56,7 @@
         of colon seperated domains or by adding them to the XDG config
         file <file>~/.config/avahi/browse-domains</file> (seperated by
         newlines).</p>
-        
+
       </option>
 
       <option>
@@ -69,6 +69,22 @@
         <p><opt>use-ipv6=</opt> Takes a boolean value ("yes" or
         "no"). If set to "no" avahi-daemon will not use IPv6
         sockets. Default is "yes".</p>
+      </option>
+
+      <option>
+        <p><opt>allow-interfaces=</opt> Set a comma seperated list of
+        allowed network interfaces that should be used by the
+        avahi-daemon.  Other interfaces will be ignored. If set to the
+        empty list all local interfaces except loopback and
+        point-to-point will be used.</p>
+      </option>
+
+      <option>
+        <p><opt>deny-interfaces=</opt> Set a comma seperated list of
+        network interfaces that should be ignored by avahi-daemon.
+	Other not specified interfaces will be used, unless
+	<opt>allow-interfaces</opt> is set. This option takes
+	precedence over <opt>deny-interfaces</opt>.</p>
       </option>
 
       <option>
@@ -112,7 +128,7 @@
         to bind to UDP port 5353. This effectively impedes other mDNS
         stacks from running on the host. Use this as a security
         measure to make sure that only Avahi is responsible for mDNS
-        traffic. Please note that we do no recommend running multiple
+        traffic. Please note that we do not recommend running multiple
         mDNS stacks on the same host simultaneously. This hampers
         reliability and is a waste of resources. However, to not annoy
         people this option defaults to "no".</p>
@@ -141,7 +157,7 @@
         we encourage you to use subdomains of .local, such as
         "kitchen.local". This option defaults to "yes".</p>
       </option>
-      
+
     </section>
 
 	<section name="Section [publish]">
@@ -306,16 +322,16 @@
 	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>
 	</section>
-	
+
 	<section name="See also">
 	  <p>
         <manref name="avahi-daemon" section="8"/>, <manref name="avahi-dnsconfd" section="8"/>
 	  </p>
 	</section>
-	
+
 	<section name="Comments">
 	  <p>This man page was written using <manref name="xml2man" section="1"
 		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
 	</section>
-	
+
   </manpage>

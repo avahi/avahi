@@ -29,7 +29,6 @@ SUBDIRS=avahi avahi-discover
 
 if HAVE_PYTHON
 if HAVE_PYTHON_DBUS
-if HAVE_PYGTK
 
 pythonscripts = \
 	avahi-bookmarks
@@ -41,6 +40,5 @@ avahi-bookmarks: avahi-bookmarks.in
 bin_SCRIPTS = $(pythonscripts)
 CLEANFILES = $(pythonscripts)
 
-endif
 endif
 endif

@@ -2,19 +2,19 @@
 #
 # avahi-daemon:       Starts the Avahi Daemon
 #
-# chkconfig: 345 96 02
+# chkconfig: 345 24 02
 # description: This is a daemon which runs on client machines to perform \
 #              Zeroconf service discovery on a network. avahi-daemon must be \
 #              running on systems  that use Avahi for service discovery. \
 #              Avahi-daemon should not be running otherwise.
 # processname: avahi-daemon
-# config: 
+# config:
 
 AVAHI_BIN=@sbindir@/avahi-daemon
 
-if [ "$1" == 'status' ]; then
+if [ "$1" = 'status' ]; then
     test -x $AVAHI_BIN || exit 4
-else 
+else
     test -x $AVAHI_BIN || exit 5
 fi
 
@@ -91,7 +91,7 @@ case "$1" in
 	restart
 	;;
   reload)
-        reload 
+        reload
 	;;
   condrestart)
   	if [ -f $LOCKFILE ]; then
@@ -105,4 +105,3 @@ case "$1" in
 esac
 
 exit $RETVAL
-

@@ -35,19 +35,19 @@
 AVAHI_C_DECL_BEGIN
 
 /** Allocate some memory, just like the libc malloc() */
-void *avahi_malloc(size_t size);
+void *avahi_malloc(size_t size) AVAHI_GCC_ALLOC_SIZE(1);
 
 /** Similar to avahi_malloc() but set the memory to zero */
-void *avahi_malloc0(size_t size);
+void *avahi_malloc0(size_t size) AVAHI_GCC_ALLOC_SIZE(1);
 
 /** Free some memory */
 void avahi_free(void *p);
 
 /** Similar to libc's realloc() */
-void *avahi_realloc(void *p, size_t size);
+void *avahi_realloc(void *p, size_t size) AVAHI_GCC_ALLOC_SIZE(2);
 
 /** Internal helper for avahi_new() */
-static inline void* avahi_new_internal(unsigned n, size_t k) {
+static inline void* AVAHI_GCC_ALLOC_SIZE2(1,2) avahi_new_internal(unsigned n, size_t k) {
     assert(n < INT_MAX/k);
     return avahi_malloc(n*k);
 }
@@ -56,7 +56,7 @@ static inline void* avahi_new_internal(unsigned n, size_t k) {
 #define avahi_new(type, n) ((type*) avahi_new_internal((n), sizeof(type)))
 
 /** Internal helper for avahi_new0() */
-static inline void* avahi_new0_internal(unsigned n, size_t k) {
+static inline void* AVAHI_GCC_ALLOC_SIZE2(1,2) avahi_new0_internal(unsigned n, size_t k) {
     assert(n < INT_MAX/k);
     return avahi_malloc0(n*k);
 }
@@ -71,14 +71,14 @@ char *avahi_strdup(const char *s);
 char *avahi_strndup(const char *s, size_t l);
 
 /** Duplicate the given memory block into a new one allocated with avahi_malloc() */
-void *avahi_memdup(const void *s, size_t l);
+void *avahi_memdup(const void *s, size_t l) AVAHI_GCC_ALLOC_SIZE(2);
 
 /** Wraps allocator functions */
 typedef struct AvahiAllocator {
-    void* (*malloc)(size_t size);     
-    void (*free)(void *p);           
-    void* (*realloc)(void *p, size_t size);
-    void* (*calloc)(size_t nmemb, size_t size);   /**< May be NULL */
+    void* (*malloc)(size_t size) AVAHI_GCC_ALLOC_SIZE(1);
+    void (*free)(void *p);
+    void* (*realloc)(void *p, size_t size) AVAHI_GCC_ALLOC_SIZE(2);
+    void* (*calloc)(size_t nmemb, size_t size) AVAHI_GCC_ALLOC_SIZE2(1,2);   /**< May be NULL */
 } AvahiAllocator;
 
 /** Change the allocator. May be NULL to return to default (libc)

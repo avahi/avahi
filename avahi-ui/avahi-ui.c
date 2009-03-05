@@ -30,6 +30,7 @@
 #include <net/if.h>
 
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 
 #include <avahi-glib/glib-watch.h>
 #include <avahi-client/client.h>
@@ -184,64 +185,64 @@ static void aui_service_dialog_class_init(AuiServiceDialogClass *klass) {
     g_object_class_install_property(
             object_class,
             PROP_BROWSE_SERVICE_TYPES,
-            g_param_spec_pointer("browse_service_types", "Browse Service Types", "A NULL terminated list of service types to browse for",
+            g_param_spec_pointer("browse_service_types", _("Browse Service Types"), _("A NULL terminated list of service types to browse for"),
                                 G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_DOMAIN,
-            g_param_spec_string("domain", "Domain", "The domain to browse in, or NULL for the default domain",
+            g_param_spec_string("domain", _("Domain"), _("The domain to browse in, or NULL for the default domain"),
                                 NULL,
                                 G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_SERVICE_TYPE,
-            g_param_spec_string("service_type", "Service Type", "The service type of the selected service",
+            g_param_spec_string("service_type", _("Service Type"), _("The service type of the selected service"),
                                 NULL,
                                 G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_SERVICE_NAME,
-            g_param_spec_string("service_name", "Service Name", "The service name of the selected service",
+            g_param_spec_string("service_name", _("Service Name"), _("The service name of the selected service"),
                                 NULL,
                                 G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_ADDRESS,
-            g_param_spec_pointer("address", "Address", "The address of the resolved service",
+            g_param_spec_pointer("address", _("Address"), _("The address of the resolved service"),
                                 G_PARAM_READABLE));
     g_object_class_install_property(
             object_class,
             PROP_PORT,
-            g_param_spec_uint("port", "Port", "The IP port number of the resolved service",
+            g_param_spec_uint("port", _("Port"), _("The IP port number of the resolved service"),
                              0, 0xFFFF, 0,
                              G_PARAM_READABLE));
     g_object_class_install_property(
             object_class,
             PROP_HOST_NAME,
-            g_param_spec_string("host_name", "Host Name", "The host name of the resolved service",
+            g_param_spec_string("host_name", _("Host Name"), _("The host name of the resolved service"),
                                 NULL,
                                 G_PARAM_READABLE));
     g_object_class_install_property(
             object_class,
             PROP_TXT_DATA,
-            g_param_spec_pointer("txt_data", "TXT Data", "The TXT data of the resolved service",
+            g_param_spec_pointer("txt_data", _("TXT Data"), _("The TXT data of the resolved service"),
                                 G_PARAM_READABLE));
     g_object_class_install_property(
             object_class,
             PROP_RESOLVE_SERVICE,
-            g_param_spec_boolean("resolve_service", "Resolve service", "Resolve service",
+            g_param_spec_boolean("resolve_service", _("Resolve service"), _("Resolve service"),
                                  TRUE,
                                  G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_RESOLVE_HOST_NAME,
-            g_param_spec_boolean("resolve_host_name", "Resolve service host name", "Resolve service host name",
+            g_param_spec_boolean("resolve_host_name", _("Resolve service host name"), _("Resolve service host name"),
                                  TRUE,
                                  G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_ADDRESS_FAMILY,
-            g_param_spec_int("address_family", "Address family", "The address family for host name resolution",
+            g_param_spec_int("address_family", _("Address family"), _("The address family for host name resolution"),
                              AVAHI_PROTO_UNSPEC, AVAHI_PROTO_INET6, AVAHI_PROTO_UNSPEC,
                              G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
@@ -703,7 +704,7 @@ static gboolean start_callback(gpointer data) {
     d->priv->start_idle = 0;
 
     if (!d->priv->browse_service_types || !*d->priv->browse_service_types) {
-        g_warning("Browse service type list is empty!");
+        g_warning(_("Browse service type list is empty!"));
         return FALSE;
     }
 
@@ -1026,7 +1027,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     gtk_container_add(GTK_CONTAINER(scrolled_window), p->domain_tree_view);
 
     p->domain_progress_bar = gtk_progress_bar_new();
-    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->domain_progress_bar), _("Browsing ..."));
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->domain_progress_bar), _("Browsing..."));
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->domain_progress_bar), 0.1);
     gtk_box_pack_end(GTK_BOX(vbox2), p->domain_progress_bar, FALSE, FALSE, 0);
 
@@ -1139,17 +1140,17 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     g_signal_connect(selection, "changed", G_CALLBACK(service_selection_changed_callback), d);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Location", renderer, "text", SERVICE_COLUMN_PRETTY_IFACE, NULL);
+    column = gtk_tree_view_column_new_with_attributes(_("Location"), renderer, "text", SERVICE_COLUMN_PRETTY_IFACE, NULL);
     gtk_tree_view_column_set_visible(column, FALSE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(p->service_tree_view), column);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", SERVICE_COLUMN_NAME, NULL);
+    column = gtk_tree_view_column_new_with_attributes(_("Name"), renderer, "text", SERVICE_COLUMN_NAME, NULL);
     gtk_tree_view_column_set_expand(column, TRUE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(p->service_tree_view), column);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Type", renderer, "text", SERVICE_COLUMN_PRETTY_TYPE, NULL);
+    column = gtk_tree_view_column_new_with_attributes(_("Type"), renderer, "text", SERVICE_COLUMN_PRETTY_TYPE, NULL);
     gtk_tree_view_column_set_visible(column, FALSE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(p->service_tree_view), column);
 
@@ -1157,7 +1158,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_container_add(GTK_CONTAINER(scrolled_window), p->service_tree_view);
 
     p->service_progress_bar = gtk_progress_bar_new();
-    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->service_progress_bar), _("Browsing ..."));
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->service_progress_bar), _("Browsing..."));
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->service_progress_bar), 0.1);
     gtk_box_pack_end(GTK_BOX(vbox2), p->service_progress_bar, FALSE, FALSE, 0);
 

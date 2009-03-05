@@ -35,7 +35,27 @@ test "x$AVAHI_INTERFACE" != "x"
 #   $AVAHI_INTERFACE_DNS_SERVERS   A whitespace seperated list of DNS servers on $AVAHI_INTERFACE
 #   $AVAHI_DNS_SERVERS             The complete list of all DNS servers found on all interfaces
 
-if [ -x /sbin/resolvconf ] ; then
+if [ -x /sbin/netconfig ]; then
+    # SUSE method on 11.1+
+    if [ -n "$AVAHI_INTERFACE_DNS_SERVERS" ]; then
+	/sbin/netconfig modify -s avahi -i "$AVAHI_INTERFACE" <<-EOF
+	INTERFACE='$AVAHI_INTERFACE'
+	DNSSERVERS='$AVAHI_INTERFACE_DNS_SERVERS'
+	EOF
+    else
+	/sbin/netconfig remove -s avahi -i "$AVAHI_INTERFACE"
+    fi
+elif [ -x /sbin/modify_resolvconf ] ; then
+    # method for SUSE <= 11.0
+    if [ -n "$AVAHI_DNS_SERVERS" ]; then
+	/sbin/modify_resolvconf modify -s avahi -t - -p avahi-dnsconfd -n "$AVAHI_DNS_SERVERS" <<-EOF
+	if you don't like avahi to update your Nameservers
+	disable the avahi-dnsconfd init script
+	EOF
+    else
+	/sbin/modify_resolvconf restore -s avahi
+    fi
+elif [ -x /sbin/resolvconf ] ; then
 
     # We have Debian's resolvconf tool
 

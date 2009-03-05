@@ -23,7 +23,7 @@ EXTRA_DIST = \
 	__init__.py \
 	SimpleGladeApp.py \
 	avahi-discover.in \
-	avahi-discover.desktop.in
+	avahi-discover.desktop.in.in
 
 if HAVE_PYTHON
 if HAVE_PYTHON_DBUS
@@ -41,6 +41,7 @@ if HAVE_GDBM
 pythonscripts += \
 	avahi-discover
 desktop_DATA += avahi-discover.desktop
+@INTLTOOL_DESKTOP_RULE@
 avahi_discover_PYTHON += __init__.py SimpleGladeApp.py
 endif
 
@@ -48,19 +49,23 @@ if HAVE_DBM
 pythonscripts += \
 	avahi-discover
 desktop_DATA += avahi-discover.desktop
+@INTLTOOL_DESKTOP_RULE@
 avahi_discover_PYTHON += __init__.py SimpleGladeApp.py
 endif
 
-avahi-discover.desktop: avahi-discover.desktop.in
+avahi-discover.desktop.in: avahi-discover.desktop.in.in
 	sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
 avahi-discover: avahi-discover.in
 	sed -e 's,@PYTHON\@,$(PYTHON),g' \
+		-e 's,@GETTEXT_PACKAGE\@,"$(GETTEXT_PACKAGE)",g' \
+		-e 's,@LOCALEDIR\@,"$(datadir)/locale",g' \
 		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
 	chmod +x $@
 
 bin_SCRIPTS = $(pythonscripts)
-CLEANFILES = $(pythonscripts) $(desktop_DATA) *.pyc *.pyo
+
+CLEANFILES = $(pythonscripts) $(desktop_DATA) *.pyc *.pyo avahi-discover.desktop.in
 
 endif
 endif

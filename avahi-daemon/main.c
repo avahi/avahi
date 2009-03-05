@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -43,11 +43,7 @@
 #include <sys/socket.h>
 
 #ifdef HAVE_INOTIFY
-#ifdef HAVE_SYS_INOTIFY_H
 #include <sys/inotify.h>
-#else
-#include "inotify-nosys.h"
-#endif
 #endif
 
 #ifdef HAVE_KQUEUE
@@ -148,7 +144,7 @@ static int has_prefix(const char *s, const char *prefix) {
     size_t l;
 
     l = strlen(prefix);
-    
+
     return strlen(s) >= l && strncmp(s, prefix, l) == 0;
 }
 
@@ -156,19 +152,19 @@ static int load_resolv_conf(void) {
     int ret = -1;
     FILE *f;
     int i = 0, j = 0;
-    
+
     avahi_strfreev(resolv_conf_name_servers);
     resolv_conf_name_servers = NULL;
 
     avahi_strfreev(resolv_conf_search_domains);
     resolv_conf_search_domains = NULL;
-    
+
 #ifdef ENABLE_CHROOT
     f = avahi_chroot_helper_get_file(RESOLV_CONF);
 #else
     f = fopen(RESOLV_CONF, "r");
 #endif
-    
+
     if (!f) {
         avahi_log_warn("Failed to open "RESOLV_CONF": %s", strerror(errno));
         goto finish;
@@ -223,7 +219,7 @@ finish:
     if (ret != 0) {
         avahi_strfreev(resolv_conf_name_servers);
         resolv_conf_name_servers = NULL;
-        
+
         avahi_strfreev(resolv_conf_search_domains);
         resolv_conf_search_domains = NULL;
     }
@@ -240,14 +236,14 @@ static AvahiSEntryGroup* add_dns_servers(AvahiServer *s, AvahiSEntryGroup* g, ch
     assert(s);
     assert(l);
 
-    if (!g) 
+    if (!g)
         g = avahi_s_entry_group_new(s, NULL, NULL);
 
     assert(avahi_s_entry_group_is_empty(g));
 
     for (p = l; *p; p++) {
         AvahiAddress a;
-        
+
         if (!avahi_address_parse(*p, AVAHI_PROTO_UNSPEC, &a))
             avahi_log_warn("Failed to parse address '%s', ignoring.", *p);
         else
@@ -267,8 +263,8 @@ static void remove_dns_server_entry_groups(void) {
 
     if (resolv_conf_entry_group)
         avahi_s_entry_group_reset(resolv_conf_entry_group);
-    
-    if (dns_servers_entry_group) 
+
+    if (dns_servers_entry_group)
         avahi_s_entry_group_reset(dns_servers_entry_group);
 }
 
@@ -297,10 +293,10 @@ static AvahiStringList *filter_duplicate_domains(AvahiStringList *l) {
 
     if (!l)
         return l;
-    
+
     for (p = l, e = l->next; e; e = n) {
         n = e->next;
-        
+
         if (avahi_domain_equal((char*) e->text, (char*) l->text)) {
             p->next = e->next;
             avahi_free(e);
@@ -323,7 +319,7 @@ static void update_browse_domains(void) {
     }
 
     l = avahi_string_list_copy(config.server_config.browse_domains);
-    
+
     for (p = resolv_conf_search_domains, n = 0; *p && n < BROWSE_DOMAINS_MAX; p++, n++) {
         if (!avahi_is_valid_domain_name(*p))
             avahi_log_warn("'%s' is no valid domain name, ignoring.", *p);
@@ -332,13 +328,13 @@ static void update_browse_domains(void) {
     }
 
     l = filter_duplicate_domains(l);
-    
+
     avahi_server_set_browse_domains(avahi_server, l);
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {
     DaemonConfig *c = userdata;
-    
+
     assert(s);
     assert(c);
 
@@ -346,7 +342,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
      * avahi_server has been set, therefore we do it explicitly */
 
     avahi_server = s;
-    
+
 #ifdef HAVE_DBUS
     if (c->enable_dbus && state != AVAHI_SERVER_INVALID && state != AVAHI_SERVER_FAILURE)
         dbus_protocol_server_state_changed(state);
@@ -355,28 +351,28 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     switch (state) {
         case AVAHI_SERVER_RUNNING:
             avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
-            
+
             avahi_set_proc_title(argv0, "%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
-            
+
             static_service_add_to_server();
             static_hosts_add_to_server();
-            
+
             remove_dns_server_entry_groups();
-            
+
             if (c->publish_resolv_conf && resolv_conf_name_servers && resolv_conf_name_servers[0])
                 resolv_conf_entry_group = add_dns_servers(s, resolv_conf_entry_group, resolv_conf_name_servers);
-            
+
             if (c->publish_dns_servers && c->publish_dns_servers[0])
                 dns_servers_entry_group = add_dns_servers(s, dns_servers_entry_group, c->publish_dns_servers);
-            
+
             simple_protocol_restart_queries();
             break;
-            
+
         case AVAHI_SERVER_COLLISION: {
             char *n;
-            
+
             avahi_set_proc_title(argv0, "%s: collision", argv0);
-            
+
             static_service_remove_from_server();
             static_hosts_remove_from_server();
             remove_dns_server_entry_groups();
@@ -398,16 +394,16 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         case AVAHI_SERVER_REGISTERING:
 
             avahi_set_proc_title(argv0, "%s: registering [%s]", argv0, avahi_server_get_host_name_fqdn(s));
-            
+
             static_service_remove_from_server();
             static_hosts_remove_from_server();
             remove_dns_server_entry_groups();
-            
+
             break;
 
         case AVAHI_SERVER_INVALID:
             break;
-            
+
     }
 }
 
@@ -425,9 +421,9 @@ static void help(FILE *f) {
             "                       "AVAHI_CONFIG_FILE"\n"
             "       --no-rlimits    Don't enforce resource limits\n"
             "       --no-drop-root  Don't drop privileges\n"
-#ifdef ENABLE_CHROOT            
+#ifdef ENABLE_CHROOT
             "       --no-chroot     Don't chroot()\n"
-#endif            
+#endif
             "       --no-proc-title Don't modify process title\n"
             "       --debug         Increase verbosity\n",
             argv0);
@@ -440,13 +436,13 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
     enum {
         OPTION_NO_RLIMITS = 256,
         OPTION_NO_DROP_ROOT,
-#ifdef ENABLE_CHROOT        
+#ifdef ENABLE_CHROOT
         OPTION_NO_CHROOT,
 #endif
         OPTION_NO_PROC_TITLE,
         OPTION_DEBUG
     };
-    
+
     static const struct option long_options[] = {
         { "help",           no_argument,       NULL, 'h' },
         { "daemonize",      no_argument,       NULL, 'D' },
@@ -522,13 +518,13 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
         fprintf(stderr, "Too many arguments\n");
         return -1;
     }
-        
+
     return 0;
 }
 
 static int is_yes(const char *s) {
     assert(s);
-    
+
     return *s == 'y' || *s == 'Y' || *s == '1' || *s == 't' || *s == 'T';
 }
 
@@ -541,9 +537,9 @@ static int load_config_file(DaemonConfig *c) {
 
     if (!(f = avahi_ini_file_load(c->config_file ? c->config_file : AVAHI_CONFIG_FILE)))
         goto finish;
-    
+
     for (g = f->groups; g; g = g->groups_next) {
-        
+
         if (strcasecmp(g->name, "server") == 0) {
             AvahiIniFilePair *p;
 
@@ -559,7 +555,7 @@ static int load_config_file(DaemonConfig *c) {
                     char **e, **t;
 
                     e = avahi_split_csv(p->value);
-                    
+
                     for (t = e; *t; t++) {
                         char cleaned[AVAHI_DOMAIN_NAME_MAX];
 
@@ -571,7 +567,7 @@ static int load_config_file(DaemonConfig *c) {
 
                         c->server_config.browse_domains = avahi_string_list_add(c->server_config.browse_domains, cleaned);
                     }
-                    
+
                     avahi_strfreev(e);
 
                     c->server_config.browse_domains = filter_duplicate_domains(c->server_config.browse_domains);
@@ -601,17 +597,39 @@ static int load_config_file(DaemonConfig *c) {
                     }
                 }
 #endif
-                else {
+                else if (strcasecmp(p->key, "allow-interfaces") == 0) {
+                    char **e, **t;
+
+                    avahi_string_list_free(c->server_config.allow_interfaces);
+                    c->server_config.allow_interfaces = NULL;
+                    e = avahi_split_csv(p->value);
+
+                    for (t = e; *t; t++)
+                        c->server_config.allow_interfaces = avahi_string_list_add(c->server_config.allow_interfaces, *t);
+
+                    avahi_strfreev(e);
+                } else if (strcasecmp(p->key, "deny-interfaces") == 0) {
+                    char **e, **t;
+
+                    avahi_string_list_free(c->server_config.deny_interfaces);
+                    c->server_config.deny_interfaces = NULL;
+                    e = avahi_split_csv(p->value);
+
+                    for (t = e; *t; t++)
+                        c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
+
+                    avahi_strfreev(e);
+                } else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;
                 }
             }
-            
+
         } else if (strcasecmp(g->name, "publish") == 0) {
             AvahiIniFilePair *p;
 
             for (p = g->pairs; p; p = p->pairs_next) {
-                
+
                 if (strcasecmp(p->key, "publish-addresses") == 0)
                     c->server_config.publish_addresses = is_yes(p->value);
                 else if (strcasecmp(p->key, "publish-hinfo") == 0)
@@ -645,7 +663,7 @@ static int load_config_file(DaemonConfig *c) {
             AvahiIniFilePair *p;
 
             for (p = g->pairs; p; p = p->pairs_next) {
-                
+
                 if (strcasecmp(p->key, "enable-wide-area") == 0)
                     c->server_config.enable_wide_area = is_yes(p->value);
                 else {
@@ -653,12 +671,12 @@ static int load_config_file(DaemonConfig *c) {
                     goto finish;
                 }
             }
-            
+
         } else if (strcasecmp(g->name, "reflector") == 0) {
             AvahiIniFilePair *p;
 
             for (p = g->pairs; p; p = p->pairs_next) {
-                
+
                 if (strcasecmp(p->key, "enable-reflector") == 0)
                     c->server_config.enable_reflector = is_yes(p->value);
                 else if (strcasecmp(p->key, "reflect-ipv") == 0)
@@ -668,12 +686,12 @@ static int load_config_file(DaemonConfig *c) {
                     goto finish;
                 }
             }
-            
+
         } else if (strcasecmp(g->name, "rlimits") == 0) {
             AvahiIniFilePair *p;
 
             for (p = g->pairs; p; p = p->pairs_next) {
-                
+
                 if (strcasecmp(p->key, "rlimit-as") == 0) {
                     c->rlimit_as_set = 1;
                     c->rlimit_as = atoi(p->value);
@@ -705,7 +723,7 @@ static int load_config_file(DaemonConfig *c) {
                 }
 
             }
-            
+
         } else {
             avahi_log_error("Invalid configuration file group \"%s\".\n", g->name);
             goto finish;
@@ -718,7 +736,7 @@ finish:
 
     if (f)
         avahi_ini_file_free(f);
-    
+
     return r;
 }
 
@@ -731,7 +749,7 @@ static void log_function(AvahiLogLevel level, const char *txt) {
         LOG_INFO,
         LOG_DEBUG
     };
-    
+
     assert(level < AVAHI_LOG_LEVEL_MAX);
     assert(txt);
 
@@ -758,7 +776,7 @@ static void add_inotify_watches(void) {
 #ifdef ENABLE_CHROOT
     c = config.use_chroot;
 #endif
-    
+
     inotify_add_watch(inotify_fd, c ? "/services" : AVAHI_SERVICE_DIR, IN_CLOSE_WRITE|IN_DELETE|IN_DELETE_SELF|IN_MOVED_FROM|IN_MOVED_TO|IN_MOVE_SELF
 #ifdef IN_ONLYDIR
                       |IN_ONLYDIR
@@ -837,18 +855,18 @@ static void reload_config(void) {
 #else
     static_service_load(0);
     static_hosts_load(0);
-#endif            
+#endif
     static_service_add_to_server();
     static_hosts_add_to_server();
-    
+
     if (resolv_conf_entry_group)
         avahi_s_entry_group_reset(resolv_conf_entry_group);
-    
+
     load_resolv_conf();
-    
+
     update_wide_area_servers();
     update_browse_domains();
-    
+
     if (config.publish_resolv_conf && resolv_conf_name_servers && resolv_conf_name_servers[0])
         resolv_conf_entry_group = add_dns_servers(avahi_server, resolv_conf_entry_group, resolv_conf_name_servers);
 }
@@ -908,7 +926,7 @@ static void kqueue_callback(AvahiWatch *watch, int fd, AVAHI_GCC_UNUSED AvahiWat
 static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GCC_UNUSED AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
     int sig;
     const AvahiPoll *poll_api;
-    
+
     assert(watch);
     assert(simple_poll_api);
 
@@ -1013,17 +1031,17 @@ static int run_server(DaemonConfig *c) {
             avahi_log_error("Failed to chroot(): %s", strerror(errno));
             goto finish;
         }
-        
+
         avahi_log_info("Successfully called chroot().");
         chdir("/");
-        
+
         if (avahi_caps_drop_all() < 0) {
             avahi_log_error("Failed to drop capabilities.");
             goto finish;
         }
         avahi_log_info("Successfully dropped remaining capabilities.");
     }
-    
+
 #endif
 
 #ifdef HAVE_INOTIFY
@@ -1031,7 +1049,7 @@ static int run_server(DaemonConfig *c) {
         avahi_log_warn( "Failed to initialize inotify: %s", strerror(errno));
     else {
         add_inotify_watches();
-        
+
         if (!(inotify_watch = poll_api->watch_new(poll_api, inotify_fd, AVAHI_WATCH_IN, inotify_callback, NULL))) {
             avahi_log_error( "Failed to create inotify watcher");
             goto finish;
@@ -1080,17 +1098,17 @@ static int run_server(DaemonConfig *c) {
             /* We handle signals through an FD, so let's continue */
             if (errno == EINTR)
                 continue;
-            
+
             avahi_log_error("poll(): %s", strerror(errno));
             goto finish;
         } else if (r > 0)
             /* Quit */
             break;
     }
-    
+
 
 finish:
-    
+
     static_service_remove_from_server();
     static_service_free_all();
 
@@ -1098,7 +1116,7 @@ finish:
     static_hosts_free_all();
 
     remove_dns_server_entry_groups();
-    
+
     simple_protocol_shutdown();
 
 #ifdef HAVE_DBUS
@@ -1133,7 +1151,7 @@ finish:
             close(kfds[i]);
     }
 #endif
-    
+
     if (simple_poll_api) {
         avahi_simple_poll_free(simple_poll_api);
         simple_poll_api = NULL;
@@ -1141,7 +1159,7 @@ finish:
 
     if (!retval_is_sent && c->daemonize)
         daemon_retval_send(1);
-    
+
     return r;
 }
 
@@ -1151,7 +1169,7 @@ static int drop_root(void) {
     struct passwd *pw;
     struct group * gr;
     int r;
-    
+
     if (!(pw = getpwnam(AVAHI_USER))) {
         avahi_log_error( "Failed to find user '"AVAHI_USER"'.");
         return -1;
@@ -1234,12 +1252,12 @@ static int make_runtime_dir(void) {
 
     u = umask(0000);
     reset_umask = 1;
-    
+
     if (mkdir(AVAHI_DAEMON_RUNTIME_DIR, 0755) < 0 && errno != EEXIST) {
         avahi_log_error("mkdir(\""AVAHI_DAEMON_RUNTIME_DIR"\"): %s", strerror(errno));
         goto fail;
     }
-    
+
     chown(AVAHI_DAEMON_RUNTIME_DIR, pw->pw_uid, gr->gr_gid);
 
     if (stat(AVAHI_DAEMON_RUNTIME_DIR, &st) < 0) {
@@ -1322,7 +1340,7 @@ int main(int argc, char *argv[]) {
     avahi_set_log_function(log_function);
 
     init_rand_seed();
-    
+
     avahi_server_config_init(&config.server_config);
     config.command = DAEMON_RUN;
     config.daemonize = 0;
@@ -1331,7 +1349,7 @@ int main(int argc, char *argv[]) {
     config.enable_dbus = 1;
     config.fail_on_missing_dbus = 1;
 #endif
-    
+
     config.drop_root = 1;
     config.set_rlimits = 1;
 #ifdef ENABLE_CHROOT
@@ -1353,7 +1371,7 @@ int main(int argc, char *argv[]) {
 #ifdef RLIMIT_NPROC
     config.rlimit_nproc_set = 0;
 #endif
-    
+
     if ((argv0 = strrchr(argv[0], '/')))
         argv0 = avahi_strdup(argv0 + 1);
     else
@@ -1362,7 +1380,7 @@ int main(int argc, char *argv[]) {
     daemon_pid_file_ident = (const char *) argv0;
     daemon_log_ident = (char*) argv0;
     daemon_pid_file_proc = pid_file_proc;
-    
+
     if (parse_command_line(&config, argc, argv) < 0)
         goto finish;
 
@@ -1372,7 +1390,7 @@ int main(int argc, char *argv[]) {
 #ifdef ENABLE_CHROOT
     config.use_chroot = config.use_chroot && config.drop_root;
 #endif
-    
+
     if (config.command == DAEMON_HELP) {
         help(stdout);
         r = 0;
@@ -1394,7 +1412,7 @@ int main(int argc, char *argv[]) {
         }
 
         r = 0;
-        
+
     } else if (config.command == DAEMON_CHECK)
         r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
     else if (config.command == DAEMON_RUN) {
@@ -1404,7 +1422,7 @@ int main(int argc, char *argv[]) {
             avahi_log_error("This program is intended to be run as root.");
             goto finish;
         }
-        
+
         if ((pid = daemon_pid_file_is_running()) >= 0) {
             avahi_log_error("Daemon already running on PID %u", pid);
             goto finish;
@@ -1412,10 +1430,10 @@ int main(int argc, char *argv[]) {
 
         if (load_config_file(&config) < 0)
             goto finish;
-        
+
         if (config.daemonize) {
             daemon_retval_init();
-            
+
             if ((pid = daemon_fork()) < 0)
                 goto finish;
             else if (pid != 0) {
@@ -1441,7 +1459,7 @@ int main(int argc, char *argv[]) {
             avahi_log_error("Failed to close remaining file descriptors: %s", strerror(errno));
             goto finish;
         }
-        
+
         if (make_runtime_dir() < 0)
             goto finish;
 
@@ -1451,7 +1469,7 @@ int main(int argc, char *argv[]) {
                 if (avahi_caps_reduce() < 0)
                     goto finish;
 #endif
-            
+
             if (drop_root() < 0)
                 goto finish;
 
@@ -1486,11 +1504,11 @@ int main(int argc, char *argv[]) {
         avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
 
         avahi_set_proc_title(argv0, "%s: starting up", argv0);
-        
+
         if (run_server(&config) == 0)
             r = 0;
     }
-        
+
 finish:
 
     if (config.daemonize)
@@ -1515,6 +1533,6 @@ finish:
 #endif
 
     avahi_free(argv0);
-    
+
     return r;
 }

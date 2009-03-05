@@ -22,8 +22,7 @@
   USA.
 ***/
 
-#include <gtk/gtkwidget.h>
-#include <gtk/gtkdialog.h>
+#include <gtk/gtk.h>
 
 #include <avahi-client/client.h>
 

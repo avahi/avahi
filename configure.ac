@@ -21,21 +21,21 @@
 # USA.
 
 AC_PREREQ(2.57)
-AC_INIT([avahi],[0.6.23],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.6.24],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
 
 AC_SUBST(PACKAGE_URL, [http://avahi.org/])
 
-AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:0:5])
-AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [5:5:0])
-AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:4:2])
+AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:1:5])
+AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [6:0:0])
+AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:5:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:1:0])
 AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:1:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
-AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:0:1])
+AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:1:1])
 
 # Do not touch these, since they we took this version-info from upstream HOWL/Bonjour
 AC_SUBST(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO, [1:0:0])
@@ -299,7 +299,7 @@ test_gcc_flag() {
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then
 
-    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -fPIC"
+    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline"
 
     if test "x$HAVE_NETLINK" = "xyes" ; then
         # Test whether rtnetlink.h can be included when compiled with -std=c99
@@ -387,7 +387,6 @@ fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
 
 have_inotify=no
-AC_CHECK_HEADERS([linux/inotify.h], [have_inotify=yes])
 AC_CHECK_HEADERS([sys/inotify.h], [have_inotify=yes])
 
 AM_CONDITIONAL(HAVE_INOTIFY, test "x$have_inotify" = "xyes")
@@ -404,8 +403,6 @@ AM_CONDITIONAL(HAVE_KQUEUE, test "x$have_kqueue" = "xyes")
 if test "x$have_kqueue" = "xyes" ; then
     AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
 fi
-
-AM_GNU_GETTEXT([external])
 
 IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=avahi

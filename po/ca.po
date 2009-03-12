@@ -20,9 +20,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-12 12:20+0000\n"
-"PO-Revision-Date: 2008-06-14 12:28+0100\n"
-"Last-Translator: Oriol Miro <oriolmiro@gmail.com>\n"
+"POT-Creation-Date: 2009-03-03 01:58+0000\n"
+"PO-Revision-Date: 2009-03-12 12:28+0100\n"
+"Last-Translator: Josep Torne <josep.torne@gmail.com>\n"
 "Language-Team: Catalan <fedora@softcatala.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -248,87 +248,197 @@ msgstr "L'operació sol·licitada no és vàlida per redundant"
 msgid "Invalid Error Code"
 msgstr "Codi d'error no vàlid"
 
-#: ../avahi-ui/avahi-ui.c:326
+#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+msgid "<i>No service currently selected.</i>"
+msgstr "<i>No hi ha cap servei seleccionat.</i>"
+
+#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+msgid "Avahi Discovery"
+msgstr "Descobridor Avahi"
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
+msgid "Avahi Zeroconf Browser"
+msgstr "Navegador zeroconf Avahi"
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
+msgid "Browse for Zeroconf services available on your network"
+msgstr "Navegueu pels serveis Zeroconf disponibles a la vostra xarxa"
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "Browse Service Types"
+msgstr "Explora els tipus de servei"
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "A NULL terminated list of service types to browse for"
+msgstr "Una llista dels tipus de servei acabada en NULL per a explorar"
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "Domain"
+msgstr "Domini"
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "The domain to browse in, or NULL for the default domain"
+msgstr "El domini a explorar, o NULL pel domini predeterminat"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "Service Type"
+msgstr "Tipus de servei"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "The service type of the selected service"
+msgstr "El tipus de servei del servei seleccionat"
+
+#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
+msgid "Service Name"
+msgstr "Nom del servei"
+
+#: ../avahi-ui/avahi-ui.c:205
+msgid "The service name of the selected service"
+msgstr "El nom del servei del servei seleccionat"
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "Address"
+msgstr "Adreça"
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "The address of the resolved service"
+msgstr "L'adreça del servei resolt"
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "Port"
+msgstr "Port"
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "The IP port number of the resolved service"
+msgstr "El número de port IP del servei resolt"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "Host Name"
+msgstr "Ordinador"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "The host name of the resolved service"
+msgstr "El nom de l'ordinador del servei resolt"
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "TXT Data"
+msgstr "Dades TXT"
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "The TXT data of the resolved service"
+msgstr "Dades TXT del servei resolt"
+
+#: ../avahi-ui/avahi-ui.c:233
+msgid "Resolve service"
+msgstr "Resoldre servei"
+
+#: ../avahi-ui/avahi-ui.c:239
+msgid "Resolve service host name"
+msgstr "Resol el nom de servidor del servei"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "Address family"
+msgstr "Família de l'adreça"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "The address family for host name resolution"
+msgstr "La família de l'adreça per la resolució del nom"
+
+#: ../avahi-ui/avahi-ui.c:327
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Error en el client Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:388
+#: ../avahi-ui/avahi-ui.c:389
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Fallada del resoletor de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:518
+#: ../avahi-ui/avahi-ui.c:519
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Error en la cerca de tipus de serveis %s en el domini %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
 #: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
 #: ../avahi-utils/avahi-browse.c:165
 msgid "n/a"
 msgstr "No disponible"
 
-#: ../avahi-ui/avahi-ui.c:649
+#: ../avahi-ui/avahi-ui.c:650
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Error en la navegació del domini Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:684
+#: ../avahi-ui/avahi-ui.c:685
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Error en la lectura del domini Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:717
+#: ../avahi-ui/avahi-ui.c:707
+msgid "Browse service type list is empty!"
+msgstr "La llista d'exploració de tipus de serveis és buida!"
+
+#: ../avahi-ui/avahi-ui.c:718
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Error al connectar al servidor Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:736
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Cercant serveis en <b>xarxa local</b>:"
 
-#: ../avahi-ui/avahi-ui.c:737
+#: ../avahi-ui/avahi-ui.c:738
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Cercant serveis en el domini <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:773
+#: ../avahi-ui/avahi-ui.c:774
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Error en crear un navegador per a %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:904
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Error en crear el sistema de resolució per a %s del tipus %s en el domini %s: %s"
+msgstr ""
+"Error en crear el sistema de resolució per a %s del tipus %s en el domini %"
+"s: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:979
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Error en crear navegador de domini: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:990
 msgid "Change domain"
 msgstr "Canvia el domini"
 
-#: ../avahi-ui/avahi-ui.c:1021
-msgid "Service Name"
-msgstr "Nom del servei"
+#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+msgid "Browsing..."
+msgstr "Explorant..."
 
-#: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
-msgid "Browsing ..."
-msgstr "Explorant ..."
-
-#: ../avahi-ui/avahi-ui.c:1118
+#: ../avahi-ui/avahi-ui.c:1119
 msgid "Initializing..."
 msgstr "Inicialitzant..."
 
-#: ../avahi-ui/avahi-ui.c:1164
+#: ../avahi-ui/avahi-ui.c:1143
+msgid "Location"
+msgstr "Ubicació"
+
+#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Nom"
+
+#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Tipus"
+
+#: ../avahi-ui/avahi-ui.c:1165
 msgid "_Domain..."
 msgstr "_Domini..."
 
-#: ../avahi-ui/bssh.c:57
+#: ../avahi-ui/bssh.c:58
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -347,58 +457,58 @@ msgstr ""
 "    -S --shell           Explora SSH i VNC\n"
 "    -d --domain=DOMAIN   El domini on cercar\n"
 
-#: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, c-format
 msgid "Too many arguments\n"
 msgstr "Massa arguments\n"
 
-#: ../avahi-ui/bssh.c:147
+#: ../avahi-ui/bssh.c:152
 msgid "Choose Shell Server"
 msgstr "Escull servidor d'intèrpret d'ordres"
 
-#: ../avahi-ui/bssh.c:149
+#: ../avahi-ui/bssh.c:154
 msgid "Desktop"
 msgstr "Escriptori"
 
-#: ../avahi-ui/bssh.c:150
+#: ../avahi-ui/bssh.c:155
 msgid "Terminal"
 msgstr "Terminal"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:159
 msgid "Choose VNC server"
 msgstr "Escull servidor VNC"
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:164
 msgid "Choose SSH server"
 msgstr "Escull servidor SSH"
 
-#: ../avahi-ui/bssh.c:183
+#: ../avahi-ui/bssh.c:188
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Connectant a '%s' ...\n"
 
-#: ../avahi-ui/bssh.c:238
+#: ../avahi-ui/bssh.c:243
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "Error en execlp(): %s\n"
 
-#: ../avahi-ui/bssh.c:248
+#: ../avahi-ui/bssh.c:253
 msgid "Canceled.\n"
 msgstr "Cancel·lat.\n"
 
-#: ../avahi-ui/bssh.desktop.in.h:1
+#: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
 msgstr "Navegador de servidors SSH Avahi"
 
-#: ../avahi-ui/bssh.desktop.in.h:2
+#: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
 msgstr "Explora els servidors SSH configurats amb Zeroconf"
 
-#: ../avahi-ui/bvnc.desktop.in.h:1
+#: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
 msgstr "Navegador de servidors VNC Avahi"
 
-#: ../avahi-ui/bvnc.desktop.in.h:2
+#: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr "Explora els servidors de VNC configurats amb Zeroconf"
 
@@ -415,7 +525,8 @@ msgstr ": Memòria cau exhaurida\n"
 #: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "Error en resoldre el servei  '%s' del tipus '%s' en el domini '%s': %s\n"
+msgstr ""
+"Error en resoldre el servei  '%s' del tipus '%s' en el domini '%s': %s\n"
 
 #: ../avahi-utils/avahi-browse.c:324
 #, c-format
@@ -475,14 +586,6 @@ msgstr "E Inter Prot Domini\n"
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "E Inter Prot %-*s %-20s Domini\n"
 
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Name"
-msgstr "Nom"
-
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Type"
-msgstr "Tipus"
-
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
 #, c-format
@@ -529,9 +632,10 @@ msgstr ""
 "    -a --all             Mostra tots els serveis, a pesar del tipus\n"
 "    -d --domain=DOMINI   El domini a cercar\n"
 "    -v --verbose         Activa el mode amb detalls\n"
-"    -t --terminate       Finalitza després d'enmagatzemar una llista més o menys "
-"completa\n"
-"    -c --cache           Acabar després de volcar totes les entrades de la memòria cau\n"
+"    -t --terminate       Finalitza després d'enmagatzemar una llista més o "
+"menys completa\n"
+"    -c --cache           Acabar després de volcar totes les entrades de la "
+"memòria cau\n"
 "    -l --ignore-local    Ignora els serveis locals\n"
 "    -r --resolve         Resol els serveis trobats\n"
 "    -f --no-fail         No fallis si el dimoni no és disponible\n"
@@ -623,8 +727,8 @@ msgstr ""
 "    -v --verbose         Activa el mode amb detalls\n"
 "    -d --domain=DOMINI   Domini dins el que publicar el servei\n"
 "    -H --host=DOMINI     L'ordinador on està el servei\n"
-"       --subtype=SUBTIPUS Un subtipus adicional amb el que registrar el "
-" servei\n"
+"       --subtype=SUBTIPUS Un subtipus adicional amb el que registrar el  "
+"servei\n"
 "    -f --no-fail         No fallar si el dimoni no està disponible\n"
 
 #: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315

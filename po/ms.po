@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-16 13:27+0000\n"
+"POT-Creation-Date: 2009-04-01 01:44+0200\n"
 "PO-Revision-Date: 2008-12-21 20:37+0800\n"
 "Last-Translator: Sharuzzaman Ahmat Raslan <sharuzzaman@myrealbox.com>\n"
 "Language-Team: Malay <translation-team-ms@lists.sourceforge.net>\n"
@@ -284,95 +284,205 @@ msgstr ""
 msgid "Invalid Error Code"
 msgstr "(kod ralat tidak diketahui)"
 
-#: ../avahi-ui/avahi-ui.c:326
-#, fuzzy, c-format
-msgid "Avahi client failure: %s"
-msgstr "Klien Pelayan Terminal"
-
-#: ../avahi-ui/avahi-ui.c:388
-#, fuzzy, c-format
-msgid "Avahi resolver failure: %s"
-msgstr "Memulakan daemon Avahi:"
-
-#: ../avahi-ui/avahi-ui.c:518
-#, c-format
-msgid "Browsing for service type %s in domain %s failed: %s"
+#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+msgid "<i>No service currently selected.</i>"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:519
-#: ../avahi-utils/avahi-browse.c:157
-#: ../avahi-utils/avahi-browse.c:158
-#: ../avahi-utils/avahi-browse.c:164
-#: ../avahi-utils/avahi-browse.c:165
-msgid "n/a"
+#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+msgid "Avahi Discovery"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:649
-#, c-format
-msgid "Avahi domain browser failure: %s"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:684
-#, c-format
-msgid "Failed to read Avahi domain: %s"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:717
-#, fuzzy, c-format
-msgid "Failed to connect to Avahi server: %s"
-msgstr "Penambahan %s ke Pelayan Terminal gagal!\n"
-
-#: ../avahi-ui/avahi-ui.c:735
-msgid "Browsing for services on <b>local network</b>:"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:737
-#, c-format
-msgid "Browsing for services in domain <b>%s</b>:"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:773
-#, c-format
-msgid "Failed to create browser for %s: %s"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:903
-#, c-format
-msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:978
-#, c-format
-msgid "Failed to create domain browser: %s"
-msgstr ""
-
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 #, fuzzy
-msgid "Change domain"
-msgstr "Pentadbir Domain:"
+msgid "Avahi Zeroconf Browser"
+msgstr "Pelayan VNC kini terlaksana."
 
-#: ../avahi-ui/avahi-ui.c:1021
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
+msgid "Browse for Zeroconf services available on your network"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "Browse Service Types"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "A NULL terminated list of service types to browse for"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:193
+#, fuzzy
+msgid "Domain"
+msgstr "<domain>"
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "The domain to browse in, or NULL for the default domain"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:199
+#, fuzzy
+msgid "Service Type"
+msgstr "Nama Medan"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "The service type of the selected service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
 #, fuzzy
 msgid "Service Name"
 msgstr "Nama Medan"
 
-#: ../avahi-ui/avahi-ui.c:1029
-#: ../avahi-ui/avahi-ui.c:1160
+#: ../avahi-ui/avahi-ui.c:205
+msgid "The service name of the selected service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "Address"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "The address of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "Port"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "The IP port number of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:222
 #, fuzzy
-msgid "Browsing ..."
+msgid "Host Name"
+msgstr "Nama"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "The host name of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "TXT Data"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "The TXT data of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:233
+msgid "Resolve service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:239
+#, fuzzy
+msgid "Resolve service host name"
+msgstr "Nama Kumpulan Volum Tidak Sah"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "Address family"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "The address family for host name resolution"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:327
+#, fuzzy, c-format
+msgid "Avahi client failure: %s"
+msgstr "Klien Pelayan Terminal"
+
+#: ../avahi-ui/avahi-ui.c:389
+#, fuzzy, c-format
+msgid "Avahi resolver failure: %s"
+msgstr "Memulakan daemon Avahi:"
+
+#: ../avahi-ui/avahi-ui.c:519
+#, c-format
+msgid "Browsing for service type %s in domain %s failed: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
+#: ../avahi-utils/avahi-browse.c:165
+msgid "n/a"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:650
+#, c-format
+msgid "Avahi domain browser failure: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:685
+#, c-format
+msgid "Failed to read Avahi domain: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:707
+msgid "Browse service type list is empty!"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:718
+#, fuzzy, c-format
+msgid "Failed to connect to Avahi server: %s"
+msgstr "Penambahan %s ke Pelayan Terminal gagal!\n"
+
+#: ../avahi-ui/avahi-ui.c:736
+msgid "Browsing for services on <b>local network</b>:"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:738
+#, c-format
+msgid "Browsing for services in domain <b>%s</b>:"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:774
+#, c-format
+msgid "Failed to create browser for %s: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:904
+#, c-format
+msgid "Failed to create resolver for %s of type %s in domain %s: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:979
+#, c-format
+msgid "Failed to create domain browser: %s"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:990
+#, fuzzy
+msgid "Change domain"
+msgstr "Pentadbir Domain:"
+
+#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+#, fuzzy
+msgid "Browsing..."
 msgstr "Konfigur pelayaran lanjutan"
 
-#: ../avahi-ui/avahi-ui.c:1118
+#: ../avahi-ui/avahi-ui.c:1119
 #, fuzzy
 msgid "Initializing..."
 msgstr "Persediaan..."
 
-#: ../avahi-ui/avahi-ui.c:1164
+#: ../avahi-ui/avahi-ui.c:1143
+msgid "Location"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Nama"
+
+#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Jenis"
+
+#: ../avahi-ui/avahi-ui.c:1165
 #, fuzzy
 msgid "_Domain..."
 msgstr "<domain>"
 
-#: ../avahi-ui/bssh.c:57
+#: ../avahi-ui/bssh.c:58
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -384,64 +494,63 @@ msgid ""
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
 
-#: ../avahi-ui/bssh.c:103
-#: ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, fuzzy, c-format
 msgid "Too many arguments\n"
 msgstr "%s: terlalu banyak hujah\n"
 
-#: ../avahi-ui/bssh.c:147
+#: ../avahi-ui/bssh.c:152
 #, fuzzy
 msgid "Choose Shell Server"
 msgstr "Pelayan Nama DNS"
 
-#: ../avahi-ui/bssh.c:149
+#: ../avahi-ui/bssh.c:154
 msgid "Desktop"
 msgstr "Desktop"
 
-#: ../avahi-ui/bssh.c:150
+#: ../avahi-ui/bssh.c:155
 msgid "Terminal"
 msgstr "Terminal"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:159
 #, fuzzy
 msgid "Choose VNC server"
 msgstr "Pelayan VNC kini terlaksana."
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:164
 #, fuzzy
 msgid "Choose SSH server"
 msgstr "Pelayan Nama DNS"
 
-#: ../avahi-ui/bssh.c:183
+#: ../avahi-ui/bssh.c:188
 #, fuzzy, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Menyambung ke Internet"
 
-#: ../avahi-ui/bssh.c:238
+#: ../avahi-ui/bssh.c:243
 #, fuzzy, c-format
 msgid "execlp() failed: %s\n"
 msgstr "Sambungan Gagal"
 
-#: ../avahi-ui/bssh.c:248
-#, fuzzy
+#: ../avahi-ui/bssh.c:253
+#, fuzzy, c-format
 msgid "Canceled.\n"
 msgstr "Pengguna membatalkan"
 
-#: ../avahi-ui/bssh.desktop.in.h:1
+#: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
 msgstr ""
 
-#: ../avahi-ui/bssh.desktop.in.h:2
+#: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
 msgstr ""
 
-#: ../avahi-ui/bvnc.desktop.in.h:1
+#: ../avahi-ui/bvnc.desktop.in.in.h:1
 #, fuzzy
 msgid "Avahi VNC Server Browser"
 msgstr "Pelayan VNC kini terlaksana."
 
-#: ../avahi-ui/bvnc.desktop.in.h:2
+#: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr ""
 
@@ -455,8 +564,7 @@ msgstr "Pemasang akan keluar sekarang..."
 msgid ": Cache exhausted\n"
 msgstr "kehabisan memori"
 
-#: ../avahi-utils/avahi-browse.c:223
-#: ../avahi-utils/avahi-browse.c:245
+#: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
@@ -486,27 +594,21 @@ msgstr ""
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:519
-#: ../avahi-utils/avahi-publish.c:391
-#: ../avahi-utils/avahi-resolve.c:282
-#: ../avahi-utils/avahi-set-host-name.c:170
+#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:391
+#: ../avahi-utils/avahi-resolve.c:282 ../avahi-utils/avahi-set-host-name.c:170
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:524
-#: ../avahi-utils/avahi-publish.c:396
-#: ../avahi-utils/avahi-resolve.c:287
-#: ../avahi-utils/avahi-set-host-name.c:175
+#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:396
+#: ../avahi-utils/avahi-resolve.c:287 ../avahi-utils/avahi-set-host-name.c:175
 #: ../avahi-utils/avahi-set-host-name.c:191
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:528
-#: ../avahi-utils/avahi-publish.c:400
-#: ../avahi-utils/avahi-resolve.c:291
-#: ../avahi-utils/avahi-set-host-name.c:179
+#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:400
+#: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
 #, fuzzy, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Name=Pelayan Fail Awam"
@@ -525,41 +627,26 @@ msgstr "domain NIS default"
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Name"
-msgstr "Nama"
-
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Type"
-msgstr "Jenis"
-
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:569
-#: ../avahi-utils/avahi-publish.c:165
+#: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
 #, fuzzy, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Mandriva - Kali Pertama - Tidak bersambung"
 
-#: ../avahi-utils/avahi-browse.c:583
-#: ../avahi-utils/avahi-browse.c:813
-#: ../avahi-utils/avahi-publish.c:172
-#: ../avahi-utils/avahi-publish.c:383
-#: ../avahi-utils/avahi-resolve.c:274
-#: ../avahi-utils/avahi-set-host-name.c:162
+#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
+#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
+#: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:588
-#: ../avahi-utils/avahi-publish.c:177
-#: ../avahi-utils/avahi-resolve.c:145
-#: ../avahi-utils/avahi-set-host-name.c:61
+#: ../avahi-utils/avahi-browse.c:588 ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
 #, fuzzy, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Klien Pelayan Terminal"
 
-#: ../avahi-utils/avahi-browse.c:607
-#: ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
 #, fuzzy, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Menunggu sambungan telnet..."
@@ -572,7 +659,8 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -586,16 +674,13 @@ msgid ""
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:750
-#: ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
 #, fuzzy, c-format
 msgid "Too few arguments\n"
 msgstr "%s: terlalu banyak hujah\n"
 
-#: ../avahi-utils/avahi-browse.c:805
-#: ../avahi-utils/avahi-publish.c:375
-#: ../avahi-utils/avahi-resolve.c:266
-#: ../avahi-utils/avahi-set-host-name.c:154
+#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr ""
@@ -653,12 +738,12 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:300
-#: ../avahi-utils/avahi-publish.c:315
+#: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr "Jumlah hujah tidak tepat\n"
@@ -668,8 +753,7 @@ msgstr "Jumlah hujah tidak tepat\n"
 msgid "Failed to parse port number: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:358
-#: ../avahi-utils/avahi-resolve.c:248
+#: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
 #, c-format
 msgid "No command specified.\n"
 msgstr "Tiada arahan dinyatakan.\n"
@@ -699,8 +783,7 @@ msgid ""
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-resolve.c:301
-#: ../avahi-utils/avahi-set-host-name.c:183
+#: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr ""
@@ -734,4 +817,3 @@ msgstr ""
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr ""
-

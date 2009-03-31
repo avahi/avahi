@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2008-03-21 11:17+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-04-01 01:44+0200\n"
 "PO-Revision-Date: 2008-03-26 03:20+0000\n"
 "Last-Translator: Артём Попов <artfwo@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -237,121 +237,267 @@ msgstr "Запрошенная операция неверна, поскольк
 msgid "Invalid Error Code"
 msgstr "Неверный код ошибки"
 
-#: ../avahi-ui/avahi-ui.c:326
+#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+msgid "<i>No service currently selected.</i>"
+msgstr ""
+
+#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+msgid "Avahi Discovery"
+msgstr ""
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
+msgid "Avahi Zeroconf Browser"
+msgstr ""
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
+#, fuzzy
+msgid "Browse for Zeroconf services available on your network"
+msgstr "Поиск служб в <b>локальной сети</b>:"
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "Browse Service Types"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "A NULL terminated list of service types to browse for"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:193
+#, fuzzy
+msgid "Domain"
+msgstr "_Домен..."
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "The domain to browse in, or NULL for the default domain"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:199
+#, fuzzy
+msgid "Service Type"
+msgstr "Имя службы"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "The service type of the selected service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
+msgid "Service Name"
+msgstr "Имя службы"
+
+#: ../avahi-ui/avahi-ui.c:205
+msgid "The service name of the selected service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "Address"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "The address of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "Port"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "The IP port number of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:222
+#, fuzzy
+msgid "Host Name"
+msgstr "Имя"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "The host name of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "TXT Data"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "The TXT data of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:233
+msgid "Resolve service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:239
+#, fuzzy
+msgid "Resolve service host name"
+msgstr "Неверное имя службы"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "Address family"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "The address family for host name resolution"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:327
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Ошибка клиента Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:388
+#: ../avahi-ui/avahi-ui.c:389
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Ошибка преобразователя имён Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:518
+#: ../avahi-ui/avahi-ui.c:519
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Не удалось выполнить поиск службы %s в домене %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
 #: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
 #: ../avahi-utils/avahi-browse.c:165
 msgid "n/a"
 msgstr "н/д"
 
-#: ../avahi-ui/avahi-ui.c:649
+#: ../avahi-ui/avahi-ui.c:650
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Ошибка обозревателя доменов Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:684
+#: ../avahi-ui/avahi-ui.c:685
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Не удалось открыть домен Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:717
+#: ../avahi-ui/avahi-ui.c:707
+msgid "Browse service type list is empty!"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:718
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Не удалось подключиться к серверу Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:736
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Поиск служб в <b>локальной сети</b>:"
 
-#: ../avahi-ui/avahi-ui.c:737
+#: ../avahi-ui/avahi-ui.c:738
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Поиск служб в домене <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:773
+#: ../avahi-ui/avahi-ui.c:774
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Не удалось создать обозреватель для %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:904
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-"Не удалось создать преобразователь имён для %s типа %s в домене %s: %s"
+msgstr "Не удалось создать преобразователь имён для %s типа %s в домене %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:979
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Не удалось создать обозреватель доменов: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:990
 msgid "Change domain"
 msgstr "Изменить домен"
 
-#: ../avahi-ui/avahi-ui.c:1021
-msgid "Service Name"
-msgstr "Имя службы"
-
-#: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
-msgid "Browsing ..."
+#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+#, fuzzy
+msgid "Browsing..."
 msgstr "Поиск..."
 
-#: ../avahi-ui/avahi-ui.c:1118
+#: ../avahi-ui/avahi-ui.c:1119
 msgid "Initializing..."
 msgstr "Инициализация..."
 
-#: ../avahi-ui/avahi-ui.c:1164
+#: ../avahi-ui/avahi-ui.c:1143
+msgid "Location"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Имя"
+
+#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Тип"
+
+#: ../avahi-ui/avahi-ui.c:1165
 msgid "_Domain..."
 msgstr "_Домен..."
 
-#: ../avahi-ui/bssh.c:51
+#: ../avahi-ui/bssh.c:58
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+
+#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
+#, c-format
+msgid "Too many arguments\n"
+msgstr "Слишком много аргументов\n"
+
+#: ../avahi-ui/bssh.c:152
 msgid "Choose Shell Server"
 msgstr "Выберите сервер оболочки"
 
-#: ../avahi-ui/bssh.c:53
+#: ../avahi-ui/bssh.c:154
 msgid "Desktop"
 msgstr "Рабочий стол"
 
-#: ../avahi-ui/bssh.c:54
+#: ../avahi-ui/bssh.c:155
 msgid "Terminal"
 msgstr "Терминал"
 
-#: ../avahi-ui/bssh.c:56
+#: ../avahi-ui/bssh.c:159
 msgid "Choose VNC server"
 msgstr "Выберите VNC-сервер"
 
-#: ../avahi-ui/bssh.c:59
+#: ../avahi-ui/bssh.c:164
 msgid "Choose SSH server"
 msgstr "Выберите SSH-сервер"
 
-#: ../avahi-ui/bssh.c:81
+#: ../avahi-ui/bssh.c:188
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Соединение с «%s»...\n"
 
-#: ../avahi-ui/bssh.c:135
+#: ../avahi-ui/bssh.c:243
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "Сбой выполнения execlp(): %s\n"
 
-#: ../avahi-ui/bssh.c:145
+#: ../avahi-ui/bssh.c:253
 #, c-format
 msgid "Canceled.\n"
 msgstr "Отменено.\n"
+
+#: ../avahi-ui/bssh.desktop.in.in.h:1
+msgid "Avahi SSH Server Browser"
+msgstr ""
+
+#: ../avahi-ui/bssh.desktop.in.in.h:2
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr ""
+
+#: ../avahi-ui/bvnc.desktop.in.in.h:1
+msgid "Avahi VNC Server Browser"
+msgstr ""
+
+#: ../avahi-ui/bvnc.desktop.in.in.h:2
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:108
 #, c-format
@@ -412,49 +558,45 @@ msgstr "Не удалось запросить имя узла: %s\n"
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Версия сервера: %s; Имя узла: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:531
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:533
 #, c-format
 msgid "E Ifce Prot Domain\n"
 msgstr "А Интр Прот Домен\n"
 
-#: ../avahi-utils/avahi-browse.c:533
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: ../avahi-utils/avahi-browse.c:537
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "А Интр Прот %-*s %-20s Домен\n"
 
-#: ../avahi-utils/avahi-browse.c:533
-msgid "Name"
-msgstr "Имя"
-
-#: ../avahi-utils/avahi-browse.c:533
-msgid "Type"
-msgstr "Тип"
-
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:564 ../avahi-utils/avahi-publish.c:165
+#: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Соединение разорвано, повторное подключение...\n"
 
-#: ../avahi-utils/avahi-browse.c:578 ../avahi-utils/avahi-browse.c:808
+#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
 #: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
 #: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "Не удалось создать объект клиента: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-publish.c:177
+#: ../avahi-utils/avahi-browse.c:588 ../avahi-utils/avahi-publish.c:177
 #: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
 #, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Ошибка клиента, завершение работы: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:602 ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Ожидание демона...\n"
 
-#: ../avahi-utils/avahi-browse.c:626
+#: ../avahi-utils/avahi-browse.c:631
 msgid ""
 "    -h --help            Show this help\n"
 "    -V --version         Show version\n"
@@ -483,7 +625,7 @@ msgstr ""
 "    -f --no-fail         Не завершать работу, если демон недоступен\n"
 "    -p --parsable        Выводить в машинном формате\n"
 
-#: ../avahi-utils/avahi-browse.c:639
+#: ../avahi-utils/avahi-browse.c:644
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
@@ -491,17 +633,12 @@ msgstr ""
 "    -k --no-db-lookup    Не искать типы служб\n"
 "    -b --dump-db         Вывести базу типов служб\n"
 
-#: ../avahi-utils/avahi-browse.c:745 ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
 #, c-format
 msgid "Too few arguments\n"
 msgstr "Слишком мало аргументов\n"
 
-#: ../avahi-utils/avahi-browse.c:754
-#, c-format
-msgid "Too many arguments\n"
-msgstr "Слишком много аргументов\n"
-
-#: ../avahi-utils/avahi-browse.c:800 ../avahi-utils/avahi-publish.c:375
+#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
 #: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
 #, c-format
 msgid "Failed to create simple poll object.\n"

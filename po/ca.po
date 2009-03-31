@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-03 01:58+0000\n"
+"POT-Creation-Date: 2009-04-01 01:44+0200\n"
 "PO-Revision-Date: 2009-03-12 12:28+0100\n"
 "Last-Translator: Josep Torne <josep.torne@gmail.com>\n"
 "Language-Team: Catalan <fedora@softcatala.net>\n"
@@ -493,6 +493,7 @@ msgid "execlp() failed: %s\n"
 msgstr "Error en execlp(): %s\n"
 
 #: ../avahi-ui/bssh.c:253
+#, c-format
 msgid "Canceled.\n"
 msgstr "Cancel·lat.\n"
 

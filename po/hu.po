@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-22 02:23+0000\n"
+"POT-Creation-Date: 2009-04-01 01:44+0200\n"
 "PO-Revision-Date: 2009-03-22 12:57+0100\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <gnome@fsf.hu>\n"
@@ -813,4 +813,3 @@ msgstr "Érvénytelen számú argumentum, pontosan egy szükséges.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "A gépnév sikeresen módosítva a következőre: %s\n"
-

@@ -3,20 +3,20 @@
 # Matthieu Rondeau <milanito1985@yahoo.fr>, 2008
 # Pablo Martin-Gomez <pablo.martin-gomez@laposte.net>, 2008
 # Martin-Gomez Pablo <pablo.martin-gomez@laposte.net>, 2008.
-# 
-# 
+#
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi 2008\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-25 19:03+0200\n"
+"POT-Creation-Date: 2009-04-01 01:44+0200\n"
 "PO-Revision-Date: 2008-07-20 15:58+0200\n"
 "Last-Translator: Pablo Martin-Gomez  <pablo.martin-gomez@laposte.net>\n"
 "Language-Team: French <fedora-trans-fr@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../avahi-common/error.c:32
 msgid "OK"
@@ -238,88 +238,203 @@ msgstr "L'opération demandée est invalide car redondante"
 msgid "Invalid Error Code"
 msgstr "Invalide, erreur de code"
 
-#: ../avahi-ui/avahi-ui.c:326
+#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+msgid "<i>No service currently selected.</i>"
+msgstr ""
+
+#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+msgid "Avahi Discovery"
+msgstr ""
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
+#, fuzzy
+msgid "Avahi Zeroconf Browser"
+msgstr "Navigateur de serveur SSH Avahi"
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
+#, fuzzy
+msgid "Browse for Zeroconf services available on your network"
+msgstr "Affiche les serveurs SSH avec Zeroconf activé"
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "Browse Service Types"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "A NULL terminated list of service types to browse for"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:193
+#, fuzzy
+msgid "Domain"
+msgstr "_Domaine ..."
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "The domain to browse in, or NULL for the default domain"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:199
+#, fuzzy
+msgid "Service Type"
+msgstr "Nom de service"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "The service type of the selected service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
+msgid "Service Name"
+msgstr "Nom de service"
+
+#: ../avahi-ui/avahi-ui.c:205
+msgid "The service name of the selected service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "Address"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "The address of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "Port"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "The IP port number of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:222
+#, fuzzy
+msgid "Host Name"
+msgstr "Nom"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "The host name of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "TXT Data"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "The TXT data of the resolved service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:233
+msgid "Resolve service"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:239
+#, fuzzy
+msgid "Resolve service host name"
+msgstr "Nom de service invalide"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "Address family"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "The address family for host name resolution"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:327
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Échec du client Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:388
+#: ../avahi-ui/avahi-ui.c:389
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Échec du résolveur Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:518
+#: ../avahi-ui/avahi-ui.c:519
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Échec de l'affichage du type de service %s dans le domaine %s  : %s"
 
-#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
 #: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
 #: ../avahi-utils/avahi-browse.c:165
 msgid "n/a"
 msgstr "n/a"
 
-#: ../avahi-ui/avahi-ui.c:649
+#: ../avahi-ui/avahi-ui.c:650
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Échec du navigateur de domaine Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:684
+#: ../avahi-ui/avahi-ui.c:685
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Échec de la lecture du domaine Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:717
+#: ../avahi-ui/avahi-ui.c:707
+msgid "Browse service type list is empty!"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:718
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Échec de la connexion au serveur Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:736
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Affichage des services dans <b>le réseau local</b> :"
 
-#: ../avahi-ui/avahi-ui.c:737
+#: ../avahi-ui/avahi-ui.c:738
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Affichage des services dans le domaine <b>%s</b> :"
 
-#: ../avahi-ui/avahi-ui.c:773
+#: ../avahi-ui/avahi-ui.c:774
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Échec de création du navigateur pour %s  : %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:904
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Échec de création du résolveur pour %s du type %s dans le domaine %s  : %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:979
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Échec de création du navigateur de domaine  : %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:990
 msgid "Change domain"
 msgstr "Changement de domaine"
 
-#: ../avahi-ui/avahi-ui.c:1021
-msgid "Service Name"
-msgstr "Nom de service"
-
-#: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
-msgid "Browsing ..."
+#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+#, fuzzy
+msgid "Browsing..."
 msgstr "Navigation ..."
 
-#: ../avahi-ui/avahi-ui.c:1118
+#: ../avahi-ui/avahi-ui.c:1119
 msgid "Initializing..."
 msgstr "Initialisation ..."
 
-#: ../avahi-ui/avahi-ui.c:1164
+#: ../avahi-ui/avahi-ui.c:1143
+msgid "Location"
+msgstr ""
+
+#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Nom"
+
+#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Type"
+
+#: ../avahi-ui/avahi-ui.c:1165
 msgid "_Domain..."
 msgstr "_Domaine ..."
 
-#: ../avahi-ui/bssh.c:57
+#: ../avahi-ui/bssh.c:58
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -338,59 +453,59 @@ msgstr ""
 "    -S --shell           Affiche SSH et VNC\n"
 "    -d --domain=DOMAIN   Le domaine dans lequel naviguer\n"
 
-#: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, c-format
 msgid "Too many arguments\n"
 msgstr "Trop d'arguments\n"
 
-#: ../avahi-ui/bssh.c:147
+#: ../avahi-ui/bssh.c:152
 msgid "Choose Shell Server"
 msgstr "Choisissez un serveur Shell"
 
-#: ../avahi-ui/bssh.c:149
+#: ../avahi-ui/bssh.c:154
 msgid "Desktop"
 msgstr "Bureau"
 
-#: ../avahi-ui/bssh.c:150
+#: ../avahi-ui/bssh.c:155
 msgid "Terminal"
 msgstr "Terminal"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:159
 msgid "Choose VNC server"
 msgstr "Choisissez un serveur VNC"
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:164
 msgid "Choose SSH server"
 msgstr "Choisissez un serveur SSH"
 
-#: ../avahi-ui/bssh.c:183
+#: ../avahi-ui/bssh.c:188
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Connexion à « %s » ...\n"
 
-#: ../avahi-ui/bssh.c:238
+#: ../avahi-ui/bssh.c:243
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "Échec de execlp()  : %s\n"
 
-#: ../avahi-ui/bssh.c:248
+#: ../avahi-ui/bssh.c:253
 #, c-format
 msgid "Canceled.\n"
 msgstr "Annulé.\n"
 
-#: ../avahi-ui/bssh.desktop.in.h:1
+#: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
 msgstr "Navigateur de serveur SSH Avahi"
 
-#: ../avahi-ui/bssh.desktop.in.h:2
+#: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
 msgstr "Affiche les serveurs SSH avec Zeroconf activé"
 
-#: ../avahi-ui/bvnc.desktop.in.h:1
+#: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
 msgstr "Navigateur de serveurs VNC Avahi "
 
-#: ../avahi-ui/bvnc.desktop.in.h:2
+#: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr "Affiche les serveurs VNC avec Zeroconf activé"
 
@@ -408,8 +523,8 @@ msgstr ": Mémoire cache pleine\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Échec de résolution du service « %s » de type « %s » dans le domaine « %s » "
-" : %s\n"
+"Échec de résolution du service « %s » de type « %s » dans le domaine « %s »  : %"
+"s\n"
 
 #: ../avahi-utils/avahi-browse.c:324
 #, c-format
@@ -468,14 +583,6 @@ msgstr "Domaine E Ifce Prot\n"
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "Domaine E Ifce Prot %-*s %-20s\n"
-
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Name"
-msgstr "Nom"
-
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Type"
-msgstr "Type"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
@@ -711,4 +818,3 @@ msgstr "Nombre d'arguments invalide, il en faut exactement un.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Nom d'hôte changé avec succès pour %s\n"
-

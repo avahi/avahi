@@ -1,14 +1,14 @@
 # Avahi Finnish translation.
-# Copyright (C) 2008 Timo Jyrinki
+# Copyright (C) 2008-2009 Timo Jyrinki
 # This file is distributed under the same license as the avahi package.
-# Timo Jyrinki <timo.jyrinki@iki.fi>, 2008.
+# Timo Jyrinki <timo.jyrinki@iki.fi>, 2008-2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-02 04:10+0000\n"
-"PO-Revision-Date: 2008-09-02 15:00+0300\n"
+"POT-Creation-Date: 2009-02-13 09:06+0200\n"
+"PO-Revision-Date: 2009-02-13 09:12+0200\n"
 "Last-Translator: Timo Jyrinki <timo.jyrinki@iki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -235,87 +235,195 @@ msgstr "Pyydetty toiminto on tarpeettomuudesta johtuen virheellinen"
 msgid "Invalid Error Code"
 msgstr "Kelvoton virhekoodi"
 
-#: ../avahi-ui/avahi-ui.c:326
+#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+msgid "<i>No service currently selected.</i>"
+msgstr "<i>Palvelua ei tällä hetkellä ole valittu.</i>"
+
+#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+msgid "Avahi Discovery"
+msgstr "Avahi-löytäjä"
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
+msgid "Avahi Zeroconf Browser"
+msgstr "Avahin Zeroconf-selain"
+
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
+msgid "Browse for Zeroconf services available on your network"
+msgstr "Selaa verkossa saatavilla olevia Zeroconf-palveluita"
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "Browse Service Types"
+msgstr "Selaa palvelutyyppejä"
+
+#: ../avahi-ui/avahi-ui.c:188
+msgid "A NULL terminated list of service types to browse for"
+msgstr "NULL-päätetty luettelo selattavista palvelutyypeistä"
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "Domain"
+msgstr "Verkkoalue"
+
+#: ../avahi-ui/avahi-ui.c:193
+msgid "The domain to browse in, or NULL for the default domain"
+msgstr "Selattava verkkoalue, tai NULL oletusverkkoalueen valitsemiseksi"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "Service Type"
+msgstr "Palvelun tyyppi"
+
+#: ../avahi-ui/avahi-ui.c:199
+msgid "The service type of the selected service"
+msgstr "Valitun palvelun palvelutyyppi"
+
+#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
+msgid "Service Name"
+msgstr "Palvelun nimi"
+
+#: ../avahi-ui/avahi-ui.c:205
+msgid "The service name of the selected service"
+msgstr "Valitun palvelun palvelunimi"
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "Address"
+msgstr "Osoite"
+
+#: ../avahi-ui/avahi-ui.c:211
+msgid "The address of the resolved service"
+msgstr "Selvitetyn palvelun osoite"
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "Port"
+msgstr "Portti"
+
+#: ../avahi-ui/avahi-ui.c:216
+msgid "The IP port number of the resolved service"
+msgstr "Selvitetyn palvelun IP-porttinumero"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "Host Name"
+msgstr "Verkkonimi"
+
+#: ../avahi-ui/avahi-ui.c:222
+msgid "The host name of the resolved service"
+msgstr "Selvitetyn palvelun verkkonimi"
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "TXT Data"
+msgstr "TXT-data"
+
+#: ../avahi-ui/avahi-ui.c:228
+msgid "The TXT data of the resolved service"
+msgstr "Selvitetyn palvelun TXT-data"
+
+#: ../avahi-ui/avahi-ui.c:233
+msgid "Resolve service"
+msgstr "Selvitä palvelu"
+
+#: ../avahi-ui/avahi-ui.c:239
+msgid "Resolve service host name"
+msgstr "Selvitä palvelun verkkonimi"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "Address family"
+msgstr "Osoiteperhe"
+
+#: ../avahi-ui/avahi-ui.c:245
+msgid "The address family for host name resolution"
+msgstr "Osoiteperhe verkkonimen selvittämistä varten"
+
+#: ../avahi-ui/avahi-ui.c:327
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Avahi-asiakkaan toimintahäiriö: %s"
 
-#: ../avahi-ui/avahi-ui.c:388
+#: ../avahi-ui/avahi-ui.c:389
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Avahi-selvittimen toimintahäiriö: %s"
 
-#: ../avahi-ui/avahi-ui.c:518
+#: ../avahi-ui/avahi-ui.c:519
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Palvelutyypin %s selaaminen verkkoaluuessa %s epäonnistui: %s"
 
-#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:157
+#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
 #: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
 #: ../avahi-utils/avahi-browse.c:165
 msgid "n/a"
 msgstr "-"
 
-#: ../avahi-ui/avahi-ui.c:649
+#: ../avahi-ui/avahi-ui.c:650
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Avahi-verkkoalueselaimen toimintahäiriö: %s"
 
-#: ../avahi-ui/avahi-ui.c:684
+#: ../avahi-ui/avahi-ui.c:685
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Avahi-verkkoaluetta ei voi lukea: %s"
 
-#: ../avahi-ui/avahi-ui.c:717
+#: ../avahi-ui/avahi-ui.c:707
+msgid "Browse service type list is empty!"
+msgstr "Selattavien palvelutyyppien luettelo on tyhjä."
+
+#: ../avahi-ui/avahi-ui.c:718
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Avahi-palvelimeen ei voi yhdistää: %s"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:736
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Selataan palveluita <b>paikallisessa verkossa</b>:"
 
-#: ../avahi-ui/avahi-ui.c:737
+#: ../avahi-ui/avahi-ui.c:738
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Selataan palveluita verkkoalueessa <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:773
+#: ../avahi-ui/avahi-ui.c:774
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Selainta ei voi luoda kohteelle %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:904
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "Kohteelle %s ei voi luoda selvitintyyppiä %s verkkoalueessa %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:979
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Verkkoalueselainta ei voi luoda: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:990
 msgid "Change domain"
 msgstr "Vaihda verkkoaluetta"
 
-#: ../avahi-ui/avahi-ui.c:1021
-msgid "Service Name"
-msgstr "Palvelun nimi"
-
-#: ../avahi-ui/avahi-ui.c:1029 ../avahi-ui/avahi-ui.c:1160
-msgid "Browsing ..."
+#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+msgid "Browsing..."
 msgstr "Selataan..."
 
-#: ../avahi-ui/avahi-ui.c:1118
+#: ../avahi-ui/avahi-ui.c:1119
 msgid "Initializing..."
 msgstr "Alustetaan..."
 
-#: ../avahi-ui/avahi-ui.c:1164
+#: ../avahi-ui/avahi-ui.c:1143
+msgid "Location"
+msgstr "Sijainti"
+
+#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+msgid "Name"
+msgstr "Nimi"
+
+#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+msgid "Type"
+msgstr "Tyyppi"
+
+#: ../avahi-ui/avahi-ui.c:1165
 msgid "_Domain..."
 msgstr "_Verkkoalue..."
 
-#: ../avahi-ui/bssh.c:57
+#: ../avahi-ui/bssh.c:58
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -334,42 +442,42 @@ msgstr ""
 "    -S --shell           Selaa sekä SSH- että VNC-palvelimia\n"
 "    -d --domain=DOMAIN   Selattava verkkoalue\n"
 
-#: ../avahi-ui/bssh.c:103 ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, c-format
 msgid "Too many arguments\n"
 msgstr "Liian monta argumenttia\n"
 
-#: ../avahi-ui/bssh.c:147
+#: ../avahi-ui/bssh.c:152
 msgid "Choose Shell Server"
 msgstr "Valitse päätepalvelin"
 
-#: ../avahi-ui/bssh.c:149
+#: ../avahi-ui/bssh.c:154
 msgid "Desktop"
 msgstr "Työpöytä"
 
-#: ../avahi-ui/bssh.c:150
+#: ../avahi-ui/bssh.c:155
 msgid "Terminal"
 msgstr "Pääte"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:159
 msgid "Choose VNC server"
 msgstr "Valitse VNC-palvelin"
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:164
 msgid "Choose SSH server"
 msgstr "Valitse SSH-palvelin"
 
-#: ../avahi-ui/bssh.c:183
+#: ../avahi-ui/bssh.c:188
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Yhdistetään kohteeseen \"%s\"...\n"
 
-#: ../avahi-ui/bssh.c:238
+#: ../avahi-ui/bssh.c:243
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "execlp() epäonnistui: %s\n"
 
-#: ../avahi-ui/bssh.c:248
+#: ../avahi-ui/bssh.c:253
 #, c-format
 msgid "Canceled.\n"
 msgstr "Peruttu.\n"
@@ -404,8 +512,8 @@ msgstr ": Välimuisti kulutettu loppuun\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Palvelua \"%s\", tyypiltään \"%s\", ei voi selvittää verkkoalueessa "
-"\"%s\": %s\n"
+"Palvelua \"%s\", tyypiltään \"%s\", ei voi selvittää verkkoalueessa \"%s\": %"
+"s\n"
 
 #: ../avahi-utils/avahi-browse.c:324
 #, c-format
@@ -449,7 +557,7 @@ msgstr "Verkko-osoitteen pyyntö epäonnistui: %s\n"
 #: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "Palvelimen versio: %s, palvelinnimi: %s\n"
+msgstr "Palvelimen versio: %s, verkkonimi: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
@@ -464,14 +572,6 @@ msgstr "T Liit Yhtk Verkkonimi\n"
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "T Liit Yhtk %-*s %-20s Verkkonimi\n"
-
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Name"
-msgstr "Nimi"
-
-#: ../avahi-utils/avahi-browse.c:537
-msgid "Type"
-msgstr "Tyyppi"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
@@ -705,4 +805,3 @@ msgstr "Virheellinen argumenttien lukumäärä, odotettiin täsmälleen yhtä.\n
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Verkko-osoite muutettiin onnistuneesti nimelle %s\n"
-

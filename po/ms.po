@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-17 04:34+0000\n"
-"PO-Revision-Date: 2008-07-31 23:28+0800\n"
+"POT-Creation-Date: 2008-11-16 13:27+0000\n"
+"PO-Revision-Date: 2008-12-21 20:37+0800\n"
 "Last-Translator: Sharuzzaman Ahmat Raslan <sharuzzaman@myrealbox.com>\n"
 "Language-Team: Malay <translation-team-ms@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -27,7 +27,7 @@ msgstr "Sambungan Gagal"
 #: ../avahi-common/error.c:34
 #, fuzzy
 msgid "Bad state"
-msgstr "@p @h %d (%q): buruk @b nombor %b.\n"
+msgstr "Keadaan jasad"
 
 #: ../avahi-common/error.c:35
 #, fuzzy
@@ -55,12 +55,12 @@ msgstr ""
 #: ../avahi-common/error.c:40
 #, fuzzy
 msgid "Local name collision"
-msgstr "Tetap Nama Imej"
+msgstr "Name=Jaringan Setempat"
 
 #: ../avahi-common/error.c:41
 #, fuzzy
 msgid "Invalid record"
-msgstr "Nama path tidak sah."
+msgstr "Rekod melimpah"
 
 #: ../avahi-common/error.c:43
 #, fuzzy
@@ -115,12 +115,12 @@ msgstr "Ralat KMail"
 #: ../avahi-common/error.c:54
 #, fuzzy
 msgid "Access denied"
-msgstr "Izin ditolak"
+msgstr "Akses telah dihalang"
 
 #: ../avahi-common/error.c:55
 #, fuzzy
 msgid "Invalid operation"
-msgstr "Nama path tidak sah."
+msgstr "Tanda operasi:"
 
 #: ../avahi-common/error.c:56
 #, fuzzy
@@ -156,7 +156,7 @@ msgstr "Papar Indeks Bantuan"
 #: ../avahi-common/error.c:62
 #, fuzzy
 msgid "Invalid protocol specification"
-msgstr "Titik lekapan tidak sah"
+msgstr "Guna protokol TCP"
 
 #: ../avahi-common/error.c:63
 #, fuzzy
@@ -164,9 +164,8 @@ msgid "Invalid flags"
 msgstr "Nama path tidak sah."
 
 #: ../avahi-common/error.c:65
-#, fuzzy
 msgid "Not found"
-msgstr "%s tidak dijumpai"
+msgstr "Tidak dijumpai"
 
 #: ../avahi-common/error.c:66
 #, fuzzy
@@ -258,7 +257,6 @@ msgid "Invalid DNS class"
 msgstr "Pelayan Nama DNS"
 
 #: ../avahi-common/error.c:85
-#, fuzzy
 msgid "Not supported"
 msgstr "Tidak disokong"
 
@@ -284,7 +282,7 @@ msgstr ""
 #: ../avahi-common/error.c:96
 #, fuzzy
 msgid "Invalid Error Code"
-msgstr "Ralat mengira nilai!"
+msgstr "(kod ralat tidak diketahui)"
 
 #: ../avahi-ui/avahi-ui.c:326
 #, fuzzy, c-format
@@ -426,8 +424,9 @@ msgid "execlp() failed: %s\n"
 msgstr "Sambungan Gagal"
 
 #: ../avahi-ui/bssh.c:248
+#, fuzzy
 msgid "Canceled.\n"
-msgstr ""
+msgstr "Pengguna membatalkan"
 
 #: ../avahi-ui/bssh.desktop.in.h:1
 msgid "Avahi SSH Server Browser"
@@ -465,7 +464,7 @@ msgstr ""
 #: ../avahi-utils/avahi-browse.c:324
 #, fuzzy, c-format
 msgid "service_browser failed: %s\n"
-msgstr "Pelaksanaan gpg gagal (%d)\n"
+msgstr "Gagal untuk Menerbitkan Servis"
 
 #: ../avahi-utils/avahi-browse.c:362
 #, c-format
@@ -473,9 +472,9 @@ msgid "avahi_service_browser_new() failed: %s\n"
 msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:398
-#, c-format
+#, fuzzy, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr ""
+msgstr "Gagal untuk Menerbitkan Servis"
 
 #: ../avahi-utils/avahi-browse.c:428
 #, c-format
@@ -510,7 +509,7 @@ msgstr ""
 #: ../avahi-utils/avahi-set-host-name.c:179
 #, fuzzy, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "Menentukan nama hos dan domain..."
+msgstr "Name=Pelayan Fail Awam"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
@@ -612,9 +611,9 @@ msgid "Failed to register: %s\n"
 msgstr "Menulis ke %s gagal!"
 
 #: ../avahi-utils/avahi-publish.c:96
-#, c-format
+#, fuzzy, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr ""
+msgstr "Name=Ada Berita Mutakhir"
 
 #: ../avahi-utils/avahi-publish.c:116
 #, c-format
@@ -622,14 +621,14 @@ msgid "Failed to create entry group: %s\n"
 msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:126
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to add address: %s\n"
-msgstr "Gagal untuk menyelesai alamat '%s': %s\n"
+msgstr "Gagal untuk menambah alamat: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:136
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to add service: %s\n"
-msgstr "Tambah pengguna kepada sistem"
+msgstr "Gagal untuk menambah servis: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:142
 #, c-format

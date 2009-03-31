@@ -844,7 +844,7 @@ static int originates_from_local_legacy_unicast_socket(AvahiServer *s, const Ava
         if (getsockname(s->fd_legacy_unicast_ipv4, (struct sockaddr*) &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
-            return lsa.sin_port == port;
+            return avahi_port_from_sockaddr((struct sockaddr*) &lsa) == port;
 
     }
 
@@ -855,7 +855,7 @@ static int originates_from_local_legacy_unicast_socket(AvahiServer *s, const Ava
         if (getsockname(s->fd_legacy_unicast_ipv6, (struct sockaddr*) &lsa, &l) != 0)
             avahi_log_warn("getsockname(): %s", strerror(errno));
         else
-            return lsa.sin6_port == port;
+            return avahi_port_from_sockaddr((struct sockaddr*) &lsa) == port;
     }
 
     return 0;

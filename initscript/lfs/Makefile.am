@@ -17,44 +17,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-SUBDIRS = 
+initddir = $(sysconfdir)/rc.d/init.d
 
-if TARGET_LFS
-SUBDIRS += lfs
-endif
+EXTRA_DIST = avahi.in
 
-if TARGET_DEBIAN
-SUBDIRS += debian
-endif
+initd_SCRIPTS = avahi
 
-if TARGET_ARCHLINUX
-SUBDIRS += archlinux
-endif
+CLEANFILES = avahi
 
-if TARGET_GENTOO
-SUBDIRS += gentoo
-endif
-
-if TARGET_SUSE
-SUBDIRS += suse
-endif
-
-if TARGET_FEDORA
-SUBDIRS += fedora
-endif
-
-if TARGET_MANDRIVA
-SUBDIRS += mandriva
-endif
-
-if TARGET_DARWIN
-SUBDIRS += darwin
-endif
-
-if TARGET_FREEBSD
-SUBDIRS += freebsd
-endif
-
-if TARGET_SLACKWARE
-SUBDIRS += slackware
-endif
+avahi: avahi.in
+	chmod +x $@

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Fedora 10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-18 13:31+0000\n"
+"POT-Creation-Date: 2009-04-14 03:30+0200\n"
 "PO-Revision-Date: 2009-02-18 20:59+0200\n"
 "Last-Translator: alexxed <alexxed@gmail.com>\n"
 "Language-Team: Romanian <LL@li.org>\n"
@@ -469,6 +469,7 @@ msgid "execlp() failed: %s\n"
 msgstr ""
 
 #: ../avahi-ui/bssh.c:253
+#, c-format
 msgid "Canceled.\n"
 msgstr ""
 
@@ -672,7 +673,8 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 

@@ -1,3 +1,14 @@
+Avahi 0.6.25
+============
+
+This is mostly a bugfix release but also fixes a low risk security issue.
+
+ * Fix CVE-2009-0758 (Rob Leslie)
+ * i18n updates
+ * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 25.
+
 Avahi 0.6.24
 ============
 

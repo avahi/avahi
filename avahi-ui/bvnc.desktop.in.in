@@ -1,12 +1,11 @@
 [Desktop Entry]
 Version=1.0
-Encoding=UTF-8
 _Name=Avahi VNC Server Browser
 _Comment=Browse for Zeroconf-enabled VNC Servers
 Exec=@bindir@/bvnc
 Terminal=false
 Type=Application
 Icon=network-wired
-Categories=GNOME;Application;Network;
+Categories=GNOME;Network;
 StartupNotify=false
 GenericName=

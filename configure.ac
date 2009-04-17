@@ -350,7 +350,7 @@ AC_HEADER_SYS_WAIT
  # Solaris stuff
  AC_SEARCH_LIBS([inet_ntop],[nsl])
  AC_SEARCH_LIBS([recv],[socket])
- AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__")
+ AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__", [[#include <sys/socket.h>]])
 
 # Checks for library functions.
 AC_FUNC_MEMCMP

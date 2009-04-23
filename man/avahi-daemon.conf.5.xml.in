@@ -48,13 +48,13 @@
       </option>
 
       <option>
-        <p><opt>browse-domains=</opt> Set a comma seperated list of
+        <p><opt>browse-domains=</opt> Set a comma separated list of
         browsing domains (in addition to the default one and those
         announced inside the default browsing domain). Please note
         that the user may specify additional browsing domains on the
         client side, either by setting $AVAHI_BROWSE_DOMAINS to a list
-        of colon seperated domains or by adding them to the XDG config
-        file <file>~/.config/avahi/browse-domains</file> (seperated by
+        of colon separated domains or by adding them to the XDG config
+        file <file>~/.config/avahi/browse-domains</file> (separated by
         newlines).</p>
 
       </option>
@@ -72,7 +72,7 @@
       </option>
 
       <option>
-        <p><opt>allow-interfaces=</opt> Set a comma seperated list of
+        <p><opt>allow-interfaces=</opt> Set a comma separated list of
         allowed network interfaces that should be used by the
         avahi-daemon.  Other interfaces will be ignored. If set to the
         empty list all local interfaces except loopback and
@@ -80,7 +80,7 @@
       </option>
 
       <option>
-        <p><opt>deny-interfaces=</opt> Set a comma seperated list of
+        <p><opt>deny-interfaces=</opt> Set a comma separated list of
         network interfaces that should be ignored by avahi-daemon.
 	Other not specified interfaces will be used, unless
 	<opt>allow-interfaces</opt> is set. This option takes
@@ -222,7 +222,7 @@
       </option>
 
       <option>
-        <p><opt>publish-dns-servers=</opt> Takes a comma seperated
+        <p><opt>publish-dns-servers=</opt> Takes a comma separated
         list of IP addresses for unicast DNS servers. You can use this
         to announce unicast DNS servers via mDNS. When used in
         conjunction with avahi-dnsconfd on the client

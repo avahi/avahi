@@ -93,7 +93,7 @@
 
 	  <option>
                 <p><opt>-p | --parsable</opt></p>
-		<optdesc><p>Make output easily parsable for usage in scripts. If enabled fields are seperated by semicolons (;), service names are escaped. It is recommended to combine this with <opt>--no-db-lookup</opt>.</p></optdesc>
+		<optdesc><p>Make output easily parsable for usage in scripts. If enabled fields are separated by semicolons (;), service names are escaped. It is recommended to combine this with <opt>--no-db-lookup</opt>.</p></optdesc>
 	  </option>
 
 	  <option>

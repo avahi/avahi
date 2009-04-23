@@ -83,124 +83,23 @@ man_MANS += \
 endif
 endif
 
-avahi-browse.1.xml: avahi-browse.1.xml.in Makefile
-	sed -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-publish.1.xml: avahi-publish.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-resolve.1.xml: avahi-resolve.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-set-host-name.1.xml: avahi-set-host-name.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-daemon.8.xml: avahi-daemon.8.xml.in Makefile
-	sed -e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@servicedir\@,$(servicedir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-discover.1.xml: avahi-discover.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-bookmarks.1.xml: avahi-bookmarks.1.xml.in Makefile
-	sed	-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-dnsconfd.8.xml: avahi-dnsconfd.8.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-daemon.conf.5.xml: avahi-daemon.conf.5.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-dnsconfd.action.8.xml: avahi-dnsconfd.action.8.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi.service.5.xml: avahi.service.5.xml.in Makefile
+%.xml: %.xml.in Makefile
 	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
 		-e 's,@servicedir\@,$(servicedir),g' \
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi.hosts.5.xml: avahi.hosts.5.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-autoipd.action.8.xml: avahi-autoipd.action.8.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-avahi-autoipd.8.xml: avahi-autoipd.8.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
-
-bssh.1.xml: bssh.1.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
-		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
-        -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
+		-e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
 
 if USE_XMLTOMAN
 
 CLEANFILES += $(man_MANS)
 
-avahi-browse.1: avahi-browse.1.xml Makefile
+%.1: %.1.xml Makefile
 	xmltoman $< > $@
 
-avahi-publish.1: avahi-publish.1.xml Makefile
+%.5: %.5.xml Makefile
 	xmltoman $< > $@
 
-avahi-resolve.1: avahi-resolve.1.xml Makefile
-	xmltoman $< > $@
-
-avahi-set-host-name.1: avahi-set-host-name.1.xml Makefile
-	xmltoman $< > $@
-
-avahi-daemon.8: avahi-daemon.8.xml Makefile
-	xmltoman $< > $@
-
-avahi-discover.1: avahi-discover.1.xml Makefile
-	xmltoman $< > $@
-
-avahi-bookmarks.1: avahi-bookmarks.1.xml Makefile
-	xmltoman $< > $@
-
-avahi-dnsconfd.8: avahi-dnsconfd.8.xml Makefile
-	xmltoman $< > $@
-
-avahi-daemon.conf.5: avahi-daemon.conf.5.xml Makefile
-	xmltoman $< > $@
-
-avahi-dnsconfd.action.8: avahi-dnsconfd.action.8.xml Makefile
-	xmltoman $< > $@
-
-avahi.service.5: avahi.service.5.xml Makefile
-	xmltoman $< > $@
-
-avahi.hosts.5: avahi.hosts.5.xml Makefile
-	xmltoman $< > $@
-
-avahi-autoipd.action.8: avahi-autoipd.action.8.xml Makefile
-	xmltoman $< > $@
-
-avahi-autoipd.8: avahi-autoipd.8.xml Makefile
-	xmltoman $< > $@
-
-bssh.1: bssh.1.xml Makefile
+%.8: %.8.xml Makefile
 	xmltoman $< > $@
 
 xmllint: $(noinst_DATA)

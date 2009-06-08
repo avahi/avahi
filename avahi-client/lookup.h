@@ -190,11 +190,11 @@ typedef void (*AvahiServiceResolverCallback) (
  * resp. AAAA resource record. */
 AvahiServiceResolver * avahi_service_resolver_new(
     AvahiClient *client,
-    AvahiIfIndex interface,   /**< Pass the interface argument you recieved in AvahiServiceBrowserCallback here. */
-    AvahiProtocol protocol,   /**< Pass the protocol argument you recieved in AvahiServiceBrowserCallback here. */
-    const char *name,         /**< Pass the name argument you recieved in AvahiServiceBrowserCallback here. */
-    const char *type,         /**< Pass the type argument you recieved in AvahiServiceBrowserCallback here. */
-    const char *domain,       /**< Pass the domain argument you recieved in AvahiServiceBrowserCallback here. */
+    AvahiIfIndex interface,   /**< Pass the interface argument you received in AvahiServiceBrowserCallback here. */
+    AvahiProtocol protocol,   /**< Pass the protocol argument you received in AvahiServiceBrowserCallback here. */
+    const char *name,         /**< Pass the name argument you received in AvahiServiceBrowserCallback here. */
+    const char *type,         /**< Pass the type argument you received in AvahiServiceBrowserCallback here. */
+    const char *domain,       /**< Pass the domain argument you received in AvahiServiceBrowserCallback here. */
     AvahiProtocol aprotocol,  /**< The desired address family of the service address to resolve. AVAHI_PROTO_UNSPEC if your application can deal with both IPv4 and IPv6 */
     AvahiLookupFlags flags,
     AvahiServiceResolverCallback callback,

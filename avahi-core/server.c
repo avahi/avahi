@@ -1044,7 +1044,7 @@ static void mcast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, vo
         if (iface != AVAHI_IF_UNSPEC)
             dispatch_packet(s, p, &src, port, &dest, iface, ttl);
         else
-            avahi_log_error("Incoming packet recieved on address that isn't local.");
+            avahi_log_error("Incoming packet received on address that isn't local.");
 
         avahi_dns_packet_free(p);
 

@@ -55,11 +55,11 @@ elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
 
     case "$1" in
         BIND)
-            ifconfig "$2:3" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255 up
+            ifconfig "$2:avahi" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255 up
             ;;
 
         CONFLICT|STOP|UNBIND)
-            ifconfig "$2:3" down
+            ifconfig "$2:avahi" down
             ;;
 
         *)

@@ -21,7 +21,6 @@ AM_CFLAGS=-I$(top_srcdir)
 
 EXTRA_DIST = \
 	__init__.py \
-	SimpleGladeApp.py \
 	avahi-discover.in \
 	avahi-discover.desktop.in.in
 
@@ -42,7 +41,7 @@ pythonscripts += \
 	avahi-discover
 desktop_DATA += avahi-discover.desktop
 @INTLTOOL_DESKTOP_RULE@
-avahi_discover_PYTHON += __init__.py SimpleGladeApp.py
+avahi_discover_PYTHON += __init__.py
 endif
 
 if HAVE_DBM
@@ -50,7 +49,7 @@ pythonscripts += \
 	avahi-discover
 desktop_DATA += avahi-discover.desktop
 @INTLTOOL_DESKTOP_RULE@
-avahi_discover_PYTHON += __init__.py SimpleGladeApp.py
+avahi_discover_PYTHON += __init__.py
 endif
 
 avahi-discover.desktop.in: avahi-discover.desktop.in.in

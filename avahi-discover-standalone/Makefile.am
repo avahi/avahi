@@ -20,7 +20,7 @@
 AM_CFLAGS=-I$(top_srcdir)
 
 interfaces = \
-        avahi-discover.glade
+        avahi-discover.ui
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
@@ -35,7 +35,7 @@ avahi_discover_standalone_SOURCES = \
 
 avahi_discover_standalone_CFLAGS = \
 	$(AM_CFLAGS) \
-	$(GLIB20_CFLAGS) $(GTK20_CFLAGS) $(GLADE20_CFLAGS)\
+	$(GLIB20_CFLAGS) $(GTK20_CFLAGS) \
 	-DAVAHI_INTERFACES_DIR=\"$(interfacesdir)\"
 
 avahi_discover_standalone_LDADD = \
@@ -43,7 +43,7 @@ avahi_discover_standalone_LDADD = \
 	../avahi-common/libavahi-common.la \
 	../avahi-glib/libavahi-glib.la \
 	../avahi-core/libavahi-core.la  \
-	$(GLIB20_LIBS) $(GTK20_LIBS) $(GLADE20_LIBS)
+	$(GLIB20_LIBS) $(GTK20_LIBS)
 
 interfaces_DATA = $(interfaces)
 
@@ -58,5 +58,4 @@ endif
 endif
 
 EXTRA_DIST = \
-	$(interfaces) \
-	avahi-discover.gladep
+	$(interfaces)

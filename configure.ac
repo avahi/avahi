@@ -528,14 +528,9 @@ AC_ARG_ENABLE(gtk,
 
 if test "x$HAVE_GTK" = "xyes" ; then
         # Check for GTK 2.0
-        PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.4.0 ])
+        PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.12.0 ])
         AC_SUBST(GTK20_CFLAGS)
         AC_SUBST(GTK20_LIBS)
-
-        # Check for GLADE 2.0
-        PKG_CHECK_MODULES(GLADE20, [ libglade-2.0 >= 2.4.0 ])
-        AC_SUBST(GLADE20_CFLAGS)
-        AC_SUBST(GLADE20_LIBS)
 fi
 AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
 

@@ -23,9 +23,6 @@ import os, sys
 
 try:
     import avahi, gettext, gtk, gobject, dbus, avahi.ServiceTypeDatabase
-    from avahi_discover.SimpleGladeApp import SimpleGladeApp
-    gtk.glade.bindtextdomain(@GETTEXT_PACKAGE@, @LOCALEDIR@)
-    gtk.glade.textdomain(@GETTEXT_PACKAGE@)
     _ = gettext.gettext
 except ImportError, e:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e
@@ -52,15 +49,20 @@ def error_msg(msg):
     d.run()
     d.destroy()
 
-glade_dir = "@interfacesdir@"
+ui_dir = "@interfacesdir@"
 
 service_type_db = avahi.ServiceTypeDatabase.ServiceTypeDatabase()
 
-class Main_window(SimpleGladeApp):
-    def __init__(self, path="avahi-discover.glade", root="main_window", domain=None, **kwargs):
-        path = os.path.join(glade_dir, path)
+class Main_window:
+    def __init__(self, path="avahi-discover.ui", root="main_window", domain=None, **kwargs):
+        path = os.path.join(ui_dir, path)
         gtk.window_set_default_icon_name("network-wired")
-        SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+        self.ui = gtk.Builder()
+        self.ui.add_from_file(path)
+        self.ui.connect_signals(self)
+        self.tree_view = self.ui.get_object("tree_view")
+        self.info_label = self.ui.get_object("info_label")
+        self.new()
 
     def on_tree_view_cursor_changed(self, widget, *args):
         (model, iter) = widget.get_selection().get_selected()
@@ -264,11 +266,12 @@ class Main_window(SimpleGladeApp):
             # Just browse the domain the user wants us to browse
             self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, domain)
 
-        
+    def gtk_main_quit(self, *args):
+        gtk.main_quit()
+
 def main():
     main_window = Main_window()
-
-    main_window.run()
+    gtk.main()
     
 if __name__ == "__main__":
     main()

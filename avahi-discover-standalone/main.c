@@ -31,7 +31,6 @@
 #include <unistd.h>
 
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 
 #include <avahi-core/core.h>
 #include <avahi-core/lookup.h>
@@ -320,27 +319,27 @@ static gboolean main_window_on_delete_event(AVAHI_GCC_UNUSED GtkWidget *widget, 
 }
 
 int main(int argc, char *argv[]) {
-    GladeXML *xml;
+    GtkBuilder *ui;
     AvahiServerConfig config;
     GtkTreeViewColumn *c;
     gint error;
     AvahiGLibPoll *poll_api;
 
     gtk_init(&argc, &argv);
-    glade_init();
 
     avahi_set_allocator(avahi_glib_allocator());
 
     poll_api = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
 
-    xml = glade_xml_new(AVAHI_INTERFACES_DIR"avahi-discover.glade", NULL, NULL);
-    main_window = glade_xml_get_widget(xml, "main_window");
+    ui = gtk_builder_new();
+    gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover.ui", NULL);
+    main_window = GTK_WIDGET(gtk_builder_get_object(ui, "main_window"));
     g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);
-    
-    tree_view = GTK_TREE_VIEW(glade_xml_get_widget(xml, "tree_view"));
+
+    tree_view = GTK_TREE_VIEW(gtk_builder_get_object(ui, "tree_view"));
     g_signal_connect(GTK_WIDGET(tree_view), "cursor-changed", (GCallback) tree_view_on_cursor_changed, NULL);
 
-    info_label = GTK_LABEL(glade_xml_get_widget(xml, "info_label"));
+    info_label = GTK_LABEL(gtk_builder_get_object(ui, "info_label"));
 
     tree_store = gtk_tree_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
     gtk_tree_view_set_model(tree_view, GTK_TREE_MODEL(tree_store));

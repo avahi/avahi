@@ -5,10 +5,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-14 03:30+0200\n"
-"PO-Revision-Date: 2008-12-13 20:50+0100\n"
+"POT-Creation-Date: 2009-09-22 08:42+0000\n"
+"PO-Revision-Date: 2009-09-27 14:02+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
-"Language-Team: Polish <pl@li.org>\n"
+"Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +19,7 @@ msgstr "OK"
 
 #: ../avahi-common/error.c:33
 msgid "Operation failed"
-msgstr "Operacja nie powiodła się"
+msgstr "Działanie nie powiodło się"
 
 #: ../avahi-common/error.c:34
 msgid "Bad state"
@@ -39,7 +39,7 @@ msgstr "Brak dostępnych odpowiednich protokołów sieciowych"
 
 #: ../avahi-common/error.c:38
 msgid "Invalid DNS TTL"
-msgstr "Nieprawidłowe TTL DNS-a"
+msgstr "Nieprawidłowe TTL DNS"
 
 #: ../avahi-common/error.c:39
 msgid "Resource record key is pattern"
@@ -99,7 +99,7 @@ msgstr "Zabroniono dostęp"
 
 #: ../avahi-common/error.c:55
 msgid "Invalid operation"
-msgstr "Nieprawidłowa operacja"
+msgstr "Nieprawidłowe działanie"
 
 #: ../avahi-common/error.c:56
 msgid "An unexpected D-Bus error occured"
@@ -135,7 +135,7 @@ msgstr "Nieprawidłowe flagi"
 
 #: ../avahi-common/error.c:65
 msgid "Not found"
-msgstr "Nie znaleziono"
+msgstr "Nie odnaleziono"
 
 #: ../avahi-common/error.c:66
 msgid "Invalid configuration"
@@ -159,43 +159,43 @@ msgstr "Nieprawidłowy kod zwrotny DNS"
 
 #: ../avahi-common/error.c:71
 msgid "DNS failure: FORMERR"
-msgstr "DNS nie powiódł się: FORMERR"
+msgstr "DNS nie powiodło się: FORMERR"
 
 #: ../avahi-common/error.c:72
 msgid "DNS failure: SERVFAIL"
-msgstr "DNS nie powiódł się: SERVFAIL"
+msgstr "DNS nie powiodło się: SERVFAIL"
 
 #: ../avahi-common/error.c:73
 msgid "DNS failure: NXDOMAIN"
-msgstr "DNS nie powiódł się: NXDOMAIN"
+msgstr "DNS nie powiodło się: NXDOMAIN"
 
 #: ../avahi-common/error.c:74
 msgid "DNS failure: NOTIMP"
-msgstr "DNS nie powiódł się: NOTIMP"
+msgstr "DNS nie powiodło się: NOTIMP"
 
 #: ../avahi-common/error.c:76
 msgid "DNS failure: REFUSED"
-msgstr "DNS nie powiódł się: REFUSED"
+msgstr "DNS nie powiodło się: REFUSED"
 
 #: ../avahi-common/error.c:77
 msgid "DNS failure: YXDOMAIN"
-msgstr "DNS nie powiódł się: YXDOMAIN"
+msgstr "DNS nie powiodło się: YXDOMAIN"
 
 #: ../avahi-common/error.c:78
 msgid "DNS failure: YXRRSET"
-msgstr "DNS nie powiódł się: YXRRSET"
+msgstr "DNS nie powiodło się: YXRRSET"
 
 #: ../avahi-common/error.c:79
 msgid "DNS failure: NXRRSET"
-msgstr "DNS nie powiódł się: NXRRSET"
+msgstr "DNS nie powiodło się: NXRRSET"
 
 #: ../avahi-common/error.c:80
 msgid "DNS failure: NOTAUTH"
-msgstr "DNS nie powiódł się: NOTAUTH"
+msgstr "DNS nie powiodło się: NOTAUTH"
 
 #: ../avahi-common/error.c:81
 msgid "DNS failure: NOTZONE"
-msgstr "DNS nie powiódł się: NOTZONE"
+msgstr "DNS nie powiodło się: NOTZONE"
 
 #: ../avahi-common/error.c:82
 msgid "Invalid RDATA"
@@ -203,11 +203,11 @@ msgstr "Nieprawidłowe RDATA"
 
 #: ../avahi-common/error.c:83
 msgid "Invalid DNS type"
-msgstr "Nieprawidłowy typ DNS-a"
+msgstr "Nieprawidłowy typ DNS"
 
 #: ../avahi-common/error.c:84
 msgid "Invalid DNS class"
-msgstr "Nieprawidłowa klasa DNS-a"
+msgstr "Nieprawidłowa klasa DNS"
 
 #: ../avahi-common/error.c:85
 msgid "Not supported"
@@ -219,7 +219,7 @@ msgstr "Niedozwolone"
 
 #: ../avahi-common/error.c:88
 msgid "Invalid argument"
-msgstr "Nieprawidłowy argument"
+msgstr "Nieprawidłowy parametr"
 
 #: ../avahi-common/error.c:89
 msgid "Is empty"
@@ -227,7 +227,7 @@ msgstr "Jest puste"
 
 #: ../avahi-common/error.c:90
 msgid "The requested operation is invalid because redundant"
-msgstr "Zażądana operacja jest nieprawidłowa, ponieważ jest nadmiarowa"
+msgstr "Zażądane działanie jest nieprawidłowe, ponieważ jest nadmiarowe"
 
 #: ../avahi-common/error.c:96
 msgid "Invalid Error Code"
@@ -251,7 +251,7 @@ msgstr "Przeglądanie usług Zeroconf dostępnych w sieci"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "Browse Service Types"
-msgstr "Przeglądaj typy usług"
+msgstr "Przeglądanie typów usług"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "A NULL terminated list of service types to browse for"
@@ -315,11 +315,11 @@ msgstr "Dane tekstowe rozwiązanej usługi"
 
 #: ../avahi-ui/avahi-ui.c:233
 msgid "Resolve service"
-msgstr "Rozwiąż usługę"
+msgstr "Rozwianie usługi"
 
 #: ../avahi-ui/avahi-ui.c:239
 msgid "Resolve service host name"
-msgstr "Rozwiąż nazwę komputera usługi"
+msgstr "Rozwiązanie nazwy komputera usługi"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "Address family"
@@ -337,7 +337,7 @@ msgstr "Klient Avahi nie powiódł się: %s"
 #: ../avahi-ui/avahi-ui.c:389
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr "Resolver Avahi nie powiódł się: %s"
+msgstr "Rozwiązywanie Avahi nie powiodło się: %s"
 
 #: ../avahi-ui/avahi-ui.c:519
 #, c-format
@@ -362,7 +362,7 @@ msgstr "Odczytanie domeny Avahi nie powiodło się: %s"
 
 #: ../avahi-ui/avahi-ui.c:707
 msgid "Browse service type list is empty!"
-msgstr "Przeglądana lista typów usług jest pusta!"
+msgstr "Przeglądana lista typów usług jest pusta."
 
 #: ../avahi-ui/avahi-ui.c:718
 #, c-format
@@ -386,7 +386,8 @@ msgstr "Utworzenie przeglądarki dla %s nie powiodło się: %s"
 #: ../avahi-ui/avahi-ui.c:904
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Utworzenie resolvera dla %s typu %s w domenie %s nie powiodło się: %s"
+msgstr ""
+"Utworzenie rozwiązania dla %s typu %s w domenie %s nie powiodło się: %s"
 
 #: ../avahi-ui/avahi-ui.c:979
 #, c-format
@@ -395,7 +396,7 @@ msgstr "Utworzenie przeglądarki domen nie powiodło się: %s"
 
 #: ../avahi-ui/avahi-ui.c:990
 msgid "Change domain"
-msgstr "Zmień domenę"
+msgstr "Zmiana domeny"
 
 #: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
 msgid "Browsing..."
@@ -443,11 +444,11 @@ msgstr ""
 #: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, c-format
 msgid "Too many arguments\n"
-msgstr "Za dużo argumentów\n"
+msgstr "Za dużo parametrów\n"
 
 #: ../avahi-ui/bssh.c:152
 msgid "Choose Shell Server"
-msgstr "Wybierz powłokę serwera"
+msgstr "Wybór powłoki serwera"
 
 #: ../avahi-ui/bssh.c:154
 msgid "Desktop"
@@ -459,11 +460,11 @@ msgstr "Terminal"
 
 #: ../avahi-ui/bssh.c:159
 msgid "Choose VNC server"
-msgstr "Wybierz serwer VNC"
+msgstr "Wybór serwera VNC"
 
 #: ../avahi-ui/bssh.c:164
 msgid "Choose SSH server"
-msgstr "Wybierz serwer SSH"
+msgstr "Wybór serwera SSH"
 
 #: ../avahi-ui/bssh.c:188
 #, c-format
@@ -587,7 +588,7 @@ msgstr "Utworzenie obiektu klienta nie powiodło się: %s\n"
 #: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "Klient nie powiódł się, wyłączanie: %s\n"
+msgstr "Klient nie powiódł się, kończenie pracy: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
 #, c-format
@@ -613,18 +614,18 @@ msgstr ""
 "    -h --help            Wyświetla tę pomoc\n"
 "    -V --version         Wyświetla wersję\n"
 "    -D --browse-domains  Przegląda domeny zamiast usług\n"
-"    -a --all             Wyświetla wszystkie usługi, niezależnie od ich "
-"typu\n"
+"    -a --all             Wyświetla wszystkie usługi, niezależnie od ich\n"
+"                         typu\n"
 "    -d --domain=DOMENA   Domena do przeglądania\n"
 "    -v --verbose         Wyświetla więcej informacji\n"
-"    -t --terminate       Wyłącza po zrzuceniu bardziej lub mniej kompletnej "
-"listy\n"
-"    -c --cache           Wyłącza po zrzuceniu wszystkich wpisów z pamięci "
-"podręcznej\n"
+"    -t --terminate       Wyłącza po zrzuceniu bardziej lub mniej\n"
+"                         kompletnej listy\n"
+"    -c --cache           Wyłącza po zrzuceniu wszystkich wpisów z pamięci\n"
+"                         podręcznej\n"
 "    -l --ignore-local    Ignoruje lokalne usługi\n"
 "    -r --resolve         Rozwiązuje znalezione usługi\n"
 "    -f --no-fail         Nie wyłącza, jeśli demon nie jest dostępny\n"
-"    -p --parsable        Wyjście w formacie do analizowania\n"
+"    -p --parsable        Wyjście w formacie do przetwarzania\n"
 
 #: ../avahi-utils/avahi-browse.c:644
 msgid ""
@@ -637,7 +638,7 @@ msgstr ""
 #: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
 #, c-format
 msgid "Too few arguments\n"
-msgstr "Za mało argumentów\n"
+msgstr "Za mało parametrów\n"
 
 #: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
 #: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
@@ -718,12 +719,12 @@ msgstr ""
 #: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
 #, c-format
 msgid "Bad number of arguments\n"
-msgstr "Błędna liczba argumentów\n"
+msgstr "Błędna liczba parametrów\n"
 
 #: ../avahi-utils/avahi-publish.c:326
 #, c-format
 msgid "Failed to parse port number: %s\n"
-msgstr "Przeanalizowanie numeru portu nie powiodło się: %s\n"
+msgstr "Przetworzenie numeru portu nie powiodło się: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
 #, c-format
@@ -768,17 +769,17 @@ msgstr ""
 #: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
-msgstr "Utworzenie resolvera nazwy komputera nie powiodło się: %s\n"
+msgstr "Utworzenie rozwiązania nazwy komputera nie powiodło się: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:311
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr "Przeanalizowanie adresu \"%s\" nie powiodło się\n"
+msgstr "Przetworzenie adresu \"%s\" nie powiodło się\n"
 
 #: ../avahi-utils/avahi-resolve.c:316
 #, c-format
 msgid "Failed to create address resolver: %s\n"
-msgstr "Utworzenie resolvera adresu nie powiodło się: %s\n"
+msgstr "Utworzenie rozwiązania adresu nie powiodło się: %s\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:75
 #, c-format
@@ -798,7 +799,7 @@ msgstr ""
 #: ../avahi-utils/avahi-set-host-name.c:116
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
-msgstr "Nieprawidłowa liczba argumentów, oczekiwano dokładnie jednego.\n"
+msgstr "Nieprawidłowa liczba parametrów, oczekiwano dokładnie jednego.\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:195
 #, c-format

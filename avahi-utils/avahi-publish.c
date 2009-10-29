@@ -51,7 +51,7 @@ typedef enum {
 } Command;
 
 typedef struct Config {
-    int verbose, no_fail;
+    int verbose, no_fail, no_reverse;
     Command command;
     char *name, *stype, *domain, *host;
     uint16_t port;
@@ -122,7 +122,7 @@ static int register_stuff(Config *config) {
 
     if (config->command == COMMAND_PUBLISH_ADDRESS) {
 
-        if (avahi_entry_group_add_address(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, config->name, &config->address) < 0) {
+        if (avahi_entry_group_add_address(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, config->no_reverse ? AVAHI_PUBLISH_NO_REVERSE : 0, config->name, &config->address) < 0) {
             fprintf(stderr, _("Failed to add address: %s\n"), avahi_strerror(avahi_client_errno(client)));
             return -1;
         }
@@ -225,6 +225,7 @@ static void help(FILE *f, const char *argv0) {
               "    -d --domain=DOMAIN   Domain to publish service in\n"
               "    -H --host=DOMAIN     Host where service resides\n"
               "       --subtype=SUBTYPE An additional subtype to register this service with\n"
+              "    -R --no-reverse      Do not publish reverse entry with address\n"
               "    -f --no-fail         Don't fail if the daemon is not available\n"),
               argv0, strstr(argv0, "service") ? "[-s]" : "-s",
               argv0, strstr(argv0, "address") ? "[-a]" : "-a");
@@ -246,6 +247,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "domain",         required_argument, NULL, 'd' },
         { "host",           required_argument, NULL, 'H' },
         { "subtype",        required_argument, NULL, ARG_SUBTYPE},
+        { "no-reverse",     no_argument,       NULL, 'R' },
         { "no-fail",        no_argument,       NULL, 'f' },
         { NULL, 0, NULL, 0 }
     };
@@ -253,12 +255,12 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     assert(c);
 
     c->command = strstr(argv0, "address") ? COMMAND_PUBLISH_ADDRESS : (strstr(argv0, "service") ? COMMAND_PUBLISH_SERVICE : COMMAND_UNSPEC);
-    c->verbose = c->no_fail = 0;
+    c->verbose = c->no_fail = c->no_reverse = 0;
     c->host = c->name = c->domain = c->stype = NULL;
     c->port = 0;
     c->txt = c->subtypes = NULL;
 
-    while ((o = getopt_long(argc, argv, "hVsavd:H:f", long_options, NULL)) >= 0) {
+    while ((o = getopt_long(argc, argv, "hVsavRd:H:f", long_options, NULL)) >= 0) {
 
         switch(o) {
             case 'h':
@@ -275,6 +277,9 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 break;
             case 'v':
                 c->verbose = 1;
+                break;
+            case 'R':
+                c->no_reverse = 1;
                 break;
             case 'd':
                 avahi_free(c->domain);

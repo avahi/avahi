@@ -64,7 +64,8 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     
     avahi_free(e);
 
-    assert(c->n_entries-- >= 1);
+    assert(c->n_entries >= 1);
+    --c->n_entries;
 }
 
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {

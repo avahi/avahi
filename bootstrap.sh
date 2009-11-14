@@ -59,4 +59,4 @@ case "$USER" in
     ;;
 esac
 
-CFLAGS="$CFLAGS -g -O0" exec ./autogen.sh $FLAGS "$@"
+CFLAGS="$CFLAGS -g -O0" exec ./autogen.sh $FLAGS "$@" --enable-qt3=no

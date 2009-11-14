@@ -20,11 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AC_PREREQ(2.57)
+AC_PREREQ(2.63)
 AC_INIT([avahi],[0.6.25],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_HEADERS([config.h])
-AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
+AM_INIT_AUTOMAKE([foreign 1.11 -Wall -Wno-portability silent-rules tar-pax])
 
 AC_SUBST(PACKAGE_URL, [http://avahi.org/])
 
@@ -42,6 +42,10 @@ AC_SUBST(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO, [1:0:0])
 AC_SUBST(LIBAVAHI_COMPAT_HOWL_VERSION_INFO, [0:0:0])
 AC_SUBST(HOWL_COMPAT_VERSION, [0.9.8])
 
+AC_CANONICAL_HOST
+
+AM_SILENT_RULES([yes])
+
 if type -p stow > /dev/null && test -d /usr/local/stow ; then
     AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
     ac_default_prefix="/usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION}"
@@ -50,14 +54,13 @@ fi
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-AC_GNU_SOURCE
+AM_PROG_CC_C_O
+AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_GCC_TRADITIONAL
-
-AM_PROG_CC_C_O
 
 # -fstack-protector
 AC_ARG_ENABLE([stack-protector],

@@ -37,7 +37,7 @@ case "$1" in
 		;;
 	status)
 		echo -n "Checking for Avahi daemon: "
-		$AVAHI_BIN -c
+		$AVAHI_BIN -c || _rc_status=3
 		rc_status -v
 		;;
 	*)

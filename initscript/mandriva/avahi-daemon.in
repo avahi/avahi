@@ -17,7 +17,7 @@ test -x $AVAHI_BIN || exit 5
 . /etc/sysconfig/network
 
 # Check that networking is configured.
-[ ${NETWORKING} = "no" ] && exit 0
+[ "${NETWORKING}" = "no" ] && exit 0
 
 start() {
 	echo -n $"Starting Avahi daemon: "

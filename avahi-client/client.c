@@ -35,6 +35,7 @@
 #include <avahi-common/dbus.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/dbus-watch-glue.h>
+#include <avahi-common/i18n.h>
 
 #include "client.h"
 #include "internal.h"

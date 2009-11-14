@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -82,7 +82,7 @@ static struct Service *get_service(const gchar *service_type, const gchar *servi
 
     for (l = st->services; l; l = l->next) {
         struct Service *s = l->data;
-        
+
         if (s->interface == interface &&
             s->protocol == protocol &&
             avahi_domain_equal(s->service_name, service_name) &&
@@ -104,17 +104,17 @@ static void free_service(struct Service *s) {
             avahi_s_service_resolver_free(service_resolver);
             service_resolver = NULL;
         }
- 
+
         gtk_label_set_text(info_label, "<i>Service removed</i>");
     }
-    
+
     s->service_type->services = g_list_remove(s->service_type->services, s);
 
     if ((path = gtk_tree_row_reference_get_path(s->tree_ref))) {
         gtk_tree_model_get_iter(GTK_TREE_MODEL(tree_store), &iter, path);
         gtk_tree_path_free(path);
     }
-    
+
     gtk_tree_store_remove(tree_store, &iter);
 
     gtk_tree_row_reference_free(s->tree_ref);
@@ -141,7 +141,7 @@ static void service_browser_callback(
         GtkTreePath *path, *ppath;
         gchar iface[256];
 	char name[IF_NAMESIZE];
-        
+
         s = g_new(struct Service, 1);
         s->service_name = g_strdup(service_name);
         s->domain_name = g_strdup(domain_name);
@@ -149,7 +149,7 @@ static void service_browser_callback(
         s->protocol = protocol;
         s->service_type = g_hash_table_lookup(service_type_hash_table, service_type);
         g_assert(s->service_type);
-        
+
         s->service_type->services = g_list_prepend(s->service_type->services, s);
 
         ppath = gtk_tree_row_reference_get_path(s->service_type->tree_ref);
@@ -167,7 +167,7 @@ static void service_browser_callback(
         gtk_tree_view_expand_row(tree_view, ppath, FALSE);
         gtk_tree_path_free(ppath);
 
-    
+
     } else if (event == AVAHI_BROWSER_REMOVE) {
         struct Service* s;
 
@@ -185,7 +185,7 @@ static void service_type_browser_callback(
     const char *domain,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void * userdata) {
-    
+
     struct ServiceType *st;
     GtkTreePath *path;
     GtkTreeIter iter;
@@ -199,7 +199,7 @@ static void service_type_browser_callback(
     st = g_new(struct ServiceType, 1);
     st->service_type = g_strdup(service_type);
     st->services = NULL;
-    
+
     gtk_tree_store_append(tree_store, &iter, NULL);
     gtk_tree_store_set(tree_store, &iter, 0, st->service_type, 1, "", 2, NULL, -1);
 
@@ -229,7 +229,7 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
         snprintf(address, sizeof(address), "<i>n/a</i>");
         txt_s = g_strdup("<i>n/a</i>");
     }
-    
+
     snprintf(t, sizeof(t),
              "<b>Service Type:</b> %s\n"
              "<b>Service Name:</b> %s\n"
@@ -253,12 +253,12 @@ static struct Service *get_service_on_cursor(void) {
     GtkTreePath *path;
     struct Service *s;
     GtkTreeIter iter;
-    
+
     gtk_tree_view_get_cursor(tree_view, &path, NULL);
 
     if (!path)
         return NULL;
-    
+
     gtk_tree_model_get_iter(GTK_TREE_MODEL(tree_store), &iter, path);
     gtk_tree_model_get(GTK_TREE_MODEL(tree_store), &iter, 2, &s, -1);
     gtk_tree_path_free(path);
@@ -278,9 +278,9 @@ static void service_resolver_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, 
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     struct Service *s;
     g_assert(r);
 
@@ -301,7 +301,7 @@ static void service_resolver_callback(
 
 static void tree_view_on_cursor_changed(AVAHI_GCC_UNUSED GtkTreeView *tv, AVAHI_GCC_UNUSED gpointer userdata) {
     struct Service *s;
-    
+
     if (!(s = get_service_on_cursor()))
         return;
 
@@ -349,9 +349,9 @@ int main(int argc, char *argv[]) {
     gtk_tree_view_column_set_resizable(c = gtk_tree_view_get_column(tree_view, 0), TRUE);
     gtk_tree_view_column_set_sizing(c, GTK_TREE_VIEW_COLUMN_GROW_ONLY);
     gtk_tree_view_column_set_expand(c, TRUE);
-    
+
     service_type_hash_table = g_hash_table_new((GHashFunc) avahi_domain_hash, (GEqualFunc) avahi_domain_equal);
-    
+
     avahi_server_config_init(&config);
     config.publish_hinfo = config.publish_addresses = config.publish_domain = config.publish_workstation = FALSE;
     server = avahi_server_new(avahi_glib_poll_get(poll_api), &config, NULL, NULL, &error);

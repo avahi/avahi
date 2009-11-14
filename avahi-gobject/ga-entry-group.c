@@ -558,7 +558,7 @@ gboolean ga_entry_group_service_remove_key(GaEntryGroupService * service,
     GaEntryGroupServicePrivate *priv = (GaEntryGroupServicePrivate *) service;
     GaEntryGroupServiceEntry entry;
 
-    entry.value = key;
+    entry.value = (void*) key;
     entry.size = strlen(key);
 
     g_hash_table_remove(priv->entries, &entry);

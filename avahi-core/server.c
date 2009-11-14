@@ -1009,13 +1009,6 @@ static void dispatch_legacy_unicast_packet(AvahiServer *s, AvahiDnsPacket *p) {
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ID, slot->id);
 }
 
-static void cleanup_dead(AvahiServer *s) {
-    assert(s);
-
-    avahi_cleanup_dead_entries(s);
-    avahi_browser_cleanup(s);
-}
-
 static void mcast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, void *userdata) {
     AvahiServer *s = userdata;
     AvahiAddress dest, src;
@@ -1048,7 +1041,7 @@ static void mcast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, vo
 
         avahi_dns_packet_free(p);
 
-        cleanup_dead(s);
+        avahi_cleanup_dead_entries(s);
     }
 }
 
@@ -1071,7 +1064,7 @@ static void legacy_unicast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent e
         dispatch_legacy_unicast_packet(s, p);
         avahi_dns_packet_free(p);
 
-        cleanup_dead(s);
+        avahi_cleanup_dead_entries(s);
     }
 }
 

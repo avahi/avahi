@@ -376,7 +376,7 @@ static int is_duplicate_entry(AvahiServer *s, AvahiEntry *e) {
 
     for (i = avahi_hashmap_lookup(s->entries_by_key, e->record->key); i; i = i->by_key_next) {
 
-        if (i == e)
+        if ((i == e) || (i->dead))
             continue;
 
         if (!avahi_record_equal_no_ttl(i->record, e->record))

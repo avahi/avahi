@@ -1087,6 +1087,8 @@ void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
     
     g->server->need_group_cleanup = 1;
     g->server->need_entry_cleanup = 1;
+
+    avahi_cleanup_dead_entries(g->server);
 }
 
 static void entry_group_commit_real(AvahiSEntryGroup *g) {
@@ -1166,6 +1168,8 @@ void avahi_s_entry_group_reset(AvahiSEntryGroup *g) {
     g->n_probing = 0;
 
     avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_UNCOMMITED);
+
+    avahi_cleanup_dead_entries(g->server);
 }
 
 int avahi_entry_is_commited(AvahiEntry *e) {

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Avahi 2008\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-14 03:30+0200\n"
+"POT-Creation-Date: 2009-11-25 08:39+0000\n"
 "PO-Revision-Date: 2008-07-20 15:58+0200\n"
 "Last-Translator: Pablo Martin-Gomez  <pablo.martin-gomez@laposte.net>\n"
 "Language-Team: French <fedora-trans-fr@redhat.com>\n"
@@ -240,25 +240,25 @@ msgstr "Invalide, erreur de code"
 
 #: ../avahi-discover-standalone/avahi-discover.glade.h:1
 msgid "<i>No service currently selected.</i>"
-msgstr ""
+msgstr "<i>Aucun service sélectionné</i>"
 
 #: ../avahi-discover-standalone/avahi-discover.glade.h:2
 msgid "Avahi Discovery"
-msgstr ""
+msgstr "Découverte Avahi"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 #, fuzzy
 msgid "Avahi Zeroconf Browser"
-msgstr "Navigateur de serveur SSH Avahi"
+msgstr "Navigateur Zeroconf d'Avahi"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
 #, fuzzy
 msgid "Browse for Zeroconf services available on your network"
-msgstr "Affiche les serveurs SSH avec Zeroconf activé"
+msgstr "Parcourir les services Zeroconf disponibles sur votre réseau"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "Browse Service Types"
-msgstr ""
+msgstr "Parcourir les types de service"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "A NULL terminated list of service types to browse for"
@@ -267,20 +267,20 @@ msgstr ""
 #: ../avahi-ui/avahi-ui.c:193
 #, fuzzy
 msgid "Domain"
-msgstr "_Domaine ..."
+msgstr "Domaine"
 
 #: ../avahi-ui/avahi-ui.c:193
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
+msgstr "Le domain à parcourir, ou NULL pour le domaine par défaut"
 
 #: ../avahi-ui/avahi-ui.c:199
 #, fuzzy
 msgid "Service Type"
-msgstr "Nom de service"
+msgstr "Type de service"
 
 #: ../avahi-ui/avahi-ui.c:199
 msgid "The service type of the selected service"
-msgstr ""
+msgstr "Le type de service pour celui sélectionné"
 
 #: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
 msgid "Service Name"
@@ -288,57 +288,57 @@ msgstr "Nom de service"
 
 #: ../avahi-ui/avahi-ui.c:205
 msgid "The service name of the selected service"
-msgstr ""
+msgstr "Nom du service sélectionné"
 
 #: ../avahi-ui/avahi-ui.c:211
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: ../avahi-ui/avahi-ui.c:211
 msgid "The address of the resolved service"
-msgstr ""
+msgstr "L'adresse du service résolu"
 
 #: ../avahi-ui/avahi-ui.c:216
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: ../avahi-ui/avahi-ui.c:216
 msgid "The IP port number of the resolved service"
-msgstr ""
+msgstr "Le numéro du port IP du service résolu"
 
 #: ../avahi-ui/avahi-ui.c:222
 #, fuzzy
 msgid "Host Name"
-msgstr "Nom"
+msgstr "Nom d'hôte"
 
 #: ../avahi-ui/avahi-ui.c:222
 msgid "The host name of the resolved service"
-msgstr ""
+msgstr "Le nom d'hôte du service résolu"
 
 #: ../avahi-ui/avahi-ui.c:228
 msgid "TXT Data"
-msgstr ""
+msgstr "Données TXT"
 
 #: ../avahi-ui/avahi-ui.c:228
 msgid "The TXT data of the resolved service"
-msgstr ""
+msgstr "Les données TXT du service résolu"
 
 #: ../avahi-ui/avahi-ui.c:233
 msgid "Resolve service"
-msgstr ""
+msgstr "Recherche du service"
 
 #: ../avahi-ui/avahi-ui.c:239
 #, fuzzy
 msgid "Resolve service host name"
-msgstr "Nom de service invalide"
+msgstr "Résolution du nom de service de l'hôte"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "Address family"
-msgstr ""
+msgstr "Famille d'adresse"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "The address family for host name resolution"
-msgstr ""
+msgstr "La famille d'adresse pour la résolution du nom d'hôte"
 
 #: ../avahi-ui/avahi-ui.c:327
 #, c-format
@@ -373,7 +373,7 @@ msgstr "Échec de la lecture du domaine Avahi  : %s"
 
 #: ../avahi-ui/avahi-ui.c:707
 msgid "Browse service type list is empty!"
-msgstr ""
+msgstr "La liste de navigation des types de services est vide!"
 
 #: ../avahi-ui/avahi-ui.c:718
 #, c-format
@@ -420,7 +420,7 @@ msgstr "Initialisation ..."
 
 #: ../avahi-ui/avahi-ui.c:1143
 msgid "Location"
-msgstr ""
+msgstr "Emplacement"
 
 #: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
 msgid "Name"

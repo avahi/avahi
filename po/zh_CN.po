@@ -365,7 +365,7 @@ msgstr "读取 Avahi 域失败：%s"
 
 #: ../avahi-ui/avahi-ui.c:707
 msgid "Browse service type list is empty!"
-msgstr ""
+msgstr "浏览服务类型列表为空！"
 
 #: ../avahi-ui/avahi-ui.c:718
 #, c-format
@@ -401,7 +401,6 @@ msgid "Change domain"
 msgstr "更改域"
 
 #: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
-#, fuzzy
 msgid "Browsing..."
 msgstr "正在浏览..."
 
@@ -411,7 +410,7 @@ msgstr "正在初始化..."
 
 #: ../avahi-ui/avahi-ui.c:1143
 msgid "Location"
-msgstr ""
+msgstr "位置"
 
 #: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
 msgid "Name"
@@ -436,6 +435,13 @@ msgid ""
 "    -S --shell           Browse both SSH and VNC\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
+"%s [options]\n"
+"\n"
+" -h --help 显示该帮助信息\n"
+" -s --ssh 浏览SSH服务器\n"
+" -v --vnc 浏览VNC服务器\n"
+" -S --shell 浏览SSH和VNC\n"
+" -d --domain=DOMAIN 要浏览的域名\n"
 
 #: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, c-format

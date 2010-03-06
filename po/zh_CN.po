@@ -446,7 +446,7 @@ msgstr ""
 #: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
 #, c-format
 msgid "Too many arguments\n"
-msgstr "过多的参数\n"
+msgstr "参数太多\n"
 
 #: ../avahi-ui/bssh.c:152
 msgid "Choose Shell Server"
@@ -485,24 +485,24 @@ msgstr "已取消。\n"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
-msgstr ""
+msgstr "Avahi SSH服务器浏览器"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr ""
+msgstr "浏览具有Zeroconf功能的SSH服务器"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr ""
+msgstr "Avahi VNC服务器浏览器"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr ""
+msgstr "浏览具有Zeroconf功能的VNC服务器"
 
 #: ../avahi-utils/avahi-browse.c:108
 #, c-format
 msgid ": All for now\n"
-msgstr "：所有暂停\n"
+msgstr "：当前所有\n"
 
 #: ../avahi-utils/avahi-browse.c:119
 #, c-format

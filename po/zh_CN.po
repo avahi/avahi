@@ -258,25 +258,23 @@ msgstr "浏览服务类型"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "A NULL terminated list of service types to browse for"
-msgstr ""
+msgstr "以NULL结尾的服务类型列表用于浏览"
 
 #: ../avahi-ui/avahi-ui.c:193
-#, fuzzy
 msgid "Domain"
-msgstr "_域..."
+msgstr "域"
 
 #: ../avahi-ui/avahi-ui.c:193
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
+msgstr "要浏览的域，或NULL表示默认域"
 
 #: ../avahi-ui/avahi-ui.c:199
-#, fuzzy
 msgid "Service Type"
-msgstr "服务名称"
+msgstr "服务类型"
 
 #: ../avahi-ui/avahi-ui.c:199
 msgid "The service type of the selected service"
-msgstr ""
+msgstr "选定服务的服务类型"
 
 #: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
 msgid "Service Name"
@@ -284,57 +282,55 @@ msgstr "服务名称"
 
 #: ../avahi-ui/avahi-ui.c:205
 msgid "The service name of the selected service"
-msgstr ""
+msgstr "选定服务的服务名称"
 
 #: ../avahi-ui/avahi-ui.c:211
 msgid "Address"
-msgstr ""
+msgstr "地址"
 
 #: ../avahi-ui/avahi-ui.c:211
 msgid "The address of the resolved service"
-msgstr ""
+msgstr "已解析服务的地址"
 
 #: ../avahi-ui/avahi-ui.c:216
 msgid "Port"
-msgstr ""
+msgstr "端口"
 
 #: ../avahi-ui/avahi-ui.c:216
 msgid "The IP port number of the resolved service"
-msgstr ""
+msgstr "已解析服务在IP端口号"
 
 #: ../avahi-ui/avahi-ui.c:222
-#, fuzzy
 msgid "Host Name"
-msgstr "名称"
+msgstr "主机名"
 
 #: ../avahi-ui/avahi-ui.c:222
 msgid "The host name of the resolved service"
-msgstr ""
+msgstr "已解析服务的主机名"
 
 #: ../avahi-ui/avahi-ui.c:228
 msgid "TXT Data"
-msgstr ""
+msgstr "TXT数据"
 
 #: ../avahi-ui/avahi-ui.c:228
 msgid "The TXT data of the resolved service"
-msgstr ""
+msgstr "已解析服务的TXT数据"
 
 #: ../avahi-ui/avahi-ui.c:233
 msgid "Resolve service"
-msgstr ""
+msgstr "解析服务"
 
 #: ../avahi-ui/avahi-ui.c:239
-#, fuzzy
 msgid "Resolve service host name"
-msgstr "无效的服务名称"
+msgstr "解析服务主机名"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "Address family"
-msgstr ""
+msgstr "地址类别"
 
 #: ../avahi-ui/avahi-ui.c:245
 msgid "The address family for host name resolution"
-msgstr ""
+msgstr "用于主机名称解析的地址类别"
 
 #: ../avahi-ui/avahi-ui.c:327
 #, c-format

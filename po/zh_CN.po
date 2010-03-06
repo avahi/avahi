@@ -1,13 +1,13 @@
 # translation of zh_CN.po to 简体中文
 # Copyright (C) 2008 Avahi contributors
 # This file is distributed under the same license as the Avahi package.
-#
+# 
 # Ni Hui <shuizhuyuanluo@126.com>, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: zh_CN\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-14 03:30+0200\n"
+"POT-Creation-Date: 2010-03-06 07:29+0000\n"
 "PO-Revision-Date: 2008-04-11 21:22+0800\n"
 "Last-Translator: Ni Hui <shuizhuyuanluo@126.com>\n"
 "Language-Team: 简体中文 <kde-china@kde.org>\n"
@@ -238,24 +238,23 @@ msgstr "无效的错误代码"
 
 #: ../avahi-discover-standalone/avahi-discover.glade.h:1
 msgid "<i>No service currently selected.</i>"
-msgstr ""
+msgstr "<i>没有当前选定的服务。<i>"
 
 #: ../avahi-discover-standalone/avahi-discover.glade.h:2
 msgid "Avahi Discovery"
-msgstr ""
+msgstr "Avahi发现"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
-msgstr ""
+msgstr "Avahi Zero浏览器"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
-#, fuzzy
 msgid "Browse for Zeroconf services available on your network"
-msgstr "浏览服务于 <b>本地网络</b>："
+msgstr "浏览本地网络内的Zeroconf服务"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "Browse Service Types"
-msgstr ""
+msgstr "浏览服务类型"
 
 #: ../avahi-ui/avahi-ui.c:188
 msgid "A NULL terminated list of service types to browse for"
@@ -603,8 +602,7 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete "
-"list\n"
+"    -t --terminate       Terminate after dumping a more or less complete list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -696,8 +694,7 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service "
-"with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service with\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 "%s [选项] %s <名称> <类型> <端口> [<txt ...>]\n"

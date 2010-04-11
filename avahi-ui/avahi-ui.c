@@ -131,16 +131,16 @@ static void aui_service_dialog_get_property(GObject *object, guint prop_id, GVal
 static int get_default_response(GtkDialog *dlg) {
     gint ret = GTK_RESPONSE_NONE;
 
-    if (GTK_WINDOW(dlg)->default_widget)
+    if (gtk_window_get_default_widget(GTK_WINDOW(dlg)))
         /* Use the response of the default widget, if possible */
-        ret = gtk_dialog_get_response_for_widget(dlg, GTK_WINDOW(dlg)->default_widget);
+        ret = gtk_dialog_get_response_for_widget(dlg, gtk_window_get_default_widget(GTK_WINDOW(dlg)));
 
     if (ret == GTK_RESPONSE_NONE) {
         /* Fall back to finding the first positive response */
         GList *children, *t;
         gint bad = GTK_RESPONSE_NONE;
 
-        t = children = gtk_container_get_children(GTK_CONTAINER(dlg->action_area));
+        t = children = gtk_container_get_children(GTK_CONTAINER(gtk_dialog_get_action_area(dlg)));
 
         while (t) {
             GtkWidget *child = t->data;
@@ -890,7 +890,7 @@ static void response_callback(GtkDialog *dialog, gint response, gpointer user_da
 
         gtk_widget_set_sensitive(GTK_WIDGET(dialog), FALSE);
         cursor = gdk_cursor_new(GDK_WATCH);
-        gdk_window_set_cursor(GTK_WIDGET(dialog)->window, cursor);
+        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(dialog)), cursor);
         gdk_cursor_unref(cursor);
 
         if (!(d->priv->resolver = avahi_service_resolver_new(
@@ -992,7 +992,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
 
     vbox = gtk_vbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(p->domain_dialog)->vbox), vbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(p->domain_dialog))), vbox, TRUE, TRUE, 0);
 
     p->domain_entry = gtk_entry_new();
     gtk_entry_set_max_length(GTK_ENTRY(p->domain_entry), AVAHI_DOMAIN_NAME_MAX);
@@ -1114,7 +1114,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 
     vbox = gtk_vbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(d)->vbox), vbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(d))), vbox, TRUE, TRUE, 0);
 
     p->domain_label = gtk_label_new(_("Initializing..."));
     gtk_label_set_ellipsize(GTK_LABEL(p->domain_label), TRUE);
@@ -1165,8 +1165,8 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     p->domain_button = gtk_button_new_with_mnemonic(_("_Domain..."));
     gtk_button_set_image(GTK_BUTTON(p->domain_button), gtk_image_new_from_stock(GTK_STOCK_NETWORK, GTK_ICON_SIZE_BUTTON));
     g_signal_connect(p->domain_button, "clicked", G_CALLBACK(domain_button_clicked), d);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(d)->action_area), p->domain_button, FALSE, TRUE, 0);
-    gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(GTK_DIALOG(d)->action_area), p->domain_button, TRUE);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(d))), p->domain_button, FALSE, TRUE, 0);
+    gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(gtk_dialog_get_action_area(GTK_DIALOG(d))), p->domain_button, TRUE);
     gtk_widget_show(p->domain_button);
 
     gtk_dialog_set_default_response(GTK_DIALOG(d), GTK_RESPONSE_ACCEPT);

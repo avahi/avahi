@@ -531,7 +531,7 @@ AC_ARG_ENABLE(gtk,
 
 if test "x$HAVE_GTK" = "xyes" ; then
         # Check for GTK 2.0
-        PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.12.0 ])
+        PKG_CHECK_MODULES(GTK20, [ gtk+-2.0 >= 2.14.0 ])
         AC_SUBST(GTK20_CFLAGS)
         AC_SUBST(GTK20_LIBS)
 fi

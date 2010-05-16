@@ -1,14 +1,16 @@
 # Spanish translation for avahi
 # Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
 # This file is distributed under the same license as the avahi package.
+#
+# Carlos Albornoz <caralbornozc@gmail.com>, 2010
 # Jorge González <jorgegonz@svn.gnome.org>, 2008, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
-"Report-Msgid-Bugs-To: http://avahi.org/report\n"
-"POT-Creation-Date: 2009-11-14 03:24+0000\n"
-"PO-Revision-Date: 2010-05-14 08:41+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-05-15 15:17+0000\n"
+"PO-Revision-Date: 2010-05-16 10:25+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -239,11 +241,11 @@ msgstr "La operación solicitada no es válida porque es redundante"
 msgid "Invalid Error Code"
 msgstr "Código de error no válido"
 
-#: ../avahi-discover-standalone/avahi-discover.ui.h:1
+#: ../avahi-discover-standalone/avahi-discover.glade.h:1
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>No hay un servicio actualmente seleccionado.</i>"
 
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
+#: ../avahi-discover-standalone/avahi-discover.glade.h:2
 msgid "Avahi Discovery"
 msgstr "Descubrimiento de Avahi"
 
@@ -542,20 +544,20 @@ msgstr "Falló avahi_service_type_browser_new(): %s\n"
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr "Falló avahi_domain_browser_new(): %s\n"
 
-#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:396
+#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:391
 #: ../avahi-utils/avahi-resolve.c:282 ../avahi-utils/avahi-set-host-name.c:170
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr "Error al consultar la cadena de versión: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:401
+#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:396
 #: ../avahi-utils/avahi-resolve.c:287 ../avahi-utils/avahi-set-host-name.c:175
 #: ../avahi-utils/avahi-set-host-name.c:191
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr "Error al consultar el nombre del equipo: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:405
+#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:400
 #: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
@@ -582,7 +584,7 @@ msgid "Disconnected, reconnecting ...\n"
 msgstr "Desconectado; volviendo a conectar…\n"
 
 #: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
-#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:388
+#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
 #: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
 #, c-format
 msgid "Failed to create client object: %s\n"
@@ -643,7 +645,7 @@ msgstr ""
 msgid "Too few arguments\n"
 msgstr "Muy pocos argumentos\n"
 
-#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:380
+#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
 #: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
 #, c-format
 msgid "Failed to create simple poll object.\n"
@@ -691,20 +693,6 @@ msgstr "Conflicto de nombres de equipo\n"
 
 #: ../avahi-utils/avahi-publish.c:218
 #, c-format
-#| msgid ""
-#| "%s [options] %s <name> <type> <port> [<txt ...>]\n"
-#| "%s [options] %s <host-name> <address>\n"
-#| "\n"
-#| "    -h --help            Show this help\n"
-#| "    -V --version         Show version\n"
-#| "    -s --service         Publish service\n"
-#| "    -a --address         Publish address\n"
-#| "    -v --verbose         Enable verbose mode\n"
-#| "    -d --domain=DOMAIN   Domain to publish service in\n"
-#| "    -H --host=DOMAIN     Host where service resides\n"
-#| "       --subtype=SUBTYPE An additional subtype to register this service "
-#| "with\n"
-#| "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -718,34 +706,34 @@ msgid ""
 "    -H --host=DOMAIN     Host where service resides\n"
 "       --subtype=SUBTYPE An additional subtype to register this service "
 "with\n"
-"    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 "%s [opciones] %s <nombre> <tipo> <puerto> [<txt …>]\n"
 "%s [opciones] %s <nombre-del-equipo> <dirección>\n"
 "\n"
-"    -h --help Mostrar esta ayuda\n"
-"    -V --version Mostrar la versión\n"
-"    -s --service Publicar el servicio\n"
-"    -a --address Publicar la dirección\n"
-"    -v --vervose Activar el modo detallado\n"
-"    -d --domain=DOMINIO Dominio donde publicar el servicio\n"
-"    -H --host=DOMINIO Equipo donde reside el servicio\n"
-"       --sbtype=SUBTIPO Un subtipo adicional con el que registrar este "
+"    -h --help            Mostrar esta ayuda\n"
+"    -V --version         Mostrar la versión\n"
+"    -s --service         Publicar el servicio\n"
+"    -a --address         Publicar la dirección\n"
+"    -v --vervose         Activar el modo detallado\n"
+"    -d --domain=DOMINIO  Dominio donde publicar el servicio\n"
+"    -H --host=DOMINIO    Equipo donde reside el servicio\n"
+"       --sbtype=SUBTIPO  Un subtipo adicional con el que registrar este "
 "servicio\n"
-"    -f --no-fail No fallar en caso que el demonio no esté disponible\n"
+"    -f --no-fail         No fallar en caso que el demonio no esté "
+"disponible\n"
 
-#: ../avahi-utils/avahi-publish.c:305 ../avahi-utils/avahi-publish.c:320
+#: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr "Número de argumentos incorrecto\n"
 
-#: ../avahi-utils/avahi-publish.c:331
+#: ../avahi-utils/avahi-publish.c:326
 #, c-format
 msgid "Failed to parse port number: %s\n"
 msgstr "Falló al analizar el número de puerto: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:363 ../avahi-utils/avahi-resolve.c:248
+#: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
 #, c-format
 msgid "No command specified.\n"
 msgstr "No se especificó ningún comando.\n"

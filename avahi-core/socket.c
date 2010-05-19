@@ -652,6 +652,10 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
         goto fail;
     }
 
+    /* For corrupt packets FIONREAD returns zero size (See rhbz #607297) */
+    if (!ms)
+        goto fail;
+
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
@@ -804,6 +808,10 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
         avahi_log_warn("FIONREAD returned negative value.");
         goto fail;
     }
+
+    /* For corrupt packets FIONREAD returns zero size (See rhbz #607297) */
+    if (!ms)
+        goto fail;
 
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 

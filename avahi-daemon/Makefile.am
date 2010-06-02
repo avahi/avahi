@@ -1,7 +1,7 @@
 # $Id$
 #
 # This file is part of avahi.
-# 
+#
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -53,6 +53,7 @@ avahi_daemon_SOURCES = \
 	static-hosts.c static-hosts.h \
 	ini-file-parser.c ini-file-parser.h \
 	setproctitle.c setproctitle.h \
+	sd-daemon.h sd-daemon.c \
 	../avahi-client/check-nss.c
 
 avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS)
@@ -63,7 +64,7 @@ ini_file_parser_test_SOURCES = \
 	ini-file-parser-test.c
 
 ini_file_parser_test_CFLAGS = $(AM_CFLAGS)
-ini_file_parser_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la 
+ini_file_parser_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la
 
 pkgsysconf_DATA = \
 	avahi-daemon.conf \
@@ -163,3 +164,7 @@ xmllint:
 
 install-data-local:
 	test -z "$(localstatedir)/run" || $(mkdir_p) "$(DESTDIR)$(localstatedir)/run"
+
+update-systemd:
+	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.c > sd-daemon.c
+	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.h > sd-daemon.h

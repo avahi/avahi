@@ -79,6 +79,7 @@
 #include "static-services.h"
 #include "static-hosts.h"
 #include "ini-file-parser.h"
+#include "sd-daemon.h"
 
 #ifdef HAVE_DBUS
 #include "dbus-protocol.h"
@@ -1455,10 +1456,11 @@ int main(int argc, char *argv[]) {
         if (config.use_syslog || config.daemonize)
             daemon_log_use = DAEMON_LOG_SYSLOG;
 
-        if (daemon_close_all(-1) < 0) {
-            avahi_log_error("Failed to close remaining file descriptors: %s", strerror(errno));
-            goto finish;
-        }
+        if (sd_listen_fds(0) <= 0)
+            if (daemon_close_all(-1) < 0) {
+                avahi_log_error("Failed to close remaining file descriptors: %s", strerror(errno));
+                goto finish;
+            }
 
         if (make_runtime_dir() < 0)
             goto finish;

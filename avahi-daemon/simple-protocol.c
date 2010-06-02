@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -44,6 +44,7 @@
 
 #include "simple-protocol.h"
 #include "main.h"
+#include "sd-daemon.h"
 
 #ifdef ENABLE_CHROOT
 #include "chroot.h"
@@ -75,7 +76,7 @@ struct Client {
     Server *server;
 
     ClientState state;
-    
+
     int fd;
     AvahiWatch *watch;
 
@@ -87,7 +88,7 @@ struct Client {
     AvahiSDNSServerBrowser *dns_server_browser;
 
     AvahiProtocol afquery;
-    
+
     AVAHI_LLIST_FIELDS(Client, clients);
 };
 
@@ -98,7 +99,7 @@ struct Server {
     AVAHI_LLIST_HEAD(Client, clients);
 
     unsigned n_clients;
-    int bind_successful;
+    int remove_socket;
 };
 
 static Server *server = NULL;
@@ -122,7 +123,7 @@ static void client_free(Client *c) {
 
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
-    
+
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
     avahi_free(c);
 }
@@ -151,7 +152,7 @@ static void client_new(Server *s, int fd) {
 
 static void client_output(Client *c, const uint8_t*data, size_t size) {
     size_t k, m;
-    
+
     assert(c);
     assert(data);
 
@@ -170,7 +171,7 @@ static void client_output(Client *c, const uint8_t*data, size_t size) {
 static void client_output_printf(Client *c, const char *format, ...) {
     char *t;
     va_list ap;
-    
+
     va_start(ap, format);
     t = avahi_strdup_vprintf(format, ap);
     va_end(ap);
@@ -186,11 +187,11 @@ static void host_name_resolver_callback(
     AvahiResolverEvent event,
     const char *hostname,
     const AvahiAddress *a,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, 
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
 
     Client *c = userdata;
-    
+
     assert(c);
 
     if (event == AVAHI_RESOLVER_FAILURE)
@@ -213,9 +214,9 @@ static void address_resolver_callback(
     const char *hostname,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     Client *c = userdata;
-    
+
     assert(c);
 
     if (event == AVAHI_RESOLVER_FAILURE)
@@ -236,10 +237,10 @@ static void dns_server_browser_callback(
     uint16_t port,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     Client *c = userdata;
     char t[AVAHI_ADDRESS_STR_MAX];
-    
+
     assert(c);
 
     if (!a)
@@ -257,7 +258,7 @@ static void dns_server_browser_callback(
 
         case AVAHI_BROWSER_NEW:
         case AVAHI_BROWSER_REMOVE:
-    
+
             avahi_address_snprint(t, sizeof(t), a);
             client_output_printf(c, "%c %i %u %s %u\n", event == AVAHI_BROWSER_NEW ? '>' : '<',  interface, protocol, t, port);
             break;
@@ -314,7 +315,7 @@ static void handle_line(Client *c, const char *s) {
         avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
-        
+
         if (!(avahi_address_parse(arg, AVAHI_PROTO_UNSPEC, &addr))) {
             client_output_printf(c, "%+i Failed to parse address \"%s\".\n", AVAHI_ERR_INVALID_ADDRESS, arg);
             c->state = CLIENT_DEAD;
@@ -376,7 +377,7 @@ static void handle_input(Client *c) {
 
         k = e - (char*) c->inbuf;
         *e = 0;
-        
+
         handle_line(c, c->inbuf);
         c->inbuf_length -= k + 1;
         memmove(c->inbuf, e+1, c->inbuf_length);
@@ -390,7 +391,7 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
 
     if ((events & AVAHI_WATCH_IN) && c->inbuf_length < sizeof(c->inbuf)) {
         ssize_t r;
-        
+
         if ((r = read(c->fd, c->inbuf + c->inbuf_length, sizeof(c->inbuf) - c->inbuf_length)) <= 0) {
             if (r < 0)
                 avahi_log_warn("read(): %s", strerror(errno));
@@ -415,7 +416,7 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
 
         assert((size_t) r <= c->outbuf_length);
         c->outbuf_length -= r;
-        
+
         if (c->outbuf_length)
             memmove(c->outbuf, c->outbuf + r, c->outbuf_length - r);
 
@@ -426,7 +427,7 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
     }
 
     c->server->poll_api->watch_update(
-        watch, 
+        watch,
         (c->outbuf_length > 0 ? AVAHI_WATCH_OUT : 0) |
         (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
@@ -445,59 +446,83 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
             client_new(s, cfd);
     }
 }
-    
+
 int simple_protocol_setup(const AvahiPoll *poll_api) {
     struct sockaddr_un sa;
     mode_t u;
+    int n;
 
     assert(!server);
 
     server = avahi_new(Server, 1);
     server->poll_api = poll_api;
-    server->bind_successful = 0;
+    server->remove_socket = 0;
     server->fd = -1;
     server->n_clients = 0;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
-    
+
     u = umask(0000);
 
-    if ((server->fd = socket(PF_LOCAL, SOCK_STREAM, 0)) < 0) {
-        avahi_log_warn("socket(PF_LOCAL, SOCK_STREAM, 0): %s", strerror(errno));
+    if ((n = sd_listen_fds(1)) < 0) {
+        avahi_log_warn("Failed to acquire systemd file descriptors: %s", strerror(-n));
         goto fail;
     }
 
-    memset(&sa, 0, sizeof(sa));
-    sa.sun_family = AF_LOCAL;
-    strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path)-1);
-
-    /* We simply remove existing UNIX sockets under this name. The
-       Avahi daemon makes sure that it runs only once on a host,
-       therefore sockets that already exist are stale and may be
-       removed without any ill effects */
-
-    unlink(AVAHI_SOCKET);
-    
-    if (bind(server->fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
-        avahi_log_warn("bind(): %s", strerror(errno));
+    if (n > 1) {
+        avahi_log_warn("Too many systemd file descriptors passed.");
         goto fail;
     }
 
-    server->bind_successful = 1;
-    
-    if (listen(server->fd, 2) < 0) {
-        avahi_log_warn("listen(): %s", strerror(errno));
-        goto fail;
+    if (n == 1) {
+        int r;
+
+        if ((r = sd_is_socket(AF_LOCAL, SOCK_STREAM, 1, 0)) < 0) {
+            avahi_log_warn("Passed systemd file descriptor is of wrong type: %s", strerror(-r));
+            goto fail;
+        }
+
+        server->fd = SD_LISTEN_FDS_START;
+
+    } else {
+
+        if ((server->fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0) {
+            avahi_log_warn("socket(AF_LOCAL, SOCK_STREAM, 0): %s", strerror(errno));
+            goto fail;
+        }
+
+        memset(&sa, 0, sizeof(sa));
+        sa.sun_family = AF_LOCAL;
+        strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path)-1);
+
+        /* We simply remove existing UNIX sockets under this name. The
+           Avahi daemon makes sure that it runs only once on a host,
+           therefore sockets that already exist are stale and may be
+           removed without any ill effects */
+
+        unlink(AVAHI_SOCKET);
+
+        if (bind(server->fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
+            avahi_log_warn("bind(): %s", strerror(errno));
+            goto fail;
+        }
+
+        server->remove_socket = 1;
+
+        if (listen(server->fd, SOMAXCONN) < 0) {
+            avahi_log_warn("listen(): %s", strerror(errno));
+            goto fail;
+        }
     }
 
     umask(u);
 
     server->watch = poll_api->watch_new(poll_api, server->fd, AVAHI_WATCH_IN, server_work, server);
-    
+
     return 0;
 
 fail:
-    
+
     umask(u);
     simple_protocol_shutdown();
 
@@ -508,7 +533,7 @@ void simple_protocol_shutdown(void) {
 
     if (server) {
 
-        if (server->bind_successful)
+        if (server->remove_socket)
 #ifdef ENABLE_CHROOT
             avahi_chroot_helper_unlink(AVAHI_SOCKET);
 #else
@@ -520,12 +545,12 @@ void simple_protocol_shutdown(void) {
 
         if (server->watch)
             server->poll_api->watch_free(server->watch);
-        
+
         if (server->fd >= 0)
             close(server->fd);
 
         avahi_free(server);
-        
+
         server = NULL;
     }
 }
@@ -534,7 +559,7 @@ void simple_protocol_restart_queries(void) {
     Client *c;
 
     /* Restart queries in case of local domain name changes */
-    
+
     assert(server);
 
     for (c = server->clients; c; c = c->clients_next)
@@ -543,5 +568,3 @@ void simple_protocol_restart_queries(void) {
             c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c);
         }
 }
-
-

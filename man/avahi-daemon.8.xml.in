@@ -81,7 +81,7 @@
 
       <option>
         <p><opt>--no-drop-root</opt></p>
-        <optdesc><p>Don't drop root priviliges after startup and don't require daemon to be started as root. We recommend not to use this option.</p></optdesc>
+        <optdesc><p>Don't drop root privileges after startup and don't require daemon to be started as root. We recommend not to use this option.</p></optdesc>
       </option>
 
       <option>

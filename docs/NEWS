@@ -189,7 +189,7 @@ from the last release
  * Fix potential endless loop in dns label unpacking code (Closes: #84)
  * Fix bogus assertion in client-publish-service.c example
  * Mild fix to some doxygen docs for avahi-common/address.h
- * Fix passing in custom priviledged group (previously ignored setting)
+ * Fix passing in custom privileged group (previously ignored setting)
    (Closes: #85)
 
 This release is backwards compatible with Avahi 0.6.x with x < 16.
@@ -219,7 +219,7 @@ Changes:
     Windows under the name APIPA. While it is not the first implemenatation of
     this technology for Free operating systems it is clearly the most powerful
     and hopefully even the most secure. (Because it chroot()s and drops
-    priviliges and suchlike) For more information, especially about packaging
+    privileges and suchlike) For more information, especially about packaging
     this new tool for distributions, please make sure to read:
     http://avahi.org/wiki/AvahiAutoipd
     and of course the man page included in the tarball.  For the rationale for

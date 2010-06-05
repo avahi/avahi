@@ -89,7 +89,7 @@
 
       <option>
         <p><opt>--no-drop-root</opt></p>
-        <optdesc><p>Don't drop root priviliges after startup. We recommend not to use this option.</p></optdesc>
+        <optdesc><p>Don't drop root privileges after startup. We recommend not to use this option.</p></optdesc>
       </option>
 
       <option>

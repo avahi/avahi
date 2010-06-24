@@ -32,8 +32,8 @@
 
 #include "prioq.h"
 
-#define POINTER_TO_INT(p) ((int) (p))
-#define INT_TO_POINTER(i) ((void*) (i))
+#define POINTER_TO_INT(p) ((int) (long) (p))
+#define INT_TO_POINTER(i) ((void*) (long) (i))
 
 static int compare_int(const void* a, const void* b) {
     int i = POINTER_TO_INT(a), j = POINTER_TO_INT(b);

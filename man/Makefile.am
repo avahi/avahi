@@ -84,7 +84,7 @@ endif
 endif
 
 %.xml: %.xml.in Makefile
-	sed	-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+	$(AM_V_GEN) sed -e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
 		-e 's,@servicedir\@,$(servicedir),g' \
 		-e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' \
 		-e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' $< > $@
@@ -94,13 +94,13 @@ if USE_XMLTOMAN
 CLEANFILES += $(man_MANS)
 
 %.1: %.1.xml Makefile
-	xmltoman $< > $@
+	$(AM_V_GEN)xmltoman $< > $@
 
 %.5: %.5.xml Makefile
-	xmltoman $< > $@
+	$(AM_V_GEN)xmltoman $< > $@
 
 %.8: %.8.xml Makefile
-	xmltoman $< > $@
+	$(AM_V_GEN)xmltoman $< > $@
 
 xmllint: $(noinst_DATA)
 	for f in $(noinst_DATA) ; do \

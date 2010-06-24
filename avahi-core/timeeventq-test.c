@@ -32,8 +32,8 @@
 #include "timeeventq.h"
 #include "log.h"
 
-#define POINTER_TO_INT(p) ((int) (p))
-#define INT_TO_POINTER(i) ((void*) (i))
+#define POINTER_TO_INT(p) ((int) (long) (p))
+#define INT_TO_POINTER(i) ((void*) (long) (i))
 
 static AvahiTimeEventQueue *q = NULL;
 

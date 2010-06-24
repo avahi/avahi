@@ -46,13 +46,16 @@ AC_CANONICAL_HOST
 
 AM_SILENT_RULES([yes])
 
-if type -p stow > /dev/null && test -d /usr/local/stow ; then
-    AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
-    ac_default_prefix="/usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION}"
-fi
+AC_CHECK_PROG([STOW], [stow], [yes], [no])
+
+AS_IF([test "x$STOW" = "xyes" && test -d /usr/local/stow], [
+        AC_MSG_NOTICE([*** Found /usr/local/stow: default install prefix set to /usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION} ***])
+        ac_default_prefix="/usr/local/stow/${PACKAGE_NAME}-${PACKAGE_VERSION}"
+])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_C99
 AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_USE_SYSTEM_EXTENSIONS
@@ -304,7 +307,7 @@ test_gcc_flag() {
 # If using GCC specify some additional parameters
 if test "x$GCC" = "xyes" ; then
 
-    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline"
+    DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Winline -fdiagnostics-show-option -Wno-cast-qual"
 
     if test "x$HAVE_NETLINK" = "xyes" ; then
         # Test whether rtnetlink.h can be included when compiled with -std=c99
@@ -417,7 +420,6 @@ AM_GLIB_GNU_GETTEXT
 
 avahilocaledir='${prefix}/${DATADIRNAME}/locale'
 AC_SUBST(avahilocaledir)
-
 
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.

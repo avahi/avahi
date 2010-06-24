@@ -34,7 +34,7 @@ pythonscripts = \
 	avahi-bookmarks
 
 avahi-bookmarks: avahi-bookmarks.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' $< > $@ && \
 	chmod +x $@
 
 bin_SCRIPTS = $(pythonscripts)

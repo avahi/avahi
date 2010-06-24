@@ -26,9 +26,9 @@ initd_SCRIPTS = avahi-daemon avahi-dnsconfd
 CLEANFILES = avahi-daemon avahi-dnsconfd
 
 avahi-daemon: avahi-daemon.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@ && \
 	chmod +x $@
 
 avahi-dnsconfd: avahi-dnsconfd.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@ && \
 	chmod +x $@

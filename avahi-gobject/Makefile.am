@@ -74,10 +74,10 @@ dist-hook:
 	$(shell for x in $(BUILT_SOURCES); do rm -f $(distdir)/$$x ; done)
 
 signals-marshal.list: $(CORE_SOURCES) Makefile.am
-	( cd $(srcdir) && \
+	$(AM_V_GEN)( cd $(srcdir) && \
 	sed -n -e 's/.*_ga_signals_marshal_\([A-Z]*__[A-Z_]*\).*/\1/p' \
 		$(CORE_SOURCES) ) \
-		| sed -e 's/__/:/' -e 'y/_/,/' | sort -u > $@.tmp
+		| sed -e 's/__/:/' -e 'y/_/,/' | sort -u > $@.tmp && \
 	if cmp -s $@.tmp $@; then \
 		rm $@.tmp; \
 	else \
@@ -85,15 +85,15 @@ signals-marshal.list: $(CORE_SOURCES) Makefile.am
 	fi
 
 signals-marshal.h: signals-marshal.list
-	glib-genmarshal --header --prefix=_ga_signals_marshal $< > $@
+	$(AM_V_GEN)glib-genmarshal --header --prefix=_ga_signals_marshal $< > $@
 
 signals-marshal.c: signals-marshal.list
-	glib-genmarshal --body --prefix=_ga_signals_marshal $< > $@
+	$(AM_V_GEN)glib-genmarshal --body --prefix=_ga_signals_marshal $< > $@
 
 
 # rules for making the glib enum objects
 %-enumtypes.h: %.h Makefile.in
-	glib-mkenums \
+	$(AM_V_GEN)glib-mkenums \
 	--fhead "#ifndef __$(shell echo $* | tr [:lower:]- [:upper:]_)_ENUM_TYPES_H__\n#define __$(shell echo $* | tr [:lower:]- [:upper:]_)_ENUM_TYPES_H__\n\n#include <glib-object.h>\n\nG_BEGIN_DECLS\n" \
 	--fprod "/* enumerations from \"@filename@\" */\n" \
 	--vhead "GType @enum_name@_get_type (void);\n#define $(shell echo $* | tr [:lower:]- [:upper:]_ | sed 's/_.*//')_TYPE_@ENUMSHORT@ (@enum_name@_get_type())\n"         \
@@ -101,7 +101,7 @@ signals-marshal.c: signals-marshal.list
 	$< > $@
 
 %-enumtypes.c: %.h Makefile.in
-	glib-mkenums \
+	$(AM_V_GEN)glib-mkenums \
 	--fhead "#include <$*.h>" \
 	--fprod "\n/* enumerations from \"@filename@\" */" \
 	--vhead "GType\n@enum_name@_get_type (void)\n{\n  static GType etype = 0;\n  if (etype == 0) {\n    static const G@Type@Value values[] = {"     \

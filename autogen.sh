@@ -1,5 +1,4 @@
-#!/bin/sh
-# $Id$
+#!/bin/bash
 
 # This file is part of avahi.
 #
@@ -18,22 +17,23 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-VERSION=1.9
+AM_VERSION=1.11
+AC_VERSION=2.63
 
 run_versioned() {
     local P
     local V
 
     V=$(echo "$2" | sed -e 's,\.,,g')
-    
-    if [ -e "`which $1$V`" ] ; then
-    	P="$1$V" 
+
+    if [ -e "`which $1$V 2> /dev/null`" ] ; then
+        P="$1$V"
     else
-	if [ -e "`which $1-$2`" ] ; then
-	    P="$1-$2" 
-	else
-	    P="$1"
-	fi
+        if [ -e "`which $1-$2 2> /dev/null`" ] ; then
+            P="$1-$2"
+        else
+            P="$1"
+        fi
     fi
 
     shift 2
@@ -42,8 +42,14 @@ run_versioned() {
 
 set -ex
 
+if [ -f .git/hooks/pre-commit.sample -a ! -f .git/hooks/pre-commit ] ; then
+    cp -p .git/hooks/pre-commit.sample .git/hooks/pre-commit && \
+    chmod +x .git/hooks/pre-commit && \
+    echo "Activated pre-commit hook."
+fi
+
 if [ "x$1" = "xam" ] ; then
-    run_versioned automake "$VERSION" -a -c --foreign
+    run_versioned automake "$AM_VERSION" -a -c --foreign
     ./config.status
 else 
     rm -rf autom4te.cache
@@ -59,10 +65,10 @@ else
 
     intltoolize --copy --force --automake
     "$LIBTOOLIZE" -c --force
-    run_versioned aclocal "$VERSION" -I common
-    run_versioned autoconf 2.59 -Wall
-    run_versioned autoheader 2.59
-    run_versioned automake "$VERSION" -a -c --foreign
+    run_versioned aclocal "$AM_VERSION" -I common
+    run_versioned autoconf "$AC_VERSION" -Wall
+    run_versioned autoheader "$AC_VERSION"
+    run_versioned automake "$AM_VERSION" -a -c --foreign
 
     if test "x$NOCONFIGURE" = "x"; then
         ./configure "$@"

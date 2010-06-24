@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -50,7 +50,7 @@ void avahi_dbus_sync_address_resolver_free(SyncAddressResolverInfo *i) {
 
 void avahi_dbus_sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata) {
     SyncAddressResolverInfo *i = userdata;
-    
+
     assert(r);
     assert(address);
     assert(i);
@@ -68,7 +68,7 @@ void avahi_dbus_sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIf
         i_protocol = (int32_t) protocol;
         i_aprotocol = (int32_t) address->proto;
         u_flags = (uint32_t) flags;
-        
+
         reply = dbus_message_new_method_return(i->message);
         dbus_message_append_args(
             reply,

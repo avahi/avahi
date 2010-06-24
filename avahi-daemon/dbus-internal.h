@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -56,7 +56,7 @@ struct EntryGroupInfo {
     char *path;
 
     int n_entries;
-    
+
     AVAHI_LLIST_FIELDS(EntryGroupInfo, entry_groups);
 };
 
@@ -152,7 +152,7 @@ struct Client {
     char *name;
     unsigned current_id;
     int n_objects;
-    
+
     AVAHI_LLIST_FIELDS(Client, clients);
     AVAHI_LLIST_HEAD(EntryGroupInfo, entry_groups);
     AVAHI_LLIST_HEAD(SyncHostNameResolverInfo, sync_host_name_resolvers);
@@ -224,7 +224,7 @@ void avahi_dbus_sync_service_resolver_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags, 
+    AvahiLookupResultFlags flags,
     void* userdata);
 
 void avahi_dbus_async_service_resolver_free(AsyncServiceResolverInfo *i);
@@ -240,7 +240,7 @@ void avahi_dbus_async_service_resolver_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AvahiLookupResultFlags flags, 
+    AvahiLookupResultFlags flags,
     void* userdata);
 
 DBusHandlerResult avahi_dbus_msg_async_service_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);

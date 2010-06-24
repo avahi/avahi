@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -42,11 +42,11 @@ static AvahiSEntryGroup *group = NULL;
 
 static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void* userdata) {
 
-    avahi_log_debug("server state: %i", state); 
-    
+    avahi_log_debug("server state: %i", state);
+
     if (state == AVAHI_SERVER_RUNNING) {
         int ret;
-        
+
         group = avahi_s_entry_group_new(s, NULL, NULL);
         assert(group);
 
@@ -62,7 +62,7 @@ static void modify_txt_callback(AVAHI_GCC_UNUSED AvahiTimeout *e, void *userdata
     AvahiServer *s = userdata;
 
     avahi_log_debug("modifying");
-    
+
     ret = avahi_server_update_service_txt(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, "test2", NULL);
     assert(ret == AVAHI_OK);
 }
@@ -76,7 +76,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     simple_poll = avahi_simple_poll_new();
     assert(simple_poll);
-    
+
     poll_api = avahi_simple_poll_get(simple_poll);
     assert(poll_api);
 

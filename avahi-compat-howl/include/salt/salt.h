@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -36,14 +36,14 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif 
+#endif
 
 
 typedef enum _sw_socket_event
 {
 	SW_SOCKET_READ		=	(1 << 0),
 	SW_SOCKET_WRITE	=	(1 << 1),
-	SW_SOCKET_OOB		=	(1 << 2)	
+	SW_SOCKET_OOB		=	(1 << 2)
 } sw_socket_event;
 
 
@@ -80,7 +80,7 @@ typedef sw_result
 									sw_salt									salt,
 									struct _sw_network_interface	*	netif,
 									sw_opaque								extra);
-		
+
 typedef sw_opaque				sw_signal_handler;
 typedef sw_result
 (HOWL_API *sw_signal_handler_func)(
@@ -95,13 +95,13 @@ sw_salt_init(
 				sw_salt		*	self,
 				int				argc,
 				char			**	argv);
-                                 
-                                 
+
+
 sw_result HOWL_API
 sw_salt_fina(
 				sw_salt	self);
 
-                                                                  
+
 sw_result HOWL_API
 sw_salt_register_socket(
 				sw_salt						self,
@@ -116,8 +116,8 @@ sw_result HOWL_API
 sw_salt_unregister_socket(
 				sw_salt						self,
 				struct _sw_socket		*	socket);
-                                 
-                                 
+
+
 sw_result HOWL_API
 sw_salt_register_timer(
 				sw_salt						self,
@@ -126,8 +126,8 @@ sw_salt_register_timer(
 				sw_timer_handler			handler,
 				sw_timer_handler_func	func,
 				sw_opaque					extra);
-                                 
-                                 
+
+
 sw_result HOWL_API
 sw_salt_unregister_timer(
 				sw_salt						self,
@@ -187,7 +187,7 @@ sw_salt_run(
 sw_result HOWL_API
 sw_salt_stop_run(
 				sw_salt	self);
-            
+
 
 #define SW_FALSE		0
 #define SW_TRUE		1

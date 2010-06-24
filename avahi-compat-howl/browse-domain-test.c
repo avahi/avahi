@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -54,7 +54,7 @@ static sw_result reply(
         case SW_DISCOVERY_BROWSE_INVALID:
             fprintf(stderr, "some kind of failure happened: %s\n", domain);
             break;
-            
+
         default:
             abort();
     }
@@ -65,12 +65,12 @@ static sw_result reply(
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     sw_discovery discovery;
     sw_discovery_oid oid;
-    
+
     ASSERT_SW_OKAY(sw_discovery_init(&discovery));
 
     ASSERT_SW_OKAY(sw_discovery_browse_domains(discovery, 0, reply, NULL, &oid));
-    
+
     ASSERT_SW_OKAY(sw_discovery_run(discovery));
-                   
+
     return 0;
 }

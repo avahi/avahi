@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -74,10 +74,10 @@ const char* stdb_lookup(const char *name) {
 
     data.dptr = NULL;
     data.dsize = 0;
-    
+
     if ((loc = setlocale(LC_MESSAGES, NULL))) {
         char k[256];
-        
+
         snprintf(k, sizeof(k), "%s[%s]", name, loc);
         key.dptr = k;
         key.dsize = strlen(k);
@@ -91,7 +91,7 @@ const char* stdb_lookup(const char *name) {
         if (!data.dptr) {
             char l[32], *e;
             snprintf(l, sizeof(l), "%s", loc);
-            
+
             if ((e = strchr(l, '@'))) {
                 *e = 0;
                 snprintf(k, sizeof(k), "%s[%s]", name, l);
@@ -139,9 +139,9 @@ const char* stdb_lookup(const char *name) {
     avahi_free(buffer);
     buffer = avahi_strndup(data.dptr, data.dsize);
     free(data.dptr);
-    
+
     return buffer;
-    
+
 fail:
 
     return name;
@@ -169,12 +169,12 @@ void stdb_shutdown(void) {
 
 char *stdb_getent(void) {
     datum key;
-    
+
     if (init() < 0)
         return NULL;
 
     for (;;) {
-    
+
         if (!enum_key) {
 #ifdef HAVE_GDBM
             key = gdbm_firstkey(gdbm_file);
@@ -185,7 +185,7 @@ char *stdb_getent(void) {
         } else {
             key.dptr = enum_key;
             key.dsize = strlen(enum_key);
-            
+
 #ifdef HAVE_GDBM
             key = gdbm_nextkey(gdbm_file, key);
 #endif
@@ -196,10 +196,10 @@ char *stdb_getent(void) {
 
         avahi_free(enum_key);
         enum_key = NULL;
-        
+
         if (!key.dptr)
             return NULL;
-    
+
         enum_key = avahi_strndup(key.dptr, key.dsize);
         free(key.dptr);
 

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -73,7 +73,7 @@ static void create_second_service_browser(AvahiTimeout *timeout, AVAHI_GCC_UNUSE
 
     service_browser2 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
     assert(service_browser2);
-    
+
     poll_api->timeout_free(timeout);
 }
 
@@ -84,10 +84,10 @@ static void quit(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct timeval tv;
     AvahiServerConfig config;
-    
+
     simple_poll = avahi_simple_poll_new();
     assert(simple_poll);
-    
+
     poll_api = avahi_simple_poll_get(simple_poll);
     assert(poll_api);
 
@@ -100,25 +100,25 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &config.wide_area_servers[0]);
     config.n_wide_area_servers = 1;
     config.enable_wide_area = 1;
-    
+
     server = avahi_server_new(poll_api, &config, NULL, NULL, NULL);
     assert(server);
     avahi_server_config_free(&config);
 
     service_browser1 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
     assert(service_browser1);
-    
+
     poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 10000, 0), create_second_service_browser, NULL);
 
     poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 60000, 0), quit, NULL);
 
-    
+
     for (;;)
         if (avahi_simple_poll_iterate(simple_poll, -1) != 0)
             break;
 
     avahi_server_free(server);
     avahi_simple_poll_free(simple_poll);
-    
+
     return 0;
 }

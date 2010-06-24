@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -50,7 +50,7 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
     uint8_t req[1024];
 
     /* Issue a wild dump NETLINK request */
-    
+
     memset(&req, 0, sizeof(req));
     n = (struct nlmsghdr*) req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtgenmsg));
@@ -69,7 +69,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
     AvahiInterfaceMonitor *m = userdata;
 
     /* This routine is called for every RTNETLINK response packet */
-    
+
     assert(m);
     assert(n);
     assert(m->osdep.netlink == nl);
@@ -77,7 +77,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
     if (n->nlmsg_type == RTM_NEWLINK) {
 
         /* A new interface appeared or an existing one has been modified */
-        
+
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
         AvahiHwInterface *hw;
         struct rtattr *a = NULL;
@@ -93,7 +93,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
          * interface appears, but when it changes, too */
 
         if (!(hw = avahi_interface_monitor_get_hw_interface(m, ifinfomsg->ifi_index)))
-            
+
             /* No object found, so let's create a new
              * one. avahi_hw_interface_new() will call
              * avahi_interface_new() internally twice for IPv4 and
@@ -136,10 +136,10 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
                     hw->mac_address_size = RTA_PAYLOAD(a);
                     if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)
                         hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
-                    
+
                     memcpy(hw->mac_address, RTA_DATA(a), hw->mac_address_size);
                     break;
-                    
+
                 default:
                     ;
             }
@@ -156,7 +156,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         /* Update any associated RRs of this interface. (i.e. the
          * _workstation._tcp record containing the MAC address) */
         avahi_hw_interface_update_rrs(hw, 0);
-        
+
     } else if (n->nlmsg_type == RTM_DELLINK) {
 
         /* An interface has been removed */
@@ -174,11 +174,11 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
         /* Free our object */
         avahi_hw_interface_free(hw, 0);
-        
+
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
         /* An address has been added, modified or removed */
-        
+
         struct ifaddrmsg *ifaddrmsg = NLMSG_DATA(n);
         AvahiInterface *i;
         struct rtattr *a = NULL;
@@ -207,7 +207,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             switch(a->rta_type) {
                 case IFA_ADDRESS:
                     /* Fill in address data */
-                    
+
                     if ((raddr.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
                         (raddr.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
                         return;
@@ -220,7 +220,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
                 default:
                     ;
             }
-            
+
             a = RTA_NEXT(a, l);
         }
 
@@ -260,16 +260,16 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
         /* Update any associated RRs, like A or AAAA for our new/removed address */
         avahi_interface_update_rrs(i, 0);
-        
+
     } else if (n->nlmsg_type == NLMSG_DONE) {
 
         /* This wild dump request ended, so let's see what we do next */
-        
+
         if (m->osdep.list == LIST_IFACE) {
 
             /* Mmmm, interfaces have been wild dumped already, so
              * let's go on with wild dumping the addresses */
-            
+
             if (netlink_list_items(m->osdep.netlink, RTM_GETADDR, &m->osdep.query_addr_seq) < 0) {
                 avahi_log_warn("NETLINK: Failed to list addrs: %s", strerror(errno));
                 m->osdep.list = LIST_DONE;
@@ -300,14 +300,14 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             /* Tell the user that the wild dump is complete */
             avahi_log_info("Network interface enumeration completed.");
         }
-        
+
     } else if (n->nlmsg_type == NLMSG_ERROR &&
                (n->nlmsg_seq == m->osdep.query_link_seq || n->nlmsg_seq == m->osdep.query_addr_seq)) {
         struct nlmsgerr *e = NLMSG_DATA (n);
 
         /* Some kind of error happened. Let's just tell the user and
          * ignore it otherwise */
-        
+
         if (e->error)
             avahi_log_warn("NETLINK: Failed to browse: %s", strerror(-e->error));
     }
@@ -317,7 +317,7 @@ int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
     assert(m);
 
     /* Initialize our own data */
-    
+
     m->osdep.netlink = NULL;
     m->osdep.query_addr_seq = m->osdep.query_link_seq = 0;
 
@@ -361,7 +361,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
 
     /* Let's handle netlink events until we are done with wild
      * dumping */
-    
+
     while (!m->list_complete)
         if (!avahi_netlink_work(m->osdep.netlink, 1) == 0)
             break;

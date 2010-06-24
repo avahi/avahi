@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -38,7 +38,7 @@ AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size)
 
     if (!(n = avahi_malloc(sizeof(AvahiStringList) + size)))
         return NULL;
-    
+
     n->next = l;
     n->size = size;
 
@@ -71,14 +71,14 @@ AvahiStringList *avahi_string_list_add(AvahiStringList *l, const char *text) {
 int avahi_string_list_parse(const void* data, size_t size, AvahiStringList **ret) {
     const uint8_t *c;
     AvahiStringList *r = NULL;
-    
+
     assert(data);
     assert(ret);
 
     c = data;
     while (size > 0) {
         size_t k;
-        
+
         k = *(c++);
         size--;
 
@@ -88,18 +88,18 @@ int avahi_string_list_parse(const void* data, size_t size, AvahiStringList **ret
         if (k > 0) { /* Ignore empty strings */
             AvahiStringList *n;
 
-            if (!(n = avahi_string_list_add_arbitrary(r, c, k)))  
+            if (!(n = avahi_string_list_add_arbitrary(r, c, k)))
                 goto fail; /* OOM */
 
             r = n;
         }
-            
+
         c += k;
         size -= k;
     }
 
     *ret = r;
-    
+
     return 0;
 
 fail:
@@ -146,7 +146,7 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
         return NULL;
 
     l = avahi_string_list_reverse(l);
-    
+
     for (n = l; n; n = n->next) {
         if (n != l)
             *(e++) = ' ';
@@ -161,7 +161,7 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
     }
 
     l = avahi_string_list_reverse(l);
-    
+
     *e = 0;
 
     return t;
@@ -176,18 +176,18 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
 
         l = avahi_string_list_reverse(l);
         c = data;
-        
+
         for (n = l; size > 1 && n; n = n->next) {
             size_t k;
 
             if ((k = n->size) == 0)
                 /* Skip empty strings */
                 continue;
-            
+
             if (k > 255)
                 /* Truncate strings at 255 characters */
                 k = 255;
-            
+
             if (k > size-1)
                 /* Make sure this string fits in */
                 k = size-1;
@@ -195,15 +195,15 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
             *(c++) = (uint8_t) k;
             memcpy(c, n->text, k);
             c += k;
-            
+
             used += 1 + k;
             size -= 1 + k;
         }
-        
+
         l = avahi_string_list_reverse(l);
 
         if (used == 0 && size > 0) {
-        
+
             /* Empty lists are treated specially. To comply with
              * section 6.1 of the DNS-SD spec, we return a single
              * empty string (i.e. a NUL byte)*/
@@ -211,19 +211,19 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
             *(uint8_t*) data = 0;
             used = 1;
         }
-            
+
     } else {
         AvahiStringList *n;
 
         for (n = l; n; n = n->next) {
             size_t k;
-            
+
             if ((k = n->size) == 0)
                 continue;
-            
+
             if (k > 255)
                 k = 255;
-            
+
             used += 1+k;
         }
 
@@ -260,7 +260,7 @@ AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) {
     va_start(va, r);
     r = avahi_string_list_add_many_va(r, va);
     va_end(va);
-    
+
     return r;
 }
 
@@ -328,7 +328,7 @@ unsigned avahi_string_list_length(const AvahiStringList *l) {
 AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *format, va_list va) {
     size_t len = 80;
     AvahiStringList *r;
-    
+
     assert(format);
 
     if (!(r = avahi_malloc(sizeof(AvahiStringList) + len)))
@@ -338,7 +338,7 @@ AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *f
         int n;
         AvahiStringList *nr;
         va_list va2;
-        
+
         va_copy(va2, va);
         n = vsnprintf((char*) r->text, len, format, va2);
         va_end(va2);
@@ -358,28 +358,28 @@ AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *f
 
         r = nr;
     }
-    
+
     r->next = l;
-    r->size = strlen((char*) r->text); 
+    r->size = strlen((char*) r->text);
 
     return r;
 }
 
 AvahiStringList *avahi_string_list_add_printf(AvahiStringList *l, const char *format, ...) {
     va_list va;
-    
+
     assert(format);
 
     va_start(va, format);
     l  = avahi_string_list_add_vprintf(l, format, va);
     va_end(va);
 
-    return l;    
+    return l;
 }
 
 AvahiStringList *avahi_string_list_find(AvahiStringList *l, const char *key) {
     size_t n;
-    
+
     assert(key);
     n = strlen(key);
 
@@ -411,7 +411,7 @@ AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const 
         return avahi_string_list_add(l, key);
 
     n = strlen(key);
-    
+
     if (!(l = avahi_string_list_add_anonymous(l, n + 1 + size)))
         return NULL;
 
@@ -424,12 +424,12 @@ AvahiStringList *avahi_string_list_add_pair_arbitrary(AvahiStringList *l, const 
 
 int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, size_t *size) {
     char *e;
-    
+
     assert(l);
 
     if (!(e = memchr(l->text, '=', l->size))) {
 
-        if (key) 
+        if (key)
             if (!(*key = avahi_strdup((char*) l->text)))
                 return -1;
 
@@ -447,9 +447,9 @@ int avahi_string_list_get_pair(AvahiStringList *l, char **key, char **value, siz
                 return -1;
 
         e++; /* Advance after '=' */
-        
+
         n = l->size - (e - (char*) l->text);
-        
+
         if (value) {
 
             if (!(*value = avahi_memdup(e, n+1))) {
@@ -487,7 +487,7 @@ uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
     AvahiStringList *f;
     char *value = NULL, *end = NULL;
     uint32_t ret;
-    
+
     if (!(f = avahi_string_list_find(l, AVAHI_SERVICE_COOKIE)))
         return AVAHI_SERVICE_COOKIE_INVALID;
 
@@ -502,6 +502,6 @@ uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
     }
 
     avahi_free(value);
-    
+
     return ret;
 }

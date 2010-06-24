@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -83,7 +83,7 @@ int avahi_server_add(
     AvahiProtocol protocol,   /**< A protocol family to attach this record to. One of the AVAHI_PROTO_xxx constants. Use AVAHI_PROTO_UNSPEC to make this record available on all protocols (wich means on both IPv4 and IPv6). */
     AvahiPublishFlags flags,    /**< Special flags for this record */
     AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */);
-    
+
 /** Add an IP address mapping to the server. This will add both the
  * host-name-to-address and the reverse mapping to the server. See
  * avahi_server_add() for more information. If adding one of the RRs
@@ -114,7 +114,7 @@ int avahi_server_add_service(
     AvahiPublishFlags flags,
     const char *name,         /**< Service name, e.g. "Lennart's Files" */
     const char *type,         /**< DNS-SD type, e.g. "_http._tcp" */
-    const char *domain,       
+    const char *domain,
     const char *host,         /**< Host name where this servcie resides, or NULL if on the local host */
     uint16_t port,              /**< Port number of the service */
     ...  /**< Text records, terminated by NULL */) AVAHI_GCC_SENTINEL;
@@ -152,9 +152,9 @@ int avahi_server_update_service_txt_strlst(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
+    const char *name,
+    const char *type,
+    const char *domain,
     AvahiStringList *strlst);
 
 /** Update the TXT record for a service with the NULL termonate list of strings */
@@ -164,9 +164,9 @@ int avahi_server_update_service_txt(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
+    const char *name,
+    const char *type,
+    const char *domain,
     ...) AVAHI_GCC_SENTINEL;
 
 /** Check if there is a service locally defined and return the entry group it is attached to. Returns NULL if the service isn't local*/

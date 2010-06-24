@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -41,17 +41,17 @@ struct AvahiMulticastLookup {
     int dead;
 
     AvahiKey *key, *cname_key;
-    
+
     AvahiMulticastLookupCallback callback;
     void *userdata;
 
     AvahiIfIndex interface;
     AvahiProtocol protocol;
-    
+
     int queriers_added;
 
     AvahiTimeEvent *all_for_now_event;
-    
+
     AVAHI_LLIST_FIELDS(AvahiMulticastLookup, lookups);
     AVAHI_LLIST_FIELDS(AvahiMulticastLookup, by_key);
 };
@@ -85,10 +85,10 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
     AvahiKey *key,
     AvahiMulticastLookupCallback callback,
     void *userdata) {
-    
+
     AvahiMulticastLookup *l, *t;
     struct timeval tv;
-        
+
     assert(e);
     assert(AVAHI_IF_VALID(interface));
     assert(AVAHI_PROTO_VALID(protocol));
@@ -121,7 +121,7 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
 
     /* Issue the ALL_FOR_NOW event one second after the querier was initially created */
     l->all_for_now_event = avahi_time_event_new(e->server->time_event_queue, &tv, all_for_now_callback, l);
-    
+
     return l;
 }
 
@@ -146,7 +146,7 @@ static void lookup_destroy(AvahiMulticastLookup *l) {
     assert(l);
 
     lookup_stop(l);
-    
+
     t = avahi_hashmap_lookup(l->engine->lookups_by_key, l->key);
     AVAHI_LLIST_REMOVE(AvahiMulticastLookup, by_key, t, l);
     if (t)
@@ -161,7 +161,7 @@ static void lookup_destroy(AvahiMulticastLookup *l) {
 
     if (l->cname_key)
         avahi_key_unref(l->cname_key);
-    
+
     avahi_free(l);
 }
 
@@ -179,13 +179,13 @@ void avahi_multicast_lookup_free(AvahiMulticastLookup *l) {
 void avahi_multicast_lookup_engine_cleanup(AvahiMulticastLookupEngine *e) {
     AvahiMulticastLookup *l, *n;
     assert(e);
-    
+
     while (e->cleanup_dead) {
         e->cleanup_dead = 0;
-        
+
         for (l = e->lookups; l; l = n) {
             n = l->lookups_next;
-            
+
             if (l->dead)
                 lookup_destroy(l);
         }
@@ -219,7 +219,7 @@ static void* scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
         cbdata->userdata);
 
     cbdata->n_found ++;
-    
+
     return NULL;
 }
 
@@ -231,12 +231,12 @@ static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
     assert(cbdata);
 
     cbdata->interface = i;
-    
+
     avahi_cache_walk(i->cache, cbdata->key, scan_cache_callback, cbdata);
 
     if (cbdata->cname_key)
         avahi_cache_walk(i->cache, cbdata->cname_key, scan_cache_callback, cbdata);
-    
+
     cbdata->interface = NULL;
 }
 
@@ -247,9 +247,9 @@ unsigned avahi_multicast_lookup_engine_scan_cache(
     AvahiKey *key,
     AvahiMulticastLookupCallback callback,
     void *userdata) {
-    
+
     struct cbdata cbdata;
-    
+
     assert(e);
     assert(key);
     assert(callback);
@@ -264,9 +264,9 @@ unsigned avahi_multicast_lookup_engine_scan_cache(
     cbdata.userdata = userdata;
     cbdata.interface = NULL;
     cbdata.n_found = 0;
-    
+
     avahi_interface_monitor_walk(e->server->monitor, interface, protocol, scan_interface_callback, &cbdata);
-    
+
     if (cbdata.cname_key)
         avahi_key_unref(cbdata.cname_key);
 
@@ -275,12 +275,12 @@ unsigned avahi_multicast_lookup_engine_scan_cache(
 
 void avahi_multicast_lookup_engine_new_interface(AvahiMulticastLookupEngine *e, AvahiInterface *i) {
     AvahiMulticastLookup *l;
-    
+
     assert(e);
     assert(i);
 
     for (l = e->lookups; l; l = l->lookups_next) {
-        
+
         if (l->dead || !l->callback)
             continue;
 
@@ -291,7 +291,7 @@ void avahi_multicast_lookup_engine_new_interface(AvahiMulticastLookupEngine *e, 
 
 void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event) {
     AvahiMulticastLookup *l;
-    
+
     assert(e);
     assert(record);
     assert(i);
@@ -313,7 +313,7 @@ void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiIn
 
             if (l->dead || !l->callback)
                 continue;
-            
+
             if ((key = avahi_key_new_cname(l->key))) {
                 if (avahi_key_equal(record->key, key))
                     l->callback(e, i->hardware->index, i->protocol, event, AVAHI_LOOKUP_RESULT_MULTICAST, record, l->userdata);
@@ -326,9 +326,9 @@ void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiIn
 
 AvahiMulticastLookupEngine *avahi_multicast_lookup_engine_new(AvahiServer *s) {
     AvahiMulticastLookupEngine *e;
-    
+
     assert(s);
-    
+
     e = avahi_new(AvahiMulticastLookupEngine, 1);
     e->server = s;
     e->cleanup_dead = 0;

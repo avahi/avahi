@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -52,7 +52,7 @@ struct AvahiCacheEntry {
     struct timeval expiry;
     int cache_flush;
     int poof_num;
-    
+
     AvahiAddress origin;
 
     AvahiCacheEntryState state;
@@ -66,9 +66,9 @@ struct AvahiCacheEntry {
 
 struct AvahiCache {
     AvahiServer *server;
-    
+
     AvahiInterface *interface;
-    
+
     AvahiHashmap *hashmap;
 
     AVAHI_LLIST_HEAD(AvahiCacheEntry, entries);
@@ -95,7 +95,7 @@ int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
  * records of the specified key. The specified address is  */
 void avahi_cache_start_poof(AvahiCache *c, AvahiKey *key, const AvahiAddress *a);
 
-/* Stop a previously started POOF algorithm for a record. (Used for response suppresions records */    
+/* Stop a previously started POOF algorithm for a record. (Used for response suppresions records */
 void avahi_cache_stop_poof(AvahiCache *c, AvahiRecord *record, const AvahiAddress *a);
 
 void avahi_cache_flush(AvahiCache *c);

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -63,9 +63,9 @@ static void resolve_callback(
 
         case AVAHI_RESOLVER_FOUND: {
             char a[AVAHI_ADDRESS_STR_MAX], *t;
-            
+
             fprintf(stderr, "Service '%s' of type '%s' in domain '%s':\n", name, type, domain);
-            
+
             avahi_address_snprint(a, sizeof(a), address);
             t = avahi_string_list_to_string(txt);
             fprintf(stderr,
@@ -85,7 +85,7 @@ static void resolve_callback(
                     !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA),
                     !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
                     !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
-                
+
             avahi_free(t);
         }
     }
@@ -103,7 +103,7 @@ static void browse_callback(
     const char *domain,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     AvahiClient *c = userdata;
     assert(b);
 
@@ -111,7 +111,7 @@ static void browse_callback(
 
     switch (event) {
         case AVAHI_BROWSER_FAILURE:
-            
+
             fprintf(stderr, "(Browser) %s\n", avahi_strerror(avahi_client_errno(avahi_service_browser_get_client(b))));
             avahi_simple_poll_quit(simple_poll);
             return;
@@ -126,7 +126,7 @@ static void browse_callback(
 
             if (!(avahi_service_resolver_new(c, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, resolve_callback, c)))
                 fprintf(stderr, "Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_client_errno(c)));
-            
+
             break;
 
         case AVAHI_BROWSER_REMOVE:
@@ -171,7 +171,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
         fprintf(stderr, "Failed to create client: %s\n", avahi_strerror(error));
         goto fail;
     }
-    
+
     /* Create the service browser */
     if (!(sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, browse_callback, client))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
@@ -180,15 +180,15 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
 
     /* Run the main loop */
     avahi_simple_poll_loop(simple_poll);
-    
+
     ret = 0;
-    
+
 fail:
-    
+
     /* Cleanup things */
     if (sb)
         avahi_service_browser_free(sb);
-    
+
     if (client)
         avahi_client_free(client);
 

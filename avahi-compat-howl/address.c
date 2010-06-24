@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -85,10 +85,10 @@ sw_result sw_ipv4_address_init_from_name(
     assert(name);
 
     AVAHI_WARN_LINKAGE;
-    
+
     if (!(he = gethostbyname(name)))
         return SW_E_UNKNOWN;
-    
+
     self->m_addr = *(uint32_t*) he->h_addr;
     return SW_OKAY;
 }
@@ -113,7 +113,7 @@ sw_result sw_ipv4_address_init_from_this_host(sw_ipv4_address *self) {
     assert(self);
 
     AVAHI_WARN_LINKAGE;
-    
+
     /* This is so fucked up ... */
 
     memset(&sa, 0, sizeof(sa));
@@ -135,7 +135,7 @@ sw_result sw_ipv4_address_init_from_this_host(sw_ipv4_address *self) {
     close(fd);
 
     self->m_addr = sa.sin_addr.s_addr;
-    
+
     return SW_OKAY;
 }
 
@@ -144,7 +144,7 @@ sw_result sw_ipv4_address_fina(AVAHI_GCC_UNUSED sw_ipv4_address self) {
     AVAHI_WARN_LINKAGE;
 
     /* This is ridiculous ... */
-    
+
     return SW_OKAY;
 }
 
@@ -170,10 +170,10 @@ sw_string sw_ipv4_address_name(
 
     if (len < INET_ADDRSTRLEN)
         return NULL;
-    
+
     if (!(inet_ntop(AF_INET, &self.m_addr, name, len)))
         return NULL;
-            
+
     return name;
 }
 
@@ -187,9 +187,9 @@ sw_result sw_ipv4_address_decompose(
     uint32_t a;
 
     AVAHI_WARN_LINKAGE;
-    
+
     a = ntohl(self.m_addr);
-    
+
     assert(a1);
     assert(a2);
     assert(a3);
@@ -199,7 +199,7 @@ sw_result sw_ipv4_address_decompose(
     *a2 = (uint8_t) (a >> 16);
     *a3 = (uint8_t) (a >> 8);
     *a4 = (uint8_t) (a);
-        
+
     return SW_OKAY;
 }
 

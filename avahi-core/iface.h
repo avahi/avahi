@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -47,9 +47,9 @@ typedef struct AvahiHwInterface AvahiHwInterface;
 #else
 typedef struct AvahiInterfaceMonitorOSDep AvahiInterfaceMonitorOSDep;
 struct AvahiInterfaceMonitorOSDep {
-        
+
     unsigned query_addr_seq, query_link_seq;
-    
+
     enum {
         LIST_IFACE,
         LIST_ADDR,
@@ -79,7 +79,7 @@ struct AvahiHwInterface {
     char *name;
     AvahiIfIndex index;
     int flags_ok;
-    
+
     unsigned mtu;
 
     uint8_t mac_address[AVAHI_MAC_ADDRESS_MAX];
@@ -96,7 +96,7 @@ struct AvahiInterface {
 
     AVAHI_LLIST_FIELDS(AvahiInterface, interface);
     AVAHI_LLIST_FIELDS(AvahiInterface, by_hardware);
-    
+
     AvahiProtocol protocol;
     int announcing;
     AvahiAddress local_mcast_address;
@@ -125,7 +125,7 @@ struct AvahiInterfaceAddress {
     unsigned prefix_len;
 
     int global_scope;
-    
+
     AvahiSEntryGroup *entry_group;
 };
 

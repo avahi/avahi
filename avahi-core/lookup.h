@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -80,7 +80,7 @@ void avahi_s_record_browser_free(AvahiSRecordBrowser *b);
 /** Callback prototype for AvahiSHostNameResolver events */
 typedef void (*AvahiSHostNameResolverCallback)(
     AvahiSHostNameResolver *r,
-    AvahiIfIndex interface,  
+    AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event, /**< Resolving event */
     const char *host_name,   /**< Host name which should be resolved. May differ in case from the query */
@@ -108,7 +108,7 @@ typedef void (*AvahiSAddressResolverCallback)(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiResolverEvent event,
-    const AvahiAddress *a,   
+    const AvahiAddress *a,
     const char *host_name,   /**< A host name for the specified address, if one was found, i.e. event == AVAHI_RESOLVER_FOUND */
     AvahiLookupResultFlags flags,  /**< Lookup flags */
     void* userdata);

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -83,7 +83,7 @@ static void expiration_event(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *userd
         struct timeval now;
 
         gettimeofday(&now, NULL);
-    
+
         /* Check if expired */
         if (avahi_timeval_compare(&now, &e->expiry) >= 0) {
 
@@ -97,7 +97,7 @@ static void expiration_event(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *userd
 
             update_timeout(q);
             return;
-        } 
+        }
     }
 
     avahi_log_debug(__FILE__": Strange, expiration_event() called, but nothing really happened.");
@@ -129,9 +129,9 @@ AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api) {
     if (!(q->prioq = avahi_prio_queue_new(compare)))
         goto oom;
 
-    if (!(q->timeout = poll_api->timeout_new(poll_api, NULL, expiration_event, q))) 
+    if (!(q->timeout = poll_api->timeout_new(poll_api, NULL, expiration_event, q)))
         goto oom;
-    
+
     return q;
 
 oom:
@@ -142,13 +142,13 @@ oom:
         if (q->prioq)
             avahi_prio_queue_free(q->prioq);
     }
-    
+
     return NULL;
 }
 
 void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
     AvahiTimeEvent *e;
-    
+
     assert(q);
 
     while ((e = time_event_queue_root(q)))
@@ -156,7 +156,7 @@ void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
     avahi_prio_queue_free(q->prioq);
 
     q->poll_api->timeout_free(q->timeout);
-    
+
     avahi_free(q);
 }
 
@@ -165,9 +165,9 @@ AvahiTimeEvent* avahi_time_event_new(
     const struct timeval *timeval,
     AvahiTimeEventCallback callback,
     void* userdata) {
-    
+
     AvahiTimeEvent *e;
-    
+
     assert(q);
     assert(callback);
     assert(userdata);
@@ -176,7 +176,7 @@ AvahiTimeEvent* avahi_time_event_new(
         avahi_log_error(__FILE__": Out of memory");
         return NULL; /* OOM */
     }
-    
+
     e->queue = q;
     e->callback = callback;
     e->userdata = userdata;
@@ -187,9 +187,9 @@ AvahiTimeEvent* avahi_time_event_new(
         e->expiry.tv_sec = 0;
         e->expiry.tv_usec = 0;
     }
-    
+
     fix_expiry_time(e);
-    
+
     e->last_run.tv_sec = 0;
     e->last_run.tv_usec = 0;
 
@@ -221,7 +221,7 @@ void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval) {
     e->expiry = *timeval;
     fix_expiry_time(e);
     avahi_prio_queue_shuffle(e->queue->prioq, e->node);
-    
+
     update_timeout(e->queue);
 }
 

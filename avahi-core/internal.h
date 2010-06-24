@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -53,7 +53,7 @@ typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;
 
 struct AvahiLegacyUnicastReflectSlot {
     AvahiServer *server;
-    
+
     uint16_t id, original_id;
     AvahiAddress address;
     uint16_t port;
@@ -67,7 +67,7 @@ struct AvahiEntry {
     AvahiSEntryGroup *group;
 
     int dead;
-    
+
     AvahiPublishFlags flags;
     AvahiRecord *record;
     AvahiIfIndex interface;
@@ -76,7 +76,7 @@ struct AvahiEntry {
     AVAHI_LLIST_FIELDS(AvahiEntry, entries);
     AVAHI_LLIST_FIELDS(AvahiEntry, by_key);
     AVAHI_LLIST_FIELDS(AvahiEntry, by_group);
-    
+
     AVAHI_LLIST_HEAD(AvahiAnnouncer, announcers);
 };
 
@@ -89,20 +89,20 @@ struct AvahiSEntryGroup {
     AvahiSEntryGroupCallback callback;
 
     unsigned n_probing;
-    
+
     unsigned n_register_try;
     struct timeval register_time;
     AvahiTimeEvent *register_time_event;
 
     struct timeval established_at;
-    
+
     AVAHI_LLIST_FIELDS(AvahiSEntryGroup, groups);
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
 };
 
 struct AvahiServer {
     const AvahiPoll *poll_api;
-    
+
     AvahiInterfaceMonitor *monitor;
     AvahiServerConfig config;
 
@@ -110,7 +110,7 @@ struct AvahiServer {
     AvahiHashmap *entries_by_key;
 
     AVAHI_LLIST_HEAD(AvahiSEntryGroup, groups);
-    
+
     AVAHI_LLIST_HEAD(AvahiSRecordBrowser, record_browsers);
     AvahiHashmap *record_browser_hashmap;
     AVAHI_LLIST_HEAD(AvahiSHostNameResolver, host_name_resolvers);
@@ -122,9 +122,9 @@ struct AvahiServer {
     AVAHI_LLIST_HEAD(AvahiSDNSServerBrowser, dns_server_browsers);
 
     int need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
-    
+
     AvahiTimeEventQueue *time_event_queue;
-    
+
     char *host_name, *host_name_fqdn, *domain_name;
 
     int fd_ipv4, fd_ipv6,
@@ -189,8 +189,8 @@ int avahi_server_add_ptr(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiPublishFlags flags,
-    uint32_t ttl,          
-    const char *name,      
+    uint32_t ttl,
+    const char *name,
     const char *dest);
 
 #define AVAHI_CHECK_VALIDITY(server, expression, error) { \

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -41,7 +41,7 @@ static AvahiWatch *watch = NULL;
 
 static int set_nonblock(int fd) {
     int n;
-    
+
     assert(fd >= 0);
 
     if ((n = fcntl(fd, F_GETFL)) < 0)
@@ -69,7 +69,7 @@ static void close_pipe_fds(void) {
 static void watch_callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
     int s;
     ssize_t l;
-    
+
     assert(w);
     assert(fd == pipe_fds[0]);
     assert(event == AVAHI_WATCH_IN);
@@ -84,7 +84,7 @@ static void watch_callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_G
 int sigint_install(AvahiSimplePoll *spoll) {
     struct sigaction sa;
     const AvahiPoll *p;
-        
+
     assert(spoll);
     assert(!simple_poll);
     assert(pipe_fds[0] == -1 && pipe_fds[1] == -1);
@@ -106,7 +106,7 @@ int sigint_install(AvahiSimplePoll *spoll) {
         close_pipe_fds();
         return -1;
     }
-    
+
     if (sigaction(SIGTERM, &sa, &old_sigterm_sa) < 0) {
         sigaction(SIGINT, &old_sigint_sa, NULL);
         fprintf(stderr, "sigaction() failed: %s\n", strerror(errno));
@@ -117,13 +117,13 @@ int sigint_install(AvahiSimplePoll *spoll) {
     p = avahi_simple_poll_get(spoll);
     watch = p->watch_new(p, pipe_fds[0], AVAHI_WATCH_IN, watch_callback, NULL);
     assert(watch);
-              
+
     simple_poll = spoll;
     return 0;
 }
 
 void sigint_uninstall(void) {
-    
+
     if (!simple_poll)
         return;
 

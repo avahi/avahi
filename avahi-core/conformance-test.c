@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -55,7 +55,7 @@ static void dump_line(const char *text, AVAHI_GCC_UNUSED void* userdata) {
 
 static void dump_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* userdata) {
     struct timeval tv;
-    
+
     avahi_server_dump(avahi, dump_line, NULL);
 
     avahi_elapse_time(&tv, 5000, 0);
@@ -77,8 +77,8 @@ static void create_service(const char *t) {
         avahi_s_entry_group_reset(group);
     else
         group = avahi_s_entry_group_new(avahi, entry_group_callback, NULL);
-    
-    avahi_server_add_service(avahi, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);   
+
+    avahi_server_add_service(avahi, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);
     avahi_s_entry_group_commit(group);
 
     try++;
@@ -86,8 +86,8 @@ static void create_service(const char *t) {
 
 static void rename_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
     struct timeval tv;
-    
-    if (access("flag", F_OK) == 0) { 
+
+    if (access("flag", F_OK) == 0) {
         create_service("New - Bonjour Service Name");
         return;
     }
@@ -112,7 +112,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         avahi_server_dump(avahi, dump_line, NULL);
     } else if (state == AVAHI_SERVER_COLLISION) {
         char *n;
-        
+
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
         avahi_log_warn("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
@@ -147,14 +147,14 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     /* Evil, but the conformace test requires that*/
     create_service("gurke");
 
-    
+
     avahi_simple_poll_loop(simple_poll);
-    
+
     if (group)
-        avahi_s_entry_group_free(group);   
+        avahi_s_entry_group_free(group);
     avahi_server_free(avahi);
 
     avahi_simple_poll_free(simple_poll);
-    
+
     return 0;
 }

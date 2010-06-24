@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -48,7 +48,7 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
     /* Called whenever the entry group state changes */
 
     switch (state) {
-        
+
         case AVAHI_ENTRY_GROUP_ESTABLISHED:
 
             /* The entry group has been established successfully */
@@ -57,23 +57,23 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
 
         case AVAHI_ENTRY_GROUP_COLLISION: {
             char *n;
-            
+
             /* A service name collision happened. Let's pick a new name */
             n = avahi_alternative_service_name(name);
             avahi_free(name);
             name = n;
-            
+
             fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
-            
+
             /* And recreate the services */
             create_services(s);
             break;
         }
-            
+
         case AVAHI_ENTRY_GROUP_FAILURE :
 
             fprintf(stderr, "Entry group failure: %s\n", avahi_strerror(avahi_server_errno(s)));
-            
+
             /* Some kind of failure happened while we were registering our services */
             avahi_simple_poll_quit(simple_poll);
             break;
@@ -95,7 +95,7 @@ static void create_services(AvahiServer *s) {
             fprintf(stderr, "avahi_entry_group_new() failed: %s\n", avahi_strerror(avahi_server_errno(s)));
             goto fail;
         }
-    
+
     fprintf(stderr, "Adding service '%s'\n", name);
 
     /* Create some random TXT data */
@@ -141,7 +141,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         case AVAHI_SERVER_RUNNING:
             /* The serve has startup successfully and registered its host
              * name on the network, so it's time to create our services */
-            
+
             if (!group)
                 create_services(s);
 
@@ -150,16 +150,16 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         case AVAHI_SERVER_COLLISION: {
             char *n;
             int r;
-            
+
             /* A host name collision happened. Let's pick a new name for the server */
             n = avahi_alternative_host_name(avahi_server_get_host_name(s));
             fprintf(stderr, "Host name collision, retrying with '%s'\n", n);
             r = avahi_server_set_host_name(s, n);
             avahi_free(n);
-            
+
             if (r < 0) {
                 fprintf(stderr, "Failed to set new host name: %s\n", avahi_strerror(r));
-                
+
                 avahi_simple_poll_quit(simple_poll);
                 return;
             }
@@ -169,7 +169,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
             /* Fall through */
 
         case AVAHI_SERVER_REGISTERING:
-            
+
 	    /* Let's drop our registered services. When the server is back
              * in AVAHI_SERVER_RUNNING state we will register them
              * again with the new host name. */
@@ -179,9 +179,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
             break;
 
         case AVAHI_SERVER_FAILURE:
-            
+
             /* Terminate on failure */
-            
+
             fprintf(stderr, "Server failure: %s\n", avahi_strerror(avahi_server_errno(s)));
             avahi_simple_poll_quit(simple_poll);
             break;
@@ -196,7 +196,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiServer *server = NULL;
     int error;
     int ret = 1;
-    
+
     /* Initialize the pseudo-RNG */
     srand(time(NULL));
 
@@ -205,14 +205,14 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
         fprintf(stderr, "Failed to create simple poll object.\n");
         goto fail;
     }
-    
+
     name = avahi_strdup("MegaPrinter");
 
     /* Let's set the host name for this server. */
     avahi_server_config_init(&config);
     config.host_name = avahi_strdup("gurkiman");
     config.publish_workstation = 0;
-    
+
     /* Allocate a new server */
     server = avahi_server_new(avahi_simple_poll_get(simple_poll), &config, server_callback, NULL, &error);
 
@@ -227,11 +227,11 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
 
     /* Run the main loop */
     avahi_simple_poll_loop(simple_poll);
-    
+
     ret = 0;
-    
+
 fail:
-    
+
     /* Cleanup things */
 
     if (server)
@@ -241,6 +241,6 @@ fail:
         avahi_simple_poll_free(simple_poll);
 
     avahi_free(name);
-    
+
     return ret;
 }

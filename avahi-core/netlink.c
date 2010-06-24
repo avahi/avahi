@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -53,7 +53,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     struct iovec iov;
     struct nlmsghdr *p;
     char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
-    
+
     assert(nl);
 
     iov.iov_base = nl->buffer;
@@ -70,7 +70,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     if ((bytes = recvmsg(nl->fd, &smsg, 0)) < 0) {
         if (errno == EAGAIN || errno == EINTR)
             return 0;
-        
+
         avahi_log_error(__FILE__": recvmsg() failed: %s", strerror(errno));
         return -1;
     }
@@ -88,18 +88,18 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
         return -1;
 
     p = (struct nlmsghdr *) nl->buffer;
-    
+
     assert(nl->callback);
-    
+
     for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
         if (!NLMSG_OK(p, (size_t) bytes)) {
             avahi_log_warn(__FILE__": packet truncated");
             return -1;
         }
-        
+
         nl->callback(nl, p, nl->userdata);
     }
-    
+
     return 0;
 }
 
@@ -126,7 +126,7 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
         avahi_log_error(__FILE__": socket(PF_NETLINK): %s", strerror(errno));
         return NULL;
     }
-    
+
     memset(&addr, 0, sizeof(addr));
     addr.nl_family = AF_NETLINK;
     addr.nl_groups = groups;
@@ -162,7 +162,7 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
         avahi_log_error(__FILE__": Failed to create watch.");
         goto fail;
     }
-    
+
     return nl;
 
 fail:
@@ -186,7 +186,7 @@ void avahi_netlink_free(AvahiNetlink *nl) {
 
     if (nl->fd >= 0)
         close(nl->fd);
-    
+
     avahi_free(nl->buffer);
     avahi_free(nl);
 }
@@ -194,7 +194,7 @@ void avahi_netlink_free(AvahiNetlink *nl) {
 int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, unsigned *ret_seq) {
     assert(nl);
     assert(m);
-    
+
     m->nlmsg_seq = nl->seq++;
     m->nlmsg_flags |= NLM_F_ACK;
 

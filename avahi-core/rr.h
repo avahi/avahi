@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -37,8 +37,8 @@ AVAHI_C_DECL_BEGIN
 enum {
     AVAHI_DNS_TYPE_ANY = 0xFF,   /**< Special query type for requesting all records */
     AVAHI_DNS_TYPE_OPT = 41,     /**< EDNS0 option */
-    AVAHI_DNS_TYPE_TKEY = 249, 
-    AVAHI_DNS_TYPE_TSIG = 250, 
+    AVAHI_DNS_TYPE_TKEY = 249,
+    AVAHI_DNS_TYPE_TSIG = 250,
     AVAHI_DNS_TYPE_IXFR = 251,
     AVAHI_DNS_TYPE_AXFR = 252
 };
@@ -67,16 +67,16 @@ typedef struct AvahiKey {
 typedef struct AvahiRecord {
     int ref;         /**< Reference counter */
     AvahiKey *key;   /**< Reference to the query key of this record */
-    
+
     uint32_t ttl;     /**< DNS TTL of this record */
 
     union {
-        
+
         struct {
             void* data;
             uint16_t size;
         } generic; /**< Generic record data for unknown types */
-        
+
         struct {
             uint16_t priority;
             uint16_t weight;
@@ -106,7 +106,7 @@ typedef struct AvahiRecord {
         } aaaa; /**< Data for AAAA records */
 
     } data; /**< Record data */
-    
+
 } AvahiRecord;
 
 /** Create a new AvahiKey object. The reference counter will be set to 1. */
@@ -121,7 +121,7 @@ void avahi_key_unref(AvahiKey *k);
 /** Check whether two AvahiKey object contain the same
  * data. AVAHI_DNS_CLASS_ANY/AVAHI_DNS_TYPE_ANY are treated like any
  * other class/type. */
-int avahi_key_equal(const AvahiKey *a, const AvahiKey *b); 
+int avahi_key_equal(const AvahiKey *a, const AvahiKey *b);
 
 /** Return a numeric hash value for a key for usage in hash tables. */
 unsigned avahi_key_hash(const AvahiKey *k);
@@ -152,7 +152,7 @@ char *avahi_key_to_string(const AvahiKey *k);
 
 /** Create a textual representation of the specified record, similar
  * in style to BIND zone file data. avahi_free() the result! */
-char *avahi_record_to_string(const AvahiRecord *r); 
+char *avahi_record_to_string(const AvahiRecord *r);
 
 /** Check whether two records are equal (regardless of the TTL */
 int avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b);

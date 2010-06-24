@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -38,9 +38,9 @@
 
 
 /*
- * protocol tags.  the only standard one is TAG_INTERNET_IIOP. 
+ * protocol tags.  the only standard one is TAG_INTERNET_IIOP.
  * the others are proprietary pandora corby protocols.
- */ 
+ */
 #define SW_TAG_INTERNET_IOP	0
 #define SW_TAG_UIOP				250
 #define SW_TAG_MIOP				251

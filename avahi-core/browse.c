@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -42,20 +42,20 @@
 
 struct AvahiSRBLookup {
     AvahiSRecordBrowser *record_browser;
-    
+
     unsigned ref;
 
     AvahiIfIndex interface;
     AvahiProtocol protocol;
     AvahiLookupFlags flags;
-    
+
     AvahiKey *key;
 
     AvahiWideAreaLookup *wide_area;
     AvahiMulticastLookup *multicast;
 
     AvahiRList *cname_lookups;
-    
+
     AVAHI_LLIST_FIELDS(AvahiSRBLookup, lookups);
 };
 
@@ -89,7 +89,7 @@ static AvahiSRBLookup* lookup_new(
     AvahiKey *key) {
 
     AvahiSRBLookup *l;
-    
+
     assert(b);
     assert(AVAHI_IF_VALID(interface));
     assert(AVAHI_PROTO_VALID(protocol));
@@ -97,10 +97,10 @@ static AvahiSRBLookup* lookup_new(
     if (b->n_lookups >= AVAHI_LOOKUPS_PER_BROWSER_MAX)
         /* We don't like cyclic CNAMEs */
         return NULL;
-    
+
     if (!(l = avahi_new(AvahiSRBLookup, 1)))
         return NULL;
-    
+
     l->ref = 1;
     l->record_browser = b;
     l->interface = interface;
@@ -112,11 +112,11 @@ static AvahiSRBLookup* lookup_new(
     l->flags = flags;
 
     transport_flags_from_domain(b->server, &l->flags, key->name);
-    
+
     AVAHI_LLIST_PREPEND(AvahiSRBLookup, lookups, b->lookups, l);
 
     b->n_lookups ++;
-    
+
     return l;
 }
 
@@ -134,7 +134,7 @@ static void lookup_unref(AvahiSRBLookup *l) {
         avahi_wide_area_lookup_free(l->wide_area);
         l->wide_area = NULL;
     }
-    
+
     if (l->multicast) {
         avahi_multicast_lookup_free(l->multicast);
         l->multicast = NULL;
@@ -144,7 +144,7 @@ static void lookup_unref(AvahiSRBLookup *l) {
         lookup_unref(l->cname_lookups->data);
         l->cname_lookups = avahi_rlist_remove_by_link(l->cname_lookups, l->cname_lookups);
     }
-    
+
     avahi_key_unref(l->key);
     avahi_free(l);
 }
@@ -163,9 +163,9 @@ static AvahiSRBLookup *lookup_find(
     AvahiProtocol protocol,
     AvahiLookupFlags flags,
     AvahiKey *key) {
-    
+
     AvahiSRBLookup *l;
-    
+
     assert(b);
 
     for (l = b->lookups; l; l = l->lookups_next) {
@@ -201,7 +201,7 @@ static void lookup_wide_area_callback(
     AvahiLookupResultFlags flags,
     AvahiRecord *r,
     void *userdata) {
-    
+
     AvahiSRBLookup *l = userdata;
     AvahiSRecordBrowser *b;
 
@@ -215,11 +215,11 @@ static void lookup_wide_area_callback(
         return;
 
     lookup_ref(l);
-    
+
     switch (event) {
         case AVAHI_BROWSER_NEW:
             assert(r);
-            
+
             if (r->key->clazz == AVAHI_DNS_CLASS_IN &&
                 r->key->type == AVAHI_DNS_TYPE_CNAME)
                 /* It's a CNAME record, so let's follow it. We only follow it on wide area DNS! */
@@ -259,7 +259,7 @@ static void lookup_multicast_callback(
 
     AvahiSRBLookup *l = userdata;
     AvahiSRecordBrowser *b;
-    
+
     assert(e);
     assert(l);
 
@@ -269,11 +269,11 @@ static void lookup_multicast_callback(
         return;
 
     lookup_ref(l);
-    
+
     switch (event) {
         case AVAHI_BROWSER_NEW:
             assert(r);
-            
+
             if (r->key->clazz == AVAHI_DNS_CLASS_IN &&
                 r->key->type == AVAHI_DNS_TYPE_CNAME)
                 /* It's a CNAME record, so let's follow it. We allow browsing on both multicast and wide area. */
@@ -283,7 +283,7 @@ static void lookup_multicast_callback(
 
                 if (avahi_server_is_record_local(b->server, interface, protocol, r))
                     flags |= AVAHI_LOOKUP_RESULT_LOCAL;
-                
+
                 b->callback(b, interface, protocol, event, r, flags, b->userdata);
             }
             break;
@@ -323,12 +323,12 @@ static int lookup_start(AvahiSRBLookup *l) {
 
     assert(!(l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) != !(l->flags & AVAHI_LOOKUP_USE_MULTICAST));
     assert(!l->wide_area && !l->multicast);
-    
+
     if (l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) {
 
         if (!(l->wide_area = avahi_wide_area_lookup_new(l->record_browser->server->wide_area_lookup_engine, l->key, lookup_wide_area_callback, l)))
             return -1;
-        
+
     } else {
         assert(l->flags & AVAHI_LOOKUP_USE_MULTICAST);
 
@@ -341,15 +341,15 @@ static int lookup_start(AvahiSRBLookup *l) {
 
 static int lookup_scan_cache(AvahiSRBLookup *l) {
     int n = 0;
-    
+
     assert(l);
 
     assert(!(l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) != !(l->flags & AVAHI_LOOKUP_USE_MULTICAST));
 
-    
+
     if (l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) {
         n = (int) avahi_wide_area_scan_cache(l->record_browser->server->wide_area_lookup_engine, l->key, lookup_wide_area_callback, l);
-        
+
     } else {
         assert(l->flags & AVAHI_LOOKUP_USE_MULTICAST);
         n = (int) avahi_multicast_lookup_engine_scan_cache(l->record_browser->server->multicast_lookup_engine, l->interface, l->protocol, l->key, lookup_multicast_callback, l);
@@ -360,7 +360,7 @@ static int lookup_scan_cache(AvahiSRBLookup *l) {
 
 static AvahiSRBLookup* lookup_add(AvahiSRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiKey *key) {
     AvahiSRBLookup *l;
-    
+
     assert(b);
     assert(!b->dead);
 
@@ -379,9 +379,9 @@ static int lookup_go(AvahiSRBLookup *l) {
 
     if (l->record_browser->dead)
         return 0;
-    
+
     lookup_ref(l);
-    
+
     /* Browse the cache for the root request */
     n = lookup_scan_cache(l);
 
@@ -390,7 +390,7 @@ static int lookup_go(AvahiSRBLookup *l) {
 
         if ((l->flags & AVAHI_LOOKUP_USE_MULTICAST) || n == 0)
             /* We do no start a query if the cache contained entries and we're on wide area */
-            
+
             if (lookup_start(l) < 0)
                 n = -1;
     }
@@ -403,7 +403,7 @@ static int lookup_go(AvahiSRBLookup *l) {
 static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiRecord *r) {
     AvahiKey *k;
     AvahiSRBLookup *n;
-    
+
     assert(l);
     assert(r);
 
@@ -411,7 +411,7 @@ static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, Avahi
     assert(r->key->type == AVAHI_DNS_TYPE_CNAME);
 
     k = avahi_key_new(r->data.ptr.name, l->record_browser->key->clazz, l->record_browser->key->type);
-    n = lookup_add(l->record_browser, interface, protocol, flags, k); 
+    n = lookup_add(l->record_browser, interface, protocol, flags, k);
     avahi_key_unref(k);
 
     if (!n) {
@@ -446,7 +446,7 @@ static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiPr
             avahi_key_equal(n->key, k))
             break;
     }
-    
+
     avahi_key_unref(k);
 
     if (rl) {
@@ -487,11 +487,11 @@ static void defer_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
             b, b->interface, b->protocol, AVAHI_BROWSER_FAILURE, NULL,
             b->flags & AVAHI_LOOKUP_USE_WIDE_AREA ? AVAHI_LOOKUP_RESULT_WIDE_AREA : AVAHI_LOOKUP_RESULT_MULTICAST,
             b->userdata);
-        
+
         browser_cancel(b);
         return;
     }
-    
+
     /* Tell the client that we're done with the cache */
     b->callback(
         b, b->interface, b->protocol, AVAHI_BROWSER_CACHE_EXHAUSTED, NULL,
@@ -503,7 +503,7 @@ static void defer_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
         /* If we do wide area lookups and the the cache contained
          * entries, we assume that it is complete, and tell the user
          * so by firing ALL_FOR_NOW. */
-        
+
         b->callback(b, b->interface, b->protocol, AVAHI_BROWSER_ALL_FOR_NOW, NULL, AVAHI_LOOKUP_RESULT_WIDE_AREA, b->userdata);
     }
 }
@@ -529,7 +529,7 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     AvahiLookupFlags flags,
     AvahiSRecordBrowserCallback callback,
     void* userdata) {
-    
+
     AvahiSRecordBrowser *b;
 
     assert(server);
@@ -541,13 +541,13 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !avahi_key_is_pattern(key), AVAHI_ERR_IS_PATTERN);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_key_is_valid(key), AVAHI_ERR_INVALID_KEY);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !(flags & AVAHI_LOOKUP_USE_WIDE_AREA) || !(flags & AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS); 
-    
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !(flags & AVAHI_LOOKUP_USE_WIDE_AREA) || !(flags & AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+
     if (!(b = avahi_new(AvahiSRecordBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
-    
+
     b->dead = 0;
     b->server = server;
     b->interface = interface;
@@ -559,13 +559,13 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     b->n_lookups = 0;
     AVAHI_LLIST_HEAD_INIT(AvahiSRBLookup, b->lookups);
     b->root_lookup = NULL;
-    
+
     AVAHI_LLIST_PREPEND(AvahiSRecordBrowser, browser, server->record_browsers, b);
 
     /* The currently cached entries are scanned a bit later, and than we will start querying, too */
     b->defer_time_event = avahi_time_event_new(server->time_event_queue, NULL, defer_callback, b);
     assert(b->defer_time_event);
-    
+
     return b;
 }
 
@@ -583,30 +583,30 @@ void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b) {
     assert(b);
 
     browser_cancel(b);
-    
+
     AVAHI_LLIST_REMOVE(AvahiSRecordBrowser, browser, b->server->record_browsers, b);
 
     avahi_key_unref(b->key);
-    
+
     avahi_free(b);
 }
 
 void avahi_browser_cleanup(AvahiServer *server) {
     AvahiSRecordBrowser *b;
     AvahiSRecordBrowser *n;
-    
+
     assert(server);
 
     while (server->need_browser_cleanup) {
         server->need_browser_cleanup = 0;
-        
+
         for (b = server->record_browsers; b; b = n) {
             n = b->browser_next;
-            
+
             if (b->dead)
                 avahi_s_record_browser_destroy(b);
         }
-    } 
+    }
 
     if (server->wide_area_lookup_engine)
         avahi_wide_area_cleanup(server->wide_area_lookup_engine);

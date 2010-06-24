@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -97,14 +97,14 @@ sw_time sw_time_add(
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_time sw_time_sub(
     AVAHI_GCC_UNUSED sw_time self,
     AVAHI_GCC_UNUSED sw_time y) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_int32 sw_time_cmp(
     AVAHI_GCC_UNUSED sw_time self,
     AVAHI_GCC_UNUSED sw_time y) {
@@ -338,17 +338,17 @@ sw_result sw_socket_set_options(
     return SW_E_NO_IMPL;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_ipv4_address sw_socket_ipv4_address(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_port sw_socket_port(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_sockdesc_t sw_socket_desc(AVAHI_GCC_UNUSED sw_socket self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
@@ -425,7 +425,7 @@ sw_result sw_socket_options_set_sndbuf(
     return SW_E_NO_IMPL;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 int sw_socket_error_code(void) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
@@ -478,7 +478,7 @@ sw_result sw_corby_orb_register_channel(
     return SW_E_NO_IMPL;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_corby_orb_delegate sw_corby_orb_get_delegate(AVAHI_GCC_UNUSED sw_corby_orb self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
@@ -581,7 +581,7 @@ sw_result sw_corby_buffer_init_with_size_and_delegate(
 sw_result sw_corby_buffer_fina(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
-}    
+}
 
 void sw_corby_buffer_reset(AVAHI_GCC_UNUSED sw_corby_buffer self) {
     AVAHI_WARN_UNSUPPORTED;
@@ -667,7 +667,7 @@ sw_result sw_corby_buffer_put_sized_octets(
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
-    
+
 sw_result sw_corby_buffer_put_cstring(
     AVAHI_GCC_UNUSED sw_corby_buffer self,
     AVAHI_GCC_UNUSED sw_const_string val) {
@@ -710,7 +710,7 @@ sw_result sw_corby_buffer_get_int16(
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
-    
+
 sw_result sw_corby_buffer_get_uint16(
     AVAHI_GCC_UNUSED sw_corby_buffer self,
     AVAHI_GCC_UNUSED sw_uint16 * val,
@@ -718,7 +718,7 @@ sw_result sw_corby_buffer_get_uint16(
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
-    
+
 sw_result sw_corby_buffer_get_int32(
     AVAHI_GCC_UNUSED sw_corby_buffer self,
     AVAHI_GCC_UNUSED sw_int32 * val,
@@ -815,7 +815,7 @@ sw_result sw_corby_channel_start_request(
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
-    
+
 sw_result sw_corby_channel_start_reply(
     AVAHI_GCC_UNUSED sw_corby_channel self,
     AVAHI_GCC_UNUSED struct _sw_corby_buffer ** buffer,
@@ -879,9 +879,9 @@ sw_result sw_corby_channel_set_delegate(
     AVAHI_GCC_UNUSED sw_corby_channel_delegate delegate) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
-}    
+}
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_corby_channel_delegate sw_corby_channel_get_delegate(
     AVAHI_GCC_UNUSED sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
@@ -893,7 +893,7 @@ void sw_corby_channel_set_app_data(
     AVAHI_WARN_UNSUPPORTED;
 }
 
-AVAHI_GCC_NORETURN 
+AVAHI_GCC_NORETURN
 sw_opaque sw_corby_channel_get_app_data(AVAHI_GCC_UNUSED sw_corby_channel self) {
     AVAHI_WARN_UNSUPPORTED_ABORT;
 }
@@ -938,7 +938,7 @@ sw_result sw_corby_object_send(
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
 }
-    
+
 sw_result sw_corby_object_recv(
     AVAHI_GCC_UNUSED sw_corby_object self,
     AVAHI_GCC_UNUSED sw_corby_message * message,
@@ -1010,7 +1010,7 @@ sw_result sw_text_record_string_iterator_fina(
     AVAHI_GCC_UNUSED sw_text_record_string_iterator self) {
     AVAHI_WARN_UNSUPPORTED;
     return SW_E_NO_IMPL;
-}    
+}
 
 sw_result sw_text_record_string_iterator_next(
     AVAHI_GCC_UNUSED sw_text_record_string_iterator self,

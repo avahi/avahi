@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -41,8 +41,8 @@ static void strip_bad_chars(char *s) {
     char *p, *d;
 
     s[strcspn(s, ".")] = 0;
-    
-    for (p = s, d = s; *p; p++) 
+
+    for (p = s, d = s; *p; p++)
         if ((*p >= 'a' && *p <= 'z') ||
             (*p >= 'A' && *p <= 'Z') ||
             (*p >= '0' && *p <= '9') ||
@@ -55,7 +55,7 @@ static void strip_bad_chars(char *s) {
 #ifdef __linux__
 static int load_lsb_distrib_id(char *ret_s, size_t size) {
     FILE *f;
-    
+
     assert(ret_s);
     assert(size > 0);
 
@@ -100,7 +100,7 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
         *ret_s = 0;
         avahi_log_warn("System host name is set to 'localhost'. This is not a suitable mDNS host name, looking for alternatives.");
     }
-    
+
     if (*ret_s == 0) {
         /* No hostname was set, so let's take the OS name */
 
@@ -118,7 +118,7 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
         {
             /* Try uname() second */
             struct utsname utsname;
-            
+
             if (uname(&utsname) >= 0) {
                 snprintf(ret_s, size, "%s", utsname.sysname);
                 strip_bad_chars(ret_s);
@@ -132,8 +132,8 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
     }
 
     if (size >= AVAHI_LABEL_MAX)
-	ret_s[AVAHI_LABEL_MAX-1] = 0;    
-    
+	ret_s[AVAHI_LABEL_MAX-1] = 0;
+
     return ret_s;
 }
 
@@ -164,7 +164,7 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
 
         if ((r = strcmp(ca, cb)))
             return r;
-        
+
         if (!*a && !*b)
             return 0;
     }
@@ -179,12 +179,12 @@ int avahi_domain_ends_with(const char *domain, const char *suffix) {
 
         if (*domain == 0)
             return 0;
-        
+
         if (avahi_domain_equal(domain, suffix))
             return 1;
 
         r = avahi_unescape_label(&domain, dummy, sizeof(dummy));
         assert(r);
-    } 
+    }
 }
 

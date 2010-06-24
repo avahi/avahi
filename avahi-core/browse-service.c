@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -36,7 +36,7 @@ struct AvahiSServiceBrowser {
     AvahiServer *server;
     char *domain_name;
     char *service_type;
-    
+
     AvahiSRecordBrowser *record_browser;
 
     AvahiSServiceBrowserCallback callback;
@@ -53,7 +53,7 @@ static void record_browser_callback(
     AvahiRecord *record,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     AvahiSServiceBrowser *b = userdata;
 
     assert(rr);
@@ -61,7 +61,7 @@ static void record_browser_callback(
 
     /* Filter flags */
     flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
-    
+
     if (record) {
         char service[AVAHI_LABEL_MAX], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
 
@@ -76,7 +76,7 @@ static void record_browser_callback(
         }
 
         b->callback(b, interface, protocol, event, service, type, domain, flags, b->userdata);
-        
+
     } else
         b->callback(b, interface, protocol, event, NULL, b->service_type, b->domain_name, flags, b->userdata);
 
@@ -96,7 +96,7 @@ AvahiSServiceBrowser *avahi_s_service_browser_new(
     AvahiKey *k = NULL;
     char n[AVAHI_DOMAIN_NAME_MAX];
     int r;
-    
+
     assert(server);
     assert(callback);
     assert(service_type);
@@ -114,18 +114,18 @@ AvahiSServiceBrowser *avahi_s_service_browser_new(
         avahi_server_set_errno(server, r);
         return NULL;
     }
-    
+
     if (!(b = avahi_new(AvahiSServiceBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
-    
+
     b->server = server;
     b->domain_name = b->service_type = NULL;
     b->callback = callback;
     b->userdata = userdata;
     b->record_browser = NULL;
-    
+
     AVAHI_LLIST_PREPEND(AvahiSServiceBrowser, browser, server->service_browsers, b);
 
     if (!(b->domain_name = avahi_normalize_name_strdup(domain)) ||
@@ -133,12 +133,12 @@ AvahiSServiceBrowser *avahi_s_service_browser_new(
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         goto fail;
     }
-    
+
     if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         goto fail;
     }
-    
+
     if (!(b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b)))
         goto fail;
 
@@ -150,7 +150,7 @@ fail:
 
     if (k)
         avahi_key_unref(k);
-    
+
     avahi_s_service_browser_free(b);
     return NULL;
 }
@@ -162,7 +162,7 @@ void avahi_s_service_browser_free(AvahiSServiceBrowser *b) {
 
     if (b->record_browser)
         avahi_s_record_browser_free(b->record_browser);
-    
+
     avahi_free(b->domain_name);
     avahi_free(b->service_type);
     avahi_free(b);

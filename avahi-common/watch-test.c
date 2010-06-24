@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -48,7 +48,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNU
     if (event & AVAHI_WATCH_IN) {
         ssize_t r;
         char c;
-        
+
         if ((r = read(fd, &c, 1)) <= 0) {
             fprintf(stderr, "read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
             api->watch_free(w);
@@ -91,7 +91,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     api = avahi_threaded_poll_get(threaded_poll);
     assert(api);
 #endif
-    
+
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);
 
     avahi_elapse_time(&tv, 1000, 0);
@@ -110,8 +110,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     fprintf(stderr, "... stupid stuff is done.\n");
 
     avahi_threaded_poll_free(threaded_poll);
-    
+
 #endif
-    
+
     return 0;
 }

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -40,10 +40,10 @@ typedef struct AvahiKnownAnswer AvahiKnownAnswer;
 struct AvahiQueryJob {
     unsigned id;
     int n_posted;
-    
+
     AvahiQueryScheduler *scheduler;
     AvahiTimeEvent *time_event;
-    
+
     int done;
     struct timeval delivery;
 
@@ -56,7 +56,7 @@ struct AvahiQueryJob {
      * entries) most of the time, but this might be a wrong
      * assumption, especially on setups where traffic reflection is
      * involved. */
-    
+
     AVAHI_LLIST_FIELDS(AvahiQueryJob, jobs);
 };
 
@@ -80,7 +80,7 @@ struct AvahiQueryScheduler {
 
 static AvahiQueryJob* job_new(AvahiQueryScheduler *s, AvahiKey *key, int done) {
     AvahiQueryJob *qj;
-    
+
     assert(s);
     assert(key);
 
@@ -88,14 +88,14 @@ static AvahiQueryJob* job_new(AvahiQueryScheduler *s, AvahiKey *key, int done) {
         avahi_log_error(__FILE__": Out of memory");
         return NULL;
     }
-    
+
     qj->scheduler = s;
     qj->key = avahi_key_ref(key);
     qj->time_event = NULL;
     qj->n_posted = 1;
     qj->id = s->next_id++;
-    
-    if ((qj->done = done)) 
+
+    if ((qj->done = done))
         AVAHI_LLIST_PREPEND(AvahiQueryJob, jobs, s->history, qj);
     else
         AVAHI_LLIST_PREPEND(AvahiQueryJob, jobs, s->jobs, qj);
@@ -158,11 +158,11 @@ AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i) {
         avahi_log_error(__FILE__": Out of memory");
         return NULL; /* OOM */
     }
-    
+
     s->interface = i;
     s->time_event_queue = i->monitor->server->time_event_queue;
     s->next_id = 0;
-    
+
     AVAHI_LLIST_HEAD_INIT(AvahiQueryJob, s->jobs);
     AVAHI_LLIST_HEAD_INIT(AvahiQueryJob, s->history);
     AVAHI_LLIST_HEAD_INIT(AvahiKnownAnswer, s->known_answers);
@@ -180,7 +180,7 @@ void avahi_query_scheduler_free(AvahiQueryScheduler *s) {
 
 void avahi_query_scheduler_clear(AvahiQueryScheduler *s) {
     assert(s);
-    
+
     while (s->jobs)
         job_free(s, s->jobs);
     while (s->history)
@@ -190,7 +190,7 @@ void avahi_query_scheduler_clear(AvahiQueryScheduler *s) {
 static void* known_answer_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void* userdata) {
     AvahiQueryScheduler *s = userdata;
     AvahiKnownAnswer *ka;
-    
+
     assert(c);
     assert(pattern);
     assert(e);
@@ -198,12 +198,12 @@ static void* known_answer_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiC
 
     if (avahi_cache_entry_half_ttl(c, e))
         return NULL;
-    
+
     if (!(ka = avahi_new0(AvahiKnownAnswer, 1))) {
         avahi_log_error(__FILE__": Out of memory");
         return NULL;
     }
-    
+
     ka->scheduler = s;
     ka->record = avahi_record_ref(e->record);
 
@@ -221,7 +221,7 @@ static int packet_add_query_job(AvahiQueryScheduler *s, AvahiDnsPacket *p, Avahi
 
     /* Add all matching known answers to the list */
     avahi_cache_walk(s->interface->cache, qj->key, known_answer_walk_callback, s);
-    
+
     job_mark_done(s, qj);
 
     return 1;
@@ -234,7 +234,7 @@ static void append_known_answers_and_send(AvahiQueryScheduler *s, AvahiDnsPacket
     assert(p);
 
     n = 0;
-    
+
     while ((ka = s->known_answers)) {
         int too_large = 0;
 
@@ -266,7 +266,7 @@ static void append_known_answers_and_send(AvahiQueryScheduler *s, AvahiDnsPacket
         if (!too_large)
             n++;
     }
-    
+
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ANCOUNT, n);
     avahi_interface_send_packet(s->interface, p);
     avahi_dns_packet_free(p);
@@ -289,10 +289,10 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     }
 
     assert(!s->known_answers);
-    
+
     if (!(p = avahi_dns_packet_new_query(s->interface->hardware->mtu)))
         return; /* OOM */
-    
+
     b = packet_add_query_job(s, p, qj);
     assert(b); /* An query must always fit in */
     n = 1;
@@ -320,7 +320,7 @@ static AvahiQueryJob* find_scheduled_job(AvahiQueryScheduler *s, AvahiKey *key) 
 
     for (qj = s->jobs; qj; qj = qj->jobs_next) {
         assert(!qj->done);
-        
+
         if (avahi_key_equal(qj->key, key))
             return qj;
     }
@@ -330,7 +330,7 @@ static AvahiQueryJob* find_scheduled_job(AvahiQueryScheduler *s, AvahiKey *key) 
 
 static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
     AvahiQueryJob *qj;
-    
+
     assert(s);
     assert(key);
 
@@ -345,7 +345,7 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
                 job_free(s, qj);
                 return NULL;
             }
-                
+
             return qj;
         }
     }
@@ -356,13 +356,13 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
 int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately, unsigned *ret_id) {
     struct timeval tv;
     AvahiQueryJob *qj;
-    
+
     assert(s);
     assert(key);
 
     if ((qj = find_history_job(s, key)))
         return 0;
-    
+
     avahi_elapse_time(&tv, immediately ? 0 : AVAHI_QUERY_DEFER_MSEC, 0);
 
     if ((qj = find_scheduled_job(s, key))) {
@@ -376,25 +376,25 @@ int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immedi
         }
 
         qj->n_posted++;
-        
+
     } else {
 
         if (!(qj = job_new(s, key, 0)))
             return 0; /* OOM */
-        
+
         qj->delivery = tv;
         qj->time_event = avahi_time_event_new(s->time_event_queue, &qj->delivery, elapse_callback, qj);
     }
 
     if (ret_id)
         *ret_id = qj->id;
-    
+
     return 1;
 }
 
 void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
     AvahiQueryJob *qj;
-    
+
     assert(s);
     assert(key);
 
@@ -412,14 +412,14 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
     if (!(qj = find_history_job(s, key)))
         if (!(qj = job_new(s, key, 1)))
             return; /* OOM */
-    
+
     gettimeofday(&qj->delivery, NULL);
     job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
 }
 
 int avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id) {
     AvahiQueryJob *qj;
-    
+
     assert(s);
 
     /* Very short lived queries can withdraw an already scheduled item
@@ -428,7 +428,7 @@ int avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id) {
 
     for (qj = s->jobs; qj; qj = qj->jobs_next) {
         assert(!qj->done);
-        
+
         if (qj->id == id) {
             /* Entry found */
 
@@ -441,7 +441,7 @@ int avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id) {
                  * case since there should exist only one querier per
                  * key, but there are exceptions, notably reflected
                  * traffic.) */
-                
+
                 job_free(s, qj);
                 return 1;
             }

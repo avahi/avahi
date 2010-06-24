@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -38,7 +38,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif 
+#endif
 
 
 struct									_sw_corby_orb;
@@ -165,7 +165,7 @@ sw_corby_orb_protocol_to_address(
 				sw_const_string	tag,
 				sw_string			addr,
 				sw_port		*	port);
-												
+
 
 sw_result HOWL_API
 sw_corby_orb_protocol_to_url(
@@ -193,7 +193,7 @@ sw_corby_orb_dispatch_message(
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 
 #endif

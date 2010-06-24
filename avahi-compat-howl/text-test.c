@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -72,7 +72,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     char key[255];
     uint8_t val[255];
     sw_ulong val_len;
-    
+
     ASSERT_SW_OKAY(sw_text_record_init(&r));
     ASSERT_SW_OKAY(sw_text_record_add_string(r, "foo=bar"));
     ASSERT_SW_OKAY(sw_text_record_add_string(r, "waldo=baz"));
@@ -92,7 +92,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
 
 
-    
+
     ASSERT_SW_OKAY(sw_text_record_fina(r));
 
     return 0;

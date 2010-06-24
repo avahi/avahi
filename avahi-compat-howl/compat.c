@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -87,7 +87,7 @@ struct _sw_discovery {
     sw_discovery_oid oid_index;
 
     int thread_fd, main_fd;
-    
+
     pthread_t thread;
     int thread_running;
 
@@ -121,7 +121,7 @@ static sw_result map_error(int error) {
     switch (error) {
         case AVAHI_OK:
             return SW_OKAY;
-            
+
         case AVAHI_ERR_NO_MEMORY:
             return SW_E_MEM;
     }
@@ -134,7 +134,7 @@ static int read_command(int fd) {
     char command;
 
     assert(fd >= 0);
-    
+
     if ((r = read(fd, &command, 1)) != 1) {
         fprintf(stderr, __FILE__": read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
         return -1;
@@ -157,9 +157,9 @@ static int write_command(int fd, char reply) {
 static int poll_func(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata) {
     sw_discovery self = userdata;
     int ret;
-    
+
     assert(self);
-    
+
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
     ret = poll(ufds, nfds, timeout);
     ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
@@ -173,7 +173,7 @@ static void * thread_func(void *data) {
 
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
-    
+
     self->thread = pthread_self();
     self->thread_running = 1;
 
@@ -184,7 +184,7 @@ static void * thread_func(void *data) {
             break;
 
 /*         fprintf(stderr, "Command: %c\n", command); */
-        
+
         switch (command) {
 
             case COMMAND_POLL: {
@@ -194,30 +194,30 @@ static void * thread_func(void *data) {
 
                 for (;;) {
                     errno = 0;
-                
+
                     if ((ret = avahi_simple_poll_run(self->simple_poll)) < 0) {
-                        
+
                         if (errno == EINTR)
                             continue;
-                        
+
                         fprintf(stderr, __FILE__": avahi_simple_poll_run() failed: %s\n", strerror(errno));
                     }
 
                     break;
                 }
-                    
+
                 ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
-                
+
                 if (write_command(self->thread_fd, ret < 0 ? COMMAND_POLL_FAILED : COMMAND_POLL_DONE) < 0)
                     break;
-                
+
                 break;
             }
 
             case COMMAND_QUIT:
                 return NULL;
         }
-        
+
     }
 
     return NULL;
@@ -231,13 +231,13 @@ static int oid_alloc(sw_discovery self, oid_type type) {
 
         while (self->oid_index >= OID_MAX)
             self->oid_index -= OID_MAX;
-        
+
         if (self->oid_table[self->oid_index].type == OID_UNUSED) {
             self->oid_table[self->oid_index].type = type;
             self->oid_table[self->oid_index].discovery = self;
 
             assert(OID_GET_INDEX(&self->oid_table[self->oid_index]) == self->oid_index);
-            
+
             return self->oid_index ++;
         }
 
@@ -245,7 +245,7 @@ static int oid_alloc(sw_discovery self, oid_type type) {
     }
 
     /* No free entry found */
-    
+
     return (sw_discovery_oid) -1;
 }
 
@@ -271,22 +271,22 @@ static oid_data* oid_get(sw_discovery self, sw_discovery_oid oid) {
 
     if (self->oid_table[oid].type == OID_UNUSED)
         return NULL;
-    
+
     return &self->oid_table[oid];
 }
 
 static service_data* service_data_new(sw_discovery self) {
     service_data *sdata;
-    
+
     assert(self);
 
     if (!(sdata = avahi_new0(service_data, 1)))
         return NULL;
 
     AVAHI_LLIST_PREPEND(service_data, services, self->services, sdata);
-    
+
     return sdata;
-    
+
 }
 
 static void service_data_free(sw_discovery self, service_data* sdata) {
@@ -294,7 +294,7 @@ static void service_data_free(sw_discovery self, service_data* sdata) {
     assert(sdata);
 
     AVAHI_LLIST_REMOVE(service_data, services, self->services, sdata);
-    
+
     avahi_free(sdata->name);
     avahi_free(sdata->regtype);
     avahi_free(sdata->domain);
@@ -308,12 +308,12 @@ static void reg_client_callback(oid_data *data, AvahiClientState state);
 static void client_callback(AvahiClient *s, AvahiClientState state, void* userdata) {
     sw_discovery self = userdata;
     sw_discovery_oid oid;
-    
+
     assert(s);
     assert(self);
 
     discovery_ref(self);
-    
+
     for (oid = 0; oid < OID_MAX; oid++) {
 
         switch (self->oid_table[oid].type) {
@@ -341,16 +341,16 @@ sw_result sw_discovery_init(sw_discovery * self) {
     sw_result result = SW_E_UNKNOWN;
     pthread_mutexattr_t mutex_attr;
     int error;
-    
+
     assert(self);
-    
+
     AVAHI_WARN_LINKAGE;
 
     *self = NULL;
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) < 0)
         goto fail;
-    
+
     if (!(*self = avahi_new(struct _sw_discovery, 1))) {
         result = SW_E_MEM;
         goto fail;
@@ -365,7 +365,7 @@ sw_result sw_discovery_init(sw_discovery * self) {
 
     memset((*self)->oid_table, 0, sizeof((*self)->oid_table));
     (*self)->oid_index = 0;
-    
+
     (*self)->thread_running = 0;
 
     AVAHI_LLIST_HEAD_INIT(service_info, (*self)->services);
@@ -384,7 +384,7 @@ sw_result sw_discovery_init(sw_discovery * self) {
         result = map_error(error);
         goto fail;
     }
-    
+
     /* Start simple poll */
     if (avahi_simple_poll_prepare((*self)->simple_poll, -1) < 0)
         goto fail;
@@ -392,12 +392,12 @@ sw_result sw_discovery_init(sw_discovery * self) {
     /* Queue an initial POLL command for the thread */
     if (write_command((*self)->main_fd, COMMAND_POLL) < 0)
         goto fail;
-    
+
     if (pthread_create(&(*self)->thread, NULL, thread_func, *self) != 0)
         goto fail;
 
     (*self)->thread_running = 1;
-    
+
     return SW_OKAY;
 
 fail:
@@ -416,9 +416,9 @@ static int stop_thread(sw_discovery self) {
 
     if (write_command(self->main_fd, COMMAND_QUIT) < 0)
         return -1;
-    
+
     avahi_simple_poll_wakeup(self->simple_poll);
-    
+
     ASSERT_SUCCESS(pthread_join(self->thread, NULL));
     self->thread_running = 0;
     return 0;
@@ -459,24 +459,24 @@ static void discovery_unref(sw_discovery self) {
 
     while (self->services)
         service_data_free(self, self->services);
-    
+
     avahi_free(self);
 }
 
 sw_result sw_discovery_fina(sw_discovery self) {
     assert(self);
-    
+
     AVAHI_WARN_LINKAGE;
 
     stop_thread(self);
     discovery_unref(self);
-    
+
     return SW_OKAY;
 }
 
 sw_result sw_discovery_run(sw_discovery self) {
     assert(self);
-    
+
     AVAHI_WARN_LINKAGE;
 
     return sw_salt_run((sw_salt) self);
@@ -484,7 +484,7 @@ sw_result sw_discovery_run(sw_discovery self) {
 
 sw_result sw_discovery_stop_run(sw_discovery self) {
     assert(self);
-    
+
     AVAHI_WARN_LINKAGE;
 
     return sw_salt_stop_run((sw_salt) self);
@@ -492,7 +492,7 @@ sw_result sw_discovery_stop_run(sw_discovery self) {
 
 int sw_discovery_socket(sw_discovery self) {
     assert(self);
-    
+
     AVAHI_WARN_LINKAGE;
 
     return self->main_fd;
@@ -500,17 +500,17 @@ int sw_discovery_socket(sw_discovery self) {
 
 sw_result sw_discovery_read_socket(sw_discovery self) {
     sw_result result = SW_E_UNKNOWN;
-    
+
     assert(self);
 
     discovery_ref(self);
 
     ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
-    
+
     /* Cleanup notification socket */
     if (read_command(self->main_fd) != COMMAND_POLL_DONE)
         goto finish;
-    
+
     if (avahi_simple_poll_dispatch(self->simple_poll) < 0)
         goto finish;
 
@@ -525,26 +525,26 @@ sw_result sw_discovery_read_socket(sw_discovery self) {
         /* Request the poll */
         if (write_command(self->main_fd, COMMAND_POLL) < 0)
             goto finish;
-    
+
     result = SW_OKAY;
-    
+
 finish:
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
 
     discovery_unref(self);
-    
+
     return result;
 }
 
 sw_result sw_discovery_salt(sw_discovery self, sw_salt *salt) {
     assert(self);
     assert(salt);
-    
+
     AVAHI_WARN_LINKAGE;
 
     *salt = (sw_salt) self;
-    
+
     return SW_OKAY;
 }
 
@@ -557,34 +557,34 @@ sw_result sw_salt_step(sw_salt self, sw_uint32 * msec) {
 
     if (!((sw_discovery) self)->thread_running)
         return SW_E_UNKNOWN;
-    
+
     memset(&p, 0, sizeof(p));
     p.fd = ((sw_discovery) self)->main_fd;
     p.events = POLLIN;
 
     if ((r = poll(&p, 1, msec ? (int) *msec : -1)) < 0) {
-        
+
         /* Don't treat EINTR as error */
         if (errno == EINTR)
             return SW_OKAY;
-        
+
         return SW_E_UNKNOWN;
-        
+
     } else if (r == 0) {
-        
+
         /* Timeoout */
         return SW_OKAY;
 
     } else {
         /* Success */
-    
+
         if (p.revents != POLLIN)
             return SW_E_UNKNOWN;
 
         if ((result = sw_discovery_read_socket((sw_discovery) self)) != SW_OKAY)
             return result;
     }
-    
+
     return SW_OKAY;
 }
 
@@ -594,7 +594,7 @@ sw_result sw_salt_run(sw_salt self) {
     AVAHI_WARN_LINKAGE;
 
     assert(self);
-    
+
     for (;;)
         if ((ret = sw_salt_step(self, NULL)) != SW_OKAY)
             return ret;
@@ -622,7 +622,7 @@ sw_result sw_salt_lock(sw_salt self) {
 
 sw_result sw_salt_unlock(sw_salt self) {
     assert(self);
-    
+
     AVAHI_WARN_LINKAGE;
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&((sw_discovery) self)->salt_mutex));
@@ -634,9 +634,9 @@ static void reg_report_status(oid_data *data, sw_discovery_publish_status status
     sw_discovery_publish_reply reply;
 
     assert(data);
-    
+
     reply = (sw_discovery_publish_reply) data->reply;
-    
+
     reply(data->discovery,
           OID_GET_INDEX(data),
           status,
@@ -646,11 +646,11 @@ static void reg_report_status(oid_data *data, sw_discovery_publish_status status
 static int reg_create_service(oid_data *data) {
     int ret;
     const char *real_type;
-    
+
     assert(data);
 
     real_type = avahi_get_type_from_subtype(data->service_data->regtype);
-    
+
     if ((ret = avahi_entry_group_add_service_strlst(
              data->object,
              data->service_data->interface,
@@ -663,7 +663,7 @@ static int reg_create_service(oid_data *data) {
              data->service_data->port,
              data->service_data->txt)) < 0)
         return ret;
-    
+
     if (real_type) {
         /* Create a subtype entry */
 
@@ -692,12 +692,12 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
     /* We've not been setup completely */
     if (!data->object)
         return;
-    
+
     switch (state) {
         case AVAHI_CLIENT_FAILURE:
             reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
             break;
-        
+
         case AVAHI_CLIENT_S_RUNNING: {
             int ret;
 
@@ -706,10 +706,10 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
                 reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
                 return;
             }
-            
+
             break;
         }
-            
+
         case AVAHI_CLIENT_S_COLLISION:
         case AVAHI_CLIENT_S_REGISTERING:
 
@@ -749,7 +749,7 @@ static void reg_entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState st
         case AVAHI_ENTRY_GROUP_FAILURE:
             reg_report_status(data, SW_DISCOVERY_PUBLISH_INVALID);
             break;
-            
+
     }
 }
 
@@ -771,13 +771,13 @@ sw_result sw_discovery_publish(
     sw_result result = SW_E_UNKNOWN;
     service_data *sdata;
     AvahiStringList *txt = NULL;
-    
+
     assert(self);
     assert(name);
     assert(type);
     assert(reply);
     assert(oid);
-    
+
     AVAHI_WARN_LINKAGE;
 
     if (text_record && text_record_len > 0)
@@ -820,7 +820,7 @@ sw_result sw_discovery_publish(
 
     if (avahi_client_get_state(self->client) == AVAHI_CLIENT_S_RUNNING) {
         int error;
-        
+
         if ((error = reg_create_service(data)) < 0) {
             result = map_error(error);
             goto finish;
@@ -832,8 +832,8 @@ sw_result sw_discovery_publish(
 finish:
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
-    
-    if (result != SW_OKAY) 
+
+    if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
             sw_discovery_cancel(self, *oid);
 
@@ -872,7 +872,7 @@ static void domain_browser_callback(
         case AVAHI_BROWSER_FAILURE:
             reply(data->discovery, OID_GET_INDEX(data), SW_DISCOVERY_BROWSE_INVALID, interface, NULL, NULL, domain, data->extra);
             break;
-            
+
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
         case AVAHI_BROWSER_ALL_FOR_NOW:
             break;
@@ -885,15 +885,15 @@ sw_result sw_discovery_browse_domains(
     sw_discovery_browse_reply reply,
     sw_opaque extra,
     sw_discovery_oid * oid) {
-    
+
     oid_data *data;
     AvahiIfIndex ifindex;
     sw_result result = SW_E_UNKNOWN;
-    
+
     assert(self);
     assert(reply);
     assert(oid);
-    
+
     AVAHI_WARN_LINKAGE;
 
     if ((*oid = oid_alloc(self, OID_DOMAIN_BROWSER)) == (sw_discovery_oid) -1)
@@ -903,11 +903,11 @@ sw_result sw_discovery_browse_domains(
     assert(data);
     data->reply = (sw_result (*)(void)) reply;
     data->extra = extra;
-    
+
     ifindex = interface_index == 0 ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface_index;
 
     ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
-    
+
     if (!(data->object = avahi_domain_browser_new(self->client, ifindex, AVAHI_PROTO_INET, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, 0, domain_browser_callback, data))) {
         result = map_error(avahi_client_errno(self->client));
         goto finish;
@@ -918,7 +918,7 @@ sw_result sw_discovery_browse_domains(
 finish:
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
-    
+
     if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
             sw_discovery_cancel(self, *oid);
@@ -943,7 +943,7 @@ static void service_resolver_callback(
 
     oid_data* data = userdata;
     sw_discovery_resolve_reply reply;
-    
+
     assert(r);
     assert(data);
 
@@ -960,7 +960,7 @@ static void service_resolver_callback(
             sw_ipv4_address_init_from_saddr(&addr, a->data.ipv4.address);
 
             host_name = add_trailing_dot(host_name, host_name_fixed, sizeof(host_name_fixed));
-            
+
             if ((p = avahi_new0(uint8_t, (l = avahi_string_list_serialize(txt, NULL, 0))+1)))
                 avahi_string_list_serialize(txt, p, l);
 
@@ -973,7 +973,7 @@ static void service_resolver_callback(
         case AVAHI_RESOLVER_FAILURE:
 
             /* Apparently there is no way in HOWL to inform about failed resolvings ... */
-            
+
             avahi_warn("A service failed to resolve in the HOWL compatiblity layer of Avahi which is used by '%s'. "
                        "Since the HOWL API doesn't offer any means to inform the application about this, we have to ignore the failure. "
                        "Please fix your application to use the native API of Avahi!",
@@ -996,13 +996,13 @@ sw_result sw_discovery_resolve(
     oid_data *data;
     AvahiIfIndex ifindex;
     sw_result result = SW_E_UNKNOWN;
-    
+
     assert(self);
     assert(name);
     assert(type);
     assert(reply);
     assert(oid);
-    
+
     AVAHI_WARN_LINKAGE;
 
     if ((*oid = oid_alloc(self, OID_SERVICE_RESOLVER)) == (sw_discovery_oid) -1)
@@ -1012,22 +1012,22 @@ sw_result sw_discovery_resolve(
     assert(data);
     data->reply = (sw_result (*)(void)) reply;
     data->extra = extra;
-    
+
     ifindex = interface_index == 0 ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface_index;
 
     ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
-    
+
     if (!(data->object = avahi_service_resolver_new(self->client, ifindex, AVAHI_PROTO_INET, name, type, domain, AVAHI_PROTO_INET, 0, service_resolver_callback, data))) {
         result = map_error(avahi_client_errno(self->client));
         goto finish;
     }
 
     result = SW_OKAY;
-    
+
 finish:
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
-    
+
     if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
             sw_discovery_cancel(self, *oid);
@@ -1049,7 +1049,7 @@ static void service_browser_callback(
     oid_data* data = userdata;
     char type_fixed[AVAHI_DOMAIN_NAME_MAX], domain_fixed[AVAHI_DOMAIN_NAME_MAX];
     sw_discovery_browse_reply reply;
-    
+
     assert(b);
     assert(data);
 
@@ -1070,7 +1070,7 @@ static void service_browser_callback(
         case AVAHI_BROWSER_FAILURE:
             reply(data->discovery, OID_GET_INDEX(data), SW_DISCOVERY_BROWSE_INVALID, interface, name, type, domain, data->extra);
             break;
-            
+
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
         case AVAHI_BROWSER_ALL_FOR_NOW:
             break;
@@ -1089,12 +1089,12 @@ sw_result sw_discovery_browse(
     oid_data *data;
     AvahiIfIndex ifindex;
     sw_result result = SW_E_UNKNOWN;
-    
+
     assert(self);
     assert(type);
     assert(reply);
     assert(oid);
-    
+
     AVAHI_WARN_LINKAGE;
 
     if ((*oid = oid_alloc(self, OID_SERVICE_BROWSER)) == (sw_discovery_oid) -1)
@@ -1104,22 +1104,22 @@ sw_result sw_discovery_browse(
     assert(data);
     data->reply = (sw_result (*)(void)) reply;
     data->extra = extra;
-    
+
     ifindex = interface_index == 0 ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface_index;
 
     ASSERT_SUCCESS(pthread_mutex_lock(&self->mutex));
-    
+
     if (!(data->object = avahi_service_browser_new(self->client, ifindex, AVAHI_PROTO_INET, type, domain, 0, service_browser_callback, data))) {
         result = map_error(avahi_client_errno(self->client));
         goto finish;
     }
 
     result = SW_OKAY;
-    
+
 finish:
 
     ASSERT_SUCCESS(pthread_mutex_unlock(&self->mutex));
-    
+
     if (result != SW_OKAY)
         if (*oid != (sw_discovery_oid) -1)
             sw_discovery_cancel(self, *oid);
@@ -1129,7 +1129,7 @@ finish:
 
 sw_result sw_discovery_cancel(sw_discovery self, sw_discovery_oid oid) {
     oid_data *data;
-    assert(self);                             
+    assert(self);
 
     AVAHI_WARN_LINKAGE;
 
@@ -1141,19 +1141,19 @@ sw_result sw_discovery_cancel(sw_discovery self, sw_discovery_oid oid) {
             case OID_SERVICE_BROWSER:
                 avahi_service_browser_free(data->object);
                 break;
-                
+
             case OID_SERVICE_RESOLVER:
                 avahi_service_resolver_free(data->object);
                 break;
-                
+
             case OID_DOMAIN_BROWSER:
                 avahi_domain_browser_free(data->object);
                 break;
-                
+
             case OID_ENTRY_GROUP:
                 avahi_entry_group_free(data->object);
                 break;
-                
+
             case OID_UNUSED:
             ;
         }
@@ -1165,7 +1165,7 @@ sw_result sw_discovery_cancel(sw_discovery self, sw_discovery_oid oid) {
     }
 
     oid_release(self, oid);
-    
+
     return SW_OKAY;
 }
 

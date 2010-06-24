@@ -5,7 +5,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -54,7 +54,7 @@ my_resolver(
 	sw_result								err = SW_OKAY;
 
 	sw_discovery_cancel(discovery, oid);
-	
+
 	fprintf(stderr, "resolve reply: 0x%x %s %s %s %s %d\n", interface_index, name, type, domain, sw_ipv4_address_name(address, name_buf, 16), port);
 
 	if ((text_record_len > 0) && (text_record) && (*text_record != '\0'))

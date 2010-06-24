@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -36,7 +36,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif 
+#endif
 
 
 struct											_sw_socket;
@@ -66,8 +66,8 @@ sw_udp_socket_init(
 sw_result HOWL_API
 sw_multicast_socket_init(
 				sw_socket	*	self);
-                                    
-                                    
+
+
 sw_result HOWL_API
 sw_socket_fina(
 				sw_socket	self);
@@ -97,21 +97,21 @@ sw_result HOWL_API
 sw_socket_listen(
 				sw_socket	self,
 				int			qsize);
-                                    
-                                     
+
+
 sw_result HOWL_API
 sw_socket_connect(
 				sw_socket			self,
 				sw_ipv4_address	address,
 				sw_port			port);
-                                    
-                                    
+
+
 sw_result HOWL_API
 sw_socket_accept(
 				sw_socket		self,
 				sw_socket	*	socket);
-                                    
-                           
+
+
 sw_result HOWL_API
 sw_socket_send(
 				sw_socket		self,
@@ -129,7 +129,7 @@ sw_socket_sendto(
 				sw_ipv4_address	to,
 				sw_port			port);
 
-                                    
+
 sw_result HOWL_API
 sw_socket_recv(
 				sw_socket		self,
@@ -154,13 +154,13 @@ sw_result HOWL_API
 sw_socket_set_blocking_mode(
 				sw_socket	self,
 				sw_bool	blocking_mode);
-				
-				
+
+
 sw_result HOWL_API
 sw_socket_set_options(
 				sw_socket				self,
 				sw_socket_options		options);
-                                 
+
 
 sw_ipv4_address HOWL_API
 sw_socket_ipv4_address(
@@ -185,31 +185,31 @@ sw_socket_close(
 sw_result HOWL_API
 sw_socket_options_init(
 				sw_socket_options	*	self);
-                                    
+
 
 sw_result HOWL_API
 sw_socket_options_fina(
 				sw_socket_options	self);
-                                    
+
 
 sw_result HOWL_API
 sw_socket_options_set_debug(
 				sw_socket_options		self,
 				sw_bool					val);
-                               
+
 
 sw_result HOWL_API
 sw_socket_options_set_nodelay(
 				sw_socket_options		self,
 				sw_bool					val);
-                                    
-                                    
+
+
 sw_result HOWL_API
 sw_socket_options_set_dontroute(
 				sw_socket_options		self,
 				sw_bool					val);
-                                    
-                             
+
+
 sw_result HOWL_API
 sw_socket_options_set_keepalive(
 				sw_socket_options		self,
@@ -221,8 +221,8 @@ sw_socket_options_set_linger(
 				sw_socket_options		self,
 				sw_bool					onoff,
 				sw_uint32					linger);
-                                    
-                                    
+
+
 sw_result HOWL_API
 sw_socket_options_set_reuseaddr(
 				sw_socket_options		self,
@@ -233,8 +233,8 @@ sw_result HOWL_API
 sw_socket_options_set_rcvbuf(
 				sw_socket_options		self,
 				sw_uint32					val);
-                                    
-                                    
+
+
 sw_result HOWL_API
 sw_socket_options_set_sndbuf(
 				sw_socket_options		self,
@@ -242,7 +242,7 @@ sw_socket_options_set_sndbuf(
 
 
 int
-sw_socket_error_code(void); 
+sw_socket_error_code(void);
 
 
 #define	SW_E_SOCKET_BASE		0x80000200
@@ -257,7 +257,7 @@ sw_socket_error_code(void);
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 
 #endif

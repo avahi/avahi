@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -49,7 +49,7 @@ struct AvahiHashmap {
     AvahiHashFunc hash_func;
     AvahiEqualFunc equal_func;
     AvahiFreeFunc key_free_func, value_free_func;
-    
+
     Entry *entries[HASH_MAP_SIZE];
     AVAHI_LLIST_HEAD(Entry, entries_list);
 };
@@ -59,7 +59,7 @@ static Entry* entry_get(AvahiHashmap *m, const void *key) {
     Entry *e;
 
     idx = m->hash_func(key) % HASH_MAP_SIZE;
-    
+
     for (e = m->entries[idx]; e; e = e->bucket_next)
         if (m->equal_func(key, e->key))
             return e;
@@ -87,7 +87,7 @@ static void entry_free(AvahiHashmap *m, Entry *e, int stolen) {
 
 AvahiHashmap* avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_func, AvahiFreeFunc key_free_func, AvahiFreeFunc value_free_func) {
     AvahiHashmap *m;
-    
+
     assert(hash_func);
     assert(equal_func);
 
@@ -100,7 +100,7 @@ AvahiHashmap* avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_fu
     m->value_free_func = value_free_func;
 
     AVAHI_LLIST_HEAD_INIT(Entry, m->entries_list);
-    
+
     return m;
 }
 
@@ -109,13 +109,13 @@ void avahi_hashmap_free(AvahiHashmap *m) {
 
     while (m->entries_list)
         entry_free(m, m->entries_list, 0);
-    
+
     avahi_free(m);
 }
 
 void* avahi_hashmap_lookup(AvahiHashmap *m, const void *key) {
     Entry *e;
-    
+
     assert(m);
 
     if (!(e = entry_get(m, key)))
@@ -135,7 +135,7 @@ int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value) {
             m->key_free_func(key);
         if (m->value_free_func)
             m->value_free_func(value);
-        
+
         return 1;
     }
 
@@ -150,7 +150,7 @@ int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value) {
 
     idx = m->hash_func(key) % HASH_MAP_SIZE;
     AVAHI_LLIST_PREPEND(Entry, bucket, m->entries[idx], e);
-        
+
     return 0;
 }
 
@@ -169,7 +169,7 @@ int avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value) {
 
         e->key = key;
         e->value = value;
-            
+
         return 1;
     }
 
@@ -184,13 +184,13 @@ int avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value) {
 
     idx = m->hash_func(key) % HASH_MAP_SIZE;
     AVAHI_LLIST_PREPEND(Entry, bucket, m->entries[idx], e);
-        
+
     return 0;
 }
 
 void avahi_hashmap_remove(AvahiHashmap *m, const void *key) {
     Entry *e;
-    
+
     assert(m);
 
     if (!(e = entry_get(m, key)))
@@ -216,7 +216,7 @@ unsigned avahi_string_hash(const void *data) {
     unsigned hash = 0;
 
     assert(p);
-    
+
     for (; *p; p++)
         hash = 31 * hash + *p;
 
@@ -228,7 +228,7 @@ int avahi_string_equal(const void *a, const void *b) {
 
     assert(p);
     assert(q);
-    
+
     return strcmp(p, q) == 0;
 }
 
@@ -236,7 +236,7 @@ unsigned avahi_int_hash(const void *data) {
     const int *i = data;
 
     assert(i);
-    
+
     return (unsigned) *i;
 }
 
@@ -245,6 +245,6 @@ int avahi_int_equal(const void *a, const void *b) {
 
     assert(_a);
     assert(_b);
-    
+
     return *_a == *_b;
 }

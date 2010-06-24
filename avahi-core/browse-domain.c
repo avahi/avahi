@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -34,9 +34,9 @@
 
 struct AvahiSDomainBrowser {
     int ref;
-    
+
     AvahiServer *server;
-    
+
     AvahiSRecordBrowser *record_browser;
 
     AvahiDomainBrowserType type;
@@ -46,7 +46,7 @@ struct AvahiSDomainBrowser {
     AvahiTimeEvent *defer_event;
 
     int all_for_now_scheduled;
-    
+
     AVAHI_LLIST_FIELDS(AvahiSDomainBrowser, browser);
 };
 
@@ -65,7 +65,7 @@ static void record_browser_callback(
     AvahiRecord *record,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     AvahiSDomainBrowser *b = userdata;
     char *n = NULL;
 
@@ -78,7 +78,7 @@ static void record_browser_callback(
         b->all_for_now_scheduled = 1;
         return;
     }
-    
+
     /* Filter flags */
     flags &= AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST | AVAHI_LOOKUP_RESULT_WIDE_AREA;
 
@@ -90,21 +90,21 @@ static void record_browser_callback(
             AvahiStringList *l;
 
             /* Filter out entries defined statically */
-            
+
             for (l = b->server->config.browse_domains; l; l = l->next)
                 if (avahi_domain_equal((char*) l->text, n))
                     return;
         }
-        
+
     }
-        
+
     b->callback(b, interface, protocol, event, n, flags, b->userdata);
 }
 
 static void defer_callback(AvahiTimeEvent *e, void *userdata) {
     AvahiSDomainBrowser *b = userdata;
     AvahiStringList *l;
-    
+
     assert(e);
     assert(b);
 
@@ -117,22 +117,22 @@ static void defer_callback(AvahiTimeEvent *e, void *userdata) {
     inc_ref(b);
 
     for (l = b->server->config.browse_domains; l; l = l->next) {
-        
+
         /* Check whether this object still exists outside our own
          * stack frame */
         if (b->ref <= 1)
             break;
-        
+
         b->callback(b, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_BROWSER_NEW, (char*) l->text, AVAHI_LOOKUP_RESULT_STATIC, b->userdata);
     }
 
     if (b->ref > 1) {
         /* If the ALL_FOR_NOW event has already been scheduled, execute it now */
-        
-        if (b->all_for_now_scheduled) 
+
+        if (b->all_for_now_scheduled)
             b->callback(b, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_BROWSER_ALL_FOR_NOW, NULL, 0, b->userdata);
     }
-    
+
     /* Decrease ref counter */
     avahi_s_domain_browser_free(b);
 }
@@ -154,12 +154,12 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
         "dr",
         "lb"
     };
-    
+
     AvahiSDomainBrowser *b;
     AvahiKey *k = NULL;
     char n[AVAHI_DOMAIN_NAME_MAX];
     int r;
-    
+
     assert(server);
     assert(callback);
 
@@ -176,7 +176,7 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
         avahi_server_set_errno(server, r);
         return NULL;
     }
-    
+
     if (!(b = avahi_new(AvahiSDomainBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
@@ -197,24 +197,24 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         goto fail;
     }
-    
+
     if (!(b->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, b)))
         goto fail;
-    
+
     avahi_key_unref(k);
 
     if (type == AVAHI_DOMAIN_BROWSER_BROWSE && b->server->config.browse_domains)
         b->defer_event = avahi_time_event_new(server->time_event_queue, NULL, defer_callback, b);
-    
+
     return b;
-    
+
 fail:
-    
+
     if (k)
         avahi_key_unref(k);
-    
+
     avahi_s_domain_browser_free(b);
-    
+
     return NULL;
 }
 
@@ -224,7 +224,7 @@ void avahi_s_domain_browser_free(AvahiSDomainBrowser *b) {
     assert(b->ref >= 1);
     if (--b->ref > 0)
         return;
-    
+
     AVAHI_LLIST_REMOVE(AvahiSDomainBrowser, browser, b->server->domain_browsers, b);
 
     if (b->record_browser)
@@ -232,6 +232,6 @@ void avahi_s_domain_browser_free(AvahiSDomainBrowser *b) {
 
     if (b->defer_event)
         avahi_time_event_free(b->defer_event);
-    
+
     avahi_free(b);
 }

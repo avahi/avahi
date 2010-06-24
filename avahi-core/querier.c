@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -47,7 +47,7 @@ struct AvahiQuerier {
 
     unsigned post_id;
     int post_id_valid;
-    
+
     AVAHI_LLIST_FIELDS(AvahiQuerier, queriers);
 };
 
@@ -59,14 +59,14 @@ void avahi_querier_free(AvahiQuerier *q) {
 
     avahi_key_unref(q->key);
     avahi_time_event_free(q->time_event);
-    
+
     avahi_free(q);
 }
 
 static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
     AvahiQuerier *q = userdata;
     struct timeval tv;
-    
+
     assert(q);
 
     if (q->n_used <= 0) {
@@ -84,15 +84,15 @@ static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *us
         /* The queue accepted our query. We store the query id here,
          * that allows us to drop the query at a later point if the
          * query is very short-lived. */
-        
+
         q->post_id_valid = 1;
     }
 
     q->sec_delay *= 2;
-    
+
     if (q->sec_delay >= 60*60)  /* 1h */
         q->sec_delay = 60*60;
-    
+
     avahi_elapse_time(&tv, q->sec_delay*1000, 0);
     avahi_time_event_update(q->time_event, &tv);
 }
@@ -100,12 +100,12 @@ static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *us
 void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_ctime) {
     AvahiQuerier *q;
     struct timeval tv;
-    
+
     assert(i);
     assert(key);
-    
+
     if ((q = avahi_hashmap_lookup(i->queriers_by_key, key))) {
-        
+
         /* Someone is already browsing for records of this RR key */
         q->n_used++;
 
@@ -120,7 +120,7 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
     /* No one is browsing for this RR key, so we add a new querier */
     if (!(q = avahi_new(AvahiQuerier, 1)))
         return; /* OOM */
-    
+
     q->key = avahi_key_ref(key);
     q->interface = i;
     q->n_used = 1;
@@ -185,7 +185,7 @@ static void remove_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
 void avahi_querier_remove_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key) {
     assert(s);
     assert(key);
-    
+
     avahi_interface_monitor_walk(s->monitor, idx, protocol, remove_querier_callback, key);
 }
 
@@ -196,7 +196,7 @@ struct cbdata {
 
 static void add_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
     struct cbdata *cbdata = userdata;
-    
+
     assert(m);
     assert(i);
     assert(cbdata);
@@ -212,7 +212,7 @@ static void add_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, vo
 
 void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, struct timeval *ret_ctime) {
     struct cbdata cbdata;
-    
+
     assert(s);
     assert(key);
 
@@ -221,13 +221,13 @@ void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol p
 
     if (ret_ctime)
         ret_ctime->tv_sec = ret_ctime->tv_usec = 0;
-    
+
     avahi_interface_monitor_walk(s->monitor, idx, protocol, add_querier_callback, &cbdata);
 }
 
 int avahi_querier_shall_refresh_cache(AvahiInterface *i, AvahiKey *key) {
     AvahiQuerier *q;
-    
+
     assert(i);
     assert(key);
 
@@ -237,19 +237,19 @@ int avahi_querier_shall_refresh_cache(AvahiInterface *i, AvahiKey *key) {
         /* This key is currently not subscribed at all, so no cache
          * refresh is needed */
         return 0;
-    
+
     if (q->n_used <= 0) {
 
         /* If this is an entry nobody references right now, don't
          * consider it "existing". */
-        
+
         /* Remove this querier since it is referenced by nobody
          * and the cached data will soon be out of date */
         avahi_querier_free(q);
 
         /* Tell the cache that no refresh is needed */
         return 0;
-        
+
     } else {
         struct timeval tv;
 
@@ -266,6 +266,6 @@ int avahi_querier_shall_refresh_cache(AvahiInterface *i, AvahiKey *key) {
 void avahi_querier_free_all(AvahiInterface *i) {
     assert(i);
 
-    while (i->queriers) 
+    while (i->queriers)
         avahi_querier_free(i->queriers);
 }

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -48,8 +48,8 @@
 #include "iface-pfroute.h"
 #include "util.h"
 
-static int bitcount (unsigned int n)  
-{  
+static int bitcount (unsigned int n)
+{
   int count=0 ;
   while (n)
     {
@@ -64,39 +64,39 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   AvahiHwInterface *hw;
   struct if_msghdr *ifm = (struct if_msghdr *)rtm;
   struct sockaddr_dl *sdl = (struct sockaddr_dl *)(ifm + 1);
-  
+
   if (sdl->sdl_family != AF_LINK)
     return;
-  
+
   if (ifm->ifm_addrs == 0 && ifm->ifm_index > 0) {
     if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) ifm->ifm_index)))
       return;
     avahi_hw_interface_free(hw, 0);
     return;
   }
-  
+
   if (!(hw = avahi_interface_monitor_get_hw_interface(m, ifm->ifm_index)))
     if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex) ifm->ifm_index)))
       return; /* OOM */
-  
+
   hw->flags_ok =
     (ifm->ifm_flags & IFF_UP) &&
     (!m->server->config.use_iff_running || (ifm->ifm_flags & IFF_RUNNING)) &&
     !(ifm->ifm_flags & IFF_LOOPBACK) &&
     (ifm->ifm_flags & IFF_MULTICAST) &&
     (m->server->config.allow_point_to_point || !(ifm->ifm_flags & IFF_POINTOPOINT));
-  
+
   avahi_free(hw->name);
   hw->name = avahi_strndup(sdl->sdl_data, sdl->sdl_nlen);
-      
+
   hw->mtu = ifm->ifm_data.ifi_mtu;
-  
+
   hw->mac_address_size = sdl->sdl_alen;
   if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)
     hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
-  
+
   memcpy(hw->mac_address, sdl->sdl_data + sdl->sdl_nlen, hw->mac_address_size);
- 
+
 /*   { */
 /*     char mac[256]; */
 /*     avahi_log_debug("======\n name: %s\n index:%d\n mtu:%d\n mac:%s\n flags_ok:%d\n======",  */
@@ -105,7 +105,7 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 /* 		    avahi_format_mac_address(mac, sizeof(mac), hw->mac_address, hw->mac_address_size), */
 /* 		    hw->flags_ok); */
 /*   } */
-  
+
   avahi_hw_interface_check_relevant(hw);
   avahi_hw_interface_update_rrs(hw, 0);
 }
@@ -155,14 +155,14 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
     return;
 
   raddr.proto = avahi_af_to_proto(sa->sa_family);
-  
+
   for(cp = cp0, i = 0; i < RTAX_MAX; i++)
     {
       if (!(ifam->ifam_addrs & (1<<i)))
 	continue;
       sa = (struct sockaddr *)cp;
 #ifdef HAVE_SYS_SYSCTL_H
-      if (sa->sa_len == 0) 
+      if (sa->sa_len == 0)
 	continue;
 #endif
       switch(sa->sa_family) {
@@ -231,7 +231,7 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 	return;
       avahi_interface_address_free(addriface);
     }
-  
+
   avahi_interface_check_relevant(iface);
   avahi_interface_update_rrs(iface, 0);
 }
@@ -240,7 +240,7 @@ static void parse_rtmsg(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 {
   assert(m);
   assert(rtm);
-  
+
   if (rtm->rtm_version != RTM_VERSION) {
     avahi_log_warn("routing message version %d not understood",
 		   rtm->rtm_version);
@@ -301,15 +301,15 @@ int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
     }
     m->osdep.pfroute->fd = fd;
 
-    if (!(m->osdep.pfroute->watch = m->server->poll_api->watch_new(m->server->poll_api, 
-								   m->osdep.pfroute->fd, 
-								   AVAHI_WATCH_IN, 
-								   socket_event, 
+    if (!(m->osdep.pfroute->watch = m->server->poll_api->watch_new(m->server->poll_api,
+								   m->osdep.pfroute->fd,
+								   AVAHI_WATCH_IN,
+								   socket_event,
 								   m))) {
       avahi_log_error(__FILE__": Failed to create watch.");
       goto fail;
     }
-    
+
     return 0;
 
 fail:
@@ -317,10 +317,10 @@ fail:
     if (m->osdep.pfroute) {
       if (m->osdep.pfroute->watch)
         m->server->poll_api->watch_free(m->osdep.pfroute->watch);
-      
+
       if (fd >= 0)
         close(fd);
-      
+
       m->osdep.pfroute = NULL;
     }
 
@@ -333,7 +333,7 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
     if (m->osdep.pfroute) {
       if (m->osdep.pfroute->watch)
         m->server->poll_api->watch_free(m->osdep.pfroute->watch);
-      
+
       if (m->osdep.pfroute->fd >= 0)
         close(m->osdep.pfroute->fd);
 
@@ -423,7 +423,7 @@ static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, in
     index = if_nametoindex(lifreq->lifr_name);
 
     if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) index))) {
-        if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex) index))) 
+        if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex) index)))
             return; /* OOM */
 
         hw->flags_ok =
@@ -445,7 +445,7 @@ static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, in
             return; /* OOM */
 
     addriface->global_scope = 1;
-    
+
     avahi_hw_interface_check_relevant(hw);
     avahi_hw_interface_update_rrs(hw, 0);
 }
@@ -459,7 +459,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   struct rt_msghdr *rtm;
 
   assert(m);
-  
+
  retry2:
   mib[0] = CTL_NET;
   mib[1] = PF_ROUTE;
@@ -492,7 +492,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
     rtm = (struct rt_msghdr *)next;
     parse_rtmsg(rtm, m);
   }
-  
+
   m->list_complete = 1;
   avahi_interface_monitor_check_relevant(m);
   avahi_interface_monitor_update_rrs(m, 0);

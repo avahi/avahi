@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -44,13 +44,13 @@ static const AvahiAllocator *allocator = NULL;
 static void oom(void) AVAHI_GCC_NORETURN;
 
 static void oom(void) {
-    
+
     static const char msg[] = "Out of memory, aborting ...\n";
     const char *n = msg;
 
     while (strlen(n) > 0) {
         ssize_t r;
-        
+
         if ((r = write(2, n, strlen(n))) < 0)
             break;
 
@@ -90,7 +90,7 @@ static void *xrealloc(void *p, size_t size) {
 /* Default implementation for avahi_calloc() */
 static void *xcalloc(size_t nmemb, size_t size) {
     void *p;
-    
+
     if (size == 0 || nmemb == 0)
         return NULL;
 
@@ -104,7 +104,7 @@ void *avahi_malloc(size_t size) {
 
     if (size <= 0)
         return NULL;
-    
+
     if (!allocator)
         return xmalloc(size);
 
@@ -135,7 +135,7 @@ void avahi_free(void *p) {
 
     if (!p)
         return;
-    
+
     if (!allocator) {
         free(p);
         return;
@@ -162,7 +162,7 @@ void *avahi_realloc(void *p, size_t size) {
 char *avahi_strdup(const char *s) {
     char *r;
     size_t size;
-    
+
     if (!s)
         return NULL;
 
@@ -178,14 +178,14 @@ char *avahi_strndup(const char *s, size_t max) {
     char *r;
     size_t size;
     const char *p;
-    
+
     if (!s)
         return NULL;
 
     for (p = s, size = 0;
          size < max && *p;
          p++, size++);
-    
+
     if (!(r = avahi_new(char, size+1)))
         return NULL;
 
@@ -202,7 +202,7 @@ void avahi_set_allocator(const AvahiAllocator *a) {
 char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
     size_t len = 80;
     char *buf;
-    
+
     assert(fmt);
 
     if (!(buf = avahi_malloc(len)))
@@ -239,7 +239,7 @@ char *avahi_strdup_printf(const char *fmt, ... ) {
     va_list ap;
 
     assert(fmt);
-    
+
     va_start(ap, fmt);
     s = avahi_strdup_vprintf(fmt, ap);
     va_end(ap);

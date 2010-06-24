@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -33,7 +33,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif 
+#endif
 
 
 #if defined(__VXWORKS__)
@@ -119,7 +119,7 @@ typedef int						sw_result;
  * for little endian platforms.
  *
  * The macro WORDS_BIGENDIAN will be defined
- * by autoconf.  If you are using Howl on 
+ * by autoconf.  If you are using Howl on
  * a platform  that doesn't have autoconf, define
  * SW_ENDIAN directly
  * --------------------------------------------------------
@@ -185,19 +185,19 @@ extern sw_int32
 sw_strcasecmp(
 		sw_const_string	arg1,
 		sw_const_string	arg2);
-                                                
+
 extern sw_int32
 sw_strncasecmp(
 		sw_const_string	arg1,
 		sw_const_string	arg2,
 		sw_len				n);
-                                                
+
 extern sw_string
 sw_strtok_r(
 		sw_string			arg1,
 		sw_const_string	arg2,
 		sw_string		*	lasts);
-                                                
+
 #	define sw_memset(ARG1, ARG2, ARG3)		memset((char*) ARG1, ARG2, ARG3)
 #	define sw_memcpy(ARG1, ARG2, ARG3)		memcpy((char*) ARG1, (char*) ARG2, ARG3)
 #	define sw_memcmp(ARG1, ARG2, ARG3)		memcmp((char*) ARG1, ARG2, ARG3)
@@ -413,7 +413,7 @@ sw_strerror();
 
 /*
  * Obsolete types and macros.
- * 
+ *
  * These are here for backwards compatibility, but will
  * be removed in the future
  */

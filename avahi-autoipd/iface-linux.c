@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -67,7 +67,7 @@ AVAHI_LLIST_HEAD(Address, addresses) = NULL;
 int iface_init(int i) {
     struct sockaddr_nl addr;
     int on = 1;
-    
+
     if ((fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
         daemon_log(LOG_ERR, "socket(PF_NETLINK): %s", strerror(errno));
         goto fail;
@@ -82,22 +82,22 @@ int iface_init(int i) {
         daemon_log(LOG_ERR, "bind(): %s", strerror(errno));
         goto fail;
     }
-    
+
     if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) < 0) {
         daemon_log(LOG_ERR, "SO_PASSCRED: %s", strerror(errno));
         goto fail;
     }
 
     ifindex = i;
-    
+
     return fd;
-    
+
 fail:
     if (fd >= 0) {
         close(fd);
         fd = -1;
     }
-    
+
     return -1;
 }
 
@@ -112,14 +112,14 @@ static int process_nlmsg(struct nlmsghdr *n) {
 
         if (ifi->ifi_family != AF_UNSPEC || (int) ifi->ifi_index != ifindex)
             return 0;
-        
+
         if (n->nlmsg_type == RTM_DELLINK) {
             daemon_log(LOG_ERR, "Interface vanished.");
             return -1;
         }
 
         assert(n->nlmsg_type == RTM_NEWLINK);
-        
+
         if ((ifi->ifi_flags & IFF_LOOPBACK) ||
             (ifi->ifi_flags & IFF_NOARP) ||
             ifi->ifi_type != ARPHRD_ETHER) {
@@ -136,7 +136,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
         int l;
         uint32_t address = 0;
         Address *i;
-        
+
         ifa = NLMSG_DATA(n);
 
         if (ifa->ifa_family != AF_INET || (int) ifa->ifa_index != ifindex)
@@ -154,7 +154,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
                     memcpy(&address, RTA_DATA(a), sizeof(uint32_t));
                     break;
             }
-            
+
             a = RTA_NEXT(a, l);
         }
 
@@ -180,7 +180,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
 
 static int process_response(int wait_for_done, unsigned seq) {
     assert(fd >= 0);
-    
+
     do {
         size_t bytes;
         ssize_t r;
@@ -189,39 +189,39 @@ static int process_response(int wait_for_done, unsigned seq) {
         struct msghdr msghdr;
         struct cmsghdr *cmsghdr;
         struct ucred *ucred;
-        struct iovec iov; 
+        struct iovec iov;
         struct nlmsghdr *p = (struct nlmsghdr *) replybuf;
-        
+
         memset(&iov, 0, sizeof(iov));
-        iov.iov_base = replybuf; 
+        iov.iov_base = replybuf;
  	iov.iov_len = sizeof(replybuf);
 
         memset(&msghdr, 0, sizeof(msghdr));
         msghdr.msg_name = (void*) NULL;
-        msghdr.msg_namelen = 0; 
-        msghdr.msg_iov = &iov; 
-        msghdr.msg_iovlen = 1; 
-        msghdr.msg_control = cred_msg; 
-        msghdr.msg_controllen = sizeof(cred_msg); 
+        msghdr.msg_namelen = 0;
+        msghdr.msg_iov = &iov;
+        msghdr.msg_iovlen = 1;
+        msghdr.msg_control = cred_msg;
+        msghdr.msg_controllen = sizeof(cred_msg);
  	msghdr.msg_flags = 0;
-        
+
         if ((r = recvmsg(fd, &msghdr, 0)) < 0) {
             daemon_log(LOG_ERR, "recvmsg() failed: %s", strerror(errno));
             return -1;
         }
 
         if (!(cmsghdr = CMSG_FIRSTHDR(&msghdr)) || cmsghdr->cmsg_type != SCM_CREDENTIALS) {
-            daemon_log(LOG_WARNING, "No sender credentials received, ignoring data."); 
+            daemon_log(LOG_WARNING, "No sender credentials received, ignoring data.");
             return -1;
         }
 
         ucred = (struct ucred*) CMSG_DATA(cmsghdr);
-        
+
         if (ucred->uid != 0)
             return -1;
 
         bytes = (size_t) r;
-        
+
         for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
 
             if (!NLMSG_OK(p, bytes) || bytes < sizeof(struct nlmsghdr) || bytes < p->nlmsg_len) {
@@ -258,7 +258,7 @@ int iface_get_initial_state(State *state) {
 
     assert(fd >= 0);
     assert(state);
-    
+
     memset(&req, 0, sizeof(req));
     n = (struct nlmsghdr*) req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(*ifi));
@@ -278,7 +278,7 @@ int iface_get_initial_state(State *state) {
 
     if (process_response(1, 0) < 0)
         return -1;
-    
+
     n->nlmsg_type = RTM_GETADDR;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(*ifa));
     n->nlmsg_seq = ++seq;
@@ -286,7 +286,7 @@ int iface_get_initial_state(State *state) {
     ifa = NLMSG_DATA(n);
     ifa->ifa_family = AF_INET;
     ifa->ifa_index = ifindex;
-    
+
     if (send(fd, n, n->nlmsg_len, 0) < 0) {
         daemon_log(LOG_ERR, "send(): %s", strerror(errno));
         return -1;
@@ -296,7 +296,7 @@ int iface_get_initial_state(State *state) {
         return -1;
 
     *state = addresses ? STATE_SLEEPING : STATE_START;
-    
+
     return 0;
 }
 
@@ -305,7 +305,7 @@ int iface_process(Event *event) {
     assert(fd >= 0);
 
     b = !!addresses;
-    
+
     if (process_response(0, 0) < 0)
         return -1;
 
@@ -313,13 +313,13 @@ int iface_process(Event *event) {
         *event = EVENT_ROUTABLE_ADDR_UNCONFIGURED;
     else if (!b && addresses)
         *event = EVENT_ROUTABLE_ADDR_CONFIGURED;
-    
+
     return 0;
 }
 
 void iface_done(void) {
     Address *a;
-    
+
     if (fd >= 0) {
         close(fd);
         fd = -1;

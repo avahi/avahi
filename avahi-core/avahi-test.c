@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -61,7 +61,7 @@ static void dump_line(const char *text, AVAHI_GCC_UNUSED void* userdata) {
 
 static void dump_timeout_callback(AvahiTimeout *timeout, void* userdata) {
     struct timeval tv;
-    
+
     AvahiServer *avahi = userdata;
     avahi_server_dump(avahi, dump_line, NULL);
 
@@ -98,7 +98,7 @@ static void record_browser_callback(
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void* userdata) {
     char *t;
-    
+
     assert(r);
 
     if (record) {
@@ -113,7 +113,7 @@ static void remove_entries(void);
 static void create_entries(int new_name);
 
 static void entry_group_callback(AVAHI_GCC_UNUSED AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void* userdata) {
-    avahi_log_debug("entry group state: %i", state); 
+    avahi_log_debug("entry group state: %i", state);
 
     if (state == AVAHI_ENTRY_GROUP_COLLISION) {
         remove_entries();
@@ -127,8 +127,8 @@ static void entry_group_callback(AVAHI_GCC_UNUSED AvahiServer *s, AVAHI_GCC_UNUS
 static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void* userdata) {
 
     server = s;
-    avahi_log_debug("server state: %i", state); 
-    
+    avahi_log_debug("server state: %i", state);
+
     if (state == AVAHI_SERVER_RUNNING) {
         avahi_log_debug("Server startup complete. Host name is <%s>. Service cookie is %u", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
         create_entries(0);
@@ -155,11 +155,11 @@ static void create_entries(int new_name) {
 
     remove_entries();
 
-    if (!group) 
+    if (!group)
         group = avahi_s_entry_group_new(server, entry_group_callback, NULL);
 
     assert(avahi_s_entry_group_is_empty(group));
-    
+
     if (!service_name)
         service_name = avahi_strdup("Test Service");
     else if (new_name) {
@@ -167,7 +167,7 @@ static void create_entries(int new_name) {
         avahi_free(service_name);
         service_name = n;
     }
-    
+
     if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, service_name, "_http._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add HTTP service");
         goto fail;
@@ -190,7 +190,7 @@ static void create_entries(int new_name) {
 
     r = avahi_record_new_full("cname.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, AVAHI_DEFAULT_TTL);
     r->data.cname.name = avahi_strdup("cocaine.local");
-    
+
     if (avahi_server_add(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, r) < 0) {
         avahi_record_unref(r);
         avahi_log_error("Failed to add CNAME record");
@@ -291,14 +291,14 @@ static void sr_callback(
     const AvahiAddress *a,
     uint16_t port,
     AvahiStringList *txt,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, 
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void* userdata) {
 
     if (event != AVAHI_RESOLVER_FOUND)
         avahi_log_debug("SR: (%i.%i) <%s> as %s in <%s> [%s]", iface, protocol, name, service_type, domain_name, resolver_event_to_string(event));
     else {
         char t[AVAHI_ADDRESS_STR_MAX], *s;
-        
+
         avahi_address_snprint(t, sizeof(t), a);
 
         s = avahi_string_list_to_string(txt);
@@ -317,9 +317,9 @@ static void dsb_callback(
     uint16_t port,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     AVAHI_GCC_UNUSED void* userdata) {
-    
+
     char t[AVAHI_ADDRESS_STR_MAX] = "n/a";
-    
+
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
@@ -344,7 +344,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
-    
+
     avahi_server_config_init(&config);
 
     avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &config.wide_area_servers[0]);
@@ -353,7 +353,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     server = avahi_server_new(poll_api, &config, server_callback, NULL, &error);
     avahi_server_config_free(&config);
-    
+
     k = avahi_key_new("_http._tcp.0pointer.de", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR);
     r = avahi_s_record_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, k, 0, record_browser_callback, NULL);
     avahi_key_unref(k);
@@ -389,7 +389,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_s_dns_server_browser_free(dsb);
 
     if (group)
-        avahi_s_entry_group_free(group);   
+        avahi_s_entry_group_free(group);
 
     if (server)
         avahi_server_free(server);
@@ -398,6 +398,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         avahi_simple_poll_free(simple_poll);
 
     avahi_free(service_name);
-    
+
     return 0;
 }

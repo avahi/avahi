@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -43,7 +43,7 @@ void avahi_dbus_service_browser_free(ServiceBrowserInfo *i) {
         dbus_connection_unregister_object_path(server->bus, i->path);
         avahi_free(i->path);
     }
-    
+
     AVAHI_LLIST_REMOVE(ServiceBrowserInfo, service_browsers, i->client->service_browsers, i);
 
     i->client->n_objects--;
@@ -59,7 +59,7 @@ DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMes
     assert(c);
     assert(m);
     assert(i);
-    
+
     dbus_error_init(&error);
 
     avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
@@ -70,11 +70,11 @@ DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMes
     /* Introspection */
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
         return avahi_dbus_handle_introspect(c, m, "ServiceBrowser.introspect");
-    
+
     /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
+    if (strcmp(dbus_message_get_sender(m), i->client->name))
         return avahi_dbus_respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
+
     if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Free")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
@@ -84,15 +84,15 @@ DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMes
 
         avahi_dbus_service_browser_free(i);
         return avahi_dbus_respond_ok(c, m);
-        
+
     }
-    
+
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 
 fail:
     if (dbus_error_is_set(&error))
         dbus_error_free(&error);
-    
+
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
@@ -101,7 +101,7 @@ void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex i
     DBusMessage *m;
     int32_t i_interface, i_protocol;
     uint32_t u_flags;
-    
+
     assert(b);
     assert(i);
 
@@ -113,16 +113,16 @@ void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex i
         if (avahi_dbus_is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
             flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
     }
-    
+
     i_interface = (int32_t) interface;
     i_protocol = (int32_t) protocol;
     u_flags = (uint32_t) flags;
-    
+
     if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
         assert(name);
         assert(type);
         assert(domain);
-        
+
         dbus_message_append_args(
             m,
             DBUS_TYPE_INT32, &i_interface,
@@ -134,8 +134,8 @@ void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex i
             DBUS_TYPE_INVALID);
     } else if (event == AVAHI_BROWSER_FAILURE)
         avahi_dbus_append_server_error(m);
-    
-    dbus_message_set_destination(m, i->client->name);   
+
+    dbus_message_set_destination(m, i->client->name);
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);
 }

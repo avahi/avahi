@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,10 +32,10 @@
 struct AvahiWatch {
     AvahiGLibPoll *glib_poll;
     int dead;
-    
+
     GPollFD pollfd;
     int pollfd_added;
-    
+
     AvahiWatchCallback callback;
     void *userdata;
 
@@ -51,7 +51,7 @@ struct AvahiTimeout {
 
     AvahiTimeoutCallback callback;
     void  *userdata;
-    
+
     AVAHI_LLIST_FIELDS(AvahiTimeout, timeouts);
 };
 
@@ -62,7 +62,7 @@ struct AvahiGLibPoll {
 
     gboolean timeout_req_cleanup;
     gboolean watch_req_cleanup;
-    
+
     AVAHI_LLIST_HEAD(AvahiWatch, watches);
     AVAHI_LLIST_HEAD(AvahiTimeout, timeouts);
 };
@@ -111,7 +111,7 @@ static AvahiWatchEvent map_events_from_glib(gushort events) {
 static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent events, AvahiWatchCallback callback, void *userdata) {
     AvahiWatch *w;
     AvahiGLibPoll *g;
-    
+
     assert(api);
     assert(fd >= 0);
     assert(callback);
@@ -121,7 +121,7 @@ static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event
 
     if (!(w = avahi_new(AvahiWatch, 1)))
         return NULL;
-    
+
     w->glib_poll = g;
     w->pollfd.fd = fd;
     w->pollfd.events = map_events_to_glib(events);
@@ -160,7 +160,7 @@ static void watch_free(AvahiWatch *w) {
         g_source_remove_poll(&w->glib_poll->source, &w->pollfd);
         w->pollfd_added = FALSE;
     }
-    
+
     w->dead = TRUE;
     w->glib_poll->timeout_req_cleanup = TRUE;
 }
@@ -168,7 +168,7 @@ static void watch_free(AvahiWatch *w) {
 static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata) {
     AvahiTimeout *t;
     AvahiGLibPoll *g;
-    
+
     assert(api);
     assert(callback);
 
@@ -177,13 +177,13 @@ static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv,
 
     if (!(t = avahi_new(AvahiTimeout, 1)))
         return NULL;
-    
+
     t->glib_poll = g;
     t->dead = FALSE;
 
     if ((t->enabled = !!tv))
         t->expiry = *tv;
-        
+
     t->callback = callback;
     t->userdata = userdata;
 
@@ -195,7 +195,7 @@ static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv,
 static void timeout_update(AvahiTimeout *t, const struct timeval *tv) {
     assert(t);
     assert(!t->dead);
-    
+
     if ((t->enabled = !!tv))
         t->expiry = *tv;
 }
@@ -234,10 +234,10 @@ static AvahiTimeout* find_next_timeout(AvahiGLibPoll *g) {
     assert(g);
 
     for (t = g->timeouts; t; t = t->timeouts_next) {
-        
+
         if (t->dead || !t->enabled)
             continue;
-        
+
         if (!n || avahi_timeval_compare(&t->expiry, &n->expiry) < 0)
             n = t;
     }
@@ -266,7 +266,7 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
 
     if (g->timeout_req_cleanup)
         cleanup_timeouts(g, 0);
-    
+
     if ((next_timeout = find_next_timeout(g))) {
         GTimeVal now;
         struct timeval tvnow;
@@ -275,7 +275,7 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
         g_source_get_current_time(source, &now);
         tvnow.tv_sec = now.tv_sec;
         tvnow.tv_usec = now.tv_usec;
-    
+
         usec = avahi_timeval_diff(&next_timeout->expiry, &tvnow);
 
         if (usec <= 0) {
@@ -286,7 +286,7 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
         *timeout = (gint) (usec / 1000);
     } else
         *timeout = -1;
-        
+
     return FALSE;
 }
 
@@ -303,7 +303,7 @@ static gboolean check_func(GSource *source) {
         g_source_get_current_time(source, &now);
         tvnow.tv_sec = now.tv_sec;
         tvnow.tv_usec = now.tv_usec;
-        
+
         if (avahi_timeval_compare(&next_timeout->expiry, &tvnow) <= 0)
             return TRUE;
     }
@@ -311,7 +311,7 @@ static gboolean check_func(GSource *source) {
     for (w = g->watches; w; w = w->watches_next)
         if (w->pollfd.revents > 0)
             return TRUE;
-    
+
     return FALSE;
 }
 
@@ -319,7 +319,7 @@ static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc call
     AvahiGLibPoll* g = (AvahiGLibPoll*) source;
     AvahiWatch *w;
     AvahiTimeout *next_timeout;
-    
+
     g_assert(g);
 
     if ((next_timeout = find_next_timeout(g))) {
@@ -328,13 +328,13 @@ static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc call
         g_source_get_current_time(source, &now);
         tvnow.tv_sec = now.tv_sec;
         tvnow.tv_usec = now.tv_usec;
-        
+
         if (avahi_timeval_compare(&next_timeout->expiry, &tvnow) < 0) {
             start_timeout_callback(next_timeout);
             return TRUE;
         }
     }
-    
+
     for (w = g->watches; w; w = w->watches_next)
         if (w->pollfd.revents > 0) {
             assert(w->callback);
@@ -348,7 +348,7 @@ static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc call
 
 AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, gint priority) {
     AvahiGLibPoll *g;
-    
+
     static GSourceFuncs source_funcs = {
         prepare_func,
         check_func,
@@ -362,22 +362,22 @@ AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, gint priority) {
     g_main_context_ref(g->context = context ? context : g_main_context_default());
 
     g->api.userdata = g;
-    
+
     g->api.watch_new = watch_new;
     g->api.watch_free = watch_free;
     g->api.watch_update = watch_update;
     g->api.watch_get_events = watch_get_events;
-    
+
     g->api.timeout_new = timeout_new;
     g->api.timeout_free = timeout_free;
     g->api.timeout_update = timeout_update;
 
     g->watch_req_cleanup = FALSE;
     g->timeout_req_cleanup = FALSE;
-    
+
     AVAHI_LLIST_HEAD_INIT(AvahiWatch, g->watches);
     AVAHI_LLIST_HEAD_INIT(AvahiTimeout, g->timeouts);
-    
+
     g_source_attach(&g->source, g->context);
     g_source_set_priority(&g->source, priority);
     g_source_set_can_recurse(&g->source, FALSE);

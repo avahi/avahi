@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -38,7 +38,7 @@
 struct AvahiSHostNameResolver {
     AvahiServer *server;
     char *host_name;
-    
+
     AvahiSRecordBrowser *record_browser_a;
     AvahiSRecordBrowser *record_browser_aaaa;
 
@@ -66,20 +66,20 @@ static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
     switch (event) {
         case AVAHI_RESOLVER_FOUND: {
             AvahiAddress a;
-            
+
             assert(r->address_record);
-            
+
             switch (r->address_record->key->type) {
                 case AVAHI_DNS_TYPE_A:
                     a.proto = AVAHI_PROTO_INET;
                     a.data.ipv4 = r->address_record->data.a.address;
                     break;
-                    
+
                 case AVAHI_DNS_TYPE_AAAA:
                     a.proto = AVAHI_PROTO_INET6;
                     a.data.ipv6 = r->address_record->data.aaaa.address;
                     break;
-                    
+
                 default:
                     abort();
             }
@@ -88,9 +88,9 @@ static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
             break;
 
         }
-            
+
         case AVAHI_RESOLVER_FAILURE:
-            
+
             r->callback(r, r->interface, r->protocol, event, r->host_name, NULL, r->flags, r->userdata);
             break;
     }
@@ -98,7 +98,7 @@ static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
 
 static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     AvahiSHostNameResolver *r = userdata;
-    
+
     assert(e);
     assert(r);
 
@@ -126,9 +126,9 @@ static void record_browser_callback(
     AvahiRecord *record,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     AvahiSHostNameResolver *r = userdata;
-    
+
     assert(rr);
     assert(r);
 
@@ -140,20 +140,20 @@ static void record_browser_callback(
 
             if (r->interface > 0 && interface != r->interface)
                 return;
-            
+
             if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
                 return;
-            
+
             if (r->interface <= 0)
                 r->interface = interface;
-            
+
             if (r->protocol == AVAHI_PROTO_UNSPEC)
                 r->protocol = protocol;
-            
+
             if (!r->address_record) {
                 r->address_record = avahi_record_ref(record);
                 r->flags = flags;
-                
+
                 finish(r, AVAHI_RESOLVER_FOUND);
             }
 
@@ -169,13 +169,13 @@ static void record_browser_callback(
 
                 r->flags = flags;
 
-                
+
                 /** Look for a replacement */
                 if (r->record_browser_aaaa)
                     avahi_s_record_browser_restart(r->record_browser_aaaa);
                 if (r->record_browser_a)
                     avahi_s_record_browser_restart(r->record_browser_a);
-                
+
                 start_timeout(r);
             }
 
@@ -189,7 +189,7 @@ static void record_browser_callback(
         case AVAHI_BROWSER_FAILURE:
 
             /* Stop browsers */
-            
+
             if (r->record_browser_aaaa)
                 avahi_s_record_browser_free(r->record_browser_aaaa);
             if (r->record_browser_a)
@@ -197,7 +197,7 @@ static void record_browser_callback(
 
             r->record_browser_a = r->record_browser_aaaa = NULL;
             r->flags = flags;
-            
+
             finish(r, AVAHI_RESOLVER_FAILURE);
             break;
     }
@@ -212,10 +212,10 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     AvahiLookupFlags flags,
     AvahiSHostNameResolverCallback callback,
     void* userdata) {
-    
+
     AvahiSHostNameResolver *r;
     AvahiKey *k;
-   
+
     assert(server);
     assert(host_name);
     assert(callback);
@@ -230,7 +230,7 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;
     }
-    
+
     r->server = server;
     r->host_name = avahi_normalize_name_strdup(host_name);
     r->callback = callback;
@@ -255,7 +255,7 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
 
         if (!r->record_browser_a)
             goto fail;
-    } 
+    }
 
     if (aprotocol == AVAHI_PROTO_INET6 || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
@@ -269,7 +269,7 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     assert(r->record_browser_aaaa || r->record_browser_a);
 
     start_timeout(r);
-    
+
     return r;
 
 fail:
@@ -293,7 +293,7 @@ void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r) {
 
     if (r->address_record)
         avahi_record_unref(r->address_record);
-    
+
     avahi_free(r->host_name);
     avahi_free(r);
 }

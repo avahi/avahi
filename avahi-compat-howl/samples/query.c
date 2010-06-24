@@ -5,7 +5,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -40,7 +40,7 @@ query_record_reply(
 				sw_const_string							fullname,
 				sw_uint16									rrtype,
 				sw_uint16									rrclass,
-				sw_uint16									rrdatalen,	
+				sw_uint16									rrdatalen,
 				sw_const_octets							rrdata,
 				sw_uint32									ttl,
 				sw_opaque									extra)

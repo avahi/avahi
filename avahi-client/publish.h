@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -92,7 +92,7 @@ int avahi_entry_group_add_service(
     AvahiPublishFlags flags /**< Usually 0, unless you know what you do */,
     const char *name        /**< The name for the new service. Must be valid service name. i.e. a string shorter than 63 characters and valid UTF-8. May not be NULL. */,
     const char *type        /**< The service type for the new service, such as _http._tcp. May not be NULL. */,
-    const char *domain      /**< The domain to register this domain in. We recommend to pass NULL here, to let the daemon decide */,   
+    const char *domain      /**< The domain to register this domain in. We recommend to pass NULL here, to let the daemon decide */,
     const char *host        /**< The host this services is residing on. We recommend to pass NULL here, the daemon will than automatically insert the local host name in that case */,
     uint16_t port           /**< The IP port number of this service */,
     ...) AVAHI_GCC_SENTINEL;
@@ -127,9 +127,9 @@ int avahi_entry_group_update_service_txt(
     AvahiIfIndex interface   /**< The interface this service is announced on. This should match the value passed to the original avahi_entry_group_add_service() call. */,
     AvahiProtocol protocol   /**< The protocol this service is announced with. This should match the value passed to the original avahi_entry_group_add_service() call. */,
     AvahiPublishFlags flags  /**< Only != 0 if you really know what you do */,
-    const char *name         /**< The name of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,    
-    const char *type         /**< The type of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,     
-    const char *domain       /**< The domain this service resides is, as passed to avahi_entry_group_add_service(). May be NULL. */,   
+    const char *name         /**< The name of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,
+    const char *type         /**< The type of the service, as passed to avahi_entry_group_add_service(). May not be NULL. */,
+    const char *domain       /**< The domain this service resides is, as passed to avahi_entry_group_add_service(). May be NULL. */,
     ...) AVAHI_GCC_SENTINEL;
 
 /** Update a TXT record for an existing service. Similar to avahi_entry_group_update_service_txt() but takes an AvahiStringList for the TXT strings, instead of a NULL terminated list of arguments. */
@@ -138,9 +138,9 @@ int avahi_entry_group_update_service_txt_strlst(
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     AvahiPublishFlags flags,
-    const char *name,     
-    const char *type,     
-    const char *domain,   
+    const char *name,
+    const char *type,
+    const char *domain,
     AvahiStringList *strlst);
 
 /** \cond fulldocs */

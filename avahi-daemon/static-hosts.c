@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -75,7 +75,7 @@ static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGro
         case AVAHI_ENTRY_GROUP_FAILURE:
             avahi_log_notice ("Failed to establish static host name \"%s\": %s.", h->host, avahi_strerror (avahi_server_errno (s)));
             break;
-        
+
         case AVAHI_ENTRY_GROUP_UNCOMMITED:
         case AVAHI_ENTRY_GROUP_REGISTERING:
             ;
@@ -84,7 +84,7 @@ static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGro
 
 static StaticHost *static_host_new(void) {
     StaticHost *s;
-    
+
     s = avahi_new(StaticHost, 1);
 
     s->group = NULL;
@@ -105,7 +105,7 @@ static void static_host_free(StaticHost *s) {
         avahi_s_entry_group_free (s->group);
 
     avahi_free(s->host);
-    
+
     avahi_free(s);
 }
 
@@ -114,7 +114,7 @@ static StaticHost *static_host_find(const char *host, const AvahiAddress *a) {
 
     assert(host);
     assert(a);
-    
+
     for (h = hosts; h; h = h->hosts_next)
         if (!strcmp(h->host, host) && !avahi_address_cmp(a, &h->address))
             return h;
@@ -136,10 +136,10 @@ static void add_static_host_to_server(StaticHost *h)
         int err;
         const AvahiServerConfig *config;
         config = avahi_server_get_config(avahi_server);
-        
+
         p = (h->address.proto == AVAHI_PROTO_INET && config->publish_a_on_ipv6) ||
             (h->address.proto == AVAHI_PROTO_INET6 && config->publish_aaaa_on_ipv4) ? AVAHI_PROTO_UNSPEC : h->address.proto;
-        
+
         if ((err = avahi_server_add_address(avahi_server, h->group, AVAHI_IF_UNSPEC, p, 0, h->host, &h->address)) < 0) {
             avahi_log_error ("Static host name %s: avahi_server_add_address failure: %s", h->host, avahi_strerror(err));
             return;
@@ -154,7 +154,7 @@ static void remove_static_host_from_server(StaticHost *h)
     if (h->group)
         avahi_s_entry_group_reset (h->group);
 }
- 
+
 void static_hosts_add_to_server(void) {
     StaticHost *h;
 
@@ -182,7 +182,7 @@ void static_hosts_load(int in_chroot) {
     }
 
     current_iteration++;
-    
+
     while (!feof(f)) {
         unsigned int len;
         char ln[256], *s;
@@ -228,7 +228,7 @@ void static_hosts_load(int in_chroot) {
 
         /* Skip past any more spaces */
         s += strspn(s, " \t");
-        
+
         /* Anything left? */
         if (*s != 0) {
             avahi_log_error ("%s:%d: Junk on the end of the line!", filename, line);
@@ -261,7 +261,7 @@ void static_hosts_load(int in_chroot) {
 
     for (h = hosts; h; h = next) {
         next = h->hosts_next;
-        
+
         if (h->iteration != current_iteration) {
             avahi_log_info("Static hostname %s vanished, removing.", h->host);
             static_host_free(h);
@@ -269,7 +269,7 @@ void static_hosts_load(int in_chroot) {
     }
 
 fail:
-    
+
     fclose(f);
 }
 

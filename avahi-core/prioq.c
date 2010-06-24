@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -36,11 +36,11 @@ AvahiPrioQueue* avahi_prio_queue_new(AvahiPQCompareFunc compare) {
 
     if (!(q = avahi_new(AvahiPrioQueue, 1)))
         return NULL; /* OOM */
-    
+
     q->root = q->last = NULL;
     q->n_nodes = 0;
     q->compare = compare;
-    
+
     return q;
 }
 
@@ -64,7 +64,7 @@ static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, unsigned x, unsigne
 
     for (r = 0; r < y; r++) {
         assert(n);
-        
+
         if ((x >> (y-r-1)) & 1)
             n = n->right;
         else
@@ -91,7 +91,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
 
     if (a->parent == b) {
         /* B is parent of A */
-        
+
         p = b->parent;
         b->parent = a;
 
@@ -113,7 +113,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
                 a->right->parent = a;
             if ((b->right = r))
                 b->right->parent = b;
-            
+
         } else {
             if ((b->right = a->right))
                 b->right->parent = b;
@@ -127,7 +127,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
         }
     } else if (b->parent == a) {
         /* A ist parent of B */
-        
+
         p = a->parent;
         a->parent = b;
 
@@ -162,7 +162,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
         }
     } else {
         AvahiPrioQueueNode *apl = NULL, *bpl = NULL;
-        
+
         /* Swap parents */
         ap = a->parent;
         bp = b->parent;
@@ -171,15 +171,15 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
             apl = ap->left;
         if (bp)
             bpl = bp->left;
-        
+
         if ((a->parent = bp)) {
             if (bpl == b)
                 bp->left = a;
-            else 
+            else
                 bp->right = a;
         } else
             q->root = a;
-                
+
         if ((b->parent = ap)) {
             if (apl == a)
                 ap->left = b;
@@ -189,8 +189,8 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
             q->root = b;
 
         /* Swap children */
-        l = a->left; 
-        r = a->right; 
+        l = a->left;
+        r = a->right;
 
         if ((a->left = b->left))
             a->left->parent = a;
@@ -204,7 +204,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
         if ((b->right = r))
             b->right->parent = b;
     }
-    
+
     /* Swap siblings */
     ap = a->prev; an = a->next;
     bp = b->prev; bn = b->next;
@@ -221,7 +221,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
 
         if ((b->prev = ap))
             b->prev->next = b;
-        
+
     } else if (b->next == a) {
         /* B is predecessor of A */
         a->next = b;
@@ -240,15 +240,15 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
 
         if ((a->prev = bp))
             a->prev->next = a;
-        
+
         if ((a->next = bn))
             a->next->prev = a;
         else
             q->last = a;
-        
+
         if ((b->prev = ap))
             b->prev->next = b;
-        
+
         if ((b->next = an))
             b->next->prev = b;
         else
@@ -295,14 +295,14 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
 
     if (!(n = avahi_new(AvahiPrioQueueNode, 1)))
         return NULL; /* OOM */
-    
+
     n->queue = q;
     n->data = data;
 
     if (q->last) {
         assert(q->root);
         assert(q->n_nodes);
-         
+
         n->y = q->last->y;
         n->x = q->last->x+1;
 
@@ -313,7 +313,7 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
 
         q->last->next = n;
         n->prev = q->last;
-        
+
         assert(n->y > 0);
         n->parent = get_node_at_xy(q, n->x/2, n->y-1);
 
@@ -324,7 +324,7 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
     } else {
         assert(!q->root);
         assert(!q->n_nodes);
-        
+
         n->y = n->x = 0;
         q->root = n;
         n->prev = n->parent = NULL;
@@ -358,7 +358,7 @@ void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     assert(!n->right);
 
     q->last = n->prev;
-    
+
     if (n->prev) {
         n->prev->next = NULL;
         assert(n->parent);

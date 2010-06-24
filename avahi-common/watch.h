@@ -5,17 +5,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -62,7 +62,7 @@ typedef void (*AvahiTimeoutCallback)(AvahiTimeout *t, void *userdata);
 struct AvahiPoll {
 
     /** Some abstract user data usable by the provider of the API */
-    void* userdata; 
+    void* userdata;
 
     /** Create a new watch for the specified file descriptor and for
      * the specified events. The API will call the callback function
@@ -88,7 +88,7 @@ struct AvahiPoll {
     /** Update the absolute expiration time for a timeout, If tv is
      * NULL, the timeout is disabled. It is safe to call this function from an AvahiTimeoutCallback */
     void (*timeout_update)(AvahiTimeout *, const struct timeval *tv);
-    
+
     /** Free a timeout. It is safe to call this function from an AvahiTimeoutCallback */
     void (*timeout_free)(AvahiTimeout *t);
 };

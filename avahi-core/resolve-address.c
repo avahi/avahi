@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -37,7 +37,7 @@
 struct AvahiSAddressResolver {
     AvahiServer *server;
     AvahiAddress address;
-    
+
     AvahiSRecordBrowser *record_browser;
 
     AvahiSAddressResolverCallback callback;
@@ -58,7 +58,7 @@ struct AvahiSAddressResolver {
 
 static void finish(AvahiSAddressResolver *r, AvahiResolverEvent event) {
     assert(r);
-    
+
     if (r->time_event) {
         avahi_time_event_free(r->time_event);
         r->time_event = NULL;
@@ -78,7 +78,7 @@ static void finish(AvahiSAddressResolver *r, AvahiResolverEvent event) {
 
 static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
     AvahiSAddressResolver *r = userdata;
-    
+
     assert(e);
     assert(r);
 
@@ -105,53 +105,53 @@ static void record_browser_callback(
     AvahiRecord *record,
     AvahiLookupResultFlags flags,
     void* userdata) {
-    
+
     AvahiSAddressResolver *r = userdata;
 
     assert(rr);
     assert(r);
 
     switch (event) {
-        case AVAHI_BROWSER_NEW: 
+        case AVAHI_BROWSER_NEW:
             assert(record);
             assert(record->key->type == AVAHI_DNS_TYPE_PTR);
-            
+
             if (r->interface > 0 && interface != r->interface)
                 return;
-            
+
             if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
                 return;
-            
+
             if (r->interface <= 0)
                 r->interface = interface;
-            
+
             if (r->protocol == AVAHI_PROTO_UNSPEC)
                 r->protocol = protocol;
-            
+
             if (!r->ptr_record) {
                 r->ptr_record = avahi_record_ref(record);
                 r->flags = flags;
-                
+
                 finish(r, AVAHI_RESOLVER_FOUND);
             }
             break;
-            
+
         case AVAHI_BROWSER_REMOVE:
             assert(record);
             assert(record->key->type == AVAHI_DNS_TYPE_PTR);
-            
+
             if (r->ptr_record && avahi_record_equal_no_ttl(record, r->ptr_record)) {
                 avahi_record_unref(r->ptr_record);
                 r->ptr_record = NULL;
                 r->flags = flags;
-                
+
                 /** Look for a replacement */
                 avahi_s_record_browser_restart(r->record_browser);
                 start_timeout(r);
             }
 
             break;
-            
+
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
         case AVAHI_BROWSER_ALL_FOR_NOW:
             break;
@@ -184,7 +184,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     AvahiLookupFlags flags,
     AvahiSAddressResolverCallback callback,
     void* userdata) {
-    
+
     AvahiSAddressResolver *r;
     AvahiKey *k;
     char n[AVAHI_DOMAIN_NAME_MAX];
@@ -197,7 +197,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, address->proto == AVAHI_PROTO_INET || address->proto == AVAHI_PROTO_INET6, AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
-    
+
     avahi_reverse_lookup_name(address, n, sizeof(n));
 
     if (!(k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR))) {
@@ -210,7 +210,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
         avahi_key_unref(k);
         return NULL;
     }
-    
+
     r->server = server;
     r->address = *address;
     r->callback = callback;
@@ -236,7 +236,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
             r->retry_with_multicast = 1;
         }
     }
-    
+
     r->record_browser = avahi_s_record_browser_new(server, interface, protocol, k, flags, record_browser_callback, r);
 
     if (!r->record_browser) {
@@ -245,7 +245,7 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     }
 
     start_timeout(r);
-    
+
     return r;
 }
 
@@ -265,6 +265,6 @@ void avahi_s_address_resolver_free(AvahiSAddressResolver *r) {
 
     if (r->key)
         avahi_key_unref(r->key);
-    
+
     avahi_free(r);
 }

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -77,7 +77,7 @@ struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec) {
 
 AvahiUsec avahi_age(const struct timeval *a) {
     struct timeval now;
-    
+
     assert(a);
 
     gettimeofday(&now, NULL);
@@ -100,7 +100,7 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
 
         time_t now;
         int r;
-        
+
         now = time(NULL);
 
         pthread_mutex_lock(&mutex);
@@ -108,18 +108,18 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
             timestamp = now;
             last_rand = rand();
         }
-        
+
         r = last_rand;
-        
+
         pthread_mutex_unlock(&mutex);
 
         /* We use the same jitter for 10 seconds. That way our
          * time events elapse in bursts which has the advantage that
          * packet data can be aggregated better */
-        
+
         avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*r/(RAND_MAX+1.0)));
     }
-        
+
     return tv;
 }
 

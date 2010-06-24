@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -51,7 +51,7 @@ void DNSSD_API TXTRecordCreate(
     AVAHI_WARN_LINKAGE;
 
     assert(txtref);
-    
+
     /* Apple's API design is flawed in so many ways, including the
      * fact that it isn't compatible with 64 bit processors. To work
      * around this we need some magic here which involves allocating
@@ -75,7 +75,7 @@ void DNSSD_API TXTRecordDeallocate(TXTRecordRef *txtref) {
     TXTRecordInternal *t;
 
     AVAHI_WARN_LINKAGE;
-    
+
     assert(txtref);
     t = INTERNAL_PTR(txtref);
     if (!t)
@@ -91,7 +91,7 @@ void DNSSD_API TXTRecordDeallocate(TXTRecordRef *txtref) {
 static int make_sure_fits_in(TXTRecordInternal *t, size_t size) {
     uint8_t *n;
     size_t nsize;
-    
+
     assert(t);
 
     if (t->size + size <= t->max_size)
@@ -101,13 +101,13 @@ static int make_sure_fits_in(TXTRecordInternal *t, size_t size) {
 
     if (nsize > 0xFFFF)
         return -1;
-    
+
     if (!(n = avahi_realloc(t->malloc_buffer, nsize)))
         return -1;
 
     if (!t->malloc_buffer && t->size)
         memcpy(n, t->buffer, t->size);
-    
+
     t->buffer = t->malloc_buffer = n;
     t->max_size = nsize;
 
@@ -134,7 +134,7 @@ static int remove_key(TXTRecordInternal *t, const char *key) {
         /* Key longer than buffer */
         if (key_len > t->size - i - 1)
             break;
-        
+
         if (key_len <= *p &&
             strncmp(key, (char*) p+1, key_len) == 0 &&
             (key_len == *p || p[1+key_len] == '=')) {
@@ -150,7 +150,7 @@ static int remove_key(TXTRecordInternal *t, const char *key) {
             found = 1;
         } else {
             /* Skip to next */
-        
+
             i += *p +1;
             p += *p +1;
         }
@@ -162,7 +162,7 @@ static int remove_key(TXTRecordInternal *t, const char *key) {
 DNSServiceErrorType DNSSD_API TXTRecordSetValue(
     TXTRecordRef *txtref,
     const char *key,
-    uint8_t length,     
+    uint8_t length,
     const void *value) {
 
     TXTRecordInternal *t;
@@ -186,7 +186,7 @@ DNSServiceErrorType DNSSD_API TXTRecordSetValue(
 
     if (n > 0xFF)
         return kDNSServiceErr_Invalid;
-    
+
     if (make_sure_fits_in(t, 1 + n) < 0)
         return kDNSServiceErr_NoMemory;
 
@@ -196,7 +196,7 @@ DNSServiceErrorType DNSSD_API TXTRecordSetValue(
 
     *(p++) = (uint8_t) n;
     t->size ++;
-    
+
     memcpy(p, key, l);
     p += l;
     t->size += l;
@@ -267,7 +267,7 @@ static const uint8_t *find_key(const uint8_t *buffer, size_t size, const char *k
     key_len = strlen(key);
 
     assert(key_len <= 0xFF);
-    
+
     p = buffer;
     i = 0;
 
@@ -280,7 +280,7 @@ static const uint8_t *find_key(const uint8_t *buffer, size_t size, const char *k
         /* Key longer than buffer */
         if (key_len > size - i - 1)
             return NULL;
-        
+
         if (key_len <= *p &&
             strncmp(key, (const char*) p+1, key_len) == 0 &&
             (key_len == *p || p[1+key_len] == '=')) {
@@ -288,7 +288,7 @@ static const uint8_t *find_key(const uint8_t *buffer, size_t size, const char *k
             /* Key matches, so let's return it */
 
             return p;
-        } 
+        }
 
         /* Skip to next */
         i += *p +1;
@@ -326,7 +326,7 @@ const void * DNSSD_API TXTRecordGetValuePtr(
 
     const uint8_t *p;
     size_t n, l;
-    
+
     AVAHI_WARN_LINKAGE;
 
     assert(key);
@@ -336,7 +336,7 @@ const void * DNSSD_API TXTRecordGetValuePtr(
 
     if (*key == 0 || strchr(key, '=') || strlen(key) > 0xFF) /* Empty or invalid key */
         return NULL;
-    
+
     assert(buffer);
 
     if (!(p = find_key(buffer, size, key)))
@@ -351,20 +351,20 @@ const void * DNSSD_API TXTRecordGetValuePtr(
 
     if (n <= 0)
         goto fail;
-    
+
     assert(*p == '=');
     p++;
     n--;
 
     if (value_len)
         *value_len = n;
-    
+
     return p;
 
 fail:
     if (value_len)
         *value_len = 0;
-    
+
     return NULL;
 }
 
@@ -381,12 +381,12 @@ uint16_t DNSSD_API TXTRecordGetCount(
 
     if (!size)
         return 0;
-    
+
     assert(buffer);
-    
+
     p = buffer;
     i = 0;
-    
+
     while (i < size) {
 
         /* Does the item fit in? */
@@ -418,7 +418,7 @@ DNSServiceErrorType DNSSD_API TXTRecordGetItemAtIndex(
     size_t i;
     unsigned n = 0;
     DNSServiceErrorType ret = kDNSServiceErr_Invalid;
-    
+
     AVAHI_WARN_LINKAGE;
 
     if (!size)
@@ -428,7 +428,7 @@ DNSServiceErrorType DNSSD_API TXTRecordGetItemAtIndex(
 
     p = buffer;
     i = 0;
-    
+
     while (i < size) {
 
         /* Does the item fit in? */
@@ -451,7 +451,7 @@ DNSServiceErrorType DNSSD_API TXTRecordGetItemAtIndex(
 
             strncpy(key, (const char*) p + 1, l);
             key[l] = 0;
-            
+
             if (d) {
                 if (value_len)
                     *value_len = *p - l - 1;
@@ -486,6 +486,6 @@ fail:
     if (value_len)
         *value_len = 0;
 
-    return ret; 
+    return ret;
 
 }

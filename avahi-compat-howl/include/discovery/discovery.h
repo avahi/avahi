@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -52,7 +52,7 @@ typedef sw_uint32						sw_discovery_oid;
 /*
  * For backwards compatibility
  */
-#define sw_discovery_publish_host_id	sw_discovery_oid	
+#define sw_discovery_publish_host_id	sw_discovery_oid
 #define sw_discovery_publish_id			sw_discovery_oid
 #define sw_discovery_browse_id			sw_discovery_oid
 #define sw_discovery_resolve_id			sw_discovery_oid
@@ -107,7 +107,7 @@ typedef sw_result
 							sw_discovery_publish_status	status,
 							sw_opaque							extra);
 
-typedef sw_result	
+typedef sw_result
 (HOWL_API *sw_discovery_browse_reply)(
 							sw_discovery						session,
 							sw_discovery_oid					oid,
@@ -142,10 +142,10 @@ typedef sw_result
 							sw_const_string							fullname,
 							sw_uint16									rrtype,
 							sw_uint16									rrclass,
-							sw_uint16									rrdatalen,	
+							sw_uint16									rrdatalen,
 							sw_const_octets							rrdata,
 							sw_uint32									ttl,
-							sw_opaque									extra);	
+							sw_opaque									extra);
 
 
 /*
@@ -254,7 +254,7 @@ sw_discovery_query_record(
 					sw_const_string							fullname,
 					sw_uint16									rrtype,
 					sw_uint16									rrclass,
-					sw_discovery_query_record_reply		reply,	
+					sw_discovery_query_record_reply		reply,
 					sw_opaque									extra,
 					sw_discovery_oid						*	oid);
 
@@ -263,7 +263,7 @@ sw_result HOWL_API
 sw_discovery_cancel(
 					sw_discovery		self,
 					sw_discovery_oid	oid);
-				
+
 
 
 /* ----------------------------------------------------------
@@ -272,7 +272,7 @@ sw_discovery_cancel(
  *
  * ----------------------------------------------------------
  */
-						
+
 
 sw_result HOWL_API
 sw_discovery_run(
@@ -282,7 +282,7 @@ sw_discovery_run(
 sw_result HOWL_API
 sw_discovery_stop_run(
 					sw_discovery						self);
-						
+
 
 int HOWL_API
 sw_discovery_socket(

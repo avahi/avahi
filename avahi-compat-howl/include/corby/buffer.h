@@ -8,7 +8,7 @@
  *	are permitted provided that the following conditions are met:
  *
  *		1. Redistributions of source code must retain the above copyright notice,
- *		   this list of conditions and the following disclaimer.   
+ *		   this list of conditions and the following disclaimer.
  *		2. Redistributions in binary form must reproduce the above copyright notice,
  *		   this list of conditions and the following disclaimer in the documentation
  *		   and/or other materials provided with the distribution.
@@ -36,7 +36,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif 
+#endif
 
 
 struct										_sw_corby_buffer;
@@ -128,7 +128,7 @@ sw_corby_buffer_fina(
 void HOWL_API
 sw_corby_buffer_reset(
 				sw_corby_buffer	self);
-				
+
 
 sw_result HOWL_API
 sw_corby_buffer_set_octets(
@@ -136,21 +136,21 @@ sw_corby_buffer_set_octets(
 				sw_octets			octets,
 				sw_size_t			size);
 
-				
+
 sw_octets HOWL_API
 sw_corby_buffer_octets(
 				sw_corby_buffer	self);
-				
-				
+
+
 sw_size_t HOWL_API
 sw_corby_buffer_bytes_used(
 				sw_corby_buffer	self);
 
-				
+
 sw_size_t HOWL_API
 sw_corby_buffer_size(
 				sw_corby_buffer	self);
-				
+
 
 sw_result HOWL_API
 sw_corby_buffer_put_int8(
@@ -193,14 +193,14 @@ sw_corby_buffer_put_octets(
 				sw_corby_buffer	self,
 				sw_const_octets	val,
 				sw_size_t			size);
-                                    
+
 
 sw_result HOWL_API
 sw_corby_buffer_put_sized_octets(
 				sw_corby_buffer	self,
 				sw_const_octets	val,
 				sw_uint32			len);
-                                    
+
 
 sw_result HOWL_API
 sw_corby_buffer_put_cstring(
@@ -218,7 +218,7 @@ sw_result HOWL_API
 sw_corby_buffer_put_pad(
 				sw_corby_buffer						self,
 				sw_corby_buffer_pad					pad);
-				
+
 
 sw_result HOWL_API
 sw_corby_buffer_get_int8(
@@ -273,7 +273,7 @@ sw_corby_buffer_allocate_and_get_sized_octets(
 				sw_octets		*	val,
 				sw_uint32		*	size,
             sw_uint8			endian);
-                                    
+
 
 sw_result HOWL_API
 sw_corby_buffer_get_zerocopy_sized_octets(
@@ -281,7 +281,7 @@ sw_corby_buffer_get_zerocopy_sized_octets(
 				sw_octets		*	val,
 				sw_uint32		*	size,
 				sw_uint8			endian);
-                                    
+
 
 sw_result HOWL_API
 sw_corby_buffer_get_sized_octets(
@@ -297,15 +297,15 @@ sw_corby_buffer_allocate_and_get_cstring(
 				sw_string		*	val,
 				sw_uint32		*	len,
 				sw_uint8			endian);
-				
-				
+
+
 sw_result HOWL_API
 sw_corby_buffer_get_zerocopy_cstring(
 				sw_corby_buffer	self,
 				sw_string		*	val,
 				sw_uint32		*	len,
 				sw_uint8			endian);
-                                    
+
 
 sw_result HOWL_API
 sw_corby_buffer_get_cstring(
@@ -313,18 +313,18 @@ sw_corby_buffer_get_cstring(
 				sw_string			val,
 				sw_uint32		*	len,
 				sw_uint8			endian);
-				
-				
+
+
 sw_result HOWL_API
 sw_corby_buffer_get_object(
 				sw_corby_buffer				self,
 				struct _sw_corby_object	**	object,
 				sw_uint8						endian);
-                                    
+
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 
 #endif

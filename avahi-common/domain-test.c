@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -36,14 +36,14 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     const char *p;
     size_t size;
     char name[64], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
-    
+
     printf("%s\n", s = avahi_normalize_name_strdup("foo.foo\\046."));
     avahi_free(s);
 
     printf("%s\n", s = avahi_normalize_name_strdup("foo.foo\\.foo."));
     avahi_free(s);
 
-    
+
     printf("%s\n", s = avahi_normalize_name_strdup("fo\\\\o\\..f oo."));
     avahi_free(s);
 
@@ -60,7 +60,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     avahi_service_name_split(t, name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
     printf("name: <%s>; type: <%s>; domain <%s>\n", name, type, domain);
-    
+
     avahi_service_name_join(t, sizeof(t), NULL, "_http._tcp", "one.two\\. .local");
     printf("<%s>\n", t);
 
@@ -73,7 +73,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     size = sizeof(r);
     s = r;
-    
+
     printf("escaped: <%s>\n", avahi_escape_label(t, strlen(t), &s, &size));
 
     p = r;
@@ -90,7 +90,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(!avahi_is_valid_service_type_generic("_foo._bar.waldo"));
     assert(!avahi_is_valid_service_type_strict("_foo._bar.waldo"));
     assert(!avahi_is_valid_service_subtype("_foo._bar.waldo"));
-    
+
     assert(!avahi_is_valid_service_type_generic(""));
     assert(!avahi_is_valid_service_type_strict(""));
     assert(!avahi_is_valid_service_subtype(""));
@@ -120,6 +120,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(!avahi_is_valid_fqdn("192.168.50.1"));
     assert(!avahi_is_valid_fqdn("::1"));
     assert(!avahi_is_valid_fqdn(".192.168.50.1."));
-    
+
     return 0;
 }

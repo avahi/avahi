@@ -12,11 +12,11 @@ int main(int argc, char *argv[]) {
     struct sockaddr_storage sa;
     socklen_t salen;
     uint16_t port;
-    
+
     if ((s = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
         if (errno == EAFNOSUPPORT)
             s = socket(PF_INET, SOCK_STREAM, 0);
-    
+
         if (s < 0) {
             perror("socket()");
             return 1;
@@ -44,6 +44,6 @@ int main(int argc, char *argv[]) {
     /* ... hic sunt leones ... */
 
     sleep(60);
-    
+
     return 0;
 }

@@ -2,17 +2,17 @@
 
 /***
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -43,7 +43,7 @@ void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i) {
         dbus_connection_unregister_object_path(server->bus, i->path);
         avahi_free(i->path);
     }
-    
+
     AVAHI_LLIST_REMOVE(AsyncAddressResolverInfo, async_address_resolvers, i->client->async_address_resolvers, i);
 
     i->client->n_objects--;
@@ -55,12 +55,12 @@ void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i) {
 void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata) {
     AsyncAddressResolverInfo *i = userdata;
     DBusMessage *reply;
-    
+
     assert(r);
     assert(i);
 
     reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, avahi_dbus_map_resolve_signal_name(event));
-    
+
     if (event == AVAHI_RESOLVER_FOUND) {
         char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;
@@ -74,7 +74,7 @@ void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiI
         i_protocol = (int32_t) protocol;
         i_aprotocol = (int32_t) address->proto;
         u_flags = (uint32_t) flags;
-        
+
         dbus_message_append_args(
             reply,
             DBUS_TYPE_INT32, &i_interface,
@@ -90,7 +90,7 @@ void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiI
         avahi_dbus_append_server_error(reply);
     }
 
-    dbus_message_set_destination(reply, i->client->name);  
+    dbus_message_set_destination(reply, i->client->name);
     dbus_connection_send(server->bus, reply, NULL);
     dbus_message_unref(reply);
 }
@@ -102,7 +102,7 @@ DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, 
     assert(c);
     assert(m);
     assert(i);
-    
+
     dbus_error_init(&error);
 
     avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
@@ -113,11 +113,11 @@ DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, 
     /* Introspection */
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
         return avahi_dbus_handle_introspect(c, m, "AddressResolver.introspect");
-    
+
     /* Access control */
-    if (strcmp(dbus_message_get_sender(m), i->client->name)) 
+    if (strcmp(dbus_message_get_sender(m), i->client->name))
         return avahi_dbus_respond_error(c, m, AVAHI_ERR_ACCESS_DENIED, NULL);
-    
+
     if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER, "Free")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
@@ -128,12 +128,12 @@ DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, 
         avahi_dbus_async_address_resolver_free(i);
         return avahi_dbus_respond_ok(c, m);
     }
-    
+
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 
 fail:
     if (dbus_error_is_set(&error))
         dbus_error_free(&error);
-    
+
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }

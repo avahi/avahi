@@ -105,6 +105,11 @@ void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex i
 
     m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, avahi_dbus_map_browse_signal_name(event));
 
+    if (!m) {
+        avahi_log_error("Failed allocate message");
+        return;
+    }
+
     if (event == AVAHI_BROWSER_NEW) {
         /* Patch in AVAHI_LOOKUP_RESULT_OUR_OWN */
 

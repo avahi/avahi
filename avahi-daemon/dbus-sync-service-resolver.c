@@ -90,12 +90,18 @@ void avahi_dbus_sync_service_resolver_callback(
         i_interface = (int32_t) interface;
         i_protocol = (int32_t) protocol;
         if (a)
-	    i_aprotocol = (int32_t) a->proto;
-	else
-	    i_aprotocol = AVAHI_PROTO_UNSPEC;
+            i_aprotocol = (int32_t) a->proto;
+        else
+            i_aprotocol = AVAHI_PROTO_UNSPEC;
         u_flags = (uint32_t) flags;
 
         reply = dbus_message_new_method_return(i->message);
+
+        if (!reply) {
+            avahi_log_error("Failed allocate message");
+            goto finish;
+        }
+
         dbus_message_append_args(
             reply,
             DBUS_TYPE_INT32, &i_interface,
@@ -124,5 +130,6 @@ void avahi_dbus_sync_service_resolver_callback(
         avahi_dbus_respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
     }
 
+finish:
     avahi_dbus_sync_service_resolver_free(i);
 }

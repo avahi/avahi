@@ -63,6 +63,11 @@ void avahi_dbus_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiE
 
     m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged");
 
+    if (!m) {
+        avahi_log_error("Failed allocate message");
+        return;
+    }
+
     t = (int32_t) state;
     if (state == AVAHI_ENTRY_GROUP_FAILURE)
         e = avahi_error_number_to_dbus(avahi_server_errno(s));

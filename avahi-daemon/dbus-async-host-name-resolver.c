@@ -58,6 +58,11 @@ void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, Ava
 
     reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, avahi_dbus_map_resolve_signal_name(event));
 
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return;
+    }
+
     if (event == AVAHI_RESOLVER_FOUND) {
         char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
         int32_t i_interface, i_protocol, i_aprotocol;

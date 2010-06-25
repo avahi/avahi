@@ -68,6 +68,12 @@ void avahi_dbus_sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIf
         u_flags = (uint32_t) flags;
 
         reply = dbus_message_new_method_return(i->message);
+
+        if (!reply) {
+            avahi_log_error("Failed allocate message");
+            goto finish;
+        }
+
         dbus_message_append_args(
             reply,
             DBUS_TYPE_INT32, &i_interface,
@@ -85,6 +91,6 @@ void avahi_dbus_sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIf
         avahi_dbus_respond_error(server->bus, i->message, avahi_server_errno(avahi_server), NULL);
     }
 
+finish:
     avahi_dbus_sync_address_resolver_free(i);
 }
-

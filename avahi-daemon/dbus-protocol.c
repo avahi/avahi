@@ -1017,6 +1017,12 @@ void dbus_protocol_server_state_changed(AvahiServerState state) {
         return;
 
     m = dbus_message_new_signal(AVAHI_DBUS_PATH_SERVER, AVAHI_DBUS_INTERFACE_SERVER, "StateChanged");
+
+    if (!m) {
+        avahi_log_error("Failed allocate message");
+        return;
+    }
+
     t = (int32_t) state;
 
     if (state == AVAHI_SERVER_COLLISION)

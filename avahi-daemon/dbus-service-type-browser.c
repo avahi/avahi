@@ -109,6 +109,11 @@ void avahi_dbus_service_type_browser_callback(AvahiSServiceTypeBrowser *b, Avahi
 
     m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER, avahi_dbus_map_browse_signal_name(event));
 
+    if (!m) {
+        avahi_log_error("Failed allocate message");
+        return;
+    }
+
     if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
         assert(type);
         assert(domain);

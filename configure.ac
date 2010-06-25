@@ -173,6 +173,7 @@ AC_DEFINE([HAVE_PF_ROUTE],[],[Support for PF_ROUTE])
 , [], [
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <net/if_dl.h>
 ])
 
 AM_CONDITIONAL(HAVE_PF_ROUTE, [ test x"$HAVE_PF_ROUTE" = xyes ])

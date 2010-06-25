@@ -84,6 +84,10 @@ _sftp-ssh._tcp:SFTP File Transfer
 _apt._tcp:APT Package Repository
 _apt._tcp[it]:APT - Repository dei Pacchetti
 
+_odisk._tcp:DVD or CD Sharing
+
+_adisk._tcp:Apple TimeMachine
+
 
 # Remote machine access
 
@@ -101,6 +105,7 @@ _timbuktu._tcp:Timbuktu Remote Desktop Control
 
 _net-assistant._udp:Apple Net Assistant
 
+_udisks-ssh._tcp:Remote Disk Management
 
 # Mail
 
@@ -147,6 +152,8 @@ _pulse-source._tcp:PulseAudio Sound Source
 
 _mpd._tcp:Music Player Daemon
 
+_remote-jukebox._tcp:Remote Jukebox
+
 # DAAP share provided by iTunes on behalf of an iPod Touch
 _touch-able._tcp:iPod Touch Music Library
 
@@ -190,6 +197,8 @@ _distcc._tcp:Distributed Compiler
 _distcc._tcp[de]:Verteilter Compiler
 _distcc._tcp[it]:Compilatore Distribuito
 
+_bzr._tcp:Bazaar
+
 
 # Vendor specific
 
@@ -202,6 +211,8 @@ _omni-bookmark._tcp:OmniWeb Bookmark Sharing
 _acrobatSRV._tcp:Adobe Acrobat
 
 _adobe-vc._tcp:Adobe Version Cue
+
+_home-sharing._tcp:Apple Home Sharing
 
 
 # Other

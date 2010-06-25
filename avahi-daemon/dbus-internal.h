@@ -43,9 +43,9 @@ typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
 typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
 typedef struct RecordBrowserInfo RecordBrowserInfo;
 
-#define DEFAULT_CLIENTS_MAX 256
-#define DEFAULT_OBJECTS_PER_CLIENT_MAX 250
-#define DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX 20
+#define DEFAULT_CLIENTS_MAX 4096
+#define DEFAULT_OBJECTS_PER_CLIENT_MAX 1024
+#define DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX 32
 
 struct EntryGroupInfo {
     unsigned id;

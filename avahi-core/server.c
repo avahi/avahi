@@ -49,7 +49,7 @@
 #include "domain-util.h"
 #include "rr-util.h"
 
-#define AVAHI_DEFAULT_CACHE_ENTRIES_MAX 500
+#define AVAHI_DEFAULT_CACHE_ENTRIES_MAX 4096
 
 static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const char *name, uint16_t type, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata) {
     assert(s);

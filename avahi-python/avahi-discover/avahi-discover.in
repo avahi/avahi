@@ -233,7 +233,6 @@ class Main_window:
         return myiter
 
     def new(self):
-        print "A new main_window has been created"
         self.treemodel=gtk.TreeStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         self.tree_view.set_model(self.treemodel)
 
@@ -253,8 +252,12 @@ class Main_window:
         self.zc_types = {}
         self.services_browsed = {}
 
-        self.bus = dbus.SystemBus()
-        self.server = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
+        try:
+            self.bus = dbus.SystemBus()
+            self.server = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
+        except Exception, e:
+            print "Failed to connect to Avahi Server (Is it running?): %s" % e
+            sys.exit(1)
 
         if self.domain is None:
             # Explicitly browse .local

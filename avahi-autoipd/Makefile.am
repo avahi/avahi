@@ -52,10 +52,10 @@ nodist_pkgsysconf_SCRIPTS = avahi-autoipd.action
 
 if TARGET_FREEBSD
 avahi-autoipd.action: avahi-autoipd.action.bsd
-	cp $< $@
+	$(AM_V_GEN)cp $< $@
 else
 avahi-autoipd.action: avahi-autoipd.action.linux
-	cp $< $@
+	$(AM_V_GEN)cp $< $@
 endif
 
 if TARGET_DEBIAN
@@ -63,11 +63,11 @@ if TARGET_DEBIAN
 noinst_SCRIPTS = dhclient-enter-hook dhclient-exit-hook
 
 dhclient-enter-hook: dhclient-enter-hook.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@ && \
 	chmod +x $@
 
 dhclient-exit-hook: dhclient-exit-hook.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@ && \
 	chmod +x $@
 
 BUILD = dhclient-exit-hook dhclient-enter-hook

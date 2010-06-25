@@ -518,10 +518,10 @@ fi
 AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")
 
 #
-# Check for GTK+
+# Check for GTK+ 2.0
 #
 AC_ARG_ENABLE(gtk,
-        AS_HELP_STRING([--disable-gtk],[Disable use of GTK+]),
+        AS_HELP_STRING([--disable-gtk],[Disable use of GTK+ 2]),
         [case "${enableval}" in
                 yes) HAVE_GTK=yes ;;
                 no)  HAVE_GTK=no ;;
@@ -536,6 +536,28 @@ if test "x$HAVE_GTK" = "xyes" ; then
         AC_SUBST(GTK20_LIBS)
 fi
 AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
+
+#
+# Check for GTK+ 3.0
+#
+AC_ARG_ENABLE(gtk3,
+        AS_HELP_STRING([--disable-gtk3],[Disable use of GTK+ 3]),
+        [case "${enableval}" in
+                yes) HAVE_GTK3=yes ;;
+                no)  HAVE_GTK3=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk3) ;;
+        esac],
+        [HAVE_GTK3=yes])
+
+if test "x$HAVE_GTK3" = "xyes" ; then
+        # Check for GTK 3.0
+        PKG_CHECK_MODULES(GTK30, [ gtk+-3.0 ])
+        AC_SUBST(GTK30_CFLAGS)
+        AC_SUBST(GTK30_LIBS)
+fi
+AM_CONDITIONAL(HAVE_GTK3, test "x$HAVE_GTK3" = "xyes")
+
+AM_CONDITIONAL(HAVE_GTK2OR3, test "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK2" = "xyes" )
 
 #
 # D-Bus
@@ -1104,7 +1126,8 @@ echo "
     CFLAGS:                                    ${CFLAGS}
     Enable GLIB:                               ${HAVE_GLIB}
     Enable GLIB GObject:                       ${HAVE_GOBJECT}
-    Enable GTK:                                ${HAVE_GTK}
+    Enable GTK 2.0:                            ${HAVE_GTK}
+    Enable GTK 3.0:                            ${HAVE_GTK3}
     Enable D-Bus:                              ${HAVE_DBUS}
     With XML:                                  ${with_xml}
     Enable GDBM:                               ${HAVE_GDBM}
@@ -1156,8 +1179,13 @@ if test "x$ENABLE_AUTOIPD" = "xyes" -a "x$HAVE_LIBDAEMON" != "xyes" ; then
    ENABLE_AUTOIPD="no   (You need libdaemon!)"
 fi
 
+HAVE_GTK2OR3=no
+if test "x$HAVE_GTK" = "xyes" -o "x$HAVE_GTK3" = "xyes" ; then
+   HAVE_GTK2OR3=yes
+fi
+
 BUILD_UI="no"
-if test "x$HAVE_GTK" = "xyes" -a "x$BUILD_CLIENT" = "xyes" ; then
+if test "x$HAVE_GTK2OR3" = "xyes" -a "x$BUILD_CLIENT" = "xyes" ; then
    BUILD_UI="yes"
 fi
 
@@ -1175,7 +1203,7 @@ echo "\
     Building avahi-python:              ${BUILD_PYTHON}
     Building libavahi-glib:             ${HAVE_GLIB}
     Building libavahi-gobject:          ${BUILD_GOBJECT}
-    Building avahi-discover-standalone: ${HAVE_GTK}
+    Building avahi-discover-standalone: ${HAVE_GTK2OR3}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
     Building avahi-sharp:               ${HAVE_MONO}

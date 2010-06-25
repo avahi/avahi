@@ -27,7 +27,7 @@ desktop_DATA_in_in = bssh.desktop.in.in bvnc.desktop.in.in
 
 EXTRA_DIST = $(desktop_DATA_in_in)
 
-if HAVE_GTK
+if HAVE_GTK2OR3
 AM_CFLAGS += -DGNOMELOCALEDIR=\"$(datadir)/locale\"
 if HAVE_DBUS
 if HAVE_GLIB
@@ -37,8 +37,17 @@ avahiincludedir=$(includedir)/avahi-ui
 avahiinclude_HEADERS = \
 	avahi-ui.h
 
-lib_LTLIBRARIES = \
+lib_LTLIBRARIES =
+
+if HAVE_GTK
+lib_LTLIBRARIES += \
 	libavahi-ui.la
+endif
+
+if HAVE_GTK3
+lib_LTLIBRARIES += \
+	libavahi-ui-gtk3.la
+endif
 
 libavahi_ui_la_SOURCES = \
 	avahi-ui.h avahi-ui.c
@@ -46,15 +55,25 @@ libavahi_ui_la_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
 libavahi_ui_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la ../avahi-glib/libavahi-glib.la $(GTK20_LIBS)
 libavahi_ui_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_UI_VERSION_INFO)
 
+libavahi_ui_gtk3_la_SOURCES = $(libavahi_ui_la_SOURCES)
+libavahi_ui_gtk3_la_CFLAGS = $(AM_CFLAGS) $(GTK30_CFLAGS)
+libavahi_ui_gtk3_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-client/libavahi-client.la ../avahi-glib/libavahi-glib.la $(GTK30_LIBS)
+libavahi_ui_gtk3_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_UI_VERSION_INFO)
+
 if HAVE_GDBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
 libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
 libavahi_ui_la_LIBADD += -lgdbm
+
+libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+libavahi_ui_gtk3_la_LIBADD += -lgdbm
 endif
 
 if HAVE_DBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
 libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+
+libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
 endif
 
 bin_PROGRAMS = bssh
@@ -62,8 +81,14 @@ desktop_DATA += bssh.desktop bvnc.desktop
 @INTLTOOL_DESKTOP_RULE@
 
 bssh_SOURCES = bssh.c
+
+if HAVE_GTK3
+bssh_CFLAGS = $(AM_CFLAGS) $(GTK30_CFLAGS)
+bssh_LDADD = $(AM_LDADD) $(GTK30_LIBS) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la libavahi-ui-gtk3.la
+else
 bssh_CFLAGS = $(AM_CFLAGS) $(GTK20_CFLAGS)
 bssh_LDADD = $(AM_LDADD) $(GTK20_LIBS) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la libavahi-ui.la
+endif
 
 install-exec-local:
 	cd $(DESTDIR)/$(bindir) && \

@@ -48,6 +48,7 @@ EXTRA_DIST = \
 	avahi-compat-libdns_sd.pc.in \
 	avahi-compat-howl.pc.in \
 	avahi-ui.pc.in \
+	avahi-ui-gtk3.pc.in \
 	doxygen_to_devhelp.xsl
 
 SUBDIRS = \
@@ -193,6 +194,13 @@ if HAVE_GTK
 if HAVE_DBUS
 pkgconfig_DATA += avahi-ui.pc
 CLEANFILES += avahi-ui.pc
+endif
+endif
+
+if HAVE_GTK3
+if HAVE_DBUS
+pkgconfig_DATA += avahi-ui-gtk3.pc
+CLEANFILES += avahi-ui-gtk3.pc
 endif
 endif
 

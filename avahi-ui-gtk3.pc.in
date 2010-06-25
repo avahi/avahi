@@ -4,8 +4,8 @@ libdir=@libdir@
 includedir=${prefix}/include
 
 Name: avahi-ui
-Description: Avahi Multicast DNS Responder (Common GTK2 UI support)
-Requires: gtk+-2.0 avahi-client avahi-glib
+Description: Avahi Multicast DNS Responder (Common GTK3 UI support)
+Requires: gtk+-3.0 avahi-client avahi-glib
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lavahi-ui
+Libs: -L${libdir} -lavahi-ui-gtk3
 Cflags: -D_REENTRANT -I${includedir}

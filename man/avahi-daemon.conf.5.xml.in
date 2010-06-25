@@ -72,8 +72,8 @@
     <option>
       <p><opt>allow-interfaces=</opt> Set a comma separated list of
       allowed network interfaces that should be used by the
-      avahi-daemon.  Other interfaces will be ignored. If set to the
-      empty list all local interfaces except loopback and
+      avahi-daemon. Traffic on other interfaces will be ignored. If
+      set to an empty list all local interfaces except loopback and
       point-to-point will be used.</p>
     </option>
 
@@ -81,8 +81,8 @@
       <p><opt>deny-interfaces=</opt> Set a comma separated list of
       network interfaces that should be ignored by avahi-daemon.
       Other not specified interfaces will be used, unless
-      <opt>allow-interfaces</opt> is set. This option takes
-      precedence over <opt>deny-interfaces</opt>.</p>
+      <opt>allow-interfaces=</opt> is set. This option takes
+      precedence over <opt>allow-interfaces=</opt>.</p>
     </option>
 
     <option>

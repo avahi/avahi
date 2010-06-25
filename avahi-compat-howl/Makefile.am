@@ -89,7 +89,7 @@ address_test_SOURCES = \
 	$(HOWLHEADERS) \
 	address.c \
 	address-test.c \
-	warn.c warn.h 
+	warn.c warn.h
 address_test_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -I $(srcdir)/include
 address_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la
 
@@ -97,7 +97,7 @@ text_test_SOURCES = \
 	$(HOWLHEADERS) \
 	text.c \
 	text-test.c \
-	warn.c warn.h 
+	warn.c warn.h
 text_test_CFLAGS = $(AM_CFLAGS)  $(PTHREAD_CFLAGS) -I $(srcdir)/include
 text_test_LDADD = $(AM_LDADD) $(PTHREAD_LIBS) $(PTHREAD_CFLAGS) ../avahi-common/libavahi-common.la
 

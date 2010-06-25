@@ -1,7 +1,7 @@
 # $Id$
 #
 # This file is part of avahi.
-# 
+#
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -23,7 +23,7 @@ AM_CFLAGS=-I$(top_srcdir) -DG_DISABLE_DEPRECATED=1 -DGDK_DISABLE_DEPRECATED=1 -D
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
 desktopdir = $(datadir)/applications
-desktop_DATA = 
+desktop_DATA =
 desktop_DATA_in = $(desktop_DATA_in_in:.in.in=.in)
 desktop_DATA_in_in = bssh.desktop.in.in bvnc.desktop.in.in
 
@@ -40,7 +40,7 @@ avahiinclude_HEADERS = \
 	avahi-ui.h
 
 lib_LTLIBRARIES = \
-	libavahi-ui.la 
+	libavahi-ui.la
 
 libavahi_ui_la_SOURCES = \
 	avahi-ui.h avahi-ui.c
@@ -74,10 +74,10 @@ install-exec-local:
 		$(LN_S) bssh bshell
 
 bssh.desktop.in: bssh.desktop.in.in
-	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
 bvnc.desktop.in: bvnc.desktop.in.in
-	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
 endif # HAVE_GLIB
 endif

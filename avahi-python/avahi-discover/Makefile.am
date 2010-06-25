@@ -53,13 +53,13 @@ avahi_discover_PYTHON += __init__.py
 endif
 
 avahi-discover.desktop.in: avahi-discover.desktop.in.in
-	sed -e 's,@bindir\@,$(bindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
 avahi-discover: avahi-discover.in
-	sed -e 's,@PYTHON\@,$(PYTHON),g' \
+	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@GETTEXT_PACKAGE\@,"$(GETTEXT_PACKAGE)",g' \
 		-e 's,@LOCALEDIR\@,"$(datadir)/locale",g' \
-		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@
+		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@ && \
 	chmod +x $@
 
 bin_SCRIPTS = $(pythonscripts)

@@ -30,7 +30,6 @@
 #include <net/if.h>
 
 #include <gtk/gtk.h>
-#include <glib/gi18n.h>
 
 #include <avahi-glib/glib-watch.h>
 #include <avahi-client/client.h>

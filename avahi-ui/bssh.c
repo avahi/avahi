@@ -31,7 +31,6 @@
 #include <getopt.h>
 
 #include <gtk/gtk.h>
-#include <glib/gi18n.h>
 
 #include <avahi-client/client.h>
 #include <avahi-common/strlst.h>

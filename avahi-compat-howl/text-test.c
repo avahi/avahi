@@ -36,7 +36,7 @@ static void hexdump(const void* p, size_t size) {
     const uint8_t *c = p;
     assert(p);
 
-    printf("Dumping %u bytes from %p:\n", size, p);
+    printf("Dumping %zu bytes from %p:\n", size, p);
 
     while (size > 0) {
         unsigned i;
@@ -77,7 +77,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     ASSERT_SW_OKAY(sw_text_record_add_string(r, "foo=bar"));
     ASSERT_SW_OKAY(sw_text_record_add_string(r, "waldo=baz"));
     ASSERT_SW_OKAY(sw_text_record_add_key_and_string_value(r, "quux", "nimpf"));
-    ASSERT_SW_OKAY(sw_text_record_add_key_and_binary_value(r, "quux", "\0\0\0\0", 4));
+    ASSERT_SW_OKAY(sw_text_record_add_key_and_binary_value(r, "quux", (void*) "\0\0\0\0", 4));
 
     hexdump(sw_text_record_bytes(r), sw_text_record_len(r));
 

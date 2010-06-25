@@ -448,6 +448,9 @@ static int sendmsg_loop(int fd, struct msghdr *msg, int flags) {
         if (sendmsg(fd, msg, flags) >= 0)
             break;
 
+        if (errno == EINTR)
+            continue;
+
         if (errno != EAGAIN) {
             char where[64];
             struct sockaddr_in *sin = msg->msg_name;

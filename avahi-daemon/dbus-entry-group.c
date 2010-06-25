@@ -45,8 +45,8 @@ void avahi_dbus_entry_group_free(EntryGroupInfo *i) {
     }
     AVAHI_LLIST_REMOVE(EntryGroupInfo, entry_groups, i->client->entry_groups, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }
@@ -135,7 +135,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         }
 
         avahi_s_entry_group_reset(i->entry_group);
-	i->n_entries = 0;
+        i->n_entries = 0;
         return avahi_dbus_respond_ok(c, m);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "IsEmpty")) {
@@ -182,7 +182,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX) {
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= server->n_entries_per_entry_group_max) {
             avahi_string_list_free(strlst);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
         }
@@ -225,7 +225,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= server->n_entries_per_entry_group_max)
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
 
         if (domain && !*domain)
@@ -290,7 +290,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= server->n_entries_per_entry_group_max)
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
 
         if (!(avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a)))
@@ -326,7 +326,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
             goto fail;
         }
 
-        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= ENTRIES_PER_ENTRY_GROUP_MAX)
+        if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= server->n_entries_per_entry_group_max)
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
 
         if (!avahi_is_valid_domain_name (name))

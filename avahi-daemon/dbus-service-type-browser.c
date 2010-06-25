@@ -44,8 +44,8 @@ void avahi_dbus_service_type_browser_free(ServiceTypeBrowserInfo *i) {
 
     AVAHI_LLIST_REMOVE(ServiceTypeBrowserInfo, service_type_browsers, i->client->service_type_browsers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }
@@ -127,5 +127,3 @@ void avahi_dbus_service_type_browser_callback(AvahiSServiceTypeBrowser *b, Avahi
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);
 }
-
-

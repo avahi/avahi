@@ -43,8 +43,8 @@ void avahi_dbus_async_host_name_resolver_free(AsyncHostNameResolverInfo *i) {
     }
     AVAHI_LLIST_REMOVE(AsyncHostNameResolverInfo, async_host_name_resolvers, i->client->async_host_name_resolvers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }
@@ -133,4 +133,3 @@ fail:
 
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
-

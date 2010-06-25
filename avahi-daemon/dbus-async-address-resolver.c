@@ -44,8 +44,8 @@ void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i) {
 
     AVAHI_LLIST_REMOVE(AsyncAddressResolverInfo, async_address_resolvers, i->client->async_address_resolvers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }

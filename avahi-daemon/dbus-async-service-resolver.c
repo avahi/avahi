@@ -44,8 +44,8 @@ void avahi_dbus_async_service_resolver_free(AsyncServiceResolverInfo *i) {
 
     AVAHI_LLIST_REMOVE(AsyncServiceResolverInfo, async_service_resolvers, i->client->async_service_resolvers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }
@@ -172,4 +172,3 @@ fail:
 
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
-

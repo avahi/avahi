@@ -49,6 +49,8 @@
 #include "domain-util.h"
 #include "rr-util.h"
 
+#define AVAHI_DEFAULT_CACHE_ENTRIES_MAX 500
+
 static void enum_aux_records(AvahiServer *s, AvahiInterface *i, const char *name, uint16_t type, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata) {
     assert(s);
     assert(i);
@@ -1583,6 +1585,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->allow_point_to_point = 0;
     c->publish_aaaa_on_ipv4 = 1;
     c->publish_a_on_ipv6 = 0;
+    c->n_cache_entries_max = AVAHI_DEFAULT_CACHE_ENTRIES_MAX;
 
     return c;
 }

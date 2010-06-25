@@ -40,8 +40,8 @@ void avahi_dbus_sync_host_name_resolver_free(SyncHostNameResolverInfo *i) {
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(SyncHostNameResolverInfo, sync_host_name_resolvers, i->client->sync_host_name_resolvers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }

@@ -44,8 +44,8 @@ void avahi_dbus_domain_browser_free(DomainBrowserInfo *i) {
 
     AVAHI_LLIST_REMOVE(DomainBrowserInfo, domain_browsers, i->client->domain_browsers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }
@@ -125,4 +125,3 @@ void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex int
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);
 }
-

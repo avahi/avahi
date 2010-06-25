@@ -44,8 +44,8 @@ void avahi_dbus_service_browser_free(ServiceBrowserInfo *i) {
 
     AVAHI_LLIST_REMOVE(ServiceBrowserInfo, service_browsers, i->client->service_browsers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }

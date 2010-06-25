@@ -43,8 +43,8 @@ void avahi_dbus_record_browser_free(RecordBrowserInfo *i) {
     }
     AVAHI_LLIST_REMOVE(RecordBrowserInfo, record_browsers, i->client->record_browsers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }

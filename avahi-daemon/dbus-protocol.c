@@ -63,8 +63,6 @@
 
 Server *server = NULL;
 
-static int disable_user_service_publishing = 0;
-
 static int dbus_connect(void);
 static void dbus_disconnect(void);
 
@@ -112,8 +110,8 @@ static void client_free(Client *c) {
     AVAHI_LLIST_REMOVE(Client, clients, server->clients, c);
     avahi_free(c);
 
+    assert(server->n_clients >= 1);
     server->n_clients --;
-    assert(server->n_clients >= 0);
 }
 
 static Client *client_get(const char *name, int create) {
@@ -129,7 +127,7 @@ static Client *client_get(const char *name, int create) {
     if (!create)
         return NULL;
 
-    if (server->n_clients >= CLIENTS_MAX)
+    if (server->n_clients >= server->n_clients_max)
         return NULL;
 
     /* If not existent yet, create a new entry */
@@ -344,7 +342,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetNetworkInterfaceNameByIndex")) {
         int32_t idx;
-	char name[IF_NAMESIZE];
+        char name[IF_NAMESIZE];
 
         if (!(dbus_message_get_args(m, &error, DBUS_TYPE_INT32, &idx, DBUS_TYPE_INVALID))) {
             avahi_log_warn("Error parsing Server::GetNetworkInterfaceNameByIndex message");
@@ -429,7 +427,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             goto fail;
         }
 
-        if (disable_user_service_publishing)
+        if (server->disable_user_service_publishing)
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_NOT_PERMITTED, NULL);
 
         if (!(client = client_get(dbus_message_get_sender(m), TRUE))) {
@@ -437,7 +435,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -483,7 +481,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -528,7 +526,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -578,7 +576,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -633,7 +631,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -689,7 +687,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -739,7 +737,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -797,7 +795,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -858,7 +856,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -914,7 +912,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn(__FILE__": Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -973,7 +971,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_CLIENTS, NULL);
         }
 
-        if (client->n_objects >= OBJECTS_PER_CLIENT_MAX) {
+        if (client->n_objects >= server->n_objects_per_client_max) {
             avahi_log_warn("Too many objects for client '%s', client request failed.", client->name);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_OBJECTS, NULL);
         }
@@ -1157,9 +1155,13 @@ static void dbus_disconnect(void) {
     }
 }
 
-int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_publishing, int force) {
+int dbus_protocol_setup(const AvahiPoll *poll_api,
+                        int _disable_user_service_publishing,
+                        int _n_clients_max,
+                        int _n_objects_per_client_max,
+                        int _n_entries_per_entry_group_max,
+                        int force) {
 
-    disable_user_service_publishing = _disable_user_service_publishing;
 
     server = avahi_new(Server, 1);
     AVAHI_LLIST_HEAD_INIT(Clients, server->clients);
@@ -1169,6 +1171,10 @@ int dbus_protocol_setup(const AvahiPoll *poll_api, int _disable_user_service_pub
     server->poll_api = poll_api;
     server->reconnect_timeout = NULL;
     server->reconnect = force;
+    server->disable_user_service_publishing = _disable_user_service_publishing;
+    server->n_clients_max = _n_clients_max > 0 ? _n_clients_max : DEFAULT_CLIENTS_MAX;
+    server->n_objects_per_client_max = _n_objects_per_client_max > 0 ? _n_objects_per_client_max : DEFAULT_OBJECTS_PER_CLIENT_MAX;
+    server->n_entries_per_entry_group_max = _n_entries_per_entry_group_max > 0 ? _n_entries_per_entry_group_max : DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX;
 
     if (dbus_connect() < 0) {
         struct timeval tv;

@@ -40,8 +40,8 @@ void avahi_dbus_sync_address_resolver_free(SyncAddressResolverInfo *i) {
     dbus_message_unref(i->message);
     AVAHI_LLIST_REMOVE(SyncAddressResolverInfo, sync_address_resolvers, i->client->sync_address_resolvers, i);
 
+    assert(i->client->n_objects >= 1);
     i->client->n_objects--;
-    assert(i->client->n_objects >= 0);
 
     avahi_free(i);
 }

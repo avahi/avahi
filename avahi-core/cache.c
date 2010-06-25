@@ -32,8 +32,6 @@
 #include "log.h"
 #include "rr-util.h"
 
-#define AVAHI_CACHE_ENTRIES_MAX 500
-
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
 
@@ -340,7 +338,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
 /*             avahi_log_debug("cache: couldn't find matching cache entry for %s", txt);   */
 
-            if (c->n_entries >= AVAHI_CACHE_ENTRIES_MAX)
+            if (c->n_entries >= c->server->config.n_cache_entries_max)
                 return;
 
             if (!(e = avahi_new(AvahiCacheEntry, 1))) {
@@ -513,6 +511,3 @@ void avahi_cache_stop_poof(AvahiCache *c, AvahiRecord *record, const AvahiAddres
             next_expiry(c, e, 80);
         }
 }
-
-
-

@@ -65,6 +65,7 @@ typedef struct AvahiServerConfig {
     int allow_point_to_point;         /**< Enable publishing on POINTOPOINT interfaces */
     int publish_a_on_ipv6;            /**< Publish an IPv4 A RR on IPv6 sockets */
     int publish_aaaa_on_ipv4;         /**< Publish an IPv4 A RR on IPv6 sockets */
+    unsigned n_cache_entries_max;     /**< Maximum number of cache entries per interface */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

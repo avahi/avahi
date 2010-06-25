@@ -43,9 +43,9 @@ typedef struct SyncServiceResolverInfo SyncServiceResolverInfo;
 typedef struct AsyncServiceResolverInfo AsyncServiceResolverInfo;
 typedef struct RecordBrowserInfo RecordBrowserInfo;
 
-#define CLIENTS_MAX 256
-#define OBJECTS_PER_CLIENT_MAX 250
-#define ENTRIES_PER_ENTRY_GROUP_MAX 20
+#define DEFAULT_CLIENTS_MAX 256
+#define DEFAULT_OBJECTS_PER_CLIENT_MAX 250
+#define DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX 20
 
 struct EntryGroupInfo {
     unsigned id;
@@ -53,7 +53,7 @@ struct EntryGroupInfo {
     AvahiSEntryGroup *entry_group;
     char *path;
 
-    int n_entries;
+    unsigned n_entries;
 
     AVAHI_LLIST_FIELDS(EntryGroupInfo, entry_groups);
 };
@@ -149,7 +149,7 @@ struct Client {
     unsigned id;
     char *name;
     unsigned current_id;
-    int n_objects;
+    unsigned n_objects;
 
     AVAHI_LLIST_FIELDS(Client, clients);
     AVAHI_LLIST_HEAD(EntryGroupInfo, entry_groups);
@@ -169,11 +169,17 @@ struct Server {
     const AvahiPoll *poll_api;
     DBusConnection *bus;
     AVAHI_LLIST_HEAD(Client, clients);
-    int n_clients;
+    unsigned n_clients;
     unsigned current_id;
 
     AvahiTimeout *reconnect_timeout;
     int reconnect;
+
+    unsigned n_clients_max;
+    unsigned n_objects_per_client_max;
+    unsigned n_entries_per_entry_group_max;
+
+    int disable_user_service_publishing;
 };
 
 extern Server *server;

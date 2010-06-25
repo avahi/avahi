@@ -31,8 +31,6 @@ CLEANFILES = \
 
 org.freedesktop.avahi-daemon.plist: org.freedesktop.avahi-daemon.plist.in
 	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
-	chmod +x $@
 
 org.freedesktop.avahi-dnsconfd.plist: org.freedesktop.avahi-dnsconfd.plist.in
 	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
-	chmod +x $@

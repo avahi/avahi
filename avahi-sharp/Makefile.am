@@ -46,7 +46,7 @@ EXTRA_DIST =				\
 	$(srcdir)/gencfg.sh
 
 $(ASSEMBLY): $(AVAHISOURCES)
-	$(AM_V_GEN)mcs -keyfile:$(srcdir)/avahi.snk -target:library -out:$@ -debug $(AVAHISOURCES) -r:Mono.Posix
+	$(AM_V_GEN)MONO_SHARED_DIR=. mcs -keyfile:$(srcdir)/avahi.snk -target:library -out:$@ -debug $(AVAHISOURCES) -r:Mono.Posix
 
 
 $(ASSEMBLY).config: $(ASSEMBLY).config.in
@@ -73,10 +73,10 @@ monodoc_DATA = avahi-sharp-docs.zip avahi-sharp-docs.tree avahi-sharp-docs.sourc
 endif
 
 install-data-hook: $(ASSEMBLY)
-	$(AM_V_GEN)$(GACUTIL) /i $(ASSEMBLY) /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(AM_V_GEN)MONO_SHARED_DIR=. $(GACUTIL) /i $(ASSEMBLY) /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
 uninstall-hook: $(ASSEMBLY)
-	$(AM_V_GEN)$(GACUTIL) /u avahi-sharp /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(AM_V_GEN)MONO_SHARED_DIR=. $(GACUTIL) /u avahi-sharp /package avahi-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
 endif
 endif

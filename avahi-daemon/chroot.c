@@ -104,8 +104,8 @@ static int send_fd(int fd, int payload_fd) {
     struct iovec iov;
     struct msghdr msg;
     union {
-	struct cmsghdr hdr;
-	char buf[CMSG_SPACE(sizeof(int))];
+        struct cmsghdr hdr;
+        char buf[CMSG_SPACE(sizeof(int))];
     } cmsg;
 
     /* Send a file descriptor over the socket */
@@ -144,8 +144,8 @@ static int recv_fd(int fd) {
     struct iovec iov;
     struct msghdr msg;
     union {
-	struct cmsghdr hdr;
-	char buf[CMSG_SPACE(sizeof(int))];
+        struct cmsghdr hdr;
+        char buf[CMSG_SPACE(sizeof(int))];
     } cmsg;
 
     /* Receive a file descriptor from a socket */

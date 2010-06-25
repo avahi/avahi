@@ -1242,9 +1242,14 @@ static int loop(int iface, uint32_t addr) {
                 int conflict = 0;
 
                 if (info.sender_ip_address == addr) {
-                    /* Normal conflict */
-                    conflict = 1;
-                    daemon_log(LOG_INFO, "Received conflicting normal ARP packet.");
+
+                    if (memcmp(hw_address, info.sender_hw_address, ETHER_ADDRLEN)) {
+                        /* Normal conflict */
+                        conflict = 1;
+                        daemon_log(LOG_INFO, "Received conflicting normal ARP packet.");
+                    } else
+                        daemon_log(LOG_DEBUG, "Received ARP packet back on source interface. Ignoring.");
+
                 } else if (state == STATE_WAITING_PROBE || state == STATE_PROBING || state == STATE_WAITING_ANNOUNCE) {
                     /* Probe conflict */
                     conflict = info.target_ip_address == addr && memcmp(hw_address, info.sender_hw_address, ETHER_ADDRLEN);

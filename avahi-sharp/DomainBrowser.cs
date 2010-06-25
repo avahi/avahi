@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -61,7 +59,7 @@ namespace Avahi
     }
 
     public delegate void DomainInfoHandler (object o, DomainInfoArgs args);
-    
+
     public class DomainBrowser : BrowserBase, IDisposable
     {
         private IntPtr handle;
@@ -76,7 +74,7 @@ namespace Avahi
 
         private ArrayList addListeners = new ArrayList ();
         private ArrayList removeListeners = new ArrayList ();
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_domain_browser_new (IntPtr client, int iface, int proto,
                                                                byte[] domain, int btype, LookupFlags flags,
@@ -97,7 +95,7 @@ namespace Avahi
                 Stop (false);
             }
         }
-        
+
         public event DomainInfoHandler DomainRemoved
         {
             add {
@@ -118,7 +116,7 @@ namespace Avahi
         public DomainBrowser (Client client) : this (client, -1, Protocol.Unspecified, client.DomainName,
                                                      DomainBrowserType.Browse, LookupFlags.None) {
         }
-        
+
         public DomainBrowser (Client client, int iface, Protocol proto, string domain,
                               DomainBrowserType btype, LookupFlags flags)
         {

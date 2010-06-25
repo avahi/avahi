@@ -5,8 +5,8 @@ using Avahi.UI;
 
 public class EntryPoint {
     public static void Main () {
-        Application.Init (); 
-		
+        Application.Init ();
+
         ServiceDialog dialog = new ServiceDialog ("Choose SSH Server", null,
                                                   Stock.Cancel, ResponseType.Cancel,
                                                   Stock.Connect, ResponseType.Accept);
@@ -17,11 +17,11 @@ public class EntryPoint {
             Console.WriteLine ("Connecting to {0}:{1}", dialog.Address, dialog.Port);
 
             string user = Environment.UserName;
-            
+
             foreach (byte[] txtBytes in dialog.TxtData) {
                 string txt = System.Text.Encoding.UTF8.GetString (txtBytes);
                 string[] splitTxt = txt.Split(new char[] { '=' }, 2);
-                
+
                 if (splitTxt.Length != 2)
                     continue;
 

@@ -1,8 +1,6 @@
 #ifndef foothreadedwatchhfoo
 #define foothreadedwatchhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

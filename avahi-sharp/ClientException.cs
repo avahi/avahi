@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -95,14 +93,14 @@ namespace Avahi
             this.code = code;
         }
     }
-    
+
     public class ClientException : ApplicationException
     {
         private ErrorCode code;
 
         [DllImport ("avahi-common")]
         private static extern IntPtr avahi_strerror (ErrorCode code);
-        
+
         public ErrorCode ErrorCode
         {
             get { return code; }
@@ -110,7 +108,7 @@ namespace Avahi
 
         internal ClientException (int code) : this ((ErrorCode) code) {
         }
-        
+
         internal ClientException (ErrorCode code) : base (GetErrorString (code))
         {
             this.code = code;

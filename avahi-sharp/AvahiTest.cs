@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
     This file is part of avahi.
 
@@ -51,7 +49,7 @@ public class AvahiTest {
         if (args.State == EntryGroupState.Established) {
             DomainBrowser browser = new DomainBrowser (client);
             objects.Add (browser);
-            
+
             browser.DomainAdded += OnDomainAdded;
         }
     }
@@ -66,7 +64,7 @@ public class AvahiTest {
     {
         ServiceTypeBrowser stb = new ServiceTypeBrowser (client, domain);
         objects.Add (stb);
-        
+
         stb.CacheExhausted += OnCacheExhausted;
         stb.ServiceTypeAdded += OnServiceTypeAdded;
     }
@@ -81,7 +79,7 @@ public class AvahiTest {
         Console.WriteLine ("Got service type: " + args.ServiceType.ServiceType);
         ServiceBrowser sb = new ServiceBrowser (client, args.ServiceType.ServiceType, args.ServiceType.Domain);
         objects.Add (sb);
-        
+
         sb.ServiceAdded += OnServiceAdded;
     }
 
@@ -96,7 +94,7 @@ public class AvahiTest {
     private static void OnServiceResolved (object o, ServiceInfoArgs args)
     {
         objects.Remove (o);
-        
+
         Console.WriteLine ("Service '{0}' at {1}:{2}", args.Service.Name, args.Service.HostName, args.Service.Port);
         foreach (byte[] bytes in args.Service.Text) {
             Console.WriteLine ("Text: " + Encoding.UTF8.GetString (bytes));
@@ -117,11 +115,11 @@ public class AvahiTest {
     private static void OnAddressResolved (object o, HostAddressArgs args)
     {
         objects.Remove (o);
-        
+
         Console.WriteLine ("Resolved {0} to {1}", args.Address, args.Host);
         HostNameResolver hr = new HostNameResolver (client, args.Host);
         objects.Add (hr);
-        
+
         hr.Found += OnHostNameResolved;
     }
 

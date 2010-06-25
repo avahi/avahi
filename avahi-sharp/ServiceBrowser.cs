@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -30,7 +28,7 @@ namespace Avahi
     internal delegate void ServiceBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
                                                    IntPtr name, IntPtr type, IntPtr domain, LookupResultFlags flags,
                                                    IntPtr userdata);
-    
+
     public struct ServiceInfo
     {
         public int NetworkInterface;
@@ -63,7 +61,7 @@ namespace Avahi
     }
 
     public delegate void ServiceInfoHandler (object o, ServiceInfoArgs args);
-    
+
     public class ServiceBrowser : BrowserBase, IDisposable
     {
         private IntPtr handle;
@@ -78,7 +76,7 @@ namespace Avahi
 
         private ArrayList addListeners = new ArrayList ();
         private ArrayList removeListeners = new ArrayList ();
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_service_browser_new (IntPtr client, int iface, int proto, byte[] type,
                                                                 byte[] domain, LookupFlags flags,
@@ -99,7 +97,7 @@ namespace Avahi
                 Stop (false);
             }
         }
-        
+
         public event ServiceInfoHandler ServiceRemoved
         {
             add {
@@ -120,12 +118,12 @@ namespace Avahi
         public ServiceBrowser (Client client, string type) : this (client, type, client.DomainName)
         {
         }
-        
+
         public ServiceBrowser (Client client, string type, string domain) : this (client, -1, Protocol.Unspecified,
                                                                                   type, domain, LookupFlags.None)
         {
         }
-        
+
         public ServiceBrowser (Client client, int iface, Protocol proto, string type, string domain, LookupFlags flags)
         {
             this.client = client;
@@ -167,7 +165,7 @@ namespace Avahi
         {
             if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero &&
                 (force || (addListeners.Count == 0 && removeListeners.Count == 0))) {
-                
+
                 lock (client) {
                     avahi_service_browser_free (handle);
                     handle = IntPtr.Zero;

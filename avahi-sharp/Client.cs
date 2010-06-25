@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -35,7 +33,7 @@ namespace Avahi
         Found,
         Failure
     }
-    
+
     internal enum BrowserEvent {
         Added,
         Removed,
@@ -70,7 +68,7 @@ namespace Avahi
             this.error = error;
         }
     }
-    
+
     public enum Protocol {
         Unspecified = -1,
         IPv4 = 0,
@@ -83,7 +81,7 @@ namespace Avahi
         Running,
         Collision
     }
-    
+
     public enum ClientState {
         Registering = ServerState.Registering,
         Running = ServerState.Running,
@@ -117,7 +115,7 @@ namespace Avahi
         IgnoreUserConfig = 1,
         NoFail = 2
     }
-    
+
     public class Client : IDisposable
     {
         private IntPtr handle;
@@ -151,7 +149,7 @@ namespace Avahi
 
         [DllImport ("avahi-client")]
         private static extern int avahi_client_errno (IntPtr handle);
-        
+
         [DllImport ("avahi-common")]
         private static extern IntPtr avahi_simple_poll_new ();
 
@@ -192,7 +190,7 @@ namespace Avahi
         {
             get { return handle; }
         }
-        
+
         public string Version
         {
             get {
@@ -292,7 +290,7 @@ namespace Avahi
 
                     avahi_simple_poll_quit (spoll);
                     Monitor.Wait (this);
-                    
+
                     avahi_simple_poll_free (spoll);
                 }
             }
@@ -326,7 +324,7 @@ namespace Avahi
             IntPtr namePtr = Stdlib.malloc ((ulong) len);
             IntPtr typePtr = Stdlib.malloc ((ulong) len);
             IntPtr domainPtr = Stdlib.malloc ((ulong) len);
-            
+
             int ret = avahi_service_name_split (Utility.StringToBytes (service), namePtr, len, typePtr, len,
                                                 domainPtr, len);
 
@@ -334,7 +332,7 @@ namespace Avahi
                 Utility.Free (namePtr);
                 Utility.Free (typePtr);
                 Utility.Free (domainPtr);
-                
+
                 name = null;
                 type = null;
                 domain = null;
@@ -357,7 +355,7 @@ namespace Avahi
             if (error != ErrorCode.Ok)
                 throw new ClientException (error);
         }
-        
+
         private void OnClientCallback (IntPtr client, ClientState state, IntPtr userData)
         {
             if (StateChanged != null)

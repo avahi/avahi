@@ -1,8 +1,6 @@
 #ifndef foodbuswatchgluehfoo
 #define foodbuswatchgluehfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

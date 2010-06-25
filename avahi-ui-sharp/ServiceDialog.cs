@@ -27,13 +27,13 @@ namespace Avahi.UI
 
         [DllImport ("avahi-ui")]
         private static extern IntPtr aui_service_dialog_get_service_type (IntPtr dialog);
-        
+
         [DllImport ("avahi-ui")]
         private static extern void aui_service_dialog_set_service_type (IntPtr dialog, IntPtr type);
 
         [DllImport ("avahi-ui")]
         private static extern IntPtr aui_service_dialog_get_service_name (IntPtr dialog);
-        
+
         [DllImport ("avahi-ui")]
         private static extern void aui_service_dialog_set_service_name (IntPtr dialog, IntPtr type);
 
@@ -114,7 +114,7 @@ namespace Avahi.UI
                 for (int i = 0;;i++) {
                     if (types[i] != IntPtr.Zero)
                         break;
-                    
+
                     GLib.Marshaller.Free (types[i]);
                 }
             }
@@ -172,11 +172,11 @@ namespace Avahi.UI
             get {
                 ArrayList txtlist = new ArrayList ();
                 IntPtr txt = aui_service_dialog_get_txt_data (Raw);
-                
+
                 for (IntPtr l = txt; l != IntPtr.Zero; l = avahi_string_list_get_next (l)) {
                     IntPtr buf = avahi_string_list_get_text (l);
                     int len = avahi_string_list_get_size (l);
-                    
+
                     byte[] txtbuf = new byte[len];
                     Marshal.Copy (buf, txtbuf, 0, len);
                     txtlist.Add (txtbuf);
@@ -209,7 +209,7 @@ namespace Avahi.UI
                 aui_service_dialog_set_address_family (Raw, value);
             }
         }
-        
+
         public ServiceDialog (string title, Window parent, params object[] buttonData)
         {
             Raw = aui_service_dialog_new (title, parent == null ? IntPtr.Zero : parent.Handle,
@@ -223,7 +223,7 @@ namespace Avahi.UI
         private static IPAddress PtrToAddress (IntPtr ptr)
         {
             IPAddress address = null;
-            
+
             if (ptr != IntPtr.Zero) {
                 IntPtr buf = Stdlib.malloc (256);
                 IntPtr addrPtr = avahi_address_snprint (buf, 256, ptr);

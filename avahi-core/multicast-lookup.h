@@ -1,8 +1,6 @@
 #ifndef foomulticastlookuphfoo
 #define foomulticastlookuphfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

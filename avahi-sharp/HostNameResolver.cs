@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -49,7 +47,7 @@ namespace Avahi
 
         private ArrayList foundListeners = new ArrayList ();
         private ArrayList timeoutListeners = new ArrayList ();
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_host_name_resolver_new (IntPtr client, int iface, Protocol proto,
                                                                    byte[] hostname, Protocol aproto, LookupFlags flags,
@@ -69,7 +67,7 @@ namespace Avahi
                 Stop (false);
             }
         }
-        
+
         public event EventHandler Timeout
         {
             add {

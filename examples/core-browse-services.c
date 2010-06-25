@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /* PLEASE NOTE *
  * This file demonstrates how to use Avahi's core API, this is
  * the embeddable mDNS stack for embedded applications.

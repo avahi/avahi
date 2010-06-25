@@ -1,8 +1,6 @@
 #ifndef fooqueryschedhfoo
 #define fooqueryschedhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

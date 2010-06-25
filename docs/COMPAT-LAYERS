@@ -14,5 +14,3 @@ ABI/API compatibility should:
            $(includedir)/dns_sd.h
 
 -- Lennart
-
-$Id$

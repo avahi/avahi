@@ -1,8 +1,6 @@
 #ifndef foorrlisthfoo
 #define foorrlisthfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

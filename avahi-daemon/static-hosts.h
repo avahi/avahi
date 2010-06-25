@@ -1,8 +1,6 @@
 #ifndef foostatichostshfoo
 #define foostatichostshfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

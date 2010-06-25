@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -29,7 +27,7 @@ namespace Avahi
     internal delegate void ServiceTypeBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
                                                        IntPtr type, IntPtr domain, LookupResultFlags flags,
                                                        IntPtr userdata);
-    
+
     public struct ServiceTypeInfo
     {
         public int NetworkInterface;
@@ -55,7 +53,7 @@ namespace Avahi
     }
 
     public delegate void ServiceTypeInfoHandler (object o, ServiceTypeInfoArgs args);
-    
+
     public class ServiceTypeBrowser : BrowserBase, IDisposable
     {
         private IntPtr handle;
@@ -69,7 +67,7 @@ namespace Avahi
 
         private ArrayList addListeners = new ArrayList ();
         private ArrayList removeListeners = new ArrayList ();
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_service_type_browser_new (IntPtr client, int iface, int proto,
                                                                      byte[] domain, LookupFlags flags,
@@ -90,7 +88,7 @@ namespace Avahi
                 Stop (false);
             }
         }
-        
+
         public event ServiceTypeInfoHandler ServiceTypeRemoved
         {
             add {

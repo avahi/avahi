@@ -1,5 +1,3 @@
-<!-- $Id$ -->
-
 <!ELEMENT service-group (name,service+)>
 <!ATTLIST service-group>
 <!ELEMENT name (#PCDATA)>

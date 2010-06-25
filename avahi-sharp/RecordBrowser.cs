@@ -1,5 +1,3 @@
-/* $Id: ServiceBrowser.cs 635 2005-09-26 03:57:30Z snorp $ */
-
 /***
   This file is part of avahi.
 
@@ -29,7 +27,7 @@ namespace Avahi
 {
 
     public delegate void RecordInfoHandler (object o, RecordInfoArgs args);
-    
+
     internal delegate void RecordBrowserCallback (IntPtr browser, int iface, Protocol proto, BrowserEvent bevent,
                                                   IntPtr name, ushort clazz, ushort type, IntPtr rdata, int size,
                                                   LookupResultFlags flags, IntPtr userdata);
@@ -50,7 +48,7 @@ namespace Avahi
         Aaa = 28,
         Srv = 33
     }
-    
+
     public struct RecordInfo
     {
         public int NetworkInterface;
@@ -91,7 +89,7 @@ namespace Avahi
 
         private ArrayList addListeners = new ArrayList ();
         private ArrayList removeListeners = new ArrayList ();
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_record_browser_new (IntPtr client, int iface, Protocol proto,
                                                                byte[] name, ushort clazz, ushort type,
@@ -113,7 +111,7 @@ namespace Avahi
                 Stop (false);
             }
         }
-        
+
         public event RecordInfoHandler RecordRemoved
         {
             add {
@@ -135,7 +133,7 @@ namespace Avahi
             this (client, -1, Protocol.Unspecified, name, RecordClass.In, type, LookupFlags.None)
         {
         }
-        
+
         public RecordBrowser (Client client, int iface, Protocol proto, string name, RecordClass clazz,
                               RecordType type, LookupFlags flags)
         {
@@ -178,7 +176,7 @@ namespace Avahi
         {
             if (client.Handle != IntPtr.Zero && handle != IntPtr.Zero &&
                 (force || (addListeners.Count == 0 && removeListeners.Count == 0))) {
-                
+
                 lock (client) {
                     avahi_record_browser_free (handle);
                     handle = IntPtr.Zero;

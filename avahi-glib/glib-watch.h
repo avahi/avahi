@@ -1,8 +1,6 @@
 #ifndef fooglibwatchhfoo
 #define fooglibwatchhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

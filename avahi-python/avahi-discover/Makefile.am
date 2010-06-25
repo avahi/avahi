@@ -1,5 +1,3 @@
-# $Id$
-
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it
@@ -31,7 +29,7 @@ if HAVE_PYGTK
 pythonscripts =
 
 desktopdir = $(datadir)/applications
-desktop_DATA = 
+desktop_DATA =
 
 avahi_discoverdir = $(pythondir)/avahi_discover
 avahi_discover_PYTHON =

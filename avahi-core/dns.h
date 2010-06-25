@@ -1,8 +1,6 @@
 #ifndef foodnshfoo
 #define foodnshfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

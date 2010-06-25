@@ -1,8 +1,6 @@
 #ifndef foochroothelperhfoo
 #define foochroothelperhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

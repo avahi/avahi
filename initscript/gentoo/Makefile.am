@@ -1,5 +1,3 @@
-# $Id$
-
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it
@@ -36,7 +34,7 @@ CLEANFILES = \
 	avahi-dnsconfd
 
 avahi-daemon: avahi-daemon.in
-	
+
 	sed -e 's,@sbindir\@,$(sbindir),g; $(NO_DBUS_DEPENDENCY)' $< > $@
 	chmod +x $@
 

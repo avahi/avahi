@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 
 # This file is part of avahi.
 #

@@ -51,5 +51,3 @@ To start the two daemons at boot time on Debian based distributions:
 
 If you plan to use avahi-autoipd you have to create the user/group
 "avahi-autoipd" much the same way as "avahi".
-
-$Id$

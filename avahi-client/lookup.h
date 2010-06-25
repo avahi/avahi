@@ -1,8 +1,6 @@
 #ifndef fooclientlookuphfoo
 #define fooclientlookuphfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

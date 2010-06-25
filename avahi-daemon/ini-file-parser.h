@@ -1,8 +1,6 @@
 #ifndef fooinifileparserhfoo
 #define fooinifileparserhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

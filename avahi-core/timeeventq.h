@@ -1,8 +1,6 @@
 #ifndef footimeeventqhfoo
 #define footimeeventqhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

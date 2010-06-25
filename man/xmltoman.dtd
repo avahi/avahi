@@ -1,6 +1,4 @@
-<!-- $Id$ -->
-
-<!-- 
+<!--
   This file is part of avahi.
 
   avahi is free software; you can redistribute it and/or modify it under
@@ -15,7 +13,7 @@
 
   You should have received a copy of the GNU General Public License
   along with avahi; if not, write to the Free Software Foundation,
-  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA. 
+  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 -->
 
 <!ELEMENT manpage (synopsis | description | section | options | seealso)*>

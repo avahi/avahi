@@ -2,8 +2,6 @@
 <!DOCTYPE manpage SYSTEM "xmltoman.dtd">
 <?xml-stylesheet type="text/xsl" href="xmltoman.xsl" ?>
 
-<!-- $Id$ -->
-
 <!--
   This file is part of avahi.
 

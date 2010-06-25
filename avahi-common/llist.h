@@ -1,8 +1,6 @@
 #ifndef foollistfoo
 #define foollistfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -45,7 +43,7 @@ namespace Avahi
         {
             if (ptr == IntPtr.Zero)
                 return null;
-            
+
             int len = strlen (ptr);
             byte[] bytes = new byte[len];
             Marshal.Copy (ptr, bytes, 0, len);
@@ -56,7 +54,7 @@ namespace Avahi
         {
             if (ptr == IntPtr.Zero)
                 return null;
-            
+
             string ret = PtrToString (ptr);
             Free (ptr);
             return ret;
@@ -100,7 +98,7 @@ namespace Avahi
         public static IPAddress PtrToAddress (IntPtr ptr)
         {
             IPAddress address = null;
-            
+
             if (ptr != IntPtr.Zero) {
                 IntPtr buf = Stdlib.malloc (256);
                 IntPtr addrPtr = avahi_address_snprint (buf, 256, ptr);

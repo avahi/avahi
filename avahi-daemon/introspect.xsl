@@ -19,8 +19,6 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA. 
 -->
 
-<!-- $Id$ -->
-
 <xsl:output method="xml" version="1.0" encoding="iso-8859-15" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" indent="yes"/>
 
 <xsl:template match="/">

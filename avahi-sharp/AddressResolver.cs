@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -55,7 +53,7 @@ namespace Avahi
             this.address = address;
         }
     }
-    
+
     public class AddressResolver : ResolverBase, IDisposable
     {
         private IntPtr handle;
@@ -71,7 +69,7 @@ namespace Avahi
 
         private ArrayList foundListeners = new ArrayList ();
         private ArrayList timeoutListeners = new ArrayList ();
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_address_resolver_new (IntPtr client, int iface, Protocol proto,
                                                                  IntPtr address, LookupFlags flags,
@@ -92,7 +90,7 @@ namespace Avahi
                 Stop (false);
             }
         }
-        
+
         public event EventHandler Timeout
         {
             add {
@@ -155,7 +153,7 @@ namespace Avahi
                 if (handle == IntPtr.Zero)
                     client.ThrowError ();
             }
-            
+
             Utility.Free (addrPtr);
         }
 

@@ -1,19 +1,14 @@
 Please comply with the following rules when hacking on Avahi:
 
- * When you add a new textual file to the repository please enable SVN
-   keyword expansion for it:
-       
-       svn ps svn:keywords Id foo.c
+ * Before commiting check with "git st" that all built files are ignored
+   by git. To change the list of ignored files use
 
- * Before commiting check with "svn st" that all built files are ignored
-   by svn. To change the list of ignored files 	use 
-   
-       svn pe svn:ignore .
+       $VISUAL .gitignore
 
    This is similar to the ".cvsignore" file in CVS times.
 
  * Don't forget to add the autoconf config.h inclusion to all C source files:
-   
+
    #ifdef HAVE_CONFIG_H
    #include <config.h>
    #endif
@@ -42,8 +37,6 @@ Please comply with the following rules when hacking on Avahi:
    For Makefile.am, python and shell code:
 
 <snip>
-# $Id$
-
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it
@@ -65,8 +58,6 @@ Please comply with the following rules when hacking on Avahi:
    For C source code:
 
 <snip>
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -86,6 +77,3 @@ Please comply with the following rules when hacking on Avahi:
   USA.
 ***/
 </snip>
-
-
-$Id$

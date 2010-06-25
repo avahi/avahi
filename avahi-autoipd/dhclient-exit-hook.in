@@ -1,9 +1,7 @@
 #!/bin/sh
 
-# $Id$
-#
 # This file is part of avahi.
-# 
+#
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -26,7 +24,7 @@ case "$reason" in
     PREINIT|BOUND|RENEW|REBIND|REBOOT|STOP|RELEASE)
         # Stopping avahi-autoipd is left for the enter hook
         ;;
-    
+
     EXPIRE|FAIL|TIMEOUT)
         @sbindir@/avahi-autoipd -wD $interface 2> /dev/null
         ;;

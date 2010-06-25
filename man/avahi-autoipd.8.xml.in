@@ -2,21 +2,19 @@
 <!DOCTYPE manpage SYSTEM "xmltoman.dtd">
 <?xml-stylesheet type="text/xsl" href="xmltoman.xsl" ?>
 
-<!-- $Id$ -->
-
-<!-- 
+<!--
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2.1 of the
   License, or (at your option) any later version.
- 
+
   avahi is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
   Public License for more details.
- 
+
   You should have received a copy of the GNU Lesser General Public
   License along with avahi; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -31,7 +29,7 @@
       <cmd>avahi-autoipd <opt>--refresh</opt> <arg>interface</arg></cmd>
       <cmd>avahi-autoipd <opt>--check</opt> <arg>interface</arg></cmd>
 	</synopsis>
-	
+
     <description>
       <p>avahi-autoipd implements IPv4LL, "Dynamic Configuration of
       IPv4 Link-Local Addresses" (IETF RFC3927), a protocol for
@@ -56,7 +54,7 @@
 
       <p>See http://developer.apple.com/qa/qa2004/qa1357.html for more information.</p>
 	</description>
-	
+
 	<options>
 
 	  <option>
@@ -108,7 +106,7 @@
         <p><opt>-w | --wait</opt></p>
         <optdesc><p>Wait until a IP address has been sucessfully acquired before detaching. Only valid in combination with <opt>--daemonize</opt>.</p></optdesc>
       </option>
-      
+
       <option>
         <p><opt>--force-bind</opt></p>
         <optdesc><p>Acquire an IPv4LL address, even if a routable address has been configured on the interface.</p></optdesc>
@@ -135,9 +133,9 @@
 	</options>
 
     <section name="Files">
-      
+
       <p><file>@pkgsysconfdir@/avahi-autoipd.action</file>: the script to run when an IP address as been acquired or is lost.</p>
-    
+
     </section>
 
     <section name="Signals">
@@ -149,7 +147,7 @@
 	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
 	  available from <url href="@PACKAGE_URL@"/></p>
 	</section>
-	
+
 	<section name="See also">
 	  <p>
         <manref name="autoipd.action" section="8"/>, <manref name="dhclient" section="8"/>
@@ -157,10 +155,10 @@
 
       <p>http://avahi.org/wiki/AvahiAutoipd documents how avahi-autoipd is best packaged and integrated into distributions.</p>
 	</section>
-	
+
 	<section name="Comments">
 	  <p>This man page was written using <manref name="xml2man" section="1"
 		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
 	</section>
-	
+
   </manpage>

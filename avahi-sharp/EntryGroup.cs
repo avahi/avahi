@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /***
   This file is part of avahi.
 
@@ -41,7 +39,7 @@ namespace Avahi
         UseWideArea = 128,
         UseMulticast = 256
     }
-    
+
     public enum EntryGroupState {
         Uncommited,
         Registering,
@@ -58,7 +56,7 @@ namespace Avahi
         {
             get { return state; }
         }
-        
+
         public EntryGroupStateArgs (EntryGroupState state)
         {
             this.state = state;
@@ -67,13 +65,13 @@ namespace Avahi
 
     internal delegate void EntryGroupCallback (IntPtr group, EntryGroupState state, IntPtr userdata);
     public delegate void EntryGroupStateHandler (object o, EntryGroupStateArgs args);
-    
+
     public class EntryGroup : IDisposable
     {
         private Client client;
         private IntPtr handle;
         private EntryGroupCallback cb;
-        
+
         [DllImport ("avahi-client")]
         private static extern IntPtr avahi_entry_group_new (IntPtr client, EntryGroupCallback cb, IntPtr userdata);
 
@@ -114,7 +112,7 @@ namespace Avahi
         private static extern int avahi_entry_group_add_record (IntPtr group, int iface, Protocol proto,
                                                                 PublishFlags flags, byte[] name, RecordClass clazz,
                                                                 RecordType type, uint ttl, byte[] rdata, int size);
-        
+
         [DllImport ("avahi-client")]
         private static extern void avahi_entry_group_free (IntPtr group);
 
@@ -131,7 +129,7 @@ namespace Avahi
         private static extern IntPtr avahi_alternative_service_name (byte[] name);
 
         public event EntryGroupStateHandler StateChanged;
-        
+
         public EntryGroupState State
         {
             get {
@@ -149,7 +147,7 @@ namespace Avahi
                 }
             }
         }
-        
+
         public EntryGroup (Client client)
         {
             this.client = client;
@@ -245,9 +243,9 @@ namespace Avahi
                                                             Utility.StringToBytes (domain),
                                                             Utility.StringToBytes (host), port, list);
             }
-            
+
             avahi_string_list_free (list);
-            
+
             if (ret < 0) {
                 client.ThrowError ();
             }
@@ -285,7 +283,7 @@ namespace Avahi
 
             UpdateService (iface, proto, flags, name, type, domain, list);
         }
-        
+
         private void UpdateService (int iface, Protocol proto, PublishFlags flags, string name, string type,
                                     string domain, IntPtr list)
         {

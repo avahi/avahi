@@ -1,5 +1,3 @@
-$Id$
-
 * NOTE *
 This file used to contain an overview of the DBUS API for Avahi, however
 since it was no longer up to date you should now read the XML-formatted DBUS

@@ -180,5 +180,3 @@ sw_corby_object_set_channel
 sw_text_record_string_iterator_init
 sw_text_record_string_iterator_fina
 sw_text_record_string_iterator_next
-
-$Id$

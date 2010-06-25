@@ -1,8 +1,6 @@
 #ifndef QAVAHI_H
 #define QAVAHI_H
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

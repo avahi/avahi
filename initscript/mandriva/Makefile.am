@@ -1,5 +1,3 @@
-# $Id: Makefile.am 838 2005-10-22 21:23:02Z lennart $
-
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it

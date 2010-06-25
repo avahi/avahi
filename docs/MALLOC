@@ -6,5 +6,3 @@ situations. Therefore we recommend the usage of memory allocators that
 abort() in case of OOM. The default allocator used by Avahi does this.
 
 Eventually we will improve Avahi to deal with these things better.
-
-$Id$

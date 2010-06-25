@@ -1,8 +1,6 @@
 #ifndef foodbusprotocolhfoo
 #define foodbusprotocolhfoo
 
-/* $Id$ */
-
 /***
   This file is part of avahi.
 

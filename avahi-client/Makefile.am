@@ -1,7 +1,5 @@
-# $Id: Makefile.am 90 2005-05-23 16:15:12Z lennart $
-#
 # This file is part of avahi.
-# 
+#
 # avahi is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation; either version 2 of the
@@ -40,7 +38,7 @@ noinst_PROGRAMS = \
 
 endif
 
-lib_LTLIBRARIES = libavahi-client.la 
+lib_LTLIBRARIES = libavahi-client.la
 
 libavahi_client_la_SOURCES = \
 	client.c client.h \
@@ -58,23 +56,23 @@ libavahi_client_la_LIBADD = $(AM_LDADD) $(DBUS_LIBS) ../avahi-common/libavahi-co
 libavahi_client_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_CLIENT_VERSION_INFO)
 
 client_test_SOURCES = client-test.c
-client_test_CFLAGS = $(AM_CFLAGS) 
-client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
+client_test_CFLAGS = $(AM_CFLAGS)
+client_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la
 
 srv_test_SOURCES = srv-test.c
-srv_test_CFLAGS = $(AM_CFLAGS) 
-srv_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
+srv_test_CFLAGS = $(AM_CFLAGS)
+srv_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la
 
 rr_test_SOURCES = rr-test.c
-rr_test_CFLAGS = $(AM_CFLAGS) 
-rr_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la 
+rr_test_CFLAGS = $(AM_CFLAGS)
+rr_test_LDADD = $(AM_LDADD) libavahi-client.la ../avahi-common/libavahi-common.la
 
 xdg_config_test_SOURCES = xdg-config-test.c xdg-config.c xdg-config.h
-xdg_config_test_CFLAGS = $(AM_CFLAGS) 
+xdg_config_test_CFLAGS = $(AM_CFLAGS)
 xdg_config_test_LDADD = $(AM_LDADD)
 
 check_nss_test_SOURCES = check-nss.c check-nss-test.c client.h
-check_nss_test_CFLAGS = $(AM_CFLAGS) 
+check_nss_test_CFLAGS = $(AM_CFLAGS)
 check_nss_test_LDADD = $(AM_LDADD)
 
 if HAVE_DLOPEN

@@ -33,5 +33,3 @@ DNSServiceRemoveRecord
 -- Unsupported and Irrelevant --
 
 DNSServiceSetDefaultDomainForUser
-
-$Id$

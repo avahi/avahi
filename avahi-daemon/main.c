@@ -1306,7 +1306,7 @@ static void enforce_rlimits(void) {
 #endif
 
     /* the sysctl() call from iface-pfroute.c needs locked memory on FreeBSD */
-#if defined(RLIMIT_MEMLOCK) && !defined(__FreeBSD__)
+#if defined(RLIMIT_MEMLOCK) && !defined(__FreeBSD__) && !defined(__FreeBSD_kernel__)
     /* We don't need locked memory */
     set_one_rlimit(RLIMIT_MEMLOCK, 0, "RLIMIT_MEMLOCK");
 #endif

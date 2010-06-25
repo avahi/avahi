@@ -180,13 +180,15 @@
  * avahi_client_new(). If the client is forced to disconnect from the
  * server it will enter AVAHI_CLIENT_FAILURE state with
  * avahi_client_errno() == AVAHI_ERR_DISCONNECTED. Free the
- * AvahiClient object in that case and reconnect to the server anew -
- * again with passing AVAHI_CLIENT_NO_FAIL to avahi_client_new().
+ * AvahiClient object in that case (and all its associated objects
+ * such as entry groups and browser objects prior to that) and
+ * reconnect to the server anew - again with passing
+ * AVAHI_CLIENT_NO_FAIL to avahi_client_new().
  *
  * We encourage implementing this in all software where service
  * discovery is not an integral part of application. e.g. use it in
- * all kinds of background daemons, but not in software like iChat
- * compatible IM software.
+ * all kinds of background daemons, but not necessarily in software
+ * like iChat compatible IM software.
  *
  * For now AVAHI_CLIENT_NO_FAIL cannot deal with D-Bus daemon restarts.
  *

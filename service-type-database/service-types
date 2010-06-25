@@ -20,7 +20,7 @@
 # available database unless its license is known and compatible with
 # our project! The database available on
 #
-#         http://www.dns-sd.org/ServiceTypes.html 
+#         http://www.dns-sd.org/ServiceTypes.html
 #
 # is not a source that complies with the criterion!
 
@@ -92,7 +92,7 @@ _ssh._tcp[de]:SSH-Fernzugriff
 _ssh._tcp[it]:SSH Terminale remoto
 
 _rfb._tcp:VNC Remote Access
-_rfb._tcp[it]:Controllo remoto VNC 
+_rfb._tcp[it]:Controllo remoto VNC
 
 _telnet._tcp:Telnet Remote Terminal
 _telnet._tcp[it]:Telnet Terminale Remoto
@@ -214,3 +214,5 @@ _tp._tcp:Thousand Parsec Server
 _tps._tcp:Thousand Parsec Server (Secure)
 _tp-http._tcp:Thousand Parsec Server (HTTP Tunnel)
 _tp-https._tcp:Thousand Parsec Server (Secure HTTP Tunnel)
+
+_shifter._tcp: Window Shifter

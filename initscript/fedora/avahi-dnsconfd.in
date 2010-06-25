@@ -1,16 +1,17 @@
-#! /bin/sh
+#!/bin/sh
 #
-# avahi-dnsconfd:       Starts the Avahi dns configuration daemon
+# avahi-dnsconfd: Starts the Avahi dns configuration daemon
 #
-# chkconfig: - 96 02
+# chkconfig:   - 96 02
 # description: avahi-dnsconfd connects to a running avahi-daemon and runs  the  script \
-#       /etc/avahi/dnsconf.action for each unicast DNS server that is announced \
-#       on the local LAN. This is useful for configuring unicast DNS servers in \
-#       a DHCP-like fashion with mDNS.
+#              /etc/avahi/dnsconf.action for each unicast DNS server that is announced \
+#              on the local LAN. This is useful for configuring unicast DNS servers in \
+#              a DHCP-like fashion with mDNS.
 # processname: avahi-dnsconfd
-# config:
+# pidfile:     @localstatedir@/run/avahi-dnsconfd.pid
 
 AVAHI_BIN=@sbindir@/avahi-dnsconfd
+AVAHI_OPTS="-D"
 
 if [ "$1" = 'status' ]; then
     test -x $AVAHI_BIN || exit 4
@@ -18,13 +19,13 @@ else
     test -x $AVAHI_BIN || exit 5
 fi
 
-OTHER_AVAHI_OPTS=""
-
 # Source function library.
 . /etc/init.d/functions
 . /etc/sysconfig/network
 
-LOCKFILE=/var/lock/subsys/avahi-dnsconfd
+LOCKFILE=@localstatedir@/lock/subsys/avahi-dnsconfd
+PIDFILE=@localstatedir@/run/avahi-dnsconfd.pid
+RETVAL=0
 
 base=${0##*/}
 
@@ -33,35 +34,28 @@ start() {
     [ ${NETWORKING} = "no" ] && exit 1
 
 	echo -n $"Starting Avahi DNS daemon... "
-        $AVAHI_BIN -D
-	RETVAL=$?
-	if [ $RETVAL = 0 ]; then
-		touch $LOCKFILE
-		success $"$base startup"
-	else
-		failure $"$base startup"
-	fi
-	echo
-	return $RETVAL
+        daemon --pidfile=${PIDFILE} $AVAHI_BIN $AVAHI_OPTS
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && touch ${LOCKFILE}
+        return $RETVAL
 }
 
 stop() {
         echo -n $"Shutting down Avahi DNS daemon: "
-        $AVAHI_BIN -k
-	RETVAL=$?
-	[ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
-	rm -f $LOCKFILE
-	echo
-	return $RETVAL
+        killproc -p ${PIDFILE} $AVAHI_BIN
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && rm -f ${LOCKFILE} ${PIDFILE}
+        echo
+        return $RETVAL
 }
 
 reload() {
         echo -n $"Reloading Avahi DNS daemon... "
-        $AVAHI_BIN -r
-	RETVAL=$?
-	[ $RETVAL = 0 ] && success $"$base startup" || failure $"$base startup"
-	echo
-	return $RETVAL
+        killproc -p ${PIDFILE} $AVAHI_BIN -HUP
+        RETVAL=$?
+        echo
+        return $RETVAL
 }
 
 restart() {
@@ -80,9 +74,8 @@ case "$1" in
 	stop
 	;;
   status)
-        $AVAHI_BIN -c
+        status -p ${PIDFILE} $AVAHI_BIN
         RETVAL=$?
-        [ $RETVAL = 0 ] && echo $"Avahi DNS daemon is running" || echo $"Avahi DNS daemon is not running"
 	;;
   restart)
 	restart

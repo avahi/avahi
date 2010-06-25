@@ -24,6 +24,7 @@ import re
 locale.setlocale(locale.LC_ALL, '')
 
 class ServiceTypeDatabase:
+    """ServiceTypeDatabase maps service types to descriptions"""
 
     def __init__(self, filename = "@pkglibdir@/service-types.db"):
 
@@ -66,14 +67,7 @@ class ServiceTypeDatabase:
 
     def items(self):
 
-        items = []
-        @FIRST_KEY@
-        @CHECK_KEY@
-            if re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+', key) and not re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+\[.*\]', key):
-                localized_service_name = self[key]
-                items.append((key, localized_service_name))
-            @NEXT_KEY@
-        return items
+        return list(self.iteritems())
 
     def has_key(self, key):
 
@@ -94,6 +88,52 @@ class ServiceTypeDatabase:
         return False
         
 
+    def __iter__(self):
+
+        @FIRST_KEY@
+        @CHECK_KEY@
+
+            if re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+', key) and not re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+\[.*\]', key):
+                yield key
+
+            @NEXT_KEY@
+
+    def __len__(self):
+
+        count = 0
+        for _ in self:
+
+            count+=1
+
+        self.__len__ = lambda : count
+        return len(self)
+
+    def get(self, key, default=None):
+
+        if key in self:
+            return self[key]
+        else:
+            return default
+
+    def iteritems(self):
+
+        return ((key, self[key]) for key in self)
+
+    def iterkeys(self):
+
+        return self.__iter__()
+
+    def itervalues(self):
+
+        return (self[key] for key in self)
+
+    def keys(self):
+
+        return list(self)
+
+    def values(self):
+
+        return list(self.itervalues())
         
 if __name__ == "__main__":
     
@@ -105,4 +145,17 @@ if __name__ == "__main__":
     print b["_webdav._tcp"]
     print b["_webdavs._tcp"]
 
-    print b["gurki._tcp"]
+    print b.get("gurki._tcp")
+    print len(b)
+
+    for key, _ in zip(b, xrange(3)):
+
+        print key
+
+    for key, _ in zip(b.iteritems(), xrange(3)):
+
+        print key
+
+    for key, _ in zip(b.itervalues(), xrange(3)):
+
+        print key

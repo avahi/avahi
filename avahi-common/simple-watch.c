@@ -521,9 +521,19 @@ int avahi_simple_poll_run(AvahiSimplePoll *s) {
 
     s->state = STATE_RUNNING;
 
-    if (s->poll_func(s->pollfds, s->n_pollfds, s->prepared_timeout, s->poll_func_userdata) < 0) {
-        s->state = STATE_FAILURE;
-        return -1;
+    for (;;) {
+        errno = 0;
+
+        if (s->poll_func(s->pollfds, s->n_pollfds, s->prepared_timeout, s->poll_func_userdata) < 0) {
+
+            if (errno == EINTR)
+                continue;
+
+            s->state = STATE_FAILURE;
+            return -1;
+        }
+
+        break;
     }
 
     /* The poll events are now valid again */

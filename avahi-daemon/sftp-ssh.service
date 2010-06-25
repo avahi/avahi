@@ -24,7 +24,7 @@
 
 <service-group>
 
-  <name replace-wildcards="yes">SFTP File Transfer on %h</name>
+  <name replace-wildcards="yes">%h</name>
 
   <service>
     <type>_sftp-ssh._tcp</type>

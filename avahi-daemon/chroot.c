@@ -307,8 +307,6 @@ int avahi_chroot_helper_start(const char *argv0) {
         return -1;
     } else if (pid == 0) {
 
-        setsid();
-
         /* Drop all remaining capabilities */
         avahi_caps_drop_all();
 

@@ -25,6 +25,9 @@ try:
 except ImportError, e:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e
     sys.exit(1)
+except Exception, e:
+    print "Failed to initialize: %s" % e
+    sys.exit(1)
 
 
 ## !!NOTE!! ##
@@ -79,7 +82,7 @@ class Main_window:
         if protocol == avahi.PROTO_INET6:
             return "IPv6"
         return "n/a"
-            
+
     def siocgifname(self, interface):
         if interface <= 0:
             return "n/a"
@@ -91,14 +94,14 @@ class Main_window:
             return "Wide Area"
         else:
             return str(self.siocgifname(interface)) + " " + str(self.protoname(protocol))
-                        
+
     def service_resolved(self, interface, protocol, name, stype, domain, host, aprotocol, address, port, txt, flags):
         print "Service data for service '%s' of type '%s' in domain '%s' on %i.%i:" % (name, stype, domain, interface, protocol)
 
         print "\tHost %s (%s), port %i, TXT data: %s" % (host, address, port, str(avahi.txt_array_to_string_array(txt)))
 
         self.update_label(interface, protocol, name, stype, domain, host, aprotocol, address, port, avahi.txt_array_to_string_array(txt))
-        
+
     def print_error(self, err):
         error_label = "<b>Error:</b> %s" % (err)
         self.info_label.set_markup(error_label)
@@ -111,13 +114,13 @@ class Main_window:
             return service_type_db[stype]
         except KeyError:
             return stype
-            
+
     def new_service(self, interface, protocol, name, stype, domain, flags):
         print "Found service '%s' of type '%s' in domain '%s' on %i.%i." % (name, stype, domain, interface, protocol)
         if self.zc_ifaces.has_key((interface,protocol)) == False:
 
             ifn = self.get_interface_name(interface, protocol)
-            
+
             self.zc_ifaces[(interface,protocol)] = self.insert_row(self.treemodel, None, ifn, None,interface,protocol,None,domain)
         if self.zc_domains.has_key((interface,protocol,domain)) == False:
             self.zc_domains[(interface,protocol,domain)] = self.insert_row(self.treemodel, self.zc_ifaces[(interface,protocol)], domain,None,interface,protocol,None,domain)
@@ -151,16 +154,16 @@ class Main_window:
                     parent = self.treemodel.iter_parent(treeiter)
                     self.treemodel.remove(treeiter)
                     del self.zc_ifaces[(interface,protocol)]
- 
+
     def new_service_type(self, interface, protocol, stype, domain, flags):
         global service_browsers
 
-        # Are we already browsing this domain for this type? 
+        # Are we already browsing this domain for this type?
         if service_browsers.has_key((interface, protocol, stype, domain)):
             return
-        
+
         print "Browsing for services of type '%s' in domain '%s' on %i.%i ..." % (stype, domain, interface, protocol)
-        
+
         b = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.ServiceBrowserNew(interface, protocol, stype, domain, dbus.UInt32(0))),  avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         b.connect_to_signal('ItemNew', self.new_service)
         b.connect_to_signal('ItemRemove', self.remove_service)
@@ -183,7 +186,7 @@ class Main_window:
                 print e
                 error_msg("You should check that the avahi daemon is running.\n\nError : %s" % e)
                 sys.exit(0)
-                
+
             b.connect_to_signal('ItemNew', self.new_service_type)
 
             service_type_browsers[(interface, protocol, domain)] = b
@@ -209,7 +212,7 @@ class Main_window:
                 if len(tmp[0]) > 0:
                     res[tmp[0]] = tmp[1]
         return res
-                                                                            
+
 
     def update_label(self,interface, protocol, name, stype, domain, host, aprotocol, address, port, txt):
         if len(txt) != 0:
@@ -249,14 +252,14 @@ class Main_window:
         self.zc_domains = {}
         self.zc_types = {}
         self.services_browsed = {}
-        
+
         self.bus = dbus.SystemBus()
         self.server = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER), avahi.DBUS_INTERFACE_SERVER)
 
         if self.domain is None:
             # Explicitly browse .local
             self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "local")
-                        
+
             # Browse for other browsable domains
             db = dbus.Interface(self.bus.get_object(avahi.DBUS_NAME, self.server.DomainBrowserNew(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, "", avahi.DOMAIN_BROWSER_BROWSE, dbus.UInt32(0))), avahi.DBUS_INTERFACE_DOMAIN_BROWSER)
             db.connect_to_signal('ItemNew', self.new_domain)
@@ -270,8 +273,6 @@ class Main_window:
 def main():
     main_window = Main_window()
     gtk.main()
-    
+
 if __name__ == "__main__":
     main()
-
-                                            

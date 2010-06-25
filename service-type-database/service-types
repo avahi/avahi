@@ -226,4 +226,6 @@ _tps._tcp:Thousand Parsec Server (Secure)
 _tp-http._tcp:Thousand Parsec Server (HTTP Tunnel)
 _tp-https._tcp:Thousand Parsec Server (Secure HTTP Tunnel)
 
-_shifter._tcp: Window Shifter
+_shifter._tcp:Window Shifter
+
+_libvirt._tcp:Virtual Machine Manager

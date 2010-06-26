@@ -158,8 +158,8 @@ static int open_socket(void) {
 
     if (connect(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "connect(): %s", strerror(errno));
-	daemon_log(LOG_INFO, "Failed to connect to the daemon. This probably means that you");
-	daemon_log(LOG_INFO, "didn't start avahi-daemon before avahi-dnsconfd.");
+        daemon_log(LOG_INFO, "Failed to connect to the daemon. This probably means that you");
+        daemon_log(LOG_INFO, "didn't start avahi-daemon before avahi-dnsconfd.");
         goto fail;
     }
 

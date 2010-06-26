@@ -25,7 +25,7 @@ if HAVE_XML
 
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
-introspectiondir=$(pkgdatadir)/introspection
+introspectiondir=$(datadir)/dbus-1/interfaces
 
 AM_CFLAGS+= \
 	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
@@ -68,11 +68,11 @@ pkgsysconf_DATA = \
 	avahi-daemon.conf \
 	hosts
 
-service_DATA = \
+dist_service_DATA = \
 	ssh.service \
 	sftp-ssh.service
 
-pkgdata_DATA = \
+dist_pkgdata_DATA = \
 	avahi-service.dtd
 
 if ENABLE_CHROOT
@@ -116,39 +116,26 @@ avahi_daemon_LDADD += \
 
 avahi_daemon_CFLAGS += $(DBUS_CFLAGS) -DDBUS_SYSTEM_BUS_DEFAULT_ADDRESS=\"$(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS)\"
 
-dbusservice_DATA = avahi-dbus.conf
+dist_dbusservice_DATA = avahi-dbus.conf
 
-introspection_DATA = \
-	Server.introspect \
-	EntryGroup.introspect \
-	DomainBrowser.introspect \
-	ServiceTypeBrowser.introspect \
-	ServiceBrowser.introspect \
-	ServiceResolver.introspect \
-	AddressResolver.introspect \
-	HostNameResolver.introspect \
-	RecordBrowser.introspect
+dist_introspection_DATA = \
+	org.freedesktop.Avahi.Server.xml \
+	org.freedesktop.Avahi.EntryGroup.xml \
+	org.freedesktop.Avahi.DomainBrowser.xml \
+	org.freedesktop.Avahi.ServiceTypeBrowser.xml \
+	org.freedesktop.Avahi.ServiceBrowser.xml \
+	org.freedesktop.Avahi.ServiceResolver.xml \
+	org.freedesktop.Avahi.AddressResolver.xml \
+	org.freedesktop.Avahi.HostNameResolver.xml \
+	org.freedesktop.Avahi.RecordBrowser.xml
 
 endif
 endif
 endif
 
 EXTRA_DIST = \
-	avahi-service.dtd \
 	avahi-daemon.conf \
 	example.service \
-	avahi-dbus.conf \
-	Server.introspect \
-	EntryGroup.introspect \
-	DomainBrowser.introspect \
-	ServiceTypeBrowser.introspect \
-	ServiceBrowser.introspect \
-	ServiceResolver.introspect \
-	AddressResolver.introspect \
-	HostNameResolver.introspect \
-	RecordBrowser.introspect \
-	ssh.service \
-	sftp-ssh.service \
 	hosts \
 	example.service \
 	introspect.dtd \

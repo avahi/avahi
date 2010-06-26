@@ -249,7 +249,7 @@ static DBusHandlerResult msg_server_impl(DBusConnection *c, DBusMessage *m, AVAH
                     dbus_message_get_member(m));
 
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return avahi_dbus_handle_introspect(c, m, "Server.introspect");
+        return avahi_dbus_handle_introspect(c, m, "org.freedesktop.Avahi.Server.xml");
 
     else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVER, "GetHostName")) {
 

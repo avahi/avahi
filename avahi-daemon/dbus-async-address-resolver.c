@@ -115,7 +115,7 @@ DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, 
 
     /* Introspection */
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return avahi_dbus_handle_introspect(c, m, "AddressResolver.introspect");
+        return avahi_dbus_handle_introspect(c, m, "org.freedesktop.Avahi.AddressResolver.xml");
 
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name))

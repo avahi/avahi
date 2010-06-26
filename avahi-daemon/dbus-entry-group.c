@@ -103,7 +103,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
 
     /* Introspection */
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
-        return avahi_dbus_handle_introspect(c, m, "EntryGroup.introspect");
+        return avahi_dbus_handle_introspect(c, m, "org.freedesktop.Avahi.EntryGroup.xml");
 
     /* Access control */
     if (strcmp(dbus_message_get_sender(m), i->client->name))

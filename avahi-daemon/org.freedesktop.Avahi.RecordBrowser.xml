@@ -4,7 +4,7 @@
 
 <!--
   This file is part of avahi.
- 
+
   avahi is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as
   published by the Free Software Foundation; either version 2 of the
@@ -29,22 +29,37 @@
     </method>
   </interface>
 
-  <interface name="org.freedesktop.Avahi.AddressResolver">
+  <interface name="org.freedesktop.Avahi.RecordBrowser">
 
     <method name="Free"/>
-      
-    <signal name="Found">
-      <arg name="interface" type="i" direction="out"/>
-      <arg name="protocol" type="i" direction="out"/>
-      <arg name="aprotocol" type="i" direction="out"/>
-      <arg name="address" type="s" direction="out"/>
-      <arg name="name" type="s" direction="out"/>
-      <arg name="flags" type="u" direction="out"/>
+
+    <signal name="ItemNew">
+      <arg name="interface" type="i"/>
+      <arg name="protocol" type="i"/>
+      <arg name="name" type="s"/>
+      <arg name="clazz" type="q"/>
+      <arg name="type" type="q"/>
+      <arg name="rdata" type="ay"/>
+      <arg name="flags" type="u"/>
+    </signal>
+
+    <signal name="ItemRemove">
+      <arg name="interface" type="i"/>
+      <arg name="protocol" type="i"/>
+      <arg name="name" type="s"/>
+      <arg name="clazz" type="q"/>
+      <arg name="type" type="q"/>
+      <arg name="rdata" type="ay"/>
+      <arg name="flags" type="u"/>
     </signal>
 
     <signal name="Failure">
       <arg name="error" type="s"/>
     </signal>
 
-  </interface> 
+    <signal name="AllForNow"/>
+
+    <signal name="CacheExhausted"/>
+
+  </interface>
 </node>

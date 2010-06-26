@@ -222,7 +222,8 @@ avahi.devhelp: doxygen-run
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 DISTCHECK_CONFIGURE_FLAGS = \
-	--disable-monodoc
+	--disable-monodoc \
+	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)
 
 homepage:
 	$(MAKE) -C man

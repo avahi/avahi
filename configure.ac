@@ -1067,6 +1067,15 @@ AC_ARG_ENABLE(compat-howl,
 
 AM_CONDITIONAL([ENABLE_COMPAT_HOWL], [test "x$ENABLE_COMPAT_HOWL" = "xyes"])
 
+#
+# systemd
+#
+AC_ARG_WITH([systemdsystemunitdir],
+        AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
+        [],
+        [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
+AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir"])
 
 # ==========================================================================
 AC_CONFIG_FILES([
@@ -1150,6 +1159,7 @@ echo "
     Enable chroot():                           ${enable_chroot}
     Enable Linux inotify:                      ${have_inotify}
     Enable stack-smashing protection:          ${enable_ssp}
+    systemd unit directory:                    ${with_systemdsystemunitdir}
 "
 
 BUILD_DAEMON="no   (You need libdaemon and expat/bsdxml!)"

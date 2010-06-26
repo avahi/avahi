@@ -15,6 +15,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+EXTRA_DIST=avahi-dnsconfd.action avahi-dnsconfd.service.in
+
 if HAVE_XML
 if HAVE_LIBDAEMON
 
@@ -37,7 +39,15 @@ avahi_dnsconfd_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(LIBDAEMO
 
 pkgsysconf_SCRIPTS=avahi-dnsconfd.action
 
-endif
+%.service: %.service.in
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+
+if HAVE_SYSTEMD
+systemdsystemunit_DATA = \
+	avahi-dnsconfd.service
 endif
 
-EXTRA_DIST=avahi-dnsconfd.action
+CLEANFILES = $(systemdsystemunit_DATA)
+
+endif
+endif

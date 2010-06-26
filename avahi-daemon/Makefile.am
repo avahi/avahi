@@ -26,6 +26,7 @@ if HAVE_XML
 pkgsysconfdir=$(sysconfdir)/avahi
 servicedir=$(pkgsysconfdir)/services
 introspectiondir=$(datadir)/dbus-1/interfaces
+dbussystemservicesdir=$(datadir)/dbus-1/system-services
 
 AM_CFLAGS+= \
 	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
@@ -74,6 +75,24 @@ dist_service_DATA = \
 
 dist_pkgdata_DATA = \
 	avahi-service.dtd
+
+%.service: %.service.in
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+
+%.socket: %.socket.in
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@avahi_runtime_dir\@,$(avahi_runtime_dir),g' $< > $@
+
+if HAVE_SYSTEMD
+systemdsystemunit_DATA = \
+	avahi-daemon.service \
+	avahi-daemon.socket
+
+dist_dbussystemservices_DATA = \
+	org.freedesktop.Avahi.service
+endif
+
+CLEANFILES = $(systemdsystemunit_DATA)
 
 if ENABLE_CHROOT
 
@@ -139,7 +158,9 @@ EXTRA_DIST = \
 	hosts \
 	example.service \
 	introspect.dtd \
-	introspect.xsl
+	introspect.xsl \
+	avahi-daemon.service.in \
+	avahi-daemon.socket.in
 
 xmllint:
 	xmllint --noout --valid example.service

@@ -70,6 +70,7 @@ static enum {
 
 static int quit = 0;
 static int daemonize = 0;
+static int use_syslog = 0;
 
 #if !HAVE_DECL_ENVIRON
 extern char **environ;
@@ -374,6 +375,7 @@ static void help(FILE *f, const char *argv0) {
             "%s [options]\n"
             "    -h --help        Show this help\n"
             "    -D --daemonize   Daemonize after startup\n"
+            "    -s --syslog      Write log messages to syslog(3) instead of STDERR\n"
             "    -k --kill        Kill a running daemon\n"
             "    -r --refresh     Request a running daemon to refresh DNS server data\n"
             "    -c --check       Return 0 if a daemon is already running\n"
@@ -387,6 +389,7 @@ static int parse_command_line(int argc, char *argv[]) {
     static const struct option long_options[] = {
         { "help",      no_argument,       NULL, 'h' },
         { "daemonize", no_argument,       NULL, 'D' },
+        { "syslog",    no_argument,       NULL, 's' },
         { "kill",      no_argument,       NULL, 'k' },
         { "version",   no_argument,       NULL, 'V' },
         { "refresh",   no_argument,       NULL, 'r' },
@@ -394,7 +397,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    while ((c = getopt_long(argc, argv, "hDkVrc", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "hDkVrcs", long_options, NULL)) >= 0) {
 
         switch(c) {
             case 'h':
@@ -402,6 +405,9 @@ static int parse_command_line(int argc, char *argv[]) {
                 break;
             case 'D':
                 daemonize = 1;
+                break;
+            case 's':
+                use_syslog = 1;
                 break;
             case 'k':
                 command = DAEMON_KILL;
@@ -605,6 +611,9 @@ int main(int argc, char *argv[]) {
 
             /* Child */
         }
+
+        if (use_syslog || daemonize)
+            daemon_log_use = DAEMON_LOG_SYSLOG;
 
         chdir("/");
 

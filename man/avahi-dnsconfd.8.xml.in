@@ -45,6 +45,11 @@
 		<optdesc><p>Daemonize after startup and redirect log messages to syslog.</p></optdesc>
 	  </option>
 
+      <option>
+        <p><opt>-s | --syslog</opt></p>
+        <optdesc><p>Log to syslog instead of STDERR. Implied by <opt>--daemonize</opt>.</p></optdesc>
+      </option>
+
 	  <option>
 		<p><opt>-k | --kill</opt></p>
 		<optdesc><p>Kill an already running avahi-dnsconfd. (equivalent to sending a SIGTERM)</p></optdesc>

@@ -49,7 +49,8 @@ EXTRA_DIST = \
 	avahi-compat-howl.pc.in \
 	avahi-ui.pc.in \
 	avahi-ui-gtk3.pc.in \
-	doxygen_to_devhelp.xsl
+	doxygen_to_devhelp.xsl \
+        common/introspection.m4
 
 SUBDIRS = \
 	common \
@@ -223,6 +224,7 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--disable-monodoc \
+	--enable-introspection \
 	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)
 
 homepage:

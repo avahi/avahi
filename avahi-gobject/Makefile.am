@@ -20,6 +20,9 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+EXTRA_DIST = \
+	AvahiCore-0.6.gir
+
 if HAVE_GOBJECT
 if HAVE_DBUS
 
@@ -88,7 +91,6 @@ signals-marshal.h: signals-marshal.list
 signals-marshal.c: signals-marshal.list
 	$(AM_V_GEN)(echo "#include \"signals-marshal.h\"" ; glib-genmarshal --body --prefix=_ga_signals_marshal $< ) > $@
 
-
 # rules for making the glib enum objects
 %-enumtypes.h: %.h Makefile.in
 	$(AM_V_GEN)glib-mkenums \
@@ -106,6 +108,32 @@ signals-marshal.c: signals-marshal.list
 	--vprod "      { @VALUENAME@, \"@VALUENAME@\", \"@VALUENAME@\" }," \
 	--vtail "      { 0, NULL, NULL }\n    };\n    etype = g_@type@_register_static (\"@EnumName@\", values);\n  }\n  return etype;\n}\n" \
 	$< > $@
+
+-include $(INTROSPECTION_MAKEFILE)
+INTROSPECTION_GIRS =
+INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+
+if HAVE_INTROSPECTION
+introspection_sources = $(libavahi_gobject_la_SOURCES)
+
+Avahi-0.6.gir: $(lib_LTLIBRARIES)
+Avahi_0_6_gir_INCLUDES = GObject-2.0 AvahiCore-0.6
+Avahi_0_6_gir_CFLAGS = $(libavahi_gobject_la_CFLAGS)
+Avahi_0_6_gir_LIBS = $(lib_LTLIBRARIES)
+Avahi_0_6_gir_FILES = $(addprefix $(srcdir)/, $(CORE_SOURCES)) $(BUILT_SOURCES)
+Avahi_0_6_gir_SCANNERFLAGS = --strip-prefix=Ga
+INTROSPECTION_GIRS += Avahi-0.6.gir
+INTROSPECTION_INSTALL_GIRS = AvahiCore-0.6.gir $(INTROSPECTION_GIRS)
+
+girdir = $(datadir)/gir-1.0
+gir_DATA = $(INTROSPECTION_INSTALL_GIRS)
+
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = $(INTROSPECTION_INSTALL_GIRS:.gir=.typelib)
+
+CLEANFILES += $(INTROSPECTION_GIRS) $(typelib_DATA)
+endif
 
 endif
 endif

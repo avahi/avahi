@@ -21,6 +21,7 @@
 AC_PREREQ(2.63)
 AC_INIT([avahi],[0.6.25],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
+AC_CONFIG_MACRO_DIR([common])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign 1.11 -Wall -Wno-portability silent-rules tar-pax])
 
@@ -467,6 +468,11 @@ if test "x$HAVE_GOBJECT" = "xyes" ; then
         AC_SUBST(GOBJECT_LIBS)
 fi
 AM_CONDITIONAL(HAVE_GOBJECT, test "x$HAVE_GOBJECT" = "xyes")
+
+#
+# Introspection support.
+#
+GOBJECT_INTROSPECTION_CHECK([0.6.7])
 
 #
 # Check for Qt 3
@@ -1136,6 +1142,7 @@ echo "
     CFLAGS:                                    ${CFLAGS}
     Enable GLIB:                               ${HAVE_GLIB}
     Enable GLIB GObject:                       ${HAVE_GOBJECT}
+    Enable GObject Introspection:              ${found_introspection}
     Enable GTK 2.0:                            ${HAVE_GTK}
     Enable GTK 3.0:                            ${HAVE_GTK3}
     Enable D-Bus:                              ${HAVE_DBUS}

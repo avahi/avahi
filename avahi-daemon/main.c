@@ -332,6 +332,7 @@ static void update_browse_domains(void) {
     l = filter_duplicate_domains(l);
 
     avahi_server_set_browse_domains(avahi_server, l);
+    avahi_string_list_free(l);
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, void *userdata) {

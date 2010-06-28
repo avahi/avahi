@@ -30,6 +30,7 @@
 #include <sys/socket.h>
 #include <net/if.h>
 #include <locale.h>
+#include <ctype.h>
 
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
@@ -138,6 +139,18 @@ static ServiceInfo *find_service(AvahiIfIndex interface, AvahiProtocol protocol,
     return NULL;
 }
 
+static char *make_printable(const char *from, char *to) {
+    const char *f;
+    char *t;
+
+    for (f = from, t = to; *f; f++, t++)
+        *t = isprint(*f) ? *f : '_';
+
+    *t = 0;
+
+    return to;
+}
+
 static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, int nl) {
     char ifname[IF_NAMESIZE];
 
@@ -156,12 +169,17 @@ static void print_service_line(Config *config, char c, AvahiIfIndex interface, A
                protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
                avahi_escape_label(name, strlen(name), &e, &l), type, domain, nl ? "\n" : "");
 
-    } else
-        printf("%c %4s %4s %-*s %-20s %s\n",
+    } else {
+        char label[AVAHI_LABEL_MAX];
+        make_printable(name, label);
+
+        printf("%c %6s %4s %-*s %-20s %s\n",
                c,
                interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : _("n/a"),
                protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
-               n_columns-35, name, type, domain);
+               n_columns-35, label, type, domain);
+    }
+
     fflush(stdout);
 }
 

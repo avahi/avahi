@@ -2,15 +2,17 @@
 # Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
 # This file is distributed under the same license as the avahi package.
 #
-# Jorge González <jorgegonz@svn.gnome.org>, 2008.
+# Carlos Albornoz <caralbornozc@gmail.com>, 2010
+# Jorge González <jorgegonz@svn.gnome.org>, 2008, 2010.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-14 03:30+0200\n"
-"PO-Revision-Date: 2009-02-21 01:51-0300\n"
-"Last-Translator: Domingo Becker <domingobecker@gmail.com>\n"
-"Language-Team: Fedora Spanish <fedora-trans-es@redhat.com>\n"
+"POT-Creation-Date: 2010-05-15 15:17+0000\n"
+"PO-Revision-Date: 2010-05-16 10:25+0200\n"
+"Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
+"Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -405,15 +407,15 @@ msgstr "Cambiar el dominio"
 
 #: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
 msgid "Browsing..."
-msgstr "Examinando..."
+msgstr "Examinando…"
 
 #: ../avahi-ui/avahi-ui.c:1119
 msgid "Initializing..."
-msgstr "Inicializando..."
+msgstr "Inicializando…"
 
 #: ../avahi-ui/avahi-ui.c:1143
 msgid "Location"
-msgstr "Ubilación"
+msgstr "Ubicación"
 
 #: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
 msgid "Name"
@@ -425,7 +427,7 @@ msgstr "Tipo"
 
 #: ../avahi-ui/avahi-ui.c:1165
 msgid "_Domain..."
-msgstr "_Dominio..."
+msgstr "_Dominio…"
 
 #: ../avahi-ui/bssh.c:58
 #, c-format
@@ -474,7 +476,7 @@ msgstr "Elegir el servidor SSH"
 #: ../avahi-ui/bssh.c:188
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr "Conectando con «%s» ...\n"
+msgstr "Conectando con «%s» …\n"
 
 #: ../avahi-ui/bssh.c:243
 #, c-format
@@ -579,7 +581,7 @@ msgstr "E Ifaz Prot %-*s %-20s Dominio\n"
 #: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr "Desconectado; volviendo a conectar...\n"
+msgstr "Desconectado; volviendo a conectar…\n"
 
 #: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
 #: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
@@ -597,7 +599,7 @@ msgstr "Fallo del cliente; saliendo: %s\n"
 #: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr "Esperando al demonio...\n"
+msgstr "Esperando al demonio…\n"
 
 #: ../avahi-utils/avahi-browse.c:631
 msgid ""
@@ -706,19 +708,20 @@ msgid ""
 "with\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
-"%s [opciones] %s <nombre> <tipo> <puerto> [<txt ...>]\n"
+"%s [opciones] %s <nombre> <tipo> <puerto> [<txt …>]\n"
 "%s [opciones] %s <nombre-del-equipo> <dirección>\n"
 "\n"
-"    -h --help Muestra esta ayuda\n"
-"    -V --version Muestra la versión\n"
-"    -s --service Publica el servicio\n"
-"    -a --address Publica la dirección\n"
-"    -v --vervose Activa el modo detallado\n"
-"    -d --domain=DOMINIO Dominio donde publicar el servicio\n"
-"    -H --host=DOMINIO Equipo donde reside el servicio\n"
-"       --sbtype=SUBTIPO Un subtipo adicional con el que registrar este "
+"    -h --help            Mostrar esta ayuda\n"
+"    -V --version         Mostrar la versión\n"
+"    -s --service         Publicar el servicio\n"
+"    -a --address         Publicar la dirección\n"
+"    -v --vervose         Activar el modo detallado\n"
+"    -d --domain=DOMINIO  Dominio donde publicar el servicio\n"
+"    -H --host=DOMINIO    Equipo donde reside el servicio\n"
+"       --sbtype=SUBTIPO  Un subtipo adicional con el que registrar este "
 "servicio\n"
-"    -f --no-fail No fallar en caso que el demonio no esté disponible\n"
+"    -f --no-fail         No fallar en caso que el demonio no esté "
+"disponible\n"
 
 #: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
 #, c-format
@@ -759,16 +762,16 @@ msgid ""
 "    -6                   Lookup IPv6 address\n"
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
-"%s [opciones] %s <nombre del anfitrión ...>\n"
-"%s [opciones] %s <dirección ...>\n"
+"%s [opciones] %s <nombre del servidor …>\n"
+"%s [opciones] %s <dirección …>\n"
 "\n"
-"    -h --help Muestra esta ayuda\n"
-"    -V --version Muestra la versión\n"
-"    -n --name Resuelve el nombre del anfitrión\n"
-"    -a --address Resuelve la dirección\n"
-"    -v --vervose Activa el modo verboso\n"
-"    -6 Busca dirección IPv6\n"
-"    -4 Busca dirección IPv4\n"
+"    -h --help Mostrar esta ayuda\n"
+"    -V --version Mostrar la versión\n"
+"    -n --name Resolver el nombre del servidor\n"
+"    -a --address Resolver la dirección\n"
+"    -v --vervose Activar el modo detallado\n"
+"    -6 Buscar dirección IPv6\n"
+"    -4 Buscar dirección IPv4\n"
 
 #: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
 #, c-format
@@ -794,11 +797,11 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
-"%s [opciones] <nuevo nombre de anfitrión>\n"
+"%s [opciones] <nuevo nombre de servidor>\n"
 "\n"
-"    -h --help            Muestra esta ayuda\n"
-"    -V --version         Muestra la versión\n"
-"    -v --verbose         Habilita el modo detallado\n"
+"    -h --help            Mostrar esta ayuda\n"
+"    -V --version         Mostrar la versión\n"
+"    -v --verbose         Activar el modo detallado\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:116
 #, c-format

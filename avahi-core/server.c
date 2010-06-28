@@ -923,10 +923,9 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
     if (avahi_dns_packet_is_query(p)) {
         int legacy_unicast = 0;
 
-        if (avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_ARCOUNT) != 0) {
-            avahi_log_warn("Invalid query packet.");
-            return;
-        }
+        /* For queries EDNS0 might allow ARCOUNT != 0. We ignore the
+         * AR section completely here, so far. Until the day we add
+         * EDNS0 support. */
 
         if (port != AVAHI_MDNS_PORT) {
             /* Legacy Unicast */

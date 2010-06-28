@@ -1525,10 +1525,8 @@ int main(int argc, char *argv[]) {
             daemon_log_use = DAEMON_LOG_SYSLOG;
 
         if (sd_listen_fds(0) <= 0)
-            if (daemon_close_all(-1) < 0) {
-                avahi_log_error("Failed to close remaining file descriptors: %s", strerror(errno));
-                goto finish;
-            }
+            if (daemon_close_all(-1) < 0)
+                avahi_log_warn("Failed to close all remaining file descriptors: %s", strerror(errno));
 
         if (make_runtime_dir() < 0)
             goto finish;

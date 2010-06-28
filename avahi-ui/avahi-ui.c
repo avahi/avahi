@@ -227,13 +227,13 @@ static void aui_service_dialog_class_init(AuiServiceDialogClass *klass) {
     g_object_class_install_property(
             object_class,
             PROP_RESOLVE_SERVICE,
-            g_param_spec_boolean("resolve_service", _("Resolve service"), _("Resolve service"),
+            g_param_spec_boolean("resolve_service", _("Resolve Service"), _("Resolve the selected service automatically before returning"),
                                  TRUE,
                                  G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(
             object_class,
             PROP_RESOLVE_HOST_NAME,
-            g_param_spec_boolean("resolve_host_name", _("Resolve service host name"), _("Resolve service host name"),
+            g_param_spec_boolean("resolve_host_name", _("Resolve Service Host Name"), _("Resolve the host name of the selected service automatically before returning"),
                                  TRUE,
                                  G_PARAM_READABLE | G_PARAM_WRITABLE));
     g_object_class_install_property(

@@ -132,10 +132,12 @@ void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs) {
             return; /* OOM */
 
         if (avahi_s_entry_group_is_empty(hw->entry_group)) {
-            char name[AVAHI_LABEL_MAX], mac[256];
+            char name[AVAHI_LABEL_MAX], unescaped[AVAHI_LABEL_MAX], mac[256];
+            const char *p = m->server->host_name;
 
+            avahi_unescape_label(&p, unescaped, sizeof(unescaped));
             avahi_format_mac_address(mac, sizeof(mac), hw->mac_address, hw->mac_address_size);
-            snprintf(name, sizeof(name), "%s [%s]", m->server->host_name, mac);
+            snprintf(name, sizeof(name), "%s [%s]", unescaped, mac);
 
             if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, 0, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed: %s", avahi_strerror(m->server->error));

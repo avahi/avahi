@@ -91,7 +91,7 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
             avahi_address_snprint(t, sizeof(t), &a->address);
 
             if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING &&
-		m->server->state == AVAHI_SERVER_REGISTERING)
+                m->server->state == AVAHI_SERVER_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
 
             avahi_log_info("Withdrawing address record for %s on %s.", t, a->interface->hardware->name);
@@ -413,6 +413,7 @@ AvahiInterfaceAddress *avahi_interface_address_new(AvahiInterfaceMonitor *m, Ava
     a->address = *addr;
     a->prefix_len = prefix_len;
     a->global_scope = 0;
+    a->deprecated = 0;
     a->entry_group = NULL;
 
     AVAHI_LLIST_PREPEND(AvahiInterfaceAddress, address, i->addresses, a);
@@ -670,24 +671,21 @@ int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {
     AvahiInterfaceAddress *b;
     assert(a);
 
-    /* Publish public IP addresses */
-    if (a->global_scope)
+    /* Publish public and non-deprecated IP addresses */
+    if (a->global_scope && !a->deprecated)
         return 1;
-    else {
 
-        /* Publish link local IP addresses if they are the only ones on the link */
-        for (b = a->interface->addresses; b; b = b->address_next) {
-            if (b == a)
-                continue;
+    /* Publish link-local and deprecated IP addresses only if they are
+     * the only ones on the link */
+    for (b = a->interface->addresses; b; b = b->address_next) {
+        if (b == a)
+            continue;
 
-            if (b->global_scope)
-                return 0;
-        }
-
-        return 1;
+        if (b->global_scope && !b->deprecated)
+            return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 int avahi_interface_match(AvahiInterface *i, AvahiIfIndex idx, AvahiProtocol protocol) {

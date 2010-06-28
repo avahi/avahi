@@ -238,6 +238,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
             /* Update the scope field for the address */
             addr->global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE;
+            addr->deprecated = !!(ifaddrmsg->ifa_flags & IFA_F_DEPRECATED);
         } else {
             AvahiInterfaceAddress *addr;
             assert(n->nlmsg_type == RTM_DELADDR);

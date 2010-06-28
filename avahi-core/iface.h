@@ -123,6 +123,7 @@ struct AvahiInterfaceAddress {
     unsigned prefix_len;
 
     int global_scope;
+    int deprecated;
 
     AvahiSEntryGroup *entry_group;
 };

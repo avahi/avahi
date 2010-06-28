@@ -574,6 +574,7 @@ gboolean ga_entry_group_attach(GaEntryGroup * group,
                       GaClient * client, GError ** error) {
     GaEntryGroupPrivate *priv = GA_ENTRY_GROUP_GET_PRIVATE(group);
 
+    g_return_val_if_fail(client->avahi_client, FALSE);
     g_assert(priv->client == NULL || priv->client == client);
     g_assert(priv->group == NULL);
 

@@ -21,6 +21,8 @@ import os, sys
 
 try:
     import avahi, gettext, gtk, gobject, dbus, avahi.ServiceTypeDatabase
+    gettext.bindtextdomain(@GETTEXT_PACKAGE@, @LOCALEDIR@)
+    gettext.textdomain(@GETTEXT_PACKAGE@)
     _ = gettext.gettext
 except ImportError, e:
     print "Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e
@@ -71,7 +73,7 @@ class Main_window:
         if iter is not None:
             (name,interface,protocol,stype,domain) = self.treemodel.get(iter,1,2,3,4,5)
         if stype == None:
-            self.info_label.set_markup("<i>No service currently selected.</i>")
+            self.info_label.set_markup(_("<i>No service currently selected.</i>"))
             return
         #Asynchronous resolving
         self.server.ResolveService( int(interface), int(protocol), name, stype, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0), reply_handler=self.service_resolved, error_handler=self.print_error)
@@ -219,11 +221,16 @@ class Main_window:
             txts = ""
             txtd = self.pair_to_dict(txt)
             for k,v in txtd.items():
-                txts+="<b>TXT <i>%s</i></b> = %s\n" % (k,v)
+                txts+="<b>" + _("TXT") + " <i>%s</i></b> = %s\n" % (k,v)
         else:
-            txts = "<b>TXT Data:</b> <i>empty</i>"
+            txts = "<b>" + _("TXT Data:") + "</b> <i>" + _("empty") + "</i>"
 
-        infos = "<b>Service Type:</b> %s\n<b>Service Name:</b> %s\n<b>Domain Name:</b> %s\n<b>Interface:</b> %s %s\n<b>Address:</b> %s/%s:%i\n%s" % (stype, name, domain, self.siocgifname(interface), self.protoname(protocol), host, address, port, txts.strip())
+        infos = "<b>" + _("Service Type:") + "</b> %s\n"
+        infos += "<b>" + _("Service Name:") + "</b> %s\n"
+        infos += "<b>" + _("Domain Name:") + "</b> %s\n"
+        infos += "<b>" + _("Interface:") + "</b> %s %s\n"
+        infos += "<b>" + _("Address:") + "</b> %s/%s:%i\n%s"
+        infos = infos % (stype, name, domain, self.siocgifname(interface), self.protoname(protocol), host, address, port, txts.strip())
         self.info_label.set_markup(infos)
 
     def insert_row(self, model,parent,

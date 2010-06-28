@@ -19,7 +19,7 @@ AM_CFLAGS=-I$(top_srcdir)
 
 EXTRA_DIST = \
 	__init__.py \
-	avahi-discover.in \
+	avahi-discover.py \
 	avahi-discover.desktop.in.in
 
 if HAVE_PYTHON
@@ -53,10 +53,10 @@ endif
 avahi-discover.desktop.in: avahi-discover.desktop.in.in
 	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
 
-avahi-discover: avahi-discover.in
+avahi-discover: avahi-discover.py
 	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@GETTEXT_PACKAGE\@,"$(GETTEXT_PACKAGE)",g' \
-		-e 's,@LOCALEDIR\@,"$(datadir)/locale",g' \
+		-e 's,@LOCALEDIR\@,"$(avahilocaledir)",g' \
 		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@ && \
 	chmod +x $@
 

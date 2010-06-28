@@ -1242,13 +1242,14 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
 
     AVAHI_CHECK_VALIDITY(s, !host_name || avahi_is_valid_host_name(host_name), AVAHI_ERR_INVALID_HOST_NAME);
 
-    if (!host_name) {
+    if (!host_name)
         hn = avahi_get_host_name_strdup();
-        hn[strcspn(hn, ".")] = 0;
-        host_name = hn;
-    }
+    else
+        hn = avahi_normalize_name_strdup(host_name);
 
-    if (avahi_domain_equal(s->host_name, host_name) && s->state != AVAHI_SERVER_COLLISION) {
+    hn[strcspn(hn, ".")] = 0;
+
+    if (avahi_domain_equal(s->host_name, hn) && s->state != AVAHI_SERVER_COLLISION) {
         avahi_free(hn);
         return avahi_server_set_errno(s, AVAHI_ERR_NO_CHANGE);
     }
@@ -1256,7 +1257,7 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
     withdraw_host_rrs(s);
 
     avahi_free(s->host_name);
-    s->host_name = hn ? hn : avahi_strdup(host_name);
+    s->host_name = hn;
 
     update_fqdn(s);
 
@@ -1270,10 +1271,10 @@ int avahi_server_set_domain_name(AvahiServer *s, const char *domain_name) {
 
     AVAHI_CHECK_VALIDITY(s, !domain_name || avahi_is_valid_domain_name(domain_name), AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    if (!domain_name) {
+    if (!domain_name)
         dn = avahi_strdup("local");
-        domain_name = dn;
-    }
+    else
+        dn = avahi_normalize_name_strdup(domain_name);
 
     if (avahi_domain_equal(s->domain_name, domain_name)) {
         avahi_free(dn);
@@ -1283,7 +1284,7 @@ int avahi_server_set_domain_name(AvahiServer *s, const char *domain_name) {
     withdraw_host_rrs(s);
 
     avahi_free(s->domain_name);
-    s->domain_name = avahi_normalize_name_strdup(domain_name);
+    s->domain_name = dn;
     update_fqdn(s);
 
     register_stuff(s);

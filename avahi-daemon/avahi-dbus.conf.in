@@ -25,4 +25,8 @@
     <allow send_destination="org.freedesktop.Avahi"/>
     <allow receive_sender="org.freedesktop.Avahi"/>
   </policy>
+  <policy user="root">
+    <allow send_destination="org.freedesktop.Avahi"/>
+    <allow receive_sender="org.freedesktop.Avahi"/>
+  </policy>
 </busconfig>

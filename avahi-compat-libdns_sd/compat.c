@@ -77,11 +77,13 @@ struct _DNSServiceRef_t {
     DNSServiceResolveReply service_resolver_callback;
     DNSServiceDomainEnumReply domain_browser_callback;
     DNSServiceRegisterReply service_register_callback;
+    DNSServiceQueryRecordReply query_resolver_callback;
 
     AvahiClient *client;
     AvahiServiceBrowser *service_browser;
     AvahiServiceResolver *service_resolver;
     AvahiDomainBrowser *domain_browser;
+    AvahiRecordBrowser *record_browser;
 
     struct type_info type_info;
     char *service_name, *service_name_chosen, *service_domain, *service_host;
@@ -582,6 +584,8 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
                 sdref->service_resolver_callback(sdref, 0, 0, error, NULL, NULL, 0, 0, NULL, sdref->context);
             else if (sdref->domain_browser_callback)
                 sdref->domain_browser_callback(sdref, 0, 0, error, NULL, sdref->context);
+            else if (sdref->query_resolver_callback)
+                sdref->query_resolver_callback(sdref, 0, 0, error, NULL, 0, 0, 0, NULL, 0, sdref->context);
 
             break;
 
@@ -1265,3 +1269,104 @@ finish:
     return ret;
 }
 
+static void query_resolver_callback(
+        AvahiRecordBrowser *r,
+        AvahiIfIndex interface,
+        AVAHI_GCC_UNUSED AvahiProtocol protocol,
+        AvahiBrowserEvent event,
+        const char *name,
+        uint16_t clazz,
+        uint16_t type,
+        const void* rdata,
+        size_t size,
+        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+        void *userdata) {
+
+    DNSServiceRef sdref = userdata;
+
+    assert(r);
+    assert(sdref);
+    assert(sdref->n_ref >= 1);
+
+    switch (event) {
+
+    case AVAHI_BROWSER_NEW:
+    case AVAHI_BROWSER_REMOVE: {
+
+        DNSServiceFlags qflags = 0;
+        if (event == AVAHI_BROWSER_NEW)
+            qflags |= kDNSServiceFlagsAdd;
+
+        sdref->query_resolver_callback(sdref, qflags, interface, kDNSServiceErr_NoError, name, type, clazz, size, rdata, 0, sdref->context);
+        break;
+    }
+
+    case AVAHI_BROWSER_ALL_FOR_NOW:
+    case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        /* not implemented */
+        break;
+
+    case AVAHI_BROWSER_FAILURE:
+        sdref->query_resolver_callback(sdref, 0, interface, map_error(avahi_client_errno(sdref->client)), NULL, 0, 0, 0, NULL, 0, sdref->context);
+        break;
+    }
+}
+
+DNSServiceErrorType DNSSD_API DNSServiceQueryRecord (
+    DNSServiceRef *ret_sdref,
+    DNSServiceFlags flags,
+    uint32_t interface,
+    const char *fullname,
+    uint16_t type,
+    uint16_t clazz,
+    DNSServiceQueryRecordReply callback,
+    void *context) {
+
+    DNSServiceErrorType ret = kDNSServiceErr_Unknown;
+    int error;
+    DNSServiceRef sdref = NULL;
+    AvahiIfIndex ifindex;
+
+    AVAHI_WARN_LINKAGE;
+
+    if (!ret_sdref || !fullname)
+        return kDNSServiceErr_BadParam;
+    *ret_sdref = NULL;
+
+    if (interface == kDNSServiceInterfaceIndexLocalOnly || flags != 0) {
+        AVAHI_WARN_UNSUPPORTED;
+        return kDNSServiceErr_Unsupported;
+    }
+
+    if (!(sdref = sdref_new()))
+        return kDNSServiceErr_Unknown;
+
+    sdref->context = context;
+    sdref->query_resolver_callback = callback;
+
+    ASSERT_SUCCESS(pthread_mutex_lock(&sdref->mutex));
+
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), 0, generic_client_callback, sdref, &error))) {
+        ret =  map_error(error);
+        goto finish;
+    }
+
+    ifindex = interface == kDNSServiceInterfaceIndexAny ? AVAHI_IF_UNSPEC : (AvahiIfIndex) interface;
+
+    if (!(sdref->record_browser = avahi_record_browser_new(sdref->client, ifindex, AVAHI_PROTO_UNSPEC, fullname, clazz, type, 0, query_resolver_callback, sdref))) {
+        ret = map_error(avahi_client_errno(sdref->client));
+        goto finish;
+    }
+
+    ret = kDNSServiceErr_NoError;
+    *ret_sdref = sdref;
+
+finish:
+
+    ASSERT_SUCCESS(pthread_mutex_unlock(&sdref->mutex));
+
+    if (ret != kDNSServiceErr_NoError)
+        DNSServiceRefDeallocate(sdref);
+
+    return ret;
+}

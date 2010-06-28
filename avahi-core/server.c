@@ -1215,6 +1215,7 @@ static void register_stuff(AvahiServer *s) {
     register_browse_domain(s);
     avahi_interface_monitor_update_rrs(s->monitor, 0);
 
+    assert(s->n_host_rr_pending > 0);
     s->n_host_rr_pending --;
 
     if (s->n_host_rr_pending == 0)

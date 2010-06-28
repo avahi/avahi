@@ -90,11 +90,11 @@ void avahi_interface_address_update_rrs(AvahiInterfaceAddress *a, int remove_rrs
             char t[AVAHI_ADDRESS_STR_MAX];
             avahi_address_snprint(t, sizeof(t), &a->address);
 
+            avahi_log_info("Withdrawing address record for %s on %s.", t, a->interface->hardware->name);
+
             if (avahi_s_entry_group_get_state(a->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING &&
                 m->server->state == AVAHI_SERVER_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
-
-            avahi_log_info("Withdrawing address record for %s on %s.", t, a->interface->hardware->name);
 
             avahi_s_entry_group_reset(a->entry_group);
         }
@@ -151,7 +151,10 @@ void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs) {
 
         if (hw->entry_group && !avahi_s_entry_group_is_empty(hw->entry_group)) {
 
-            if (avahi_s_entry_group_get_state(hw->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING)
+            avahi_log_info("Withdrawing workstation service for %s.", hw->name);
+
+            if (avahi_s_entry_group_get_state(hw->entry_group) == AVAHI_ENTRY_GROUP_REGISTERING &&
+                m->server->state == AVAHI_SERVER_REGISTERING)
                 avahi_server_decrease_host_rr_pending(m->server);
 
             avahi_s_entry_group_reset(hw->entry_group);

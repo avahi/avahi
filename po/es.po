@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-15 15:17+0000\n"
+"POT-Creation-Date: 2010-06-28 17:59+0200\n"
 "PO-Revision-Date: 2010-05-16 10:25+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
@@ -21,231 +21,231 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-Language: Spanish\n"
 
-#: ../avahi-common/error.c:32
+#: ../avahi-common/error.c:30
 msgid "OK"
 msgstr "Aceptar"
 
-#: ../avahi-common/error.c:33
+#: ../avahi-common/error.c:31
 msgid "Operation failed"
 msgstr "Falló la operación"
 
-#: ../avahi-common/error.c:34
+#: ../avahi-common/error.c:32
 msgid "Bad state"
 msgstr "Estado incorrecto"
 
-#: ../avahi-common/error.c:35
+#: ../avahi-common/error.c:33
 msgid "Invalid host name"
 msgstr "Nombre de equipo no válido"
 
-#: ../avahi-common/error.c:36
+#: ../avahi-common/error.c:34
 msgid "Invalid domain name"
 msgstr "Nombre de dominio no válido"
 
-#: ../avahi-common/error.c:37
+#: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
 msgstr "No hay disponible ningún protocolo de red apropiado"
 
-#: ../avahi-common/error.c:38
+#: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
 msgstr "El TTL del DNS no es válido"
 
-#: ../avahi-common/error.c:39
+#: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
 msgstr "La clave del recurso de registro es un patrón"
 
-#: ../avahi-common/error.c:40
+#: ../avahi-common/error.c:38
 msgid "Local name collision"
 msgstr "Colisión de nombre local"
 
-#: ../avahi-common/error.c:41
+#: ../avahi-common/error.c:39
 msgid "Invalid record"
 msgstr "Registro no válido"
 
-#: ../avahi-common/error.c:43
+#: ../avahi-common/error.c:41
 msgid "Invalid service name"
 msgstr "Nombre de servicio no válido"
 
-#: ../avahi-common/error.c:44
+#: ../avahi-common/error.c:42
 msgid "Invalid service type"
 msgstr "Tipo de servicio no válido"
 
-#: ../avahi-common/error.c:45
+#: ../avahi-common/error.c:43
 msgid "Invalid port number"
 msgstr "Número de puerto no válido"
 
-#: ../avahi-common/error.c:46
+#: ../avahi-common/error.c:44
 msgid "Invalid record key"
 msgstr "Clave de registro no válida"
 
-#: ../avahi-common/error.c:47
+#: ../avahi-common/error.c:45
 msgid "Invalid address"
 msgstr "Dirección no válida"
 
-#: ../avahi-common/error.c:48
+#: ../avahi-common/error.c:46
 msgid "Timeout reached"
 msgstr "Se ha alcanzado el tiempo de espera establecido"
 
-#: ../avahi-common/error.c:49
+#: ../avahi-common/error.c:47
 msgid "Too many clients"
 msgstr "Demasiados clientes"
 
-#: ../avahi-common/error.c:50
+#: ../avahi-common/error.c:48
 msgid "Too many objects"
 msgstr "Demasiados objetos"
 
-#: ../avahi-common/error.c:51
+#: ../avahi-common/error.c:49
 msgid "Too many entries"
 msgstr "Demasiadas entradas"
 
-#: ../avahi-common/error.c:52
+#: ../avahi-common/error.c:50
 msgid "OS Error"
 msgstr "Error de SO"
 
-#: ../avahi-common/error.c:54
+#: ../avahi-common/error.c:52
 msgid "Access denied"
 msgstr "Acceso denegado"
 
-#: ../avahi-common/error.c:55
+#: ../avahi-common/error.c:53
 msgid "Invalid operation"
 msgstr "Operación no válida"
 
-#: ../avahi-common/error.c:56
+#: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occured"
 msgstr "Ocurrió un error de D-Bus no esperado"
 
-#: ../avahi-common/error.c:57
+#: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
 msgstr "Falló la conexión con el demonio"
 
-#: ../avahi-common/error.c:58
+#: ../avahi-common/error.c:56
 msgid "Memory exhausted"
 msgstr "Memoria agotada"
 
-#: ../avahi-common/error.c:59
+#: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
 msgstr "El objeto pasado no era válido"
 
-#: ../avahi-common/error.c:60
+#: ../avahi-common/error.c:58
 msgid "Daemon not running"
 msgstr "El demonio no se está ejecutando"
 
-#: ../avahi-common/error.c:61
+#: ../avahi-common/error.c:59
 msgid "Invalid interface index"
 msgstr "Índice de interfaz no válido"
 
-#: ../avahi-common/error.c:62
+#: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
 msgstr "Especificación de protocolo no válida"
 
-#: ../avahi-common/error.c:63
+#: ../avahi-common/error.c:61
 msgid "Invalid flags"
 msgstr "Opciones no válidas"
 
-#: ../avahi-common/error.c:65
+#: ../avahi-common/error.c:63
 msgid "Not found"
 msgstr "No encontrado"
 
-#: ../avahi-common/error.c:66
+#: ../avahi-common/error.c:64
 msgid "Invalid configuration"
 msgstr "Configuración no válida"
 
-#: ../avahi-common/error.c:67
+#: ../avahi-common/error.c:65
 msgid "Version mismatch"
 msgstr "Incompatibilidad de versiones"
 
-#: ../avahi-common/error.c:68
+#: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
 msgstr "Subtipo de servicio no válido"
 
-#: ../avahi-common/error.c:69
+#: ../avahi-common/error.c:67
 msgid "Invalid packet"
 msgstr "Paquete no válido"
 
-#: ../avahi-common/error.c:70
+#: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
 msgstr "Código de retorno de DNS no válido"
 
-#: ../avahi-common/error.c:71
+#: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
 msgstr "Fallo de DNS: FORMERR"
 
-#: ../avahi-common/error.c:72
+#: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
 msgstr "Fallo de DNS: SERVFAIL"
 
-#: ../avahi-common/error.c:73
+#: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
 msgstr "Fallo de DNS: NXDOMAIN"
 
-#: ../avahi-common/error.c:74
+#: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
 msgstr "Fallo de DNS: NOTIMP"
 
-#: ../avahi-common/error.c:76
+#: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
 msgstr "Fallo de DNS: REFUSED"
 
-#: ../avahi-common/error.c:77
+#: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
 msgstr "Fallo de DNS: YXDOMAIN"
 
-#: ../avahi-common/error.c:78
+#: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
 msgstr "Fallo de DNS: YXRRSET"
 
-#: ../avahi-common/error.c:79
+#: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
 msgstr "Fallo de DNS: NXRRSET"
 
-#: ../avahi-common/error.c:80
+#: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
 msgstr "Fallo de DNS: NOTAUTH"
 
-#: ../avahi-common/error.c:81
+#: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
 msgstr "Fallo de DNS: NOTZONE"
 
-#: ../avahi-common/error.c:82
+#: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
 msgstr "RDATA no válido"
 
-#: ../avahi-common/error.c:83
+#: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
 msgstr "Tipo de DNS no válido"
 
-#: ../avahi-common/error.c:84
+#: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
 msgstr "Clase de DNS no válida"
 
-#: ../avahi-common/error.c:85
+#: ../avahi-common/error.c:83
 msgid "Not supported"
 msgstr "No soportado"
 
-#: ../avahi-common/error.c:87
+#: ../avahi-common/error.c:85
 msgid "Not permitted"
 msgstr "No permitido"
 
-#: ../avahi-common/error.c:88
+#: ../avahi-common/error.c:86
 msgid "Invalid argument"
 msgstr "Argumento no válido"
 
-#: ../avahi-common/error.c:89
+#: ../avahi-common/error.c:87
 msgid "Is empty"
 msgstr "Está vacío"
 
-#: ../avahi-common/error.c:90
+#: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
 msgstr "La operación solicitada no es válida porque es redundante"
 
-#: ../avahi-common/error.c:96
+#: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
 msgstr "Código de error no válido"
 
-#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+#: ../avahi-discover-standalone/avahi-discover.ui.h:1
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>No hay un servicio actualmente seleccionado.</i>"
 
-#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 msgid "Avahi Discovery"
 msgstr "Descubrimiento de Avahi"
 
@@ -257,179 +257,179 @@ msgstr "Navegador Zeroconf de Avahi"
 msgid "Browse for Zeroconf services available on your network"
 msgstr "Navegar en busca de servicios Zeroconf disponibles en su red"
 
-#: ../avahi-ui/avahi-ui.c:188
+#: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
 msgstr "Tipos de Servicios a Examinar"
 
-#: ../avahi-ui/avahi-ui.c:188
+#: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
 msgstr "Una lista terminada en NULL con los tipos de servicios a buscar"
 
-#: ../avahi-ui/avahi-ui.c:193
+#: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
 msgstr "Dominio"
 
-#: ../avahi-ui/avahi-ui.c:193
+#: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
 msgstr "El dominio a examinar, o NULL para el dominio predeterminado"
 
-#: ../avahi-ui/avahi-ui.c:199
+#: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
 msgstr "Tipo de Servicio"
 
-#: ../avahi-ui/avahi-ui.c:199
+#: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
 msgstr "El tipo de servicio del servicio seleccionado"
 
-#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
 msgid "Service Name"
 msgstr "Nombre del servicio"
 
-#: ../avahi-ui/avahi-ui.c:205
+#: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
 msgstr "El nombre de servicio del servicio seleccionado"
 
-#: ../avahi-ui/avahi-ui.c:211
+#: ../avahi-ui/avahi-ui.c:208
 msgid "Address"
 msgstr "Dirección"
 
-#: ../avahi-ui/avahi-ui.c:211
+#: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
 msgstr "La dirección del servicio resuelto"
 
-#: ../avahi-ui/avahi-ui.c:216
+#: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
 msgstr "Puerto"
 
-#: ../avahi-ui/avahi-ui.c:216
+#: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
 msgstr "El número de puerto IP del servicio resuelto"
 
-#: ../avahi-ui/avahi-ui.c:222
+#: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
 msgstr "Nombre de Equipo"
 
-#: ../avahi-ui/avahi-ui.c:222
+#: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
 msgstr "El nombre de equipo del servicio resuelto"
 
-#: ../avahi-ui/avahi-ui.c:228
+#: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
 msgstr "Datos TXT"
 
-#: ../avahi-ui/avahi-ui.c:228
+#: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
 msgstr "Los datos TXT del servicio resuelto"
 
-#: ../avahi-ui/avahi-ui.c:233
+#: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve service"
 msgstr "Resolver servicio"
 
-#: ../avahi-ui/avahi-ui.c:239
+#: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve service host name"
 msgstr "Resolver el nombre de equipo del servicio"
 
-#: ../avahi-ui/avahi-ui.c:245
+#: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
 msgstr "Familia de direcciones"
 
-#: ../avahi-ui/avahi-ui.c:245
+#: ../avahi-ui/avahi-ui.c:242
 msgid "The address family for host name resolution"
 msgstr "La familia de direcciones para la resolución de nombre de equipo"
 
-#: ../avahi-ui/avahi-ui.c:327
+#: ../avahi-ui/avahi-ui.c:324
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Fallo del cliente de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:389
+#: ../avahi-ui/avahi-ui.c:386
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Fallo del resolutor de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:519
+#: ../avahi-ui/avahi-ui.c:516
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Falló la exploración del tipo de servicio %s en el dominio %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
-#: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
-#: ../avahi-utils/avahi-browse.c:165
+#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:155
+#: ../avahi-utils/avahi-browse.c:156 ../avahi-utils/avahi-browse.c:162
+#: ../avahi-utils/avahi-browse.c:163
 msgid "n/a"
 msgstr "n/d"
 
-#: ../avahi-ui/avahi-ui.c:650
+#: ../avahi-ui/avahi-ui.c:647
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Fallo de exploración de dominios de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:685
+#: ../avahi-ui/avahi-ui.c:682
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Falló al leer el dominio de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:707
+#: ../avahi-ui/avahi-ui.c:704
 msgid "Browse service type list is empty!"
 msgstr "¡La lista de Tipos de Servicios está vacía!"
 
-#: ../avahi-ui/avahi-ui.c:718
+#: ../avahi-ui/avahi-ui.c:715
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Falló al conectar con el servidor de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:736
+#: ../avahi-ui/avahi-ui.c:733
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Examinando los servicios en la <b>red local</b>:"
 
-#: ../avahi-ui/avahi-ui.c:738
+#: ../avahi-ui/avahi-ui.c:735
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Examinando los servicios en el dominio <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:774
+#: ../avahi-ui/avahi-ui.c:771
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Falló al crear el examinador para %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:904
+#: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "Falló al crear el resolutor para %s de tipo %s en el dominio %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:979
+#: ../avahi-ui/avahi-ui.c:976
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Falló al crear el dominio de exploración: %s"
 
-#: ../avahi-ui/avahi-ui.c:990
+#: ../avahi-ui/avahi-ui.c:987
 msgid "Change domain"
 msgstr "Cambiar el dominio"
 
-#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
 msgid "Browsing..."
 msgstr "Examinando…"
 
-#: ../avahi-ui/avahi-ui.c:1119
+#: ../avahi-ui/avahi-ui.c:1116
 msgid "Initializing..."
 msgstr "Inicializando…"
 
-#: ../avahi-ui/avahi-ui.c:1143
+#: ../avahi-ui/avahi-ui.c:1140
 msgid "Location"
 msgstr "Ubicación"
 
-#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:535
 msgid "Name"
 msgstr "Nombre"
 
-#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:535
 msgid "Type"
 msgstr "Tipo"
 
-#: ../avahi-ui/avahi-ui.c:1165
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "_Domain..."
 msgstr "_Dominio…"
 
-#: ../avahi-ui/bssh.c:58
+#: ../avahi-ui/bssh.c:55
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -448,42 +448,42 @@ msgstr ""
 "    -S --shell           Examinar servidores SSH y VNC\n"
 "    -d --domain=DOMINIO  El dominio que examinar\n"
 
-#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:757
 #, c-format
 msgid "Too many arguments\n"
 msgstr "Demasiados argumentos\n"
 
-#: ../avahi-ui/bssh.c:152
+#: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
 msgstr "Elegir el servidor de intérprete de comandos"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:151
 msgid "Desktop"
 msgstr "Escritorio"
 
-#: ../avahi-ui/bssh.c:155
+#: ../avahi-ui/bssh.c:152
 msgid "Terminal"
 msgstr "Terminal"
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:156
 msgid "Choose VNC server"
 msgstr "Elegir el servidor VNC"
 
-#: ../avahi-ui/bssh.c:164
+#: ../avahi-ui/bssh.c:161
 msgid "Choose SSH server"
 msgstr "Elegir el servidor SSH"
 
-#: ../avahi-ui/bssh.c:188
+#: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Conectando con «%s» …\n"
 
-#: ../avahi-ui/bssh.c:243
+#: ../avahi-ui/bssh.c:240
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "execlp() falló: %s\n"
 
-#: ../avahi-ui/bssh.c:253
+#: ../avahi-ui/bssh.c:250
 #, c-format
 msgid "Canceled.\n"
 msgstr "Cancelado.\n"
@@ -504,104 +504,104 @@ msgstr "Examinador de servidores VNC de Avahi"
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr "Examinar servidores VNC con zeroconf activado"
 
-#: ../avahi-utils/avahi-browse.c:108
+#: ../avahi-utils/avahi-browse.c:106
 #, c-format
 msgid ": All for now\n"
 msgstr ": Todo por ahora\n"
 
-#: ../avahi-utils/avahi-browse.c:119
+#: ../avahi-utils/avahi-browse.c:117
 #, c-format
 msgid ": Cache exhausted\n"
 msgstr ": Caché agotada\n"
 
-#: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
+#: ../avahi-utils/avahi-browse.c:221 ../avahi-utils/avahi-browse.c:243
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr "Error al resolver el servicio «%s» de tipo «%s» en el dominio «%s»: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:324
+#: ../avahi-utils/avahi-browse.c:322
 #, c-format
 msgid "service_browser failed: %s\n"
 msgstr "Falló service_browser: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:362
+#: ../avahi-utils/avahi-browse.c:360
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
 msgstr "Falló avahi_service_browser_new(): %s\n"
 
-#: ../avahi-utils/avahi-browse.c:398
+#: ../avahi-utils/avahi-browse.c:396
 #, c-format
 msgid "service_type_browser failed: %s\n"
 msgstr "Falló service_type_browser: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:428
+#: ../avahi-utils/avahi-browse.c:426
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
 msgstr "Falló avahi_service_type_browser_new(): %s\n"
 
-#: ../avahi-utils/avahi-browse.c:503
+#: ../avahi-utils/avahi-browse.c:501
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr "Falló avahi_domain_browser_new(): %s\n"
 
-#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:391
-#: ../avahi-utils/avahi-resolve.c:282 ../avahi-utils/avahi-set-host-name.c:170
+#: ../avahi-utils/avahi-browse.c:517 ../avahi-utils/avahi-publish.c:394
+#: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr "Error al consultar la cadena de versión: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:396
-#: ../avahi-utils/avahi-resolve.c:287 ../avahi-utils/avahi-set-host-name.c:175
-#: ../avahi-utils/avahi-set-host-name.c:191
+#: ../avahi-utils/avahi-browse.c:522 ../avahi-utils/avahi-publish.c:399
+#: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
+#: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr "Error al consultar el nombre del equipo: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:400
-#: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
+#: ../avahi-utils/avahi-browse.c:526 ../avahi-utils/avahi-publish.c:403
+#: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Versión del servidor: %s; Nombre del equipo: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
-#: ../avahi-utils/avahi-browse.c:533
+#: ../avahi-utils/avahi-browse.c:531
 #, c-format
 msgid "E Ifce Prot Domain\n"
 msgstr "E Ifaz Prot Dominio\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
-#: ../avahi-utils/avahi-browse.c:537
+#: ../avahi-utils/avahi-browse.c:535
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "E Ifaz Prot %-*s %-20s Dominio\n"
 
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
+#: ../avahi-utils/avahi-browse.c:567 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Desconectado; volviendo a conectar…\n"
 
-#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
-#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
-#: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
+#: ../avahi-utils/avahi-browse.c:581 ../avahi-utils/avahi-browse.c:811
+#: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
+#: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "Falló al crear el objeto cliente: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:588 ../avahi-utils/avahi-publish.c:177
-#: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
+#: ../avahi-utils/avahi-browse.c:586 ../avahi-utils/avahi-publish.c:175
+#: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Fallo del cliente; saliendo: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:605 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Esperando al demonio…\n"
 
-#: ../avahi-utils/avahi-browse.c:631
+#: ../avahi-utils/avahi-browse.c:629
 msgid ""
 "    -h --help            Show this help\n"
 "    -V --version         Show version\n"
@@ -632,7 +632,7 @@ msgstr ""
 "    -f --no-fail         No fallar si el demonio no está disponible\n"
 "    -p --parsable        Salida en formato analizable\n"
 
-#: ../avahi-utils/avahi-browse.c:644
+#: ../avahi-utils/avahi-browse.c:642
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
@@ -640,59 +640,59 @@ msgstr ""
 "    -k --no-db-lookup    No busca los tipos de servicios\n"
 "    -b --dump-db         Vuelva la base de datos de tipos de servicios\n"
 
-#: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:748 ../avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
 msgstr "Muy pocos argumentos\n"
 
-#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
-#: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
+#: ../avahi-utils/avahi-browse.c:803 ../avahi-utils/avahi-publish.c:378
+#: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr "Falló al crear un objeto de encuesta simple.\n"
 
-#: ../avahi-utils/avahi-publish.c:78
+#: ../avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
 msgstr "Establecido bajo el nombre «%s»\n"
 
-#: ../avahi-utils/avahi-publish.c:83
+#: ../avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
 msgstr "Falló al registrar: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:96
+#: ../avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
 msgstr "Colisión de nombres; se usa el nombre nuevo «%s».\n"
 
-#: ../avahi-utils/avahi-publish.c:116
+#: ../avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
 msgstr "Falló al crear el grupo de la entrada: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:126
+#: ../avahi-utils/avahi-publish.c:124
 #, c-format
 msgid "Failed to add address: %s\n"
 msgstr "Falló al añadir la dirección: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:136
+#: ../avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
 msgstr "Falló al añadir el servicio: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:142
+#: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
 msgstr "Falló al añadir el subtipo «%s»: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:193
+#: ../avahi-utils/avahi-publish.c:191
 #, c-format
 msgid "Host name conflict\n"
 msgstr "Conflicto de nombres de equipo\n"
 
-#: ../avahi-utils/avahi-publish.c:218
-#, c-format
+#: ../avahi-utils/avahi-publish.c:216
+#, fuzzy, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -706,6 +706,7 @@ msgid ""
 "    -H --host=DOMAIN     Host where service resides\n"
 "       --subtype=SUBTYPE An additional subtype to register this service "
 "with\n"
+"    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 "%s [opciones] %s <nombre> <tipo> <puerto> [<txt …>]\n"
@@ -723,32 +724,32 @@ msgstr ""
 "    -f --no-fail         No fallar en caso que el demonio no esté "
 "disponible\n"
 
-#: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
+#: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr "Número de argumentos incorrecto\n"
 
-#: ../avahi-utils/avahi-publish.c:326
+#: ../avahi-utils/avahi-publish.c:329
 #, c-format
 msgid "Failed to parse port number: %s\n"
 msgstr "Falló al analizar el número de puerto: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
+#: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
 msgstr "No se especificó ningún comando.\n"
 
-#: ../avahi-utils/avahi-resolve.c:91
+#: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
 msgstr "Error al resolver el nombre del equipo «%s»: %s\n"
 
-#: ../avahi-utils/avahi-resolve.c:128
+#: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
 msgstr "Error al resolver la dirección «%s»: %s\n"
 
-#: ../avahi-utils/avahi-resolve.c:159
+#: ../avahi-utils/avahi-resolve.c:157
 #, c-format
 msgid ""
 "%s [options] %s <host name ...>\n"
@@ -773,22 +774,22 @@ msgstr ""
 "    -6 Buscar dirección IPv6\n"
 "    -4 Buscar dirección IPv4\n"
 
-#: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
+#: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr "Falló al crear el resolutor de nombres de equipo: %s\n"
 
-#: ../avahi-utils/avahi-resolve.c:311
+#: ../avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
 msgstr "Falló al analizar la dirección «%s»\n"
 
-#: ../avahi-utils/avahi-resolve.c:316
+#: ../avahi-utils/avahi-resolve.c:314
 #, c-format
 msgid "Failed to create address resolver: %s\n"
 msgstr "Falló al crear el resolutor de direcciones: %s\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:75
+#: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format
 msgid ""
 "%s [options] <new host name>\n"
@@ -803,12 +804,12 @@ msgstr ""
 "    -V --version         Mostrar la versión\n"
 "    -v --verbose         Activar el modo detallado\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:116
+#: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
 msgstr "Número de argumentos incorrecto; se esperaba exactamente uno.\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:195
+#: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "El nombre del equipo se ha cambiado con éxito a %s\n"

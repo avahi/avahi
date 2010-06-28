@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-14 03:30+0200\n"
+"POT-Creation-Date: 2010-06-28 17:59+0200\n"
 "PO-Revision-Date: 2009-03-22 12:57+0100\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <gnome@fsf.hu>\n"
@@ -17,231 +17,231 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
-#: ../avahi-common/error.c:32
+#: ../avahi-common/error.c:30
 msgid "OK"
 msgstr "OK"
 
-#: ../avahi-common/error.c:33
+#: ../avahi-common/error.c:31
 msgid "Operation failed"
 msgstr "A művelet meghiúsult"
 
-#: ../avahi-common/error.c:34
+#: ../avahi-common/error.c:32
 msgid "Bad state"
 msgstr "Hibás állapot"
 
-#: ../avahi-common/error.c:35
+#: ../avahi-common/error.c:33
 msgid "Invalid host name"
 msgstr "Érvénytelen gépnév"
 
-#: ../avahi-common/error.c:36
+#: ../avahi-common/error.c:34
 msgid "Invalid domain name"
 msgstr "Érvénytelen tartománynév"
 
-#: ../avahi-common/error.c:37
+#: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
 msgstr "Nem áll rendelkezésre megfelelő hálózati protokoll"
 
-#: ../avahi-common/error.c:38
+#: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
 msgstr "Érvénytelen DNS TTL"
 
-#: ../avahi-common/error.c:39
+#: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
 msgstr "Az erőforrásrekord kulcsa minta"
 
-#: ../avahi-common/error.c:40
+#: ../avahi-common/error.c:38
 msgid "Local name collision"
 msgstr "Helyi névütközés"
 
-#: ../avahi-common/error.c:41
+#: ../avahi-common/error.c:39
 msgid "Invalid record"
 msgstr "Érvénytelen rekord"
 
-#: ../avahi-common/error.c:43
+#: ../avahi-common/error.c:41
 msgid "Invalid service name"
 msgstr "Érvénytelen szolgáltatásnév"
 
-#: ../avahi-common/error.c:44
+#: ../avahi-common/error.c:42
 msgid "Invalid service type"
 msgstr "Érvénytelen szolgáltatástípus"
 
-#: ../avahi-common/error.c:45
+#: ../avahi-common/error.c:43
 msgid "Invalid port number"
 msgstr "Érvénytelen portszám"
 
-#: ../avahi-common/error.c:46
+#: ../avahi-common/error.c:44
 msgid "Invalid record key"
 msgstr "Érvénytelen rekordkulcs"
 
-#: ../avahi-common/error.c:47
+#: ../avahi-common/error.c:45
 msgid "Invalid address"
 msgstr "Érvénytelen cím"
 
-#: ../avahi-common/error.c:48
+#: ../avahi-common/error.c:46
 msgid "Timeout reached"
 msgstr "Időtúllépés"
 
-#: ../avahi-common/error.c:49
+#: ../avahi-common/error.c:47
 msgid "Too many clients"
 msgstr "Túl sok kliens"
 
-#: ../avahi-common/error.c:50
+#: ../avahi-common/error.c:48
 msgid "Too many objects"
 msgstr "Túl sok objektum"
 
-#: ../avahi-common/error.c:51
+#: ../avahi-common/error.c:49
 msgid "Too many entries"
 msgstr "Túl sok bejegyzés"
 
-#: ../avahi-common/error.c:52
+#: ../avahi-common/error.c:50
 msgid "OS Error"
 msgstr "OS hiba"
 
-#: ../avahi-common/error.c:54
+#: ../avahi-common/error.c:52
 msgid "Access denied"
 msgstr "Hozzáférés megtagadva"
 
-#: ../avahi-common/error.c:55
+#: ../avahi-common/error.c:53
 msgid "Invalid operation"
 msgstr "Érvénytelen művelet"
 
-#: ../avahi-common/error.c:56
+#: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occured"
 msgstr "Váratlan D-Bus hiba történt"
 
-#: ../avahi-common/error.c:57
+#: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
 msgstr "A csatlakozás meghiúsult a démonhoz"
 
-#: ../avahi-common/error.c:58
+#: ../avahi-common/error.c:56
 msgid "Memory exhausted"
 msgstr "Elfogyott a memória"
 
-#: ../avahi-common/error.c:59
+#: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
 msgstr "Az átadott objektum érvénytelen volt"
 
-#: ../avahi-common/error.c:60
+#: ../avahi-common/error.c:58
 msgid "Daemon not running"
 msgstr "A démon nem fut"
 
-#: ../avahi-common/error.c:61
+#: ../avahi-common/error.c:59
 msgid "Invalid interface index"
 msgstr "Érvénytelen felületindex"
 
-#: ../avahi-common/error.c:62
+#: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
 msgstr "Érvénytelen protokollmeghatározás"
 
-#: ../avahi-common/error.c:63
+#: ../avahi-common/error.c:61
 msgid "Invalid flags"
 msgstr "Érvénytelen jelzők"
 
-#: ../avahi-common/error.c:65
+#: ../avahi-common/error.c:63
 msgid "Not found"
 msgstr "Nem található"
 
-#: ../avahi-common/error.c:66
+#: ../avahi-common/error.c:64
 msgid "Invalid configuration"
 msgstr "Érvénytelen konfiguráció"
 
-#: ../avahi-common/error.c:67
+#: ../avahi-common/error.c:65
 msgid "Version mismatch"
 msgstr "Verzióeltérés"
 
-#: ../avahi-common/error.c:68
+#: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
 msgstr "Érvénytelen szolgáltatásaltípus"
 
-#: ../avahi-common/error.c:69
+#: ../avahi-common/error.c:67
 msgid "Invalid packet"
 msgstr "Érvénytelen csomag"
 
-#: ../avahi-common/error.c:70
+#: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
 msgstr "Érvénytelen DNS visszatérési érték"
 
-#: ../avahi-common/error.c:71
+#: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
 msgstr "DNS hiba: FORMERR"
 
-#: ../avahi-common/error.c:72
+#: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
 msgstr "DNS hiba: SERVFAIL"
 
-#: ../avahi-common/error.c:73
+#: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
 msgstr "DNS hiba: NXDOMAIN"
 
-#: ../avahi-common/error.c:74
+#: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
 msgstr "DNS hiba: NOTIMP"
 
-#: ../avahi-common/error.c:76
+#: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
 msgstr "DNS hiba: REFUSED"
 
-#: ../avahi-common/error.c:77
+#: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
 msgstr "DNS hiba: YXDOMAIN"
 
-#: ../avahi-common/error.c:78
+#: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
 msgstr "DNS hiba: YXRRSET"
 
-#: ../avahi-common/error.c:79
+#: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
 msgstr "DNS hiba: NXRRSET"
 
-#: ../avahi-common/error.c:80
+#: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
 msgstr "DNS hiba: NOTAUTH"
 
-#: ../avahi-common/error.c:81
+#: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
 msgstr "DNS hiba: NOTZONE"
 
-#: ../avahi-common/error.c:82
+#: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
 msgstr "Érvénytelen RDATA"
 
-#: ../avahi-common/error.c:83
+#: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
 msgstr "Érvénytelen DNS-típus"
 
-#: ../avahi-common/error.c:84
+#: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
 msgstr "Érvénytelen DNS-osztály"
 
-#: ../avahi-common/error.c:85
+#: ../avahi-common/error.c:83
 msgid "Not supported"
 msgstr "Nem támogatott"
 
-#: ../avahi-common/error.c:87
+#: ../avahi-common/error.c:85
 msgid "Not permitted"
 msgstr "Nem engedélyezett"
 
-#: ../avahi-common/error.c:88
+#: ../avahi-common/error.c:86
 msgid "Invalid argument"
 msgstr "Érvénytelen paraméter"
 
-#: ../avahi-common/error.c:89
+#: ../avahi-common/error.c:87
 msgid "Is empty"
 msgstr "Üres"
 
-#: ../avahi-common/error.c:90
+#: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
 msgstr "A kért művelet érvénytelen, mivel redundáns"
 
-#: ../avahi-common/error.c:96
+#: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
 msgstr "Érvénytelen hibakód"
 
-#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+#: ../avahi-discover-standalone/avahi-discover.ui.h:1
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Nincs kiválasztva szolgáltatás.</i>"
 
-#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 msgid "Avahi Discovery"
 msgstr "Avahi feltérképezés"
 
@@ -253,181 +253,181 @@ msgstr "Avahi Zeroconf-böngésző"
 msgid "Browse for Zeroconf services available on your network"
 msgstr "Zeroconf szolgáltatások keresése a hálózaton"
 
-#: ../avahi-ui/avahi-ui.c:188
+#: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
 msgstr "Szolgáltatástípusok tallózása"
 
-#: ../avahi-ui/avahi-ui.c:188
+#: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
 msgstr "A tallózandó szolgáltatástípusok NULL végű listája"
 
-#: ../avahi-ui/avahi-ui.c:193
+#: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
 msgstr "Tartomány"
 
-#: ../avahi-ui/avahi-ui.c:193
+#: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
 msgstr "A tallózandó tartomány, vagy NULL az alapértelmezetthez"
 
-#: ../avahi-ui/avahi-ui.c:199
+#: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
 msgstr "Szolgáltatástípus"
 
-#: ../avahi-ui/avahi-ui.c:199
+#: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
 msgstr "A kiválasztott szolgáltatás típusa"
 
-#: ../avahi-ui/avahi-ui.c:205 ../avahi-ui/avahi-ui.c:1022
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
 msgid "Service Name"
 msgstr "Szolgáltatásnév"
 
-#: ../avahi-ui/avahi-ui.c:205
+#: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
 msgstr "A kiválasztott szolgáltatás neve"
 
-#: ../avahi-ui/avahi-ui.c:211
+#: ../avahi-ui/avahi-ui.c:208
 msgid "Address"
 msgstr "Cím"
 
-#: ../avahi-ui/avahi-ui.c:211
+#: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
 msgstr "A feloldott szolgáltatás címe"
 
-#: ../avahi-ui/avahi-ui.c:216
+#: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
 msgstr "Port"
 
-#: ../avahi-ui/avahi-ui.c:216
+#: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
 msgstr "A feloldott szolgáltatás IP portszáma"
 
-#: ../avahi-ui/avahi-ui.c:222
+#: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
 msgstr "Gépnév"
 
-#: ../avahi-ui/avahi-ui.c:222
+#: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
 msgstr "A feloldott szolgáltatás gépneve"
 
-#: ../avahi-ui/avahi-ui.c:228
+#: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
 msgstr "TXT adat"
 
-#: ../avahi-ui/avahi-ui.c:228
+#: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
 msgstr "A feloldott szolgáltatás TXT adatai"
 
-#: ../avahi-ui/avahi-ui.c:233
+#: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve service"
 msgstr "Szolgáltatás feloldása"
 
-#: ../avahi-ui/avahi-ui.c:239
+#: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve service host name"
 msgstr "Szolgáltatás gépnevének feloldása"
 
-#: ../avahi-ui/avahi-ui.c:245
+#: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
 msgstr "Címcsalád"
 
-#: ../avahi-ui/avahi-ui.c:245
+#: ../avahi-ui/avahi-ui.c:242
 msgid "The address family for host name resolution"
 msgstr "Címcsalád a gépnév-feloldáshoz"
 
-#: ../avahi-ui/avahi-ui.c:327
+#: ../avahi-ui/avahi-ui.c:324
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Avahi klienshiba: %s"
 
-#: ../avahi-ui/avahi-ui.c:389
+#: ../avahi-ui/avahi-ui.c:386
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Avahi feloldási hiba: %s"
 
-#: ../avahi-ui/avahi-ui.c:519
+#: ../avahi-ui/avahi-ui.c:516
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "A szolgáltatástípus (%s) tallózása a tartományban (%s) meghiúsult: %s"
 
-#: ../avahi-ui/avahi-ui.c:520 ../avahi-utils/avahi-browse.c:157
-#: ../avahi-utils/avahi-browse.c:158 ../avahi-utils/avahi-browse.c:164
-#: ../avahi-utils/avahi-browse.c:165
+#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:155
+#: ../avahi-utils/avahi-browse.c:156 ../avahi-utils/avahi-browse.c:162
+#: ../avahi-utils/avahi-browse.c:163
 msgid "n/a"
 msgstr "ismeretlen"
 
-#: ../avahi-ui/avahi-ui.c:650
+#: ../avahi-ui/avahi-ui.c:647
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Avahi tartományböngésző-hiba: %s"
 
-#: ../avahi-ui/avahi-ui.c:685
+#: ../avahi-ui/avahi-ui.c:682
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Az Avahi tartomány olvasása meghiúsult: %s"
 
-#: ../avahi-ui/avahi-ui.c:707
+#: ../avahi-ui/avahi-ui.c:704
 msgid "Browse service type list is empty!"
 msgstr "A tallózandó szolgáltatástípusok listája üres."
 
-#: ../avahi-ui/avahi-ui.c:718
+#: ../avahi-ui/avahi-ui.c:715
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "A csatlakozás meghiúsult az Avahi kiszolgálóhoz: %s"
 
-#: ../avahi-ui/avahi-ui.c:736
+#: ../avahi-ui/avahi-ui.c:733
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Szolgáltatások tallózása a <b>helyi hálózaton</b>:"
 
-#: ../avahi-ui/avahi-ui.c:738
+#: ../avahi-ui/avahi-ui.c:735
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Szolgáltatások tallózása a(z) <b>%s</b> tartományban:"
 
-#: ../avahi-ui/avahi-ui.c:774
+#: ../avahi-ui/avahi-ui.c:771
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Nem sikerült tallózót létrehozni a következőhöz: %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:904
+#: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Nem sikerült $%2s típusú feloldót létrehozni a következőhöz: $%1s a(z) $%3s "
 "tartományban: $%4s"
 
-#: ../avahi-ui/avahi-ui.c:979
+#: ../avahi-ui/avahi-ui.c:976
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Nem sikerült tartománytallózót létrehozni: %s"
 
-#: ../avahi-ui/avahi-ui.c:990
+#: ../avahi-ui/avahi-ui.c:987
 msgid "Change domain"
 msgstr "Tartomány módosítása"
 
-#: ../avahi-ui/avahi-ui.c:1030 ../avahi-ui/avahi-ui.c:1161
+#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
 msgid "Browsing..."
 msgstr "Tallózás…"
 
-#: ../avahi-ui/avahi-ui.c:1119
+#: ../avahi-ui/avahi-ui.c:1116
 msgid "Initializing..."
 msgstr "Előkészítés…"
 
-#: ../avahi-ui/avahi-ui.c:1143
+#: ../avahi-ui/avahi-ui.c:1140
 msgid "Location"
 msgstr "Hely"
 
-#: ../avahi-ui/avahi-ui.c:1148 ../avahi-utils/avahi-browse.c:537
+#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:535
 msgid "Name"
 msgstr "Név"
 
-#: ../avahi-ui/avahi-ui.c:1153 ../avahi-utils/avahi-browse.c:537
+#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:535
 msgid "Type"
 msgstr "Típus"
 
-#: ../avahi-ui/avahi-ui.c:1165
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "_Domain..."
 msgstr "_Tartomány…"
 
-#: ../avahi-ui/bssh.c:58
+#: ../avahi-ui/bssh.c:55
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -446,42 +446,42 @@ msgstr ""
 "    -S --shell           SSH és VNC kiszolgálók tallózása\n"
 "    -d --domain=TARTOMÁNY  A tallózandó tartomány\n"
 
-#: ../avahi-ui/bssh.c:104 ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:757
 #, c-format
 msgid "Too many arguments\n"
 msgstr "Túl sok paraméter\n"
 
-#: ../avahi-ui/bssh.c:152
+#: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
 msgstr "Válassza ki a shell kiszolgálót"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:151
 msgid "Desktop"
 msgstr "Asztal"
 
-#: ../avahi-ui/bssh.c:155
+#: ../avahi-ui/bssh.c:152
 msgid "Terminal"
 msgstr "Terminál"
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:156
 msgid "Choose VNC server"
 msgstr "Válasszon VNC kiszolgálót"
 
-#: ../avahi-ui/bssh.c:164
+#: ../avahi-ui/bssh.c:161
 msgid "Choose SSH server"
 msgstr "Válasszon SSH kiszolgálót"
 
-#: ../avahi-ui/bssh.c:188
+#: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Csatlakozás ehhez: „%s” …\n"
 
-#: ../avahi-ui/bssh.c:243
+#: ../avahi-ui/bssh.c:240
 #, c-format
 msgid "execlp() failed: %s\n"
 msgstr "Az execlp() meghiúsult: %s\n"
 
-#: ../avahi-ui/bssh.c:253
+#: ../avahi-ui/bssh.c:250
 #, c-format
 msgid "Canceled.\n"
 msgstr "Megszakítva.\n"
@@ -503,106 +503,106 @@ msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr "Zeroconf-képes VNC kiszolgálók keresése"
 
 # fixme: wtf?
-#: ../avahi-utils/avahi-browse.c:108
+#: ../avahi-utils/avahi-browse.c:106
 #, c-format
 msgid ": All for now\n"
 msgstr ": most mind\n"
 
-#: ../avahi-utils/avahi-browse.c:119
+#: ../avahi-utils/avahi-browse.c:117
 #, c-format
 msgid ": Cache exhausted\n"
 msgstr ": a gyorsítótár elfogyott\n"
 
-#: ../avahi-utils/avahi-browse.c:223 ../avahi-utils/avahi-browse.c:245
+#: ../avahi-utils/avahi-browse.c:221 ../avahi-utils/avahi-browse.c:243
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
 "A(z) $%2s típusú $%1s szolgáltatás feloldása meghiúsult a(z) $%3s "
 "tartományban: $%4s\n"
 
-#: ../avahi-utils/avahi-browse.c:324
+#: ../avahi-utils/avahi-browse.c:322
 #, c-format
 msgid "service_browser failed: %s\n"
 msgstr "a service_browser sikertelen: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:362
+#: ../avahi-utils/avahi-browse.c:360
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
 msgstr "az avahi_service_browser_new() sikertelen: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:398
+#: ../avahi-utils/avahi-browse.c:396
 #, c-format
 msgid "service_type_browser failed: %s\n"
 msgstr "a service_type_browser sikertelen: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:428
+#: ../avahi-utils/avahi-browse.c:426
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
 msgstr "az avahi_service_type_browser_new() sikertelen: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:503
+#: ../avahi-utils/avahi-browse.c:501
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr "az avahi_domain_browser_new() sikertelen: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:519 ../avahi-utils/avahi-publish.c:391
-#: ../avahi-utils/avahi-resolve.c:282 ../avahi-utils/avahi-set-host-name.c:170
+#: ../avahi-utils/avahi-browse.c:517 ../avahi-utils/avahi-publish.c:394
+#: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr "A verzió-karakterlánc lekérdezése meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:524 ../avahi-utils/avahi-publish.c:396
-#: ../avahi-utils/avahi-resolve.c:287 ../avahi-utils/avahi-set-host-name.c:175
-#: ../avahi-utils/avahi-set-host-name.c:191
+#: ../avahi-utils/avahi-browse.c:522 ../avahi-utils/avahi-publish.c:399
+#: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
+#: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr "A gépnév lekérdezése meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:528 ../avahi-utils/avahi-publish.c:400
-#: ../avahi-utils/avahi-resolve.c:291 ../avahi-utils/avahi-set-host-name.c:179
+#: ../avahi-utils/avahi-browse.c:526 ../avahi-utils/avahi-publish.c:403
+#: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Kiszolgálóverzió: %s; gépnév: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
-#: ../avahi-utils/avahi-browse.c:533
+#: ../avahi-utils/avahi-browse.c:531
 #, c-format
 msgid "E Ifce Prot Domain\n"
 msgstr "E Csat Prot Tartom\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
-#: ../avahi-utils/avahi-browse.c:537
+#: ../avahi-utils/avahi-browse.c:535
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "E Csat Prot %-*s %-20s Tartom\n"
 
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:569 ../avahi-utils/avahi-publish.c:165
+#: ../avahi-utils/avahi-browse.c:567 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Leválasztva, újracsatlakozás…\n"
 
-#: ../avahi-utils/avahi-browse.c:583 ../avahi-utils/avahi-browse.c:813
-#: ../avahi-utils/avahi-publish.c:172 ../avahi-utils/avahi-publish.c:383
-#: ../avahi-utils/avahi-resolve.c:274 ../avahi-utils/avahi-set-host-name.c:162
+#: ../avahi-utils/avahi-browse.c:581 ../avahi-utils/avahi-browse.c:811
+#: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
+#: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "Kliensobjektum létrehozása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:588 ../avahi-utils/avahi-publish.c:177
-#: ../avahi-utils/avahi-resolve.c:145 ../avahi-utils/avahi-set-host-name.c:61
+#: ../avahi-utils/avahi-browse.c:586 ../avahi-utils/avahi-publish.c:175
+#: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Klienshiba, kilépés: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:607 ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:605 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Várakozás a démonra…\n"
 
-#: ../avahi-utils/avahi-browse.c:631
+#: ../avahi-utils/avahi-browse.c:629
 msgid ""
 "    -h --help            Show this help\n"
 "    -V --version         Show version\n"
@@ -634,7 +634,7 @@ msgstr ""
 "    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"
 "    -p --parsable        Kimenet feldolgozható formában\n"
 
-#: ../avahi-utils/avahi-browse.c:644
+#: ../avahi-utils/avahi-browse.c:642
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
@@ -642,59 +642,59 @@ msgstr ""
 "    -k --no-db-lookup    Ne keresse ki a szolgáltatástípusokat\n"
 "    -b --dump-db         Szolgáltatástípus-adatbázis kiírása\n"
 
-#: ../avahi-utils/avahi-browse.c:750 ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:748 ../avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
 msgstr "Túl kevés paraméter\n"
 
-#: ../avahi-utils/avahi-browse.c:805 ../avahi-utils/avahi-publish.c:375
-#: ../avahi-utils/avahi-resolve.c:266 ../avahi-utils/avahi-set-host-name.c:154
+#: ../avahi-utils/avahi-browse.c:803 ../avahi-utils/avahi-publish.c:378
+#: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr "Az egyszerű lekérdezési objektum létrehozása meghiúsult.\n"
 
-#: ../avahi-utils/avahi-publish.c:78
+#: ../avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
 msgstr "Létrehozva ezen név alatt: „%s”\n"
 
-#: ../avahi-utils/avahi-publish.c:83
+#: ../avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
 msgstr "A regisztráció meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:96
+#: ../avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
 msgstr "Névütközés, új név választása: „%s”.\n"
 
-#: ../avahi-utils/avahi-publish.c:116
+#: ../avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
 msgstr "A bejegyzéscsoport létrehozása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:126
+#: ../avahi-utils/avahi-publish.c:124
 #, c-format
 msgid "Failed to add address: %s\n"
 msgstr "A cím hozzáadása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:136
+#: ../avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
 msgstr "A szolgáltatás hozzáadása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:142
+#: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
 msgstr "Az altípus („%s”) hozzáadása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:193
+#: ../avahi-utils/avahi-publish.c:191
 #, c-format
 msgid "Host name conflict\n"
 msgstr "Gépnévütközés\n"
 
-#: ../avahi-utils/avahi-publish.c:218
-#, c-format
+#: ../avahi-utils/avahi-publish.c:216
+#, fuzzy, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -708,6 +708,7 @@ msgid ""
 "    -H --host=DOMAIN     Host where service resides\n"
 "       --subtype=SUBTYPE An additional subtype to register this service "
 "with\n"
+"    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 "%s [kapcsolók] %s <név> <típus> <port> [<txt …>]\n"
@@ -724,32 +725,32 @@ msgstr ""
 "regisztrálandó\n"
 "    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"
 
-#: ../avahi-utils/avahi-publish.c:300 ../avahi-utils/avahi-publish.c:315
+#: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr "A paraméterek száma nem megfelelő\n"
 
-#: ../avahi-utils/avahi-publish.c:326
+#: ../avahi-utils/avahi-publish.c:329
 #, c-format
 msgid "Failed to parse port number: %s\n"
 msgstr "A portszám feldolgozása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:358 ../avahi-utils/avahi-resolve.c:248
+#: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
 msgstr "Nincs megadva parancs.\n"
 
-#: ../avahi-utils/avahi-resolve.c:91
+#: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
 msgstr "A gépnév („%s”) feloldása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-resolve.c:128
+#: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
 msgstr "A cím („%s”) feloldása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-resolve.c:159
+#: ../avahi-utils/avahi-resolve.c:157
 #, c-format
 msgid ""
 "%s [options] %s <host name ...>\n"
@@ -774,22 +775,22 @@ msgstr ""
 "    -6                   IPv6 cím kikeresése\n"
 "    -4                   IPv4 cím kikeresése\n"
 
-#: ../avahi-utils/avahi-resolve.c:301 ../avahi-utils/avahi-set-host-name.c:183
+#: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr "A gépnévfeloldó létrehozása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-resolve.c:311
+#: ../avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
 msgstr "A cím („%s”) feldolgozása meghiúsult\n"
 
-#: ../avahi-utils/avahi-resolve.c:316
+#: ../avahi-utils/avahi-resolve.c:314
 #, c-format
 msgid "Failed to create address resolver: %s\n"
 msgstr "A címfeloldó létrehozása meghiúsult: %s\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:75
+#: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format
 msgid ""
 "%s [options] <new host name>\n"
@@ -804,12 +805,12 @@ msgstr ""
 "    -V --version         Verziószám megjelenítése\n"
 "    -v --verbose         Részletes mód engedélyezése\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:116
+#: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
 msgstr "Érvénytelen számú argumentum, pontosan egy szükséges.\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:195
+#: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "A gépnév sikeresen módosítva a következőre: %s\n"

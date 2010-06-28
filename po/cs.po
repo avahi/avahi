@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-16 15:07+0000\n"
+"POT-Creation-Date: 2010-06-28 17:59+0200\n"
 "PO-Revision-Date: 2009-08-17 02:10+0200\n"
 "Last-Translator: Petr Kovar <pknbe@volny.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -15,256 +15,256 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: ../avahi-common/error.c:32
+#: ../avahi-common/error.c:30
 msgid "OK"
 msgstr "Budiž"
 
-#: ../avahi-common/error.c:33
+#: ../avahi-common/error.c:31
 msgid "Operation failed"
 msgstr "Operace selhala"
 
-#: ../avahi-common/error.c:34
+#: ../avahi-common/error.c:32
 msgid "Bad state"
 msgstr "Nevyhovující stav"
 
-#: ../avahi-common/error.c:35
+#: ../avahi-common/error.c:33
 msgid "Invalid host name"
 msgstr "Neplatný název počítače"
 
-#: ../avahi-common/error.c:36
+#: ../avahi-common/error.c:34
 msgid "Invalid domain name"
 msgstr "Neplatný název domény"
 
-#: ../avahi-common/error.c:37
+#: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
 msgstr "Žádný vyhovující síťový protokol není dostupný"
 
-#: ../avahi-common/error.c:38
+#: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
 msgstr "Neplatné DNS TTL"
 
-#: ../avahi-common/error.c:39
+#: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
 msgstr ""
 
-#: ../avahi-common/error.c:40
+#: ../avahi-common/error.c:38
 #, fuzzy
 msgid "Local name collision"
 msgstr "Lokální jméno souboru"
 
-#: ../avahi-common/error.c:41
+#: ../avahi-common/error.c:39
 msgid "Invalid record"
 msgstr "Neplatný záznam"
 
-#: ../avahi-common/error.c:43
+#: ../avahi-common/error.c:41
 msgid "Invalid service name"
 msgstr "Neplatný název služby"
 
-#: ../avahi-common/error.c:44
+#: ../avahi-common/error.c:42
 msgid "Invalid service type"
 msgstr "Neplatný typ služby"
 
-#: ../avahi-common/error.c:45
+#: ../avahi-common/error.c:43
 msgid "Invalid port number"
 msgstr "Neplatné číslo portu"
 
-#: ../avahi-common/error.c:46
+#: ../avahi-common/error.c:44
 #, fuzzy
 msgid "Invalid record key"
 msgstr "Uložit klíč záznamu"
 
-#: ../avahi-common/error.c:47
+#: ../avahi-common/error.c:45
 #, fuzzy
 msgid "Invalid address"
 msgstr "%s: adresa %s je nesprávná.\n"
 
-#: ../avahi-common/error.c:48
+#: ../avahi-common/error.c:46
 #, fuzzy
 msgid "Timeout reached"
 msgstr "Čas vypršel"
 
-#: ../avahi-common/error.c:49
+#: ../avahi-common/error.c:47
 msgid "Too many clients"
 msgstr "Příliš mnoho klientů"
 
-#: ../avahi-common/error.c:50
+#: ../avahi-common/error.c:48
 msgid "Too many objects"
 msgstr "Příliš mnoho objektů"
 
-#: ../avahi-common/error.c:51
+#: ../avahi-common/error.c:49
 msgid "Too many entries"
 msgstr "Příliš mnoho položek"
 
-#: ../avahi-common/error.c:52
+#: ../avahi-common/error.c:50
 #, fuzzy
 msgid "OS Error"
 msgstr "Chyba při tisku"
 
-#: ../avahi-common/error.c:54
+#: ../avahi-common/error.c:52
 msgid "Access denied"
 msgstr "Přístup zamítnut"
 
-#: ../avahi-common/error.c:55
+#: ../avahi-common/error.c:53
 msgid "Invalid operation"
 msgstr "Neplatná operace"
 
-#: ../avahi-common/error.c:56
+#: ../avahi-common/error.c:54
 #, fuzzy
 msgid "An unexpected D-Bus error occured"
 msgstr "Došlo k následující chybě:"
 
-#: ../avahi-common/error.c:57
+#: ../avahi-common/error.c:55
 #, fuzzy
 msgid "Daemon connection failed"
 msgstr "Selhalo vzdálené připojení"
 
-#: ../avahi-common/error.c:58
+#: ../avahi-common/error.c:56
 msgid "Memory exhausted"
 msgstr "Paměť vyčerpána"
 
-#: ../avahi-common/error.c:59
+#: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
 msgstr ""
 
-#: ../avahi-common/error.c:60
+#: ../avahi-common/error.c:58
 #, fuzzy
 msgid "Daemon not running"
 msgstr "Klíčenkový démon neběží"
 
-#: ../avahi-common/error.c:61
+#: ../avahi-common/error.c:59
 #, fuzzy
 msgid "Invalid interface index"
 msgstr "GIF: Neplatný index."
 
-#: ../avahi-common/error.c:62
+#: ../avahi-common/error.c:60
 #, fuzzy
 msgid "Invalid protocol specification"
 msgstr "Neplatná specifikace portu"
 
-#: ../avahi-common/error.c:63
+#: ../avahi-common/error.c:61
 #, fuzzy
 msgid "Invalid flags"
 msgstr "neplatné příznaky"
 
-#: ../avahi-common/error.c:65
+#: ../avahi-common/error.c:63
 #, fuzzy
 msgid "Not found"
 msgstr "Nenalezeno"
 
-#: ../avahi-common/error.c:66
+#: ../avahi-common/error.c:64
 #, fuzzy
 msgid "Invalid configuration"
 msgstr "Nekompletní nebo neplatná konfigurace"
 
-#: ../avahi-common/error.c:67
+#: ../avahi-common/error.c:65
 #, fuzzy
 msgid "Version mismatch"
 msgstr "Verze ABI %d.%d.x nesouhlasí (potřebuji %d.%d.x)"
 
-#: ../avahi-common/error.c:68
+#: ../avahi-common/error.c:66
 #, fuzzy
 msgid "Invalid service subtype"
 msgstr "neplatné jméno autentizační služby \"%s\", ignorováno\n"
 
-#: ../avahi-common/error.c:69
+#: ../avahi-common/error.c:67
 #, fuzzy
 msgid "Invalid packet"
 msgstr "Chybná délka NCP rámce"
 
-#: ../avahi-common/error.c:70
+#: ../avahi-common/error.c:68
 #, fuzzy
 msgid "Invalid DNS return code"
 msgstr "špatná návratová hodnota eof()."
 
-#: ../avahi-common/error.c:71
+#: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
 msgstr "Selhání DNS: FORMERR"
 
-#: ../avahi-common/error.c:72
+#: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
 msgstr "Selhání DNS: SERVFAIL"
 
-#: ../avahi-common/error.c:73
+#: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
 msgstr "Selhání DNS: NXDOMAIN"
 
-#: ../avahi-common/error.c:74
+#: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
 msgstr "Selhání DNS: NOTIMP"
 
-#: ../avahi-common/error.c:76
+#: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
 msgstr "Selhání DNS: REFUSED"
 
-#: ../avahi-common/error.c:77
+#: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
 msgstr "Selhání DNS: YXDOMAIN"
 
-#: ../avahi-common/error.c:78
+#: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
 msgstr "Selhání DNS: YXRRSET"
 
-#: ../avahi-common/error.c:79
+#: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
 msgstr "Selhání DNS: NXRRSET"
 
-#: ../avahi-common/error.c:80
+#: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
 msgstr "Selhání DNS: NOTAUTH"
 
-#: ../avahi-common/error.c:81
+#: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
 msgstr "Selhání DNS: NOTZONE"
 
-#: ../avahi-common/error.c:82
+#: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
 msgstr "Neplatné RDATA"
 
-#: ../avahi-common/error.c:83
+#: ../avahi-common/error.c:81
 #, fuzzy
 msgid "Invalid DNS type"
 msgstr "Neplatná funkce typu: \"%s\""
 
-#: ../avahi-common/error.c:84
+#: ../avahi-common/error.c:82
 #, fuzzy
 msgid "Invalid DNS class"
 msgstr "Neplatné jméno třídy znaků"
 
-#: ../avahi-common/error.c:85
+#: ../avahi-common/error.c:83
 #, fuzzy
 msgid "Not supported"
 msgstr "Nepodporováno"
 
-#: ../avahi-common/error.c:87
+#: ../avahi-common/error.c:85
 #, fuzzy
 msgid "Not permitted"
 msgstr "Glob není dovolen: %s\n"
 
-#: ../avahi-common/error.c:88
+#: ../avahi-common/error.c:86
 #, fuzzy
 msgid "Invalid argument"
 msgstr "Neplatný argument"
 
-#: ../avahi-common/error.c:89
+#: ../avahi-common/error.c:87
 #, fuzzy
 msgid "Is empty"
 msgstr "(je prázdný)"
 
-#: ../avahi-common/error.c:90
+#: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
 msgstr ""
 
-#: ../avahi-common/error.c:96
+#: ../avahi-common/error.c:94
 #, fuzzy
 msgid "Invalid Error Code"
 msgstr "Neznámý kód chyby %d"
 
-#: ../avahi-discover-standalone/avahi-discover.glade.h:1
+#: ../avahi-discover-standalone/avahi-discover.ui.h:1
 #, fuzzy
 msgid "<i>No service currently selected.</i>"
 msgstr "Klikněte k odstranění právě zvolené služby"
 
-#: ../avahi-discover-standalone/avahi-discover.glade.h:2
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #, fuzzy
 msgid "Avahi Discovery"
 msgstr "* Objev %s způsobí, že %s zastarajá.\n"
@@ -278,211 +278,205 @@ msgstr "Webový prohlížeč Epiphany"
 msgid "Browse for Zeroconf services available on your network"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:188
+#: ../avahi-ui/avahi-ui.c:185
 #, fuzzy
 msgid "Browse Service Types"
 msgstr "typy musí souhlasit\n"
 
-#: ../avahi-ui/avahi-ui.c:188
+#: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:193
+#: ../avahi-ui/avahi-ui.c:190
 #, fuzzy
 msgid "Domain"
 msgstr "Doména"
 
-#: ../avahi-ui/avahi-ui.c:193
+#: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:199
+#: ../avahi-ui/avahi-ui.c:196
 #, fuzzy
 msgid "Service Type"
 msgstr "Typ služby"
 
-#: ../avahi-ui/avahi-ui.c:199
+#: ../avahi-ui/avahi-ui.c:196
 #, fuzzy
 msgid "The service type of the selected service"
 msgstr "Neznámý typ služby: %s."
 
-#: ../avahi-ui/avahi-ui.c:205
-#: ../avahi-ui/avahi-ui.c:1022
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
 #, fuzzy
 msgid "Service Name"
 msgstr "Pojmenovávací služba"
 
-#: ../avahi-ui/avahi-ui.c:205
+#: ../avahi-ui/avahi-ui.c:202
 #, fuzzy
 msgid "The service name of the selected service"
 msgstr "Název vybraného písma"
 
-#: ../avahi-ui/avahi-ui.c:211
+#: ../avahi-ui/avahi-ui.c:208
 #, fuzzy
 msgid "Address"
 msgstr "Adresa"
 
-#: ../avahi-ui/avahi-ui.c:211
+#: ../avahi-ui/avahi-ui.c:208
 #, fuzzy
 msgid "The address of the resolved service"
 msgstr "Služba momentálně není k dispozici"
 
-#: ../avahi-ui/avahi-ui.c:216
+#: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
 msgstr "Port"
 
-#: ../avahi-ui/avahi-ui.c:216
+#: ../avahi-ui/avahi-ui.c:213
 #, fuzzy
 msgid "The IP port number of the resolved service"
 msgstr "Číslo TCP/IP portu indexovacího serveru"
 
-#: ../avahi-ui/avahi-ui.c:222
+#: ../avahi-ui/avahi-ui.c:219
 #, fuzzy
 msgid "Host Name"
 msgstr "Jméno počítače"
 
-#: ../avahi-ui/avahi-ui.c:222
+#: ../avahi-ui/avahi-ui.c:219
 #, fuzzy
 msgid "The host name of the resolved service"
 msgstr "Služba Knihy Adres"
 
-#: ../avahi-ui/avahi-ui.c:228
+#: ../avahi-ui/avahi-ui.c:225
 #, fuzzy
 msgid "TXT Data"
 msgstr "Základní data"
 
-#: ../avahi-ui/avahi-ui.c:228
+#: ../avahi-ui/avahi-ui.c:225
 #, fuzzy
 msgid "The TXT data of the resolved service"
 msgstr "Požadavek činí data služby zastaralými"
 
-#: ../avahi-ui/avahi-ui.c:233
+#: ../avahi-ui/avahi-ui.c:230
 #, fuzzy
 msgid "Resolve service"
 msgstr "Nelze najít službu"
 
-#: ../avahi-ui/avahi-ui.c:239
+#: ../avahi-ui/avahi-ui.c:236
 #, fuzzy
 msgid "Resolve service host name"
 msgstr "    -f, --fqdn, --long    dlouhé jméno počítače (kanonické)\n"
 
-#: ../avahi-ui/avahi-ui.c:245
+#: ../avahi-ui/avahi-ui.c:242
 #, fuzzy
 msgid "Address family"
 msgstr "Třída adres `%s' není známa.\n"
 
-#: ../avahi-ui/avahi-ui.c:245
+#: ../avahi-ui/avahi-ui.c:242
 #, fuzzy
 msgid "The address family for host name resolution"
 msgstr "požadovaná rodina nepodporovaná tímto hostitelem"
 
-#: ../avahi-ui/avahi-ui.c:327
+#: ../avahi-ui/avahi-ui.c:324
 #, fuzzy, c-format
 msgid "Avahi client failure: %s"
 msgstr "Chyba při čtení formátu GIF: %s"
 
-#: ../avahi-ui/avahi-ui.c:389
+#: ../avahi-ui/avahi-ui.c:386
 #, fuzzy, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Chyba při čtení formátu GIF: %s"
 
-#: ../avahi-ui/avahi-ui.c:519
+#: ../avahi-ui/avahi-ui.c:516
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:520
-#: ../avahi-utils/avahi-browse.c:157
-#: ../avahi-utils/avahi-browse.c:158
-#: ../avahi-utils/avahi-browse.c:164
-#: ../avahi-utils/avahi-browse.c:165
+#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:155
+#: ../avahi-utils/avahi-browse.c:156 ../avahi-utils/avahi-browse.c:162
+#: ../avahi-utils/avahi-browse.c:163
 #, fuzzy
 msgid "n/a"
 msgstr "neznámo"
 
-#: ../avahi-ui/avahi-ui.c:650
+#: ../avahi-ui/avahi-ui.c:647
 #, fuzzy, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Prohlížeč serverů SSH Avahi"
 
-#: ../avahi-ui/avahi-ui.c:685
+#: ../avahi-ui/avahi-ui.c:682
 #, fuzzy, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Nepodařilo se číst metadata z „%s“: %s"
 
-#: ../avahi-ui/avahi-ui.c:707
+#: ../avahi-ui/avahi-ui.c:704
 msgid "Browse service type list is empty!"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:718
+#: ../avahi-ui/avahi-ui.c:715
 #, fuzzy, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Spojení se serverem selhalo po %d pokusech\n"
 
-#: ../avahi-ui/avahi-ui.c:736
+#: ../avahi-ui/avahi-ui.c:733
 #, fuzzy
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Vyhledávání SMPPPD v místní síti..."
 
-#: ../avahi-ui/avahi-ui.c:738
+#: ../avahi-ui/avahi-ui.c:735
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:774
+#: ../avahi-ui/avahi-ui.c:771
 #, fuzzy, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Nelze vytvořit klíč registrů pro soubory '%s'."
 
-#: ../avahi-ui/avahi-ui.c:904
+#: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:979
+#: ../avahi-ui/avahi-ui.c:976
 #, fuzzy, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Nemohu vytvořit socket IPv4: %s\n"
 
-#: ../avahi-ui/avahi-ui.c:990
+#: ../avahi-ui/avahi-ui.c:987
 #, fuzzy
 msgid "Change domain"
 msgstr "Doména autentizace"
 
-#: ../avahi-ui/avahi-ui.c:1030
-#: ../avahi-ui/avahi-ui.c:1161
+#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
 #, fuzzy
 msgid "Browsing..."
 msgstr "Prohlížení"
 
-#: ../avahi-ui/avahi-ui.c:1119
+#: ../avahi-ui/avahi-ui.c:1116
 #, fuzzy
 msgid "Initializing..."
 msgstr "Inicializuje se..."
 
-#: ../avahi-ui/avahi-ui.c:1143
+#: ../avahi-ui/avahi-ui.c:1140
 #, fuzzy
 msgid "Location"
 msgstr "Umístění"
 
-#: ../avahi-ui/avahi-ui.c:1148
-#: ../avahi-utils/avahi-browse.c:537
+#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:535
 #, fuzzy
 msgid "Name"
 msgstr "Název"
 
-#: ../avahi-ui/avahi-ui.c:1153
-#: ../avahi-utils/avahi-browse.c:537
+#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:535
 #, fuzzy
 msgid "Type"
 msgstr "Typ"
 
-#: ../avahi-ui/avahi-ui.c:1165
+#: ../avahi-ui/avahi-ui.c:1162
 #, fuzzy
 msgid "_Domain..."
 msgstr "Doména"
 
-#: ../avahi-ui/bssh.c:58
+#: ../avahi-ui/bssh.c:55
 #, c-format
 msgid ""
 "%s [options]\n"
@@ -494,48 +488,47 @@ msgid ""
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
 
-#: ../avahi-ui/bssh.c:104
-#: ../avahi-utils/avahi-browse.c:759
+#: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:757
 #, fuzzy, c-format
 msgid "Too many arguments\n"
 msgstr "%s: příliš mnoho argumentů\n"
 
-#: ../avahi-ui/bssh.c:152
+#: ../avahi-ui/bssh.c:149
 #, fuzzy
 msgid "Choose Shell Server"
 msgstr "*** Prosím zvolte server"
 
-#: ../avahi-ui/bssh.c:154
+#: ../avahi-ui/bssh.c:151
 #, fuzzy
 msgid "Desktop"
 msgstr "Pracovní plocha"
 
-#: ../avahi-ui/bssh.c:155
+#: ../avahi-ui/bssh.c:152
 #, fuzzy
 msgid "Terminal"
 msgstr "Terminál"
 
-#: ../avahi-ui/bssh.c:159
+#: ../avahi-ui/bssh.c:156
 #, fuzzy
 msgid "Choose VNC server"
 msgstr "*** Prosím zvolte server"
 
-#: ../avahi-ui/bssh.c:164
+#: ../avahi-ui/bssh.c:161
 #, fuzzy
 msgid "Choose SSH server"
 msgstr "*** Prosím zvolte server"
 
-#: ../avahi-ui/bssh.c:188
+#: ../avahi-ui/bssh.c:185
 #, fuzzy, c-format
 msgid "Connecting to '%s' ...\n"
 msgstr "Připojuji se k: %s"
 
-#: ../avahi-ui/bssh.c:243
+#: ../avahi-ui/bssh.c:240
 #, fuzzy, c-format
 msgid "execlp() failed: %s\n"
 msgstr "Autentizace selhala"
 
-#: ../avahi-ui/bssh.c:253
+#: ../avahi-ui/bssh.c:250
 #, fuzzy, c-format
 msgid "Canceled.\n"
 msgstr "Zrušeno"
@@ -558,118 +551,104 @@ msgstr "Prohlížeč serverů SSH Avahi"
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:108
+#: ../avahi-utils/avahi-browse.c:106
 #, fuzzy, c-format
 msgid ": All for now\n"
 msgstr "Statistiky pro všechny:\n"
 
-#: ../avahi-utils/avahi-browse.c:119
+#: ../avahi-utils/avahi-browse.c:117
 #, fuzzy, c-format
 msgid ": Cache exhausted\n"
 msgstr "paměť vyčerpána"
 
-#: ../avahi-utils/avahi-browse.c:223
-#: ../avahi-utils/avahi-browse.c:245
+#: ../avahi-utils/avahi-browse.c:221 ../avahi-utils/avahi-browse.c:243
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:324
+#: ../avahi-utils/avahi-browse.c:322
 #, fuzzy, c-format
 msgid "service_browser failed: %s\n"
 msgstr "Příkaz pro prohlížeč selhal: %s"
 
-#: ../avahi-utils/avahi-browse.c:362
+#: ../avahi-utils/avahi-browse.c:360
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:398
+#: ../avahi-utils/avahi-browse.c:396
 #, fuzzy, c-format
 msgid "service_type_browser failed: %s\n"
 msgstr "Typ [%s] se nepodařilo zjistit.\n"
 
-#: ../avahi-utils/avahi-browse.c:428
+#: ../avahi-utils/avahi-browse.c:426
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:503
+#: ../avahi-utils/avahi-browse.c:501
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:519
-#: ../avahi-utils/avahi-publish.c:391
-#: ../avahi-utils/avahi-resolve.c:282
-#: ../avahi-utils/avahi-set-host-name.c:170
+#: ../avahi-utils/avahi-browse.c:517 ../avahi-utils/avahi-publish.c:394
+#: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, fuzzy, c-format
 msgid "Failed to query version string: %s\n"
 msgstr "Nelze vytvořit DDE řeťezec"
 
-#: ../avahi-utils/avahi-browse.c:524
-#: ../avahi-utils/avahi-publish.c:396
-#: ../avahi-utils/avahi-resolve.c:287
-#: ../avahi-utils/avahi-set-host-name.c:175
-#: ../avahi-utils/avahi-set-host-name.c:191
+#: ../avahi-utils/avahi-browse.c:522 ../avahi-utils/avahi-publish.c:399
+#: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
+#: ../avahi-utils/avahi-set-host-name.c:189
 #, fuzzy, c-format
 msgid "Failed to query host name: %s\n"
 msgstr "Pokus o spojení s hostitelem selhal."
 
-#: ../avahi-utils/avahi-browse.c:528
-#: ../avahi-utils/avahi-publish.c:400
-#: ../avahi-utils/avahi-resolve.c:291
-#: ../avahi-utils/avahi-set-host-name.c:179
+#: ../avahi-utils/avahi-browse.c:526 ../avahi-utils/avahi-publish.c:403
+#: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, fuzzy, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Jméno nebo adresa serveru."
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
-#: ../avahi-utils/avahi-browse.c:533
+#: ../avahi-utils/avahi-browse.c:531
 #, fuzzy, c-format
 msgid "E Ifce Prot Domain\n"
 msgstr "Určit název domény"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
-#: ../avahi-utils/avahi-browse.c:537
+#: ../avahi-utils/avahi-browse.c:535
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr ""
 
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:569
-#: ../avahi-utils/avahi-publish.c:165
+#: ../avahi-utils/avahi-browse.c:567 ../avahi-utils/avahi-publish.c:163
 #, fuzzy, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Znovu se připojuji na %s"
 
-#: ../avahi-utils/avahi-browse.c:583
-#: ../avahi-utils/avahi-browse.c:813
-#: ../avahi-utils/avahi-publish.c:172
-#: ../avahi-utils/avahi-publish.c:383
-#: ../avahi-utils/avahi-resolve.c:274
-#: ../avahi-utils/avahi-set-host-name.c:162
+#: ../avahi-utils/avahi-browse.c:581 ../avahi-utils/avahi-browse.c:811
+#: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
+#: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, fuzzy, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "sdílený objekt `%s' se nepodařilo zavést"
 
-#: ../avahi-utils/avahi-browse.c:588
-#: ../avahi-utils/avahi-publish.c:177
-#: ../avahi-utils/avahi-resolve.c:145
-#: ../avahi-utils/avahi-set-host-name.c:61
+#: ../avahi-utils/avahi-browse.c:586 ../avahi-utils/avahi-publish.c:175
+#: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, fuzzy, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Nelze spustit %s.  Konec."
 
-#: ../avahi-utils/avahi-browse.c:607
-#: ../avahi-utils/avahi-publish.c:208
+#: ../avahi-utils/avahi-browse.c:605 ../avahi-utils/avahi-publish.c:206
 #, fuzzy, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Čekám na odpověď..."
 
-#: ../avahi-utils/avahi-browse.c:631
+#: ../avahi-utils/avahi-browse.c:629
 msgid ""
 "    -h --help            Show this help\n"
 "    -V --version         Show version\n"
@@ -677,7 +656,8 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -685,67 +665,65 @@ msgid ""
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:644
+#: ../avahi-utils/avahi-browse.c:642
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:750
-#: ../avahi-utils/avahi-resolve.c:221
+#: ../avahi-utils/avahi-browse.c:748 ../avahi-utils/avahi-resolve.c:219
 #, fuzzy, c-format
 msgid "Too few arguments\n"
 msgstr "Příliš málo argumentů."
 
-#: ../avahi-utils/avahi-browse.c:805
-#: ../avahi-utils/avahi-publish.c:375
-#: ../avahi-utils/avahi-resolve.c:266
-#: ../avahi-utils/avahi-set-host-name.c:154
+#: ../avahi-utils/avahi-browse.c:803 ../avahi-utils/avahi-publish.c:378
+#: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:78
+#: ../avahi-utils/avahi-publish.c:76
 #, fuzzy, c-format
 msgid "Established under name '%s'\n"
 msgstr "Název ikony s logem"
 
-#: ../avahi-utils/avahi-publish.c:83
+#: ../avahi-utils/avahi-publish.c:81
 #, fuzzy, c-format
 msgid "Failed to register: %s\n"
-msgstr "Nepodařilo se zaregistrovat funkci pro obsloužení události \"zavření okna\""
+msgstr ""
+"Nepodařilo se zaregistrovat funkci pro obsloužení události \"zavření okna\""
 
-#: ../avahi-utils/avahi-publish.c:96
+#: ../avahi-utils/avahi-publish.c:94
 #, fuzzy, c-format
 msgid "Name collision, picking new name '%s'.\n"
 msgstr "Zadání názvu nové složky"
 
-#: ../avahi-utils/avahi-publish.c:116
+#: ../avahi-utils/avahi-publish.c:114
 #, fuzzy, c-format
 msgid "Failed to create entry group: %s\n"
 msgstr "Nelze vytvořit klíč registrů pro soubory '%s'."
 
-#: ../avahi-utils/avahi-publish.c:126
+#: ../avahi-utils/avahi-publish.c:124
 #, fuzzy, c-format
 msgid "Failed to add address: %s\n"
 msgstr "Přidat do adresáře"
 
-#: ../avahi-utils/avahi-publish.c:136
+#: ../avahi-utils/avahi-publish.c:134
 #, fuzzy, c-format
 msgid "Failed to add service: %s\n"
 msgstr "Klikněte k přidání služby"
 
-#: ../avahi-utils/avahi-publish.c:142
+#: ../avahi-utils/avahi-publish.c:140
 #, fuzzy, c-format
 msgid "Failed to add subtype '%s': %s\n"
 msgstr "Nepodařilo se přidat zprávu:\n"
 
-#: ../avahi-utils/avahi-publish.c:193
+#: ../avahi-utils/avahi-publish.c:191
 #, fuzzy, c-format
 msgid "Host name conflict\n"
 msgstr "    -s, --short           krátké jméno počítače\n"
 
-#: ../avahi-utils/avahi-publish.c:218
+#: ../avahi-utils/avahi-publish.c:216
 #, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
@@ -758,38 +736,38 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
+"    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:300
-#: ../avahi-utils/avahi-publish.c:315
+#: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, fuzzy, c-format
 msgid "Bad number of arguments\n"
 msgstr "chybný počet argumentů"
 
-#: ../avahi-utils/avahi-publish.c:326
+#: ../avahi-utils/avahi-publish.c:329
 #, fuzzy, c-format
 msgid "Failed to parse port number: %s\n"
 msgstr "Nemohu zpracovat soubor XML \"%s\""
 
-#: ../avahi-utils/avahi-publish.c:358
-#: ../avahi-utils/avahi-resolve.c:248
+#: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, fuzzy, c-format
 msgid "No command specified.\n"
 msgstr "Nebyl uveden žádný příkaz."
 
-#: ../avahi-utils/avahi-resolve.c:91
+#: ../avahi-utils/avahi-resolve.c:89
 #, fuzzy, c-format
 msgid "Failed to resolve host name '%s': %s\n"
 msgstr "Pokus o spojení s hostitelem selhal."
 
-#: ../avahi-utils/avahi-resolve.c:128
+#: ../avahi-utils/avahi-resolve.c:126
 #, fuzzy, c-format
 msgid "Failed to resolve address '%s': %s\n"
 msgstr "Nemohu rozpoznat nebo rozšířit '%s"
 
-#: ../avahi-utils/avahi-resolve.c:159
+#: ../avahi-utils/avahi-resolve.c:157
 #, c-format
 msgid ""
 "%s [options] %s <host name ...>\n"
@@ -804,23 +782,22 @@ msgid ""
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-resolve.c:301
-#: ../avahi-utils/avahi-set-host-name.c:183
+#: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, fuzzy, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr "Nelze vytvořit jméno dočasného souboru"
 
-#: ../avahi-utils/avahi-resolve.c:311
+#: ../avahi-utils/avahi-resolve.c:309
 #, fuzzy, c-format
 msgid "Failed to parse address '%s'\n"
 msgstr "Analýza vCard se nezdařila."
 
-#: ../avahi-utils/avahi-resolve.c:316
+#: ../avahi-utils/avahi-resolve.c:314
 #, fuzzy, c-format
 msgid "Failed to create address resolver: %s\n"
 msgstr "Nemohu vytvořit socket IPv4: %s\n"
 
-#: ../avahi-utils/avahi-set-host-name.c:75
+#: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format
 msgid ""
 "%s [options] <new host name>\n"
@@ -830,14 +807,12 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-set-host-name.c:116
+#: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-set-host-name.c:195
+#: ../avahi-utils/avahi-set-host-name.c:193
 #, fuzzy, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Místní adresář úspěšně změněn na %s\n"
-
-

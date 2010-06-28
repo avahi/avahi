@@ -72,8 +72,8 @@ dhclient-exit-hook: dhclient-exit-hook.in
 
 BUILD = dhclient-exit-hook dhclient-enter-hook
 
-dhcliententerdir = $(sysconfdir)/dhcp3/dhclient-enter-hooks.d
-dhclientexitdir = $(sysconfdir)/dhcp3/dhclient-exit-hooks.d
+dhcliententerdir = $(sysconfdir)/dhcp/dhclient-enter-hooks.d
+dhclientexitdir = $(sysconfdir)/dhcp/dhclient-exit-hooks.d
 
 install-exec-hook: dhclient-exit-hook dhclient-enter-hook
 	$(mkdir_p) $(DESTDIR)$(dhcliententerdir) $(DESTDIR)$(dhclientexitdir)

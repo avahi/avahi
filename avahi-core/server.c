@@ -1387,6 +1387,7 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
     s->need_entry_cleanup = 0;
     s->need_group_cleanup = 0;
     s->need_browser_cleanup = 0;
+    s->cleanup_time_event = NULL;
     s->hinfo_entry_group = NULL;
     s->browse_domain_entry_group = NULL;
     s->error = AVAHI_OK;
@@ -1485,6 +1486,9 @@ void avahi_server_free(AvahiServer* s) {
     if (s->wide_area_lookup_engine)
         avahi_wide_area_engine_free(s->wide_area_lookup_engine);
     avahi_multicast_lookup_engine_free(s->multicast_lookup_engine);
+
+    if (s->cleanup_time_event)
+        avahi_time_event_free(s->cleanup_time_event);
 
     avahi_time_event_queue_free(s->time_event_queue);
 

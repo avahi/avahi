@@ -121,6 +121,9 @@ struct AvahiServer {
 
     int need_entry_cleanup, need_group_cleanup, need_browser_cleanup;
 
+    /* Used for scheduling RR cleanup */
+    AvahiTimeEvent *cleanup_time_event;
+
     AvahiTimeEventQueue *time_event_queue;
 
     char *host_name, *host_name_fqdn, *domain_name;

@@ -141,6 +141,11 @@ void avahi_cleanup_dead_entries(AvahiServer *s) {
 
     if (s->need_browser_cleanup)
         avahi_browser_cleanup(s);
+
+    if (s->cleanup_time_event) {
+        avahi_time_event_free(s->cleanup_time_event);
+        s->cleanup_time_event = NULL;
+    }
 }
 
 static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r, AvahiPublishFlags flags) {
@@ -1063,6 +1068,23 @@ AvahiSEntryGroup *avahi_s_entry_group_new(AvahiServer *s, AvahiSEntryGroupCallba
     return g;
 }
 
+static void cleanup_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* userdata) {
+    AvahiServer *s = userdata;
+
+    assert(s);
+
+    avahi_cleanup_dead_entries(s);
+}
+
+static void schedule_cleanup(AvahiServer *s) {
+    struct timeval tv;
+
+    assert(s);
+
+    if (!s->cleanup_time_event)
+        s->cleanup_time_event = avahi_time_event_new(s->time_event_queue, avahi_elapse_time(&tv, 1000, 0), &cleanup_time_event_callback, s);
+}
+
 void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
     AvahiEntry *e;
 
@@ -1086,7 +1108,7 @@ void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
     g->server->need_group_cleanup = 1;
     g->server->need_entry_cleanup = 1;
 
-    avahi_cleanup_dead_entries(g->server);
+    schedule_cleanup(g->server);
 }
 
 static void entry_group_commit_real(AvahiSEntryGroup *g) {
@@ -1167,7 +1189,7 @@ void avahi_s_entry_group_reset(AvahiSEntryGroup *g) {
 
     avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_UNCOMMITED);
 
-    avahi_cleanup_dead_entries(g->server);
+    schedule_cleanup(g->server);
 }
 
 int avahi_entry_is_commited(AvahiEntry *e) {

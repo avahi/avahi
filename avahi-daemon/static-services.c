@@ -42,6 +42,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/error.h>
+#include <avahi-common/domain.h>
 #include <avahi-core/log.h>
 #include <avahi-core/publish.h>
 
@@ -231,9 +232,15 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
 
         avahi_free(g->chosen_name);
 
-        if (g->replace_wildcards)
-            g->chosen_name = replacestr(g->name, "%h", avahi_server_get_host_name(avahi_server));
-        else
+        if (g->replace_wildcards) {
+            char label[AVAHI_LABEL_MAX];
+            const char *p;
+
+            p = avahi_server_get_host_name(avahi_server);
+            avahi_unescape_label(&p, label, sizeof(label));
+
+            g->chosen_name = replacestr(g->name, "%h", label);
+        } else
             g->chosen_name = avahi_strdup(g->name);
 
     }

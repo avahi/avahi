@@ -146,11 +146,10 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
 void avahi_querier_remove(AvahiInterface *i, AvahiKey *key) {
     AvahiQuerier *q;
 
-    if (!(q = avahi_hashmap_lookup(i->queriers_by_key, key)) || q->n_used <= 0) {
-        /* There was no querier for this RR key, or it wasn't referenced by anyone */
-        avahi_log_warn(__FILE__": querier_remove() called but no querier to remove.");
+    /* There was no querier for this RR key, or it wasn't referenced
+     * by anyone. */
+    if (!(q = avahi_hashmap_lookup(i->queriers_by_key, key)) || q->n_used <= 0)
         return;
-    }
 
     if ((--q->n_used) <= 0) {
 

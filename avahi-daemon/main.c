@@ -551,6 +551,26 @@ static int parse_unsigned(const char *s, unsigned *u) {
     return 0;
 }
 
+static int parse_usec(const char *s, AvahiUsec *u) {
+    char *e = NULL;
+    unsigned long long ull;
+    AvahiUsec k;
+
+    errno = 0;
+    ull = strtoull(s, &e, 0);
+
+    if (!e || *e || errno != 0)
+        return -1;
+
+    k = (AvahiUsec) ull;
+
+    if ((unsigned long long) k != ull)
+        return -1;
+
+    *u = k;
+    return 0;
+}
+
 static int load_config_file(DaemonConfig *c) {
     int r = -1;
     AvahiIniFile *f;
@@ -642,6 +662,26 @@ static int load_config_file(DaemonConfig *c) {
                         c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
 
                     avahi_strfreev(e);
+                } else if (strcasecmp(p->key, "ratelimit-interval-usec") == 0) {
+                    AvahiUsec k;
+
+                    if (parse_usec(p->value, &k) < 0) {
+                        avahi_log_error("Invalid ratelimit-interval-usec setting %s", p->value);
+                        goto finish;
+                    }
+
+                    c->server_config.ratelimit_interval = k;
+
+                } else if (strcasecmp(p->key, "ratelimit-burst") == 0) {
+                    unsigned k;
+
+                    if (parse_unsigned(p->value, &k) < 0) {
+                        avahi_log_error("Invalid ratelimit-burst setting %s", p->value);
+                        goto finish;
+                    }
+
+                    c->server_config.ratelimit_burst = k;
+
                 } else if (strcasecmp(p->key, "cache-entries-max") == 0) {
                     unsigned k;
 

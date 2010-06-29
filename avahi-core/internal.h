@@ -25,6 +25,7 @@ typedef struct AvahiEntry AvahiEntry;
 
 #include <avahi-common/llist.h>
 #include <avahi-common/watch.h>
+#include <avahi-common/timeval.h>
 
 #include "core.h"
 #include "iface.h"

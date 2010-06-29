@@ -29,6 +29,7 @@ typedef struct AvahiServer AvahiServer;
 #include <avahi-common/address.h>
 #include <avahi-common/defs.h>
 #include <avahi-common/watch.h>
+#include <avahi-common/timeval.h>
 #include <avahi-core/rr.h>
 
 AVAHI_C_DECL_BEGIN
@@ -66,6 +67,8 @@ typedef struct AvahiServerConfig {
     int publish_a_on_ipv6;            /**< Publish an IPv4 A RR on IPv6 sockets */
     int publish_aaaa_on_ipv4;         /**< Publish an IPv4 A RR on IPv6 sockets */
     unsigned n_cache_entries_max;     /**< Maximum number of cache entries per interface */
+    AvahiUsec ratelimit_interval;     /**< If non-zero, rate-limiting interval parameter. */
+    unsigned ratelimit_burst;         /**< If ratelimit_interval is non-zero, rate-limiting burst parameter. */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

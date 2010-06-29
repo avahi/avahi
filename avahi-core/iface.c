@@ -390,6 +390,9 @@ AvahiHwInterface *avahi_hw_interface_new(AvahiInterfaceMonitor *m, AvahiIfIndex 
     hw->index = idx;
     hw->mac_address_size = 0;
     hw->entry_group = NULL;
+    hw->ratelimit_begin.tv_sec = 0;
+    hw->ratelimit_begin.tv_usec = 0;
+    hw->ratelimit_counter = 0;
 
     AVAHI_LLIST_HEAD_INIT(AvahiInterface, hw->interfaces);
     AVAHI_LLIST_PREPEND(AvahiHwInterface, hardware, m->hw_interfaces, hw);
@@ -570,6 +573,27 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
         return;
 
     assert(!a || a->proto == i->protocol);
+
+    if (i->monitor->server->config.ratelimit_interval > 0) {
+        struct timeval now, end;
+
+        gettimeofday(&now, NULL);
+
+        end = i->hardware->ratelimit_begin;
+        avahi_timeval_add(&end, i->monitor->server->config.ratelimit_interval);
+
+        if (i->hardware->ratelimit_begin.tv_sec <= 0 ||
+            avahi_timeval_compare(&end, &now) < 0) {
+
+            i->hardware->ratelimit_begin = now;
+            i->hardware->ratelimit_counter = 0;
+        }
+
+        if (i->hardware->ratelimit_counter > i->monitor->server->config.ratelimit_burst)
+            return;
+
+        i->hardware->ratelimit_counter++;
+    }
 
     if (i->protocol == AVAHI_PROTO_INET && i->monitor->server->fd_ipv4 >= 0)
         avahi_send_dns_packet_ipv4(i->monitor->server->fd_ipv4, i->hardware->index, p, i->mcast_joined ? &i->local_mcast_address.data.ipv4 : NULL, a ? &a->data.ipv4 : NULL, port);

@@ -1591,6 +1591,8 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->publish_aaaa_on_ipv4 = 1;
     c->publish_a_on_ipv6 = 0;
     c->n_cache_entries_max = AVAHI_DEFAULT_CACHE_ENTRIES_MAX;
+    c->ratelimit_interval = 0;
+    c->ratelimit_burst = 0;
 
     return c;
 }

@@ -159,7 +159,7 @@
     <option>
       <p><opt>objects-per-client-max=</opt> Takes an unsigned
       integer. The maximum number of objects (entry groups, browsers,
-      resolvers) that may be registered per client at a time. If the
+      resolvers) that may be registered per D-Bus client at a time. If the
       maximum number is reached further object creation will be
       refused until at least one object is freed.</p>
     </option>
@@ -167,10 +167,26 @@
     <option>
       <p><opt>entries-per-entry-group-max=</opt> Takes an unsigned
       integer. The maximum number of entries (resource records) per
-      entry group at a time. If the maximum number is reached further
-      resource records may not be added to an entry group.</p>
+      entry group registered by a D-Bus client at a time. If the
+      maximum number is reached further resource records may not be
+      added to an entry group.</p>
     </option>
 
+    <option>
+      <p><opt>ratelimit-interval-usec=</opt> Takes an unsigned
+      integer. Sets the per-interface packet rate-limiting interval
+      parameter. Together with <opt>ratelimit-burst=</opt> this may be
+      used to control the maximum number of packets Avahi will
+      generated in a specific period of time on an interface.</p>
+    </option>
+
+    <option>
+      <p><opt>ratelimit-burst=</opt> Takes an unsigned
+      integer. Sets the per-interface packet rate-limiting burst
+      parameter. Together with <opt>ratelimit-interval-usec=</opt> this may be
+      used to control the maximum number of packets Avahi will
+      generated in a specific period of time on an interface.</p>
+    </option>
   </section>
 
   <section name="Section [wide-area]">

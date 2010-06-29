@@ -85,6 +85,10 @@ struct AvahiHwInterface {
 
     AvahiSEntryGroup *entry_group;
 
+    /* Packet rate limiting */
+    struct timeval ratelimit_begin;
+    unsigned ratelimit_counter;
+
     AVAHI_LLIST_HEAD(AvahiInterface, interfaces);
 };
 

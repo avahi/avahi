@@ -1,3 +1,18 @@
+Avahi 0.6.26
+============
+
+This is mostly a bugfix release but also fixes a low risk security issue and
+adds a couple of minor new features.
+
+ * Fix CVE-2010-2244 (Ludwig Nussel)
+ * Support for Gtk+ 3 and Gtk+ Introspection
+ * Native systemd socket activation support
+ * Add systemd service files
+ * Add various resource control options, for traffic rate limiting as well as
+   cache size and D-Bus client object limits.
+ * i18n updates
+ * Minor other updates
+
 Avahi 0.6.25
 ============
 

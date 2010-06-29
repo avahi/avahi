@@ -15,7 +15,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-initddir = $(sysconfdir)/init.d
+initddir = $(sysconfdir)/rc.d/init.d
 
 EXTRA_DIST = avahi-daemon.in avahi-dnsconfd.in
 

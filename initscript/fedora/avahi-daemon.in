@@ -13,7 +13,7 @@
 
 ### BEGIN INIT INFO
 # Required-Start:    messagebus
-# Required-Stopt:    messagebus
+# Required-Stop:     messagebus
 # Should-Start:      $syslog $network $local_fs
 # Should-Stop:       $syslog $local_fs
 # Default-Start:     3 4 5

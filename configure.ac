@@ -564,7 +564,7 @@ if test "x$HAVE_GTK3" = "xyes" ; then
 fi
 AM_CONDITIONAL(HAVE_GTK3, test "x$HAVE_GTK3" = "xyes")
 
-AM_CONDITIONAL(HAVE_GTK2OR3, test "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK2" = "xyes" )
+AM_CONDITIONAL(HAVE_GTK2OR3, test "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK" = "xyes" )
 
 #
 # D-Bus

@@ -229,7 +229,7 @@ DISTCHECK_CONFIGURE_FLAGS = \
 
 homepage:
 	$(MAKE) -C man
-	scp avahi-daemon/*.introspect avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
+	scp avahi-daemon/*.xml avahi-daemon/introspect.dtd avahi-daemon/introspect.xsl\
 	    man/*.xml man/xmltoman.dtd man/xmltoman.xsl \
 	    tango:www/avahi.org/tree/download/
 	scp avahi-$(PACKAGE_VERSION).tar.gz tango:www/avahi.org/tree/download/

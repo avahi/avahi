@@ -19,6 +19,7 @@
 After=sysinit.target
 Before=sockets.target
 Conflicts=shutdown.target
+Description=Avahi mDNS/DNS-SD Stack Activation Socket
 
 [Socket]
 ListenStream=@avahi_runtime_dir@/avahi-daemon/socket

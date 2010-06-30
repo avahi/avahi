@@ -19,6 +19,7 @@
 Requires=basic.target avahi-daemon.socket avahi-daemon.service
 After=basic.target syslog.target avahi-daemon.socket
 Conflicts=shutdown.target
+Description=Avahi DNS Configuration Daemon
 
 [Service]
 Type=simple

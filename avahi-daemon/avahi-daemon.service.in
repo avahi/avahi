@@ -16,10 +16,9 @@
 # USA.
 
 [Unit]
-Requires=basic.target avahi-daemon.socket
-After=basic.target syslog.target avahi-daemon.socket
-Conflicts=shutdown.target
 Description=Avahi mDNS/DNS-SD Stack
+Requires=avahi-daemon.socket
+After=syslog.target
 
 [Service]
 Type=dbus

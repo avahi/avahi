@@ -25,6 +25,7 @@ Type=dbus
 BusName=org.freedesktop.Avahi
 ExecStart=@sbindir@/avahi-daemon -s
 ExecReload=@sbindir@/avahi-daemon -r
+NotifyAccess=main
 
 [Install]
 WantedBy=multi-user.target

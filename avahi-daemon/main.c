@@ -1075,6 +1075,16 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
 /* Imported from ../avahi-client/nss-check.c */
 int avahi_nss_support(void);
 
+static void ignore_signal(int sig)  {
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(sig, &sa, NULL);
+}
+
 static int run_server(DaemonConfig *c) {
     int r = -1;
     int error;
@@ -1090,6 +1100,8 @@ static int run_server(DaemonConfig *c) {
 #endif
 
     assert(c);
+
+    ignore_signal(SIGPIPE);
 
     if (!(nss_support = avahi_nss_support()))
         avahi_log_warn("WARNING: No NSS support for mDNS detected, consider installing nss-mdns!");

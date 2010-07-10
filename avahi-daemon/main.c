@@ -1586,6 +1586,8 @@ int main(int argc, char *argv[]) {
             if (daemon_close_all(-1) < 0)
                 avahi_log_warn("Failed to close all remaining file descriptors: %s", strerror(errno));
 
+        daemon_reset_sigs(-1);
+
         if (make_runtime_dir() < 0)
             goto finish;
 

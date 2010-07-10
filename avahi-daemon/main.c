@@ -354,7 +354,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     switch (state) {
         case AVAHI_SERVER_RUNNING:
             avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
-            sd_notifyf(0, "Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
+            sd_notifyf(0, "STATUS=Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
             avahi_set_proc_title(argv0, "%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
 
             static_service_add_to_server();
@@ -381,7 +381,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             n = avahi_alternative_host_name(avahi_server_get_host_name(s));
 
             avahi_log_warn("Host name conflict, retrying with %s", n);
-            sd_notifyf(0, "Host name conflict, retrying with %s", n);
+            sd_notifyf(0, "STATUS=Host name conflict, retrying with %s", n);
             avahi_set_proc_title(argv0, "%s: collision [%s]", argv0, n);
 
             avahi_server_set_host_name(s, n);
@@ -393,14 +393,14 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         case AVAHI_SERVER_FAILURE:
 
             avahi_log_error("Server error: %s", avahi_strerror(avahi_server_errno(s)));
-            sd_notifyf(0, "Server error: %s", avahi_strerror(avahi_server_errno(s)));
+            sd_notifyf(0, "STATUS=Server error: %s", avahi_strerror(avahi_server_errno(s)));
 
             avahi_simple_poll_quit(simple_poll_api);
             break;
 
         case AVAHI_SERVER_REGISTERING:
 
-            sd_notifyf(0, "Registering host name %s", avahi_server_get_host_name_fqdn(s));
+            sd_notifyf(0, "STATUS=Registering host name %s", avahi_server_get_host_name_fqdn(s));
             avahi_set_proc_title(argv0, "%s: registering [%s]", argv0, avahi_server_get_host_name_fqdn(s));
 
             static_service_remove_from_server();
@@ -1615,7 +1615,7 @@ int main(int argc, char *argv[]) {
             }
 #endif
         avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
-        sd_notifyf(0, "%s "PACKAGE_VERSION" starting up.", argv0);
+        sd_notifyf(0, "STATUS=%s "PACKAGE_VERSION" starting up.", argv0);
         avahi_set_proc_title(argv0, "%s: starting up", argv0);
 
         if (run_server(&config) == 0)

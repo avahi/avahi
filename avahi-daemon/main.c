@@ -1229,6 +1229,7 @@ static int run_server(DaemonConfig *c) {
             break;
     }
 
+    r = 0;
 
 finish:
 

@@ -1635,7 +1635,10 @@ int main(int argc, char *argv[]) {
 
         if (run_server(&config) == 0)
             r = 0;
-    }
+
+        avahi_log_info("%s "PACKAGE_VERSION" exiting.", argv0);
+        sd_notifyf(0, "STATUS=%s "PACKAGE_VERSION" exiting.", argv0);
+}
 
 finish:
 

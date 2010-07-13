@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi.master-tx.uk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-30 23:54+0000\n"
+"POT-Creation-Date: 2010-07-13 03:02+0200\n"
 "PO-Revision-Date: 2010-07-01 07:30+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
@@ -14,8 +14,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Lokalize 1.1\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -854,4 +854,3 @@ msgstr "Некоректна кількість аргументів, слід �
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Назву вузла успішно змінено на %s\n"
-

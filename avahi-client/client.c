@@ -141,9 +141,10 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
 
         if (strcmp(name, AVAHI_DBUS_NAME) == 0) {
 
-            if (avahi_client_is_connected(client)) {
+            if (old[0] &&
+                avahi_client_is_connected(client)) {
 
-                /* Regardless if the server lost or acquired its name or
+                /* Regardless if the server lost its name or
                  * if the name was transfered: our services are no longer
                  * available, so we disconnect ourselves */
                 avahi_client_set_errno(client, AVAHI_ERR_DISCONNECTED);
@@ -522,7 +523,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
         goto fail;
     }
 
-    if (!dbus_connection_add_filter (client->bus, filter_func, client, NULL)) {
+    if (!dbus_connection_add_filter(client->bus, filter_func, client, NULL)) {
         if (ret_error)
             *ret_error = AVAHI_ERR_NO_MEMORY;
         goto fail;
@@ -559,9 +560,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
     if (dbus_error_is_set(&error))
         goto fail;
 
-
-    if (!(dbus_bus_name_has_owner(client->bus, AVAHI_DBUS_NAME, &error)) ||
-        dbus_error_is_set(&error)) {
+    if (!dbus_bus_start_service_by_name(client->bus, AVAHI_DBUS_NAME, 0, NULL, &error)) {
 
         /* We free the error so its not set, that way the fail target
          * will return the NO_DAEMON error rather than a DBUS error */

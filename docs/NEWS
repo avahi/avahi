@@ -1,3 +1,16 @@
+Avahi 0.6.27
+============
+
+This is a bugfix release.
+
+ * Various updates to the systemd integration
+ * Reset all signal handlers and the signal mask on initialization
+ * Don't trip over SIGPIPE
+ * i18n updates
+ * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 27.
+
 Avahi 0.6.26
 ============
 
@@ -12,6 +25,8 @@ adds a couple of minor new features.
    cache size and D-Bus client object limits.
  * i18n updates
  * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 26.
 
 Avahi 0.6.25
 ============

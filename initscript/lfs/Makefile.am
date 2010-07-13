@@ -24,4 +24,8 @@ initd_SCRIPTS = avahi
 CLEANFILES = avahi
 
 avahi: avahi.in
+	$(AM_V_GEN)sed \
+		-e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@localstatedir\@,$(localstatedir),g' \
+		$< > $@ && \
 	chmod +x $@

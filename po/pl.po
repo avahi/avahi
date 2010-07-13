@@ -5,10 +5,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-28 22:49+0200\n"
-"PO-Revision-Date: 2009-09-27 14:02+0200\n"
+"POT-Creation-Date: 2010-06-29 08:26+0000\n"
+"PO-Revision-Date: 2010-06-29 10:36+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
-"Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
+"Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -39,7 +39,7 @@ msgstr "Brak dostępnych odpowiednich protokołów sieciowych"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr "Nieprawidłowe TTL DNS"
+msgstr "Nieprawidłowe TTL serwera DNS"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
@@ -95,7 +95,7 @@ msgstr "Błąd systemu operacyjnego"
 
 #: ../avahi-common/error.c:52
 msgid "Access denied"
-msgstr "Zabroniono dostęp"
+msgstr "Brak dostępu"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
@@ -103,11 +103,11 @@ msgstr "Nieprawidłowe działanie"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occured"
-msgstr "Wystąpił nieoczekiwany błąd D-Bus"
+msgstr "Wystąpił nieoczekiwany błąd usługi D-Bus"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr "Połączenie się z demonem nie powiodło się"
+msgstr "Połączenie z demonem nie powiodło się"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
@@ -252,41 +252,35 @@ msgstr "Przeglądanie usług Zeroconf dostępnych w sieci"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "Tekst"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "TXT Data:"
-msgstr "Dane tekstowe"
+msgstr "Dane tekstowe:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "empty"
-msgstr "Jest puste"
+msgstr "puste"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
-#, fuzzy
 msgid "Service Type:"
-msgstr "Typ usługi"
+msgstr "Typ usługi:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
-#, fuzzy
 msgid "Service Name:"
-msgstr "Nazwa usługi"
+msgstr "Nazwa usługi:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
-#, fuzzy
 msgid "Domain Name:"
-msgstr "Domena"
+msgstr "Nazwa domeny:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "Interfejs:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
-#, fuzzy
 msgid "Address:"
-msgstr "Adres"
+msgstr "Adres:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
@@ -353,23 +347,22 @@ msgid "The TXT data of the resolved service"
 msgstr "Dane tekstowe rozwiązanej usługi"
 
 #: ../avahi-ui/avahi-ui.c:230
-#, fuzzy
 msgid "Resolve Service"
-msgstr "Rozwianie usługi"
+msgstr "Rozwiązywanie usługi"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "Rozwiązywanie wybranej usługi automatycznie przed zwracaniem"
 
 #: ../avahi-ui/avahi-ui.c:236
-#, fuzzy
 msgid "Resolve Service Host Name"
-msgstr "Rozwiązanie nazwy komputera usługi"
+msgstr "Rozwiązywanie nazwy komputera usługi"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
 msgstr ""
+"Rozwiązywanie nazwy komputera wybranej usługi automatycznie przed zwracaniem"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -519,7 +512,7 @@ msgstr "Wybór serwera SSH"
 #: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr "Łączenie się z \"%s\"...\n"
+msgstr "Łączenie z \"%s\"...\n"
 
 #: ../avahi-ui/bssh.c:240
 #, c-format
@@ -638,7 +631,7 @@ msgstr "Utworzenie obiektu klienta nie powiodło się: %s\n"
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "Klient nie powiódł się, kończenie pracy: %s\n"
+msgstr "Klient nie powiódł się, kończenie działania: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
@@ -737,7 +730,7 @@ msgid "Host name conflict\n"
 msgstr "Konflikt nazw komputerów\n"
 
 #: ../avahi-utils/avahi-publish.c:216
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -765,6 +758,7 @@ msgstr ""
 "    -d --domain=DOMENA   Domena, w której opublikować usługę\n"
 "    -H --host=DOMENA     Komputer, na jakim znajduje się usługa\n"
 "       --subtype=PODTYP  Dodatkowy podtyp do zarejestrowania tej usługi\n"
+"    -R --no-reverse      Nie publikuje odwróconego wpisu z adresem\n"
 "    -f --no-fail         Nie wyłącza, jeśli demon nie jest dostępny\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318

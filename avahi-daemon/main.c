@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[]) {
 
         avahi_log_info("%s "PACKAGE_VERSION" exiting.", argv0);
         sd_notifyf(0, "STATUS=%s "PACKAGE_VERSION" exiting.", argv0);
-}
+    }
 
 finish:
 

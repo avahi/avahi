@@ -55,7 +55,7 @@ int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error) {
     return avahi_client_set_errno(client, avahi_error_dbus_to_number(error->name));
 }
 
-static void client_set_state (AvahiClient *client, AvahiServerState state) {
+static void client_set_state(AvahiClient *client, AvahiClientState state) {
     assert(client);
 
     if (client->state == state)
@@ -324,7 +324,7 @@ static int get_server_state(AvahiClient *client, int *ret_error) {
         dbus_error_is_set (&error))
         goto fail;
 
-    client_set_state(client, (AvahiServerState) state);
+    client_set_state(client, (AvahiClientState) state);
 
     dbus_message_unref(message);
     dbus_message_unref(reply);

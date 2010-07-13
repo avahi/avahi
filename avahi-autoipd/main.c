@@ -1060,7 +1060,7 @@ static int loop(int iface, uint32_t addr) {
     int next_wakeup_valid = 0;
     char buf[64];
     ArpPacket *in_packet = NULL;
-    size_t in_packet_len;
+    size_t in_packet_len = 0;
     ArpPacket *out_packet = NULL;
     size_t out_packet_len;
     uint8_t hw_address[ETHER_ADDRLEN];

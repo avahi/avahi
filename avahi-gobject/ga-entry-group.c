@@ -185,7 +185,7 @@ static void _free_service(gpointer data) {
 
 static GQuark detail_for_state(AvahiEntryGroupState state) {
     static struct {
-        AvahiClientState state;
+        AvahiEntryGroupState state;
         const gchar *name;
         GQuark quark;
     } states[] = {

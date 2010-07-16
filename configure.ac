@@ -770,7 +770,7 @@ AC_ARG_ENABLE(libdaemon,
         [HAVE_LIBDAEMON=yes])
 
 if test "x$HAVE_LIBDAEMON" = "xyes" ; then
-    PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.11 ])
+    PKG_CHECK_MODULES(LIBDAEMON, [ libdaemon >= 0.14 ])
     AC_SUBST(LIBDAEMON_CFLAGS)
     AC_SUBST(LIBDAEMON_LIBS)
 fi

@@ -1,7 +1,7 @@
 # Italian translation of avahi
 # Copyright (C) 2008, 2009 the avahi copyright holder
 # This file is distributed under the same license as the avahi package.
-#
+# 
 # Silvio Pierro <perplesso82@gmail.com>, 2008.
 # Gianluca Busiello <busiello@ceinge.unina.it>, 2008.
 # Francesco Tombolini <tombo@adamantio.net>, 2008.
@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi.master-tx.it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-13 03:02+0200\n"
+"POT-Creation-Date: 2010-06-29 08:42+0000\n"
 "PO-Revision-Date: 2009-12-09 21:32+0100\n"
 "Last-Translator: Milo Casagrande <milo@ubuntu.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -20,8 +20,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2009-12-08 18:32+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -263,41 +263,35 @@ msgstr "Esplora i servizi Zeroconf disponibili sulla propria rete"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "TXT Data:"
-msgstr "Dati TXT"
+msgstr "Dati TXT:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "empty"
-msgstr "È vuoto"
+msgstr "vuoto"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
-#, fuzzy
 msgid "Service Type:"
-msgstr "Tipo di servizio"
+msgstr "Tipo di servizio:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
-#, fuzzy
 msgid "Service Name:"
-msgstr "Nome di servizio"
+msgstr "Nome del servizio:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
-#, fuzzy
 msgid "Domain Name:"
-msgstr "Dominio"
+msgstr "Nome del dominio:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "Interfaccia:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
-#, fuzzy
 msgid "Address:"
-msgstr "Indirizzo"
+msgstr "Indirizzo:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
@@ -364,23 +358,20 @@ msgid "The TXT data of the resolved service"
 msgstr "I dati TXT del servizio risolto"
 
 #: ../avahi-ui/avahi-ui.c:230
-#, fuzzy
 msgid "Resolve Service"
 msgstr "Risoluzione del servizio"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "Risolve automaticamente il servizio selezionato prima di uscire"
 
 #: ../avahi-ui/avahi-ui.c:236
-#, fuzzy
 msgid "Resolve Service Host Name"
 msgstr "Risoluzione del nome host del servizio"
 
 #: ../avahi-ui/avahi-ui.c:236
-msgid ""
-"Resolve the host name of the selected service automatically before returning"
-msgstr ""
+msgid "Resolve the host name of the selected service automatically before returning"
+msgstr "Risolve automaticamente il l'hostname del servizio selezionato prima di uscire"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -447,8 +438,7 @@ msgstr "Creazione dell'esploratore per %s non riuscita: %s"
 #: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-"Creazione del risolutore per %s di tipo %s nel dominio %s non riuscita: %s"
+msgstr "Creazione del risolutore per %s di tipo %s nel dominio %s non riuscita: %s"
 
 #: ../avahi-ui/avahi-ui.c:976
 #, c-format
@@ -571,8 +561,7 @@ msgstr ": Cache esaurita\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr ""
-"Risoluzione del servizio «%s» di tipo «%s» nel dominio «%s» non riuscita: %s\n"
+msgstr "Risoluzione del servizio «%s» di tipo «%s» nel dominio «%s» non riuscita: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -664,8 +653,7 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete "
-"list\n"
+"    -t --terminate       Terminate after dumping a more or less complete list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -681,8 +669,7 @@ msgstr ""
 "    -v --verbose         Abilita la modalità prolissa\n"
 "    -t --terminate       Termina dopo aver riversato un elenco più\n"
 "                         o meno completo\n"
-"    -c --cache           Termina dopo aver riversato tutte le voci dalla "
-"cache\n"
+"    -c --cache           Termina dopo aver riversato tutte le voci dalla cache\n"
 "    -l --ignore-local    Ignora i servizi locali\n"
 "    -r --resolve         Risolve i servizi trovati\n"
 "    -f --no-fail         Non fallisce se il demone non è disponibile\n"
@@ -760,8 +747,7 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service "
-"with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service with\n"
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""

@@ -6,14 +6,15 @@
 #
 # konventioner:
 # browse -> gennemse
-# resolver -> opløser ?(gnome gvfs)
+# resolve -> opløs
+# resolver -> opløser ? (gnome gvfs)
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-29 08:42+0000\n"
-"PO-Revision-Date: 2010-08-23 21:06+0100\n"
+"PO-Revision-Date: 2010-08-24 21:06+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
@@ -359,21 +360,21 @@ msgstr "TXT-dataene på den klarlagte tjeneste"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve Service"
-msgstr "Klarlæg tjeneste"
+msgstr "Opløs tjeneste"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr "Klarlæg den valgte tjeneste automatisk før returnering"
+msgstr "Opløs den valgte tjeneste automatisk før returnering"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve Service Host Name"
-msgstr "Klarlæg tjenesteværtsnavn"
+msgstr "Opløs tjenesteværtsnavn"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
 msgstr ""
-"Klarlæg værtsnavnet på den valgte tjeneste automatisk før returnering"
+"Opløs værtsnavnet på den valgte tjeneste automatisk før returnering"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -381,7 +382,7 @@ msgstr "Adressefamilie"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "The address family for host name resolution"
-msgstr "Adressefamilien for værtsnavnsklarlægning"
+msgstr "Adressefamilien for værtsnavnsopløsning"
 
 #: ../avahi-ui/avahi-ui.c:324
 #, c-format
@@ -401,7 +402,7 @@ msgstr "Opløserfejl for Avahi: %s"
 #: ../avahi-ui/avahi-ui.c:516
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr "Kig efter tjenestetype %s i domæne %s mislykkedes: %s"
+msgstr "Kunne ikke gennemse domæne $%2s for tjenestetype $%1s: $%3s"
 
 #: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178

@@ -2,10 +2,10 @@
 # Copyright (C) 2008, 2009, Free Software Foundation, Inc.
 # This file is distributed under the same license as the avahi package.
 # 
-# Gabor Kelemen <kelemeng@gnome.hu>, 2008, 2009.
+# Gabor Kelemen <kelemeng@gnome.hu>, 2008, 2009, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: HEAD\n"
+"Project-Id-Version: avahi master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-29 08:42+0000\n"
 "PO-Revision-Date: 2009-03-22 12:57+0100\n"
@@ -255,7 +255,6 @@ msgid "Browse for Zeroconf services available on your network"
 msgstr "Zeroconf szolgáltatások keresése a hálózaton"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
-#, fuzzy
 msgid "TXT"
 msgstr "TXT"
 
@@ -728,7 +727,7 @@ msgid "Host name conflict\n"
 msgstr "Gépnévütközés\n"
 
 #: ../avahi-utils/avahi-publish.c:216
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -755,6 +754,8 @@ msgstr ""
 "    -d --domain=TARTOMÁNY  Szolgáltatás közzététele ebben a tartományban\n"
 "    -H --host=TARTOMÁNY  A szolgáltatás ezen a gépen található\n"
 "       --subtype=ALTÍPUS További altípus, amellyel a szolgáltatás regisztrálandó\n"
+"    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"
+"    -R --no-reverse      Ne tegye közzé a fordított bejegyzést címmel\n"
 "    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318

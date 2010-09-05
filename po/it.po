@@ -1,19 +1,19 @@
 # Italian translation of avahi
-# Copyright (C) 2008, 2009 the avahi copyright holder
+# Copyright (C) 2008, 2009, 2010 the avahi copyright holder
 # This file is distributed under the same license as the avahi package.
-# 
+#
 # Silvio Pierro <perplesso82@gmail.com>, 2008.
 # Gianluca Busiello <busiello@ceinge.unina.it>, 2008.
 # Francesco Tombolini <tombo@adamantio.net>, 2008.
 # Luca Ferretti <elle.uca@ubuntu-it.org>, 2009.
 # Luca Ferretti <elle.uca@libero.it>, 2009.
-# Milo Casagrande <milo@ubuntu.com>, 2009.
+# Milo Casagrande <milo@ubuntu.com>, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi.master-tx.it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-29 08:42+0000\n"
-"PO-Revision-Date: 2009-12-09 21:32+0100\n"
+"PO-Revision-Date: 2010-09-05 16:48+0200\n"
 "Last-Translator: Milo Casagrande <milo@ubuntu.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -370,8 +370,11 @@ msgid "Resolve Service Host Name"
 msgstr "Risoluzione del nome host del servizio"
 
 #: ../avahi-ui/avahi-ui.c:236
-msgid "Resolve the host name of the selected service automatically before returning"
-msgstr "Risolve automaticamente il l'hostname del servizio selezionato prima di uscire"
+msgid ""
+"Resolve the host name of the selected service automatically before returning"
+msgstr ""
+"Risolve automaticamente il l'hostname del servizio selezionato prima di "
+"uscire"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -438,7 +441,8 @@ msgstr "Creazione dell'esploratore per %s non riuscita: %s"
 #: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Creazione del risolutore per %s di tipo %s nel dominio %s non riuscita: %s"
+msgstr ""
+"Creazione del risolutore per %s di tipo %s nel dominio %s non riuscita: %s"
 
 #: ../avahi-ui/avahi-ui.c:976
 #, c-format
@@ -561,7 +565,8 @@ msgstr ": Cache esaurita\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "Risoluzione del servizio «%s» di tipo «%s» nel dominio «%s» non riuscita: %s\n"
+msgstr ""
+"Risoluzione del servizio «%s» di tipo «%s» nel dominio «%s» non riuscita: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -653,7 +658,8 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -669,7 +675,8 @@ msgstr ""
 "    -v --verbose         Abilita la modalità prolissa\n"
 "    -t --terminate       Termina dopo aver riversato un elenco più\n"
 "                         o meno completo\n"
-"    -c --cache           Termina dopo aver riversato tutte le voci dalla cache\n"
+"    -c --cache           Termina dopo aver riversato tutte le voci dalla "
+"cache\n"
 "    -l --ignore-local    Ignora i servizi locali\n"
 "    -r --resolve         Risolve i servizi trovati\n"
 "    -f --no-fail         Non fallisce se il demone non è disponibile\n"
@@ -735,7 +742,7 @@ msgid "Host name conflict\n"
 msgstr "Conflitto di nome host\n"
 
 #: ../avahi-utils/avahi-publish.c:216
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -747,7 +754,8 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
@@ -763,6 +771,7 @@ msgstr ""
 "    -H --host=DOMAIN     L'host dove risiedono i servizi\n"
 "       --subtype=SUBTYPE Un sottotipo addizionale con cui registrare questo\n"
 "                         servizio\n"
+"    -R --no-reverse      Non pubblica le voci invertite con l'indirizzo\n"
 "    -f --no-fail         Non fallisce se il demone non è disponibile\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318

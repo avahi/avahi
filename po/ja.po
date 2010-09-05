@@ -1,16 +1,17 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# Hyu_gabaru Ryu_ichi <hyu_gabaru@yahoo.co.jp>, 2009.
+# Japanese translation of avahi messages.
+# Copyright (C) 2008-2010 avahi 
+# This file is distributed under the same license as avahi.
+# Hideki Yamane (Debian-JP) <henrich@debian.or.jp>, 2009.
+# Takayuki KUSANO <AE5T-KSN@asahi-net.or.jp>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi\n"
+"Project-Id-Version: avahi master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-13 03:02+0200\n"
-"PO-Revision-Date: 2009-09-06 21:14+0900\n"
-"Last-Translator: Hyu_gabaru Ryu_ichi <hyu_gabaru@yahoo.co.jp>\n"
-"Language-Team: Japanese <fedora-trans-ja@redhat.com>\n"
+"POT-Creation-Date: 2010-06-29 08:42+0000\n"
+"PO-Revision-Date: 2010-09-05 17:46+0900\n"
+"Last-Translator: Hideki Yamane (Debian-JP) <henrich@debian.or.jp>\n"
+"Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,59 +22,59 @@ msgstr "OK"
 
 #: ../avahi-common/error.c:31
 msgid "Operation failed"
-msgstr "操作失敗"
+msgstr "操作に失敗しました"
 
 #: ../avahi-common/error.c:32
 msgid "Bad state"
-msgstr "不正な状態"
+msgstr "不正な状態です"
 
 #: ../avahi-common/error.c:33
 msgid "Invalid host name"
-msgstr "不当なホスト名"
+msgstr "不正なホスト名です"
 
 #: ../avahi-common/error.c:34
 msgid "Invalid domain name"
-msgstr "不当なドメイン名"
+msgstr "不正なドメイン名です"
 
 #: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
-msgstr "適切なネットワークプロトコルがありません"
+msgstr "適切なネットワークプロトコルが見つかりません"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr "不当な DNS TTL"
+msgstr "不正な DNS TTL 値です"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
-msgstr "資源記録キーが見本です"
+msgstr "リソースレコードキーが繰り返しになっています"
 
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
-msgstr "ローカル名の衝突"
+msgstr "ローカル名の衝突が発生しました"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
-msgstr "不当な記録"
+msgstr "不正なレコードです"
 
 #: ../avahi-common/error.c:41
 msgid "Invalid service name"
-msgstr "不当なサービス名"
+msgstr "不正なサービス名です"
 
 #: ../avahi-common/error.c:42
 msgid "Invalid service type"
-msgstr "不当なサービスタイプ"
+msgstr "不正なサービスタイプです"
 
 #: ../avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr "不当なポート番号"
+msgstr "不正なポート番号です"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr "不当な記録キー"
+msgstr "不正なレコードキーです"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
-msgstr "不当なアドレス"
+msgstr "不正なアドレスです"
 
 #: ../avahi-common/error.c:46
 msgid "Timeout reached"
@@ -89,7 +90,7 @@ msgstr "オブジェクトが多すぎます"
 
 #: ../avahi-common/error.c:49
 msgid "Too many entries"
-msgstr "エントリーが多すぎます"
+msgstr "エントリが多すぎます"
 
 #: ../avahi-common/error.c:50
 msgid "OS Error"
@@ -101,39 +102,39 @@ msgstr "アクセスが拒否されました"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
-msgstr "不当な操作"
+msgstr "不正な操作です"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occured"
-msgstr "予期しない D-Bus エラーが起きました"
+msgstr "予期しない D-Bus のエラーが発生しました"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr "デーモン接続に失敗しました"
+msgstr "デーモンの接続が失敗しました"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
-msgstr "メモリーを使い尽くしました"
+msgstr "メモリ不足です"
 
 #: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr "渡されたオブジェクトが不当です"
+msgstr "不正なオブジェクトが渡されました"
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr "デーモンが実行していません"
+msgstr "デーモンが動作していません"
 
 #: ../avahi-common/error.c:59
 msgid "Invalid interface index"
-msgstr "不当なインターフェースインデックス"
+msgstr "不正なインターフェイス一覧です"
 
 #: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
-msgstr "不当なプロトコル指定"
+msgstr "不正なプロトコル定義です"
 
 #: ../avahi-common/error.c:61
 msgid "Invalid flags"
-msgstr "不当なフラッグ"
+msgstr "不正なフラグです"
 
 #: ../avahi-common/error.c:63
 msgid "Not found"
@@ -141,75 +142,77 @@ msgstr "見つかりません"
 
 #: ../avahi-common/error.c:64
 msgid "Invalid configuration"
-msgstr "不当な設定"
+msgstr "不正な設定です"
 
 #: ../avahi-common/error.c:65
 msgid "Version mismatch"
-msgstr "バージョン不一致"
+msgstr "バージョンが一致しません"
 
 #: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
-msgstr "不当なサービスサブタイプ"
+msgstr "サービスのサブタイプが不正です"
 
 #: ../avahi-common/error.c:67
 msgid "Invalid packet"
-msgstr "不当なパケット"
+msgstr "不正なパケットです"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr "不当な DNS 復帰コード"
+msgstr "DNS のリターンコードが不正です"
 
 #: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
-msgstr "DNS 失敗: FORMERR"
+msgstr "DNS が失敗しました: FORMERR"
 
 #: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
-msgstr "DNS 失敗: SERVFAIL"
+msgstr "DNS が失敗しました: SERVFAIL"
 
 #: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
-msgstr "DNS 失敗: NXDOMAIN"
+msgstr "DNS が失敗しました: NXDOMAIN"
 
 #: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
-msgstr "DNS 失敗: NOTIMP"
+msgstr "DNS が失敗しました: NOTIMP"
 
 #: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
-msgstr "DNS 失敗: REFUSED"
+msgstr "DNS が失敗しました: REFUSED"
 
 #: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
-msgstr "DNS 失敗: YXDOMAIN"
+msgstr "DNS が失敗しました: YXDOMAIN"
 
 #: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
-msgstr "DNS 失敗: YXRRSET"
+msgstr "DNS が失敗しました: YXRRSET"
 
 #: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
-msgstr "DNS 失敗: NXRRSET"
+msgstr "DNS が失敗しました: NXRRSET"
 
 #: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
-msgstr "DNS 失敗: NOTAUTH"
+msgstr "DNS が失敗しました: NOAUTH"
 
 #: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
-msgstr "DNS 失敗: NOTZONE"
+msgstr "DNS が失敗しました: NOTZONE"
 
 #: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr "不当な RDATA"
+msgstr "不正な RDATA です"
 
+# http://jprs.jp/tech/index.html#dns-rfc-info で「タイプ」が使用されている
 #: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr "不当な DNS タイプ"
+msgstr "不正な DNS タイプです"
 
+# http://jprs.jp/tech/index.html#dns-rfc-info で「クラス」が使用されている
 #: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
-msgstr "不当な DNS クラス"
+msgstr "不正な DNS クラスです"
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
@@ -221,82 +224,80 @@ msgstr "許可されていません"
 
 #: ../avahi-common/error.c:86
 msgid "Invalid argument"
-msgstr "不当なパラメーター"
+msgstr "引数が不正です"
 
+# AVAHI_ERR_IS_EMPTY のエラー
+# NEWS より引用:
+#  * API: Return AVAHI_ERR_IS_EMPTY when the user tries to commit an
+#    empty entry group.
 #: ../avahi-common/error.c:87
 msgid "Is empty"
-msgstr "空です"
+msgstr "グループが空です"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr "要求された操作は冗長なので不当です"
+msgstr "要求された操作が過剰であった為、操作が異常を起こしました"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
-msgstr "不当なエラーコード"
+msgstr "不正なエラーコード"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
-msgstr "<i>現在、サービスが選択されていません。</i>"
+msgstr "<i>現在はどのサービスも選択されていません。</i>"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 msgid "Avahi Discovery"
-msgstr "Avahi 発見"
+msgstr "Avahi 検索"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
-msgstr "Avahi Zeroconf ブラウザー"
+msgstr "Avahi Zeroconf ブラウザ"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
 msgid "Browse for Zeroconf services available on your network"
-msgstr "あなたのネットワークで Zeroconf サービスのブラウズが利用できます"
+msgstr "ネットワーク上の利用可能な Zeroconf サービスを検索"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "TXT Data:"
 msgstr "TXT データ"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "empty"
-msgstr "空です"
+msgstr "空"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
-#, fuzzy
 msgid "Service Type:"
-msgstr "サービスタイプ"
+msgstr "サービスタイプ:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
-#, fuzzy
 msgid "Service Name:"
-msgstr "サービス名"
+msgstr "サービス名:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
-#, fuzzy
 msgid "Domain Name:"
-msgstr "ドメイン"
+msgstr "ドメイン名:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "インターフェイス:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
-#, fuzzy
 msgid "Address:"
-msgstr "アドレス"
+msgstr "アドレス:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
-msgstr "ブラウズサービスタイプ"
+msgstr "サービスタイプの検索"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr "ブラウズするための NULL で終端するサービスタイプの一覧"
+msgstr "NULL で終端された検索対象のサービスタイプのリスト"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
@@ -304,7 +305,8 @@ msgstr "ドメイン"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr "ブラウズするドメインか、デフォルトのドメインならば NULL"
+msgstr ""
+"検索するドメインを入力するか、デフォルトのドメインとして NULL を指定する"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
@@ -312,7 +314,7 @@ msgstr "サービスタイプ"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
-msgstr "選択したサービスのサービスタイプ"
+msgstr "選択されたサービスのサービスタイプ"
 
 #: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
 msgid "Service Name"
@@ -320,7 +322,7 @@ msgstr "サービス名"
 
 #: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
-msgstr "選択したサービスのサービス名"
+msgstr "選択されたサービスのサービス名"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "Address"
@@ -328,7 +330,7 @@ msgstr "アドレス"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
-msgstr "解決したサービスのアドレス"
+msgstr "解決されたサービスのアドレス"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
@@ -336,7 +338,7 @@ msgstr "ポート"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
-msgstr "解決したサービスの IP ポート番号"
+msgstr "解決されたサービスの IP ポート番号"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
@@ -344,7 +346,7 @@ msgstr "ホスト名"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
-msgstr "解決したサービスのホスト名"
+msgstr "解決されたサービスのホスト名"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
@@ -352,49 +354,47 @@ msgstr "TXT データ"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
-msgstr "解決したサービスの TXT データ"
+msgstr "解決されたサービスの TXT データ"
 
 #: ../avahi-ui/avahi-ui.c:230
-#, fuzzy
 msgid "Resolve Service"
-msgstr "解決サービス"
+msgstr "サービスの解決"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "戻る前に選択したサービスを自動的に解決"
 
 #: ../avahi-ui/avahi-ui.c:236
-#, fuzzy
 msgid "Resolve Service Host Name"
-msgstr "解決サービスホスト名"
+msgstr "サービスホスト名の解決"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr ""
+msgstr "戻る前に選択したサービスのホスト名を自動的に解決"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
-msgstr "アドレスファミリー"
+msgstr "アドレスファミリ"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "The address family for host name resolution"
-msgstr "ホスト名解決のためのアドレスファミリー"
+msgstr "ホスト名解決に利用するアドレスファミリ"
 
 #: ../avahi-ui/avahi-ui.c:324
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr "Avahi クライアント失敗: %s"
+msgstr "Avahi クライアントが失敗しました: %s"
 
 #: ../avahi-ui/avahi-ui.c:386
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr "Avahi リゾルバー失敗: %s"
+msgstr "Avahi リゾルバが失敗しました: %s"
 
 #: ../avahi-ui/avahi-ui.c:516
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr "ドメイン %2$s 中のサービスタイプ %1$s のブラウズ失敗: %3$s"
+msgstr "ドメイン %2$s にてサービスタイプ %1$s の検索に失敗しました: %3$s"
 
 #: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
@@ -405,63 +405,61 @@ msgstr "n/a"
 #: ../avahi-ui/avahi-ui.c:647
 #, c-format
 msgid "Avahi domain browser failure: %s"
-msgstr "Avahi ドメインブラウザー失敗: %s"
+msgstr "Avahi ドメインブラウザが失敗しました: %s"
 
 #: ../avahi-ui/avahi-ui.c:682
 #, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr "Avahi ドメインの読込みに失敗: %s"
+msgstr "Avahi ドメインの読み込みに失敗しました: %s"
 
 #: ../avahi-ui/avahi-ui.c:704
 msgid "Browse service type list is empty!"
-msgstr "ブラウズサービスタイプ一覧が空です!"
+msgstr "検索サービスタイプのリストが空です!"
 
 #: ../avahi-ui/avahi-ui.c:715
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
-msgstr "Avahi サーバーへの接続に失敗: %s"
+msgstr "Avahi サーバへの接続が失敗ました: %s"
 
 #: ../avahi-ui/avahi-ui.c:733
 msgid "Browsing for services on <b>local network</b>:"
-msgstr "<b>ローカルネットワーク</b>上のサービスのブラウズ:"
+msgstr "<b>ローカルネットワーク</b>でのサービス検索:"
 
 #: ../avahi-ui/avahi-ui.c:735
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr "<b>%s</b>ドメイン中のサービスのブラウズ"
+msgstr "ドメイン <b>%s</b> でのサービス検索:"
 
 #: ../avahi-ui/avahi-ui.c:771
 #, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr "%s のブラウザーの生成に失敗: %s"
+msgstr "%1$s のブラウザ作成に失敗しました: %2$s"
 
 #: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-"ドメイン %3$s のタイプ %2$s 用の %1$sのためのリゾルバーの生成に失敗しました: "
-"%4$s"
+msgstr "ドメイン %3$s のタイプ %2$s の %1$s のリゾルバ作成に失敗しました: %4$s"
 
 #: ../avahi-ui/avahi-ui.c:976
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr "ドメインブラウザーの生成に失敗: %s"
+msgstr "ドメインブラウザの作成に失敗しました: %s"
 
 #: ../avahi-ui/avahi-ui.c:987
 msgid "Change domain"
-msgstr "ドメイン変更"
+msgstr "ドメインの変更"
 
 #: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
 msgid "Browsing..."
-msgstr "ブラウズ中..."
+msgstr "検索中…"
 
 #: ../avahi-ui/avahi-ui.c:1116
 msgid "Initializing..."
-msgstr "初期化中..."
+msgstr "初期化中…"
 
 #: ../avahi-ui/avahi-ui.c:1140
 msgid "Location"
-msgstr "位置"
+msgstr "場所"
 
 #: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
@@ -473,7 +471,7 @@ msgstr "タイプ"
 
 #: ../avahi-ui/avahi-ui.c:1162
 msgid "_Domain..."
-msgstr "ドメイン..."
+msgstr "ドメイン(_D)…"
 
 #: ../avahi-ui/bssh.c:55
 #, c-format
@@ -488,20 +486,20 @@ msgid ""
 msgstr ""
 "%s [オプション]\n"
 "\n"
-"    -h --help            このヘルプを表示\n"
-"    -s --ssh             SSH サーバーをブラウズ\n"
-"    -v --vnc             VNC サーバーをブラウズ\n"
-"    -S --shell           SSH と VNC の両方をブラウズ\n"
-"    -d --domain=DOMAIN   ブラウズするドメイン\n"
+"    -h --help            このヘルプを表示する\n"
+"    -s --ssh             SSH サーバの検索\n"
+"    -v --vnc             VNC サーバの検索\n"
+"    -S --shell           SSH と VNC を検索する\n"
+"    -d --domain=DOMAIN   検索するドメインを指定\n"
 
 #: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
 #, c-format
 msgid "Too many arguments\n"
-msgstr "パラメーターが多すぎます\n"
+msgstr "引数が多すぎます\n"
 
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
-msgstr "シェルサーバーを選択してください"
+msgstr "シェルサーバを選択"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -509,144 +507,145 @@ msgstr "デスクトップ"
 
 #: ../avahi-ui/bssh.c:152
 msgid "Terminal"
-msgstr "端末"
+msgstr "ターミナル"
 
 #: ../avahi-ui/bssh.c:156
 msgid "Choose VNC server"
-msgstr "VNC サーバーを選択してください"
+msgstr "VNC サーバを選択"
 
 #: ../avahi-ui/bssh.c:161
 msgid "Choose SSH server"
-msgstr "SSH サーバーを選択してください"
+msgstr "SSH サーバを選択"
 
 #: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr "'%s' へ接続中 ...\n"
+msgstr "'%s' へ接続中…\n"
 
 #: ../avahi-ui/bssh.c:240
 #, c-format
 msgid "execlp() failed: %s\n"
-msgstr "execlp() 失敗: %s\n"
+msgstr "execlp() が失敗しました: %s\n"
 
 #: ../avahi-ui/bssh.c:250
 #, c-format
 msgid "Canceled.\n"
-msgstr "取り消されました。\n"
+msgstr "キャンセルされました。\n"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
-msgstr "Avahi SSh サーバーブラウザー"
+msgstr "Avahi SSH サーバの検索"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr "Zeroconf が有効な SSH サーバーのブラウズ"
+msgstr "Zeroconf を有効にした SSH サーバを検索"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr "Avahi VNC サーバーブラウザー"
+msgstr "Avahi VNC サーバの検索"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr "Zeroconf が有効な VNC サーバーのブラウズ"
+msgstr "Zeroconf を有効にした VNC サーバを検索"
 
 #: ../avahi-utils/avahi-browse.c:107
 #, c-format
 msgid ": All for now\n"
-msgstr ": 今のところの全て\n"
+msgstr ": とりあえず全て\n"
 
 #: ../avahi-utils/avahi-browse.c:118
 #, c-format
 msgid ": Cache exhausted\n"
-msgstr "キャッシュを使い尽くしました\n"
+msgstr ": キャッシュが不足しています\n"
 
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"ドメイン '%3$s' 内のタイプ '%2$s'のサービス '%1$s' の解決に失敗: %4$s\n"
+"ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: %4"
+"$s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
 msgid "service_browser failed: %s\n"
-msgstr "service_browser 失敗: %s\n"
+msgstr "service_browser が失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:378
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr "avahi_service_browser_new() 失敗: %s\n"
+msgstr "avahi_service_browser_new() が失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:414
 #, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr "srvice_type_browser 失敗: %s\n"
+msgstr "service_type_browser が失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:444
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
-msgstr "avahi_service_type_browser_new() 失敗: %s\n"
+msgstr "avahi_service_type_browser_new() が失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:519
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
-msgstr "avahi_domain_browser_new() 失敗: %s\n"
+msgstr "avahi_domain_browser_new() が失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
 #: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
-msgstr "バージョン文字列の検索に失敗: %s\n"
+msgstr "バージョン文字列のクエリに失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
 #: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
-msgstr "ホスト名の検索に失敗: %s\n"
+msgstr "ホスト名のクエリに失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
 #: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "サーバーバージョン: %s; ホスト名: %s\n"
+msgstr "サーバのバージョン: %1$s; ホスト名: %2$s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:549
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr "事 イン プロト ドメイン\n"
+msgstr "E Ifce Prot ドメイン\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr "事 イン プロト %-*s %-20s ドメイン\n"
+msgstr "E Ifce Prot %-*s %-20s ドメイン\n"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr "切断されました。再接続中...\n"
+msgstr "切断されました。再接続しています…\n"
 
 #: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
 #: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
 #: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
-msgstr "クライアントオプションの生成に失敗: %s\n"
+msgstr "クライアントオブジェクトの作成に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "クライアント失敗、終了中: %s\n"
+msgstr "クライアントが失敗しました。終了しています: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr "デーモンを待っています ...\n"
+msgstr "デーモンを待っています...\n"
 
 #: ../avahi-utils/avahi-browse.c:647
 msgid ""
@@ -664,19 +663,18 @@ msgid ""
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
-"    -h --help            このヘルプを表示\n"
-"    -V --version         バージョンを表示\n"
-"    -D --browse-domains  サービスの代わりにブラウズしているドメインをブラウ"
-"ズ\n"
-"    -a --all             タイプに関係なく、全てのサービスを表示\n"
-"    -d --domain=DOMAIN   ブラウズするドメイン\n"
-"    -v --verbose         饒舌モードを有効にする\n"
-"    -t --terminate       完全な一覧を事実上ダンプした後に終了\n"
-"    -c --cache           全エントリーをキャッシュからダンプした後に終了\n"
-"    -l --ignore-local    ローカルなサービスを無視\n"
-"    -r --resolve         見つかった解決サービス\n"
-"    -f --no-fail         デーモンが利用可能でなくても失敗しない\n"
-"    -p --parsable        構文解析可能な形式で出力\n"
+"    -h --help            このヘルプを表示する\n"
+"    -V --version         バージョンを表示する\n"
+"    -D --browse-domains  サービスではなくドメインを検索\n"
+"    -a --all             タイプではなく、全てのサービスを表示する\n"
+"    -d --domain=DOMAIN   検索するドメインを指定\n"
+"    -v --verbose         冗長出力モードを有効にする\n"
+"    -t --terminate       ほぼ完全なリストを出力した後で終了する\n"
+"    -c --cache           キャッシュから全てのエントリを出力して終了する\n"
+"    -l --ignore-local    ローカルサービスを無視する\n"
+"    -r --resolve         見つけたサービスを解決する\n"
+"    -f --no-fail         デーモンが利用できない際、fail しない\n"
+"    -p --parsable        パース処理が可能な形式で出力する\n"
 
 #: ../avahi-utils/avahi-browse.c:660
 msgid ""
@@ -684,53 +682,53 @@ msgid ""
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
 "    -k --no-db-lookup    サービスタイプを検索しない\n"
-"    -b --dump-db         サービスタイプデータベースをダンプする\n"
+"    -b --dump-db         サービスタイプのデータベースを出力する\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
-msgstr "パラメーターが少なすぎます\n"
+msgstr "引数が少なすぎます\n"
 
 #: ../avahi-utils/avahi-browse.c:821 ../avahi-utils/avahi-publish.c:378
 #: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
-msgstr "単純な投票オブジェクトの生成に失敗。\n"
+msgstr "simple poll オブジェクトの作成に失敗しました\n"
 
 #: ../avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
-msgstr "'%s' という名前の配下に設立\n"
+msgstr "名前 '%s' で接続を確立します\n"
 
 #: ../avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
-msgstr "登録に失敗: %s\n"
+msgstr "登録に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr "名前が衝突しました、新しい名前 '%s' を採用しました。\n"
+msgstr "名前が衝突しました。新しい名前 '%s' を利用します。\n"
 
 #: ../avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
-msgstr "エントリーグループの生成に失敗しました: %s\n"
+msgstr "エントリグループの作成に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:124
 #, c-format
 msgid "Failed to add address: %s\n"
-msgstr "アドレスの追加に失敗: %s\n"
+msgstr "アドレスの追加に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
-msgstr "サービスの追加に失敗: %s\n"
+msgstr "サービスの追加に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr "サブタイプ '%s' の追加に失敗: %s\n"
+msgstr "サブタイプ '%1$s' の追加に失敗しました: %2$s\n"
 
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format
@@ -738,7 +736,7 @@ msgid "Host name conflict\n"
 msgstr "ホスト名の衝突\n"
 
 #: ../avahi-utils/avahi-publish.c:216
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -758,25 +756,26 @@ msgstr ""
 "%s [オプション] %s <名前> <タイプ> <ポート> [<txt ...>]\n"
 "%s [オプション] %s <ホスト名> <アドレス>\n"
 "\n"
-"    -h --help            このヘルプを表示\n"
-"    -V --version         バージョンを表示\n"
+"    -h --help            このヘルプを表示する\n"
+"    -V --version         バージョンを表示する\n"
 "    -s --service         サービスを公開する\n"
 "    -a --address         アドレスを公開する\n"
-"    -v --verbose         饒舌モードを有効にする\n"
-"    -d --domain=DOMAIN   サービスを公開するドメイン\n"
-"    -H --host=DOMAIN     サービスが存在するホスト\n"
-"       --subtype=SUBTYPE このサービスと一緒に登録する追加のサブタイプ\n"
-"    -f --no-fail         デーモンが利用可能ではなくても失敗しない\n"
+"    -v --verbose         冗長出力モードを有効にする\n"
+"    -d --domain=DOMAIN   サービスを公開するドメインを指定\n"
+"    -H --host=DOMAIN     サービスが存在するホストを指定\n"
+"       --subtype=SUBTYPE このサービスを登録する追加サブタイプを指定\n"
+"    -R --no-reverse      アドレスの逆引きエントリを公開しない\n"
+"    -f --no-fail         デーモンが利用できない際に fail しない\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
-msgstr "パラメーターの数がおかしい\n"
+msgstr "引数の数が間違っています\n"
 
 #: ../avahi-utils/avahi-publish.c:329
 #, c-format
 msgid "Failed to parse port number: %s\n"
-msgstr "ポート番号の解析に失敗: %s\n"
+msgstr "ポート番号をパースするのに失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
@@ -786,12 +785,12 @@ msgstr "コマンドが指定されていません。\n"
 #: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "ホスト名 '%s' の解決に失敗: %s\n"
+msgstr "ホスト名 '%1$s' の解決に失敗しました: %2$s\n"
 
 #: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr "アドレス '%s' の解決に失敗: %s\n"
+msgstr "アドレス '%1$s' の解決に失敗しました: %2$s\n"
 
 #: ../avahi-utils/avahi-resolve.c:157
 #, c-format
@@ -814,24 +813,24 @@ msgstr ""
 "    -V --version         バージョンを表示\n"
 "    -n --name            ホスト名を解決\n"
 "    -a --address         アドレスを解決\n"
-"    -v --verbose         饒舌モードを有効にする\n"
-"    -6                   IPv6 アドレスを検索\n"
-"    -4                   IPv4 アドレスを検索\n"
+"    -v --verbose         冗長出力モードを有効にする\n"
+"    -6                   IPv6 アドレスで検索\n"
+"    -4                   IPv4 アドレスで検索\n"
 
 #: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
-msgstr "ホスト名のリゾルバーの生成に失敗: %s\n"
+msgstr "ホスト名のリゾルバ作成に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr "アドレス '%s' の解析に失敗\n"
+msgstr "アドレス '%s' の処理に失敗しました\n"
 
 #: ../avahi-utils/avahi-resolve.c:314
 #, c-format
 msgid "Failed to create address resolver: %s\n"
-msgstr "アドレスリゾルバーの生成に失敗: %s\n"
+msgstr "アドレスのリゾルバ作成に失敗しました: %s\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format
@@ -842,18 +841,18 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
-"%s [オプション] <新ホスト名>\n"
+"%s [オプション] <新しいホスト名>\n"
 "\n"
 "    -h --help            このヘルプを表示\n"
 "    -V --version         バージョンを表示\n"
-"    -v --verbose         饒舌モードを有効にする\n"
+"    -v --verbose         冗長出力モードを有効にする\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
-msgstr "パラメーターの数が不当です、一つだけ期待しています。\n"
+msgstr "引数の数が不正です、一つだけを指定してください。\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr "ホスト名の %s への変更に成功しました\n"
+msgstr "ホスト名は %s に変更されました\n"

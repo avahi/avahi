@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
-<repository version="1.0"
+<repository version="1.2"
             xmlns="http://www.gtk.org/introspection/core/1.0"
             xmlns:c="http://www.gtk.org/introspection/c/1.0"
             xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
   <namespace name="AvahiCore" version="0.6" shared-library="avahi-core">
-    <alias name="IfIndex" target="int" c:type="AvahiIfIndex"/>
+    <alias name="IfIndex" c:type="AvahiIfIndex">
+      <type name="gint" c:type="int"/>
+    </alias>
     <enumeration name="Protocol" c:type="AvahiProtocol">
       <member name="inet"
               value="0"

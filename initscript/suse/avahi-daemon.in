@@ -2,6 +2,7 @@
 ### BEGIN INIT INFO
 # Provides:          avahi
 # Required-Start:    $network $remote_fs dbus
+# Required-Stop:     $network $remote_fs dbus
 # Default-Start:     3 5
 # Default-Stop:
 # Short-Description: ZeroConf daemon
@@ -25,6 +26,18 @@ case "$1" in
 		$AVAHI_BIN -k 2>/dev/null || /bin/true
 		rc_status -v
 		;;
+	try-restart|condrestart)
+		if test "$1" = "condrestart"; then
+			echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
+		fi
+		$0 status
+		if test $? = 0; then
+			$0 restart
+		else
+			rc_reset
+		fi
+		rc_status
+		;;
 	restart)
 		$0 stop
 		$0 start
@@ -41,7 +54,7 @@ case "$1" in
 		rc_status -v
 		;;
 	*)
-		echo "Usage: $0 {start|stop|status|restart|force-reload|reload}"
+		echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
 		exit 1
 		;;
 esac

@@ -2,6 +2,7 @@
 ### BEGIN INIT INFO
 # Provides:          avahi-dnsconfd
 # Required-Start:    $remote_fs avahi
+# Required-Stop:     $remote_fs avahi
 # Default-Start:     3 5
 # Default-Stop:
 # Short-Description: ZeroConf daemon
@@ -30,6 +31,18 @@ case "$1" in
 		$0 start
 		rc_status
 		;;
+	try-restart|condrestart)
+		if test "$1" = "condrestart"; then
+			echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
+		fi
+		$0 status
+		if test $? = 0; then
+			$0 restart
+		else
+			rc_reset
+		fi
+		rc_status
+		;;
 	force-reload|reload)
 		echo -n "Reloading Avahi DNS Configuration daemon "
 		$AVAHI_BIN -r
@@ -41,7 +54,7 @@ case "$1" in
 		rc_status -v
 		;;
 	*)
-		echo "Usage: $0 {start|stop|status|restart|force-reload|reload}"
+		echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
 		exit 1
 		;;
 esac

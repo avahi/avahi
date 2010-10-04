@@ -3,12 +3,12 @@
 # This file is distributed under the same license as the avahi package.
 # Fabian Affolter <fab@fedoraproject.org>, 2008-2009.
 # Cornelius Neckenig <tbull@fedoraproject.org>, 2009.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: audit-viewer\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-13 03:02+0200\n"
+"POT-Creation-Date: 2010-06-29 08:42+0000\n"
 "PO-Revision-Date: 2009-04-18 22:48+0100\n"
 "Last-Translator: Cornelius Neckenig <tbull@fedoraproject.org>\n"
 "Language-Team: German <fedora-trans-de@redhat.com>\n"
@@ -260,9 +260,8 @@ msgid "TXT"
 msgstr ""
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "TXT Data:"
-msgstr "TXT-Daten"
+msgstr "TXT-Daten:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 #, fuzzy
@@ -270,28 +269,24 @@ msgid "empty"
 msgstr "ist leer"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
-#, fuzzy
 msgid "Service Type:"
-msgstr "Diensttyp"
+msgstr "Diensttyp:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
-#, fuzzy
 msgid "Service Name:"
-msgstr "Dienstname"
+msgstr "Dienstname:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
-#, fuzzy
 msgid "Domain Name:"
-msgstr "Domain"
+msgstr "Domainname:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "Schnittstelle:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
-#, fuzzy
 msgid "Address:"
-msgstr "Adresse"
+msgstr "Adresse:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
@@ -358,23 +353,22 @@ msgid "The TXT data of the resolved service"
 msgstr "Die TXT-Daten des aufgelösten Dienstes"
 
 #: ../avahi-ui/avahi-ui.c:230
-#, fuzzy
 msgid "Resolve Service"
-msgstr "Auslösungsdienst"
+msgstr "Auflösungsdienst"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "Vor dem Rücksprung den selektierten Dienst automatisch auflösen"
 
 #: ../avahi-ui/avahi-ui.c:236
-#, fuzzy
 msgid "Resolve Service Host Name"
 msgstr "Dienst-Rechner-Name auflösen"
 
 #: ../avahi-ui/avahi-ui.c:236
-msgid ""
-"Resolve the host name of the selected service automatically before returning"
+msgid "Resolve the host name of the selected service automatically before returning"
 msgstr ""
+"Vor dem Rücksprung den Hostname des selektierten Dienstes\r\n"
+"automatisch auflösen"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -441,8 +435,7 @@ msgstr "Browser-Erzeugung für %s fehlgeschlagen: %s"
 #: ../avahi-ui/avahi-ui.c:901
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-"Erzeugen eines Resolvers für %s vom Typ %s in Domain %s fehlgeschlagen: %s"
+msgstr "Erzeugen eines Resolvers für %s vom Typ %s in Domain %s fehlgeschlagen: %s"
 
 #: ../avahi-ui/avahi-ui.c:976
 #, c-format
@@ -565,8 +558,7 @@ msgstr ": Datencache erschöpft\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr ""
-"Fehler beim Auflösen des Dienstes '%s' des Typ '%s' in Domain '%s': %s\n"
+msgstr "Fehler beim Auflösen des Dienstes '%s' des Typ '%s' in Domain '%s': %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -658,8 +650,7 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete "
-"list\n"
+"    -t --terminate       Terminate after dumping a more or less complete list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -668,18 +659,15 @@ msgid ""
 msgstr ""
 "    -h --help            Zeigt diese Hilfe an\n"
 "    -V --version         Zeigt die Version an\n"
-"    -D --browse-domains  Durchsuche nach suchenden Domain statt nach "
-"Diensten\n"
+"    -D --browse-domains  Durchsuche nach suchenden Domain statt nach Diensten\n"
 "    -a --all             Zeigt alle Dienste, ohne Rücksicht auf die Typen\n"
 "    -d --domain=DOMAIN   Die Domain zum Durchsuchen\n"
 "    -v --verbose         Aktiviert detaillierten Modus\n"
-"    -t --terminate       Beenden nach Ausgeben einer mehr oder weniger "
-"kompletten Liste\n"
+"    -t --terminate       Beenden nach Ausgeben einer mehr oder weniger kompletten Liste\n"
 "    -c --cache           Beenden nach Ausgeben aller Einträge aus dem Cache\n"
 "    -l --ignore-local    Ignoriere lokale Dienste\n"
 "    -r --resolve         Löse gefundene Dienste auf\n"
-"    -f --no-fail         Schlägt nicht fehl, wenn der Daemon nicht verfügbar "
-"ist\n"
+"    -f --no-fail         Schlägt nicht fehl, wenn der Daemon nicht verfügbar ist\n"
 "    -p --parsable        Ausgabe in parsbaren Format\n"
 
 #: ../avahi-utils/avahi-browse.c:660
@@ -754,8 +742,7 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service "
-"with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service with\n"
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
@@ -769,10 +756,8 @@ msgstr ""
 "    -v --verbose         Aktiviert detaillierten Modus\n"
 "    -d --domain=DOMAIN   Domain zum Veröffentlichen des Dienstes auf\n"
 "    -H --host=DOMAIN     Host, wo sich der Service befindet\n"
-"       --subtype=SUBTYPE Ein zusätzlicher Untertyp zum Registrieren des "
-"Dienstes mit\n"
-"    -f --no-fail         Schlägt nicht fehl, wenn der Daemon nicht verfügbar "
-"ist\n"
+"       --subtype=SUBTYPE Ein zusätzlicher Untertyp zum Registrieren des Dienstes mit\n"
+"    -f --no-fail         Schlägt nicht fehl, wenn der Daemon nicht verfügbar ist\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
@@ -978,24 +963,14 @@ msgstr "Rechnername erfolgreich geändert auf %s\n"
 #~ msgid "Sort by:"
 #~ msgstr "Sortieren nach:"
 
-#~ msgid ""
-#~ "The chart has too many data points.  Please restrict your data filter or "
-#~ "use coarser data grouping criteria."
-#~ msgstr ""
-#~ "Das Diagramm hat zu viele Datenpunkte. Bitte beschränken Sie Ihren "
-#~ "Datenfilter oder benutzen Sie coarser-Datengruppierungkriterien."
+#~ msgid "The chart has too many data points.  Please restrict your data filter or use coarser data grouping criteria."
+#~ msgstr "Das Diagramm hat zu viele Datenpunkte. Bitte beschränken Sie Ihren Datenfilter oder benutzen Sie coarser-Datengruppierungkriterien."
 
 #~ msgid "Time:"
 #~ msgstr "Zeit:"
 
-#~ msgid ""
-#~ "You can add aditional conditions using the <tt>ausearch</tt> expression "
-#~ "language.  Run <tt>(man ausearch-expression)</tt> to read the "
-#~ "documentation of the language."
-#~ msgstr ""
-#~ "Sie können zusätzliche Bedingungen hinzufügen mit der <tt>ausearch</tt>-"
-#~ "Ausdruckssprache. Führen Sie <tt>(man ausearch-expression)</tt> aus, um "
-#~ "die Dokumentaion dieser Sprache zu lesen."
+#~ msgid "You can add aditional conditions using the <tt>ausearch</tt> expression language.  Run <tt>(man ausearch-expression)</tt> to read the documentation of the language."
+#~ msgstr "Sie können zusätzliche Bedingungen hinzufügen mit der <tt>ausearch</tt>-Ausdruckssprache. Führen Sie <tt>(man ausearch-expression)</tt> aus, um die Dokumentaion dieser Sprache zu lesen."
 
 #~ msgid "_Ascending"
 #~ msgstr "_Aufsteigend"
@@ -1170,12 +1145,8 @@ msgstr "Rechnername erfolgreich geändert auf %s\n"
 #~ msgid "Start an audit event viewer."
 #~ msgstr "Starte eine Audit-Ereignis-Betrachter"
 
-#~ msgid ""
-#~ "do not attempt to start the privileged backend for reading system audit "
-#~ "logs"
-#~ msgstr ""
-#~ "versuchen Sie nicht das privilegierte Backend zum Lesen der System-Audit-"
-#~ "Berichte zu starten"
+#~ msgid "do not attempt to start the privileged backend for reading system audit logs"
+#~ msgstr "versuchen Sie nicht das privilegierte Backend zum Lesen der System-Audit-Berichte zu starten"
 
 #~ msgid "Error running audit-viewer-server: %s"
 #~ msgstr "Fehler beim Laufenlassen von  audit-viewer-server: %s"
@@ -1186,12 +1157,8 @@ msgstr "Rechnername erfolgreich geändert auf %s\n"
 #~ msgid "A file named \"%s\" already exists.  Do you want to replace it?"
 #~ msgstr "Die Datei \"%s\" existiert bereits. Wollen Sie sie ersetzen?"
 
-#~ msgid ""
-#~ "The file already exists in \"%s\".  Replacing it will overwrite its "
-#~ "contents."
-#~ msgstr ""
-#~ "Die Datei existiert bereits in \"%s\" . Falls Sie sie ersetzen, wird ihre "
-#~ "Inhalt überschreiben."
+#~ msgid "The file already exists in \"%s\".  Replacing it will overwrite its contents."
+#~ msgstr "Die Datei existiert bereits in \"%s\" . Falls Sie sie ersetzen, wird ihre Inhalt überschreiben."
 
 #~ msgid "_Replace"
 #~ msgstr "_Ersetzen"
@@ -1301,12 +1268,8 @@ msgstr "Rechnername erfolgreich geändert auf %s\n"
 #~ msgid "Search..."
 #~ msgstr "Suche..."
 
-#~ msgid ""
-#~ "This program is only for use by audit-viewer and it should not be run "
-#~ "manually.\n"
-#~ msgstr ""
-#~ "Dieses Programm ist nur für die Benutzung durch audit-viewer und es "
-#~ "sollte nicht manuell gestartet werden.\n"
+#~ msgid "This program is only for use by audit-viewer and it should not be run manually.\n"
+#~ msgstr "Dieses Programm ist nur für die Benutzung durch audit-viewer und es sollte nicht manuell gestartet werden.\n"
 
 #~ msgid ""
 #~ "\n"
@@ -1324,8 +1287,7 @@ msgstr "Rechnername erfolgreich geändert auf %s\n"
 #~ "Copyright (C) 2008 Red Hat, Inc.  Alle Rechte vorbehalten.\n"
 #~ "Diese Software wird unter der GPL v.2 verteilt.\n"
 #~ "\n"
-#~ "Dieses Programm wird OHNE GEWÄHRLEISTUNG bereitgestellt, im gesetzlich "
-#~ "ermöglichten Umfang."
+#~ "Dieses Programm wird OHNE GEWÄHRLEISTUNG bereitgestellt, im gesetzlich ermöglichten Umfang."
 
 #~ msgid "The control file is not a socket"
 #~ msgstr "Die Kontrolldatei ist keine Socket"
@@ -1421,13 +1383,11 @@ msgstr "Rechnername erfolgreich geändert auf %s\n"
 #~ msgstr "Bearbeiten von gewissen Filtern ist nicht unterstützt"
 
 #~ msgid ""
-#~ "If you edit properties of this tab, these filters will be dropped from "
-#~ "the tab's configuration:\n"
+#~ "If you edit properties of this tab, these filters will be dropped from the tab's configuration:\n"
 #~ "%s\n"
 #~ "Do you still want to edit properties of this tab?"
 #~ msgstr ""
-#~ "Wenn Sie die Eigenschaften dieses Registers bearbeiten, diese Filter aus "
-#~ "der Register-Konfiguration werden verworfen:\n"
+#~ "Wenn Sie die Eigenschaften dieses Registers bearbeiten, diese Filter aus der Register-Konfiguration werden verworfen:\n"
 #~ "%s\n"
 #~ "Wollen Sie immer nich die Eigenschaften dieses Registers bearbeiten?"
 

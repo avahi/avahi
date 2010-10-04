@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-13 03:02+0200\n"
-"PO-Revision-Date: 2010-05-03 11:20+0800\n"
+"POT-Creation-Date: 2010-06-29 08:42+0000\n"
+"PO-Revision-Date: 2010-08-18 01:01+0800\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: chinese-l10n <chinese-l10n@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr "操作失敗"
 
 #: ../avahi-common/error.c:32
 msgid "Bad state"
-msgstr ""
+msgstr "狀態不良"
 
 #: ../avahi-common/error.c:33
 msgid "Invalid host name"
@@ -49,11 +49,11 @@ msgstr ""
 
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
-msgstr ""
+msgstr "本機名稱衝突"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
-msgstr ""
+msgstr "無效的紀錄"
 
 #: ../avahi-common/error.c:41
 msgid "Invalid service name"
@@ -69,7 +69,7 @@ msgstr "無效的連接埠編號"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr ""
+msgstr "無效的紀錄金鑰"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
@@ -77,7 +77,7 @@ msgstr "無效的位址"
 
 #: ../avahi-common/error.c:46
 msgid "Timeout reached"
-msgstr ""
+msgstr "已達逾時限制"
 
 #: ../avahi-common/error.c:47
 msgid "Too many clients"
@@ -85,14 +85,14 @@ msgstr "太多用戶端"
 
 #: ../avahi-common/error.c:48
 msgid "Too many objects"
-msgstr ""
+msgstr "過多物件"
 
 #: ../avahi-common/error.c:49
+#, fuzzy
 msgid "Too many entries"
 msgstr ""
 
 #: ../avahi-common/error.c:50
-#, fuzzy
 msgid "OS Error"
 msgstr "OS 錯誤"
 
@@ -106,11 +106,11 @@ msgstr "無效的操作"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occured"
-msgstr ""
+msgstr "遭遇到未預期的 D-Bus 錯誤"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr ""
+msgstr "幕後程式連線失敗"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
@@ -118,7 +118,7 @@ msgstr "記憶體已耗盡"
 
 #: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr ""
+msgstr "傳入的物件無效"
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
@@ -133,7 +133,6 @@ msgid "Invalid protocol specification"
 msgstr "無效的協定規格"
 
 #: ../avahi-common/error.c:61
-#, fuzzy
 msgid "Invalid flags"
 msgstr "無效的旗標"
 
@@ -155,59 +154,59 @@ msgstr "無效的服務子類型"
 
 #: ../avahi-common/error.c:67
 msgid "Invalid packet"
-msgstr ""
+msgstr "無效的封包"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr ""
+msgstr "無效的 DNS 回傳碼"
 
 #: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
-msgstr ""
+msgstr "DNS 失敗：FORMERR"
 
 #: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
-msgstr ""
+msgstr "DNS 失敗：SERVFAIL"
 
 #: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
-msgstr ""
+msgstr "DNS 失敗：NXDOMAIN"
 
 #: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
-msgstr ""
+msgstr "DNS 失敗：NOTIMP"
 
 #: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
-msgstr ""
+msgstr "DNS 失敗：REFUSED"
 
 #: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
-msgstr ""
+msgstr "DNS 失敗：YXDOMAIN"
 
 #: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
-msgstr ""
+msgstr "DNS 失敗：YXRRSET"
 
 #: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
-msgstr ""
+msgstr "DNS 失敗：NXRRSET"
 
 #: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
-msgstr ""
+msgstr "DNS 失敗：NOTAUTH"
 
 #: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
-msgstr ""
+msgstr "DNS 失敗：NOTZONE"
 
 #: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr ""
+msgstr "無效的 RDATA"
 
 #: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr ""
+msgstr "無效的 DNS 類型"
 
 #: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
@@ -215,11 +214,11 @@ msgstr ""
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
-msgstr ""
+msgstr "未支援"
 
 #: ../avahi-common/error.c:85
 msgid "Not permitted"
-msgstr ""
+msgstr "未許可"
 
 #: ../avahi-common/error.c:86
 msgid "Invalid argument"
@@ -227,11 +226,11 @@ msgstr "無效的引數"
 
 #: ../avahi-common/error.c:87
 msgid "Is empty"
-msgstr ""
+msgstr "是空的"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr ""
+msgstr "請求的操作無效，因為重複"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
@@ -240,7 +239,7 @@ msgstr "無效的錯誤代碼"
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
-msgstr ""
+msgstr "<i>目前未選取服務。</i>"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 msgid "Avahi Discovery"
@@ -256,38 +255,35 @@ msgstr "在您的網路上瀏覽可用的 Zeroconf 服務"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "TXT Data:"
-msgstr ""
+msgstr "TXT 資料："
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "empty"
-msgstr ""
+msgstr "空的"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
-#, fuzzy
 msgid "Service Type:"
-msgstr "瀏覽服務類型"
+msgstr "服務類型："
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
-#, fuzzy
 msgid "Service Name:"
-msgstr "無效的服務名稱"
+msgstr "服務名稱："
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
-#, fuzzy
 msgid "Domain Name:"
-msgstr "網域"
+msgstr "網域名稱："
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "介面："
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
 msgid "Address:"
-msgstr ""
+msgstr "位址："
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
@@ -307,23 +303,24 @@ msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
-msgstr ""
+msgstr "服務類型"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
-msgstr ""
+msgstr "所選服務的服務類型"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202
+#: ../avahi-ui/avahi-ui.c:1019
 msgid "Service Name"
-msgstr ""
+msgstr "服務名稱"
 
 #: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
-msgstr ""
+msgstr "所選服務的服務名稱"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "Address"
-msgstr ""
+msgstr "位址"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
@@ -331,15 +328,15 @@ msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
-msgstr ""
+msgstr "連接埠"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
-msgstr ""
+msgstr "解析服務的 IP 連接埠號碼"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
-msgstr ""
+msgstr "主機名稱"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
@@ -347,7 +344,7 @@ msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
-msgstr ""
+msgstr "TXT 資料"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
@@ -355,20 +352,19 @@ msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve Service"
-msgstr ""
+msgstr "解析服務"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "在回傳之前自動解析所選的服務"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve Service Host Name"
-msgstr ""
+msgstr "解析服務主機名稱"
 
 #: ../avahi-ui/avahi-ui.c:236
-msgid ""
-"Resolve the host name of the selected service automatically before returning"
-msgstr ""
+msgid "Resolve the host name of the selected service automatically before returning"
+msgstr "在回傳之前自動解析所選服務的主機名稱"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -381,20 +377,22 @@ msgstr ""
 #: ../avahi-ui/avahi-ui.c:324
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr ""
+msgstr "Avahi 用戶端失敗：%s"
 
 #: ../avahi-ui/avahi-ui.c:386
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr ""
+msgstr "Avahi 解析失敗：%s"
 
 #: ../avahi-ui/avahi-ui.c:516
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
-#: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
+#: ../avahi-ui/avahi-ui.c:517
+#: ../avahi-utils/avahi-browse.c:168
+#: ../avahi-utils/avahi-browse.c:169
+#: ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "無法使用"
@@ -446,7 +444,8 @@ msgstr ""
 msgid "Change domain"
 msgstr "變更網域"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1027
+#: ../avahi-ui/avahi-ui.c:1158
 msgid "Browsing..."
 msgstr "正在瀏覽..."
 
@@ -458,11 +457,13 @@ msgstr "正在初始化..."
 msgid "Location"
 msgstr "位置"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1145
+#: ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "名稱"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1150
+#: ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "類型"
 
@@ -482,7 +483,8 @@ msgid ""
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
 
-#: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
+#: ../avahi-ui/bssh.c:101
+#: ../avahi-utils/avahi-browse.c:775
 #, c-format
 msgid "Too many arguments\n"
 msgstr "太多引數\n"
@@ -548,7 +550,8 @@ msgstr ": 現在是全部\n"
 msgid ": Cache exhausted\n"
 msgstr ": 快取已耗盡\n"
 
-#: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
+#: ../avahi-utils/avahi-browse.c:239
+#: ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
@@ -578,21 +581,27 @@ msgstr ""
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
-#: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
+#: ../avahi-utils/avahi-browse.c:535
+#: ../avahi-utils/avahi-publish.c:394
+#: ../avahi-utils/avahi-resolve.c:280
+#: ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
-#: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
+#: ../avahi-utils/avahi-browse.c:540
+#: ../avahi-utils/avahi-publish.c:399
+#: ../avahi-utils/avahi-resolve.c:285
+#: ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
-#: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
+#: ../avahi-utils/avahi-browse.c:544
+#: ../avahi-utils/avahi-publish.c:403
+#: ../avahi-utils/avahi-resolve.c:289
+#: ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr ""
@@ -612,25 +621,32 @@ msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr ""
 
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
+#: ../avahi-utils/avahi-browse.c:585
+#: ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr ""
+msgstr "已斷線，正在重新連接...\n"
 
-#: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
-#: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
-#: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
+#: ../avahi-utils/avahi-browse.c:599
+#: ../avahi-utils/avahi-browse.c:829
+#: ../avahi-utils/avahi-publish.c:170
+#: ../avahi-utils/avahi-publish.c:386
+#: ../avahi-utils/avahi-resolve.c:272
+#: ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
-#: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
+#: ../avahi-utils/avahi-browse.c:604
+#: ../avahi-utils/avahi-publish.c:175
+#: ../avahi-utils/avahi-resolve.c:143
+#: ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr ""
+msgstr "用戶端失敗，正在退出：%s\n"
 
-#: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
+#: ../avahi-utils/avahi-browse.c:623
+#: ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr ""
@@ -643,8 +659,7 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete "
-"list\n"
+"    -t --terminate       Terminate after dumping a more or less complete list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -658,13 +673,16 @@ msgid ""
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
+#: ../avahi-utils/avahi-browse.c:766
+#: ../avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
-msgstr ""
+msgstr "過少引數\n"
 
-#: ../avahi-utils/avahi-browse.c:821 ../avahi-utils/avahi-publish.c:378
-#: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
+#: ../avahi-utils/avahi-browse.c:821
+#: ../avahi-utils/avahi-publish.c:378
+#: ../avahi-utils/avahi-resolve.c:264
+#: ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr ""
@@ -677,12 +695,12 @@ msgstr ""
 #: ../avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
-msgstr ""
+msgstr "註冊失敗：%s\n"
 
 #: ../avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr ""
+msgstr "名稱衝突，揀選新名稱 '%s'。\n"
 
 #: ../avahi-utils/avahi-publish.c:114
 #, c-format
@@ -707,7 +725,7 @@ msgstr ""
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format
 msgid "Host name conflict\n"
-msgstr ""
+msgstr "主機名稱衝突\n"
 
 #: ../avahi-utils/avahi-publish.c:216
 #, c-format
@@ -722,13 +740,13 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service "
-"with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service with\n"
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
+#: ../avahi-utils/avahi-publish.c:303
+#: ../avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr ""
@@ -738,7 +756,8 @@ msgstr ""
 msgid "Failed to parse port number: %s\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
+#: ../avahi-utils/avahi-publish.c:361
+#: ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
 msgstr ""
@@ -768,7 +787,8 @@ msgid ""
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
+#: ../avahi-utils/avahi-resolve.c:299
+#: ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr ""
@@ -801,4 +821,5 @@ msgstr ""
 #: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr ""
+msgstr "主機名稱成功變更為 %s\n"
+

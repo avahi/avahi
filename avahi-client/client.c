@@ -478,6 +478,7 @@ static DBusConnection* avahi_dbus_bus_get(DBusError *error) {
 AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags, AvahiClientCallback callback, void *userdata, int *ret_error) {
     AvahiClient *client = NULL;
     DBusError error;
+    DBusMessage *message = NULL, *reply = NULL;
 
     avahi_init_i18n();
 
@@ -551,7 +552,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
     if (dbus_error_is_set(&error))
         goto fail;
 
-    dbus_bus_add_match (
+    dbus_bus_add_match(
         client->bus,
         "type='signal', "
         "interface='" DBUS_INTERFACE_LOCAL "'",
@@ -560,8 +561,12 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
     if (dbus_error_is_set(&error))
         goto fail;
 
-    if (!dbus_bus_start_service_by_name(client->bus, AVAHI_DBUS_NAME, 0, NULL, &error)) {
+    if (!(message = dbus_message_new_method_call(AVAHI_DBUS_NAME, AVAHI_DBUS_PATH_SERVER, "org.freedesktop.DBus.Peer", "Ping")))
+        goto fail;
 
+    reply = dbus_connection_send_with_reply_and_block (client->bus, message, -1, &error);
+
+    if (!reply || dbus_error_is_set (&error)) {
         /* We free the error so its not set, that way the fail target
          * will return the NO_DAEMON error rather than a DBUS error */
         dbus_error_free(&error);
@@ -584,9 +589,19 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
             goto fail;
     }
 
+    dbus_message_unref(message);
+
+    if (reply)
+        dbus_message_unref(reply);
+
     return client;
 
 fail:
+
+    if (message)
+        dbus_message_unref(message);
+    if (reply)
+        dbus_message_unref(reply);
 
     if (client)
         avahi_client_free(client);

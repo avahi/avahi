@@ -1,3 +1,16 @@
+Avahi 0.6.28
+============
+
+This is a bugfix release.
+
+ * Updates regarding systemd integration
+ * Properly avoid bus activation on non-systemd systems
+ * Compatibility with newer gtk3 and gobject introspection
+ * i18n updates
+ * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 28.
+
 Avahi 0.6.27
 ============
 

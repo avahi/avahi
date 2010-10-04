@@ -17,7 +17,7 @@
 
 [D-BUS Service]
 Name=org.freedesktop.Avahi
-SystemdService=avahi-daemon.service
+SystemdService=dbus-org.freedesktop.Avahi.service
 
 # This service should not be bus activated if systemd isn't running,
 # so that activation won't conflict with the init script startup.

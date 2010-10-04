@@ -1,4 +1,4 @@
-/*-*- Mode: C; c-basic-offset: 8 -*-*/
+/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
 
 /***
   Copyright 2010 Lennart Poettering
@@ -325,18 +325,13 @@ int sd_is_socket_unix(int fd, int type, int listening, const char *path, size_t 
 }
 
 int sd_notify(int unset_environment, const char *state) {
-#if defined(DISABLE_SYSTEMD) || !defined(__linux__)
+#if defined(DISABLE_SYSTEMD) || !defined(__linux__) || !defined(SOCK_CLOEXEC)
         return 0;
 #else
         int fd = -1, r;
         struct msghdr msghdr;
         struct iovec iovec;
         union sockaddr_union sockaddr;
-        struct ucred *ucred;
-        union {
-                struct cmsghdr cmsghdr;
-                uint8_t buf[CMSG_SPACE(sizeof(struct ucred))];
-        } control;
         const char *e;
 
         if (!state) {
@@ -369,16 +364,6 @@ int sd_notify(int unset_environment, const char *state) {
         iovec.iov_base = (char*) state;
         iovec.iov_len = strlen(state);
 
-        memset(&control, 0, sizeof(control));
-        control.cmsghdr.cmsg_level = SOL_SOCKET;
-        control.cmsghdr.cmsg_type = SCM_CREDENTIALS;
-        control.cmsghdr.cmsg_len = CMSG_LEN(sizeof(struct ucred));
-
-        ucred = (struct ucred*) CMSG_DATA(&control.cmsghdr);
-        ucred->pid = getpid();
-        ucred->uid = getuid();
-        ucred->gid = getgid();
-
         memset(&msghdr, 0, sizeof(msghdr));
         msghdr.msg_name = &sockaddr;
         msghdr.msg_namelen = sizeof(sa_family_t) + strlen(e);
@@ -388,8 +373,6 @@ int sd_notify(int unset_environment, const char *state) {
 
         msghdr.msg_iov = &iovec;
         msghdr.msg_iovlen = 1;
-        msghdr.msg_control = &control;
-        msghdr.msg_controllen = control.cmsghdr.cmsg_len;
 
         if (sendmsg(fd, &msghdr, MSG_NOSIGNAL) < 0) {
                 r = -errno;
@@ -441,12 +424,50 @@ int sd_booted(void) {
         /* We simply test whether the systemd cgroup hierarchy is
          * mounted */
 
-        if (lstat("/cgroup", &a) < 0)
+        if (lstat("/sys/fs/cgroup", &a) < 0)
                 return 0;
 
-        if (lstat("/cgroup/systemd", &b) < 0)
+        if (lstat("/sys/fs/cgroup/systemd", &b) < 0)
                 return 0;
 
         return a.st_dev != b.st_dev;
 #endif
+}
+
+static int touch(const char *path) {
+
+#if !defined(DISABLE_SYSTEMD) && defined(__linux__)
+        int fd;
+
+        mkdir("/dev/.systemd", 0755);
+        mkdir("/dev/.systemd/readahead", 0755);
+
+        if ((fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY, 0666)) < 0)
+                return -errno;
+
+        for (;;) {
+                if (close(fd) >= 0)
+                        break;
+
+                if (errno != -EINTR)
+                        return -errno;
+        }
+
+#endif
+        return 0;
+}
+
+int sd_readahead(const char *action) {
+
+        if (!action)
+                return -EINVAL;
+
+        if (strcmp(action, "cancel") == 0)
+                return touch("/dev/.systemd/readahead/cancel");
+        else if (strcmp(action, "done") == 0)
+                return touch("/dev/.systemd/readahead/done");
+        else if (strcmp(action, "noreplay") == 0)
+                return touch("/dev/.systemd/readahead/noreplay");
+
+        return -EINVAL;
 }

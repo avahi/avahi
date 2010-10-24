@@ -40,6 +40,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stddef.h>
 
 #include "sd-daemon.h"
 
@@ -307,17 +308,17 @@ int sd_is_socket_unix(int fd, int type, int listening, const char *path, size_t 
 
                 if (length <= 0)
                         /* Unnamed socket */
-                        return l == sizeof(sa_family_t);
+                        return l == offsetof(struct sockaddr_un, sun_path);
 
                 if (path[0])
                         /* Normal path socket */
                         return
-                                (l >= sizeof(sa_family_t) + length + 1) &&
+                                (l >= offsetof(struct sockaddr_un, sun_path) + length + 1) &&
                                 memcmp(path, sockaddr.un.sun_path, length+1) == 0;
                 else
                         /* Abstract namespace socket */
                         return
-                                (l == sizeof(sa_family_t) + length) &&
+                                (l == offsetof(struct sockaddr_un, sun_path) + length) &&
                                 memcmp(path, sockaddr.un.sun_path, length) == 0;
         }
 
@@ -366,7 +367,7 @@ int sd_notify(int unset_environment, const char *state) {
 
         memset(&msghdr, 0, sizeof(msghdr));
         msghdr.msg_name = &sockaddr;
-        msghdr.msg_namelen = sizeof(sa_family_t) + strlen(e);
+        msghdr.msg_namelen = offsetof(struct sockaddr_un, sun_path) + strlen(e);
 
         if (msghdr.msg_namelen > sizeof(struct sockaddr_un))
                 msghdr.msg_namelen = sizeof(struct sockaddr_un);
@@ -432,42 +433,4 @@ int sd_booted(void) {
 
         return a.st_dev != b.st_dev;
 #endif
-}
-
-static int touch(const char *path) {
-
-#if !defined(DISABLE_SYSTEMD) && defined(__linux__)
-        int fd;
-
-        mkdir("/dev/.systemd", 0755);
-        mkdir("/dev/.systemd/readahead", 0755);
-
-        if ((fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY, 0666)) < 0)
-                return -errno;
-
-        for (;;) {
-                if (close(fd) >= 0)
-                        break;
-
-                if (errno != -EINTR)
-                        return -errno;
-        }
-
-#endif
-        return 0;
-}
-
-int sd_readahead(const char *action) {
-
-        if (!action)
-                return -EINVAL;
-
-        if (strcmp(action, "cancel") == 0)
-                return touch("/dev/.systemd/readahead/cancel");
-        else if (strcmp(action, "done") == 0)
-                return touch("/dev/.systemd/readahead/done");
-        else if (strcmp(action, "noreplay") == 0)
-                return touch("/dev/.systemd/readahead/noreplay");
-
-        return -EINVAL;
 }

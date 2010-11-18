@@ -84,7 +84,7 @@
     </section>
 
     <section name="Signals">
-      <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-dnsconfd will shutdown. This is issued by passing --kill to avahi-daemon.</p>
+      <p><arg>SIGINT, SIGTERM</arg>: avahi-dnsconfd will shutdown. This is issued by passing --kill to avahi-daemon.</p>
       <p><arg>SIGHUP</arg>: avahi-dnsconfd will refresh the DNS server data.</p>
     </section>
 

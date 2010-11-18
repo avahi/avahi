@@ -142,7 +142,7 @@
     </section>
 
     <section name="Signals">
-      <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-daemon will shutdown. (Same as <opt>--kill</opt>).</p>
+      <p><arg>SIGINT, SIGTERM</arg>: avahi-daemon will shutdown. (Same as <opt>--kill</opt>).</p>
       <p><arg>SIGHUP</arg>: avahi-daemon will reload unicast DNS
       server data from <file>/etc/resolv.conf</file> and static
       service definitions from <file>@servicedir@/</file>. (Same as <opt>--reload</opt>)</p>

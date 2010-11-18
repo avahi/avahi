@@ -197,7 +197,7 @@ static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection 
                 server->reconnect_timeout = server->poll_api->timeout_new(server->poll_api, &tv, reconnect_callback, NULL);
         } else {
             avahi_log_warn("Disconnected from D-Bus, exiting.");
-            raise(SIGQUIT);
+            raise(SIGTERM);
         }
 
         return DBUS_HANDLER_RESULT_HANDLED;

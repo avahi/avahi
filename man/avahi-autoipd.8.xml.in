@@ -139,7 +139,7 @@
     </section>
 
     <section name="Signals">
-      <p><arg>SIGINT, SIGTERM, SIGQUIT</arg>: avahi-autoipd will shutdown. (Same as <opt>--kill</opt>)</p>
+      <p><arg>SIGINT, SIGTERM</arg>: avahi-autoipd will shutdown. (Same as <opt>--kill</opt>)</p>
       <p><arg>SIGHUP</arg>: avahi-autoipd will reannounce the acquired IP address. (Same as <opt>--refresh</opt>)</p>
     </section>
 

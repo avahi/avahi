@@ -1046,12 +1046,10 @@ static void signal_callback(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AVAHI_GC
 
     switch (sig) {
         case SIGINT:
-        case SIGQUIT:
         case SIGTERM:
             avahi_log_info(
                     "Got %s, quitting.",
-                    sig == SIGINT ? "SIGINT" :
-                    (sig == SIGQUIT ? "SIGQUIT" : "SIGTERM"));
+                    sig == SIGINT ? "SIGINT" : "SIGTERM");
             avahi_simple_poll_quit(simple_poll_api);
             break;
 
@@ -1113,7 +1111,7 @@ static int run_server(DaemonConfig *c) {
 
     poll_api = avahi_simple_poll_get(simple_poll_api);
 
-    if (daemon_signal_init(SIGINT, SIGQUIT, SIGHUP, SIGTERM, SIGUSR1, 0) < 0) {
+    if (daemon_signal_init(SIGINT, SIGHUP, SIGTERM, SIGUSR1, 0) < 0) {
         avahi_log_error("Could not register signal handlers (%s).", strerror(errno));
         goto finish;
     }

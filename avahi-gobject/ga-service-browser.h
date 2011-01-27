@@ -55,11 +55,11 @@ GType ga_service_browser_get_type(void);
 #define GA_SERVICE_BROWSER_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), GA_TYPE_SERVICE_BROWSER, GaServiceBrowserClass))
 
-GaServiceBrowser *ga_service_browser_new(gchar * type);
+GaServiceBrowser *ga_service_browser_new(const gchar * type);
 
 GaServiceBrowser *ga_service_browser_new_full(AvahiIfIndex interface,
                                               AvahiProtocol protocol,
-                                              gchar * type, gchar * domain,
+                                              const gchar * type, gchar * domain,
                                               GaLookupFlags flags);
 
 gboolean

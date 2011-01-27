@@ -330,14 +330,14 @@ static void _avahi_service_browser_cb(AvahiServiceBrowser * b, AvahiIfIndex inte
     }
 }
 
-GaServiceBrowser *ga_service_browser_new(gchar * type) {
+GaServiceBrowser *ga_service_browser_new(const gchar * type) {
     return ga_service_browser_new_full(AVAHI_IF_UNSPEC,
                                        AVAHI_PROTO_UNSPEC, type, NULL, 0);
 }
 
 GaServiceBrowser *ga_service_browser_new_full(AvahiIfIndex interface,
                                               AvahiProtocol protocol,
-                                              gchar * type, gchar * domain,
+                                              const gchar * type, gchar * domain,
                                               GaLookupFlags flags) {
     return g_object_new(GA_TYPE_SERVICE_BROWSER,
                         "interface", interface,

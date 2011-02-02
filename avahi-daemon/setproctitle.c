@@ -85,7 +85,7 @@ void avahi_set_proc_title(const char *name, const char *fmt,...) {
     va_end(ap);
 
     setproctitle("-%s", t);
-#elif __linux__
+#elif defined(__linux__)
     size_t l;
     va_list ap;
 

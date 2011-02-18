@@ -53,7 +53,7 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
     n = (struct nlmsghdr*) req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtgenmsg));
     n->nlmsg_type = type;
-    n->nlmsg_flags = NLM_F_ROOT|NLM_F_REQUEST;
+    n->nlmsg_flags = NLM_F_REQUEST|NLM_F_DUMP;
     n->nlmsg_pid = 0;
 
     gen = NLMSG_DATA(n);

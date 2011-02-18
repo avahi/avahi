@@ -262,7 +262,7 @@ int iface_get_initial_state(State *state) {
     n->nlmsg_len = NLMSG_LENGTH(sizeof(*ifi));
     n->nlmsg_type = RTM_GETLINK;
     n->nlmsg_seq = seq;
-    n->nlmsg_flags = NLM_F_MATCH|NLM_F_REQUEST|NLM_F_ACK;
+    n->nlmsg_flags = NLM_F_REQUEST|NLM_F_DUMP;
     n->nlmsg_pid = 0;
 
     ifi = NLMSG_DATA(n);

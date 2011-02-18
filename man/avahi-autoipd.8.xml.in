@@ -69,7 +69,7 @@
 
 	  <option>
 		<p><opt>-r | --refresh</opt></p>
-		<optdesc><p>Tell an already running avahi-autoipd to reannounce the acquired IP address on the specified network interface. (Equivalent to sending a SIGHUP)</p></optdesc>
+		<optdesc><p>Tell an already running avahi-autoipd to re-announce the acquired IP address on the specified network interface. (Equivalent to sending a SIGHUP)</p></optdesc>
 	  </option>
 
 	  <option>
@@ -140,7 +140,7 @@
 
     <section name="Signals">
       <p><arg>SIGINT, SIGTERM</arg>: avahi-autoipd will shutdown. (Same as <opt>--kill</opt>)</p>
-      <p><arg>SIGHUP</arg>: avahi-autoipd will reannounce the acquired IP address. (Same as <opt>--refresh</opt>)</p>
+      <p><arg>SIGHUP</arg>: avahi-autoipd will re-announce the acquired IP address. (Same as <opt>--refresh</opt>)</p>
     </section>
 
 	<section name="Authors">

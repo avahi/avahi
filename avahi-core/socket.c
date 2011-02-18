@@ -653,10 +653,6 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
         goto fail;
     }
 
-    /* For corrupt packets FIONREAD returns zero size (See rhbz #607297) */
-    if (!ms)
-        goto fail;
-
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
@@ -683,10 +679,14 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
         goto fail;
     }
 
-    if (sa.sin_addr.s_addr == INADDR_ANY) {
+    /* For corrupt packets FIONREAD returns zero size (See rhbz #607297). So
+     * fail after having read them. */
+    if (!ms)
+        goto fail;
+
+    if (sa.sin_addr.s_addr == INADDR_ANY)
         /* Linux 2.4 behaves very strangely sometimes! */
         goto fail;
-    }
 
     assert(!(msg.msg_flags & MSG_CTRUNC));
     assert(!(msg.msg_flags & MSG_TRUNC));
@@ -810,10 +810,6 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
         goto fail;
     }
 
-    /* For corrupt packets FIONREAD returns zero size (See rhbz #607297) */
-    if (!ms)
-        goto fail;
-
     p = avahi_dns_packet_new(ms + AVAHI_DNS_PACKET_EXTRA_SIZE);
 
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);
@@ -840,6 +836,11 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
 
         goto fail;
     }
+
+    /* For corrupt packets FIONREAD returns zero size (See rhbz #607297). So
+     * fail after having read them. */
+    if (!ms)
+        goto fail;
 
     assert(!(msg.msg_flags & MSG_CTRUNC));
     assert(!(msg.msg_flags & MSG_TRUNC));

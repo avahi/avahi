@@ -104,7 +104,7 @@
 
       <option>
         <p><opt>-w | --wait</opt></p>
-        <optdesc><p>Wait until a IP address has been sucessfully acquired before detaching. Only valid in combination with <opt>--daemonize</opt>.</p></optdesc>
+        <optdesc><p>Wait until a IP address has been successfully acquired before detaching. Only valid in combination with <opt>--daemonize</opt>.</p></optdesc>
       </option>
 
       <option>

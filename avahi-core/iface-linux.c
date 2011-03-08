@@ -203,7 +203,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         while (RTA_OK(a, l)) {
 
             switch(a->rta_type) {
-                case IFA_ADDRESS:
+                case IFA_LOCAL:
                     /* Fill in address data */
 
                     if ((raddr.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||

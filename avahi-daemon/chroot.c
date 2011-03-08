@@ -394,12 +394,14 @@ int avahi_chroot_helper_unlink(const char *fname) {
             return -1;
         }
 
-        if (write(helper_fd, &command, sizeof(command)) < 0) {
+        if (write(helper_fd, &command, sizeof(command)) < 0 &&
+            (errno != EPIPE && errno != ECONNRESET)) {
             avahi_log_error("write() failed: %s\n", strerror(errno));
             return -1;
         }
 
-        if ((r = read(helper_fd, &c, sizeof(c))) < 0) {
+        if ((r = read(helper_fd, &c, sizeof(c))) < 0 &&
+            (errno != EPIPE && errno != ECONNRESET)) {
             avahi_log_error("read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
             return -1;
         }

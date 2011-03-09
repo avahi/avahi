@@ -236,7 +236,7 @@ class Main_window:
     def insert_row(self, model,parent,
                    content, name, interface,protocol,stype,domain):
         myiter=model.insert_after(parent,None)
-        model.set(myiter,0,content,1,name,2,interface,3,protocol,4,stype,5,domain)
+        model.set(myiter,0,content,1,name,2,str(interface),3,str(protocol),4,stype,5,domain)
         return myiter
 
     def new(self):

@@ -23,7 +23,6 @@ After=syslog.target avahi-daemon.socket
 [Service]
 Type=simple
 ExecStart=@sbindir@/avahi-dnsconfd -s
-ExecReload=@sbindir@/avahi-dnsconfd -r
 
 [Install]
 WantedBy=multi-user.target

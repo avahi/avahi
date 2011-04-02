@@ -475,7 +475,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     if (n == 1) {
         int r;
 
-        if ((r = sd_is_socket(AF_LOCAL, SOCK_STREAM, 1, 0)) < 0) {
+        if ((r = sd_is_socket(SD_LISTEN_FDS_START, AF_LOCAL, SOCK_STREAM, 1)) < 0) {
             avahi_log_warn("Passed systemd file descriptor is of wrong type: %s", strerror(-r));
             goto fail;
         }

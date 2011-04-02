@@ -60,9 +60,6 @@ avahi_utf8_valid (const char *str)
 	/* done */;
       else
 	{
-	  const char *last;
-
-	  last = p;
 	  if ((*(const unsigned char *)p & 0xe0) == 0xc0) /* 110xxxxx */
 	    {
 	      if ( ((*(const unsigned char *)p & 0x1e) == 0))

@@ -381,6 +381,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_s_record_browser_free(r);
     avahi_s_host_name_resolver_free(hnr);
     avahi_s_address_resolver_free(ar);
+    avahi_s_domain_browser_free(db);
     avahi_s_service_type_browser_free(stb);
     avahi_s_service_browser_free(sb);
     avahi_s_service_resolver_free(sr);

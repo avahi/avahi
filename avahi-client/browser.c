@@ -171,7 +171,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
               DBUS_TYPE_INT32, &i_protocol,
               DBUS_TYPE_STRING, &domain,
               DBUS_TYPE_INT32, &bt,
-              DBUS_TYPE_UINT32, &flags,
+              DBUS_TYPE_UINT32, &u_flags,
               DBUS_TYPE_INVALID))) {
         avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);
         goto fail;
@@ -1023,4 +1023,3 @@ fail:
     dbus_error_free (&error);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
-

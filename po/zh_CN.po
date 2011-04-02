@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zh_CN\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-13 03:02+0200\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-07-01 17:45+0700\n"
 "Last-Translator: 甘露(Gan Lu) <rhythm.gan@gmail.com>\n"
 "Language-Team: 简体中文 <kde-china@kde.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -309,7 +310,7 @@ msgstr "服务类型"
 msgid "The service type of the selected service"
 msgstr "选定服务的服务类型"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "服务名称"
 
@@ -374,95 +375,95 @@ msgstr "地址类别"
 msgid "The address family for host name resolution"
 msgstr "用于主机名称解析的地址类别"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Avahi 客户端失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Avahi 解析器失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "浏览服务类型 %s 于域 %s 失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "不可用"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Avahi 域浏览器失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "读取 Avahi 域失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "浏览服务类型列表为空！"
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "连接到 Avahi 服务器失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "浏览服务于 <b>本地网络</b>："
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "浏览服务于域 <b>%s</b>："
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "为 %s 创建浏览器失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "为类型 %s 的 %s 创建解析器于域 %s 失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "创建域浏览器失败：%s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "更改域"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "正在浏览..."
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "正在初始化..."
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "位置"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "名称"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "类型"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "_域..."
 

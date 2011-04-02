@@ -10,10 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Avahi 2008\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-29 08:42+0000\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-09-05 10:33+0200\n"
 "Last-Translator: Bruno Patri <bruno.patri@gmail.com>\n"
 "Language-Team: French <fedora-trans-fr@redhat.com>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -314,7 +315,7 @@ msgstr "Type de service"
 msgid "The service type of the selected service"
 msgstr "Le type de service pour celui sélectionné"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "Nom de service"
 
@@ -369,7 +370,8 @@ msgstr "Résolution du nom d'hôte du service"
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr "Résolution automatique du nom d'hôte du service sélectionné avant renvoi"
+msgstr ""
+"Résolution automatique du nom d'hôte du service sélectionné avant renvoi"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -379,96 +381,96 @@ msgstr "Famille d'adresses"
 msgid "The address family for host name resolution"
 msgstr "La famille d'adresses pour la résolution du nom d'hôte"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Échec du client Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Échec de résolution Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Échec de l'exploration de type de service %s dans le domaine %s  : %s"
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "n/a"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Échec de l'explorateur de domaine Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Échec de la lecture du domaine Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "La liste des types de services à explorer est vide !"
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Échec de la connexion au serveur Avahi  : %s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Explorer les services sur <b>le réseau local</b> :"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Explorer les services du domaine <b>%s</b> :"
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Échec de création de l'explorateur pour %s  : %s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Échec de la création du résolveur pour %s de type %s dans le domaine %s  : %s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Échec de création de l'explorateur de domaine  : %s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "Changer de domaine"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "Exploration..."
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "Initialisation..."
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "Emplacement"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Nom"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Type"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "_Domaine..."
 
@@ -561,8 +563,8 @@ msgstr " : mémoire cache saturée\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Échec de résolution du service « %s » de type « %s » dans le domaine « %s »  : "
-"%s\n"
+"Échec de résolution du service « %s » de type « %s » dans le domaine « %s » "
+" : %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -857,4 +859,3 @@ msgstr "Nombre d'arguments invalide, il en faut exactement un.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Nom d'hôte changé avec succès pour %s\n"
-

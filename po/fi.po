@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-24 01:30+0000\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-10-31 12:00+0200\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
@@ -557,8 +557,8 @@ msgstr ": Välimuisti kulutettu loppuun\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Palvelua \"%s\", tyypiltään \"%s\", ei voi selvittää verkkoalueessa \"%s\": %"
-"s\n"
+"Palvelua \"%s\", tyypiltään \"%s\", ei voi selvittää verkkoalueessa \"%s\": "
+"%s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format

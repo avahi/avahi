@@ -1,16 +1,17 @@
 # Hungarian translation of avahi
 # Copyright (C) 2008, 2009, Free Software Foundation, Inc.
 # This file is distributed under the same license as the avahi package.
-# 
+#
 # Gabor Kelemen <kelemeng@gnome.hu>, 2008, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-29 08:42+0000\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2009-03-22 12:57+0100\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <gnome@fsf.hu>\n"
+"Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -310,7 +311,7 @@ msgstr "Szolgáltatástípus"
 msgid "The service type of the selected service"
 msgstr "A kiválasztott szolgáltatás típusa"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "Szolgáltatásnév"
 
@@ -363,8 +364,11 @@ msgid "Resolve Service Host Name"
 msgstr "Szolgáltatás gépnevének feloldása"
 
 #: ../avahi-ui/avahi-ui.c:236
-msgid "Resolve the host name of the selected service automatically before returning"
-msgstr "A kiválasztott szolgáltatás gépnevének automatikus feloldása visszatérés előtt"
+msgid ""
+"Resolve the host name of the selected service automatically before returning"
+msgstr ""
+"A kiválasztott szolgáltatás gépnevének automatikus feloldása visszatérés "
+"előtt"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -374,95 +378,97 @@ msgstr "Címcsalád"
 msgid "The address family for host name resolution"
 msgstr "Címcsalád a gépnév-feloldáshoz"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Avahi klienshiba: %s"
 
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Avahi feloldási hiba: %s"
 
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "A szolgáltatástípus (%s) tallózása a tartományban (%s) meghiúsult: %s"
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "ismeretlen"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Avahi tartományböngésző-hiba: %s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Az Avahi tartomány olvasása meghiúsult: %s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "A tallózandó szolgáltatástípusok listája üres."
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "A csatlakozás meghiúsult az Avahi kiszolgálóhoz: %s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Szolgáltatások tallózása a <b>helyi hálózaton</b>:"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Szolgáltatások tallózása a(z) <b>%s</b> tartományban:"
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Nem sikerült tallózót létrehozni a következőhöz: %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Nem sikerült $%2s típusú feloldót létrehozni a következőhöz: $%1s a(z) $%3s tartományban: $%4s"
+msgstr ""
+"Nem sikerült $%2s típusú feloldót létrehozni a következőhöz: $%1s a(z) $%3s "
+"tartományban: $%4s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Nem sikerült tartománytallózót létrehozni: %s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "Tartomány módosítása"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "Tallózás…"
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "Előkészítés…"
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "Hely"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Név"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Típus"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "_Tartomány…"
 
@@ -555,7 +561,9 @@ msgstr ": a gyorsítótár elfogyott\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "A(z) $%2s típusú $%1s szolgáltatás feloldása meghiúsult a(z) $%3s tartományban: $%4s\n"
+msgstr ""
+"A(z) $%2s típusú $%1s szolgáltatás feloldása meghiúsult a(z) $%3s "
+"tartományban: $%4s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -647,7 +655,8 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -657,11 +666,14 @@ msgstr ""
 "    -h --help            Ezen súgó megjelenítése\n"
 "    -V --version         Verziószám megjelenítése\n"
 "    -D --browse-domains  Szolgáltatások helyett tartományok tallózása\n"
-"    -a --all             Minden szolgáltatás megjelenítése, típusfüggetlenül\n"
+"    -a --all             Minden szolgáltatás megjelenítése, "
+"típusfüggetlenül\n"
 "    -d --domain=TARTOMÁNY  A tallózandó tartomány\n"
 "    -v --verbose         Részletes mód engedélyezése\n"
-"    -t --terminate       Befejezés a többé-kevésbé teljes lista kiírása után\n"
-"    -c --cache           Befejezés a gyorsítótár bejegyzéseinek kiírása után\n"
+"    -t --terminate       Befejezés a többé-kevésbé teljes lista kiírása "
+"után\n"
+"    -c --cache           Befejezés a gyorsítótár bejegyzéseinek kiírása "
+"után\n"
 "    -l --ignore-local    Helyi szolgáltatások figyelmen kívül hagyása\n"
 "    -r --resolve         Talált szolgáltatások feloldása\n"
 "    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"
@@ -739,7 +751,8 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
@@ -753,7 +766,8 @@ msgstr ""
 "    -v --verbose         Részletes mód engedélyezése\n"
 "    -d --domain=TARTOMÁNY  Szolgáltatás közzététele ebben a tartományban\n"
 "    -H --host=TARTOMÁNY  A szolgáltatás ezen a gépen található\n"
-"       --subtype=ALTÍPUS További altípus, amellyel a szolgáltatás regisztrálandó\n"
+"       --subtype=ALTÍPUS További altípus, amellyel a szolgáltatás "
+"regisztrálandó\n"
 "    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"
 "    -R --no-reverse      Ne tegye közzé a fordított bejegyzést címmel\n"
 "    -f --no-fail         Ne hibázzon, ha a démon nem érhető el\n"

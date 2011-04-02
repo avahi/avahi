@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-29 08:42+0000\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-09-05 17:46+0900\n"
 "Last-Translator: Hideki Yamane (Debian-JP) <henrich@debian.or.jp>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -316,7 +317,7 @@ msgstr "サービスタイプ"
 msgid "The service type of the selected service"
 msgstr "選択されたサービスのサービスタイプ"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "サービス名"
 
@@ -381,95 +382,95 @@ msgstr "アドレスファミリ"
 msgid "The address family for host name resolution"
 msgstr "ホスト名解決に利用するアドレスファミリ"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Avahi クライアントが失敗しました: %s"
 
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Avahi リゾルバが失敗しました: %s"
 
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "ドメイン %2$s にてサービスタイプ %1$s の検索に失敗しました: %3$s"
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "n/a"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Avahi ドメインブラウザが失敗しました: %s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Avahi ドメインの読み込みに失敗しました: %s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "検索サービスタイプのリストが空です!"
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Avahi サーバへの接続が失敗ました: %s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "<b>ローカルネットワーク</b>でのサービス検索:"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "ドメイン <b>%s</b> でのサービス検索:"
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "%1$s のブラウザ作成に失敗しました: %2$s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "ドメイン %3$s のタイプ %2$s の %1$s のリゾルバ作成に失敗しました: %4$s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "ドメインブラウザの作成に失敗しました: %s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "ドメインの変更"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "検索中…"
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "初期化中…"
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "場所"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "名前"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "タイプ"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "ドメイン(_D)…"
 
@@ -562,8 +563,8 @@ msgstr ": キャッシュが不足しています\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: %4"
-"$s\n"
+"ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: "
+"%4$s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format

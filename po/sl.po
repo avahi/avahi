@@ -7,15 +7,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: avahi master\n"
-"Report-Msgid-Bugs-To: http://avahi.org/report\n"
-"POT-Creation-Date: 2010-09-16 15:24+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-09-22 08:10+0100\n"
 "Last-Translator: Matej Urbančič <matej.urban@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n%100==4 ? 3 : 0);\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
+"%100==4 ? 3 : 0);\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -315,8 +317,7 @@ msgstr "Vrsta storitve"
 msgid "The service type of the selected service"
 msgstr "Vrsta izbrane storitve"
 
-#: ../avahi-ui/avahi-ui.c:202
-#: ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "Ime storitve"
 
@@ -369,7 +370,8 @@ msgid "Resolve Service Host Name"
 msgstr "Ime gostitelja storitve razreševanja"
 
 #: ../avahi-ui/avahi-ui.c:236
-msgid "Resolve the host name of the selected service automatically before returning"
+msgid ""
+"Resolve the host name of the selected service automatically before returning"
 msgstr "Samodejno razreši ime gostitelja izbrane storitve pred povratkom"
 
 #: ../avahi-ui/avahi-ui.c:242
@@ -380,100 +382,96 @@ msgstr "Družina naslova"
 msgid "The address family for host name resolution"
 msgstr "Družina naslova za razreševanje imena gostitelja"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Dejanje odjemalca Avahi je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Razreševanje podatkov Avahi je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Brskanje za storitev vrste %s v domeni %s je spodletela: %s"
 
-#: ../avahi-ui/avahi-ui.c:517
-#: ../avahi-utils/avahi-browse.c:168
-#: ../avahi-utils/avahi-browse.c:169
-#: ../avahi-utils/avahi-browse.c:178
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "ni na voljo"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Dejanje domenskega brskalnika Avahi je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Branje domene Avahi je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "Seznam brskanja vrst storitev je prazen!"
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Povezovanje s strežnikom Avahi je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Brskanje za storitvami na <b>krajevnem omrežju</b>:"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Brskanje za storitvami v domeni <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Ustvarjanje brskalnika za %s je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Ustvarjanje razreševalnika za %s vrste %s v domeni %s je spodletelo: %s"
+msgstr ""
+"Ustvarjanje razreševalnika za %s vrste %s v domeni %s je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Ustvarjanje brskalnika domen je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "Spremeni domeno"
 
-#: ../avahi-ui/avahi-ui.c:1027
-#: ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "Brskanje ..."
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "Začenjanje ..."
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "Mesto"
 
-#: ../avahi-ui/avahi-ui.c:1145
-#: ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Ime"
 
-#: ../avahi-ui/avahi-ui.c:1150
-#: ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Vrsta"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "_Domena ..."
 
@@ -496,8 +494,7 @@ msgstr ""
 "    -S --shell Brskanje za SSH in VNC strežniki\n"
 "    -d --domain=DOMENA Domena za brskanje\n"
 
-#: ../avahi-ui/bssh.c:101
-#: ../avahi-utils/avahi-browse.c:775
+#: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
 #, c-format
 msgid "Too many arguments\n"
 msgstr "Preveč argumentov\n"
@@ -563,11 +560,11 @@ msgstr ": Vse za zdaj\n"
 msgid ": Cache exhausted\n"
 msgstr ": Predpomnilnik je izčrpan\n"
 
-#: ../avahi-utils/avahi-browse.c:239
-#: ../avahi-utils/avahi-browse.c:261
+#: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "Razreševanje storitve '%s' vrste '%s' v domeni '%s' je spodletelo: %s\n"
+msgstr ""
+"Razreševanje storitve '%s' vrste '%s' v domeni '%s' je spodletelo: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -594,27 +591,21 @@ msgstr "ukaz avahi_service_type_browser_new() je spodletel: %s\n"
 msgid "avahi_domain_browser_new() failed: %s\n"
 msgstr "ukaz avahi_domain_browser_new() je spodletel: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:535
-#: ../avahi-utils/avahi-publish.c:394
-#: ../avahi-utils/avahi-resolve.c:280
-#: ../avahi-utils/avahi-set-host-name.c:168
+#: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
+#: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
 msgstr "Poizvedovanje niza različice je spodletelo: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:540
-#: ../avahi-utils/avahi-publish.c:399
-#: ../avahi-utils/avahi-resolve.c:285
-#: ../avahi-utils/avahi-set-host-name.c:173
+#: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
+#: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
 msgstr "Poizvedovanje imena gostitelja je spodletelo: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:544
-#: ../avahi-utils/avahi-publish.c:403
-#: ../avahi-utils/avahi-resolve.c:289
-#: ../avahi-utils/avahi-set-host-name.c:177
+#: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
+#: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
 msgstr "Različica strežnika: %s; ime gostitelja: %s\n"
@@ -634,32 +625,25 @@ msgid "E Ifce Prot %-*s %-20s Domain\n"
 msgstr "E Ifce Prot %-*s %-20s domena\n"
 
 #. We have been disconnected, so let reconnect
-#: ../avahi-utils/avahi-browse.c:585
-#: ../avahi-utils/avahi-publish.c:163
+#: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
 msgstr "Povezava je prekinjena; poteka ponovno povezovanje ...\n"
 
-#: ../avahi-utils/avahi-browse.c:599
-#: ../avahi-utils/avahi-browse.c:829
-#: ../avahi-utils/avahi-publish.c:170
-#: ../avahi-utils/avahi-publish.c:386
-#: ../avahi-utils/avahi-resolve.c:272
-#: ../avahi-utils/avahi-set-host-name.c:160
+#: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
+#: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
+#: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
 msgstr "Ustvarjanje predmeta odjemalca je spodletelo: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:604
-#: ../avahi-utils/avahi-publish.c:175
-#: ../avahi-utils/avahi-resolve.c:143
-#: ../avahi-utils/avahi-set-host-name.c:59
+#: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
+#: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
 msgstr "Spodletelo izvajanje odjemalca, zato bo dejanje končano: %s\n"
 
-#: ../avahi-utils/avahi-browse.c:623
-#: ../avahi-utils/avahi-publish.c:206
+#: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
 msgstr "Čakanje na ozadnji program ...\n"
@@ -672,7 +656,8 @@ msgid ""
 "    -a --all             Show all services, regardless of the type\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 "    -v --verbose         Enable verbose mode\n"
-"    -t --terminate       Terminate after dumping a more or less complete list\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
 "    -c --cache           Terminate after dumping all entries from the cache\n"
 "    -l --ignore-local    Ignore local services\n"
 "    -r --resolve         Resolve services found\n"
@@ -686,16 +671,13 @@ msgid ""
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-browse.c:766
-#: ../avahi-utils/avahi-resolve.c:219
+#: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
 msgstr "Premalo argumentov\n"
 
-#: ../avahi-utils/avahi-browse.c:821
-#: ../avahi-utils/avahi-publish.c:378
-#: ../avahi-utils/avahi-resolve.c:264
-#: ../avahi-utils/avahi-set-host-name.c:152
+#: ../avahi-utils/avahi-browse.c:821 ../avahi-utils/avahi-publish.c:378
+#: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
 msgstr "Ustvarjanje predmeta enostavne ankete je spodletelo.\n"
@@ -753,13 +735,13 @@ msgid ""
 "    -v --verbose         Enable verbose mode\n"
 "    -d --domain=DOMAIN   Domain to publish service in\n"
 "    -H --host=DOMAIN     Host where service resides\n"
-"       --subtype=SUBTYPE An additional subtype to register this service with\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-publish.c:303
-#: ../avahi-utils/avahi-publish.c:318
+#: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
 msgstr "Napačno število argumentov.\n"
@@ -769,8 +751,7 @@ msgstr "Napačno število argumentov.\n"
 msgid "Failed to parse port number: %s\n"
 msgstr "Razreševanje številke vrat je spodletelo: %s\n"
 
-#: ../avahi-utils/avahi-publish.c:361
-#: ../avahi-utils/avahi-resolve.c:246
+#: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
 msgstr "Ni določenega ukaza.\n"
@@ -800,8 +781,7 @@ msgid ""
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
 
-#: ../avahi-utils/avahi-resolve.c:299
-#: ../avahi-utils/avahi-set-host-name.c:181
+#: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr "Ustvarjanje razreševalnika gostiteljskih imen je spodletelo: %s\n"
@@ -835,4 +815,3 @@ msgstr "Neveljavno število argumentov, saj je pričakovan le en.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Ime gostitelja je uspešno spremenjeno v %s\n"
-

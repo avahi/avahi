@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-13 03:02+0200\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-03-04 11:23+0100\n"
 "Last-Translator: Fran Diéguez <frandieguez@ubuntu.com>\n"
 "Language-Team: Galician <proxecto@trasno.net>\n"
+"Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -317,7 +318,7 @@ msgstr "Tipo de servizo"
 msgid "The service type of the selected service"
 msgstr "O tipo de servizo do servizo seleccionado"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "Nome do servizo"
 
@@ -384,98 +385,98 @@ msgstr "Familia de enderezos"
 msgid "The address family for host name resolution"
 msgstr "A familia de enderezos para a localización de nomes de servidor"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Produciuse un erro no cliente Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Produciuse un erro no localizador Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr ""
 "Produciuse un erro ao navegar polo tipo de servizo %s no dominio %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "n/d"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Produciuse un erro no navegador de dominios Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Non foi posíbel ler o dominio de Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "A lista de navegación por tipo de servizo está baleira!"
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Non foi posíbel conectar co servidor Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Navegando polos servizos na <b>rede local</b>:"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Navegando polos servizos no dominio <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Produciuse un erro ao crear un navegador para %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Produciuse un erro ao crear un localizador para %s do tipo %s no dominio %s: "
 "%s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Produciuse un erro ao crear un navegador de dominios: %s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "Cambiar o dominio"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "Navegando..."
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "Inicializando..."
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "Localización"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Nome"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Tipo"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "_Dominio..."
 
@@ -568,7 +569,8 @@ msgstr ": Cache esgotada\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Produciuse un erro ao resolver o servizo «%s» do tipo «%s» no dominio «%s»: %s\n"
+"Produciuse un erro ao resolver o servizo «%s» do tipo «%s» no dominio «%s»: "
+"%s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -829,8 +831,8 @@ msgstr ""
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
 msgstr ""
-"Produciuse un erro ao crear o proceso de localización de nomes de servidor: %"
-"s\n"
+"Produciuse un erro ao crear o proceso de localización de nomes de servidor: "
+"%s\n"
 
 #: ../avahi-utils/avahi-resolve.c:309
 #, c-format

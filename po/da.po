@@ -13,10 +13,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-29 08:42+0000\n"
+"POT-Creation-Date: 2011-04-02 03:23+0200\n"
 "PO-Revision-Date: 2010-08-24 21:06+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -318,7 +319,7 @@ msgstr "Tjenestetype"
 msgid "The service type of the selected service"
 msgstr "Tjenestetypen på den valgte tjeneste"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1019
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
 msgid "Service Name"
 msgstr "Tjenestenavn"
 
@@ -373,8 +374,7 @@ msgstr "Opløs tjenesteværtsnavn"
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr ""
-"Opløs værtsnavnet på den valgte tjeneste automatisk før returnering"
+msgstr "Opløs værtsnavnet på den valgte tjeneste automatisk før returnering"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -384,14 +384,14 @@ msgstr "Adressefamilie"
 msgid "The address family for host name resolution"
 msgstr "Adressefamilien for værtsnavnsopløsning"
 
-#: ../avahi-ui/avahi-ui.c:324
+#: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
 msgstr "Klientfejl for Avahi: %s"
 
 # GNOME gvfs: har opløser for resolver.
 # måske klarlægger
-#: ../avahi-ui/avahi-ui.c:386
+#: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
 msgstr "Opløserfejl for Avahi: %s"
@@ -399,85 +399,85 @@ msgstr "Opløserfejl for Avahi: %s"
 # måske omvendt og omarrangér %s'erne:
 # Kunne ikke gennemse domæne %$2s for tjenestetype %$1s: %$3s
 # (det er muligt at det er $%2s el. tilsv., kan ikke lige huske formatet)
-#: ../avahi-ui/avahi-ui.c:516
+#: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
 msgstr "Kunne ikke gennemse domæne $%2s for tjenestetype $%1s: $%3s"
 
-#: ../avahi-ui/avahi-ui.c:517 ../avahi-utils/avahi-browse.c:168
+#: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
 msgstr "-"
 
-#: ../avahi-ui/avahi-ui.c:647
+#: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
 msgstr "Domænebrowserfejl for Avahi: %s"
 
-#: ../avahi-ui/avahi-ui.c:682
+#: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
 msgstr "Kunne ikke læse Avahidomæne: %s"
 
-#: ../avahi-ui/avahi-ui.c:704
+#: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr "Listen over typer af gennemsynstjenester er tom!"
 
-#: ../avahi-ui/avahi-ui.c:715
+#: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr "Kunne ikke forbinde til Avahiserver: %s"
 
-#: ../avahi-ui/avahi-ui.c:733
+#: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
 msgstr "Gennemser for tjenester på <b>lokalnetværk</b>:"
 
-#: ../avahi-ui/avahi-ui.c:735
+#: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
 msgstr "Gennemser efter tjenester i domæne <b>%s</b>:"
 
-#: ../avahi-ui/avahi-ui.c:771
+#: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Kunne ikke oprette browser for %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:901
+#: ../avahi-ui/avahi-ui.c:903
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "Kunne ikke oprette opløser for %s af typen %s i domæne %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:976
+#: ../avahi-ui/avahi-ui.c:978
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Kunne ikke oprette domænebrowser: %s"
 
-#: ../avahi-ui/avahi-ui.c:987
+#: ../avahi-ui/avahi-ui.c:989
 msgid "Change domain"
 msgstr "Ændr domæne"
 
-#: ../avahi-ui/avahi-ui.c:1027 ../avahi-ui/avahi-ui.c:1158
+#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
 msgid "Browsing..."
 msgstr "Gennemser..."
 
-#: ../avahi-ui/avahi-ui.c:1116
+#: ../avahi-ui/avahi-ui.c:1120
 msgid "Initializing..."
 msgstr "Initialiserer..."
 
-#: ../avahi-ui/avahi-ui.c:1140
+#: ../avahi-ui/avahi-ui.c:1144
 msgid "Location"
 msgstr "Sted"
 
-#: ../avahi-ui/avahi-ui.c:1145 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Navn"
 
-#: ../avahi-ui/avahi-ui.c:1150 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Type"
 
-#: ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1166
 msgid "_Domain..."
 msgstr "_Domæne..."
 
@@ -679,13 +679,15 @@ msgid ""
 msgstr ""
 "    -h --help            Vis denne hjælp\n"
 "    -V --version         Vis version\n"
-"    -D --browse-domains  Gennemse efter browsingdomæner i steden for tjenester\n"
+"    -D --browse-domains  Gennemse efter browsingdomæner i steden for "
+"tjenester\n"
 "    -a --all             Vis alle tjenester, uanset typen\n"
 "    -d --domain=DOMÆNE   Domænet der skal gennemses i\n"
 "    -v --verbose         Aktiver uddybende tilstand\n"
-"    -t --terminate       Afslut efter dumpning af en mere eller mindre fuldstændig "
-"liste\n"
-"    -c --cache           Afslut efter dumpning af alle punkter i mellemlageret\n"
+"    -t --terminate       Afslut efter dumpning af en mere eller mindre "
+"fuldstændig liste\n"
+"    -c --cache           Afslut efter dumpning af alle punkter i "
+"mellemlageret\n"
 "    -l --ignore-local    Ignorer lokale tjenester\n"
 "    -r --resolve         Løs fundne tjenester\n"
 "    -f --no-fail         Giv ikke fejl hvis dæmonen ikke er tilgængelig\n"

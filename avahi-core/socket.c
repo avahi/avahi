@@ -726,7 +726,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
                 case IP_PKTINFO: {
                     struct in_pktinfo *i = (struct in_pktinfo*) CMSG_DATA(cmsg);
 
-                    if (ret_iface)
+                    if (ret_iface && i->ipi_ifindex > 0)
                         *ret_iface = (int) i->ipi_ifindex;
 
                     if (ret_dst_address)
@@ -742,12 +742,16 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
                 case IP_RECVIF: {
                     struct sockaddr_dl *sdl = (struct sockaddr_dl *) CMSG_DATA (cmsg);
 
-                    if (ret_iface)
+                    if (ret_iface) {
 #ifdef __sun
-                        *ret_iface = *(uint_t*) sdl;
+                        if (*(uint_t*) sdl > 0)
+                            *ret_iface = *(uint_t*) sdl;
 #else
-                        *ret_iface = (int) sdl->sdl_index;
+
+                        if (sdl->sdl_index > 0)
+                            *ret_iface = (int) sdl->sdl_index;
 #endif
+                    }
 
                     break;
                 }
@@ -874,7 +878,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
                 case IPV6_PKTINFO: {
                     struct in6_pktinfo *i = (struct in6_pktinfo*) CMSG_DATA(cmsg);
 
-                    if (ret_iface)
+                    if (ret_iface && i->ipi6_ifindex > 0)
                         *ret_iface = i->ipi6_ifindex;
 
                     if (ret_dst_address)

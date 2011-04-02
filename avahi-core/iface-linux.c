@@ -181,8 +181,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         AvahiInterface *i;
         struct rtattr *a = NULL;
         size_t l;
-        AvahiAddress raddr;
-        int raddr_valid = 0;
+        AvahiAddress raddr, rlocal, *r;
+        int raddr_valid = 0, rlocal_valid = 0;
 
         /* We are only interested in IPv4 and IPv6 */
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
@@ -195,7 +195,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             return;
 
         /* Fill in address family for our new address */
-        raddr.proto = avahi_af_to_proto(ifaddrmsg->ifa_family);
+        rlocal.proto = raddr.proto = avahi_af_to_proto(ifaddrmsg->ifa_family);
 
         l = NLMSG_PAYLOAD(n, sizeof(struct ifaddrmsg));
         a = IFA_RTA(ifaddrmsg);
@@ -203,8 +203,25 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         while (RTA_OK(a, l)) {
 
             switch(a->rta_type) {
+
+                case IFA_ADDRESS:
+
+                    if ((rlocal.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
+                        (rlocal.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
+                        return;
+
+                    memcpy(rlocal.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
+                    rlocal_valid = 1;
+
+                    break;
+
                 case IFA_LOCAL:
-                    /* Fill in address data */
+
+                    /* Fill in local address data. Usually this is
+                     * preferable over IFA_ADDRESS if both are set,
+                     * since this refers to the local address of a PPP
+                     * link while IFA_ADDRESS refers to the other
+                     * end. */
 
                     if ((raddr.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
                         (raddr.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
@@ -223,17 +240,21 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         }
 
         /* If there was no adress attached to this message, let's quit. */
-        if (!raddr_valid)
+        if (rlocal_valid)
+            r = &rlocal;
+        else if (raddr_valid)
+            r = &raddr;
+        else
             return;
 
         if (n->nlmsg_type == RTM_NEWADDR) {
             AvahiInterfaceAddress *addr;
 
             /* This address is new or has been modified, so let's get an object for it */
-            if (!(addr = avahi_interface_monitor_get_address(m, i, &raddr)))
+            if (!(addr = avahi_interface_monitor_get_address(m, i, r)))
 
                 /* Mmm, no object existing yet, so let's create a new one */
-                if (!(addr = avahi_interface_address_new(m, i, &raddr, ifaddrmsg->ifa_prefixlen)))
+                if (!(addr = avahi_interface_address_new(m, i, r, ifaddrmsg->ifa_prefixlen)))
                     return; /* OOM */
 
             /* Update the scope field for the address */
@@ -244,7 +265,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             assert(n->nlmsg_type == RTM_DELADDR);
 
             /* Try to get a reference to our AvahiInterfaceAddress object for this address */
-            if (!(addr = avahi_interface_monitor_get_address(m, i, &raddr)))
+            if (!(addr = avahi_interface_monitor_get_address(m, i, r)))
                 return;
 
             /* And free it */

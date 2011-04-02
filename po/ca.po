@@ -882,3 +882,4 @@ msgstr "Nombre d'arguments incorrecte, s'esperava un exactament.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "S'ha canviat correctament el mon del host a %s\n"
+

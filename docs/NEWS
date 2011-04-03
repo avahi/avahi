@@ -3,6 +3,17 @@ Avahi 0.6.29
 
 This is a bugfix release.
 
+ * Make IPv6 work again
+ * i18n updates
+ * Minor other updates
+
+This release is backwards compatible with Avahi 0.6.x with x < 30.
+
+Avahi 0.6.29
+============
+
+This is a bugfix release.
+
  * Updates regarding systemd integration
  * Compatibility with newer gtk3 and gobject introspection
  * i18n updates

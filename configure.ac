@@ -19,7 +19,7 @@
 # USA.
 
 AC_PREREQ(2.63)
-AC_INIT([avahi],[0.6.29],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.6.30],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_MACRO_DIR([common])
 AC_CONFIG_HEADERS([config.h])
@@ -27,9 +27,9 @@ AM_INIT_AUTOMAKE([foreign 1.11 -Wall -Wno-portability silent-rules tar-pax])
 
 AC_SUBST(PACKAGE_URL, [http://avahi.org/])
 
-AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:2:5])
-AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [7:1:0])
-AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:8:2])
+AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:3:5])
+AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [7:2:0])
+AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:9:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:4:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])

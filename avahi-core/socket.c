@@ -767,7 +767,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
 #endif
 
                 default:
-                    avahi_log_warn("Unhandled cmsg_type : %d", cmsg->cmsg_type);
+                    avahi_log_warn("Unhandled cmsg_type: %d", cmsg->cmsg_type);
                     break;
             }
         }
@@ -889,7 +889,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
                 }
 
                 default:
-                    avahi_log_warn("Unhandled cmsg_type : %d", cmsg->cmsg_type);
+                    avahi_log_warn("Unhandled cmsg_type: %d", cmsg->cmsg_type);
                     break;
             }
         }

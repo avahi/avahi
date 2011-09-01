@@ -18,7 +18,6 @@
 [Unit]
 Description=Avahi mDNS/DNS-SD Stack
 Requires=avahi-daemon.socket
-After=syslog.target
 
 [Service]
 Type=dbus

@@ -18,7 +18,7 @@
 [Unit]
 Description=Avahi DNS Configuration Daemon
 Requires=avahi-daemon.socket avahi-daemon.service
-After=syslog.target avahi-daemon.socket
+After=avahi-daemon.socket
 
 [Service]
 Type=simple

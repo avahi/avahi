@@ -17,7 +17,7 @@
 
 EXTRA_DIST = __init__.py ServiceTypeDatabase.py.in
 
-pkglibdatadir=$(prefix)/lib/avahi
+pkglibdatadir=$(libdir)/avahi
 
 if HAVE_PYTHON
 

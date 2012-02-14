@@ -17,7 +17,7 @@
 
 EXTRA_DIST=build-db.in service-types
 
-pkglibdatadir=$(prefix)/lib/avahi
+pkglibdatadir=$(libdir)/avahi
 
 pkgdata_DATA=service-types
 pkglibdata_DATA=

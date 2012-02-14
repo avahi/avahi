@@ -1,4 +1,13 @@
-Avahi 0.6.29
+Avahi 0.6.31
+============
+
+This is a bugfix release.
+
+ * Fix compatibility with newest autoconf
+
+This release is backwards compatible with Avahi 0.6.x with x < 31.
+
+Avahi 0.6.30
 ============
 
 This is a bugfix release.

@@ -26,7 +26,7 @@ locale.setlocale(locale.LC_ALL, '')
 class ServiceTypeDatabase:
     """ServiceTypeDatabase maps service types to descriptions"""
 
-    def __init__(self, filename = "@pkglibdir@/service-types.db"):
+    def __init__(self, filename = "@pkglibdatadir@/service-types.db"):
 
         self.db = @DBM@.open(filename, "r")
 
@@ -46,13 +46,13 @@ class ServiceTypeDatabase:
             if i >= 0:
 
                 k = l[0][:i]
-                
+
                 if not l[1] is None:
                     self.suffixes += (k + "@" + l[1], )
 
                 self.suffixes += (k, )
-            
-            
+
+
         self.suffixes = tuple(map(lambda x:  "["+x+"]", self.suffixes)) + ("", )
 
     def __getitem__(self, key):
@@ -75,7 +75,7 @@ class ServiceTypeDatabase:
 
             if self.db.has_key(key + suffix):
                 return True
-            
+
         return False
 
     def __contains__(self, item):
@@ -86,7 +86,7 @@ class ServiceTypeDatabase:
                 return True
 
         return False
-        
+
 
     def __iter__(self):
 
@@ -134,9 +134,9 @@ class ServiceTypeDatabase:
     def values(self):
 
         return list(self.itervalues())
-        
+
 if __name__ == "__main__":
-    
+
     b = ServiceTypeDatabase()
     print b.items()
 

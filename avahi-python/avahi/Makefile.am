@@ -17,10 +17,11 @@
 
 EXTRA_DIST = __init__.py ServiceTypeDatabase.py.in
 
+pkglibdatadir=$(prefix)/lib/avahi
+
 if HAVE_PYTHON
 
 avahidir = $(pythondir)/avahi
-
 
 if HAVE_GDBM
 nodist_avahi_SCRIPTS = ServiceTypeDatabase.py
@@ -31,7 +32,7 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 		-e 's,@FIRST_KEY\@,key = self.db.firstkey(),g' \
 		-e 's,@CHECK_KEY\@,while key is not None:,g' \
 		-e 's,@NEXT_KEY\@,key = self.db.nextkey(key),g' \
-		-e 's,@pkglibdir\@,$(pkglibdir),g' $< > $@ && \
+		-e 's,@pkglibdatadir\@,$(pkglibdatadir),g' $< > $@ && \
 	chmod +x $@
 endif
 
@@ -44,7 +45,7 @@ ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 		-e 's,@FIRST_KEY\@,keys = self.db.keys(),g' \
 		-e 's,@CHECK_KEY\@,for key in keys:,g' \
 		-e 's,@NEXT_KEY\@,,g' \
-		-e 's,@pkglibdir\@,$(pkglibdir),g' $< > $@ && \
+		-e 's,@pkglibdatadir\@,$(pkglibdatadir),g' $< > $@ && \
 	chmod +x $@
 endif
 

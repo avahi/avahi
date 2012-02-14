@@ -20,6 +20,8 @@ AM_CFLAGS=-I$(top_srcdir) -DG_DISABLE_DEPRECATED=1 -DGDK_DISABLE_DEPRECATED=1 -D
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+pkglibdatadir=$(prefix)/lib/avahi
+
 desktopdir = $(datadir)/applications
 desktop_DATA =
 desktop_DATA_in = $(desktop_DATA_in_in:.in.in=.in)
@@ -62,18 +64,18 @@ libavahi_ui_gtk3_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_UI_VERSION
 
 if HAVE_GDBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
-libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 libavahi_ui_la_LIBADD += -lgdbm
 
-libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 libavahi_ui_gtk3_la_LIBADD += -lgdbm
 endif
 
 if HAVE_DBM
 libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
-libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 
-libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 endif
 
 bin_PROGRAMS = bssh

@@ -20,6 +20,8 @@ AM_CFLAGS=-I$(top_srcdir)
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
+pkglibdatadir=$(prefix)/lib/avahi
+
 if HAVE_DBUS
 
 bin_PROGRAMS = avahi-browse avahi-resolve avahi-publish avahi-set-host-name
@@ -30,13 +32,13 @@ avahi_browse_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-com
 
 if HAVE_GDBM
 avahi_browse_SOURCES += stdb.h stdb.c
-avahi_browse_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+avahi_browse_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 avahi_browse_LDADD += -lgdbm
 endif
 
 if HAVE_DBM
 avahi_browse_SOURCES += stdb.h stdb.c
-avahi_browse_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+avahi_browse_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 endif
 
 avahi_resolve_SOURCES = avahi-resolve.c sigint.c sigint.h

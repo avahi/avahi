@@ -17,14 +17,16 @@
 
 EXTRA_DIST=build-db.in service-types
 
+pkglibdatadir=$(prefix)/lib/avahi
+
 pkgdata_DATA=service-types
-pkglib_DATA=
+pkglibdata_DATA=
 
 if HAVE_PYTHON
 if HAVE_GDBM
 
 noinst_SCRIPTS=build-db
-pkglib_DATA+=service-types.db
+pkglibdata_DATA+=service-types.db
 
 build-db: build-db.in
 	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \
@@ -41,7 +43,7 @@ endif
 if HAVE_DBM
 
 noinst_SCRIPTS=build-db
-pkglib_DATA+=service-types.db.pag service-types.db.dir
+pkglibdata_DATA+=service-types.db.pag service-types.db.dir
 
 build-db: build-db.in
 	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \

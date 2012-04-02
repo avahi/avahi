@@ -1582,9 +1582,9 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->host_name = NULL;
     c->domain_name = NULL;
     c->check_response_ttl = 0;
-    c->publish_hinfo = 1;
+    c->publish_hinfo = 0;
     c->publish_addresses = 1;
-    c->publish_workstation = 1;
+    c->publish_workstation = 0;
     c->publish_domain = 1;
     c->use_iff_running = 0;
     c->enable_reflector = 0;

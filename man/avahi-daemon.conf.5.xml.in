@@ -244,7 +244,7 @@
       useful for administrative purposes. This is recommended by the
       mDNS specification but not required. For the sake of privacy
       you might choose to disable this feature. Defaults to
-      "yes."</p>
+      "no".</p>
     </option>
 
     <option>
@@ -254,7 +254,7 @@
       might be useful for administrative purposes (i.e. browse for
       all PCs on the LAN), but is not required or recommended by any
       specification. Newer MacOS X releases register a service of
-      this type. Defaults to "yes".</p>
+      this type. Defaults to "no".</p>
     </option>
 
     <option>

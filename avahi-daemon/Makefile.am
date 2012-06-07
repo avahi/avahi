@@ -169,7 +169,7 @@ xmllint:
 	done
 
 install-data-local:
-	test -z "$(localstatedir)/run" || $(mkdir_p) "$(DESTDIR)$(localstatedir)/run"
+	test -z "$(localstatedir)/run" || $(MKDIR_P) "$(DESTDIR)$(localstatedir)/run"
 
 update-systemd:
 	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.c > sd-daemon.c

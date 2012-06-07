@@ -76,7 +76,7 @@ dhcliententerdir = $(sysconfdir)/dhcp/dhclient-enter-hooks.d
 dhclientexitdir = $(sysconfdir)/dhcp/dhclient-exit-hooks.d
 
 install-exec-hook: dhclient-exit-hook dhclient-enter-hook
-	$(mkdir_p) $(DESTDIR)$(dhcliententerdir) $(DESTDIR)$(dhclientexitdir)
+	$(MKDIR_P) $(DESTDIR)$(dhcliententerdir) $(DESTDIR)$(dhclientexitdir)
 	$(INSTALL) dhclient-enter-hook $(DESTDIR)$(dhcliententerdir)/avahi-autoipd
 	$(INSTALL) dhclient-exit-hook $(DESTDIR)$(dhclientexitdir)/avahi-autoipd
 

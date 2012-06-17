@@ -54,7 +54,8 @@ avahi_set_host_name_CFLAGS = $(AM_CFLAGS)
 avahi_set_host_name_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
 install-exec-local:
-	cd $(DESTDIR)/$(bindir) && \
+	$(mkdir_p) $(DESTDIR)/$(bindir) && \
+		cd $(DESTDIR)/$(bindir) && \
 		rm -f avahi-resolve-host-name avahi-resolve-address avahi-browse-domains avahi-publish-address avahi-publish-service && \
 		$(LN_S) avahi-resolve avahi-resolve-host-name && \
 		$(LN_S) avahi-resolve avahi-resolve-address && \

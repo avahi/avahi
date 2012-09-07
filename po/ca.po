@@ -118,7 +118,7 @@ msgid "Invalid operation"
 msgstr "Operació no vàlida"
 
 #: ../avahi-common/error.c:54
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr "S'ha produït un error inesperat al D-Bus"
 
 #: ../avahi-common/error.c:55

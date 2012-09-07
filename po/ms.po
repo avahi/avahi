@@ -121,7 +121,7 @@ msgstr "Tanda operasi:"
 
 #: ../avahi-common/error.c:54
 #, fuzzy
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr ""
 "Ralat tidak dijangka telah berlaku:\n"
 "%s"

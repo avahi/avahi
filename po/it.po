@@ -114,7 +114,7 @@ msgid "Invalid operation"
 msgstr "Operazione non valida"
 
 #: ../avahi-common/error.c:54
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr "Si è verificato un errore D-Bus inatteso"
 
 #: ../avahi-common/error.c:55

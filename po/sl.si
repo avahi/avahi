@@ -122,7 +122,7 @@ msgstr "Neveljavno dejanje"
 
 #: ../avahi-common/error.c:54
 #, fuzzy
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr "Med obdelavo \"{0}\": {1} je prišlo do napake"
 
 #: ../avahi-common/error.c:55

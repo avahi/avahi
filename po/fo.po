@@ -107,7 +107,7 @@ msgid "Invalid operation"
 msgstr "Ógildug atgerð"
 
 #: ../avahi-common/error.c:54
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr "Ein óvantað D-BUS villa hendi"
 
 #: ../avahi-common/error.c:55

@@ -111,7 +111,7 @@ msgstr "Neplatná operace"
 
 #: ../avahi-common/error.c:54
 #, fuzzy
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr "Došlo k následující chybě:"
 
 #: ../avahi-common/error.c:55

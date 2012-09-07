@@ -109,7 +109,7 @@ msgid "Invalid operation"
 msgstr "Нетачна операција"
 
 #: ../avahi-common/error.c:54
-msgid "An unexpected D-Bus error occured"
+msgid "An unexpected D-Bus error occurred"
 msgstr "Десила се неочекивана грешка у D-Bus софтверу"
 
 #: ../avahi-common/error.c:55

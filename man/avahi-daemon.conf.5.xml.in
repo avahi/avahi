@@ -40,6 +40,12 @@
     </option>
 
     <option>
+      <p><opt>host-name-from-machine-id=</opt> Takes a boolean
+      value ("yes" or "no"). If set to "yes" avahi-daemon
+      will use the machine-id as name on the LAN.</p>
+    </option>
+
+    <option>
       <p><opt>domain-name=</opt> Set the default domain name avahi-daemon
       tries to register its host name and services on the LAN in. If
       omitted defaults to ".local".</p>

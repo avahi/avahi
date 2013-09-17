@@ -1021,7 +1021,7 @@ if test x$manpages = xyes ; then
     fi
 
     if test x$have_xmltoman = xno -o x$xmltoman = xno; then
-        if ! test -e man/avahi-daemon.8 ; then
+        if ! test -e $srcdir/man/avahi-daemon.8 ; then
             AC_MSG_ERROR([*** xmltoman was not found or was disabled, it is required to build the manpages as they have not been pre-built, install xmltoman, pass --disable-manpages or dont pass --disable-xmltoman])
             exit 1
         fi

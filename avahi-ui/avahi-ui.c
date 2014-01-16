@@ -991,7 +991,11 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     gtk_dialog_set_has_separator(GTK_DIALOG(p->domain_dialog), FALSE);
 #endif
 
+#if GTK_CHECK_VERSION(3,0,0)
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+#else
     vbox = gtk_vbox_new(FALSE, 8);
+#endif
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(p->domain_dialog))), vbox, TRUE, TRUE, 0);
 
@@ -1002,7 +1006,11 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     g_signal_connect(p->domain_entry, "changed", G_CALLBACK(domain_entry_changed_callback), d);
     gtk_box_pack_start(GTK_BOX(vbox), p->domain_entry, FALSE, FALSE, 0);
 
+#if GTK_CHECK_VERSION(3,0,0)
+    vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+#else
     vbox2 = gtk_vbox_new(FALSE, 8);
+#endif
     gtk_box_pack_start(GTK_BOX(vbox), vbox2, TRUE, TRUE, 0);
 
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -1113,7 +1121,11 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 
     gtk_container_set_border_width(GTK_CONTAINER(d), 5);
 
+#if GTK_CHECK_VERSION(3,0,0)
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+#else
     vbox = gtk_vbox_new(FALSE, 8);
+#endif
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(d))), vbox, TRUE, TRUE, 0);
 
@@ -1123,7 +1135,11 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_box_pack_start(GTK_BOX(vbox), p->domain_label, FALSE, FALSE, 0);
 
 
+#if GTK_CHECK_VERSION(3,0,0)
+    vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+#else
     vbox2 = gtk_vbox_new(FALSE, 8);
+#endif
     gtk_box_pack_start(GTK_BOX(vbox), vbox2, TRUE, TRUE, 0);
 
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);

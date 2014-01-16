@@ -890,7 +890,11 @@ static void response_callback(GtkDialog *dialog, gint response, gpointer user_da
         gtk_widget_set_sensitive(GTK_WIDGET(dialog), FALSE);
         cursor = gdk_cursor_new(GDK_WATCH);
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(dialog)), cursor);
-        g_object_unref(G_OBJECT(cursor));
+#if GTK_CHECK_VERSION(3,0,0)
+        g_object_unref(cursor);
+#else
+        gdk_cursor_unref(cursor);
+#endif
 
         if (!(d->priv->resolver = avahi_service_resolver_new(
                       d->priv->client, interface, protocol, name, type, d->priv->domain,

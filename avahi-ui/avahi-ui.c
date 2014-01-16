@@ -1121,8 +1121,6 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     p->service_list_store = p->domain_list_store = NULL;
     p->service_type_names = NULL;
 
-    gtk_widget_push_composite_child();
-
     gtk_container_set_border_width(GTK_CONTAINER(d), 5);
 
 #if GTK_CHECK_VERSION(3,0,0)
@@ -1197,8 +1195,6 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_window_set_default_size(GTK_WINDOW(d), 400, 300);
 
     gtk_widget_show_all(vbox);
-
-    gtk_widget_pop_composite_child();
 
     p->glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
 

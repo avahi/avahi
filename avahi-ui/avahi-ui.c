@@ -1032,8 +1032,8 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->domain_progress_bar), 0.1);
     gtk_box_pack_end(GTK_BOX(vbox2), p->domain_progress_bar, FALSE, FALSE, 0);
 
-    gtk_dialog_add_button(GTK_DIALOG(p->domain_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-    p->domain_ok_button = GTK_WIDGET(gtk_dialog_add_button(GTK_DIALOG(p->domain_dialog), GTK_STOCK_OK, GTK_RESPONSE_ACCEPT));
+    gtk_dialog_add_button(GTK_DIALOG(p->domain_dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
+    p->domain_ok_button = GTK_WIDGET(gtk_dialog_add_button(GTK_DIALOG(p->domain_dialog), _("_OK"), GTK_RESPONSE_ACCEPT));
     gtk_dialog_set_default_response(GTK_DIALOG(p->domain_dialog), GTK_RESPONSE_ACCEPT);
     gtk_widget_set_sensitive(p->domain_ok_button, is_valid_domain_suffix(gtk_entry_get_text(GTK_ENTRY(p->domain_entry))));
 
@@ -1164,7 +1164,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     gtk_box_pack_end(GTK_BOX(vbox2), p->service_progress_bar, FALSE, FALSE, 0);
 
     p->domain_button = gtk_button_new_with_mnemonic(_("_Domain..."));
-    gtk_button_set_image(GTK_BUTTON(p->domain_button), gtk_image_new_from_stock(GTK_STOCK_NETWORK, GTK_ICON_SIZE_BUTTON));
+    gtk_button_set_image(GTK_BUTTON(p->domain_button), gtk_image_new_from_icon_name("network-workgroup", GTK_ICON_SIZE_BUTTON));
     g_signal_connect(p->domain_button, "clicked", G_CALLBACK(domain_button_clicked), d);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(d))), p->domain_button, FALSE, TRUE, 0);
     gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(gtk_dialog_get_action_area(GTK_DIALOG(d))), p->domain_button, TRUE);

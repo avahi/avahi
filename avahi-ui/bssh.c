@@ -146,19 +146,19 @@ int main(int argc, char*argv[]) {
             break;
 
         case COMMAND_SHELL:
-            d = aui_service_dialog_new(_("Choose Shell Server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+            d = aui_service_dialog_new(_("Choose Shell Server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
             aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "_ssh._tcp", NULL);
             aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_rfb._tcp", _("Desktop"));
             aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_ssh._tcp", _("Terminal"));
             break;
 
         case COMMAND_VNC:
-            d = aui_service_dialog_new(_("Choose VNC server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+            d = aui_service_dialog_new(_("Choose VNC server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
             aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
             break;
 
         case COMMAND_SSH:
-            d = aui_service_dialog_new(_("Choose SSH server"), NULL, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_CONNECT, GTK_RESPONSE_ACCEPT, NULL);
+            d = aui_service_dialog_new(_("Choose SSH server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
             aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
             break;
     }

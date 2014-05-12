@@ -1186,7 +1186,7 @@ fi
 
 BUILD_CLIENT="no   (You need avahi-daemon and D-Bus!)"
 
-if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" ; then
+if "x$HAVE_DBUS" = "xyes" ; then
     BUILD_CLIENT=yes
 fi
 

@@ -15,8 +15,29 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
+include $(top_srcdir)/common/glib-tap.mk
+
+dist_test_data = \
+        $(NULL)
+
+test_data = \
+	$(NULL)
+
+test_programs = \
+        glib-test 		\
+	$(NULL)
+
 AM_CFLAGS= \
-	-I$(top_srcdir)
+	-I$(top_srcdir) \
+        $(GLIB20_CFLAGS)
+
+LDADD= \
+	../avahi-common/libavahi-common.la \
+	../avahi-core/libavahi-core.la \
+	../avahi-client/libavahi-client.la \
+	../avahi-glib/libavahi-glib.la  \
+	$(GLIB20_LIBS) \
+	$(DBUS_LIBS)
 
 if HAVE_GLIB
 if HAVE_DBUS

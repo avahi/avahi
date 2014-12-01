@@ -1047,6 +1047,11 @@ AC_ARG_ENABLE(tests,
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$ENABLE_TESTS" = "xyes"])
 
 #
+# GLib Testing Framework
+#
+GLIB_TESTS
+
+#
 # Optionally enable libdns_sd compatibility support
 #
 AC_ARG_ENABLE(compat-libdns_sd,

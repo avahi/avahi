@@ -517,6 +517,9 @@ static int parse_command_line(DaemonConfig *c, int argc, char *argv[]) {
                 break;
             case OPTION_DEBUG:
                 c->debug = 1;
+#ifdef DAEMON_SET_VERBOSITY_AVAILABLE
+                daemon_set_verbosity(LOG_DEBUG);
+#endif
                 break;
             default:
                 return -1;

@@ -1536,6 +1536,9 @@ static int parse_command_line(int argc, char *argv[]) {
 
             case OPTION_DEBUG:
                 debug = 1;
+#ifdef DAEMON_SET_VERBOSITY_AVAILABLE
+                daemon_set_verbosity(LOG_DEBUG);
+#endif
                 break;
 
             case OPTION_FORCE_BIND:

@@ -1,0 +1,9 @@
+language: c
+compiler:
+  - gcc
+  - clang
+# Change this to your needs
+script: ./bootstrap.sh && make -j3
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get build-dep avahi avahi-sharp

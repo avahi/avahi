@@ -25,6 +25,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <sys/socket.h>
 #include <sys/wait.h>
 #ifdef __FreeBSD__

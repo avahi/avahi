@@ -706,6 +706,40 @@ static int load_config_file(DaemonConfig *c) {
                         c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
 
                     avahi_strfreev(e);
+                } else if (strcasecmp(p->key, "allow-addresses") == 0) {
+                    char **e, **t;
+
+                    e = avahi_split_csv(p->value);
+
+                    for (t = e; *t; t++) {
+                        AvahiAddressList *l = avahi_new(AvahiAddressList, 1);
+                        AVAHI_LLIST_INIT(AvahiAddressList, address, l);
+                        if (!avahi_address_parse(*t, AVAHI_PROTO_UNSPEC, &l->address)) {
+                            avahi_log_error("Invalid allow-addresses setting %s", p->value);
+                            avahi_strfreev(e);
+                            goto finish;
+                        }
+                        AVAHI_LLIST_PREPEND(AvahiAddressList, address, c->server_config.allow_addresses, l);
+                    }
+
+                    avahi_strfreev(e);
+                } else if (strcasecmp(p->key, "deny-addresses") == 0) {
+                    char **e, **t;
+
+                    e = avahi_split_csv(p->value);
+
+                    for (t = e; *t; t++) {
+                        AvahiAddressList *l = avahi_new(AvahiAddressList, 1);
+                        AVAHI_LLIST_INIT(AvahiAddressList, address, l);
+                        if (!avahi_address_parse(*t, AVAHI_PROTO_UNSPEC, &l->address)) {
+                            avahi_log_error("Invalid deny-addresses setting %s", p->value);
+                            avahi_strfreev(e);
+                            goto finish;
+                        }
+                        AVAHI_LLIST_PREPEND(AvahiAddressList, address, c->server_config.deny_addresses, l);
+                    }
+
+                    avahi_strfreev(e);
                 } else if (strcasecmp(p->key, "ratelimit-interval-usec") == 0) {
                     AvahiUsec k;
 

@@ -1579,6 +1579,8 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->use_ipv4 = 1;
     c->allow_interfaces = NULL;
     c->deny_interfaces = NULL;
+    AVAHI_LLIST_HEAD_INIT(AvahiAddressList, c->allow_addresses);
+    AVAHI_LLIST_HEAD_INIT(AvahiAddressList, c->deny_addresses);
     c->host_name = NULL;
     c->domain_name = NULL;
     c->check_response_ttl = 0;
@@ -1606,6 +1608,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
 }
 
 void avahi_server_config_free(AvahiServerConfig *c) {
+    AvahiAddressList *l, *next;
     assert(c);
 
     avahi_free(c->host_name);
@@ -1613,11 +1616,20 @@ void avahi_server_config_free(AvahiServerConfig *c) {
     avahi_string_list_free(c->browse_domains);
     avahi_string_list_free(c->allow_interfaces);
     avahi_string_list_free(c->deny_interfaces);
+    for (l = c->allow_addresses; l; l = next) {
+        next = l->address_next;
+        avahi_free(l);
+    }
+    for (l = c->deny_addresses; l; l = next) {
+        next = l->address_next;
+        avahi_free(l);
+    }
 }
 
 AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c) {
     char *d = NULL, *h = NULL;
     AvahiStringList *browse = NULL, *allow = NULL, *deny = NULL;
+    AvahiAddressList *l, *next, *allow_addresses = NULL, *deny_addresses = NULL;
     assert(ret);
     assert(c);
 
@@ -1626,30 +1638,42 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
             return NULL;
 
     if (c->domain_name)
-        if (!(d = avahi_strdup(c->domain_name))) {
-            avahi_free(h);
-            return NULL;
+        if (!(d = avahi_strdup(c->domain_name)))
+            goto clean;
+
+    if (!(browse = avahi_string_list_copy(c->browse_domains)) && c->browse_domains)
+        goto clean;
+
+    if (!(allow = avahi_string_list_copy(c->allow_interfaces)) && c->allow_interfaces)
+        goto clean;
+
+    if (!(deny = avahi_string_list_copy(c->deny_interfaces)) && c->deny_interfaces)
+        goto clean;
+
+    if (c->allow_addresses) {
+        if (!(allow_addresses = avahi_new(AvahiAddressList, 1)))
+            goto clean;
+        AVAHI_LLIST_INIT(AvahiAddressList, address, allow_addresses);
+        for (l = c->allow_addresses; l; l = l->address_next) {
+            if (!(next = avahi_new(AvahiAddressList, 1)))
+                goto clean;
+            AVAHI_LLIST_INIT(AvahiAddressList, address, next);
+            next->address = l->address;
+            AVAHI_LLIST_PREPEND(AvahiAddressList, address, allow_addresses, next);
         }
-
-    if (!(browse = avahi_string_list_copy(c->browse_domains)) && c->browse_domains) {
-        avahi_free(h);
-        avahi_free(d);
-        return NULL;
     }
 
-    if (!(allow = avahi_string_list_copy(c->allow_interfaces)) && c->allow_interfaces) {
-        avahi_string_list_free(browse);
-        avahi_free(h);
-        avahi_free(d);
-        return NULL;
-    }
-
-    if (!(deny = avahi_string_list_copy(c->deny_interfaces)) && c->deny_interfaces) {
-        avahi_string_list_free(allow);
-        avahi_string_list_free(browse);
-        avahi_free(h);
-        avahi_free(d);
-        return NULL;
+    if (c->deny_addresses) {
+        if (!(deny_addresses = avahi_new(AvahiAddressList, 1)))
+            goto clean;
+        AVAHI_LLIST_INIT(AvahiAddressList, address, allow_addresses);
+        for (l = c->deny_addresses; l; l = l->address_next) {
+            if (!(next = avahi_new(AvahiAddressList, 1)))
+                goto clean;
+            AVAHI_LLIST_INIT(AvahiAddressList, address, next);
+            next->address = l->address;
+            AVAHI_LLIST_PREPEND(AvahiAddressList, address, deny_addresses, next);
+        }
     }
 
     *ret = *c;
@@ -1658,8 +1682,35 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
     ret->browse_domains = browse;
     ret->allow_interfaces = allow;
     ret->deny_interfaces = deny;
+    ret->allow_addresses = allow_addresses;
+    ret->deny_addresses = deny_addresses;
 
     return ret;
+
+clean:
+    if (deny_addresses) {
+        for (l = deny_addresses; l; l = next) {
+            next = l->address_next;
+            avahi_free(l);
+        }
+    }
+    if (allow_addresses) {
+        for (l = allow_addresses; l; l = next) {
+            next = l->address_next;
+            avahi_free(l);
+        }
+    }
+    if (deny)
+        avahi_string_list_free(deny);
+    if (allow)
+        avahi_string_list_free(allow);
+    if (browse)
+        avahi_string_list_free(browse);
+    if (h)
+        avahi_free(h);
+    if (d)
+        avahi_free(d);
+    return NULL;
 }
 
 int avahi_server_errno(AvahiServer *s) {

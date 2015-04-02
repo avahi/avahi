@@ -25,6 +25,7 @@
 
 #include <avahi-common/cdecl.h>
 #include <avahi-common/address.h>
+#include <avahi-common/llist.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -41,6 +42,13 @@ int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a);
 /** Check whether the specified address is a link-local IPv4 or IPv6 address;
  * returns 1 if yes, 0 otherwise */
 int avahi_address_is_link_local(const AvahiAddress *a);
+
+typedef struct AvahiAddressList AvahiAddressList;
+
+struct AvahiAddressList {
+    AvahiAddress address;
+    AVAHI_LLIST_FIELDS(AvahiAddressList, address);
+};
 
 AVAHI_C_DECL_END
 

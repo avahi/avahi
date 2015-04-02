@@ -31,6 +31,7 @@ typedef struct AvahiServer AvahiServer;
 #include <avahi-common/watch.h>
 #include <avahi-common/timeval.h>
 #include <avahi-core/rr.h>
+#include <avahi-core/addr-util.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -48,6 +49,8 @@ typedef struct AvahiServerConfig {
     int use_ipv6;                     /**< Enable IPv6 support */
     AvahiStringList *allow_interfaces;/**< Allow specific interface to be used for Avahi */
     AvahiStringList *deny_interfaces; /**< Deny specific interfaces to be used for Avahi */
+    AVAHI_LLIST_HEAD(AvahiAddressList, allow_addresses); /**< Allow specific IP addresses to be used for Avahi */
+    AVAHI_LLIST_HEAD(AvahiAddressList, deny_addresses); /**< Deny specific IP addresses to be used for Avahi */
     int publish_hinfo;                /**< Register a HINFO record for the host containing the local OS and CPU type */
     int publish_addresses;            /**< Register A, AAAA and PTR records for all local IP addresses */
     int publish_workstation;          /**< Register a _workstation._tcp service */

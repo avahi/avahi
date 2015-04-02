@@ -698,8 +698,23 @@ good:
 
 int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {
     AvahiInterfaceAddress *b;
+    AvahiAddressList *l;
     assert(a);
 
+    for (l = a->monitor->server->config.deny_addresses; l; l = l->address_next)
+        if (avahi_address_cmp(&l->address, &a->address) == 0)
+            return 0;
+
+    if (a->monitor->server->config.allow_addresses) {
+
+        for (l = a->monitor->server->config.allow_addresses; l; l = l->address_next)
+            if (avahi_address_cmp(&l->address, &a->address) == 0)
+                goto good;
+
+        return 0;
+    }
+
+good:
     /* Publish public and non-deprecated IP addresses */
     if (a->global_scope && !a->deprecated)
         return 1;

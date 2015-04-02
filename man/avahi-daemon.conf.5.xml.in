@@ -92,6 +92,22 @@
     </option>
 
     <option>
+      <p><opt>allow-addresses=</opt> Set a comma separated list of
+      IP addresses that should be used by the avahi-daemon.
+      Traffic on other IP addresses will be ignored. If set to an
+      empty list all local IP addresses on the specified network
+      interfaces will be used.</p>
+    </option>
+
+    <option>
+      <p><opt>deny-addresses=</opt> Set a comma separated list of
+      IP addresses that should be ignored by avahi-daemon. Other
+      not specified IP addresses will be used, unless
+      <opt>allow-addresses=</opt> is set. This option takes
+      precedence over <opt>allow-addresses=</opt>.</p>
+    </option>
+
+    <option>
       <p><opt>check-response-ttl=</opt> Takes a boolean value ("yes"
       or "no"). If set to "yes", an additional security check is
       activated: incoming IP packets will be ignored unless the IP

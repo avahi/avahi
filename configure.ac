@@ -359,6 +359,9 @@ AC_HEADER_SYS_WAIT
  AC_SEARCH_LIBS([recv],[socket])
  AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__", [[#include <sys/socket.h>]])
 
+# check for clock_gettime and librt
+AC_SEARCH_LIBS([clock_gettime],[rt posix4])
+
 # Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
@@ -366,7 +369,7 @@ AC_FUNC_SELECT_ARGTYPES
 # whether libc's malloc does too. (Same for realloc.)
 #AC_FUNC_MALLOC
 #AC_FUNC_REALLOC
-AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid setresgid setregid strcasecmp gettimeofday putenv strncasecmp strlcpy gethostbyname seteuid setegid setproctitle getprogname])
+AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid setresgid setregid strcasecmp gettimeofday clock_gettime putenv strncasecmp strlcpy gethostbyname seteuid setegid setproctitle getprogname])
 
 AC_FUNC_CHOWN
 AC_FUNC_STAT

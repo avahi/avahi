@@ -437,7 +437,7 @@ static void add_to_cache(AvahiWideAreaLookupEngine *e, AvahiRecord *r) {
 
     c->record = avahi_record_ref(r);
 
-    gettimeofday(&c->timestamp, NULL);
+    avahi_gettimeofday(&c->timestamp);
     c->expiry = c->timestamp;
     avahi_timeval_add(&c->expiry, r->ttl * 1000000);
 
@@ -718,6 +718,3 @@ int avahi_wide_area_has_servers(AvahiWideAreaLookupEngine *e) {
 
     return e->n_dns_servers > 0;
 }
-
-
-

@@ -491,7 +491,7 @@ int avahi_simple_poll_prepare(AvahiSimplePoll *s, int timeout) {
             goto finish;
         }
 
-        gettimeofday(&now, NULL);
+        avahi_gettimeofday(&now);
         usec = avahi_timeval_diff(&next_timeout->expiry, &now);
 
         if (usec <= 0) {

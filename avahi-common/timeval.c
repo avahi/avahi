@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 #include "timeval.h"
 
@@ -78,7 +79,7 @@ AvahiUsec avahi_age(const struct timeval *a) {
 
     assert(a);
 
-    gettimeofday(&now, NULL);
+    avahi_gettimeofday(&now);
 
     return avahi_timeval_diff(&now, a);
 }
@@ -86,7 +87,7 @@ AvahiUsec avahi_age(const struct timeval *a) {
 struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
     assert(tv);
 
-    gettimeofday(tv, NULL);
+    avahi_gettimeofday(tv);
 
     if (msec)
         avahi_timeval_add(tv, (AvahiUsec) msec*1000);
@@ -121,3 +122,17 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
     return tv;
 }
 
+int avahi_gettimeofday(struct timeval *tv) {
+    struct timespec ts;
+    int ret;
+
+    assert(tv);
+    
+#ifdef HAVE_CLOCK_GETTIME
+	  ret = clock_gettime(CLOCK_MONOTONIC, &ts);
+    TIMESPEC_TO_TIMEVAL(tv, &ts);
+	  return ret;
+#else
+    return gettimeofday(tv, NULL);
+#endif
+}

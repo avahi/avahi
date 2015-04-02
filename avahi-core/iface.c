@@ -577,7 +577,7 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
     if (i->monitor->server->config.ratelimit_interval > 0) {
         struct timeval now, end;
 
-        gettimeofday(&now, NULL);
+        avahi_gettimeofday(&now);
 
         end = i->hardware->ratelimit_begin;
         avahi_timeval_add(&end, i->monitor->server->config.ratelimit_interval);

@@ -49,6 +49,15 @@ AvahiUsec avahi_age(const struct timeval *a);
  * the jitter */
 struct timeval *avahi_elapse_time(struct timeval *tv, unsigned ms, unsigned j);
 
+/** Wrapper for gettimeofday().
+ * This wrapper should be used to measure elapsed time in place of gettimeofday().
+ * gettimeofday() uses CLOCK_REALTIME, which poses problems when a timestep in
+ * system time occurs (especially on 32Bit systems where time_t holds only
+ * around ~36min in microseconds).
+ * Instead CLOCK_MONOTONIC is used here, which should be used to measure elapsed time.
+ */
+int avahi_gettimeofday(struct timeval *tv);
+
 AVAHI_C_DECL_END
 
 #endif

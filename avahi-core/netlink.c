@@ -82,7 +82,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
 
     cred = (struct ucred*) CMSG_DATA(cmsg);
 
-    if (cred->uid != 0)
+    if (cred->pid != 0)
         return -1;
 
     p = (struct nlmsghdr *) nl->buffer;

@@ -39,6 +39,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/domain.h>
 #include <avahi-common/alternative.h>
+#include <avahi-common/llist.h>
 
 #include <avahi-client/client.h>
 #include <avahi-client/publish.h>
@@ -59,6 +60,49 @@ struct type_info {
     AvahiStringList *subtypes;
     int n_subtypes;
 };
+
+struct browse_list_s {
+    DNSServiceRef sdref;
+    DNSServiceFlags flags;
+    uint32_t interface;
+    DNSServiceErrorType errors;
+    const char *name;
+    const char *type;
+    const char *domain;
+    void *userdata;
+
+    AVAHI_LLIST_FIELDS(struct browse_list_s, list);
+};
+typedef struct browse_list_s browse_list_t;
+
+struct query_list_s {
+    DNSServiceRef sdref;
+    DNSServiceFlags flags;
+    uint32_t interface;
+    DNSServiceErrorType errors;
+    const char *name;
+    uint16_t type;
+    uint16_t clazz;
+    uint16_t size;
+    const void *rdata;
+    uint32_t ttl;
+    void *userdata;
+
+    AVAHI_LLIST_FIELDS(struct query_list_s, list);
+};
+typedef struct query_list_s query_list_t;
+
+struct domain_list_s {
+    DNSServiceRef sdref;
+    DNSServiceFlags flags;
+    uint32_t interface;
+    DNSServiceErrorType errors;
+    const char *domain;
+    void *userdata;
+
+    AVAHI_LLIST_FIELDS(struct domain_list_s, list);
+};
+typedef struct domain_list_s domain_list_t;
 
 struct _DNSServiceRef_t {
     int n_ref;
@@ -92,6 +136,10 @@ struct _DNSServiceRef_t {
     AvahiStringList *service_txt;
 
     AvahiEntryGroup *entry_group;
+
+    AVAHI_LLIST_HEAD(browse_list_t, browse_list);
+    AVAHI_LLIST_HEAD(query_list_t, query_list);
+    AVAHI_LLIST_HEAD(domain_list_t, domain_list);
 };
 
 #define ASSERT_SUCCESS(r) { int __ret = (r); assert(__ret == 0); }
@@ -388,6 +436,10 @@ static DNSServiceRef sdref_new(void) {
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
     ASSERT_SUCCESS(pthread_mutex_init(&sdref->mutex, &mutex_attr));
 
+    AVAHI_LLIST_HEAD_INIT(browse_list_t, sdref->browse_list);
+    AVAHI_LLIST_HEAD_INIT(query_list_t, sdref->query_list);
+    AVAHI_LLIST_HEAD_INIT(domain_list_t, sdref->domain_list);
+
     sdref->thread_running = 0;
 
     if (!(sdref->simple_poll = avahi_simple_poll_new()))
@@ -535,7 +587,7 @@ static void service_browser_callback(
     const char *name,
     const char *type,
     const char *domain,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AvahiLookupResultFlags flags,
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
@@ -549,7 +601,28 @@ static void service_browser_callback(
 
     switch (event) {
         case AVAHI_BROWSER_NEW:
-            sdref->service_browser_callback(sdref, kDNSServiceFlagsAdd, interface, kDNSServiceErr_NoError, name, type, domain, sdref->context);
+            if (flags & AVAHI_LOOKUP_RESULT_CACHED) {
+                browse_list_t *entry = calloc(1, sizeof(browse_list_t));
+
+                /* store the entry */
+                AVAHI_LLIST_INIT(browse_list_t, list, entry);
+
+                entry->sdref = sdref;
+                entry->flags = kDNSServiceFlagsAdd;
+                entry->interface = interface;
+                entry->errors = kDNSServiceErr_NoError;
+                entry->name = strdup(name);
+                entry->type = strdup(type);
+                entry->domain = strdup(domain);
+                entry->userdata = sdref->context;
+
+                AVAHI_LLIST_PREPEND(browse_list_t,
+                                    list,
+                                    sdref->browse_list,
+                                    entry);
+            } else {
+                sdref->service_browser_callback(sdref, kDNSServiceFlagsAdd, interface, kDNSServiceErr_NoError, name, type, domain, sdref->context);
+            }
             break;
 
         case AVAHI_BROWSER_REMOVE:
@@ -561,6 +634,30 @@ static void service_browser_callback(
             break;
 
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            /* send items in llist */
+            if (!sdref->browse_list)
+                break;
+
+            for (browse_list_t *entry = sdref->browse_list;
+                 entry; ) {
+
+                /* send it */
+                int new_flags = entry->flags;
+                if (entry->list_next) new_flags |= kDNSServiceFlagsMoreComing;
+
+                entry->sdref->service_browser_callback(entry->sdref, new_flags, entry->interface, entry->errors, entry->name, entry->type, entry->domain, entry->userdata);
+
+                /* remove entry */
+                browse_list_t *tmp = entry->list_next;
+                free(entry->name);
+                free(entry->type);
+                free(entry->domain);
+                free(entry);
+                entry = tmp;
+            }
+            sdref->browse_list = NULL;
+            break;
+
         case AVAHI_BROWSER_ALL_FOR_NOW:
             break;
     }
@@ -805,7 +902,7 @@ static void domain_browser_callback(
     AVAHI_GCC_UNUSED AvahiProtocol protocol,
     AvahiBrowserEvent event,
     const char *domain,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AvahiLookupResultFlags flags,
     void *userdata) {
 
     DNSServiceRef sdref = userdata;
@@ -819,7 +916,26 @@ static void domain_browser_callback(
 
     switch (event) {
         case AVAHI_BROWSER_NEW:
-            sdref->domain_browser_callback(sdref, kDNSServiceFlagsAdd, interface, kDNSServiceErr_NoError, domain, sdref->context);
+            if (flags & AVAHI_LOOKUP_RESULT_CACHED) {
+                domain_list_t *entry = calloc(1, sizeof(domain_list_t));
+
+                /* store the entry */
+                AVAHI_LLIST_INIT(domain_list_t, list, entry);
+
+                entry->sdref = sdref;
+                entry->flags = kDNSServiceFlagsAdd;
+                entry->interface = interface;
+                entry->errors = kDNSServiceErr_NoError;
+                entry->domain = strdup(domain);
+                entry->userdata = sdref->context;
+
+                AVAHI_LLIST_PREPEND(domain_list_t,
+                                    list,
+                                    sdref->domain_list,
+                                    entry);
+            } else {
+                sdref->domain_browser_callback(sdref, kDNSServiceFlagsAdd, interface, kDNSServiceErr_NoError, domain, sdref->context);
+            }
             break;
 
         case AVAHI_BROWSER_REMOVE:
@@ -831,6 +947,28 @@ static void domain_browser_callback(
             break;
 
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            /* send items in llist */
+            if (!sdref->domain_list)
+                break;
+
+            for (domain_list_t *entry = sdref->domain_list;
+                 entry; ) {
+
+                /* send it */
+                int new_flags = entry->flags;
+                if (entry->list_next) new_flags |= kDNSServiceFlagsMoreComing;
+
+                entry->sdref->domain_browser_callback(entry->sdref, new_flags, entry->interface, entry->errors, entry->domain, entry->userdata);
+
+                /* remove entry */
+                domain_list_t *tmp = entry->list_next;
+                free(entry->domain);
+                free(entry);
+                entry = tmp;
+            }
+            sdref->domain_list = NULL;
+            break;
+
         case AVAHI_BROWSER_ALL_FOR_NOW:
             break;
     }
@@ -1279,7 +1417,7 @@ static void query_resolver_callback(
         uint16_t type,
         const void* rdata,
         size_t size,
-        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+        AvahiLookupResultFlags flags,
         void *userdata) {
 
     DNSServiceRef sdref = userdata;
@@ -1292,18 +1430,62 @@ static void query_resolver_callback(
 
     case AVAHI_BROWSER_NEW:
     case AVAHI_BROWSER_REMOVE: {
-
         DNSServiceFlags qflags = 0;
         if (event == AVAHI_BROWSER_NEW)
             qflags |= kDNSServiceFlagsAdd;
 
-        sdref->query_resolver_callback(sdref, qflags, interface, kDNSServiceErr_NoError, name, type, clazz, size, rdata, 0, sdref->context);
+        if (flags & AVAHI_LOOKUP_RESULT_CACHED) {
+            query_list_t *entry = calloc(1, sizeof(query_list_t));
+
+            /* store the entry */
+            AVAHI_LLIST_INIT(query_list_t, list, entry);
+
+            entry->sdref = sdref;
+            entry->flags = qflags;
+            entry->interface = interface;
+            entry->errors = kDNSServiceErr_NoError;
+            entry->name = strdup(name);
+            entry->type = type;
+            entry->clazz = clazz;
+            entry->size = size;
+            entry->rdata = rdata;
+            entry->ttl = 0;
+            entry->userdata = sdref->context;
+
+            AVAHI_LLIST_PREPEND(query_list_t,
+                                list,
+                                sdref->query_list,
+                                entry);
+        } else {
+            sdref->query_resolver_callback(sdref, qflags, interface, kDNSServiceErr_NoError, name, type, clazz, size, rdata, 0, sdref->context);
+        }
         break;
     }
 
     case AVAHI_BROWSER_ALL_FOR_NOW:
+        break;
+
     case AVAHI_BROWSER_CACHE_EXHAUSTED:
-        /* not implemented */
+        /* send items in llist */
+        if (!sdref->query_list)
+            break;
+
+        for (query_list_t *entry = sdref->query_list;
+             entry; ) {
+
+            /* send it */
+            int new_flags = entry->flags;
+            if (entry->list_next) new_flags |= kDNSServiceFlagsMoreComing;
+
+            entry->sdref->query_resolver_callback(entry->sdref, new_flags, entry->interface, entry->errors, entry->name, entry->type, entry->clazz, entry->size, entry->rdata, entry->ttl, entry->userdata);
+
+            /* remove entry */
+            query_list_t *tmp = entry->list_next;
+            free(entry->name);
+            free(entry);
+            entry = tmp;
+        }
+        sdref->query_list = NULL;
         break;
 
     case AVAHI_BROWSER_FAILURE:

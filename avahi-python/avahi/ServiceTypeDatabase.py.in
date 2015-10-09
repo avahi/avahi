@@ -138,24 +138,24 @@ class ServiceTypeDatabase:
 if __name__ == "__main__":
 
     b = ServiceTypeDatabase()
-    print b.items()
+    print (b.items())
 
-    print b["_http._tcp"]
-    print b["_ftp._tcp"]
-    print b["_webdav._tcp"]
-    print b["_webdavs._tcp"]
+    print (b["_http._tcp"])
+    print (b["_ftp._tcp"])
+    print (b["_webdav._tcp"])
+    print (b["_webdavs._tcp"])
 
-    print b.get("gurki._tcp")
-    print len(b)
+    print (b.get("gurki._tcp"))
+    print (len(b))
 
     for key, _ in zip(b, xrange(3)):
 
-        print key
+        print (key)
 
     for key, _ in zip(b.iteritems(), xrange(3)):
 
-        print key
+        print (key)
 
     for key, _ in zip(b.itervalues(), xrange(3)):
 
-        print key
+        print (key)

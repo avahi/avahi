@@ -61,6 +61,7 @@ class Main_window:
         path = os.path.join(ui_dir, path)
         gtk.window_set_default_icon_name("network-wired")
         self.ui = gtk.Builder()
+        self.ui.set_translation_domain("avahi")
         self.ui.add_from_file(path)
         self.ui.connect_signals(self)
         self.tree_view = self.ui.get_object("tree_view")

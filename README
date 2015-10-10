@@ -1,22 +1,16 @@
 AVAHI SERVICE DISCOVERY SUITE
 
+Avahi implements DNS Service Discovery (DNS-SD RFC 6763) over Multicast DNS (mDNS RFC 6762),
+commonly known as and compatible with Apple Bonjour primarily targetting Linux.
+
 WEB SITE:
 	http://avahi.org/
 
 GIT:
-	git://git.0pointer.de/avahi.git
-
-GITWEB:
-	http://git.0pointer.de/?p=avahi.git;a=summary
+	http://github.com/lathiat/avahi.git
 
 MAILING LIST:
 	http://lists.freedesktop.org/mailman/listinfo/avahi
-
-GIT COMMITS MAILING LIST:
-	https://tango.0pointer.de/mailman/listinfo/avahi-commits
-
-TRAC TICKET CHANGES MAILING LIST:
-	https://tango.0pointer.de/mailman/listinfo/avahi-tickets
 
 IRC:
 	#avahi on irc.freenode.org
@@ -31,4 +25,5 @@ OHLOH:
 	http://www.ohloh.net/projects/avahi/
 
 AUTHORS:
-	Several
+	Lennart Poettering
+  Trent Lloyd

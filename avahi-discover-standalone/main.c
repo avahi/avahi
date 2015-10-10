@@ -330,6 +330,7 @@ int main(int argc, char *argv[]) {
     poll_api = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
 
     ui = gtk_builder_new();
+    gtk_builder_set_translation_domain(ui, "avahi");
     gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover.ui", NULL);
     main_window = GTK_WIDGET(gtk_builder_get_object(ui, "main_window"));
     g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);

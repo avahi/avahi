@@ -35,8 +35,14 @@
 #define AVAHI_PROBE_INTERVAL_MSEC 250
 
 static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
+    AvahiEntry *e;
+
     assert(s);
     assert(a);
+    e = a->entry;
+
+    if (a->state == AVAHI_PROBING && e->group)
+        e->group->n_probing--;
 
     if (a->time_event)
         avahi_time_event_free(a->time_event);

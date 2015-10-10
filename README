@@ -1,7 +1,9 @@
 AVAHI SERVICE DISCOVERY SUITE
 
-Avahi implements DNS Service Discovery (DNS-SD RFC 6763) over Multicast DNS (mDNS RFC 6762),
+Avahi is a free, LGPL implementation of DNS Service Discovery (DNS-SD RFC 6763) over Multicast DNS (mDNS RFC 6762),
 commonly known as and compatible with Apple Bonjour primarily targetting Linux.
+
+Copyright 2004-2015 by the Avahi developers.
 
 WEB SITE:
 	http://avahi.org/

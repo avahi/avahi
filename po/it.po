@@ -1,28 +1,22 @@
-# Italian translation of avahi
-# Copyright (C) 2008, 2009, 2010 the avahi copyright holder
-# This file is distributed under the same license as the avahi package.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
-# Silvio Pierro <perplesso82@gmail.com>, 2008.
-# Gianluca Busiello <busiello@ceinge.unina.it>, 2008.
-# Francesco Tombolini <tombo@adamantio.net>, 2008.
-# Luca Ferretti <elle.uca@ubuntu-it.org>, 2009.
-# Luca Ferretti <elle.uca@libero.it>, 2009.
-# Milo Casagrande <milo@ubuntu.com>, 2009, 2010.
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi.master-tx.it\n"
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
-"PO-Revision-Date: 2010-09-05 16:48+0200\n"
-"Last-Translator: Milo Casagrande <milo@ubuntu.com>\n"
-"Language-Team: Italian <tp@lists.linux.it>\n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
+"PO-Revision-Date: 2010-11-29 23:19+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Italian (http://www.transifex.com/lennart/avahi/language/"
+"it/)\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-08 18:32+0000\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -56,7 +50,6 @@ msgstr "DNS TTL non valido"
 msgid "Resource record key is pattern"
 msgstr "La risorsa key record è un pattern"
 
-# (ndt) messa al plurale
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
 msgstr "Collisione nomi locale"
@@ -246,13 +239,13 @@ msgid "Invalid Error Code"
 msgstr "Codice di errore non valido"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
+msgid "Avahi Discovery"
+msgstr "Avahi Discovery"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Nessun servizio attualmente selezionato.</i>"
-
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-msgid "Avahi Discovery"
-msgstr "Avahi Discovery"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -318,7 +311,7 @@ msgstr "Tipo di servizio"
 msgid "The service type of the selected service"
 msgstr "Il tipo di servizio del servizio selezionato"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "Nome di servizio"
 
@@ -439,42 +432,53 @@ msgstr "Esplorazione dei servizi nel dominio <b>%s</b>:"
 msgid "Failed to create browser for %s: %s"
 msgstr "Creazione dell'esploratore per %s non riuscita: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Creazione del risolutore per %s di tipo %s nel dominio %s non riuscita: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Creazione dell'esploratore di domini non riuscita: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "Cambia dominio"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
 msgstr "Esplorazione..."
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "Cancellato.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "OK"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
 msgstr "Inizializzazione..."
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "Posizione"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Nome"
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Tipo"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_Dominio..."
 
@@ -505,6 +509,10 @@ msgstr "Troppi argomenti\n"
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
 msgstr "Scegliere il server shell"
+
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2009-11-11 17:00+0000\n"
 "Last-Translator: Bruce Cowan <bcowan@fastmail.co.uk>\n"
 "Language-Team: British English <en@li.org>\n"
@@ -237,13 +237,13 @@ msgid "Invalid Error Code"
 msgstr "Invalid Error Code"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
+msgid "Avahi Discovery"
+msgstr "Avahi Discovery"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>No service currently selected.</i>"
-
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-msgid "Avahi Discovery"
-msgstr "Avahi Discovery"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -315,7 +315,7 @@ msgstr "Service Type"
 msgid "The service type of the selected service"
 msgstr "The service type of the selected service"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "Service Name"
 
@@ -436,41 +436,52 @@ msgstr "Browsing for services in domain <b>%s</b>:"
 msgid "Failed to create browser for %s: %s"
 msgstr "Failed to create browser for %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "Failed to create resolver for %s of type %s in domain %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Failed to create domain browser: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "Change domain"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
 msgstr "Browsing..."
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "Cancelled.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "OK"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
 msgstr "Initialising..."
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "Location"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Name"
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Type"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_Domain..."
 
@@ -501,6 +512,10 @@ msgstr "Too many arguments\n"
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
 msgstr "Choose Shell Server"
+
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"

@@ -1,23 +1,23 @@
-# German translation of avahi
-# Copyright (C) 2008 Avahi
-# This file is distributed under the same license as the avahi package.
-# Fabian Affolter <fab@fedoraproject.org>, 2008-2009.
-# Cornelius Neckenig <tbull@fedoraproject.org>, 2009.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
+# Translators:
+# Fabian Affolter <fab@fedoraproject.org>, 2011
+# Mario Blättermann <mario.blaettermann@gmail.com>, 2011
 msgid ""
 msgstr ""
-"Project-Id-Version: audit-viewer\n"
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
-"PO-Revision-Date: 2009-04-18 22:48+0100\n"
-"Last-Translator: Cornelius Neckenig <tbull@fedoraproject.org>\n"
-"Language-Team: German <fedora-trans-de@redhat.com>\n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
+"PO-Revision-Date: 2013-11-20 09:58+0000\n"
+"Last-Translator: Mario Blättermann <mario.blaettermann@gmail.com>\n"
+"Language-Team: German (http://www.transifex.com/lennart/avahi/language/de/)\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-Language: German\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -240,13 +240,13 @@ msgid "Invalid Error Code"
 msgstr "Ungültiger Fehlercode"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
+msgid "Avahi Discovery"
+msgstr "Avahi Discovery"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Momentan ist kein Dienst ausgewählt.</i>"
-
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-msgid "Avahi Discovery"
-msgstr "Avahi Discovery"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -258,16 +258,15 @@ msgstr "Durchsuchen nach Zeroconf-aktivierten Diensten in Ihrem Netzwerk"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "TXT Data:"
 msgstr "TXT-Daten:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "empty"
-msgstr "ist leer"
+msgstr "leer"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
 msgid "Service Type:"
@@ -291,11 +290,11 @@ msgstr "Adresse:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
-msgstr "Durchsuche Dienst-Typen"
+msgstr "Dienst-Typen durchsuchen"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr "Ein mit NULL abgeschlossene Liste der Dienst-Typen zum Durchsuchen "
+msgstr "Eine mit NULL abgeschlossene Liste der Dienst-Typen zum Durchsuchen "
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
@@ -303,7 +302,7 @@ msgstr "Domain"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr "DIe Domain zum Durchsuchen oder NULL für die Standard-Domain"
+msgstr "Die Domain zum Durchsuchen oder NULL für die Standard-Domain"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
@@ -313,7 +312,7 @@ msgstr "Diensttyp"
 msgid "The service type of the selected service"
 msgstr "Der Service-Type des gewählten Diensts"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "Dienstname"
 
@@ -359,7 +358,7 @@ msgstr "Auflösungsdienst"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr "Vor dem Rücksprung den selektierten Dienst automatisch auflösen"
+msgstr "Vor dem Rücksprung den ausgewählten Dienst automatisch auflösen"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve Service Host Name"
@@ -369,7 +368,7 @@ msgstr "Dienst-Rechner-Name auflösen"
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
 msgstr ""
-"Vor dem Rücksprung den Hostname des selektierten Dienstes\r\n"
+"Vor dem Rücksprung den Hostname des ausgewählten Dienstes\n"
 "automatisch auflösen"
 
 #: ../avahi-ui/avahi-ui.c:242
@@ -422,54 +421,65 @@ msgstr "Verbindung zu Avahi-Server fehlgeschlagen: %s"
 
 #: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
-msgstr "Durchsuche <b>lokales Netzwerk</b> nach Diensten:"
+msgstr "<b>Lokales Netzwerk</b> wird nach Diensten durchsucht:"
 
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr "Durchsuche Domain <b>%s</b> nach Diensten:"
+msgstr "Domain <b>%s</b> wird nach Diensten durchsucht:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
 msgstr "Browser-Erzeugung für %s fehlgeschlagen: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Erzeugen eines Resolvers für %s vom Typ %s in Domain %s fehlgeschlagen: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr "Erzeugen eines Domainbrowser fehlgeschlagen: %s"
+msgstr "Erzeugen eines Domainbrowsers fehlgeschlagen: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "Domain ändern"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
-msgstr "Durchsuchen ..."
+msgstr "Durchsuchen …"
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "Abgebrochen.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "OK"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
-msgstr "Initialisieren ..."
+msgstr "Initialisieren …"
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "Standort"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Name"
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Typ"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_Domain ..."
 
@@ -501,6 +511,10 @@ msgstr "Zu viele Argumente\n"
 msgid "Choose Shell Server"
 msgstr "Shell-Server auswählen"
 
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
+
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
 msgstr "Desktop"
@@ -520,7 +534,7 @@ msgstr "SSH-Dienst auswählen"
 #: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr "Verbinde zu '%s' ...\n"
+msgstr "Verbinden zu »%s« …\n"
 
 #: ../avahi-ui/bssh.c:240
 #, c-format
@@ -534,7 +548,7 @@ msgstr "Abgebrochen.\n"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
-msgstr "Avahi SSH Server Browser"
+msgstr "Avahi SSH-Server-Browser"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
@@ -562,7 +576,7 @@ msgstr ": Datencache erschöpft\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Fehler beim Auflösen des Dienstes '%s' des Typ '%s' in Domain '%s': %s\n"
+"Fehler beim Auflösen des Dienstes »%s« des Typs »%s« in Domain »%s«: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -626,7 +640,7 @@ msgstr "E Ifce Prot %-*s %-20s-Domain\n"
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr "Nicht verbunden, neu verbinden ...\n"
+msgstr "Nicht verbunden, neu verbinden …\n"
 
 #: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
 #: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
@@ -639,12 +653,12 @@ msgstr "Clientobjekt-Erzeugung fehlgeschlagen: %s\n"
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "Client-Fehler, beende: %s\n"
+msgstr "Client-Fehler, wird beendet: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr "Warte auf Daemon ...\n"
+msgstr "Auf Daemon warten …\n"
 
 #: ../avahi-utils/avahi-browse.c:647
 msgid ""
@@ -664,16 +678,16 @@ msgid ""
 msgstr ""
 "    -h --help            Zeigt diese Hilfe an\n"
 "    -V --version         Zeigt die Version an\n"
-"    -D --browse-domains  Durchsuche nach suchenden Domain statt nach "
-"Diensten\n"
+"    -D --browse-domains  Nach suchenden Domains statt nach Diensten "
+"durchsuchen\n"
 "    -a --all             Zeigt alle Dienste, ohne Rücksicht auf die Typen\n"
 "    -d --domain=DOMAIN   Die Domain zum Durchsuchen\n"
 "    -v --verbose         Aktiviert detaillierten Modus\n"
 "    -t --terminate       Beenden nach Ausgeben einer mehr oder weniger "
 "kompletten Liste\n"
 "    -c --cache           Beenden nach Ausgeben aller Einträge aus dem Cache\n"
-"    -l --ignore-local    Ignoriere lokale Dienste\n"
-"    -r --resolve         Löse gefundene Dienste auf\n"
+"    -l --ignore-local    Lokale Dienste ignorieren\n"
+"    -r --resolve         Gefundene Dienste auflösen\n"
 "    -f --no-fail         Schlägt nicht fehl, wenn der Daemon nicht verfügbar "
 "ist\n"
 "    -p --parsable        Ausgabe in parsbaren Format\n"
@@ -683,7 +697,7 @@ msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
-"    -k --no-db-lookup    Schlage Dienst-Typen nicht nach\n"
+"    -k --no-db-lookup    Dienst-Typen nicht nachschlagen\n"
 "    -b --dump-db         Anzeigen der Dienst-Typen-Datenbank\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
@@ -700,7 +714,7 @@ msgstr "Fehler beim Erzeugen eines einfachen Abfrage-Objekts: \n"
 #: ../avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
-msgstr "Eingerichtet unter dem Namen '%s'\n"
+msgstr "Eingerichtet unter dem Namen »%s«\n"
 
 #: ../avahi-utils/avahi-publish.c:81
 #, c-format
@@ -710,7 +724,7 @@ msgstr "Registrierung fehlgeschlagen: %s\n"
 #: ../avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr "Namenskollision, wähle neuen Name '%s'.\n"
+msgstr "Namenskollision, neuer Name »%s« wird gewählt.\n"
 
 #: ../avahi-utils/avahi-publish.c:114
 #, c-format
@@ -730,7 +744,7 @@ msgstr "Fehler beim Hinzufügen des Dienstes: %s\n"
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr "Fehler beim Hinzufügen des Untertyps: '%s': %s\n"
+msgstr "Fehler beim Hinzufügen des Untertyps: »%s«: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format
@@ -738,7 +752,7 @@ msgid "Host name conflict\n"
 msgstr "Rechnername-Konflikt\n"
 
 #: ../avahi-utils/avahi-publish.c:216
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -755,18 +769,19 @@ msgid ""
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
-"%s [options] %s <name> <type> <port> [<txt ...>]\n"
-"%s [options] %s <host-name> <address>\n"
+"%s [Optionen] %s <Name> <Typ> <Port> [<txt ...>]\n"
+"%s [Optionen] %s <Hostname> <Adresse>\n"
 "\n"
-"    -h --help            Zeigt diese Hilfe an\n"
-"    -V --version         Zeigt die Version an\n"
-"    -s --service         Veröffentlicht Service\n"
-"    -a --address         Veröffentlicht Addresse\n"
-"    -v --verbose         Aktiviert detaillierten Modus\n"
-"    -d --domain=DOMAIN   Domain zum Veröffentlichen des Dienstes auf\n"
-"    -H --host=DOMAIN     Host, wo sich der Service befindet\n"
-"       --subtype=SUBTYPE Ein zusätzlicher Untertyp zum Registrieren des "
-"Dienstes mit\n"
+"    -h --help            Diese Hilfe anzeigen\n"
+"    -V --version         Version anzeigen\n"
+"    -s --service         Dienst veröffentlichen\n"
+"    -a --address         Adresse veröffentlichen\n"
+"    -v --verbose         Ausführlichen Modus aktivieren\n"
+"    -d --domain=DOMAIN   Domain zur Dienstveröffentlichung\n"
+"    -H --host=DOMAIN     Host des Dienstes\n"
+"       --subtype=SUBTYPE Zusätzlicher Untertyp zur Registrierung des "
+"Dienstes \n"
+"    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Schlägt nicht fehl, wenn der Daemon nicht verfügbar "
 "ist\n"
 
@@ -788,12 +803,12 @@ msgstr "Kein Befehl angegeben.\n"
 #: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "Fehler beim Auflösen des Rechnernamens '%s': %s\n"
+msgstr "Fehler beim Auflösen des Rechnernamens »%s«: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr "Fehler beim Auflösen der Adresse '%s': %s\n"
+msgstr "Fehler beim Auflösen der Adresse »%s«: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:157
 #, c-format
@@ -809,8 +824,8 @@ msgid ""
 "    -6                   Lookup IPv6 address\n"
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
-"%s [options] %s <host name ...>\n"
-"%s [options] %s <address ... >\n"
+"%s [Optionen] %s <Hostname ...>\n"
+"%s [Optionen] %s <Adresse ... >\n"
 "\n"
 "    -h --help            Zeigt diese Hilfe an\n"
 "    -V --version         Zeigt die Version an\n"
@@ -828,7 +843,7 @@ msgstr "Fehler beim Erzeugen des Rechneramen-Auflösers: %s\n"
 #: ../avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr "Fehler beim Parsern der Adresse '%s'\n"
+msgstr "Fehler beim Parsen der Adresse »%s«\n"
 
 #: ../avahi-utils/avahi-resolve.c:314
 #, c-format
@@ -844,7 +859,7 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
-"%s [options] <new host name>\n"
+"%s [Optionen] <neuer Hostname>\n"
 "\n"
 "    -h --help            Zeigt diese Hilfe an\n"
 "    -V --version         Zeigt die Version an\n"
@@ -859,597 +874,3 @@ msgstr "Ungültige Anzahl von Argumenten, erwartet wird genau eines.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "Rechnername erfolgreich geändert auf %s\n"
-
-#~ msgid "."
-#~ msgstr "."
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid "<b>Event Order</b>"
-#~ msgstr "<b>Ereignis-Reihenfolge</b>"
-
-#~ msgid "<b>Group Columns _by:</b>"
-#~ msgstr "<b>Gruppiere Spalte _nach:</b>"
-
-#~ msgid "<b>Group Rows by:</b>"
-#~ msgstr "<b>Gruppiere Zeile nach:</b>"
-
-#~ msgid "<b>Identification</b>"
-#~ msgstr "<b>Identifikation</b>"
-
-#~ msgid "<b>Limit to events _before:</b>"
-#~ msgstr "<b>Limit zu Er _before:</b>"
-
-#~ msgid "<b>Limit to events not _earlier than:</b>"
-#~ msgstr "<b>Limitieren auf Ereignisse nicht _später als:</b>"
-
-#~ msgid "<b>Records</b>"
-#~ msgstr "<b>Aufzeichnungen</b>"
-
-#~ msgid "<b>Tab</b>"
-#~ msgstr "<b>Tab</b>"
-
-#~ msgid "<b>_File</b>"
-#~ msgstr "<b>_Datei</b>"
-
-#~ msgid "<b>_System audit log</b>"
-#~ msgstr "<b>_System-Audit-Protokoll</b>"
-
-#~ msgid "Audit Event Source"
-#~ msgstr "Audit-Ewreignis-Quelle"
-
-#~ msgid "Audit Viewer"
-#~ msgstr "Audit Viewer"
-
-#~ msgid "Automatic file type e_xtension"
-#~ msgstr "Automatische Dateityp-Er_weiterung"
-
-#~ msgid "Change _event source..."
-#~ msgstr "Ändere _Ereignis-Quelle..."
-
-#~ msgid "Columns"
-#~ msgstr "Spalte"
-
-#~ msgid "Current Co_lumn"
-#~ msgstr "Aktuelle Sp_alte"
-
-#~ msgid "Current _Cell"
-#~ msgstr "Aktuelle _Zelle"
-
-#~ msgid "Current _Row"
-#~ msgstr "Aktuelle _Zeile"
-
-#~ msgid "Date Filter"
-#~ msgstr "Datum-Filter"
-
-#~ msgid "Event Details"
-#~ msgstr "_Ereignis-Details"
-
-#~ msgid "Expression"
-#~ msgstr "Ausdruck"
-
-#~ msgid "F_ield:"
-#~ msgstr "F_eld:"
-
-#~ msgid "File _type:"
-#~ msgstr "Datei-_Typ:"
-
-#~ msgid "Filter"
-#~ msgstr "Filter"
-
-#~ msgid "Filter:"
-#~ msgstr "Filter:"
-
-#~ msgid "General"
-#~ msgstr "Allgemeines"
-
-#~ msgid "Group _values by:"
-#~ msgstr "_Werte gruppieren nach:"
-
-#~ msgid "Grouping"
-#~ msgstr "Gruppierung"
-
-#~ msgid "LIST/REPORT"
-#~ msgstr "LISTE/BERICHT"
-
-#~ msgid "New _List"
-#~ msgstr "Neue _Liste"
-
-#~ msgid "New _Report on this View..."
-#~ msgstr "Neuer _Bericht aus dieser Ansicht..."
-
-#~ msgid "New _Report..."
-#~ msgstr "Neuer _Bericht..."
-
-#~ msgid "Order:"
-#~ msgstr "Reihenfolge:"
-
-#~ msgid "Re_fresh"
-#~ msgstr "Aktu_alisieren"
-
-#~ msgid "Serial number:"
-#~ msgstr "Seriennummer:"
-
-#~ msgid "Sort by:"
-#~ msgstr "Sortieren nach:"
-
-#~ msgid ""
-#~ "The chart has too many data points.  Please restrict your data filter or "
-#~ "use coarser data grouping criteria."
-#~ msgstr ""
-#~ "Das Diagramm hat zu viele Datenpunkte. Bitte beschränken Sie Ihren "
-#~ "Datenfilter oder benutzen Sie coarser-Datengruppierungkriterien."
-
-#~ msgid "Time:"
-#~ msgstr "Zeit:"
-
-#~ msgid ""
-#~ "You can add aditional conditions using the <tt>ausearch</tt> expression "
-#~ "language.  Run <tt>(man ausearch-expression)</tt> to read the "
-#~ "documentation of the language."
-#~ msgstr ""
-#~ "Sie können zusätzliche Bedingungen hinzufügen mit der <tt>ausearch</tt>-"
-#~ "Ausdruckssprache. Führen Sie <tt>(man ausearch-expression)</tt> aus, um "
-#~ "die Dokumentaion dieser Sprache zu lesen."
-
-#~ msgid "_Ascending"
-#~ msgstr "_Aufsteigend"
-
-#~ msgid "_Close"
-#~ msgstr "_Schliessen"
-
-#~ msgid "_Descending"
-#~ msgstr "_Absteigend"
-
-#~ msgid "_Event Details"
-#~ msgstr "_Ereignis-Details"
-
-#~ msgid "_Event Time"
-#~ msgstr "_Ereignis-Zeit"
-
-#~ msgid "_Export..."
-#~ msgstr "_Exportieren..."
-
-#~ msgid "_Expression:"
-#~ msgstr "_Ausdruck:"
-
-#~ msgid "_Field:"
-#~ msgstr "_Feld:"
-
-#~ msgid "_Group values by:"
-#~ msgstr "_Gruppen-Wert nach:"
-
-#~ msgid "_Help"
-#~ msgstr "_Hilfe"
-
-#~ msgid "_List Events for"
-#~ msgstr "_Auflisten der Ereignissen nach"
-
-#~ msgid "_Log file:"
-#~ msgstr "_Protokolldatei:"
-
-#~ msgid "_Next Event"
-#~ msgstr "_Nächstes Ereignis"
-
-#~ msgid "_Open in new window"
-#~ msgstr "_In neuem Fenster öffnen"
-
-#~ msgid "_Path:"
-#~ msgstr "_Pfad:"
-
-#~ msgid "_Previous Event"
-#~ msgstr "_Vorheriges Ereignis"
-
-#~ msgid "_Save Configuration as..."
-#~ msgstr "_Speichere Konfiguration als..."
-
-#~ msgid "_Save layout as..."
-#~ msgstr "_Speichere Anordnung als…"
-
-#~ msgid "_Show as a chart"
-#~ msgstr "_Zeige als Diagramm"
-
-#~ msgid "_View"
-#~ msgstr "_Ansicht"
-
-#~ msgid "_Window"
-#~ msgstr "_Fenster"
-
-#~ msgid "gtk-about"
-#~ msgstr "gtk-about"
-
-#~ msgid "gtk-apply"
-#~ msgstr "gtk-apply"
-
-#~ msgid "gtk-close"
-#~ msgstr "gtk-close"
-
-#~ msgid "gtk-open"
-#~ msgstr "gtk-open"
-
-#~ msgid "gtk-properties"
-#~ msgstr "gtk-properties"
-
-#~ msgid "gtk-quit"
-#~ msgstr "gtk-quit"
-
-#~ msgid "Not enough data available"
-#~ msgstr "Nicht genügend Daten verfügbar"
-
-#~ msgid "Field"
-#~ msgstr "Feld"
-
-#~ msgid "Value"
-#~ msgstr "Wert"
-
-#~ msgid "Record Type"
-#~ msgstr "Aufzeichnungstyp"
-
-#~ msgid "date %s %s.%03d"
-#~ msgstr "Datum %s %s.%03d"
-
-#~ msgid "%x %H:%M:%S"
-#~ msgstr "%x %H:%M:%S"
-
-#~ msgid "date %s now"
-#~ msgstr "Datum %s heute"
-
-#~ msgid "date %s %d minute ago"
-#~ msgid_plural "date %s %d minutes ago"
-#~ msgstr[0] "Datum %s %d Minute vergangen"
-#~ msgstr[1] "Datum %s %d Minuten vergangen"
-
-#~ msgid "date %s today 00:00"
-#~ msgstr "Datum %s Heute 00:00"
-
-#~ msgid "date %s yesterday 00:00"
-#~ msgstr "Datum %s Gestern 00:00"
-
-#~ msgid "date %s start of this week"
-#~ msgstr "Datum %s Start dieser Woche"
-
-#~ msgid "date %s start of this month"
-#~ msgstr "Datum %s Start dieses Monat"
-
-#~ msgid "date %s start of this year"
-#~ msgstr "Datum %s Start von diesem Jahr"
-
-#~ msgid "Event date"
-#~ msgstr "Ereignisdatum"
-
-#~ msgid "Other fields"
-#~ msgstr "Andere Felder"
-
-#~ msgid "Column"
-#~ msgstr "Spalte"
-
-#~ msgid "Field name must not be empty"
-#~ msgstr "Feldname darf nicht leer sein"
-
-#~ msgid "_List"
-#~ msgstr "_Liste"
-
-#~ msgid "List %d"
-#~ msgstr "Liste %d"
-
-#~ msgid "HTML"
-#~ msgstr "HTML"
-
-#~ msgid "CSV"
-#~ msgstr "CSV"
-
-#~ msgid "Raw log data"
-#~ msgstr "Rohe Log-Daten"
-
-#~ msgid "Export..."
-#~ msgstr "Export..."
-
-#~ msgid "Error writing to %s: %s"
-#~ msgstr "Fehler beim Schreiben von %s: %s"
-
-#~ msgid ", "
-#~ msgstr ", "
-
-#~ msgid "None"
-#~ msgstr "Nichts"
-
-#~ msgid "Other Fields"
-#~ msgstr "Andere Felder"
-
-#~ msgid "Date"
-#~ msgstr "Datum"
-
-#~ msgid "%prog [OPTION]... [FILE]..."
-#~ msgstr "%prog [OPTION]... [DATEI]..."
-
-#~ msgid "Start an audit event viewer."
-#~ msgstr "Starte eine Audit-Ereignis-Betrachter"
-
-#~ msgid ""
-#~ "do not attempt to start the privileged backend for reading system audit "
-#~ "logs"
-#~ msgstr ""
-#~ "versuchen Sie nicht das privilegierte Backend zum Lesen der System-Audit-"
-#~ "Berichte zu starten"
-
-#~ msgid "Error running audit-viewer-server: %s"
-#~ msgstr "Fehler beim Laufenlassen von  audit-viewer-server: %s"
-
-#~ msgid "Audit viewer layout"
-#~ msgstr "Audit-Ansicht-Anordnung"
-
-#~ msgid "A file named \"%s\" already exists.  Do you want to replace it?"
-#~ msgstr "Die Datei \"%s\" existiert bereits. Wollen Sie sie ersetzen?"
-
-#~ msgid ""
-#~ "The file already exists in \"%s\".  Replacing it will overwrite its "
-#~ "contents."
-#~ msgstr ""
-#~ "Die Datei existiert bereits in \"%s\" . Falls Sie sie ersetzen, wird ihre "
-#~ "Inhalt überschreiben."
-
-#~ msgid "_Replace"
-#~ msgstr "_Ersetzen"
-
-#~ msgid "Error reading audit events: %s"
-#~ msgstr "Fehler beim Lesen der Audit-Ereignisse: %s"
-
-#~ msgid "All files"
-#~ msgstr "Alle Dateien"
-
-#~ msgid "Unexpected top element contents"
-#~ msgstr "Unerwarteter Top-Elementinhalt"
-
-#~ msgid "Unsupported file version %s"
-#~ msgstr "Nicht unterstützte Datei-Version %s"
-
-#~ msgid "Unexpected top element"
-#~ msgstr "Unerwartetes Topelement"
-
-#~ msgid "Error reading %s: %s"
-#~ msgstr "Fehler beim Lesen %s: %s"
-
-#~ msgid "Invalid contents of %s: %s"
-#~ msgstr "Ungültiger Inhalt von %s: %s"
-
-#~ msgid "Open..."
-#~ msgstr "Öffnen..."
-
-#~ msgid "Save Layout As..."
-#~ msgstr "Sichere Aufbau als..."
-
-#~ msgid "Save Configuration As..."
-#~ msgstr "Sichere Konfiguration als..."
-
-#~ msgid "translator-credits"
-#~ msgstr "Fabian Affolter <fab@fedoraproject.org>, 2008."
-
-#~ msgid "no such option: %s"
-#~ msgstr "Keine solche Option: %s"
-
-#~ msgid "ambiguous option: %s (%s?)"
-#~ msgstr "Mehrdeutige Option: %s (%s?)"
-
-#~ msgid "Usage: %s\n"
-#~ msgstr "Verwendung: %s\n"
-
-#~ msgid "Usage"
-#~ msgstr "Verwendung"
-
-#~ msgid "integer"
-#~ msgstr "Ganzzahl"
-
-#~ msgid "long integer"
-#~ msgstr "Lange Ganzzahl"
-
-#~ msgid "floating-point"
-#~ msgstr "Gleitkomma"
-
-#~ msgid "complex"
-#~ msgstr "Komplex"
-
-#~ msgid "option %s: invalid %s value: %r"
-#~ msgstr "Option %s: ungültiger %s Wert: %r"
-
-#~ msgid "option %s: invalid choice: %r (choose from %s)"
-#~ msgstr "Option %s: ungültige Wahl: %r (Wahl von %s)"
-
-#~ msgid "show this help message and exit"
-#~ msgstr "Diese Hilfe-Meldung ausgeben und beenden"
-
-#~ msgid "show program's version number and exit"
-#~ msgstr "Version des Programms anzeigen und beenden"
-
-#~ msgid "%prog [options]"
-#~ msgstr "%prog [Optionen]"
-
-#~ msgid "%s option requires an argument"
-#~ msgstr "%s Option benötigt ein Argument"
-
-#~ msgid "%s option requires %d arguments"
-#~ msgstr "%s Option benötigt %d Argumente"
-
-#~ msgid "%s option does not take a value"
-#~ msgstr "%s Option benötigt keine Wert"
-
-#~ msgid "Options"
-#~ msgstr "Optionen"
-
-#~ msgid "_Report"
-#~ msgstr "_Bericht"
-
-#~ msgid "Report %d"
-#~ msgstr "Bericht %d"
-
-#~ msgid "Listing events for this column is not supported."
-#~ msgstr "Auflisten von Ereignissen für diese Spalte ist nicht unterstützt."
-
-#~ msgid "Listing events for this cell is not supported."
-#~ msgstr "Auflisten von Ereignissen für diese Zelle ist nicht unterstützt."
-
-#~ msgid "Listing events for this row is not supported."
-#~ msgstr "Auflisten von Ereignissen für diese Zeile ist nicht unterstützt."
-
-#~ msgid "Count"
-#~ msgstr "Anzahl"
-
-#~ msgid "Search..."
-#~ msgstr "Suche..."
-
-#~ msgid ""
-#~ "This program is only for use by audit-viewer and it should not be run "
-#~ "manually.\n"
-#~ msgstr ""
-#~ "Dieses Programm ist nur für die Benutzung durch audit-viewer und es "
-#~ "sollte nicht manuell gestartet werden.\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "Report bugs to %s.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Melden Sie Fehler an %s.\n"
-
-#~ msgid ""
-#~ "Copyright (C) 2008 Red Hat, Inc.  All rights reserved.\n"
-#~ "This software is distributed under the GPL v.2.\n"
-#~ "\n"
-#~ "This program is provided with NO WARRANTY, to the extent permitted by law."
-#~ msgstr ""
-#~ "Copyright (C) 2008 Red Hat, Inc.  Alle Rechte vorbehalten.\n"
-#~ "Diese Software wird unter der GPL v.2 verteilt.\n"
-#~ "\n"
-#~ "Dieses Programm wird OHNE GEWÄHRLEISTUNG bereitgestellt, im gesetzlich "
-#~ "ermöglichten Umfang."
-
-#~ msgid "The control file is not a socket"
-#~ msgstr "Die Kontrolldatei ist keine Socket"
-
-#~ msgid "Unknown server request %<PRIu32>"
-#~ msgstr "Unbekannte Serveranforderung %<PRIu32>"
-
-#~ msgid "Audit Log File"
-#~ msgstr "Audit-Protokoll-Datei"
-
-#~ msgid "Error opening %s: %s"
-#~ msgstr "Fehler beim Öffnen von %s: %s"
-
-#~ msgid "%x %X"
-#~ msgstr "%x %X"
-
-#~ msgid "%x %H:%M"
-#~ msgstr "%x %H:%M"
-
-#~ msgid "%x %H"
-#~ msgstr "%x %H"
-
-#~ msgid "hour"
-#~ msgstr "Stunde"
-
-#~ msgid "%d hour"
-#~ msgid_plural "%d hours"
-#~ msgstr[0] "%d Stunde"
-#~ msgstr[1] "%d Stunden"
-
-#~ msgid "minute"
-#~ msgstr "Minute"
-
-#~ msgid "%d minute"
-#~ msgid_plural "%d minutes"
-#~ msgstr[0] "%d Minute"
-#~ msgstr[1] "%d Minuten"
-
-#~ msgid "second"
-#~ msgstr "Sekunde"
-
-#~ msgid "%d second"
-#~ msgid_plural "%d seconds"
-#~ msgstr[0] "%d Sekunde"
-#~ msgstr[1] "%d Sekunden"
-
-#~ msgid "day"
-#~ msgstr "Tag"
-
-#~ msgid "week"
-#~ msgstr "Woche"
-
-#~ msgid "%b %Y"
-#~ msgstr "%b %Y"
-
-#~ msgid "month"
-#~ msgstr "Monat"
-
-#~ msgid "Specific time"
-#~ msgstr "Angegebene Zeit"
-
-#~ msgid "Now"
-#~ msgstr "Jetzt"
-
-#~ msgid "10 minutes ago"
-#~ msgstr "Vor 10 Minuten"
-
-#~ msgid "Today"
-#~ msgstr "Heute"
-
-#~ msgid "Yesterday"
-#~ msgstr "Gestern"
-
-#~ msgid "This week"
-#~ msgstr "Diese Woche"
-
-#~ msgid "This month"
-#~ msgstr "Diesen Monat"
-
-#~ msgid "This year"
-#~ msgstr "Dieses Jahr"
-
-#~ msgid "Unsupported date filter \"%s\""
-#~ msgstr "Nicht unterstützter Datumsfilter \"%s\""
-
-#~ msgid "Rule"
-#~ msgstr "Regel"
-
-#~ msgid "Unsupported timestamp operator in \"%s\""
-#~ msgstr "Nicht unterstützter Zeitstempel in \"%s\""
-
-#~ msgid "Editing of some filters is not supported"
-#~ msgstr "Bearbeiten von gewissen Filtern ist nicht unterstützt"
-
-#~ msgid ""
-#~ "If you edit properties of this tab, these filters will be dropped from "
-#~ "the tab's configuration:\n"
-#~ "%s\n"
-#~ "Do you still want to edit properties of this tab?"
-#~ msgstr ""
-#~ "Wenn Sie die Eigenschaften dieses Registers bearbeiten, diese Filter aus "
-#~ "der Register-Konfiguration werden verworfen:\n"
-#~ "%s\n"
-#~ "Wollen Sie immer nich die Eigenschaften dieses Registers bearbeiten?"
-
-#~ msgid "Tab name must not be empty"
-#~ msgstr "Tab-Name darf nicht leer sein"
-
-#~ msgid "%s Properties"
-#~ msgstr "%s-Eigenschaften"
-
-#~ msgid "Invalid <%s %s> value %s"
-#~ msgstr "Ungültiger <%s %s>-Wert %s"
-
-#~ msgid "Unknown <%s %s> value %s"
-#~ msgstr "Wert <%s %s> unbekannt %s"
-
-#~ msgid "Attribute %s missing in <%s>"
-#~ msgstr "Fehlendes %s-Attribut in <%s>"
-
-#~ msgid "Audit Logs"
-#~ msgstr "Audit-Protokolle"
-
-#~ msgid "View audit logs"
-#~ msgstr "Audit-Protokoll ansehen"
-
-#~ msgid "Report Properties"
-#~ msgstr "Bericht-Eigenschaften"
-
-#~ msgid "_File"
-#~ msgstr "_Datei"

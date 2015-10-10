@@ -1,28 +1,25 @@
-# Slovenian translation for avahi
-# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
-# This file is distributed under the same license as the avahi package.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
-# Matej Urbančič <matej.urban@gmail.com>, 2010.
-#
+# Translators:
+# Martin Srebotnjak <miles@filmsi.net>, 2011
+# Matej Urbančič <matej.urban@gmail.com>, 2010
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi master\n"
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
-"PO-Revision-Date: 2010-09-22 08:10+0100\n"
-"Last-Translator: Matej Urbančič <matej.urban@gmail.com>\n"
-"Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
-"Language: \n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
+"PO-Revision-Date: 2013-11-20 09:58+0000\n"
+"Last-Translator: Matej Urbančič <>\n"
+"Language-Team: Slovenian (http://www.transifex.com/lennart/avahi/language/"
+"sl/)\n"
+"Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
-"%100==4 ? 3 : 0);\n"
-"X-Poedit-Country: SLOVENIA\n"
-"X-Poedit-Language: Slovenian\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Launchpad-Export-Date: 2010-09-21 09:00+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n"
+"%100==4 ? 2 : 3);\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -245,13 +242,13 @@ msgid "Invalid Error Code"
 msgstr "Neveljavna koda napake"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
+msgid "Avahi Discovery"
+msgstr "Odkrivanje storitev Avahi"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Trenutno ni izbrane storitve.</i>"
-
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-msgid "Avahi Discovery"
-msgstr "Odkrivanje storitev Avahi"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -317,7 +314,7 @@ msgstr "Vrsta storitve"
 msgid "The service type of the selected service"
 msgstr "Vrsta izbrane storitve"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "Ime storitve"
 
@@ -436,42 +433,53 @@ msgstr "Brskanje za storitvami v domeni <b>%s</b>:"
 msgid "Failed to create browser for %s: %s"
 msgstr "Ustvarjanje brskalnika za %s je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 "Ustvarjanje razreševalnika za %s vrste %s v domeni %s je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Ustvarjanje brskalnika domen je spodletelo: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "Spremeni domeno"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
 msgstr "Brskanje ..."
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "Preklicano.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "V redu"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
 msgstr "Začenjanje ..."
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "Mesto"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Ime"
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Vrsta"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_Domena ..."
 
@@ -502,6 +510,10 @@ msgstr "Preveč argumentov\n"
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
 msgstr "Izbor lupinskega strežnika"
+
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -664,12 +676,26 @@ msgid ""
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
+"    -h --help            Pokaži pomoč\n"
+"    -V --version         Pokaži različico\n"
+"    -D --browse-domains  Prebrskaj brskalne domene namesto storitev\n"
+"    -a --all             Pokaži vse storitve, ne glede na vrsto\n"
+"    -d --domain=DOMENA   Domena za brskanje\n"
+"    -v --verbose         Omogoči podroben način\n"
+"    -t --terminate       Zaključi po izmetu bolj ali manj popolnega seznama\n"
+"    -c --cache           Zaključi po izmetu vseh vnosov iz medpomnilnika\n"
+"    -l --ignore-local    Prezri krajevne storitve\n"
+"    -r --resolve         Razloči najdene storitve\n"
+"    -f --no-fail         Ne spodleti, če ozadnji program ni na voljo\n"
+"    -p --parsable        Izhod v razčlenljivi obliki\n"
 
 #: ../avahi-utils/avahi-browse.c:660
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
+"    -k --no-db-lookup    Ne poizveduj o vrstah storitve\n"
+"    -b --dump-db         Izvrzi zbirko podatkov vrst storitev\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format
@@ -740,6 +766,19 @@ msgid ""
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
+"%s [možnosti] %s <ime> <vrsta> <vrata> [<besedilo ...>]\n"
+"%s [možnosti] %s <ime-gostitelja> <naslov>\n"
+"\n"
+"    -h --help            Pokaži pomoč\n"
+"    -V --version         Pokaži različico\n"
+"    -s --service         Objavi storitev\n"
+"    -a --address         Objavi naslov\n"
+"    -v --verbose         Omogoči podrobni način\n"
+"    -d --domain=DOMENA   Domena, kjer bo objavljena storitev\n"
+"    -H --host=DOMENA     Gostitelj, kjer je doma storitev\n"
+"       --subtype=PODVRSTA Dodatna podvrsta za registracijo te storitve\n"
+"    -R --no-reverse      Ne objavi obratnega vnosa z naslovom\n"
+"    -f --no-fail         Ne spodleti, če ozadnji program ni na voljo\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
@@ -780,6 +819,16 @@ msgid ""
 "    -6                   Lookup IPv6 address\n"
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
+"%s [možnosti] %s <ime gostitelja ...>\n"
+"%s [možnosti] %s <naslov ... >\n"
+"\n"
+"    -h --help            Pokaži pomoč\n"
+"    -V --version         Pokaži različico\n"
+"    -n --name            Razloči ime gostitelja\n"
+"    -a --address         Razloči naslov\n"
+"    -v --verbose         Omogoči zgovoren način\n"
+"    -6                   Poizvedi o naslovu IPv6\n"
+"    -4                   Poizvedi o naslovu IPv4\n"
 
 #: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
@@ -805,6 +854,11 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
+"%s [možnosti] <ime novega gostitelja>\n"
+"\n"
+"    -h --help            Pokaži pomoč\n"
+"    -V --version         Pokaži različico\n"
+"    -v --verbose         Omogoči podrobni način\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format

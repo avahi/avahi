@@ -1,17 +1,22 @@
-# Canadian English translation
-# This file is distributed under the same license as the Avahi package.
-# Ted Percival <ted@midg3t.net>, 2008.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
-#, fuzzy
+# Translators:
 msgid ""
 msgstr ""
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2008-03-31 15:24+1000\n"
-"Last-Translator: Ted Percival <ted@midg3t.net>\n"
+"PO-Revision-Date: 2010-11-29 23:19+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Korean (Korea) (http://www.transifex.com/lennart/avahi/"
+"language/ko_KR/)\n"
+"Language: ko_KR\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -445,9 +450,8 @@ msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "Cancelled.\n"
+msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:1048
 msgid "_OK"
@@ -527,7 +531,7 @@ msgstr ""
 #: ../avahi-ui/bssh.c:250
 #, c-format
 msgid "Canceled.\n"
-msgstr "Cancelled.\n"
+msgstr ""
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"

@@ -1,27 +1,23 @@
-# Fedora Spanish translation for avahi
-# This file is distributed under the same license as the avahi package.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
-# Carlos Albornoz <caralbornozc@gmail.com>, 2010
-# Jorge González <jorgegonz@svn.gnome.org>, 2008, 2010.
-# Héctor Daniel Cabrera <logan@fedoraproject.org>, 2010.
-#
+# Translators:
+# Adolfo Jayme Barrientos, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
-"PO-Revision-Date: 2010-06-30 20:33-0300\n"
-"Last-Translator: Héctor Daniel Cabrera <logan@fedoraproject.org>\n"
-"Language-Team: Fedora Spanish <trans-es@lists.fedoraproject.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
+"PO-Revision-Date: 2013-11-20 09:58+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos\n"
+"Language-Team: Spanish (http://www.transifex.com/lennart/avahi/language/"
+"es/)\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-10-27 02:52+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-Language: Spanish\n"
-"X-Poedit-Country: ARGENTINA\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -101,7 +97,7 @@ msgstr "Demasiadas entradas"
 
 #: ../avahi-common/error.c:50
 msgid "OS Error"
-msgstr "Error de SO"
+msgstr "Error del SO"
 
 #: ../avahi-common/error.c:52
 msgid "Access denied"
@@ -221,7 +217,7 @@ msgstr "Clase de DNS no válida"
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
-msgstr "No soportado"
+msgstr "No compatible"
 
 #: ../avahi-common/error.c:85
 msgid "Not permitted"
@@ -244,13 +240,13 @@ msgid "Invalid Error Code"
 msgstr "Código de error no válido"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
-#: ../avahi-python/avahi-discover/avahi-discover.py:76
-msgid "<i>No service currently selected.</i>"
-msgstr "<i>No hay un servicio actualmente seleccionado.</i>"
-
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 msgid "Avahi Discovery"
 msgstr "Descubrimiento de Avahi"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
+#: ../avahi-python/avahi-discover/avahi-discover.py:76
+msgid "<i>No service currently selected.</i>"
+msgstr "<i>No hay ningún servicio seleccionado actualmente.</i>"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -294,7 +290,7 @@ msgstr "Dirección:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
-msgstr "Tipos de Servicios a Examinar"
+msgstr "Tipos de servicio a examinar"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
@@ -310,19 +306,19 @@ msgstr "El dominio a examinar, o NULL para el dominio predeterminado"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
-msgstr "Tipo de Servicio"
+msgstr "Tipo de servicio"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
-msgstr "El tipo de servicio del servicio seleccionado"
+msgstr "El tipo del servicio seleccionado"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "Nombre del servicio"
 
 #: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
-msgstr "El nombre de servicio del servicio seleccionado"
+msgstr "El nombre del servicio seleccionado"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "Address"
@@ -342,7 +338,7 @@ msgstr "El número de puerto IP del servicio resuelto"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
-msgstr "Nombre de Equipo"
+msgstr "Nombre de equipo"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
@@ -417,7 +413,7 @@ msgstr "Falló al leer el dominio de Avahi: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr "¡La lista de Tipos de Servicios está vacía!"
+msgstr "La lista de tipos de servicios está vacía."
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
@@ -438,41 +434,52 @@ msgstr "Examinando los servicios en el dominio <b>%s</b>:"
 msgid "Failed to create browser for %s: %s"
 msgstr "Falló al crear el examinador para %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr "Falló al crear el resolutor para %s de tipo %s en el dominio %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
 msgstr "Falló al crear el dominio de exploración: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "Cambiar el dominio"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
 msgstr "Examinando…"
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "Cancelado.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "Aceptar"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
 msgstr "Inicializando…"
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "Ubicación"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Nombre"
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Tipo"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_Dominio…"
 
@@ -493,7 +500,7 @@ msgstr ""
 "    -s --ssh             Examinar servidores SSH\n"
 "    -v --vnc             Examinar servidores VNC\n"
 "    -S --shell           Examinar servidores SSH y VNC\n"
-"    -d --domain=DOMINIO  El dominio que examinar\n"
+"    -d --domain=DOMINIO  El dominio a examinar\n"
 
 #: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
 #, c-format
@@ -502,7 +509,11 @@ msgstr "Demasiados argumentos\n"
 
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
-msgstr "Elegir el servidor de intérprete de comandos"
+msgstr "Elija el servidor de intérprete de órdenes"
+
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -514,16 +525,16 @@ msgstr "Terminal"
 
 #: ../avahi-ui/bssh.c:156
 msgid "Choose VNC server"
-msgstr "Elegir el servidor VNC"
+msgstr "Elija el servidor VNC"
 
 #: ../avahi-ui/bssh.c:161
 msgid "Choose SSH server"
-msgstr "Elegir el servidor SSH"
+msgstr "Elija el servidor SSH"
 
 #: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr "Conectando con «%s» …\n"
+msgstr "Conectando con «%s»…\n"
 
 #: ../avahi-ui/bssh.c:240
 #, c-format
@@ -786,7 +797,7 @@ msgstr "Falló al analizar el número de puerto: %s\n"
 #: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
-msgstr "No se especificó ningún comando.\n"
+msgstr "No se especificó ninguna orden.\n"
 
 #: ../avahi-utils/avahi-resolve.c:89
 #, c-format
@@ -861,4 +872,4 @@ msgstr "Número de argumentos incorrecto; se esperaba exactamente uno.\n"
 #: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr "El nombre del equipo se ha cambiado con éxito a %s\n"
+msgstr "El nombre del equipo se ha cambiado a %s correctamente\n"

@@ -1,3 +1,31 @@
+Avahi 0.6.32-rc
+===============
+
+This is largely a bugfix release, non-bug changes are listed separately.
+
+ * Don't log warnings about invalid packets, commonly triggered by Windows 10 systems
+ * Fix issue with bad packet size estimation, causing probes to continuously be sent when hosting large numbers of services (Lee, Chun-Yi)
+ * Fix build on Solaris/SmartOS (filio.h issue)
+ * Fix build on FreeBSD (PCAP_D_IN issue)
+ * Fix debug output with libdaemon >= 0.14
+ * avahi_server_set_browse_domains now correctly uses the provided list, instead of re-using the list from the configuration file
+ * Set nl_pid to 0, this will automatically assign the value and prevent conflicts per netlink(7). (Bug #334)
+ * Check for netlink pid=0 (kernel) instead of uid=0, which works correctly with network & user namespaces.
+ * Fix reversed IFA_LOCAL and IFA_ADDRESS checks. (Avahi#355)
+ * Don't fail the build on deprecated GTK/GLIB usage
+ * Gracefully fail if SO_REUSEPORT is not available
+ * Minor Python 3 update for the python ServiceTypeDatabase test usage of print, should be backwards compatible
+
+Changes
+
+ * GTK3 deprecation fixes including vbox, g_object_unref on GdkCursor, stock items, composite API
+ * New feature: host-name-from-machine-id= to configure the hostname from the machine-id, defaults to off.
+ * Configuration change: Enable IPv6 by default (use-ipv6=yes)
+ * Configuration change: Disable publishing HINFO and WORKSTATION records in the default config (publish-hinfo=no, publish-workstation=no)
+ * Configuration change: Don't browse 0pointer.de and zeroconf.org wide-area by default (browse-domain=)
+
+This release is backwards compatible with Avahi 0.6.x with x < 32.
+
 Avahi 0.6.31
 ============
 

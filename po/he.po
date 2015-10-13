@@ -1,22 +1,22 @@
-# Hebrew translation for avahi
-# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
-# This file is distributed under the same license as the avahi package.
-# Yaron Shahrabani <sh.yaron@gmail.com>, 2010.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
+# Translators:
+# elad, 2011
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi\n"
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
-"PO-Revision-Date: 2010-07-18 13:19+0200\n"
-"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
-"Language-Team: Hebrew <he@li.org>\n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
+"PO-Revision-Date: 2013-11-20 09:58+0000\n"
+"Last-Translator: elad\n"
+"Language-Team: Hebrew (http://www.transifex.com/lennart/avahi/language/he/)\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-18 10:16+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -239,13 +239,13 @@ msgid "Invalid Error Code"
 msgstr "קוד שגיאה שגוי"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
+msgid "Avahi Discovery"
+msgstr "גילוי Avahi"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>לבינתיים לא נבחר אף שירות.</i>"
-
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-msgid "Avahi Discovery"
-msgstr "גילוי Avahi"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -311,7 +311,7 @@ msgstr "סוג השירות"
 msgid "The service type of the selected service"
 msgstr "סוג השירות של השירות הנבחר"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "שם השירות"
 
@@ -382,9 +382,9 @@ msgid "Avahi client failure: %s"
 msgstr "כשל בלקוח Avahi:%s"
 
 #: ../avahi-ui/avahi-ui.c:388
-#, fuzzy, c-format
+#, c-format
 msgid "Avahi resolver failure: %s"
-msgstr "Error creating Avahi resolver: %s"
+msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
@@ -403,20 +403,18 @@ msgid "Avahi domain browser failure: %s"
 msgstr "כשל בדפדפן המתחמים Avahi: %s"
 
 #: ../avahi-ui/avahi-ui.c:684
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr "נכשל בפתירת שם מארח avahi:‏ %s\n"
+msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
 msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:717
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to connect to Avahi server: %s"
 msgstr ""
-"נכשל בהתחברות לשרת Jamendo.‏\n"
-"%s."
 
 #: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
@@ -428,46 +426,56 @@ msgid "Browsing for services in domain <b>%s</b>:"
 msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:773
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr "ארע כשל ביצירת שרת HTTP עבור %s:‏ %s"
+msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
 msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:978
-#, fuzzy, c-format
+#: ../avahi-ui/avahi-ui.c:982
+#, c-format
 msgid "Failed to create domain browser: %s"
-msgstr "ארע כשל בהפעלת סייר ה־mDNS:‏ %s\n"
+msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "החלפת מתחם"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
 msgstr "בעיון..."
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "בוטל.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "אישור"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
 msgstr "בהליכי הפעלה..."
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "מיקום"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
-#, fuzzy
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
-msgstr "שם"
+msgstr ""
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "סוג"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_מתחם..."
 
@@ -482,6 +490,13 @@ msgid ""
 "    -S --shell           Browse both SSH and VNC\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
 
 #: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
 #, c-format
@@ -489,9 +504,12 @@ msgid "Too many arguments\n"
 msgstr "יותר מדי ארגומנטים\n"
 
 #: ../avahi-ui/bssh.c:149
-#, fuzzy
 msgid "Choose Shell Server"
-msgstr "שרת מעטפת מרוחק"
+msgstr ""
+
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -515,9 +533,9 @@ msgid "Connecting to '%s' ...\n"
 msgstr "מתבצע חיבור אל '%s'...\n"
 
 #: ../avahi-ui/bssh.c:240
-#, fuzzy, c-format
+#, c-format
 msgid "execlp() failed: %s\n"
-msgstr "האימות נכשל."
+msgstr ""
 
 #: ../avahi-ui/bssh.c:250
 #, c-format
@@ -541,14 +559,14 @@ msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:107
-#, fuzzy, c-format
+#, c-format
 msgid ": All for now\n"
-msgstr "לא, זה הכל לעכשיו"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:118
-#, fuzzy, c-format
+#, c-format
 msgid ": Cache exhausted\n"
-msgstr "טוען את המטמון"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
@@ -556,19 +574,19 @@ msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:340
-#, fuzzy, c-format
+#, c-format
 msgid "service_browser failed: %s\n"
-msgstr "ארע כשל בעת %s שירות Rygel:‏ %s"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:378
-#, fuzzy, c-format
+#, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr "ארע כשל בהוספת סייר ה־mDNS לשירות %s."
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:414
-#, fuzzy, c-format
+#, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr "ארע כשל בעת %s שירות Rygel:‏ %s"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:444
 #, c-format
@@ -582,29 +600,29 @@ msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
 #: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to query version string: %s\n"
-msgstr "ארע כשל בתשאול סוג התוכן עבור '%s'"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
 #: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to query host name: %s\n"
-msgstr "אימות עם המארח %s נכשל"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
 #: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
-#, fuzzy, c-format
+#, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "שם המארח או כתובת השרת."
+msgstr ""
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:549
-#, fuzzy, c-format
+#, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr "שרת שמות מתחם"
+msgstr ""
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
@@ -615,27 +633,27 @@ msgstr ""
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
-#, fuzzy, c-format
+#, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr "‏%s התנתק"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
 #: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
 #: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to create client object: %s\n"
-msgstr "ארע כשל ביצירת פריט מסוג GdkPixbufLoader."
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
-#, fuzzy, c-format
+#, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "שגיאה בקריאת GIF:‏ %s"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
-#, fuzzy, c-format
+#, c-format
 msgid "Waiting for daemon ...\n"
-msgstr "מחכה לתקליטור..."
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:647
 msgid ""
@@ -661,9 +679,9 @@ msgid ""
 msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
-#, fuzzy, c-format
+#, c-format
 msgid "Too few arguments\n"
-msgstr "יותר מדי ארגומנטים\n"
+msgstr ""
 
 #: ../avahi-utils/avahi-browse.c:821 ../avahi-utils/avahi-publish.c:378
 #: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
@@ -672,44 +690,44 @@ msgid "Failed to create simple poll object.\n"
 msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:76
-#, fuzzy, c-format
+#, c-format
 msgid "Established under name '%s'\n"
-msgstr "שם התקן ALSA"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:81
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to register: %s\n"
-msgstr "שגיאה בטעינת %s: %s\n"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:94
-#, fuzzy, c-format
+#, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr "השם החדש ריק."
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:114
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to create entry group: %s\n"
-msgstr "ארע כשל בקבלת רשימת הקבוצות"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:124
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to add address: %s\n"
-msgstr "ארע כשל ביצירת ספר הכתובות '%s':‏ %s"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:134
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to add service: %s\n"
-msgstr "ארע כשל בעת %s שירות Rygel:‏ %s"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:140
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr "ארע כשל בהוספת התקן וירטואלי"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:191
-#, fuzzy, c-format
+#, c-format
 msgid "Host name conflict\n"
-msgstr "שנה שם מ_ארח"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:216
 #, c-format
@@ -731,29 +749,29 @@ msgid ""
 msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
-#, fuzzy, c-format
+#, c-format
 msgid "Bad number of arguments\n"
-msgstr "Los posibles argumentos son:"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:329
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to parse port number: %s\n"
-msgstr "Failed to parse saved session file: %s\n"
+msgstr ""
 
 #: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
-#, fuzzy, c-format
+#, c-format
 msgid "No command specified.\n"
-msgstr "no command specified to execute"
+msgstr ""
 
 #: ../avahi-utils/avahi-resolve.c:89
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "Unable to resolve host address"
+msgstr ""
 
 #: ../avahi-utils/avahi-resolve.c:126
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr "Unable to resolve host address"
+msgstr ""
 
 #: ../avahi-utils/avahi-resolve.c:157
 #, c-format
@@ -776,14 +794,14 @@ msgid "Failed to create host name resolver: %s\n"
 msgstr ""
 
 #: ../avahi-utils/avahi-resolve.c:309
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr "Failed to parse arguments: %s\n"
+msgstr ""
 
 #: ../avahi-utils/avahi-resolve.c:314
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to create address resolver: %s\n"
-msgstr "ארע כשל ביצירת ספר הכתובות '%s':‏ %s"
+msgstr ""
 
 #: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format

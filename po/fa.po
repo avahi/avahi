@@ -1,314 +1,320 @@
-# Canadian English translation
-# This file is distributed under the same license as the Avahi package.
-# Ted Percival <ted@midg3t.net>, 2008.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
-#, fuzzy
+# Translators:
+# Sadid Sahami <sadidsahami@gmail.com>, 2011
 msgid ""
 msgstr ""
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2008-03-31 15:24+1000\n"
-"Last-Translator: Ted Percival <ted@midg3t.net>\n"
+"PO-Revision-Date: 2013-11-20 09:58+0000\n"
+"Last-Translator: Sadid Sahami <sadidsahami@gmail.com>\n"
+"Language-Team: Persian (http://www.transifex.com/lennart/avahi/language/"
+"fa/)\n"
+"Language: fa\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: ../avahi-common/error.c:31
 msgid "Operation failed"
-msgstr ""
+msgstr "عملیات شکست خورد"
 
 #: ../avahi-common/error.c:32
 msgid "Bad state"
-msgstr ""
+msgstr "حالت بد"
 
 #: ../avahi-common/error.c:33
 msgid "Invalid host name"
-msgstr ""
+msgstr "نام میزبان نامعتبر"
 
 #: ../avahi-common/error.c:34
 msgid "Invalid domain name"
-msgstr ""
+msgstr "نام دامنه اشتباه"
 
 #: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
-msgstr ""
+msgstr "پروتکل شبکه‌ی مناسبی در دسترسی نیست"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr ""
+msgstr "Invalid DNS TTL"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
-msgstr ""
+msgstr "کلید رکورد منبع همان الگو است"
 
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
-msgstr ""
+msgstr "تصادم نام محلی"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
-msgstr ""
+msgstr "رکورد نامعتبر"
 
 #: ../avahi-common/error.c:41
 msgid "Invalid service name"
-msgstr ""
+msgstr "نام سرویس نامعتبر"
 
 #: ../avahi-common/error.c:42
 msgid "Invalid service type"
-msgstr ""
+msgstr "نوع سرویس نامعتبر"
 
 #: ../avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr ""
+msgstr "شماره‌ی پورت نامعتبر"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr ""
+msgstr "کلید رکورد نامعتبر"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
-msgstr ""
+msgstr "آدرس نامعتبر"
 
 #: ../avahi-common/error.c:46
 msgid "Timeout reached"
-msgstr ""
+msgstr "اتمام مهلت"
 
 #: ../avahi-common/error.c:47
 msgid "Too many clients"
-msgstr ""
+msgstr "مشتریان بیش از حد"
 
 #: ../avahi-common/error.c:48
 msgid "Too many objects"
-msgstr ""
+msgstr "اشیاء بیش از حد"
 
 #: ../avahi-common/error.c:49
 msgid "Too many entries"
-msgstr ""
+msgstr "ورودی‌های بیش از حد"
 
 #: ../avahi-common/error.c:50
 msgid "OS Error"
-msgstr ""
+msgstr "خطای سیستم‌عامل"
 
 #: ../avahi-common/error.c:52
 msgid "Access denied"
-msgstr ""
+msgstr "امکان دسترسی وجود ندارد"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
-msgstr ""
+msgstr "عملیات نامعتبر"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr ""
+msgstr "خطای غیرمنتظره‌ی D-BUS رخ داده"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr ""
+msgstr "ارتباط شبح (ویزارد) شکست خورد"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
-msgstr ""
+msgstr "کمبود حافظه"
 
 #: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr ""
+msgstr "شیء واردشده معتبر نبود"
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr ""
+msgstr "شبح در حال اجرا نیست"
 
 #: ../avahi-common/error.c:59
 msgid "Invalid interface index"
-msgstr ""
+msgstr "شاخص رابط نامعتبر"
 
 #: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
-msgstr ""
+msgstr "خصوصیات پروتکل نامعتبر"
 
 #: ../avahi-common/error.c:61
 msgid "Invalid flags"
-msgstr ""
+msgstr "پرچم های نامعتبر"
 
 #: ../avahi-common/error.c:63
 msgid "Not found"
-msgstr ""
+msgstr "موردی یافت نشد."
 
 #: ../avahi-common/error.c:64
 msgid "Invalid configuration"
-msgstr ""
+msgstr "تنظیمات نامعتبر"
 
 #: ../avahi-common/error.c:65
 msgid "Version mismatch"
-msgstr ""
+msgstr "عدم تطبیق نسخه"
 
 #: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
-msgstr ""
+msgstr "زیرنوع سرویس نامعتبر"
 
 #: ../avahi-common/error.c:67
 msgid "Invalid packet"
-msgstr ""
+msgstr "پاکت نامعتبر"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr ""
+msgstr "کد برگشتی DNS نامعتبر"
 
 #: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
-msgstr ""
+msgstr "DNS failure: FORMERR"
 
 #: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
-msgstr ""
+msgstr "DNS failure: SERVFAIL"
 
 #: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
-msgstr ""
+msgstr "DNS failure: NXDOMAIN"
 
 #: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
-msgstr ""
+msgstr "DNS failure: NOTIMP"
 
 #: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
-msgstr ""
+msgstr "DNS failure: REFUSED"
 
 #: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
-msgstr ""
+msgstr "DNS failure: YXDOMAIN"
 
 #: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
-msgstr ""
+msgstr "DNS failure: YXRRSET"
 
 #: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
-msgstr ""
+msgstr "DNS failure: NXRRSET"
 
 #: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
-msgstr ""
+msgstr "DNS failure: NOTAUTH"
 
 #: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
-msgstr ""
+msgstr "DNS failure: NOTZONE"
 
 #: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr ""
+msgstr "RDATA نامعتبر"
 
 #: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr ""
+msgstr "نوع DNS نامعتبر"
 
 #: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
-msgstr ""
+msgstr "کلاس DNS نامعتبر"
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
-msgstr ""
+msgstr "پشتیبانی نمی شود"
 
 #: ../avahi-common/error.c:85
 msgid "Not permitted"
-msgstr ""
+msgstr "مجاز نیست"
 
 #: ../avahi-common/error.c:86
 msgid "Invalid argument"
-msgstr ""
+msgstr "شناسه نامعتبر است"
 
 #: ../avahi-common/error.c:87
 msgid "Is empty"
-msgstr ""
+msgstr "خالی است"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr ""
+msgstr "عمل درخواست شده به خاطر زائد بودن نامعتبر است"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
-msgstr ""
+msgstr "کد خطای نامعتبر"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
 msgid "Avahi Discovery"
-msgstr ""
+msgstr "Avahi کشف"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
-msgstr ""
+msgstr "<i>در حال حاضر سرویسی انتخاب نشده است</i>"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
-msgstr ""
+msgstr "Avahi مرورگر Zeroconf"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
 msgid "Browse for Zeroconf services available on your network"
-msgstr ""
+msgstr "خدمات Zeroconf موجود در شبکه‌تان را مرور کنید"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "TXT Data:"
-msgstr ""
+msgstr "TXT Data:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "empty"
-msgstr ""
+msgstr "خالی"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
 msgid "Service Type:"
-msgstr ""
+msgstr "نوع خدمات :"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
 msgid "Service Name:"
-msgstr ""
+msgstr "نام سرویس :"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
 msgid "Domain Name:"
-msgstr ""
+msgstr "نام دامنه :"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "رابط :"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
 msgid "Address:"
-msgstr ""
+msgstr "آدرس:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
-msgstr ""
+msgstr "انواع سرویس را مرور کنید"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr ""
+msgstr "یک لیست با NULL خاتمه یافته‌ی انواع سرویس‌ها برای مرور کردن"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
-msgstr ""
+msgstr "دامنه"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
+msgstr "برای دامنه‌‌ای که قرار است مرور شود یا NULL برای دامنه‌ی پیشفرض"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
-msgstr ""
+msgstr "نوع سرویس"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
-msgstr ""
+msgstr "نوع خدمات سرویس انتخاب شده"
 
 #: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
-msgstr ""
+msgstr "نام سرویس"
 
 #: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
@@ -445,13 +451,13 @@ msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "Cancelled.\n"
+msgstr ""
 
 #: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
 msgid "_OK"
-msgstr ""
+msgstr "OK"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -527,7 +533,7 @@ msgstr ""
 #: ../avahi-ui/bssh.c:250
 #, c-format
 msgid "Canceled.\n"
-msgstr "Cancelled.\n"
+msgstr ""
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"

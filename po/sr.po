@@ -1,19 +1,19 @@
-# Serbian translations for avahi
-# Copyright (C) 2006 Red Hat, Inc.
-# This file is distributed under the same license as the avahi package.
-# Nikola Pajtić <salgeras@gmail.com>, 2008.
-# Milos Mijatovic <mijatix@gmail.com>, 2008.
-# Miloš Komarčević <kmilos@gmail.com>, 2009.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 #
+# Translators:
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi\n"
+"Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-02 03:23+0200\n"
-"PO-Revision-Date: 2009-03-21 15:58+0100\n"
-"Last-Translator: Miloš Komarčević <kmilos@gmail.com>\n"
-"Language-Team: Serbian (sr) <fedora-trans-sr@redhat.com>\n"
-"Language: \n"
+"POT-Creation-Date: 2015-10-10 13:24+0200\n"
+"PO-Revision-Date: 2013-11-20 09:58+0000\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+"Language-Team: Serbian (http://www.transifex.com/lennart/avahi/language/"
+"sr/)\n"
+"Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,7 +26,7 @@ msgstr "У реду"
 
 #: ../avahi-common/error.c:31
 msgid "Operation failed"
-msgstr "Операција неуспешна"
+msgstr "Операција није успела"
 
 #: ../avahi-common/error.c:32
 msgid "Bad state"
@@ -46,15 +46,15 @@ msgstr "Одговарајући мрежни протокол није дост
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr "Неисправан DNS TTL"
+msgstr "Неисправан ДНС ТТЛ"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
-msgstr "Кључ записа ресурса је шаблон"
+msgstr "Кључ записа изворишта је шаблон"
 
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
-msgstr "Сукоб локалних назива"
+msgstr "Сукоб месних назива"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
@@ -70,7 +70,7 @@ msgstr "Неисправна врста услуге"
 
 #: ../avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr "Неисправан број прикључка"
+msgstr "Неисправан број прикључника"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
@@ -78,11 +78,11 @@ msgstr "Неисправан кључ записа"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
-msgstr "Нетачна адреса"
+msgstr "Неисправна адреса"
 
 #: ../avahi-common/error.c:46
 msgid "Timeout reached"
-msgstr "Пауза је достигнута"
+msgstr "Време је истекло"
 
 #: ../avahi-common/error.c:47
 msgid "Too many clients"
@@ -94,7 +94,7 @@ msgstr "Превише објеката"
 
 #: ../avahi-common/error.c:49
 msgid "Too many entries"
-msgstr "Превише записа"
+msgstr "Превише уноса"
 
 #: ../avahi-common/error.c:50
 msgid "OS Error"
@@ -102,47 +102,47 @@ msgstr "Грешка оперативног система"
 
 #: ../avahi-common/error.c:52
 msgid "Access denied"
-msgstr "Забрањен приступ"
+msgstr "Приступ је забрањен"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
-msgstr "Нетачна операција"
+msgstr "Неисправна радња"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr "Десила се неочекивана грешка у D-Bus софтверу"
+msgstr "Дошло је до неочекиване грешке Д-сабирнице"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr "Повезивање системске услуге неуспешно"
+msgstr "Није успело повезивање системске услуге"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
-msgstr "Меморија препуњена"
+msgstr "Меморија је истрошена"
 
 #: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr "Пренос објекта није био исправан"
+msgstr "Прослеђени објекат није био исправан"
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr "Системска услуга се не покреће"
+msgstr "Системска услуга није покренута"
 
 #: ../avahi-common/error.c:59
 msgid "Invalid interface index"
-msgstr "Неисправан индекс спреге"
+msgstr "Неисправан регистар уређаја"
 
 #: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
-msgstr "Неисправна спецификација протокола"
+msgstr "Неисправна одредба протокола"
 
 #: ../avahi-common/error.c:61
 msgid "Invalid flags"
-msgstr "Неисправни индикатори"
+msgstr "Неисправне опције"
 
 #: ../avahi-common/error.c:63
 msgid "Not found"
-msgstr "Није пронађено"
+msgstr "Нисам нашао"
 
 #: ../avahi-common/error.c:64
 msgid "Invalid configuration"
@@ -150,11 +150,11 @@ msgstr "Неисправно подешавање"
 
 #: ../avahi-common/error.c:65
 msgid "Version mismatch"
-msgstr "Неслагање верзије"
+msgstr "Неслагање издања"
 
 #: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
-msgstr "Неисправна подврста услуга"
+msgstr "Неисправна подврста услуге"
 
 #: ../avahi-common/error.c:67
 msgid "Invalid packet"
@@ -162,59 +162,59 @@ msgstr "Неисправан пакет"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr "Неисправан повратни код DNS услуге"
+msgstr "Неисправан повратни код ДНС-а"
 
 #: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
-msgstr "DNS квар: FORMERR"
+msgstr "Неуспех ДНС-а: FORMERR"
 
 #: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
-msgstr "DNS квар: SERVFAIL"
+msgstr "Неуспех ДНС-а: SERVFAIL"
 
 #: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
-msgstr "DNS квар: NXDOMAIN"
+msgstr "Неуспех ДНС-а: NXDOMAIN"
 
 #: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
-msgstr "DNS квар: NOTIMP"
+msgstr "Неуспех ДНС-а: NOTIMP"
 
 #: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
-msgstr "DNS квар: REFUSED"
+msgstr "Неуспех ДНС-а: REFUSED"
 
 #: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
-msgstr "DNS квар: YXDOMAIN"
+msgstr "Неуспех ДНС-а: YXDOMAIN"
 
 #: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
-msgstr "DNS квар: YXRRSET"
+msgstr "Неуспех ДНС-а: YXRRSET"
 
 #: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
-msgstr "DNS квар: NXRRSET"
+msgstr "Неуспех ДНС-а: NXRRSET"
 
 #: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
-msgstr "DNS квар: NOTAUTH"
+msgstr "Неуспех ДНС-а: NOTAUTH"
 
 #: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
-msgstr "DNS квар: NOTZONE"
+msgstr "Неуспех ДНС-а: NOTZONE"
 
 #: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr "Неисправна RDATA врста података"
+msgstr "Неисправни су РПОДАЦИ"
 
 #: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr "Неисправна врста DNS услуге"
+msgstr "Неисправна врста ДНС-а"
 
 #: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
-msgstr "Неисправна класа DNS услуге"
+msgstr "Неисправан разред ДНС-а"
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
@@ -234,66 +234,60 @@ msgstr "Празно"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr "Тражена операција је неисправна јер је редундантна"
+msgstr "Тражена радња је неисправна јер је сувишна"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
 msgstr "Неисправан код грешке"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
+msgid "Avahi Discovery"
+msgstr "Авахијево откривање"
+
+#: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Ниједна услуга тренутно није изабрана.</i>"
 
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-msgid "Avahi Discovery"
-msgstr "Авахи откривање"
-
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
-msgstr "Авахи Zeroconf претраживач"
+msgstr "Авахијев Зероконф прегледник"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
 msgid "Browse for Zeroconf services available on your network"
-msgstr "Претражујем доступне Zeroconf услуге на вашој мрежи"
+msgstr "Прегледам доступне Зероконф услуге на вашој мрежи"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "ТЕКСТ"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "TXT Data:"
-msgstr "TXT подаци"
+msgstr "Текстуални подаци:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
-#, fuzzy
 msgid "empty"
-msgstr "Празно"
+msgstr "празно"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
-#, fuzzy
 msgid "Service Type:"
-msgstr "Врста услуге"
+msgstr "Врста услуге:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
-#, fuzzy
 msgid "Service Name:"
-msgstr "Назив услуге"
+msgstr "Назив услуге:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
-#, fuzzy
 msgid "Domain Name:"
-msgstr "Домен"
+msgstr "Назив домена:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "Уређај:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
-#, fuzzy
 msgid "Address:"
-msgstr "Адреса"
+msgstr "Адреса:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
@@ -301,7 +295,7 @@ msgstr "Прегледај врсте услуга"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr "Списак врста услуга за прегледање ограничен са NULL"
+msgstr "Списак врста услуга за прегледање ограничен са „NULL“"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
@@ -309,7 +303,7 @@ msgstr "Домен"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr "Домен за прегледање, или NULL за подразумевани домен"
+msgstr "Домен за прегледање, или „NULL“ за подразумевани домен"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
@@ -319,7 +313,7 @@ msgstr "Врста услуге"
 msgid "The service type of the selected service"
 msgstr "Врста изабране услуге"
 
-#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1023
+#: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
 msgstr "Назив услуге"
 
@@ -333,15 +327,15 @@ msgstr "Адреса"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
-msgstr "Адреса разрешене услуге"
+msgstr "Адреса решене услуге"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
-msgstr "Порт"
+msgstr "Прикључник"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
-msgstr "Број IP порта разрешене услуге"
+msgstr "Број ИП прикључника решене услуге"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
@@ -349,34 +343,32 @@ msgstr "Назив домаћина"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
-msgstr "Назив домаћина разрешене услуге"
+msgstr "Назив домаћина решене услуге"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
-msgstr "TXT подаци"
+msgstr "Текстуални подаци"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
-msgstr "TXT подаци разрешене услуге"
+msgstr "Текстуални подаци решене услуге"
 
 #: ../avahi-ui/avahi-ui.c:230
-#, fuzzy
 msgid "Resolve Service"
-msgstr "Разреши услугу"
+msgstr "Реши услугу"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "Самостално решава изабрану услугу пре повраћаја"
 
 #: ../avahi-ui/avahi-ui.c:236
-#, fuzzy
 msgid "Resolve Service Host Name"
-msgstr "Разреши назив домаћина услуге"
+msgstr "Реши назив домаћина услуге"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr ""
+msgstr "Самостално решава назив домаћина изабране услуге пре повраћаја"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -389,92 +381,105 @@ msgstr "Породица адреса за разрешавање назива �
 #: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr "Квар Авахи клијента: %s"
+msgstr "Квар Авахијевог клијента: %s"
 
 #: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr "Квар Авахи разрешивача: %s"
+msgstr "Квар Авахијевог решавача: %s"
 
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr "Претраживање за врстом услуге %s у домену %s неуспешно: %s"
+msgstr ""
+"Нисам успео да потражим врсту услуге „%s“ у домену „%s“\n"
+"%s"
 
 #: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
-msgstr "непознато"
+msgstr "н/д"
 
 #: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
-msgstr "Квар Авахи претраживача домена: %s"
+msgstr "Неуспех Авахијевог прегледника домена: %s"
 
 #: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr "Неуспешно читање Авахи домена: %s"
+msgstr "Нисам успео да прочитам Авахијев домен: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr "Списак врста сервиса за преглед је празан!"
+msgstr "Списак врста услуга за преглед је празан!"
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
-msgstr "Неуспешно повезивање на Авахи сервер: %s"
+msgstr "Нисам успео да се повежем на Авахијев сервер: %s"
 
 #: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
-msgstr "Претраживање за услугом на <b>локалној мрежи</b>:"
+msgstr "Тражим услугу на <b>месној мрежи</b>:"
 
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr "Претраживање за услугом у домену <b>%s</b>:"
+msgstr "Тражим услугу у домену <b>%s</b>:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr "Неуспешно прављење претраживача за %s: %s"
+msgstr "Нисам успео да направим прегледника за „%s“: %s"
 
-#: ../avahi-ui/avahi-ui.c:903
+#: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "Неуспешно прављење разрешивача за %s врсте %s у домену %s: %s"
+msgstr "Нисам успео да направим решавача за „%s“ врсте %s у домену %s: %s"
 
-#: ../avahi-ui/avahi-ui.c:978
+#: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr "Неуспешно прављење претраживача домена: %s"
+msgstr "Нисам успео да направим прегледника домена: %s"
 
-#: ../avahi-ui/avahi-ui.c:989
+#: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
 msgstr "Промени домен"
 
-#: ../avahi-ui/avahi-ui.c:1031 ../avahi-ui/avahi-ui.c:1162
+#: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
-msgstr "Претражујем..."
+msgstr "Разгледам..."
 
-#: ../avahi-ui/avahi-ui.c:1120
+#: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
+#: ../avahi-ui/bssh.c:161
+#, fuzzy
+msgid "_Cancel"
+msgstr "Отказано.\n"
+
+#: ../avahi-ui/avahi-ui.c:1048
+#, fuzzy
+msgid "_OK"
+msgstr "У реду"
+
+#: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
 msgstr "Покрећем..."
 
-#: ../avahi-ui/avahi-ui.c:1144
+#: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
 msgstr "Место"
 
-#: ../avahi-ui/avahi-ui.c:1149 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
 msgstr "Назив"
 
-#: ../avahi-ui/avahi-ui.c:1154 ../avahi-utils/avahi-browse.c:553
+#: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
 msgstr "Врста"
 
-#: ../avahi-ui/avahi-ui.c:1166
+#: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
 msgstr "_Домен..."
 
@@ -489,13 +494,13 @@ msgid ""
 "    -S --shell           Browse both SSH and VNC\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
-"%s [опције]\n"
+"%s [могућности]\n"
 "\n"
-"    -h --help             Прикажи ову помоћ\n"
-"    -s --ssh              Претражи SSH сервере\n"
-"    -v --vnc              Претражи VNC сервере\n"
-"    -S --shell            Претражи и SSH и VNC\n"
-"    -d --domain=ДОМЕН     Домен у коме ће се вршити претраживање\n"
+"    -h --help             Приказује ову помоћ\n"
+"    -s --ssh              Разгледа сервере безбедне шкољке\n"
+"    -v --vnc              Разгледа ВНЦ сервере\n"
+"    -S --shell            Разгледа сервере и безбедне шкољке и ВНЦ-а\n"
+"    -d --domain=ДОМЕН     Домен у коме ће се вршити разгледање\n"
 
 #: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
 #, c-format
@@ -504,11 +509,15 @@ msgstr "Превише аргумената\n"
 
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
-msgstr "Изаберите сервер командног окружења"
+msgstr "Изаберите сервер шкољке"
+
+#: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr ""
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
-msgstr "Радна површина"
+msgstr "Радна површ"
 
 #: ../avahi-ui/bssh.c:152
 msgid "Terminal"
@@ -516,11 +525,11 @@ msgstr "Терминал"
 
 #: ../avahi-ui/bssh.c:156
 msgid "Choose VNC server"
-msgstr "Изаберите VNC сервер"
+msgstr "Изаберите ВНЦ сервер"
 
 #: ../avahi-ui/bssh.c:161
 msgid "Choose SSH server"
-msgstr "Изаберите SSH сервер"
+msgstr "Изаберите сервер безбедне шкољке"
 
 #: ../avahi-ui/bssh.c:185
 #, c-format
@@ -530,7 +539,7 @@ msgstr "Повезујем се на „%s“ ...\n"
 #: ../avahi-ui/bssh.c:240
 #, c-format
 msgid "execlp() failed: %s\n"
-msgstr "Функција execlp() неуспешна: %s\n"
+msgstr "Није успела функција „execlp()“: %s\n"
 
 #: ../avahi-ui/bssh.c:250
 #, c-format
@@ -539,111 +548,111 @@ msgstr "Отказано.\n"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
-msgstr "Претраживач Авахи SSH сервера"
+msgstr "Прегледник Авахијевог сервера безбедне шкољке"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr "Претражујем SSH сервере на којима је омогућен Zeroconf"
+msgstr "Потражите сервере безбедне шкољке са укљученим Зероконфом"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr "Претраживач Авахи VNC сервера"
+msgstr "Прегледник Авахијевог ВНЦ сервера"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr "Претражујем VNC сервере на којима је омогућен Zeroconf"
+msgstr "Потражите ВНЦ сервере са укљученим Зероконфом"
 
 #: ../avahi-utils/avahi-browse.c:107
 #, c-format
 msgid ": All for now\n"
-msgstr ": за сада све\n"
+msgstr ": За сада све\n"
 
 #: ../avahi-utils/avahi-browse.c:118
 #, c-format
 msgid ": Cache exhausted\n"
-msgstr ": кеш је препуњен\n"
+msgstr ": Остава је препуњена\n"
 
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "Неуспешно резрешавање услуге „%s“ врсте „%s“ у домену „%s“: %s\n"
+msgstr "Нисам успео да решим услугу „%s“ врсте „%s“ у домену „%s“: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
 msgid "service_browser failed: %s\n"
-msgstr "Неуспешна функција service_browser: %s\n"
+msgstr "Није успела функција „service_browser“: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:378
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr "Неуспешна функција avahi_service_browser_new(): %s\n"
+msgstr "Није успела функција „avahi_service_browser_new()“: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:414
 #, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr "Неуспешна функција service_type_browser: %s\n"
+msgstr "Није успела функција „service_type_browser“: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:444
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
-msgstr "Неуспешна функција avahi_service_type_browser_new(): %s\n"
+msgstr "Није успела функција „avahi_service_type_browser_new()“: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:519
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
-msgstr "Неуспешна функција avahi_domain_browser_new(): %s\n"
+msgstr "Није успела функција „avahi_domain_browser_new()“: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
 #: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
-msgstr "Неуспешно извршавање упита за ниском верзије: %s\n"
+msgstr "Нисам успео да пропитам ниску издања: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
 #: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
-msgstr "Неуспешно извршавање упита за називом домаћина: %s\n"
+msgstr "Нисам успео да пропитам назив домаћина: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
 #: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "Верзија сервера : %s; назив домаћина: %s\n"
+msgstr "Издање сервера: %s; назив домаћина: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:549
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr "Д Спр Прот Домен\n"
+msgstr "Д МСуч Прот Домен\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr "Д Спр Прот %-*s %-20s Домен\n"
+msgstr "Д МСуч Прот %-*s %-20s Домен\n"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr "Неповезан, поновно повезивање ...\n"
+msgstr "Веза је прекинута, поново се повезујем ...\n"
 
 #: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
 #: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
 #: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
-msgstr "Неуспешно прављење објекта клијента: %s\n"
+msgstr "Нисам успео да направим објекат клијента: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr "Квар клијента, излазим: %s\n"
+msgstr "Неуспех клијента, излазим: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
@@ -666,29 +675,28 @@ msgid ""
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
-"    -h --help             Прикажи ову помоћ\n"
-"    -V --version          Прикажи верзију\n"
-"    -D --browse-domains   Претражи домене који се могу претраживати уместо "
+"    -h --help             Приказује ову помоћ\n"
+"    -V --version          Приказује издање\n"
+"    -D --browse-domains   Разгледа домене који се могу претраживати уместо "
 "услуга\n"
-"    -a --all              Прикажи све услуге, без обзира на врсту\n"
+"    -a --all              Приказује све услуге, без обзира на врсту\n"
 "    -d --domain=ДОМЕН     Домен за претраживање\n"
-"    -v --verbose          Укључи режим опширног исписа\n"
-"    -t --terminate        Прекини после избацивања више или мање завршене "
+"    -v --verbose          Укључује режим опширног исписа\n"
+"    -t --terminate        Прекида после избацивања више или мање завршене "
 "листе\n"
-"    -c --cache            Прекини после избацивања свих записа из кеша\n"
-"    -l --ignore-local     Игнориши локалне услуге\n"
-"    -r --resolve          Разреши пронађене услуге\n"
-"    -f --no-fail          Немој да откажеш ако системска услуга није "
-"доступна\n"
-"    -p --parsable         Излаз у формату који се може рашчланити\n"
+"    -c --cache            Прекида после избацивања свих записа из оставе\n"
+"    -l --ignore-local     Занемарује месне услуге\n"
+"    -r --resolve          Решава пронађене услуге\n"
+"    -f --no-fail          Не отказује ако системска услуга није доступна\n"
+"    -p --parsable         Даје излаз у запису који се може обрадити\n"
 
 #: ../avahi-utils/avahi-browse.c:660
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
-"    -k --no-db-lookup     Немој тражити врсте услуге\n"
-"    -b --dump-db          Избаци базу података врсте услуге\n"
+"    -k --no-db-lookup     Не тражи врсте услуге\n"
+"    -b --dump-db          Избацује базу података врсте услуге\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format
@@ -699,17 +707,17 @@ msgstr "Сувише мало аргумената\n"
 #: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
-msgstr "Неуспешно прављење објекта једноставне анкете.\n"
+msgstr "Нисам успео да направим објекат једноставне анкете.\n"
 
 #: ../avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
-msgstr "Успостављено под именом „%s“\n"
+msgstr "Успостављено под називом „%s“\n"
 
 #: ../avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
-msgstr "Неуспешна регистрација: %s\n"
+msgstr "Нисам успео да забележим: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:94
 #, c-format
@@ -719,22 +727,22 @@ msgstr "Сукоб назива, узимам нови назив „%s“.\n"
 #: ../avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
-msgstr "Неуспешно прављење записа групе: %s\n"
+msgstr "Нисам успео да направим унос групе: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:124
 #, c-format
 msgid "Failed to add address: %s\n"
-msgstr "Неуспешно додавање адресе: %s\n"
+msgstr "Нисам успео да додам адресу: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
-msgstr "Неуспешно додавање услуге: %s\n"
+msgstr "Нисам успео да додам услугу: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr "Неуспешно додавање подврсте „%s“: %s\n"
+msgstr "Нисам успео да додам подврсту „%s“: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format
@@ -742,7 +750,7 @@ msgid "Host name conflict\n"
 msgstr "Сукоб назива домаћина\n"
 
 #: ../avahi-utils/avahi-publish.c:216
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s [options] %s <name> <type> <port> [<txt ...>]\n"
 "%s [options] %s <host-name> <address>\n"
@@ -759,20 +767,20 @@ msgid ""
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
-"%s [опције] %s <назив> <врста> <порт> [<txt ...>]\n"
-"%s [опције] %s <назив-домаћина> <адреса>\n"
+"%s [могућности] %s <назив> <врста> <порт> [<txt ...>]\n"
+"%s [могућности] %s <назив-домаћина> <адреса>\n"
 "\n"
-"    -h --help             Прикажи ову помоћ\n"
-"    -V --version          Прикажи верзију\n"
-"    -s --service          Објави услугу\n"
-"    -a --address          Објави адресу\n"
-"    -v --verbose          Укључи режим опширног исписа\n"
+"    -h --help             Приказује ову помоћ\n"
+"    -V --version          Приказује издање\n"
+"    -s --service          Објављује услугу\n"
+"    -a --address          Објављује адресу\n"
+"    -v --verbose          Укључује режим опширног исписа\n"
 "    -d --domain=ДОМЕН     Домен у којем ће се објавити услуге\n"
 "    -H --host=ДОМЕН       Домаћин на којем се налазе услуге\n"
-"       --subtype=ПОДВРСТА Додатна подврста са којом ће се регистровати ова "
+"       --subtype=ПОДВРСТА Додатна подврста са којом ће се забележити ова "
 "услуга\n"
-"    -f --no-fail          Немој да откажеш ако системска услуга није "
-"доступна\n"
+"    -R --no-reverse       Не објављује обрнуте уносе са адресом\n"
+"    -f --no-fail          Неће отказати ако системска услуга није доступна\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
@@ -782,22 +790,22 @@ msgstr "Лош број аргумената\n"
 #: ../avahi-utils/avahi-publish.c:329
 #, c-format
 msgid "Failed to parse port number: %s\n"
-msgstr "Неуспешно разрешавање броја прикључка: %s\n"
+msgstr "Нисам успео да обрадим број прикључника: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
-msgstr "Команда није одређена.\n"
+msgstr "Наредба није наведена.\n"
 
 #: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "Неуспешно разрешавање назива домаћина „%s“: %s\n"
+msgstr "Нисам успео да обрадим назив домаћина „%s“: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr "Неуспешно разрешавање адресе „%s“: %s\n"
+msgstr "Нисам успео да обрадим адресу „%s“: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:157
 #, c-format
@@ -813,31 +821,31 @@ msgid ""
 "    -6                   Lookup IPv6 address\n"
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
-"%s [опције] %s <назив домаћина ...>\n"
-"%s [опције] %s <адреса ... >\n"
+"%s [могућности] %s <назив домаћина ...>\n"
+"%s [могућности] %s <адреса ... >\n"
 "\n"
-"    -h --help             Прикажи ову помоћ\n"
-"    -V --version          Прикажи верзију\n"
-"    -n --name             Разреши назив домаћина\n"
-"    -a --address          Разреши адресу\n"
-"    -v --verbose          Укључи режим опширног исписа\n"
-"    -6                    Тражи IPv6 адресу\n"
-"    -4                    Тражи IPv4 адресу\n"
+"    -h --help             Приказује ову помоћ\n"
+"    -V --version          Приказује издање\n"
+"    -n --name             Решава назив домаћина\n"
+"    -a --address          Решава адресу\n"
+"    -v --verbose          Укључује режим опширног исписа\n"
+"    -6                    Тражи ИПв6 адресу\n"
+"    -4                    Тражи ИПв4 адресу\n"
 
 #: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
-msgstr "Неуспешно прављење разрешивача назива домаћина: %s\n"
+msgstr "Нисам успео да направим решавача назива домаћина: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr "Неуспешно рашчлањивање адресе „%s“\n"
+msgstr "Нисам успео да обрадим адресу „%s“\n"
 
 #: ../avahi-utils/avahi-resolve.c:314
 #, c-format
 msgid "Failed to create address resolver: %s\n"
-msgstr "Неуспешно прављење разрешивача адресе: %s\n"
+msgstr "Нисам успео да направим решавача адресе: %s\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format
@@ -848,11 +856,11 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
-"%s [опције] <нови назив домаћина>\n"
+"%s [могућности] <нови назив домаћина>\n"
 "\n"
-"    -h --help             Прикажи ову помоћ\n"
-"    -V --version          Прикажи верзију\n"
-"    -v --verbose          Укључи режим опширног исписа\n"
+"    -h --help             Приказује ову помоћ\n"
+"    -V --version          Приказује издање\n"
+"    -v --verbose          Укључује режим опширног исписа\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format
@@ -862,4 +870,4 @@ msgstr "Неисправан број аргумената, очекујем т�
 #: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr "Назив домаћина успешно промењен у %s\n"
+msgstr "Назив домаћина је успешно промењен у „%s“\n"

@@ -82,7 +82,7 @@ libavahi_qt5_la_SOURCES = \
 qt-watch.moc5: qt-watch.cpp
 	$(AM_V_GEN)$(MOC_QT5) $^ > $@
 
-libavahi_qt5_la_CPPFLAGS = $(AM_CFLAGS) $(QT5_CFLAGS) -DQT5 $(VISIBILITY_HIDDEN_CFLAGS)
+libavahi_qt5_la_CPPFLAGS = $(AM_CFLAGS) $(QT5_CFLAGS) -fPIC -DQT5 $(VISIBILITY_HIDDEN_CFLAGS)
 libavahi_qt5_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT5_LIBS)
 libavahi_qt5_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBAVAHI_QT5_VERSION_INFO)
 endif

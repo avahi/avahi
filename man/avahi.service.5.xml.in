@@ -56,6 +56,7 @@
         Contains the service information for exactly one service
         type. Should contain one <opt>&lt;type&gt;</opt> and one
         <opt>&lt;port&gt;</opt> element. Optionally it may contain one
+        <opt>&lt;interface&gt;</opt>, one
         <opt>&lt;domain-name&gt;</opt>, one
         <opt>&lt;host-name&gt;</opt>, any number of
         <opt>&lt;subtype&gt;</opt> and any number of
@@ -93,6 +94,10 @@
 
       <option>
         <p><opt>&lt;port&gt;</opt> The IP port number the service listens on.</p>
+      </option>
+
+      <option>
+        <p><opt>&lt;interface&gt;</opt>Specifies the network interface that the service will be announced on. If ommitted, the service will be announced on all interfaces. </p>
       </option>
 
       <option>

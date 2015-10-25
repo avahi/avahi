@@ -21,6 +21,7 @@
 #include <config.h>
 #endif
 
+#include <net/if.h>
 #include <sys/stat.h>
 #include <glob.h>
 #include <limits.h>
@@ -60,6 +61,7 @@ struct StaticService {
     char *host_name;
     uint16_t port;
     int protocol;
+    int interface;
 
     AvahiStringList *subtypes;
 
@@ -122,6 +124,7 @@ static StaticService *static_service_new(StaticServiceGroup *group) {
 
     s->type = s->host_name = s->domain_name = NULL;
     s->port = 0;
+    s->interface = AVAHI_IF_UNSPEC;
     s->protocol = AVAHI_PROTO_UNSPEC;
 
     s->txt_records = NULL;
@@ -256,7 +259,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         if (avahi_server_add_service_strlst(
                 avahi_server,
                 g->entry_group,
-                AVAHI_IF_UNSPEC, s->protocol,
+                s->interface, s->protocol,
                 0,
                 g->chosen_name, s->type, s->domain_name,
                 s->host_name, s->port,
@@ -305,6 +308,7 @@ typedef enum {
     XML_TAG_DOMAIN_NAME,
     XML_TAG_HOST_NAME,
     XML_TAG_PORT,
+    XML_TAG_INTERFACE,
     XML_TAG_TXT_RECORD
 } xml_tag_name;
 
@@ -402,6 +406,11 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
             goto invalid_attr;
 
         u->current_tag = XML_TAG_PORT;
+    } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "interface") == 0) {
+         if (attr[0])
+             goto invalid_attr;
+
+        u->current_tag = XML_TAG_INTERFACE;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "txt-record") == 0) {
         if (attr[0])
             goto invalid_attr;
@@ -468,6 +477,24 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
             }
 
             u->service->port = (uint16_t) p;
+
+            u->current_tag = XML_TAG_SERVICE;
+            break;
+        }
+
+        case XML_TAG_INTERFACE: {
+            int interface;
+            assert(u->service);
+
+            interface = (int) if_nametoindex(u->buf);
+
+            if(interface < 1) {
+                avahi_log_error("%s: parse failure: invalid interface specification \"%s\".", u->group->filename, u->buf);
+                u->failed = 1;
+                return;
+            }
+
+            u->service->interface = interface;
 
             u->current_tag = XML_TAG_SERVICE;
             break;
@@ -550,6 +577,7 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
             break;
 
         case XML_TAG_PORT:
+        case XML_TAG_INTERFACE:
         case XML_TAG_TXT_RECORD:
         case XML_TAG_SUBTYPE:
             assert(u->service);

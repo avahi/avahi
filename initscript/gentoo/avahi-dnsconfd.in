@@ -2,7 +2,7 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-opts="reload"
+extra_started_commands="reload"
 
 depend() {
 	need avahi-daemon

@@ -1101,7 +1101,6 @@ avahi-client/Makefile
 initscript/Makefile
 initscript/debian/Makefile
 initscript/gentoo/Makefile
-initscript/archlinux/Makefile
 initscript/suse/Makefile
 initscript/fedora/Makefile
 initscript/lfs/Makefile

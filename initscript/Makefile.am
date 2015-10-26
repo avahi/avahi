@@ -25,10 +25,6 @@ if TARGET_DEBIAN
 SUBDIRS += debian
 endif
 
-if TARGET_ARCHLINUX
-SUBDIRS += archlinux
-endif
-
 if TARGET_GENTOO
 SUBDIRS += gentoo
 endif

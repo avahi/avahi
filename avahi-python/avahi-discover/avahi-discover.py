@@ -204,7 +204,7 @@ class Main_window:
 
             service_type_browsers[(interface, protocol, domain)] = b
         else:
-            new_service_type(interface, protocol, stype, domain)
+            self.new_service_type(interface, protocol, self.stype, domain)
 
     def new_domain(self,interface, protocol, domain, flags):
         if self.zc_ifaces.has_key((interface,protocol)) == False:
@@ -286,7 +286,7 @@ class Main_window:
             db.connect_to_signal('ItemNew', self.new_domain)
         else:
             # Just browse the domain the user wants us to browse
-            self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, domain)
+            self.browse_domain(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, self.domain)
 
     def gtk_main_quit(self, *args):
         Gtk.main_quit()

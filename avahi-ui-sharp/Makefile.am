@@ -60,10 +60,10 @@ monodoc_DATA = avahi-ui-sharp-docs.zip avahi-ui-sharp-docs.tree avahi-ui-sharp-d
 endif
 
 install-data-hook: $(ASSEMBLY)
-	$(GACUTIL) /i $(ASSEMBLY) /package avahi-ui-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(GACUTIL) /i $(ASSEMBLY) /package avahi-ui-sharp /gacdir $(prefix)/lib /root $(DESTDIR)$(prefix)/lib
 
 uninstall-hook: $(ASSEMBLY)
-	$(GACUTIL) /u avahi-ui-sharp /package avahi-ui-sharp /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(GACUTIL) /u avahi-ui-sharp /package avahi-ui-sharp /gacdir $(prefix)/lib /root $(DESTDIR)$(prefix)/lib
 
 endif
 endif

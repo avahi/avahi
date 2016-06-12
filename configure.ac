@@ -966,7 +966,7 @@ AC_SUBST(avahi_socket)
 #
 # Avahi interfaces dir
 #
-if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes"; then
+if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes" -o "x$HAVE_GTK3" = "xyes"; then
 	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
 	AC_SUBST(interfacesdir)
 fi

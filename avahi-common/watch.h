@@ -22,7 +22,7 @@
 
 /** \file watch.h Simplistic main loop abstraction */
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <sys/time.h>
 
 #include <avahi-common/cdecl.h>

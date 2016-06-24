@@ -22,7 +22,7 @@
 
 /** \file thread-watch.h Threaded poll() based main loop implementation */
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <avahi-common/cdecl.h>
 #include <avahi-common/watch.h>
 

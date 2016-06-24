@@ -21,7 +21,7 @@
 #include <config.h>
 #endif
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <assert.h>
 #include <string.h>
 #include <errno.h>

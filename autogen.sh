@@ -42,6 +42,13 @@ run_versioned() {
 
 set -ex
 
+test -n "$srcdir" || srcdir=$(dirname "$0")
+test -n "$srcdir" || srcdir=.
+
+olddir=$(pwd)
+
+cd $srcdir
+
 if [ -f .git/hooks/pre-commit.sample -a ! -f .git/hooks/pre-commit ] ; then
     cp -p .git/hooks/pre-commit.sample .git/hooks/pre-commit && \
     chmod +x .git/hooks/pre-commit && \
@@ -70,8 +77,9 @@ else
     run_versioned autoheader "$AC_VERSION"
     run_versioned automake "$AM_VERSION" -a -c --foreign
 
+    cd "$olddir"
     if test "x$NOCONFIGURE" = "x"; then
-        ./configure "$@"
+        $srcdir/configure "$@"
         make clean
     fi
 fi

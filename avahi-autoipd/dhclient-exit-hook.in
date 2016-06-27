@@ -26,6 +26,8 @@ case "$reason" in
         ;;
 
     EXPIRE|FAIL|TIMEOUT)
-        @sbindir@/avahi-autoipd -wD $interface 2> /dev/null
+        if [ -x @sbindir@/avahi-autoipd ] ; then
+            @sbindir@/avahi-autoipd -wD $interface 2> /dev/null
+        fi
         ;;
 esac

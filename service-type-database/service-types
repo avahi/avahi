@@ -139,6 +139,7 @@ _realplayfavs._tcp:RealPlayer Shared Favorites
 _realplayfavs._tcp[it]:RealPlayer - Preferiti Condivisi
 
 _raop._tcp:AirTunes Remote Audio
+_airplay._tcp:AirPlay Remote Video
 
 _rtsp._tcp:RTSP Realtime Streaming Server
 _rtp._udp:RTP Realtime Streaming Server
@@ -216,6 +217,10 @@ _adobe-vc._tcp:Adobe Version Cue
 
 _home-sharing._tcp:Apple Home Sharing
 
+_amzn-wplay._tcp:Amazon Fire TV
+
+_qdiscover._tcp:QNAP NAS
+
 
 # Other
 
@@ -231,3 +236,6 @@ _tp-https._tcp:Thousand Parsec Server (Secure HTTP Tunnel)
 _shifter._tcp:Window Shifter
 
 _libvirt._tcp:Virtual Machine Manager
+
+_device-info._tcp:Device Info
+

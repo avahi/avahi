@@ -689,9 +689,11 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
                     }
 
                     if (! match){
-                        //avahi_log_info("Reject Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
+                        avahi_log_debug("Reject Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
                         return;
                     }
+                    else
+                        avahi_log_debug("Match Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
                 }
                 else if (record->key->type == AVAHI_DNS_TYPE_SRV || record->key->type == AVAHI_DNS_TYPE_TXT){
                     // Need to match key name with filter
@@ -703,9 +705,11 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
                     }
 
                     if (! match){
-                        //avahi_log_info("Reject Key [%s] iface [%d]", record->key->name, from_local_iface);
+                        avahi_log_debug("Reject Key [%s] iface [%d]", record->key->name, from_local_iface);
                         return;
                     }
+                    else
+                        avahi_log_debug("Match Key [%s] iface [%d]", record->key->name, from_local_iface);
                 }
             }
 

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="iso-8859-1"?> <!-- -*-html-helper-*- -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>nss-mdns @PACKAGE_VERSION@</title>
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+<h1><a name="top">nss-mdns @PACKAGE_VERSION@</a></h1>
+
+<p><i>Copyright 2004-2007 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
+
+<ul class="toc">
+    <li><a href="#license">License</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#status">Current Status</a></li>
+    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#acks">Acknowledgements</a></li>
+    <li><a href="#download">Download</a></li>
+</ul>
+
+<h2><a name="license">License</a></h2>
+
+<p>This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
+
+<h2><a name="news">News</a></h2>
+
+<div class="news-date">Sat May 12 2007: </div>
+
+<p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.10.tar.gz">Version 0.10</a>
+released. Changes include: Ported to FreeBSD; alignment fixes for SPARC.</p>
+
+<div class="news-date">Mon Jan 1 2007: </div>
+
+<p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.9.tar.gz">Version 0.9</a>
+released. Changes include: Make most shared library symbols private to
+not conflict with any symbols of the program we're loaded into. Fix a
+potential endless loop in the mDNS packet parsing code.</p>
+
+<p class="news-text"><b>Please note that due to security reasons from
+this release on the minimal mDNS stack included in <tt>nss-mdns</tt>
+(dubbed "legacy") is no longer built by default. Thus,
+<tt>nss-mdns</tt> will not work unless <a
+href="http://avahi.org/">Avahi</a> is running! That makes Avahi
+essentially a hard dependency of <tt>nss-mdns</tt>. Pass
+<tt>--enable-legacy</tt> to reenable the mini mDNS stack again. Please
+note as well that this release does not honour
+<tt>/etc/resolv.conf</tt> domain search lists by default anymore. It
+created a lot of problems and was never recommended anyway. You may
+reenable this functionality by passing
+<tt>--enable-search-domains</tt>.</b></p>
+
+<div class="news-date">Sat Apr 29 2006: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.8.tar.gz">Version 0.8</a>
+released. Changes include: Build time option to disable "legacy unicast" mDNS
+requests, i.e. resolve exclusively with Avahi; build a special
+<tt>_minimal</tt> flavour of the shared objects to minimize
+unnecessary name lookup timeouts; fix IPv6 resolving when using
+Avahi.</p>
+
+<p class="news-text"><b>Please note that starting with nss-mdns 0.8 we encourage you to use
+a different <tt>/etc/nsswitch.conf</tt> configuration line. See below
+for more information!</b></p>
+
+<div class="news-date">Sat Nov 19 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.7.tar.gz">Version 0.7</a>
+released. Changes include: Portability patch for ARM from Philipp
+Zabel; make sure not to print any messages to STDERR; deal with OOM
+situations properly; if multiple addresses are assigned to the same interface make sure to send a query packet only once; other cleanups</p>
+
+<div class="news-date">Sun Aug 21 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.6.tar.gz">Version 0.6</a>
+released. Changes include: honour search list in
+<tt>/etc/resolv.conf</tt>; try to contact <a
+href="http://avahi.org/">Avahi</a> for
+resolving.</p>
+
+<div class="news-date">Sat Jun 4 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.5.tar.gz">Version 0.5</a>
+released. Changes include: only lookup hostnames ending in
+<tt>.local</tt>; add support for a configuration file
+(<tt>/etc/mdns.allow</tt>) to allow lookups for other names.</p>
+
+<div class="news-date">Sun May 15 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.4.tar.gz">Version 0.4</a>
+released. Changes include: small portability fix for big endian
+architectures; send "legacy unicast" packets instead of normal mDNS
+packets (this should reduce traffic and improve response time)</p>
+
+<div class="news-date">Jan Sun 16 2005: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.3.tar.gz">Version 0.3</a>
+released. Changes include: add Debianization; use <tt>ip6.arpa</tt> instead of <tt>ip6.int</tt> for reverse IPv6 lookups.</p>
+
+<div class="news-date">Fri Dec 17 2004: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.2.tar.gz">Version 0.2</a>
+released. Changes include: send mDNS queries on every interface that
+supports multicasts, instead of only the one with the default route,
+making <tt>nss-mdns</tt> more robust on multi-homed hosts; gcc 2.95
+compatiblity.</p>
+
+<div class="news-date">Mon Dec 6 2004: </div> <p class="news-text"><a
+href="@PACKAGE_URL@nss-mdns-0.1.tar.gz">Version 0.1</a> released</p>
+
+<h2><a name="overview">Overview</a></h2>
+
+<p><tt>nss-mdns</tt> is a plugin for the GNU Name Service
+Switch (NSS) functionality of the GNU C Library (<tt>glibc</tt>)
+providing host name resolution via <a
+href="http://www.multicastdns.org/">Multicast DNS</a> (aka
+<i>Zeroconf</i>, aka <i>Apple Rendezvous</i>, aka <i>Apple Bonjour</i>), effectively allowing
+name resolution by common Unix/Linux programs in the ad-hoc mDNS domain <tt>.local</tt>.</p>
+
+<p><tt>nss-mdns</tt> provides client functionality only, which
+means that you have to run a mDNS responder daemon seperately
+from <tt>nss-mdns</tt> if you want to register the local host name via
+mDNS. I recommend <a href="http://avahi.org/">Avahi</a>.</p>
+
+<p><tt>nss-mdns</tt> is very lightweight (9 KByte stripped binary
+<tt>.so</tt> compiled with <tt>-DNDEBUG=1 -Os</tt> on i386, <tt>gcc</tt>
+4.0), has no dependencies besides the <tt>glibc</tt> and requires only
+minimal configuration.</p>
+
+<p>By default <tt>nss-mdns</tt> tries to contact a running <a
+href="http://avahi.org/">avahi-daemon</a> for resolving host names and
+addresses and making use of its superior record cacheing. Optionally
+<tt>nss-mdns</tt> can be compiled with a mini mDNS stack that can be
+used to resolve host names without a local Avahi installation. Both
+Avahi support and this mini mDNS stack are optional, however at least one
+of them needs to be enabled. If both are enabled a connection to Avahi is
+tried first, and if that fails the mini mDNS stack is used.</p>
+
+<h2><a name="status">Current Status</a></h2>
+
+<p>It works!</p>
+
+<p>If the mini MDNS stack is used, <tt>nss-mdns</tt> supports resolving IPv6 addresses but does
+so via IPv4 multicasts only. If Avahi is used for resolving IPv6 is supported properly.</p>
+
+<h2><a name="documentation">Documentation</a></h2>
+
+<p>After compiling and installing <tt>nss-mdns</tt> you'll find six
+new NSS modules in <tt>/lib</tt>:</p>
+<ul>
+<li><tt>libnss_mdns.so.2</tt></li>
+<li><tt>libnss_mdns4.so.2</tt></li>
+<li><tt>libnss_mdns6.so.2</tt></li>
+<li><tt>libnss_mdns_minimal.so.2</tt></li>
+<li><tt>libnss_mdns4_minimal.so.2</tt></li>
+<li><tt>libnss_mdns6_minimal.so.2</tt></li>
+</ul>
+<p><tt>libnss_mdns.so.2</tt>
+resolves both IPv6 and IPv4 addresses, <tt>libnss_mdns4.so.2</tt> only
+IPv4 addresses and <tt>libnss_mdns6.so.2</tt> only IPv6 addresses. Due
+to the fact that most mDNS responders only register local IPv4
+addresses via mDNS, most people will want to use
+<tt>libnss_mdns4.so.2</tt> exclusively. Using
+<tt>libnss_mdns.so.2</tt> or <tt>libnss_mdns6.so.2</tt> in such a
+situation causes long timeouts when resolving hosts since most modern
+Unix/Linux applications check for IPv6 addresses first, followed by a
+lookup for IPv4.</p>
+
+<p><tt>libnss_mdns{4,6,}_minimal.so</tt> (new in version 0.8) is mostly identical to the
+versions without <tt>_minimal</tt>. However, they differ in one
+way. The minimal versions will always deny to resolve host names that
+don't end in <tt>.local</tt> or addresses that aren't in the range
+<tt>169.254.x.x</tt> (the range used by <a
+href="http://files.zeroconf.org/rfc3927.txt">IPV4LL/APIPA/RFC3927</a>.)
+Combining the <tt>_minimal</tt> and the normal NSS modules allows us
+to make mDNS authoritative for Zeroconf host names and addresses (and
+thus creating no extra burden on DNS servers with always failing
+requests) and use it as fallback for everything else.</p>
+
+<p>To activate one of the NSS modules you have to edit
+<tt>/etc/nsswitch.conf</tt> and add <tt>mdns4</tt> and
+<tt>mdns4_minimal</tt> (resp. <tt>mdns</tt>, <tt>mdns6</tt>) to the
+line starting with "<tt>hosts:</tt>". On Debian this looks like
+this:</p>
+
+<pre># /etc/nsswitch.conf
+
+passwd:         compat
+group:          compat
+shadow:         compat
+
+hosts:          files <b>mdns4_minimal [NOTFOUND=return]</b> dns <b>mdns4</b>
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis</pre>
+
+<p>That's it. You should now be able to resolve hosts from the
+<tt>.local</tt> domain with all your applications. For a quick check
+use <tt>glibc</tt>'s <tt>getent</tt> tool:
+
+<pre>$ getent hosts <i>foo</i>.local
+192.168.50.4    foo.local</pre>
+
+<p>Replace <i>foo</i> whith a host name that has been registered with
+an mDNS responder. (Don't try to use the tools <tt>host</tt> or
+<tt>nslookup</tt> for these tests! They bypass the NSS and thus
+<tt>nss-mdns</tt> and issue their DNS queries directly.) </p>
+
+<p>If you run a firewall, don't forget to allow UDP traffic to the the
+mDNS multicast address <tt>224.0.0.251</tt> on port 5353.</p>
+
+<p><b>Please note:</b> The line above makes <tt>nss-mdns</tt>
+authoritative for the <tt>.local</tt> domain. If you have a unicast
+DNS domain with the same name you will no longer be able to resolve
+hosts from it. mDNS and a unicast DNS domain named <tt>.local</tt> are
+inherently incompatible. Please contact your local admistrator and ask
+him to move to a different domain name since <tt>.local</tt> is to be
+used exclusively for Zeroconf technology. <a
+href="http://avahi.org/wiki/AvahiAndUnicastDotLocal">Further
+information</a>.</p>
+
+<p>Starting with version 0.5, <tt>nss-mdns</tt> has a simple
+configuration file <tt>/etc/mdns.allow</tt> for enabling name lookups
+via mDNS in other domains than <tt>.local</tt>. The file contains
+valid domain suffixes, seperated by newlines. Empty lines are ignored
+as are comments starting with #. To enable mDNS lookups of all names,
+regardless of the domain suffix add a line consisting of <tt>*</tt>
+only (similar to <tt>nss-mdns</tt> mode of operation of versions &lt;= 0.4):</p>
+
+<pre># /etc/mdns.allow
+*</pre>
+
+<p>If the configuration file is absent or unreadable
+<tt>nss-mdns</tt> behaves as if a configuration file with the following
+contents is read: </p>
+
+<pre># /etc/mdns.allow
+.local.
+.local</pre>
+
+<p>i.e. only hostnames ending with <tt>.local</tt> are resolved via
+mDNS.</p>
+
+<p>If the configuration file is existent but empty, mDNS name lookups
+are disabled completely. Please note that usually mDNS is not used for anything but <tt>.local</tt>, hence you usually don't want to touch this file.</p>
+
+<h2><a name="requirements">Requirements</a></h2>
+
+<p>Currently, <tt>nss-mdns</tt> is tested on Linux only. A fairly
+modern <tt>glibc</tt> installation with development headers (2.0 or
+newer) is required. Not suprisingly <tt>nss-mdns</tt> requires a
+kernel compiled with IPv4 multicasting support enabled. <a href="http://avahi.org/">Avahi</a> is recommended for its superior cacheing capabilities and for security reasons. Unless you compile <tt>nss-mdns</tt> with <tt>--enable-legacy</tt> Avahi is a hard dependency when <tt>nss-mdns</tt> is used, however not a build-time requirement.</p>
+
+<p><tt>nss-mdns</tt> was developed and tested on Debian GNU/Linux
+"testing" from December 2004, it should work on most other Linux
+distributions (and maybe Unix versions) since it uses GNU autoconf and
+GNU libtool for source code configuration and shared library
+management.</p>
+
+<h2><a name="installation">Installation</a></h2>
+
+<p>As this package is made with the GNU autotools you should run
+<tt>./configure</tt> inside the distribution directory for configuring
+the source tree. After that you should run <tt>make</tt> for
+compilation and <tt>make install</tt> (as root) for installation of
+<tt>nss-mdns</tt>.</p>
+
+<h2><a name="acks">Acknowledgements</a></h2>
+
+<p>SHIROYAMA Takayuki, Anand Kumria and Bastien Nocera, Sjoerd Simons for patches.</p>
+
+<p>Sean Meiners for search list support.</p>
+
+<p>Philipp Zabel for ARM support.</p>
+
+<p>Bruce M Simpson for porting it to FreeBSD.</p>
+
+<h2><a name="download">Download</a></h2>
+
+<p>The newest release is always available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a></p>
+
+<p>The current release is <a href="@PACKAGE_URL@nss-mdns-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
+
+<p>Get <tt>nss-mdns</tt>'s development sources from the <a href="http://subversion.tigris.org/">Subversion</a> <a href="svn://svn.0pointer.de/nss-mdns">repository</a> (<a href="http://0pointer.de/cgi-bin/viewcvs.cgi/?root=nss-mdns">viewcvs</a>): </p>
+
+<pre>svn checkout svn://svn.0pointer.de/nss-mdns/trunk nss-mdns</pre>
+
+<p>You may find an up to date Debian package of <tt>nss-mdns</tt> on the <a href="http://packages.debian.org/libnss-mdns">Debian package repository</a>. Many other distributions ship it, too.</p>
+
+<p>If you want to be notified whenever I release a new version of this software use the subscription feature of <a href="http://freshmeat.net/projects/nss-mdns/">Freshmeat</a>.</p>
+
+<hr/>
+<address class="grey">Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, May 2007</address>
+<div class="grey"><i>$Id$</i></div>
+
+</body>
+</html>

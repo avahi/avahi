@@ -1,0 +1,23 @@
+NSSMDNS_0 {
+global:
+_nss_mdns_gethostbyaddr_r;
+_nss_mdns4_gethostbyaddr_r;
+_nss_mdns6_gethostbyaddr_r;
+_nss_mdns_minimal_gethostbyaddr_r;
+_nss_mdns4_minimal_gethostbyaddr_r;
+_nss_mdns6_minimal_gethostbyaddr_r;
+_nss_mdns_gethostbyname_r;         
+_nss_mdns4_gethostbyname_r;
+_nss_mdns6_gethostbyname_r;
+_nss_mdns_minimal_gethostbyname_r;         
+_nss_mdns4_minimal_gethostbyname_r;
+_nss_mdns6_minimal_gethostbyname_r;
+_nss_mdns_gethostbyname2_r;         
+_nss_mdns4_gethostbyname2_r;
+_nss_mdns6_gethostbyname2_r;
+_nss_mdns_minimal_gethostbyname2_r;         
+_nss_mdns4_minimal_gethostbyname2_r;
+_nss_mdns6_minimal_gethostbyname2_r;
+local: 
+*;
+};

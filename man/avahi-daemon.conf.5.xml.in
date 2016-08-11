@@ -102,6 +102,16 @@
     </option>
 
     <option>
+      <p><opt>mtulimit=</opt> Takes a positive integer value which
+      will limit the MTU size used for output traffic (on active
+      interfaces). This helps in the situations where a multicast
+      network has mixed MTU sizes (eg. jumbo-frames on LAN, regular
+      frames on wireless). Multicast packets going from the larger
+      MTU network to the smaller MTU network may otherwise be
+      silently dropped.</p>
+    </option>
+
+    <option>
       <p><opt>use-iff-running=</opt> Takes a boolean value ("yes" or
       "no"). If set to "yes" avahi-daemon monitors the IFF_RUNNING
       flag bit which is used by some (modern) network drivers to

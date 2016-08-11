@@ -126,6 +126,9 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
                     /* Fill in MTU */
                     assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
                     hw->mtu = *((unsigned int*) RTA_DATA(a));
+                    if ((m->server->config.mtulimit > 0) &&
+                        (hw->mtu > m->server->config.mtulimit))
+                        hw->mtu = m->server->config.mtulimit;
                     break;
 
                 case IFLA_ADDRESS:

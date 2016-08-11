@@ -88,6 +88,9 @@ static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
   hw->name = avahi_strndup(sdl->sdl_data, sdl->sdl_nlen);
 
   hw->mtu = ifm->ifm_data.ifi_mtu;
+  if ((m->server->config.mtulimit > 0) &&
+      (hw->mtu > m->server->config.mtulimit))
+      hw->mtu = m->server->config.mtulimit;
 
   hw->mac_address_size = sdl->sdl_alen;
   if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)

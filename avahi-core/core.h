@@ -53,6 +53,7 @@ typedef struct AvahiServerConfig {
     int publish_workstation;          /**< Register a _workstation._tcp service */
     int publish_domain;               /**< Announce the local domain for browsing */
     int check_response_ttl;           /**< If enabled the server ignores all incoming responses with IP TTL != 255. Newer versions of the RFC do no longer contain this check, so it is disabled by default. */
+    unsigned mtulimit;                /**< If set, the server limits outgoing packets to the lower of this size or the actual MTU. Do not set unless you have a multicast network using different frame sizes. */
     int use_iff_running;              /**< Require IFF_RUNNING on local network interfaces. This is the official way to check for link beat. Unfortunately this doesn't work with all drivers. So bettere leave this off. */
     int enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
     int reflect_ipv;                  /**< if enable_reflector is 1, enable/disable reflecting between IPv4 and IPv6 */

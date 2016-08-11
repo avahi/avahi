@@ -706,6 +706,17 @@ static int load_config_file(DaemonConfig *c) {
                         c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
 
                     avahi_strfreev(e);
+                } else if (strcasecmp(p->key, "mtulimit") == 0) {
+                    unsigned k;
+
+                    if ((parse_unsigned(p->value, &k) < 0) ||
+                        (k < 68)) {
+                        avahi_log_error("Invalid mtulimit setting %s", p->value);
+                        goto finish;
+                    }
+
+                    c->server_config.mtulimit = k;
+
                 } else if (strcasecmp(p->key, "ratelimit-interval-usec") == 0) {
                     AvahiUsec k;
 

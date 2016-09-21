@@ -125,6 +125,7 @@ _pdl-datastream._tcp:PDL Printer
 _pdl-datastream._tcp[it]:Stampante PDL
 
 _ipp._tcp:Internet Printer
+_ipps._tcp:Secure Internet Printer
 
 
 # Multimedia

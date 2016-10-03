@@ -59,7 +59,8 @@
         <opt>&lt;domain-name&gt;</opt>, one
         <opt>&lt;host-name&gt;</opt>, any number of
         <opt>&lt;subtype&gt;</opt> and any number of
-        <opt>&lt;txt-record&gt;</opt> elements. The attribute
+        <opt>&lt;txt-record&gt;</opt> or
+	<opt>&lt;txt-binary&gt;</opt> elements. The attribute
         <opt>protocol</opt> specifies the protocol to advertise the
         service on. If <opt>any</opt> is used (which is the default),
         the service will be advertised on both IPv4 and IPv6.</p>
@@ -97,6 +98,11 @@
 
       <option>
         <p><opt>&lt;txt-record&gt;</opt> DNS-SD TXT record data.</p>
+      </option>
+      
+      <option>
+        <p><opt>&lt;txt-binary&gt;</opt> DNS-SD TXT binary record data. 
+	Each value octet after '=' is interpreted in base 16.</p>
       </option>
 
 

@@ -22,9 +22,9 @@ from __future__ import print_function
 import os, sys
 
 try:
+    import avahi, gettext, dbus, avahi.ServiceTypeDatabase
     gettext.bindtextdomain(@GETTEXT_PACKAGE@, @LOCALEDIR@)
     gettext.textdomain(@GETTEXT_PACKAGE@)
-    import avahi, gettext, dbus, avahi.ServiceTypeDatabase
     from gi.repository import Gtk, GObject
     _ = gettext.gettext
 except ImportError as e:

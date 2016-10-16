@@ -24,7 +24,7 @@ EXTRA_DIST = \
 
 if HAVE_PYTHON
 if HAVE_PYTHON_DBUS
-if HAVE_PYGTK
+if HAVE_PYGOBJECT
 
 pythonscripts =
 

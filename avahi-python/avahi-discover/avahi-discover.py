@@ -25,6 +25,8 @@ try:
     import avahi, gettext, dbus, avahi.ServiceTypeDatabase
     gettext.bindtextdomain(@GETTEXT_PACKAGE@, @LOCALEDIR@)
     gettext.textdomain(@GETTEXT_PACKAGE@)
+    import gi
+    gi.require_version('Gtk', '3.0')
     from gi.repository import Gtk, GObject
     _ = gettext.gettext
 except ImportError as e:

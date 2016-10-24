@@ -804,7 +804,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         [HAVE_PYGOBJECT=yes])
 
     if test "x$HAVE_PYGOBJECT" = "xyes" ; then
-        PKG_CHECK_MODULES([PYGOBJECT],[pygobject-2.0],,
+        PKG_CHECK_MODULES([PYGOBJECT],[pygobject-3.0],,
             [AC_MSG_ERROR(Could not find Python GObject)])
     fi
 

@@ -792,7 +792,7 @@ HAVE_PYTHON_DBUS=no
 HAVE_PYGOBJECT=no
 
 if test "x$HAVE_PYTHON" = "xyes" ; then
-    AM_PATH_PYTHON([2.4])
+    AM_PATH_PYTHON([2.6])
 
     AC_ARG_ENABLE(pygobject,
         AS_HELP_STRING([--disable-pygobject],[Disable use of Python GObject]),

@@ -947,6 +947,17 @@ static void domain_entry_changed_callback(GtkEditable *editable G_GNUC_UNUSED, g
     gtk_widget_set_sensitive(d->priv->domain_ok_button, is_valid_domain_suffix(gtk_entry_get_text(GTK_ENTRY(d->priv->domain_entry))));
 }
 
+static void set_border_width(GtkContainer *container, gint width) {
+#if GTK_CHECK_VERSION(3,89,0)
+    gtk_widget_set_margin_top(GTK_WIDGET(container), width);
+    gtk_widget_set_margin_bottom(GTK_WIDGET(container), width);
+    gtk_widget_set_margin_start(GTK_WIDGET(container), width);
+    gtk_widget_set_margin_end(GTK_WIDGET(container), width);
+#else
+    gtk_container_set_border_width(container, width);
+#endif
+}
+
 static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user_data) {
     GtkWidget *vbox, *vbox2, *scrolled_window;
     GtkTreeSelection *selection;
@@ -980,7 +991,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     }
 
     p->domain_dialog = gtk_dialog_new();
-    gtk_container_set_border_width(GTK_CONTAINER(p->domain_dialog), 5);
+    set_border_width(GTK_CONTAINER(p->domain_dialog), 5);
     gtk_window_set_title(GTK_WINDOW(p->domain_dialog), _("Change domain"));
 #if !GTK_CHECK_VERSION(2,21,8)
     gtk_dialog_set_has_separator(GTK_DIALOG(p->domain_dialog), FALSE);
@@ -991,7 +1002,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
 #else
     vbox = gtk_vbox_new(FALSE, 8);
 #endif
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
+    set_border_width(GTK_CONTAINER(vbox), 8);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(p->domain_dialog))), vbox, TRUE, TRUE, 0);
 
     p->domain_entry = gtk_entry_new();
@@ -1112,14 +1123,14 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     p->service_list_store = p->domain_list_store = NULL;
     p->service_type_names = NULL;
 
-    gtk_container_set_border_width(GTK_CONTAINER(d), 5);
+    set_border_width(GTK_CONTAINER(d), 5);
 
 #if GTK_CHECK_VERSION(3,0,0)
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 #else
     vbox = gtk_vbox_new(FALSE, 8);
 #endif
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
+    set_border_width(GTK_CONTAINER(vbox), 8);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(d))), vbox, TRUE, TRUE, 0);
 
     p->domain_label = gtk_label_new(_("Initializing..."));

@@ -1124,7 +1124,12 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 
     p->domain_label = gtk_label_new(_("Initializing..."));
     gtk_label_set_ellipsize(GTK_LABEL(p->domain_label), TRUE);
+#if GTK_CHECK_VERSION(3,16,0)
+    gtk_label_set_xalign(GTK_LABEL(p->domain_label), 0);
+    gtk_label_set_yalign(GTK_LABEL(p->domain_label), 0.5);
+#else
     gtk_misc_set_alignment(GTK_MISC(p->domain_label), 0, 0.5);
+#endif
     gtk_box_pack_start(GTK_BOX(vbox), p->domain_label, FALSE, FALSE, 0);
 
 

@@ -958,6 +958,22 @@ static void set_border_width(GtkContainer *container, gint width) {
 #endif
 }
 
+static void pack_start(GtkBox *box, GtkWidget *child, gboolean expand, gboolean fill) {
+#if GTK_CHECK_VERSION(3,89,0)
+    gtk_box_pack_start(box, child, expand, fill);
+#else
+    gtk_box_pack_start(box, child, expand, fill, 0);
+#endif
+}
+
+static void pack_end(GtkBox *box, GtkWidget *child, gboolean expand, gboolean fill) {
+#if GTK_CHECK_VERSION(3,89,0)
+    gtk_box_pack_end(box, child, expand, fill);
+#else
+    gtk_box_pack_end(box, child, expand, fill, 0);
+#endif
+}
+
 static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user_data) {
     GtkWidget *vbox, *vbox2, *scrolled_window;
     GtkTreeSelection *selection;
@@ -1003,26 +1019,26 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     vbox = gtk_vbox_new(FALSE, 8);
 #endif
     set_border_width(GTK_CONTAINER(vbox), 8);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(p->domain_dialog))), vbox, TRUE, TRUE, 0);
+    pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(p->domain_dialog))), vbox, TRUE, TRUE);
 
     p->domain_entry = gtk_entry_new();
     gtk_entry_set_max_length(GTK_ENTRY(p->domain_entry), AVAHI_DOMAIN_NAME_MAX);
     gtk_entry_set_text(GTK_ENTRY(p->domain_entry), domain);
     gtk_entry_set_activates_default(GTK_ENTRY(p->domain_entry), TRUE);
     g_signal_connect(p->domain_entry, "changed", G_CALLBACK(domain_entry_changed_callback), d);
-    gtk_box_pack_start(GTK_BOX(vbox), p->domain_entry, FALSE, FALSE, 0);
+    pack_start(GTK_BOX(vbox), p->domain_entry, FALSE, FALSE);
 
 #if GTK_CHECK_VERSION(3,0,0)
     vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 #else
     vbox2 = gtk_vbox_new(FALSE, 8);
 #endif
-    gtk_box_pack_start(GTK_BOX(vbox), vbox2, TRUE, TRUE, 0);
+    pack_start(GTK_BOX(vbox), vbox2, TRUE, TRUE);
 
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (scrolled_window), GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start(GTK_BOX(vbox2), scrolled_window, TRUE, TRUE, 0);
+    pack_start(GTK_BOX(vbox2), scrolled_window, TRUE, TRUE);
 
     p->domain_list_store = gtk_list_store_new(N_DOMAIN_COLUMNS, G_TYPE_STRING, G_TYPE_INT);
 
@@ -1044,7 +1060,7 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
     p->domain_progress_bar = gtk_progress_bar_new();
     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->domain_progress_bar), _("Browsing..."));
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->domain_progress_bar), 0.1);
-    gtk_box_pack_end(GTK_BOX(vbox2), p->domain_progress_bar, FALSE, FALSE, 0);
+    pack_end(GTK_BOX(vbox2), p->domain_progress_bar, FALSE, FALSE);
 
     gtk_dialog_add_button(GTK_DIALOG(p->domain_dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
     p->domain_ok_button = GTK_WIDGET(gtk_dialog_add_button(GTK_DIALOG(p->domain_dialog), _("_OK"), GTK_RESPONSE_ACCEPT));
@@ -1131,7 +1147,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     vbox = gtk_vbox_new(FALSE, 8);
 #endif
     set_border_width(GTK_CONTAINER(vbox), 8);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(d))), vbox, TRUE, TRUE, 0);
+    pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(d))), vbox, TRUE, TRUE);
 
     p->domain_label = gtk_label_new(_("Initializing..."));
     gtk_label_set_ellipsize(GTK_LABEL(p->domain_label), TRUE);
@@ -1141,7 +1157,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 #else
     gtk_misc_set_alignment(GTK_MISC(p->domain_label), 0, 0.5);
 #endif
-    gtk_box_pack_start(GTK_BOX(vbox), p->domain_label, FALSE, FALSE, 0);
+    pack_start(GTK_BOX(vbox), p->domain_label, FALSE, FALSE);
 
 
 #if GTK_CHECK_VERSION(3,0,0)
@@ -1149,12 +1165,12 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 #else
     vbox2 = gtk_vbox_new(FALSE, 8);
 #endif
-    gtk_box_pack_start(GTK_BOX(vbox), vbox2, TRUE, TRUE, 0);
+    pack_start(GTK_BOX(vbox), vbox2, TRUE, TRUE);
 
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (scrolled_window), GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start(GTK_BOX(vbox2), scrolled_window, TRUE, TRUE, 0);
+    pack_start(GTK_BOX(vbox2), scrolled_window, TRUE, TRUE);
 
     p->service_list_store = gtk_list_store_new(N_SERVICE_COLUMNS, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
@@ -1186,7 +1202,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     p->service_progress_bar = gtk_progress_bar_new();
     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(p->service_progress_bar), _("Browsing..."));
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(p->service_progress_bar), 0.1);
-    gtk_box_pack_end(GTK_BOX(vbox2), p->service_progress_bar, FALSE, FALSE, 0);
+    pack_end(GTK_BOX(vbox2), p->service_progress_bar, FALSE, FALSE);
 
     p->domain_button = gtk_button_new_with_mnemonic(_("_Domain..."));
     gtk_button_set_image(GTK_BUTTON(p->domain_button), gtk_image_new_from_icon_name("network-workgroup", GTK_ICON_SIZE_BUTTON));

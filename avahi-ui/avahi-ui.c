@@ -857,6 +857,7 @@ static void response_callback(GtkDialog *dialog, gint response, gpointer user_da
         GtkTreeIter iter;
         gint interface, protocol;
         gchar *name, *type;
+        GdkWindow *window;
         GdkCursor *cursor;
 
         g_signal_stop_emission(dialog, g_signal_lookup("response", gtk_dialog_get_type()), 0);
@@ -876,8 +877,10 @@ static void response_callback(GtkDialog *dialog, gint response, gpointer user_da
         g_return_if_fail(d->priv->client);
 
         gtk_widget_set_sensitive(GTK_WIDGET(dialog), FALSE);
-        cursor = gdk_cursor_new(GDK_WATCH);
-        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(dialog)), cursor);
+
+        window = gtk_widget_get_window(GTK_WIDGET(dialog));
+        cursor = gdk_cursor_new_for_display(gdk_window_get_display(window), GDK_WATCH);
+        gdk_window_set_cursor(window, cursor);
 #if GTK_CHECK_VERSION(3,0,0)
         g_object_unref(cursor);
 #else

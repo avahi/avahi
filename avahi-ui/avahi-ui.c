@@ -1205,7 +1205,9 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
     pack_end(GTK_BOX(vbox2), p->service_progress_bar, FALSE, FALSE);
 
     p->domain_button = gtk_button_new_with_mnemonic(_("_Domain..."));
+#if !GTK_CHECK_VERSION (3,89,0)
     gtk_button_set_image(GTK_BUTTON(p->domain_button), gtk_image_new_from_icon_name("network-workgroup", GTK_ICON_SIZE_BUTTON));
+#endif
     g_signal_connect(p->domain_button, "clicked", G_CALLBACK(domain_button_clicked), d);
     gtk_dialog_add_action_widget(GTK_DIALOG(d), p->domain_button, GTK_RESPONSE_NONE);
 #if !GTK_CHECK_VERSION (3,12,0)

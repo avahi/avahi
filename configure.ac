@@ -565,7 +565,27 @@ if test "x$HAVE_GTK3" = "xyes" ; then
 fi
 AM_CONDITIONAL(HAVE_GTK3, test "x$HAVE_GTK3" = "xyes")
 
-AM_CONDITIONAL(HAVE_GTK2OR3, test "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK" = "xyes" )
+#
+# Check for GTK+ 4.0
+#
+AC_ARG_ENABLE(gtk4,
+        AS_HELP_STRING([--disable-gtk4],[Disable use of GTK+ 4]),
+        [case "${enableval}" in
+                yes) HAVE_GTK4=yes ;;
+                no)  HAVE_GTK4=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk4) ;;
+        esac],
+        [HAVE_GTK4=yes])
+
+if test "x$HAVE_GTK4" = "xyes" ; then
+        # Check for GTK 4.0
+        PKG_CHECK_MODULES(GTK40, [ gtk+-4.0 ])
+        AC_SUBST(GTK40_CFLAGS)
+        AC_SUBST(GTK40_LIBS)
+fi
+AM_CONDITIONAL(HAVE_GTK4, test "x$HAVE_GTK4" = "xyes")
+
+AM_CONDITIONAL(HAVE_GTK2OR3OR4, test "x$HAVE_GTK4" = "xyes" -o "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK" = "xyes" )
 
 #
 # D-Bus
@@ -1147,6 +1167,7 @@ echo "
     Enable GObject Introspection:              ${found_introspection}
     Enable GTK 2.0:                            ${HAVE_GTK}
     Enable GTK 3.0:                            ${HAVE_GTK3}
+    Enable GTK 4.0:                            ${HAVE_GTK4}
     Enable D-Bus:                              ${HAVE_DBUS}
     With XML:                                  ${with_xml}
     Enable GDBM:                               ${HAVE_GDBM}
@@ -1199,13 +1220,13 @@ if test "x$ENABLE_AUTOIPD" = "xyes" -a "x$HAVE_LIBDAEMON" != "xyes" ; then
    ENABLE_AUTOIPD="no   (You need libdaemon!)"
 fi
 
-HAVE_GTK2OR3=no
-if test "x$HAVE_GTK" = "xyes" -o "x$HAVE_GTK3" = "xyes" ; then
-   HAVE_GTK2OR3=yes
+HAVE_GTK2OR3OR4=no
+if test "x$HAVE_GTK" = "xyes" -o "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK4" = "xyes" ; then
+   HAVE_GTK2OR3OR4=yes
 fi
 
 BUILD_UI="no"
-if test "x$HAVE_GTK2OR3" = "xyes" -a "x$BUILD_CLIENT" = "xyes" ; then
+if test "x$HAVE_GTK2OR3OR4" = "xyes" -a "x$BUILD_CLIENT" = "xyes" ; then
    BUILD_UI="yes"
 fi
 
@@ -1223,7 +1244,7 @@ echo "\
     Building avahi-python:              ${BUILD_PYTHON}
     Building libavahi-glib:             ${HAVE_GLIB}
     Building libavahi-gobject:          ${BUILD_GOBJECT}
-    Building avahi-discover-standalone: ${HAVE_GTK2OR3}
+    Building avahi-discover-standalone: ${HAVE_GTK2OR3OR4}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
     Building avahi-sharp:               ${HAVE_MONO}

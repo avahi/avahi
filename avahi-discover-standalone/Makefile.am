@@ -23,7 +23,7 @@ interfaces = \
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-if HAVE_GTK2OR3
+if HAVE_GTK2OR3OR4
 if HAVE_GLIB
 bin_PROGRAMS = \
 	avahi-discover-standalone
@@ -41,6 +41,12 @@ avahi_discover_standalone_LDADD = \
 	../avahi-glib/libavahi-glib.la \
 	../avahi-core/libavahi-core.la
 
+if HAVE_GTK4
+avahi_discover_standalone_CFLAGS += \
+	$(GLIB30_CFLAGS) $(GTK40_CFLAGS)
+avahi_discover_standalone_LDADD += \
+	$(GLIB30_LIBS) $(GTK40_LIBS)
+else
 if HAVE_GTK3
 avahi_discover_standalone_CFLAGS += \
 	$(GLIB30_CFLAGS) $(GTK30_CFLAGS)
@@ -51,6 +57,7 @@ avahi_discover_standalone_CFLAGS += \
 	$(GLIB20_CFLAGS) $(GTK20_CFLAGS)
 avahi_discover_standalone_LDADD += \
 	$(GLIB20_LIBS) $(GTK20_LIBS)
+endif
 endif
 
 interfaces_DATA = $(interfaces)

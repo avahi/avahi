@@ -1034,7 +1034,7 @@ void avahi_s_entry_group_change_state(AvahiSEntryGroup *g, AvahiEntryGroupState 
         /* If the entry group is now established, remember the time
          * this happened */
 
-        gettimeofday(&g->established_at, NULL);
+        avahi_now(&g->established_at);
 
     g->state = state;
 
@@ -1114,7 +1114,7 @@ void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
 static void entry_group_commit_real(AvahiSEntryGroup *g) {
     assert(g);
 
-    gettimeofday(&g->register_time, NULL);
+    avahi_now(&g->register_time);
 
     avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
 
@@ -1155,7 +1155,7 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
                             AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT :
                             AVAHI_RR_HOLDOFF_MSEC));
 
-    gettimeofday(&now, NULL);
+    avahi_now(&now);
 
     if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
 

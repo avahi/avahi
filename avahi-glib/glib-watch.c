@@ -266,15 +266,10 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
         cleanup_timeouts(g, 0);
 
     if ((next_timeout = find_next_timeout(g))) {
-        GTimeVal now;
         struct timeval tvnow;
         AvahiUsec usec;
 
-        g_source_get_current_time(source, &now);
-        tvnow.tv_sec = now.tv_sec;
-        tvnow.tv_usec = now.tv_usec;
-
-        usec = avahi_timeval_diff(&next_timeout->expiry, &tvnow);
+        usec = avahi_timeval_diff(&next_timeout->expiry, avahi_now(&tvnow));
 
         if (usec <= 0) {
 	   *timeout = 0;
@@ -296,13 +291,9 @@ static gboolean check_func(GSource *source) {
     g_assert(g);
 
     if ((next_timeout = find_next_timeout(g))) {
-        GTimeVal now;
         struct timeval tvnow;
-        g_source_get_current_time(source, &now);
-        tvnow.tv_sec = now.tv_sec;
-        tvnow.tv_usec = now.tv_usec;
 
-        if (avahi_timeval_compare(&next_timeout->expiry, &tvnow) <= 0)
+        if (avahi_timeval_compare(&next_timeout->expiry, avahi_now(&tvnow)) <= 0)
             return TRUE;
     }
 
@@ -321,13 +312,9 @@ static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc call
     g_assert(g);
 
     if ((next_timeout = find_next_timeout(g))) {
-        GTimeVal now;
         struct timeval tvnow;
-        g_source_get_current_time(source, &now);
-        tvnow.tv_sec = now.tv_sec;
-        tvnow.tv_usec = now.tv_usec;
 
-        if (avahi_timeval_compare(&next_timeout->expiry, &tvnow) < 0) {
+        if (avahi_timeval_compare(&next_timeout->expiry, avahi_now(&tvnow)) < 0) {
             start_timeout_callback(next_timeout);
             return TRUE;
         }

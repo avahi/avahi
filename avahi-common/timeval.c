@@ -24,6 +24,12 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
+#ifdef HAVE_TIME_H
+#include <time.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #include "timeval.h"
 
@@ -73,20 +79,39 @@ struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec) {
     return a;
 }
 
+struct timeval* avahi_now(struct timeval *now) {
+    assert(now);
+
+#if defined(HAVE_CLOCK_GETTIME) && defined(_POSIX_MONOTONIC_CLOCK)
+    struct timespec s;
+
+    /* Use a monotonic clock if possible. This prevents jumps in the system
+     * clock from messing with timers (especially jumps backward) */
+    if (clock_gettime(CLOCK_MONOTONIC, &s) == 0) {
+        now->tv_sec = s.tv_sec;
+        now->tv_usec = s.tv_nsec / 1000;
+    } else {
+        gettimeofday(now, NULL);
+    }
+#else
+    gettimeofday(now, NULL);
+#endif
+
+    return now;
+}
+
 AvahiUsec avahi_age(const struct timeval *a) {
     struct timeval now;
 
     assert(a);
 
-    gettimeofday(&now, NULL);
-
-    return avahi_timeval_diff(&now, a);
+    return avahi_timeval_diff(avahi_now(&now), a);
 }
 
 struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
     assert(tv);
 
-    gettimeofday(tv, NULL);
+    avahi_now(tv);
 
     if (msec)
         avahi_timeval_add(tv, (AvahiUsec) msec*1000);

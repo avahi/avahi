@@ -437,7 +437,7 @@ static void add_to_cache(AvahiWideAreaLookupEngine *e, AvahiRecord *r) {
 
     c->record = avahi_record_ref(r);
 
-    gettimeofday(&c->timestamp, NULL);
+    avahi_now(&c->timestamp);
     c->expiry = c->timestamp;
     avahi_timeval_add(&c->expiry, r->ttl * 1000000);
 

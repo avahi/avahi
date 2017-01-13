@@ -36,11 +36,11 @@ void avahi_time_event_queue_free(AvahiTimeEventQueue *q);
 
 AvahiTimeEvent* avahi_time_event_new(
     AvahiTimeEventQueue *q,
-    const struct timeval *timeval,
+    const struct AvahiTimeVal *timeval,
     AvahiTimeEventCallback callback,
     void* userdata);
 
 void avahi_time_event_free(AvahiTimeEvent *e);
-void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval);
+void avahi_time_event_update(AvahiTimeEvent *e, const struct AvahiTimeVal *timeval);
 
 #endif

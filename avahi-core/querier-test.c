@@ -80,7 +80,7 @@ static void quit(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();

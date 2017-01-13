@@ -159,7 +159,7 @@ static void reconnect_callback(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata)
     assert(!server->bus);
 
     if (dbus_connect() < 0) {
-        struct timeval tv;
+        struct AvahiTimeVal tv;
         avahi_log_debug(__FILE__": Connection failed, retrying in %ims...", RECONNECT_MSEC);
         avahi_elapse_time(&tv, RECONNECT_MSEC, 0);
         server->poll_api->timeout_update(t, &tv);
@@ -188,7 +188,7 @@ static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection 
 /*                     dbus_message_get_member(m)); */
 
     if (dbus_message_is_signal(m, DBUS_INTERFACE_LOCAL, "Disconnected")) {
-        struct timeval tv;
+        struct AvahiTimeVal tv;
 
         if (server->reconnect) {
             avahi_log_warn("Disconnected from D-Bus, trying to reconnect in %ims...", RECONNECT_MSEC);
@@ -1067,7 +1067,7 @@ CREATE_DBUS_DELAY_FUNC(RecordBrowserInfo, record_browser, avahi_s_record_browser
 static DBusHandlerResult dbus_select_browser(DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata, const char *iface, DBusError *error) {
     DBusHandlerResult r;
     const AvahiPoll *poll_api = NULL;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     poll_api = avahi_simple_poll_get(simple_poll_api);
     avahi_elapse_time(&tv, DEFAULT_START_DELAY_MS, 0);
@@ -1381,7 +1381,7 @@ int dbus_protocol_setup(const AvahiPoll *poll_api,
     server->n_entries_per_entry_group_max = _n_entries_per_entry_group_max > 0 ? _n_entries_per_entry_group_max : DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX;
 
     if (dbus_connect() < 0) {
-        struct timeval tv;
+        struct AvahiTimeVal tv;
 
         if (!force)
             goto fail;

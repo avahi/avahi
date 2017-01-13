@@ -58,7 +58,7 @@ static void dump_line(const char *text, AVAHI_GCC_UNUSED void* userdata) {
 }
 
 static void dump_timeout_callback(AvahiTimeout *timeout, void* userdata) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     AvahiServer *avahi = userdata;
     avahi_server_dump(avahi, dump_line, NULL);
@@ -338,7 +338,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiSDNSServerBrowser *dsb;
     AvahiSimplePoll *simple_poll;
     int error;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);

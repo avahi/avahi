@@ -55,7 +55,7 @@ struct AvahiResponseJob {
     AvahiTimeEvent *time_event;
 
     AvahiResponseJobState state;
-    struct timeval delivery;
+    struct AvahiTimeVal delivery;
 
     AvahiRecord *record;
     int flush_cache;
@@ -122,7 +122,7 @@ static void job_free(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 static void elapse_callback(AvahiTimeEvent *e, void* data);
 
 static void job_set_elapse_time(AvahiResponseScheduler *s, AvahiResponseJob *rj, unsigned msec, unsigned jitter) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     assert(s);
     assert(rj);
@@ -346,7 +346,7 @@ static AvahiResponseJob* find_suppressed_job(AvahiResponseScheduler *s, AvahiRec
 
 int avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately) {
     AvahiResponseJob *rj;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 /*     char *t; */
 
     assert(s);

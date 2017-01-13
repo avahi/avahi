@@ -152,7 +152,7 @@ static void time_event_callback(AvahiTimeEvent *e, void *userdata) {
 }
 
 static void start_timeout(AvahiSServiceResolver *r) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     assert(r);
 
     if (r->time_event)

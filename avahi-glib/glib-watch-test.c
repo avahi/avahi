@@ -53,7 +53,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNU
 }
 
 static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     static int i = 0;
 
     printf("Wakeup #%i\n", i++);
@@ -67,7 +67,7 @@ static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiGLibPoll *g;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     g = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
     assert(g);

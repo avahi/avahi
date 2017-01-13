@@ -52,7 +52,7 @@ struct AvahiTimeout {
     int dead;
 
     int enabled;
-    struct timeval expiry;
+    struct AvahiTimeVal expiry;
 
     AvahiTimeoutCallback callback;
     void  *userdata;
@@ -241,7 +241,7 @@ static void cleanup_watches(AvahiSimplePoll *s, int all) {
     s->watch_req_cleanup = 0;
 }
 
-static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata) {
+static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct AvahiTimeVal *tv, AvahiTimeoutCallback callback, void *userdata) {
     AvahiTimeout *t;
     AvahiSimplePoll *s;
 
@@ -270,7 +270,7 @@ static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv,
     return t;
 }
 
-static void timeout_update(AvahiTimeout *t, const struct timeval *tv) {
+static void timeout_update(AvahiTimeout *t, const struct AvahiTimeVal *tv) {
     assert(t);
     assert(!t->dead);
 
@@ -479,7 +479,7 @@ int avahi_simple_poll_prepare(AvahiSimplePoll *s, int timeout) {
 
     /* Calculate the wakeup time */
     if ((next_timeout = find_next_timeout(s))) {
-        struct timeval now;
+        struct AvahiTimeVal now;
         int t;
         AvahiUsec usec;
 

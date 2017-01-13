@@ -782,7 +782,7 @@ int is_ll_address(uint32_t addr) {
         ((ntohl(addr) & 0x0000FF00) != 0xFF00);
 }
 
-static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
+static struct AvahiTimeVal *elapse_time(struct AvahiTimeVal *tv, unsigned msec, unsigned jitter) {
     assert(tv);
 
     avahi_now(tv);
@@ -1053,7 +1053,7 @@ static int loop(int iface, uint32_t addr) {
     };
 
     int fd = -1, ret = -1;
-    struct timeval next_wakeup;
+    struct AvahiTimeVal next_wakeup;
     int next_wakeup_valid = 0;
     char buf[64];
     ArpPacket *in_packet = NULL;

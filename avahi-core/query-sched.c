@@ -43,7 +43,7 @@ struct AvahiQueryJob {
     AvahiTimeEvent *time_event;
 
     int done;
-    struct timeval delivery;
+    struct AvahiTimeVal delivery;
 
     AvahiKey *key;
 
@@ -120,7 +120,7 @@ static void job_free(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
 static void elapse_callback(AvahiTimeEvent *e, void* data);
 
 static void job_set_elapse_time(AvahiQueryScheduler *s, AvahiQueryJob *qj, unsigned msec, unsigned jitter) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     assert(s);
     assert(qj);
@@ -352,7 +352,7 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
 }
 
 int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately, unsigned *ret_id) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     AvahiQueryJob *qj;
 
     assert(s);

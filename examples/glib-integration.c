@@ -75,7 +75,7 @@ main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[])
     const AvahiPoll *poll_api;
     AvahiGLibPoll *glib_poll;
     AvahiClient *client;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     const char *version;
     int error;
 
@@ -95,7 +95,7 @@ main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[])
             0);                                     /* "jitter" - Random additional delay from 0 to this value */
 
     poll_api->timeout_new (poll_api,                /* The AvahiPoll object */
-                      &tv,                          /* struct timeval indicating when to go activate */
+                      &tv,                          /* struct AvahiTimeVal indicating when to go activate */
                       avahi_timeout_event,          /* Pointer to function to call */
                       NULL);                        /* User data to pass to function */
 

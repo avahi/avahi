@@ -1077,7 +1077,7 @@ static void cleanup_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void
 }
 
 static void schedule_cleanup(AvahiServer *s) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     assert(s);
 
@@ -1137,7 +1137,7 @@ static void entry_group_register_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeE
 }
 
 int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
-    struct timeval now;
+    struct AvahiTimeVal now;
 
     assert(g);
     assert(!g->dead);

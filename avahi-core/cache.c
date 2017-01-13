@@ -291,7 +291,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
     } else {
         AvahiCacheEntry *e = NULL, *first;
-        struct timeval now;
+        struct AvahiTimeVal now;
 
         avahi_now(&now);
 
@@ -415,7 +415,7 @@ int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void* userdata) 
 }
 
 int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
-    struct timeval now;
+    struct AvahiTimeVal now;
     unsigned age;
 
     assert(c);
@@ -441,7 +441,7 @@ void avahi_cache_flush(AvahiCache *c) {
 
 static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
     AvahiAddress *a = userdata;
-    struct timeval now;
+    struct AvahiTimeVal now;
 
     assert(c);
     assert(pattern);

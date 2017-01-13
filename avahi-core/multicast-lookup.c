@@ -85,7 +85,7 @@ AvahiMulticastLookup *avahi_multicast_lookup_new(
     void *userdata) {
 
     AvahiMulticastLookup *l, *t;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     assert(e);
     assert(AVAHI_IF_VALID(interface));

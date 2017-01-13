@@ -579,7 +579,7 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
     assert(!a || a->proto == i->protocol);
 
     if (i->monitor->server->config.ratelimit_interval > 0) {
-        struct timeval now, end;
+        struct AvahiTimeVal now, end;
 
         avahi_now(&now);
 

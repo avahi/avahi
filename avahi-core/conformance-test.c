@@ -52,7 +52,7 @@ static void dump_line(const char *text, AVAHI_GCC_UNUSED void* userdata) {
 }
 
 static void dump_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* userdata) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     avahi_server_dump(avahi, dump_line, NULL);
 
@@ -83,7 +83,7 @@ static void create_service(const char *t) {
 }
 
 static void rename_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     if (access("flag", F_OK) == 0) {
         create_service("New - Bonjour Service Name");
@@ -122,7 +122,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     int error;
     AvahiSimplePoll *simple_poll;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     struct AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();

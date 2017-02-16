@@ -87,7 +87,7 @@ static void cleanup_watches(AvahiGLibPoll *g, int all) {
             destroy_watch(w);
     }
 
-    g->watch_req_cleanup = 0;
+    g->watch_req_cleanup = FALSE;
 }
 
 static gushort map_events_to_glib(AvahiWatchEvent events) {
@@ -160,7 +160,7 @@ static void watch_free(AvahiWatch *w) {
     }
 
     w->dead = TRUE;
-    w->glib_poll->timeout_req_cleanup = TRUE;
+    w->glib_poll->watch_req_cleanup = TRUE;
 }
 
 static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata) {

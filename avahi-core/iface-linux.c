@@ -183,6 +183,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         size_t l;
         AvahiAddress raddr, rlocal, *r;
         int raddr_valid = 0, rlocal_valid = 0;
+        char label[IFNAMSIZ + 1];
 
         /* We are only interested in IPv4 and IPv6 */
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
@@ -193,6 +194,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
          * for this interface, we ignore this address. */
         if (!(i = avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, avahi_af_to_proto(ifaddrmsg->ifa_family))))
             return;
+
+        memset(label, 0, IFNAMSIZ + 1);
 
         /* Fill in address family for our new address */
         rlocal.proto = raddr.proto = avahi_af_to_proto(ifaddrmsg->ifa_family);
@@ -229,15 +232,31 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
                     memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
                     raddr_valid = 1;
-
                     break;
+
+                case IFA_LABEL: {
+                    size_t label_len;
+
+                    if (RTA_PAYLOAD(a) > IFNAMSIZ) {
+                        label_len = IFNAMSIZ;
+                        avahi_log_warn("interface label longer than IFNAMSIZ !");
+                    }
+                    else
+                        label_len = RTA_PAYLOAD(a);
+                    memcpy(label, RTA_DATA(a), label_len);
+                    label[label_len] = '\0';
+                }
+                break;
 
                 default:
                     ;
             }
-
             a = RTA_NEXT(a, l);
         }
+
+        /* Ignore if label denied in avahi-daemon.conf. */
+        if (strlen(label) != 0 && !avahi_interface_label_is_relevant(i, label))
+            return;
 
         /* If there was no adress attached to this message, let's quit. */
         if (rlocal_valid)

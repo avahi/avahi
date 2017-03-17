@@ -1072,7 +1072,9 @@ static void domain_button_clicked(GtkButton *button G_GNUC_UNUSED, gpointer user
 
     gtk_window_set_default_size(GTK_WINDOW(p->domain_dialog), 300, 300);
 
+#if !GTK_CHECK_VERSION (3,89,0)
     gtk_widget_show_all(vbox);
+#endif
 
     gtk_list_store_append(p->domain_list_store, &iter);
     gtk_list_store_set(p->domain_list_store, &iter, DOMAIN_COLUMN_NAME, "local", DOMAIN_COLUMN_REF, 1, -1);
@@ -1221,7 +1223,9 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 
     gtk_window_set_default_size(GTK_WINDOW(d), 400, 300);
 
+#if !GTK_CHECK_VERSION (3,89,0)
     gtk_widget_show_all(vbox);
+#endif
 
     p->glib_poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
 

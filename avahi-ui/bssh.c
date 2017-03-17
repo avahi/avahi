@@ -137,7 +137,11 @@ int main(int argc, char*argv[]) {
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
 
+#if !GTK_CHECK_VERSION (3,89,0)
     gtk_init(&argc, &argv);
+#else
+    gtk_init();
+#endif
 
     switch (config.command) {
         case COMMAND_HELP:

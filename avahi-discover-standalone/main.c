@@ -323,7 +323,11 @@ int main(int argc, char *argv[]) {
     gint error;
     AvahiGLibPoll *poll_api;
 
+#if !GTK_CHECK_VERSION (3,89,0)
     gtk_init(&argc, &argv);
+#else
+    gtk_init();
+#endif
 
     avahi_set_allocator(avahi_glib_allocator());
 

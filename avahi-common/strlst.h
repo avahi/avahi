@@ -107,7 +107,7 @@ AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
 /** @{ \name String list operations */
 
 /** Convert the string list object to a single character string,
- * seperated by spaces and enclosed in "". avahi_free() the result! This
+ * separated by spaces and enclosed in "". avahi_free() the result! This
  * function doesn't work well with strings that contain NUL bytes. */
 char* avahi_string_list_to_string(AvahiStringList *l);
 

@@ -312,7 +312,7 @@ if test "x$GCC" = "xyes" ; then
 
     if test "x$HAVE_NETLINK" = "xyes" ; then
         # Test whether rtnetlink.h can be included when compiled with -std=c99
-        # some distributions (e.g. archlinux) have broken headers that dont
+        # some distributions (e.g. archlinux) have broken headers that don't
         # define __u64 with -std=c99
         AC_MSG_CHECKING([checking whether rtnetlink.h can be included with -std=c99])
         OLDCFLAGS="$CFLAGS"
@@ -1022,7 +1022,7 @@ if test x$manpages = xyes ; then
 
     if test x$have_xmltoman = xno -o x$xmltoman = xno; then
         if ! test -e $srcdir/man/avahi-daemon.8 ; then
-            AC_MSG_ERROR([*** xmltoman was not found or was disabled, it is required to build the manpages as they have not been pre-built, install xmltoman, pass --disable-manpages or dont pass --disable-xmltoman])
+            AC_MSG_ERROR([*** xmltoman was not found or was disabled, it is required to build the manpages as they have not been pre-built, install xmltoman, pass --disable-manpages or don't pass --disable-xmltoman])
             exit 1
         fi
         AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])

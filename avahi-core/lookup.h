@@ -43,7 +43,7 @@ typedef struct AvahiSServiceTypeBrowser AvahiSServiceTypeBrowser;
 /** A DNS-SD service browser. Use this to enumerate available services of a certain kind on the local LAN. Use AvahiSServiceResolver to get specific service data like address and port for a service. */
 typedef struct AvahiSServiceBrowser AvahiSServiceBrowser;
 
-/** A DNS-SD service resolver.  Use this to retrieve addres, port and TXT data for a DNS-SD service */
+/** A DNS-SD service resolver.  Use this to retrieve address, port and TXT data for a DNS-SD service */
 typedef struct AvahiSServiceResolver AvahiSServiceResolver;
 
 #include <avahi-common/cdecl.h>
@@ -86,7 +86,7 @@ typedef void (*AvahiSHostNameResolverCallback)(
     AvahiLookupResultFlags flags,  /**< Lookup flags */
     void* userdata);
 
-/** Create an AvahiSHostNameResolver object for resolving a host name to an adddress. See AvahiSRecordBrowser for more info on the paramters. */
+/** Create an AvahiSHostNameResolver object for resolving a host name to an adddress. See AvahiSRecordBrowser for more info on the parameters. */
 AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     AvahiServer *server,
     AvahiIfIndex interface,
@@ -111,7 +111,7 @@ typedef void (*AvahiSAddressResolverCallback)(
     AvahiLookupResultFlags flags,  /**< Lookup flags */
     void* userdata);
 
-/** Create an AvahiSAddressResolver object. See AvahiSRecordBrowser for more info on the paramters. */
+/** Create an AvahiSAddressResolver object. See AvahiSRecordBrowser for more info on the parameters. */
 AvahiSAddressResolver *avahi_s_address_resolver_new(
     AvahiServer *server,
     AvahiIfIndex interface,

@@ -63,7 +63,7 @@ enum {
 
     AVAHI_ERR_NOT_FOUND = -30,               /**< Not found */
     AVAHI_ERR_INVALID_CONFIG = -31,          /**< Configuration error */
-    AVAHI_ERR_VERSION_MISMATCH = -32,        /**< Verson mismatch */
+    AVAHI_ERR_VERSION_MISMATCH = -32,        /**< Version mismatch */
     AVAHI_ERR_INVALID_SERVICE_SUBTYPE = -33, /**< Invalid service subtype */
     AVAHI_ERR_INVALID_PACKET = -34,          /**< Invalid packet */
     AVAHI_ERR_INVALID_DNS_ERROR = -35,       /**< Invlaid DNS return code */

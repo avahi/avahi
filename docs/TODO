@@ -49,12 +49,12 @@ done:
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
 * support known answer suppresion for incoming unicast queries
-* check wether RRsets are supported correctly (i.e. that all records of an
+* check whether RRsets are supported correctly (i.e. that all records of an
   RRset are really sent if it is requested) (rfc 2181)
 * case insensitve comparison
 * drop records from cache only one second after flush cache bit entry was received
 * either send entire RRSET or don't set flush cache bit!
-* mantain flush cache bit correctly in psched
+* maintain flush cache bit correctly in psched
 * Return to probing state on conflict
 * response job dependencies
 * enlarge packet in case a record/query is too large to fit in a normal packet

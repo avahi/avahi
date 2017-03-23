@@ -318,7 +318,7 @@ from the last release
    defined (Closes: #86)
  * Fix doxygen comments for avahi watch, thanks to tedp (Closes: #77)
  * Make d-bus version detection work for >= 1.0 (Closes: #71)
- * Dont dbus_connection_close on shared dbus connections (Closes: #68)
+ * Don't dbus_connection_close on shared dbus connections (Closes: #68)
  * Fix potential endless loop in dns label unpacking code (Closes: #84)
  * Fix bogus assertion in client-publish-service.c example
  * Mild fix to some doxygen docs for avahi-common/address.h
@@ -403,7 +403,7 @@ Changes:
         * Implement subtype registration in DNSServiceRegister() in a
           way that is compatible with Bonjour.
 	* Update to newer copy of dns_sd.h
-  * If the host name changes update names of static services wich
+  * If the host name changes update names of static services which
     contain wildcards.
   * Don't build documentation about embedding the Avahi mDNS stack into
     other programs by default. This is a feature used only by embedded
@@ -546,7 +546,7 @@ This release fixes some bugs and adds a few new features
  * Don't require X11 to run avahi-bookmarks
  * API: Return AVAHI_ERR_IS_EMPTY when the user tries to commit an
    empty entry group.
- * Improved Slackware and Fedora suppport
+ * Improved Slackware and Fedora support
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
 0.6.3, 0.6.4, 0.6.5 and 0.6.6.
@@ -561,7 +561,7 @@ This release fixes some bugs and includes some documentation updates
  * Many doxygen documentation improvements
  * Fix destruction of AvahiEntryGroup objects using
    avahi_entry_group_free().
- * Don't allow commiting of empty entry groups
+ * Don't allow committing of empty entry groups
  * Use a little less memory in avahi-qt
  * Don't accept empty TXT strings
  * Update example "client-publish-service.c" to show how to modify an
@@ -826,7 +826,7 @@ and boasts the following features
    Howl and Apple Bonjour (previously Rendezvous)
  * Ability to correctly "reflect" mDNS between two or more LAN segments
  * Ability to configure DNS servers based on mDNS/DNS-SD published
-   information, a feature that is very usefull on IPv6
+   information, a feature that is very useful on IPv6
    which has no other mechanism for this.
  * Combined with nss-mdns, allows hostname lookup such as
    'laptop.local' without the configuration of a DNS server.

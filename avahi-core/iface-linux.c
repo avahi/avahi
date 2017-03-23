@@ -239,7 +239,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             a = RTA_NEXT(a, l);
         }
 
-        /* If there was no adress attached to this message, let's quit. */
+        /* If there was no address attached to this message, let's quit. */
         if (rlocal_valid)
             r = &rlocal;
         else if (raddr_valid)
@@ -387,5 +387,5 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
             break;
 
     /* At this point Avahi knows about all local interfaces and
-     * addresses in existance. */
+     * addresses in existence. */
 }

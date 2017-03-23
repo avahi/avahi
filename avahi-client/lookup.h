@@ -177,7 +177,7 @@ typedef void (*AvahiServiceResolverCallback) (
  * callback function, especially interface and protocol. The protocol
  * argument specifies the protocol (IPv4 or IPv6) to use as transport
  * for the queries which are sent out by this resolver. The
- * aprotocol argument specifies the adress family (IPv4 or IPv6) of
+ * aprotocol argument specifies the address family (IPv4 or IPv6) of
  * the address of the service we are looking for. Generally, on
  * "protocol" you should only pass what was supplied to you as
  * parameter to your AvahiServiceBrowserCallback. In "aprotocol" you

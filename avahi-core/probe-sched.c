@@ -294,7 +294,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
 
     n = 0;
 
-    /* Now add the chosen records to the authorative section */
+    /* Now add the chosen records to the authoritative section */
     for (pj = s->jobs; pj; pj = next) {
 
         next = pj->jobs_next;

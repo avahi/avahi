@@ -96,7 +96,28 @@
       </option>
 
       <option>
-        <p><opt>&lt;txt-record&gt;</opt> DNS-SD TXT record data.</p>
+        <p><opt>&lt;txt-record
+        value-format="text|binary-hex|binary-base64"&gt;</opt> DNS-SD
+        TXT record data. If <opt>value-format</opt> is "text", the
+        value of the TXT record is taken verbatim. If
+        <opt>value-format</opt> is "binary-hex" then the value of TXT
+        record is decoded by taking pairs of characters after the "="
+        char and interpreting them as the textual representation of
+        the two-digit hexadecimal number. Both uppercase and lowercase
+        hexadecimal digits are allowed. The 0x or 0X prefix is not
+        allowed. This requires the length of the value to be even. If
+        <opt>value-format</opt> is "binary-base64" then the value of
+        TXT record is decoded with a base64 decoder. The character set
+        used is A-Za-z0-9+/. This requires the length of the value to
+        be a multiple of 4, with "=" as padding at the end. If
+        <opt>value-format</opt> is not specified, defaults to
+        "text". Examples (all the values are decoded to the string
+        "value" without quotes):</p>
+
+        <p>&lt;txt-record&gt;key=value&lt;txt-record&gt;</p>
+        <p>&lt;txt-record value-format="text"&gt;key=value&lt;txt-record&gt;</p>
+        <p>&lt;txt-record value-format="binary-hex"&gt;key=76616c7565&lt;txt-record&gt;</p>
+        <p>&lt;txt-record value-format="binary-base64"&gt;key=dmFsdWU=&lt;txt-record&gt;</p>
       </option>
 
 

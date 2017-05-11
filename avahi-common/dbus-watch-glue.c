@@ -321,7 +321,7 @@ int avahi_dbus_connection_glue(DBusConnection *c, const AvahiPoll *poll_api) {
     assert(poll_api);
 
     if (!(d = avahi_new(ConnectionData, 1)))
-        goto fail;;
+        goto fail;
 
     d->poll_api = poll_api;
     d->connection = c;

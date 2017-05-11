@@ -113,7 +113,7 @@ _imap._tcp:IMAP Mail Access
 _imap._tcp[it]:Posta - IMAP
 
 _pop3._tcp:POP3 Mail Access
-_pop3._tcp:Posta - POP3
+_pop3._tcp[it]:Posta - POP3
 
 
 # Printing

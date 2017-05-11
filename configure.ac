@@ -957,7 +957,7 @@ AC_DEFINE_UNQUOTED(AVAHI_AUTOIPD_GROUP,"$AVAHI_AUTOIPD_GROUP", [Group for runnin
 #
 # Avahi runtime dir
 #
-avahi_runtime_dir="${localstatedir}/run"
+avahi_runtime_dir="/run"
 avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)

@@ -1,22 +1,23 @@
-# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Gabor Kelemen <kelemeng at ubuntu dot com>, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2010-11-29 23:19+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Hungarian (http://www.transifex.com/lennart/avahi/language/"
+"POT-Creation-Date: 2016-09-20 08:58+0200\n"
+"PO-Revision-Date: 2016-09-20 08:59+0200\n"
+"Last-Translator: Gabor Kelemen <kelemeng at ubuntu dot com>\n"
+"Language-Team: Hungarian <openscope at googlegroups dot com>\n"
 "hu/)\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 1.5\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -243,7 +244,7 @@ msgid "Avahi Discovery"
 msgstr "Avahi feltérképezés"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
-#: ../avahi-python/avahi-discover/avahi-discover.py:76
+#: ../avahi-python/avahi-discover/avahi-discover.py:77
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Nincs kiválasztva szolgáltatás.</i>"
 
@@ -255,35 +256,35 @@ msgstr "Avahi Zeroconf-böngésző"
 msgid "Browse for Zeroconf services available on your network"
 msgstr "Zeroconf szolgáltatások keresése a hálózaton"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:224
+#: ../avahi-python/avahi-discover/avahi-discover.py:225
 msgid "TXT"
 msgstr "TXT"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:226
+#: ../avahi-python/avahi-discover/avahi-discover.py:227
 msgid "TXT Data:"
 msgstr "TXT adat:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:226
+#: ../avahi-python/avahi-discover/avahi-discover.py:227
 msgid "empty"
 msgstr "üres"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:228
+#: ../avahi-python/avahi-discover/avahi-discover.py:229
 msgid "Service Type:"
 msgstr "Szolgáltatástípus:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:229
+#: ../avahi-python/avahi-discover/avahi-discover.py:230
 msgid "Service Name:"
 msgstr "Szolgáltatásnév:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:230
+#: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Domain Name:"
 msgstr "Tartománynév:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:231
+#: ../avahi-python/avahi-discover/avahi-discover.py:232
 msgid "Interface:"
 msgstr "Csatoló:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:232
+#: ../avahi-python/avahi-discover/avahi-discover.py:233
 msgid "Address:"
 msgstr "Cím:"
 
@@ -454,14 +455,12 @@ msgstr "Tallózás…"
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "Megszakítva.\n"
+msgstr "Mé_gse"
 
 #: ../avahi-ui/avahi-ui.c:1048
-#, fuzzy
 msgid "_OK"
-msgstr "OK"
+msgstr "_OK"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -513,7 +512,7 @@ msgstr "Válassza ki a shell kiszolgálót"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "Kapcs_olódás"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -875,3 +874,4 @@ msgstr "Érvénytelen számú argumentum, pontosan egy szükséges.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "A gépnév sikeresen módosítva a következőre: %s\n"
+

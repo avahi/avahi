@@ -16,3 +16,5 @@
 <!ATTLIST port>
 <!ELEMENT txt-record (#PCDATA)>
 <!ATTLIST txt-record>
+<!ELEMENT txt-binary (#PCDATA)>
+<!ATTLIST txt-binary>

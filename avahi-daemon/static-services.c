@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifdef USE_EXPAT_H
 #include <expat.h>
@@ -305,7 +306,8 @@ typedef enum {
     XML_TAG_DOMAIN_NAME,
     XML_TAG_HOST_NAME,
     XML_TAG_PORT,
-    XML_TAG_TXT_RECORD
+    XML_TAG_TXT_RECORD,
+    XML_TAG_TXT_BINARY
 } xml_tag_name;
 
 struct xml_userdata {
@@ -407,6 +409,11 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
             goto invalid_attr;
 
         u->current_tag = XML_TAG_TXT_RECORD;
+    } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "txt-binary") == 0) {
+        if (attr[0])
+            goto invalid_attr;
+
+        u->current_tag = XML_TAG_TXT_BINARY;
     } else {
         avahi_log_error("%s: parse failure: didn't expect element <%s>.", u->group->filename, el);
         u->failed = 1;
@@ -481,6 +488,35 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
             break;
         }
 
+        case XML_TAG_TXT_BINARY: {
+            char * value_hex;
+            char * equals;
+            int key_size, value_size = 0;
+            assert(u->service);
+
+            equals = strchr(u->buf, '=');
+            if (equals) {
+                if ((strlen(equals)-1)%2) {
+                    avahi_log_error("%s: parse failure: invalid binary value \"%s\".", u->group->filename, equals);
+                    u->failed = 1;
+                    return;
+                }
+                key_size = equals - u->buf;
+                value_hex = malloc(strlen(equals)-1);
+                strcpy(value_hex, equals+1);
+                while (sscanf(&value_hex[2*value_size], "%02x", &equals[value_size+1]) != EOF) {
+                    value_size++;
+                }
+            } else {
+                avahi_log_error("%s: parse failure: '=' not found in binary TXT record \"%s\".", u->group->filename, u->buf);
+                u->failed = 1;
+                return;
+            }
+            u->service->txt_records = avahi_string_list_add_arbitrary(u->service->txt_records, u->buf, key_size+1+value_size);
+            u->current_tag = XML_TAG_SERVICE;
+            break;
+        }
+
         case XML_TAG_SUBTYPE: {
             assert(u->service);
 
@@ -551,6 +587,7 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
 
         case XML_TAG_PORT:
         case XML_TAG_TXT_RECORD:
+        case XML_TAG_TXT_BINARY:
         case XML_TAG_SUBTYPE:
             assert(u->service);
             u->buf = append_cdata(u->buf, s, len);
@@ -701,18 +738,18 @@ void static_service_load(int in_chroot) {
 
         switch (globret) {
 #ifdef GLOB_NOSPACE
-	    case GLOB_NOSPACE:
-	        avahi_log_error("Not enough memory to read service directory "AVAHI_SERVICE_DIR".");
-	        break;
+        case GLOB_NOSPACE:
+            avahi_log_error("Not enough memory to read service directory "AVAHI_SERVICE_DIR".");
+            break;
 #endif
 #ifdef GLOB_NOMATCH
             case GLOB_NOMATCH:
-	        avahi_log_info("No service file found in "AVAHI_SERVICE_DIR".");
-	        break;
+            avahi_log_info("No service file found in "AVAHI_SERVICE_DIR".");
+            break;
 #endif
             default:
-	        avahi_log_error("Failed to read "AVAHI_SERVICE_DIR".");
-	        break;
+            avahi_log_error("Failed to read "AVAHI_SERVICE_DIR".");
+            break;
         }
 
     else {

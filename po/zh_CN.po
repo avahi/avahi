@@ -248,7 +248,7 @@ msgstr "Avahi Discovery"
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
-msgstr "<i>当前没有选定的服务。<i>"
+msgstr "<i>当前没有选定的服务。</i>"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"

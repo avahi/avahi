@@ -295,6 +295,9 @@ class Main_window:
 
 def main():
     main_window = Main_window()
+    # http://stackoverflow.com/a/16486080/434217
+    import signal
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     Gtk.main()
 
 if __name__ == "__main__":

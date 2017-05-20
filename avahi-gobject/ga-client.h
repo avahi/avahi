@@ -73,6 +73,8 @@ GaClient *ga_client_new(GaClientFlags flags);
 
 gboolean ga_client_start(GaClient * client, GError ** error);
 
+gboolean ga_client_start_in_context(GaClient * client, GMainContext * context, GError ** error);
+
 G_END_DECLS
 
 #endif /* #ifndef __GA_CLIENT_H__ */

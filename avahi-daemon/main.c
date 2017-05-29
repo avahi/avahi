@@ -172,7 +172,11 @@ static int load_resolv_conf(void) {
 #endif
 
     if (!f) {
-        avahi_log_warn("Failed to open "RESOLV_CONF": %s", strerror(errno));
+        if ((config.publish_dns_servers && config.publish_dns_servers[0]) ||
+             config.publish_resolv_conf ||
+             config.server_config.publish_domain) {
+            avahi_log_warn("Failed to open "RESOLV_CONF": %s", strerror(errno));
+        }
         goto finish;
     }
 

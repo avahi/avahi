@@ -18,6 +18,8 @@
 [Unit]
 Description=Avahi mDNS/DNS-SD Stack
 Requires=avahi-daemon.socket
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=dbus

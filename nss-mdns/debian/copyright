@@ -1,0 +1,9 @@
+This package was debianized by Jeff Waugh <jeff.waugh@canonical.com> on
+Tue, 07 Dec 2004 12:45:24 +0100.
+
+It was downloaded from <http://www.0pointer.de/lennart/projects/nss-mdns/>
+
+Copyright (C) 2004, Lennart Poettering
+
+On Debian systems, the complete text of the GNU Lesser General Public License
+can be found in `/usr/share/common-licenses/LGPL'.

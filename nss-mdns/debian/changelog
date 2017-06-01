@@ -1,0 +1,11 @@
+nss-mdns (0.3-1) unstable; urgency=low
+
+  * Update to current upstream
+
+ -- Lennart Poettering <mzqrovna@0pointer.de>  Sun, 16 Jan 2005 14:57:28 +0100
+
+nss-mdns (0.1-0) unstable; urgency=low
+
+  * Initial Release (Closes: #284497).
+
+ -- Jeff Waugh <jdub@perkypants.org>  Tue, 07 Dec 2004 12:42:51 +0100

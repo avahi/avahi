@@ -1,0 +1,18 @@
+Source: nss-mdns
+Section: admin
+Priority: optional
+Maintainer: Lennart Poettering <mzqrovna@0pointer.de>
+Build-Depends: cdbs, debhelper (>> 4.0.0), lynx
+Standards-Version: 3.5.2
+
+Package: libnss-mdns
+Section: admin
+Recommends: mdnsresponder
+Suggests: nscd
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: NSS module for Multicast DNS name resolution
+ nss-mdns is a plugin for the GNU Name Service Switch (NSS) functionality of
+ the GNU C Library (glibc) providing host name resolution via Multicast DNS
+ (aka Zeroconf, aka Apple Rendezvous), effectively allowing name resolution by
+ common Unix/Linux programs in the ad-hoc mDNS domain .local.

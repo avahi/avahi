@@ -1,0 +1,5 @@
+#!/usr/bin/make -f
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+DEB_CONFIGURE_SCRIPT_ENV := LDFLAGS="-Wl,-O1" CFLAGS="-DNDEBUG=1"
+DEB_INSTALL_DOCS_ALL :=

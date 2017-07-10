@@ -1,3 +1,60 @@
+Avahi 0.7, the 'Adieu' release
+==============================
+
+The Avahi 0.7 release brings two new features, binary TXT records in XML
+service files and the ability to start the gobject client in a custom context.
+
+A number of other changes are detailed below.
+
+New Features:
+ * Add support for binary values in TXT records in XML service files by
+   specifying value-format="text|binary-hex|binary-base64".  If not specified,
+   defaults to the normal value of "text" (thus backwards compatible)
+ * avahi-gobject: Allow starting the client in a custom GMainContext by
+   passing context to ga_client_start_in_context instead of ga_client_start
+   (avahi-gobject minor version has been incremented)
+
+ Thanks to Krzesimir Nowak for both of these additions.
+
+Notable Changes:
+ * avahi-daemon: Remove all default rlimits from avahi-daemon.conf, as two
+   main problems happened with firstly rlimit-nproc causing avahi to fail when
+   started in a container without user namespaces and secondly because memory
+   rlimits were causing avahi to crash in some cases.  Leave it up to the init
+   system to impose any modified limits instead. It is recommend to ship this
+   change in distribution default config files.
+ * avahi-common: Fix watch cleanup issue in watch_free
+ * avahi-discover (python): Updated for Python3 & GTK3
+ * avahi-autoipd: clear previously set address before binding a new one
+ * avahi-autoipd: fix dhclient hooks to check for avahi-autoipd before running
+ * build: Move default rundir from /var/run to /run as per modern system setups
+
+Other Changes:
+ * build: Fix the printed value of "Building libavahi-client" in ./configure
+ * build: autogen.sh improved to work when called from another directory
+ * build: Fix warnings when compiling against musl libc
+ * Updated translations: Polish, Ukranian, Turkish, Indonesian, Swedish,
+   Hungarian, Occitan (New), Czech, Chinese (Simplified)
+ * avahi-compat-libdns_sd: Fix incorrect URL in warnings
+ * service-type-database: Add new service Types: _ipps._tcp, _xpra._tcp
+ * avahi-dnsconfd: Update manpage with the correct action script name
+ * avahi-gobject: Use the correct shared library name in AvahiCore-0.6.gir
+ * avahi-gobject: Fix build failing under some locales
+ * avahi-common/dbus-watch-glue.c: remove Unneeded semicolon
+ * Update gentoo init scripts for newer openrc version
+
+Big thank-you to everyone contributing to the project through issues & pull
+requests, including the the following people who contributed changes to this
+release: Andika Triwidada, Andreas Henriksson, Anthony G. Basile,
+Antoine Martin, Ben Chan, Cedric Hombourger, Cedric Valmary, Gabor Kelemen,
+HMikolon, Jan Alexander, Steffens (heftig), Josef Andersson, Jussi Kukkonen,
+Krzesimir Nowak, Kylie McClain, Michael Biebl, Muhammet Kara, Peter Meerwald,
+Philip Withnall, Piotr Drąg, Sebastiaan Lokhorst, Thomas Kluyver, Trent Lloyd
+
+This release is otherwise backwards compatible with Avahi 0.6.x except for
+ga_client_start_in_context (new function, incremented avahi-goject SO minor
+version) and value-format in XML service files.
+
 Avahi 0.6.32
 ============
 

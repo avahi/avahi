@@ -1,4 +1,4 @@
-#!@PYTHON@
+#!/usr/bin/env python
 # -*-python-*-
 # This file is part of avahi.
 #
@@ -17,7 +17,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-import @DBM@, sys
+try:
+    import anydbm as dbm
+except ImportError:
+    import dbm
+
+import sys
 
 if len(sys.argv) > 1:
     infn = sys.argv[1]
@@ -29,9 +34,9 @@ if len(sys.argv) > 2:
 else:
     outfn = infn + ".db"
 
-db = @DBM@.open(outfn, "n")
+db = dbm.open(outfn, "n")
 
-for ln in file(infn, "r"):
+for ln in open(infn, "r"):
     ln = ln.strip(" \r\n\t")
     
     if ln == "" or ln.startswith("#"):

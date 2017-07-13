@@ -110,3 +110,22 @@ def dict_to_txt_array(txt_dict):
         l.append(string_to_byte_array("%s=%s" % (k,v)))
 
     return l
+
+
+def txt_array_to_dict(self, txt_array):
+    txt_dict = {}
+    for els in txt_array:
+        key, val = '', None
+        for c in els:
+            c = chr(c)
+            if val is None:
+                if c == '=':
+                    val = ''
+                else:
+                    key += c
+            else:
+                val += c
+        if val is None: # missing '='
+            val = ''
+        txt_dict[key] = val
+    return txt_dict

@@ -168,12 +168,14 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 
         case AVAHI_SERVER_REGISTERING:
 
-	    /* Let's drop our registered services. When the server is back
+            /* Let's drop our registered services. When the server is back
              * in AVAHI_SERVER_RUNNING state we will register them
              * again with the new host name. */
-            if (group)
+            if (group) {
                 avahi_s_entry_group_reset(group);
-
+                avahi_s_entry_group_free(group);
+                group = NULL;
+            }
             break;
 
         case AVAHI_SERVER_FAILURE:

@@ -321,7 +321,7 @@ struct xml_userdata {
     int failed;
     char *buf;
     txt_record_value_type txt_type;
-    char *txt_key;
+    char *txt_value;
 };
 
 #ifndef XMLCALL
@@ -460,7 +460,7 @@ static uint8_t hex(char c) {
 }
 
 static int decode_hex_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out_buf_len) {
-    const char *buf = (u->buf != NULL) ? u->buf : "";
+    const char *buf = (u->txt_value != NULL) ? u->txt_value : "";
     size_t buf_len = strlen(buf);
     uint8_t *raw_buf;
     size_t iter;
@@ -512,7 +512,7 @@ static int base64_error(struct xml_userdata *u, uint8_t *raw_buf) {
 }
 
 static int decode_base64_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out_buf_len) {
-    const char *buf = (u->buf != NULL) ? u->buf : "";
+    const char *buf = (u->txt_value != NULL) ? u->txt_value : "";
     size_t buf_len = strlen(buf);
     uint8_t *raw_buf;
     size_t iter, raw_iter;
@@ -619,16 +619,16 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
 
         case XML_TAG_TXT_RECORD: {
             assert(u->service);
-            if (u->txt_key != NULL) {
-                size_t key_len = strlen(u->txt_key);
+            if (u->txt_value != NULL) {
+                size_t key_len = strlen(u->buf);
                 uint8_t *value_buf;
                 uint8_t *free_value_buf = NULL;
                 size_t value_buf_len = 0;
 
                 switch (u->txt_type) {
                     case TXT_RECORD_VALUE_TEXT:
-                        value_buf_len = strlen(u->buf);
-                        value_buf = (uint8_t*)u->buf;
+                        value_buf_len = strlen(u->txt_value);
+                        value_buf = (uint8_t*)u->txt_value;
                         break;
 
                     case TXT_RECORD_VALUE_BINARY_HEX:
@@ -648,11 +648,11 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
                 }
 
                 u->service->txt_records = avahi_string_list_add_anonymous(u->service->txt_records, key_len + 1 + value_buf_len);
-                memcpy(u->service->txt_records->text, u->txt_key, key_len);
+                memcpy(u->service->txt_records->text, u->buf, key_len);
                 u->service->txt_records->text[key_len] = '=';
                 memcpy(u->service->txt_records->text + key_len + 1, value_buf, value_buf_len);
-                avahi_free(u->txt_key);
-                u->txt_key = NULL;
+                avahi_free(u->txt_value);
+                u->txt_value = NULL;
                 avahi_free(free_value_buf);
             } else
                 u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
@@ -738,15 +738,16 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
 
         case XML_TAG_TXT_RECORD:
             assert(u->service);
-            if (u->txt_key == NULL) {
+            if (u->txt_value == NULL) {
               char *equals = memchr(s, '=', len);
+              int pos = equals - s;
 
-              if (equals != NULL) {
-                u->txt_key = append_cdata(u->buf, s, equals - s);
+              if (equals != NULL && pos != len && pos != 0) {
+                u->txt_value = append_cdata(u->buf, equals + 1, len - pos - 1);      
                 u->buf = NULL;
-                /* len is now length of the rest of the string past the equals sign */
-                len -= equals - s + 1;
-                s = equals + 1;
+                
+                /* len is now length of the begin of the string up to the equals sign */
+                len = pos;
               }
             }
             if (len > 0)
@@ -776,7 +777,7 @@ static int static_service_group_load(StaticServiceGroup *g) {
     u.current_tag = XML_TAG_INVALID;
     u.failed = 0;
     u.txt_type = TXT_RECORD_VALUE_TEXT;
-    u.txt_key = NULL;
+    u.txt_value = NULL;
 
     /* Cleanup old data in this service group, if available */
     remove_static_service_group_from_server(g);

@@ -29,6 +29,24 @@
   <service>
     <type>_printer._tcp</type>
     <port>515</port>
+    
+    <!-- TXT records without value-->    
+    <txt-record>legacyKeyWithNoValue</txt-record>
+    <txt-record value-format="text">textKeyWithNoValue</txt-record>
+    <txt-record value-format="binary-hex">hexKeyWithNoValue</txt-record>
+    <txt-record value-format="binary-base64">base64KeyWithNoValue</txt-record>
+    
+    <!-- TXT records with empty value-->
+    <txt-record>legacyKeyWithEmptyValue=</txt-record>
+    <txt-record value-format="text">textKeyWithEmptyValue=</txt-record>
+    <txt-record value-format="binary-hex">hexKeyWithEmptyValue=</txt-record>
+    <txt-record value-format="binary-base64">base64KeyWithEmptyValue=</txt-record>
+    
+    <!-- TXT records with value-->
+    <txt-record>legacyKey=value</txt-record>
+    <txt-record value-format="text">textKey=value</txt-record>
+    <txt-record value-format="binary-hex">hexKey=76616c7565</txt-record>
+    <txt-record value-format="binary-base64">base64Key=dmFsdWU=</txt-record>
   </service>
 
   <service>

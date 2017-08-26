@@ -135,7 +135,7 @@ msgstr "Index interfeță nevalid"
 
 #: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
-msgstr "Protocol specificat nevalid"
+msgstr "Specificație de protocol nevalid"
 
 #: ../avahi-common/error.c:61
 msgid "Invalid flags"

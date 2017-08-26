@@ -1,3 +1,9 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Arthur Țițeică <arthur.titeica@gmail.com>, 2014
 # Daniel Șerbănescu <daniel [at] serbanescu [dot] dk>, 2017.
 msgid ""
 msgstr ""

@@ -370,10 +370,18 @@
       <p><opt>rlimit-stack=</opt> Value in bytes for RLIMIT_STACK (maximum size of the process stack). Sensible values are heavily system dependent.</p>
     </option>
 
-    <option>
-      <p><opt>rlimit-nproc=</opt> Value for RLIMIT_NPROC (number of process of user). avahi-daemon forks of a helper process on systems where <manref name="chroot" section="2"/> is available. Therefore this value should not be set below 2.</p>
-    </option>
-
+		<option>
+			<p><opt>rlimit-nproc=</opt> Value for RLIMIT_NPROC (max number of
+				processes a user can launch). avahi-daemon forks of a helper process on
+				systems where <manref name="chroot" section="2"/> is available
+				therefore this value should not be set below 2. Note that while the
+				process limit only applies to this process, the total count of
+				processes to reach that limit includes all processes on the system with
+				the same UID, including any containers without UID remapping (such as
+				lxd containers with security.privileged=true).  The default
+				configuration of 3 was removed to prevent problems in this
+				scenario.</p>
+		</option>
   </section>
 
   <section name="Authors">

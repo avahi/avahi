@@ -19,7 +19,7 @@
 # USA.
 
 AC_PREREQ(2.63)
-AC_INIT([avahi],[0.6.32],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.7],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_MACRO_DIR([common])
 AC_CONFIG_HEADERS([config.h])
@@ -31,7 +31,7 @@ AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:3:5])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [7:2:0])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:9:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:2:0])
-AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:4:0])
+AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:5:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:4:1])
@@ -789,22 +789,23 @@ AC_ARG_ENABLE(python,
     esac],[HAVE_PYTHON=yes])
 
 HAVE_PYTHON_DBUS=no
-HAVE_PYGTK=no
+HAVE_PYGOBJECT=no
 
 if test "x$HAVE_PYTHON" = "xyes" ; then
-    AM_PATH_PYTHON([2.4])
+    AM_PATH_PYTHON([2.6])
 
-    AC_ARG_ENABLE(pygtk,
-        AS_HELP_STRING([--disable-pygtk],[Disable use of GTK in Python]),
+    AC_ARG_ENABLE(pygobject,
+        AS_HELP_STRING([--disable-pygobject],[Disable use of Python GObject]),
         [case "${enableval}" in
-                yes) HAVE_PYGTK=yes ;;
-                no)  HAVE_PYGTK=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-pygtk) ;;
+                yes) HAVE_PYGOBJECT=yes ;;
+                no)  HAVE_PYGOBJECT=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-pygobject) ;;
         esac],
-        [HAVE_PYGTK=yes])
+        [HAVE_PYGOBJECT=yes])
 
-    if test "x$HAVE_PYGTK" = "xyes" ; then
-        AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module gtk)])
+    if test "x$HAVE_PYGOBJECT" = "xyes" ; then
+        PKG_CHECK_MODULES([PYGOBJECT],[pygobject-3.0],,
+            [AC_MSG_ERROR(Could not find Python GObject)])
     fi
 
 
@@ -832,7 +833,7 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
     fi
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
-AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
+AM_CONDITIONAL(HAVE_PYGOBJECT, test "x$HAVE_PYGOBJECT" = "xyes")
 AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
 
 #
@@ -957,7 +958,7 @@ AC_DEFINE_UNQUOTED(AVAHI_AUTOIPD_GROUP,"$AVAHI_AUTOIPD_GROUP", [Group for runnin
 #
 # Avahi runtime dir
 #
-avahi_runtime_dir="${localstatedir}/run"
+avahi_runtime_dir="/run"
 avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
@@ -965,7 +966,7 @@ AC_SUBST(avahi_socket)
 #
 # Avahi interfaces dir
 #
-if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes"; then
+if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes" -o "x$HAVE_GTK3" = "xyes"; then
 	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
 	AC_SUBST(interfacesdir)
 fi
@@ -1153,7 +1154,7 @@ echo "
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}
     Enable Python:                             ${HAVE_PYTHON}
-    Enable pygtk:                              ${HAVE_PYGTK}
+    Enable pygobject:                          ${HAVE_PYGOBJECT}
     Enable python-dbus:                        ${HAVE_PYTHON_DBUS}
     Enable QT3:                                ${HAVE_QT3}
     Enable QT4:                                ${HAVE_QT4}
@@ -1177,9 +1178,9 @@ if test "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
     BUILD_DAEMON=yes
 fi
 
-BUILD_PYTHON="no   (You need python, pygtk and python-dbus!)"
+BUILD_PYTHON="no   (You need python, pygobject and python-dbus!)"
 
-if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGTK" = "xyes" ; then
+if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGOBJECT" = "xyes" ; then
     BUILD_PYTHON=yes
 fi
 

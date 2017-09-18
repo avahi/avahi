@@ -113,7 +113,7 @@ _imap._tcp:IMAP Mail Access
 _imap._tcp[it]:Posta - IMAP
 
 _pop3._tcp:POP3 Mail Access
-_pop3._tcp:Posta - POP3
+_pop3._tcp[it]:Posta - POP3
 
 
 # Printing
@@ -125,6 +125,7 @@ _pdl-datastream._tcp:PDL Printer
 _pdl-datastream._tcp[it]:Stampante PDL
 
 _ipp._tcp:Internet Printer
+_ipps._tcp:Secure Internet Printer
 
 
 # Multimedia
@@ -234,6 +235,7 @@ _tp-http._tcp:Thousand Parsec Server (HTTP Tunnel)
 _tp-https._tcp:Thousand Parsec Server (Secure HTTP Tunnel)
 
 _shifter._tcp:Window Shifter
+_xpra._tcp:Xpra Session Server
 
 _libvirt._tcp:Virtual Machine Manager
 

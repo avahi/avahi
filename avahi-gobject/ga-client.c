@@ -229,6 +229,10 @@ static void _avahi_client_cb(AvahiClient * c, AvahiClientState state, void *data
 }
 
 gboolean ga_client_start(GaClient * client, GError ** error) {
+    return ga_client_start_in_context(client, NULL, error);
+}
+
+gboolean ga_client_start_in_context(GaClient * client, GMainContext * context, GError ** error) {
     GaClientPrivate *priv = GA_CLIENT_GET_PRIVATE(client);
     AvahiClient *aclient;
     int aerror;
@@ -238,7 +242,7 @@ gboolean ga_client_start(GaClient * client, GError ** error) {
 
     avahi_set_allocator(avahi_glib_allocator());
 
-    priv->poll = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
+    priv->poll = avahi_glib_poll_new(context, G_PRIORITY_DEFAULT);
 
     aclient = avahi_client_new(avahi_glib_poll_get(priv->poll),
                                priv->flags,

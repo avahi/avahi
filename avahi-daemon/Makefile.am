@@ -169,7 +169,7 @@ xmllint:
 	done
 
 install-data-local:
-	test -z "$(localstatedir)/run" || $(MKDIR_P) "$(DESTDIR)$(localstatedir)/run"
+	test -z "$(avahi_runtime_dir)" || $(MKDIR_P) "$(DESTDIR)$(avahi_runtime_dir)"
 
 update-systemd:
 	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.c > sd-daemon.c

@@ -1152,6 +1152,20 @@ if test "x$with_systemdsystemunitdir" != xno; then
 fi
 AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno ])
 
+#
+# Install zsh completion?
+#
+AC_ARG_ENABLE(zsh-completion,
+	AS_HELP_STRING([--disable-zsh-completion],[Disable installation of zsh completion file]),
+        [case "${enableval}" in
+                yes) ENABLE_ZSH_COMPLETION=yes ;;
+                no)  ENABLE_ZSH_COMPLETION=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --disable-zsh-completion) ;;
+        esac],
+        [ENABLE_ZSH_COMPLETION=yes])
+
+AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, test "x$ENABLE_ZSH_COMPLETION" = "xyes")
+
 # ==========================================================================
 AC_CONFIG_FILES([
 Makefile
@@ -1189,6 +1203,7 @@ avahi-autoipd/Makefile
 avahi-ui/Makefile
 avahi-libevent/Makefile
 po/Makefile.in
+completion/Makefile
 ])
 AC_OUTPUT
 
@@ -1212,6 +1227,7 @@ echo "
     Enable GTK 3.0:                            ${HAVE_GTK3}
     Enable D-Bus:                              ${HAVE_DBUS}
     With XML:                                  ${with_xml}
+    Install Zsh completion:                    ${ENABLE_ZSH_COMPLETION}
     Enable GDBM:                               ${HAVE_GDBM}
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}

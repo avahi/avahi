@@ -209,10 +209,10 @@ class Main_window:
             self.new_service_type(interface, protocol, self.stype, domain)
 
     def new_domain(self,interface, protocol, domain, flags):
-        if ((interface,protocol) in self.zc_ifaces) == False:
+        if (interface,protocol) not in self.zc_ifaces:
             ifn = self.get_interface_name(interface, protocol)
             self.zc_ifaces[(interface,protocol)] = self.insert_row(self.treemodel, None, ifn,None,interface,protocol,None,domain)
-        if ((interface,protocol,domain) in self.zc_domains) == False:
+        if (interface,protocol,domain) not in self.zc_domains:
             self.zc_domains[(interface,protocol,domain)] = self.insert_row(self.treemodel, self.zc_ifaces[(interface,protocol)], domain,None,interface,protocol,None,domain)
         if domain != "local":
             self.browse_domain(interface, protocol, domain)

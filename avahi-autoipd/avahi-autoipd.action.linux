@@ -35,7 +35,7 @@ PATH="$PATH:/usr/bin:/usr/sbin:/bin:/sbin"
 
 METRIC=$((1000 + `cat "/sys/class/net/$2/ifindex" 2>/dev/null || echo 0`))
 
-if [ -x /bin/ip -o -x /sbin/ip ] ; then
+if [ -x /bin/ip ] || [ -x /sbin/ip ] ; then
 
     # We have the Linux ip tool from the iproute package
 
@@ -57,7 +57,7 @@ if [ -x /bin/ip -o -x /sbin/ip ] ; then
             ;;
     esac
 
-elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
+elif [ -x /sbin/ifconfig ] || [ -x /bin/ifconfig ] ; then
 
     # We have the old ifconfig tool
 

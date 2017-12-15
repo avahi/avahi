@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <net/if.h>
 
 #include <avahi-common/domain.h>
 #include <avahi-common/timeval.h>
@@ -129,7 +130,7 @@ static void finish(AvahiSServiceResolver *r, AvahiResolverEvent event) {
                 r->service_name,
                 r->service_type,
                 r->domain_name,
-                r->srv_record->data.srv.name,
+                (r->interface == if_nametoindex("lo")) ? "localhost" : r->srv_record->data.srv.name,
                 r->address_record ? &a : NULL,
                 r->srv_record->data.srv.port,
                 r->txt_record ? r->txt_record->data.txt.string_list : NULL,

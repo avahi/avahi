@@ -820,7 +820,7 @@ AvahiRecordBrowser* avahi_record_browser_new(
     b->client = client;
     b->callback = callback;
     b->userdata = userdata;
-    b->path = NULL;
+    b->path = "";
     b->name = NULL;
     b->clazz = clazz;
     b->type = type;

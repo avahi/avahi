@@ -193,7 +193,7 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
         path = dbus_message_get_path(message);
 
         for (g = client->groups; g; g = g->groups_next)
-            if (strcmp(g->path, path) == 0)
+            if (g->path && strcmp(g->path, path) == 0)
                 break;
 
         if (g) {

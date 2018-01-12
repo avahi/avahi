@@ -281,7 +281,7 @@ DBusHandlerResult avahi_domain_browser_event (AvahiClient *client, AvahiBrowserE
         goto fail;
 
     for (db = client->domain_browsers; db; db = db->domain_browsers_next)
-        if (strcmp (db->path, path) == 0)
+        if (db->path && strcmp (db->path, path) == 0)
             break;
 
     if (!db)
@@ -502,7 +502,7 @@ DBusHandlerResult avahi_service_type_browser_event (AvahiClient *client, AvahiBr
         goto fail;
 
     for (b = client->service_type_browsers; b; b = b->service_type_browsers_next)
-        if (strcmp (b->path, path) == 0)
+        if (b->path && strcmp (b->path, path) == 0)
             break;
 
     if (!b)
@@ -721,7 +721,7 @@ DBusHandlerResult avahi_service_browser_event(AvahiClient *client, AvahiBrowserE
         goto fail;
 
     for (b = client->service_browsers; b; b = b->service_browsers_next)
-        if (strcmp (b->path, path) == 0)
+        if (b->path && strcmp (b->path, path) == 0)
             break;
 
     if (!b)
@@ -940,7 +940,7 @@ DBusHandlerResult avahi_record_browser_event(AvahiClient *client, AvahiBrowserEv
         goto fail;
 
     for (b = client->record_browsers; b; b = b->record_browsers_next)
-        if (strcmp (b->path, path) == 0)
+        if (b->path && strcmp (b->path, path) == 0)
             break;
 
     if (!b)

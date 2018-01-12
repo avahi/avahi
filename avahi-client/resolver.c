@@ -53,7 +53,7 @@ DBusHandlerResult avahi_service_resolver_event (AvahiClient *client, AvahiResolv
         goto fail;
 
     for (r = client->service_resolvers; r; r = r->service_resolvers_next)
-        if (strcmp (r->path, path) == 0)
+        if (r->path && strcmp (r->path, path) == 0)
             break;
 
     if (!r)
@@ -358,7 +358,7 @@ DBusHandlerResult avahi_host_name_resolver_event (AvahiClient *client, AvahiReso
         goto fail;
 
     for (r = client->host_name_resolvers; r; r = r->host_name_resolvers_next)
-        if (strcmp (r->path, path) == 0)
+        if (r->path && strcmp (r->path, path) == 0)
             break;
 
     if (!r)
@@ -577,7 +577,7 @@ DBusHandlerResult avahi_address_resolver_event (AvahiClient *client, AvahiResolv
         goto fail;
 
     for (r = client->address_resolvers; r; r = r->address_resolvers_next)
-        if (strcmp (r->path, path) == 0)
+        if (r->path && strcmp (r->path, path) == 0)
             break;
 
     if (!r)

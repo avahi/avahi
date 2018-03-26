@@ -103,6 +103,9 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
 /** Free a AvahiSHostNameResolver object */
 void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r);
 
+/** Repeat a AvahiSHostNameResolverCallback */
+void avahi_s_host_name_resolver_repeat_items(AvahiSHostNameResolver *r);
+
 /** Callback prototype for AvahiSAddressResolver events */
 typedef void (*AvahiSAddressResolverCallback)(
     AvahiSAddressResolver *r,

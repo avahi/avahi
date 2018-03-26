@@ -295,3 +295,13 @@ void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r) {
     avahi_free(r->host_name);
     avahi_free(r);
 }
+
+void avahi_s_host_name_resolver_repeat_items(AvahiSHostNameResolver *r) {
+    assert(r);
+
+    if (r->record_browser_a)
+        avahi_s_record_browser_restart(r->record_browser_a);
+
+    if (r->record_browser_aaaa)
+        avahi_s_record_browser_restart(r->record_browser_aaaa);
+}

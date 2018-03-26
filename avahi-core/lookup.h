@@ -172,6 +172,9 @@ AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(
 /** Free an AvahiSServiceTypeBrowser object */
 void avahi_s_service_type_browser_free(AvahiSServiceTypeBrowser *b);
 
+/** Repeat a AvahiSServiceTypeBrowserCallback */
+void avahi_s_service_type_browser_repeat_items(AvahiSServiceTypeBrowser *b);
+
 /** Callback prototype for AvahiSServiceBrowser events */
 typedef void (*AvahiSServiceBrowserCallback)(
     AvahiSServiceBrowser *b,

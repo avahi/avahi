@@ -151,6 +151,9 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
 /** Free an AvahiSDomainBrowser object */
 void avahi_s_domain_browser_free(AvahiSDomainBrowser *b);
 
+/** Repeat a AvahiSDomainBrowserCallback */
+void avahi_s_domain_browser_repeat_items(AvahiSDomainBrowser *b);
+
 /** Callback prototype for AvahiSServiceTypeBrowser events */
 typedef void (*AvahiSServiceTypeBrowserCallback)(
     AvahiSServiceTypeBrowser *b,

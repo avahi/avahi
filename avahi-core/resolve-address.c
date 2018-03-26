@@ -266,3 +266,10 @@ void avahi_s_address_resolver_free(AvahiSAddressResolver *r) {
 
     avahi_free(r);
 }
+
+void avahi_s_address_resolver_repeat_items(AvahiSAddressResolver *r) {
+    assert(r);
+
+	if(r->record_browser)
+		avahi_s_record_browser_restart(r->record_browser);
+}

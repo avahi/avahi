@@ -127,6 +127,9 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
 /** Free an AvahiSAddressResolver object */
 void avahi_s_address_resolver_free(AvahiSAddressResolver *r);
 
+/** Repeat a AvahiSAddressResolverCallback */
+void avahi_s_address_resolver_repeat_items(AvahiSAddressResolver *r);
+
 /** Callback prototype for AvahiSDomainBrowser events */
 typedef void (*AvahiSDomainBrowserCallback)(
     AvahiSDomainBrowser *b,

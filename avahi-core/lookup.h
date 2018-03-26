@@ -236,6 +236,9 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
 /** Free an AvahiSServiceResolver object */
 void avahi_s_service_resolver_free(AvahiSServiceResolver *r);
 
+/** Repeat a AvahiSServiceResolverCallback */
+void avahi_s_service_resolver_repeat_items(AvahiSServiceResolver *r);
+
 AVAHI_C_DECL_END
 
 #endif

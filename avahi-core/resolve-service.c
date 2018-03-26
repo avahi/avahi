@@ -487,3 +487,16 @@ void avahi_s_service_resolver_free(AvahiSServiceResolver *r) {
     avahi_free(r->domain_name);
     avahi_free(r);
 }
+
+void avahi_s_service_resolver_repeat_items(AvahiSServiceResolver *r) {
+    assert(r);
+
+    if (r->record_browser_srv)
+        avahi_s_record_browser_restart(r->record_browser_srv);
+    if (r->record_browser_txt)
+        avahi_s_record_browser_restart(r->record_browser_txt);
+    if (r->record_browser_a)
+        avahi_s_record_browser_restart(r->record_browser_a);
+    if (r->record_browser_aaaa)
+        avahi_s_record_browser_restart(r->record_browser_aaaa);
+}

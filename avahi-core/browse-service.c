@@ -165,3 +165,11 @@ void avahi_s_service_browser_free(AvahiSServiceBrowser *b) {
     avahi_free(b->service_type);
     avahi_free(b);
 }
+
+void avahi_s_service_browser_repeat_items(AvahiSServiceBrowser *b)
+{
+    assert(b);
+
+	if(b->record_browser)
+		avahi_s_record_browser_restart(b->record_browser);
+}

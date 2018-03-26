@@ -50,6 +50,13 @@ void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i) {
     avahi_free(i);
 }
 
+void avahi_dbus_async_address_resolver_repeat_items(AsyncAddressResolverInfo *i) {
+    assert(i);
+
+    if(i->address_resolver)
+        avahi_s_address_resolver_repeat_items(i->address_resolver);
+}
+
 void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata) {
     AsyncAddressResolverInfo *i = userdata;
     DBusMessage *reply;

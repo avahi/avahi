@@ -207,6 +207,7 @@ DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMess
 void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,  void* userdata);
 
 void avahi_dbus_service_type_browser_free(ServiceTypeBrowserInfo *i);
+void avahi_dbus_service_type_browser_start(ServiceTypeBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_service_type_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_service_type_browser_callback(AvahiSServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata);
 

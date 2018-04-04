@@ -363,7 +363,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     db = avahi_s_domain_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, 0, db_callback, NULL);
 
-    stb = avahi_s_service_type_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, 0, stb_callback, NULL);
+    stb = avahi_s_service_type_browser_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, 0, stb_callback, NULL);
+    avahi_s_service_type_browser_start(stb);
 
     sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, sb_callback, NULL);
 

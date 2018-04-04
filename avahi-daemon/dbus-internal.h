@@ -256,6 +256,7 @@ void avahi_dbus_async_service_resolver_callback(
 DBusHandlerResult avahi_dbus_msg_async_service_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 
 void avahi_dbus_record_browser_free(RecordBrowserInfo *i);
+void avahi_dbus_record_browser_start(RecordBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_record_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_record_browser_callback(AvahiSRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, AvahiLookupResultFlags flags, void* userdata);
 

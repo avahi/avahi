@@ -221,6 +221,20 @@ AvahiSServiceBrowser *avahi_s_service_browser_new(
     AvahiSServiceBrowserCallback callback,
     void* userdata);
 
+/** Prepare a new AvahiSServiceBrowser object. */
+AvahiSServiceBrowser *avahi_s_service_browser_prepare(
+    AvahiServer *server,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *service_type /** DNS-SD service type, e.g. "_http._tcp" */,
+    const char *domain,
+    AvahiLookupFlags flags,                 /**< Lookup flags. */
+    AvahiSServiceBrowserCallback callback,
+    void* userdata);
+
+/** Start querying on an AvahiSServiceBrowser object */
+void avahi_s_service_browser_start(AvahiSServiceBrowser *b);
+
 /** Free an AvahiSServiceBrowser object */
 void avahi_s_service_browser_free(AvahiSServiceBrowser *b);
 

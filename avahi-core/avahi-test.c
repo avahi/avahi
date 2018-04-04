@@ -366,7 +366,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     stb = avahi_s_service_type_browser_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, 0, stb_callback, NULL);
     avahi_s_service_type_browser_start(stb);
 
-    sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, sb_callback, NULL);
+    sb = avahi_s_service_browser_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, sb_callback, NULL);
+    avahi_s_service_browser_start(sb);
 
     sr = avahi_s_service_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Ecstasy HTTP", "_http._tcp", "local", AVAHI_PROTO_UNSPEC, 0, sr_callback, NULL);
 

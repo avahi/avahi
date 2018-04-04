@@ -72,8 +72,21 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
     AvahiSRecordBrowserCallback callback,   /**< The callback to call on browsing events */
     void* userdata                          /**< Arbitrary use suppliable data which is passed to the callback */);
 
+/** Prepare a new browsing object for arbitrary RRs */
+AvahiSRecordBrowser *avahi_s_record_browser_prepare(
+    AvahiServer *server,                    /**< The server object to which attach this query */
+    AvahiIfIndex interface,                 /**< Logical OS interface number where to look for the records, or AVAHI_IF_UNSPEC to look on interfaces */
+    AvahiProtocol protocol,                 /**< Protocol number to use when looking for the record, or AVAHI_PROTO_UNSPEC to look on all protocols */
+    AvahiKey *key,                          /**< The search key */
+    AvahiLookupFlags flags,                 /**< Lookup flags. Must have set either AVAHI_LOOKUP_FORCE_WIDE_AREA or AVAHI_LOOKUP_FORCE_MULTICAST, since domain based detection is not available here. */
+    AvahiSRecordBrowserCallback callback,   /**< The callback to call on browsing events */
+    void* userdata                          /**< Arbitrary use suppliable data which is passed to the callback */);
+
 /** Free an AvahiSRecordBrowser object */
 void avahi_s_record_browser_free(AvahiSRecordBrowser *b);
+
+/** Start querying on an AvahiSRecordBrowser object */
+void avahi_s_record_browser_start_query(AvahiSRecordBrowser *b);
 
 /** Callback prototype for AvahiSHostNameResolver events */
 typedef void (*AvahiSHostNameResolverCallback)(

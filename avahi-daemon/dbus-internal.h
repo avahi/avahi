@@ -237,6 +237,7 @@ void avahi_dbus_sync_service_resolver_callback(
     void* userdata);
 
 void avahi_dbus_async_service_resolver_free(AsyncServiceResolverInfo *i);
+void avahi_dbus_async_service_resolver_start(AsyncServiceResolverInfo *i);
 void avahi_dbus_async_service_resolver_callback(
     AvahiSServiceResolver *r,
     AvahiIfIndex interface,

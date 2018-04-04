@@ -308,6 +308,22 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
     AvahiSServiceResolverCallback calback,
     void* userdata);
 
+/** Prepare a new AvahiSServiceResolver object. The specified callback function will be called with the resolved service data. */
+AvahiSServiceResolver *avahi_s_service_resolver_prepare(
+    AvahiServer *server,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    const char *type,
+    const char *domain,
+    AvahiProtocol aprotocol,    /**< Address family of the desired service address. Use AVAHI_PROTO_UNSPEC if you don't care */
+    AvahiLookupFlags flags,                 /**< Lookup flags. */
+    AvahiSServiceResolverCallback calback,
+    void* userdata);
+
+/** Start querying on an AvahiSServiceResolver object */
+void avahi_s_service_resolver_start(AvahiSServiceResolver *r);
+
 /** Free an AvahiSServiceResolver object */
 void avahi_s_service_resolver_free(AvahiSServiceResolver *r);
 

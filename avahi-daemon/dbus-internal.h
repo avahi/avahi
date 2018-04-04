@@ -204,6 +204,7 @@ void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiI
 DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 
 void avahi_dbus_domain_browser_free(DomainBrowserInfo *i);
+void avahi_dbus_domain_browser_start(DomainBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,  void* userdata);
 

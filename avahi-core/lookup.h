@@ -171,6 +171,20 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
     AvahiSDomainBrowserCallback callback,
     void* userdata);
 
+/** Prepare a new AvahiSDomainBrowser object */
+AvahiSDomainBrowser *avahi_s_domain_browser_prepare(
+    AvahiServer *server,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *domain,
+    AvahiDomainBrowserType type,
+    AvahiLookupFlags flags,                 /**< Lookup flags. */
+    AvahiSDomainBrowserCallback callback,
+    void* userdata);
+
+/** Start querying on an AvahiSDomainBrowser object */
+void avahi_s_domain_browser_start(AvahiSDomainBrowser *b);
+
 /** Free an AvahiSDomainBrowser object */
 void avahi_s_domain_browser_free(AvahiSDomainBrowser *b);
 

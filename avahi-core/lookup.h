@@ -110,6 +110,20 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     AvahiSHostNameResolverCallback calback,
     void* userdata);
 
+/** Prepare an AvahiSHostNameResolver object for resolving a host name to an adddress. See AvahiSRecordBrowser for more info on the paramters. */
+AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(
+    AvahiServer *server,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *host_name,                  /**< The host name to look for */
+    AvahiProtocol aprotocol,                /**< The address family of the desired address or AVAHI_PROTO_UNSPEC if doesn't matter. */
+    AvahiLookupFlags flags,                 /**< Lookup flags. */
+    AvahiSHostNameResolverCallback calback,
+    void* userdata);
+
+/** Start querying on an AvahiSHostNameResolver object */
+void avahi_s_host_name_resolver_start(AvahiSHostNameResolver *r);
+
 /** Free a AvahiSHostNameResolver object */
 void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r);
 

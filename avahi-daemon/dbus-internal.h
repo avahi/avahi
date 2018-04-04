@@ -192,6 +192,7 @@ void avahi_dbus_sync_host_name_resolver_free(SyncHostNameResolverInfo *i);
 void avahi_dbus_sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata);
 
 void avahi_dbus_async_host_name_resolver_free(AsyncHostNameResolverInfo *i);
+void avahi_dbus_async_host_name_resolver_start(AsyncHostNameResolverInfo *i);
 void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata);
 DBusHandlerResult avahi_dbus_msg_async_host_name_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 

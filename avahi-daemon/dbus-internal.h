@@ -199,6 +199,7 @@ void avahi_dbus_sync_address_resolver_free(SyncAddressResolverInfo *i);
 void avahi_dbus_sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata);
 
 void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i);
+void avahi_dbus_async_address_resolver_start(AsyncAddressResolverInfo *i);
 void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata);
 DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 

@@ -359,7 +359,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     hnr = avahi_s_host_name_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "cname.local", AVAHI_PROTO_UNSPEC, 0, hnr_callback, NULL);
 
-    ar = avahi_s_address_resolver_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, avahi_address_parse("192.168.50.1", AVAHI_PROTO_INET, &a), 0, ar_callback, NULL);
+    ar = avahi_s_address_resolver_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, avahi_address_parse("192.168.50.1", AVAHI_PROTO_INET, &a), 0, ar_callback, NULL);
+    avahi_s_address_resolver_start(ar);
 
     db = avahi_s_domain_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, 0, db_callback, NULL);
 

@@ -134,6 +134,19 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     AvahiSAddressResolverCallback calback,
     void* userdata);
 
+/** Prepare an AvahiSAddressResolver object. See AvahiSRecordBrowser for more info on the paramters. */
+AvahiSAddressResolver *avahi_s_address_resolver_prepare(
+    AvahiServer *server,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const AvahiAddress *address,
+    AvahiLookupFlags flags,                 /**< Lookup flags. */
+    AvahiSAddressResolverCallback calback,
+    void* userdata);
+
+/** Start querying on an AvahiSAddressResolver object */
+void avahi_s_address_resolver_start(AvahiSAddressResolver *r);
+
 /** Free an AvahiSAddressResolver object */
 void avahi_s_address_resolver_free(AvahiSAddressResolver *r);
 

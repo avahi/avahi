@@ -480,13 +480,13 @@ GOBJECT_INTROSPECTION_CHECK([0.9.5])
 # Check for Qt 3
 #
 AC_ARG_ENABLE(qt3,
-        AS_HELP_STRING([--disable-qt3],[Disable building of Qt3 mainloop integration]),
+        AS_HELP_STRING([--enable-qt3],[Enable building of Qt3 mainloop integration]),
         [case "${enableval}" in
                 yes) HAVE_QT3=yes ;;
                 no)  HAVE_QT3=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt3) ;;
         esac],
-        [HAVE_QT3=yes])
+        [HAVE_QT3=no])
 
 if test "x$HAVE_QT3" = "xyes" ; then
         PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])

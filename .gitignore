@@ -32,3 +32,4 @@ ltmain.sh
 missing
 py-compile
 stamp-h1
+test-driver

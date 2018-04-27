@@ -16,6 +16,11 @@
 # USA.
 
 EXTRA_DIST = __init__.py ServiceTypeDatabase.py.in
+EXTRA_DIST += test.py
+
+TESTS =
+TEST_EXTENSIONS = .py
+PY_LOG_COMPILER = $(PYTHON)
 
 pkglibdatadir=$(libdir)/avahi
 
@@ -54,6 +59,8 @@ avahi_PYTHON = $(avahi_SCRIPTS)
 if HAVE_PYTHON_DBUS
 
 avahi_PYTHON += __init__.py
+
+TESTS += test.py
 
 endif
 endif

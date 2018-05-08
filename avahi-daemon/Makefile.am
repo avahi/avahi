@@ -77,7 +77,8 @@ dist_pkgdata_DATA = \
 	avahi-service.dtd
 
 %.service: %.service.in
-	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' \
+		-e 's,@avahi_runtime_dir\@,$(avahi_runtime_dir),g' $< > $@
 
 %.socket: %.socket.in
 	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' \

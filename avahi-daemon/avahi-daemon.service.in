@@ -26,6 +26,24 @@ ExecStart=@sbindir@/avahi-daemon -s
 ExecReload=@sbindir@/avahi-daemon -r
 NotifyAccess=main
 
+ProtectSystem=strict
+ReadWritePaths=@avahi_runtime_dir@/avahi-daemon/
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_ROUTE AF_INET AF_INET6
+RestrictNamespaces=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+
+# Syscall block list. Debugger calls might allow unprivileged process to
+# escape chroot. Also block a few unprivileged syscalls we don't need.
+SystemCallFilter=~@debug @obsolete
+
 [Install]
 WantedBy=multi-user.target
 Also=avahi-daemon.socket

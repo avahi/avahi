@@ -772,6 +772,8 @@ if test "x$HAVE_GDBM" = "xyes" ; then
         AC_MSG_ERROR([*** libgdbm not found ***])
     fi
     AC_DEFINE([HAVE_GDBM],[],[Support for GDBM])
+
+    AC_CHECK_MEMBER([gdbm_recovery.duplicate_keys], [have_gdbm_1_15=yes], [], [[#include <gdbm.h>]])
 else
     if test "x$HAVE_DBM" = "xyes" ; then
         AC_CHECK_HEADERS(ndbm.h, have_dbm=true, have_dbm=false)
@@ -784,6 +786,7 @@ else
 fi
 AM_CONDITIONAL(HAVE_GDBM, test "x$HAVE_GDBM" = "xyes")
 AM_CONDITIONAL(HAVE_DBM, test "x$HAVE_DBM" = "xyes")
+AM_CONDITIONAL(HAVE_DBM_SPLIT, [test "x$have_gdbm_1_15" = "xyes" || test "x$HAVE_DBM" = "xyes"])
 
 #
 # libdaemon

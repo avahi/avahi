@@ -22,9 +22,25 @@ pkglibdatadir=$(libdir)/avahi
 pkglibdata_DATA=
 
 if HAVE_PYTHON
-if HAVE_GDBM
 
 noinst_SCRIPTS=build-db
+
+if HAVE_DBM_SPLIT
+
+pkglibdata_DATA+=service-types.db.pag service-types.db.dir
+
+service-types.db.pag: service-types.db
+	$(AM_V_GEN)mv service-types.db.coming.pag service-types.db.pag
+service-types.db.dir: service-types.db
+	$(AM_V_GEN)mv service-types.db.coming.dir service-types.db.dir
+service-types.db: service-types
+	$(AM_V_GEN)$(PYTHON) build-db $< $@.coming && \
+	if test -f "$@.coming"; then mv $@.coming $@; fi
+
+CLEANFILES = service-types.db*
+
+else
+
 pkglibdata_DATA+=service-types.db
 
 service-types.db: service-types
@@ -32,22 +48,6 @@ service-types.db: service-types
 	mv $@.coming $@
 
 CLEANFILES = service-types.db
-
-endif
-if HAVE_DBM
-
-noinst_SCRIPTS=build-db
-pkglibdata_DATA+=service-types.db.pag service-types.db.dir
-
-service-types.db.pag: service-types.db
-	$(AM_V_GEN)mv service-types.db.coming.pag service-types.db.pag
-service-types.db.dir: service-types.db
-	$(AM_V_GEN)mv service-types.db.coming.dir service-types.db.dir
-service-types.db: service-types build-db
-	$(AM_V_GEN)$(PYTHON) build-db $< $@.coming && \
-	if test -f "$@.coming"; then mv $@.coming $@; fi
-
-CLEANFILES = service-types.db*
 
 endif
 endif

@@ -235,13 +235,13 @@ static int ipv4_pktinfo(int fd) {
 
 #ifdef IP_RECVINTERFACE
     yes = 1;
-    if (setsockopt (fd, IPPROTO_IP, IP_RECVINTERFACE, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, IPPROTO_IP, IP_RECVINTERFACE, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IP_RECVINTERFACE failed: %s", strerror(errno));
         return -1;
     }
 #elif defined(IP_RECVIF)
     yes = 1;
-    if (setsockopt (fd, IPPROTO_IP, IP_RECVIF, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, IPPROTO_IP, IP_RECVIF, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IP_RECVIF failed: %s", strerror(errno));
         return -1;
     }
@@ -249,7 +249,7 @@ static int ipv4_pktinfo(int fd) {
 
 #ifdef IP_RECVDSTADDR
     yes = 1;
-    if (setsockopt (fd, IPPROTO_IP, IP_RECVDSTADDR, &yes, sizeof(yes)) < 0) {
+    if (setsockopt(fd, IPPROTO_IP, IP_RECVDSTADDR, &yes, sizeof(yes)) < 0) {
         avahi_log_warn("IP_RECVDSTADDR failed: %s", strerror(errno));
         return -1;
     }

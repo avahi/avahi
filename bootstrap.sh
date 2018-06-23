@@ -36,14 +36,14 @@ case `uname -s` in
     export CFLAGS="-I/usr/local/include"
     export LDFLAGS="-L/usr/local/lib"
     export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-    FLAGS="$FLAGS --prefix=/opt/ --with-distro=none --disable-python --disable-dbus --disable-glib --disable-gtk"
+    FLAGS="$FLAGS --prefix=/opt/ --with-distro=none --disable-python --disable-dbus --disable-glib --disable-gtk --disable-libevent"
     ;;
     NetBSD)
     export LIBTOOLIZE=libtoolize
     export CFLAGS="-I/usr/pkg/include"
     export LDFLAGS="-L/usr/pkg/lib"
     export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt4 --disable-xmltoman --prefix=/opt --with-distro=none --disable-python --disable-glib --disable-gtk --disable-manpages"
+    FLAGS="$FLAGS --disable-monodoc --disable-mono --disable-qt4 --disable-xmltoman --prefix=/opt --with-distro=none --disable-python --disable-glib --disable-gtk --disable-manpages --disable-libevent"
     ;;
     Linux)
     ;;

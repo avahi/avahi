@@ -40,6 +40,7 @@ EXTRA_DIST = \
 	avahi-core.pc.in \
 	avahi-client.pc.in \
 	avahi-glib.pc.in \
+	avahi-libevent.pc.in \
 	avahi-gobject.pc.in \
 	avahi-qt3.pc.in \
 	avahi-qt4.pc.in \
@@ -77,6 +78,7 @@ SUBDIRS = \
 	avahi-autoipd \
 	avahi-ui \
 	avahi-ui-sharp \
+	avahi-libevent \
 	po
 
 DX_INPUT = \
@@ -155,6 +157,11 @@ DX_INPUT += \
 	$(srcdir)/avahi-ui/avahi-ui.h
 endif
 
+if HAVE_LIBEVENT
+DX_INPUT += \
+	$(srcdir)/avahi-libevent/libevent-watch.h
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 
 %.pc: %.pc.in
@@ -224,6 +231,11 @@ endif
 if HAVE_QT5
 pkgconfig_DATA += avahi-qt5.pc
 CLEANFILES += avahi-qt5.pc
+endif
+
+if HAVE_LIBEVENT
+pkgconfig_DATA += avahi-libevent.pc
+CLEANFILES += avahi-libevent.pc
 endif
 
 CLEANFILES += avahi.devhelp

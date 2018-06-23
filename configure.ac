@@ -31,6 +31,7 @@ AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:3:5])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [7:2:0])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:9:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:2:0])
+AC_SUBST(LIBAVAHI_LIBEVENT_VERSION_INFO, [1:0:0])
 AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:5:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
@@ -475,6 +476,25 @@ AM_CONDITIONAL(HAVE_GOBJECT, test "x$HAVE_GOBJECT" = "xyes")
 # Introspection support.
 #
 GOBJECT_INTROSPECTION_CHECK([0.9.5])
+
+#
+# Check for libevent 2.0.21
+#
+AC_ARG_ENABLE(libevent,
+	AS_HELP_STRING([--disable-libevent],[Disable use of libevent]),
+	[case "${enableval}" in
+		yes) HAVE_LIBEVENT=yes ;;
+		no)  HAVE_LIBEVENT=no ;;
+		*) AC_MSG_ERROR(bad value ${enableval} for --enable-libevent) ;;
+	esac],
+	[HAVE_LIBEVENT=yes])
+
+if test "x$HAVE_LIBEVENT" = "xyes" ; then
+	PKG_CHECK_MODULES(LIBEVENT, [ libevent >= 2.0.21 ])
+	AC_SUBST(LIBEVENT_CFLAGS)
+	AC_SUBST(LIBEVENT_LIBS)
+fi
+AM_CONDITIONAL(HAVE_LIBEVENT, test "x$HAVE_LIBEVENT" = "xyes")
 
 #
 # Check for Qt 3
@@ -1152,6 +1172,7 @@ avahi-compat-howl/Makefile
 avahi-compat-howl/samples/Makefile
 avahi-autoipd/Makefile
 avahi-ui/Makefile
+avahi-libevent/Makefile
 po/Makefile.in
 ])
 AC_OUTPUT
@@ -1262,4 +1283,5 @@ echo "\
     Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
     Building avahi-autoipd:             ${ENABLE_AUTOIPD}
     Building libavahi-ui:               ${BUILD_UI}
+    Building libavahi-libevent:		${HAVE_LIBEVENT}
 "

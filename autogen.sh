@@ -40,7 +40,7 @@ run_versioned() {
     "$P" "$@"
 }
 
-set -ex
+set -e
 
 test -n "$srcdir" || srcdir=$(dirname "$0")
 test -n "$srcdir" || srcdir=.

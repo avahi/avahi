@@ -50,6 +50,13 @@ void avahi_dbus_async_service_resolver_free(AsyncServiceResolverInfo *i) {
     avahi_free(i);
 }
 
+void avahi_dbus_async_service_resolver_repeat_items(AsyncServiceResolverInfo *i) {
+    assert(i);
+
+	if(i->service_resolver)
+		avahi_s_service_resolver_repeat_items(i->service_resolver);
+}
+
 void avahi_dbus_async_service_resolver_callback(
     AvahiSServiceResolver *r,
     AvahiIfIndex interface,
@@ -168,6 +175,18 @@ DBusHandlerResult avahi_dbus_msg_async_service_resolver_impl(DBusConnection *c, 
         avahi_dbus_async_service_resolver_free(i);
         return avahi_dbus_respond_ok(c, m);
     }
+
+    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER, "RepeatItems")) {
+
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing ServiceResolver::RepeatItems message");
+            goto fail;
+        }
+
+        avahi_dbus_async_service_resolver_repeat_items(i);
+        return avahi_dbus_respond_ok(c, m);
+    }
+
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

@@ -50,6 +50,13 @@ void avahi_dbus_domain_browser_free(DomainBrowserInfo *i) {
     avahi_free(i);
 }
 
+void avahi_dbus_domain_browser_repeat_items(DomainBrowserInfo *i) {
+	assert(i);
+
+	if(i->domain_browser)
+		avahi_s_domain_browser_repeat_items(i->domain_browser);
+}
+
 DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
     DBusError error;
     DomainBrowserInfo *i = userdata;
@@ -81,6 +88,18 @@ DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMess
         }
 
         avahi_dbus_domain_browser_free(i);
+        return avahi_dbus_respond_ok(c, m);
+
+    }
+
+    if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "RepeatItems")) {
+
+        if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
+            avahi_log_warn("Error parsing DomainBrowser::Free message");
+            goto fail;
+        }
+
+        avahi_dbus_domain_browser_repeat_items(i);
         return avahi_dbus_respond_ok(c, m);
 
     }

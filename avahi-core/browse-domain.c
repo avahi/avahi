@@ -233,3 +233,10 @@ void avahi_s_domain_browser_free(AvahiSDomainBrowser *b) {
 
     avahi_free(b);
 }
+
+void avahi_s_domain_browser_repeat_items(AvahiSDomainBrowser *b) {
+    assert(b);
+
+    if(b->record_browser)
+        avahi_s_record_browser_restart(b->record_browser);
+}

@@ -577,6 +577,12 @@ void avahi_s_record_browser_free(AvahiSRecordBrowser *b) {
     browser_cancel(b);
 }
 
+void avahi_s_record_browser_repeat_items(AvahiSRecordBrowser *b) {
+    assert(b);
+
+    avahi_s_record_browser_restart(b);
+}
+
 void avahi_s_record_browser_destroy(AvahiSRecordBrowser *b) {
     assert(b);
 

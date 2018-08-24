@@ -75,6 +75,9 @@ AvahiSRecordBrowser *avahi_s_record_browser_new(
 /** Free an AvahiSRecordBrowser object */
 void avahi_s_record_browser_free(AvahiSRecordBrowser *b);
 
+/** Repeat a AvahiSServiceTypeBrowserCallback */
+void avahi_s_record_browser_repeat_items(AvahiSRecordBrowser *b);
+
 /** Callback prototype for AvahiSHostNameResolver events */
 typedef void (*AvahiSHostNameResolverCallback)(
     AvahiSHostNameResolver *r,
@@ -100,6 +103,9 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
 /** Free a AvahiSHostNameResolver object */
 void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r);
 
+/** Repeat a AvahiSHostNameResolverCallback */
+void avahi_s_host_name_resolver_repeat_items(AvahiSHostNameResolver *r);
+
 /** Callback prototype for AvahiSAddressResolver events */
 typedef void (*AvahiSAddressResolverCallback)(
     AvahiSAddressResolver *r,
@@ -123,6 +129,9 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
 
 /** Free an AvahiSAddressResolver object */
 void avahi_s_address_resolver_free(AvahiSAddressResolver *r);
+
+/** Repeat a AvahiSAddressResolverCallback */
+void avahi_s_address_resolver_repeat_items(AvahiSAddressResolver *r);
 
 /** Callback prototype for AvahiSDomainBrowser events */
 typedef void (*AvahiSDomainBrowserCallback)(
@@ -148,6 +157,9 @@ AvahiSDomainBrowser *avahi_s_domain_browser_new(
 /** Free an AvahiSDomainBrowser object */
 void avahi_s_domain_browser_free(AvahiSDomainBrowser *b);
 
+/** Repeat a AvahiSDomainBrowserCallback */
+void avahi_s_domain_browser_repeat_items(AvahiSDomainBrowser *b);
+
 /** Callback prototype for AvahiSServiceTypeBrowser events */
 typedef void (*AvahiSServiceTypeBrowserCallback)(
     AvahiSServiceTypeBrowser *b,
@@ -171,6 +183,9 @@ AvahiSServiceTypeBrowser *avahi_s_service_type_browser_new(
 
 /** Free an AvahiSServiceTypeBrowser object */
 void avahi_s_service_type_browser_free(AvahiSServiceTypeBrowser *b);
+
+/** Repeat a AvahiSServiceTypeBrowserCallback */
+void avahi_s_service_type_browser_repeat_items(AvahiSServiceTypeBrowser *b);
 
 /** Callback prototype for AvahiSServiceBrowser events */
 typedef void (*AvahiSServiceBrowserCallback)(
@@ -197,6 +212,9 @@ AvahiSServiceBrowser *avahi_s_service_browser_new(
 
 /** Free an AvahiSServiceBrowser object */
 void avahi_s_service_browser_free(AvahiSServiceBrowser *b);
+
+/** Repeat a AvahiSServiceBrowserCallback */
+void avahi_s_service_browser_repeat_items(AvahiSServiceBrowser *b);
 
 /** Callback prototype for AvahiSServiceResolver events */
 typedef void (*AvahiSServiceResolverCallback)(
@@ -229,6 +247,9 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
 
 /** Free an AvahiSServiceResolver object */
 void avahi_s_service_resolver_free(AvahiSServiceResolver *r);
+
+/** Repeat a AvahiSServiceResolverCallback */
+void avahi_s_service_resolver_repeat_items(AvahiSServiceResolver *r);
 
 AVAHI_C_DECL_END
 

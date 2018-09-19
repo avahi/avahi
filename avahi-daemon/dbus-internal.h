@@ -46,6 +46,7 @@ typedef struct RecordBrowserInfo RecordBrowserInfo;
 #define DEFAULT_CLIENTS_MAX 4096
 #define DEFAULT_OBJECTS_PER_CLIENT_MAX 1024
 #define DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX 32
+#define DEFAULT_START_DELAY_MS 10
 
 struct EntryGroupInfo {
     unsigned id;
@@ -259,5 +260,15 @@ void avahi_dbus_record_browser_free(RecordBrowserInfo *i);
 void avahi_dbus_record_browser_start(RecordBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_record_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_record_browser_callback(AvahiSRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, AvahiLookupResultFlags flags, void* userdata);
+
+
+#define GET_DBUS_DELAY_FUNC(object_type, object_name) dbus_delay_##object_type##_##object_name##_start
+
+#define CREATE_DBUS_DELAY_FUNC(object_type, object_name, start_func) \
+static void GET_DBUS_DELAY_FUNC(object_type, object_name)(AVAHI_GCC_UNUSED AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) { \
+    object_type *data; \
+    data = userdata; \
+    start_func(data->object_name); \
+}\
 
 #endif

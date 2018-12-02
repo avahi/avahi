@@ -152,17 +152,12 @@ AvahiStringList* avahi_string_list_reverse(AvahiStringList *l) {
  *     record but does not discuss formatting of TXT records in
  *     general.
  *
- * This routine, therefore:
+ * In order to also escape newlines, which interfere with line-by-line
+ * machine processing of records, this routine:
  *
  *   - escapes >>> " <<< to >>> \" <<<
  *   - escapes >>> \ <<< to >>> \\ <<<
- *   - leaves control characters such as LF, CR alone.
- *   - treats a NUL in a string as a terminator (!), even though in general
- *     DNS places no restrictions on NUL bytes in TXT record RDATA.
- *
- * This is minimally acceptable for machine-readable output, in that
- * it at least distinguishes a string-closing double-quote from an
- * embedded double-quote.
+ *   - escapes bytes less than 32 to backslash-prefixed 3-digit DECIMAL form
  */
 char* avahi_string_list_to_string(AvahiStringList *l) {
     AvahiStringList *n;
@@ -173,15 +168,19 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
         if (n != l)
             s ++; /* for the inter-string separating space */
 
-        for (p = (char*) n->text; (((size_t) (p - (char*) n->text) < n->size) && (*p != '\0')); p++) {
+        for (p = (char*) n->text; ((size_t) (p - (char*) n->text) < n->size); p++) {
             switch (*p) {
               case '"':
               case '\\':
                   s += 2;
                   break;
               default:
-                  s ++;
-                  break;
+                  if (*p < 32) {
+                      s += 4;
+                  } else {
+                      s ++;
+                      break;
+                  }
             }
         }
         s += 2; /* for the leading and trailing double-quotes */
@@ -197,14 +196,21 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
             *(e++) = ' ';
 
         *(e++) = '"';
-        for (p = (char*) n->text; (((size_t) (p - (char*) n->text) < n->size) && (*p != '\0')); p++) {
+        for (p = (char*) n->text; ((size_t) (p - (char*) n->text) < n->size); p++) {
             switch (*p) {
               case '"':
               case '\\':
                   *(e++) = '\\';
                   /* FALL THROUGH */
               default:
-                  *(e++) = *p;
+                  if (*p < 32) {
+                      *(e++) = '\\';
+                      *(e++) = '0' + (char)  ((uint8_t) *p / 100);
+                      *(e++) = '0' + (char) (((uint8_t) *p / 10) % 10);
+                      *(e++) = '0' + (char)  ((uint8_t) *p % 10);
+                  } else {
+                      *(e++) = *p;
+                  }
             }
         }
         *(e++) = '"';

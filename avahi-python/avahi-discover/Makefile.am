@@ -34,18 +34,19 @@ if HAVE_GDBM
 pythonscripts += \
 	avahi-discover
 desktop_DATA += avahi-discover.desktop
-@INTLTOOL_DESKTOP_RULE@
 endif
 
 if HAVE_DBM
 pythonscripts += \
 	avahi-discover
 desktop_DATA += avahi-discover.desktop
-@INTLTOOL_DESKTOP_RULE@
 endif
 
 avahi-discover.desktop.in: avahi-discover.desktop.in.in
 	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
+
+avahi-discover.desktop: avahi-discover.desktop.in
+	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
 
 avahi-discover: avahi-discover.py
 	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \

@@ -1,6 +1,3 @@
-intltool-extract.in
-intltool-merge.in
-intltool-update.in
 *.tar.gz
 doxygen
 Makefile

@@ -260,6 +260,3 @@ homepage:
 	$(MAKE) doxygen-run
 	ssh tango rm -rf www/avahi.org/tree/download/doxygen
 	scp -r doxygen/html tango:www/avahi.org/tree/download/doxygen
-
-DISTCLEANFILES = \
-	po/.intltool-merge-cache

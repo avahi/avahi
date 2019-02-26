@@ -1,5 +1,4 @@
 *.pot
-.intltool-merge-cache
 ChangeLog
 Makefile
 Makefile.in

@@ -70,7 +70,6 @@ else
 
     test "x$LIBTOOLIZE" = "x" && LIBTOOLIZE=libtoolize
 
-    intltoolize --copy --force --automake
     "$LIBTOOLIZE" -c --force
     run_versioned aclocal "$AM_VERSION" -I common
     run_versioned autoconf "$AC_VERSION" -Wall

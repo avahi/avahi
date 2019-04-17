@@ -41,7 +41,7 @@ Abstract
    is becoming essential.
 
    Multicast DNS (mDNS) provides the ability to do DNS-like operations
-   on the local link in the absense of any conventional unicast DNS
+   on the local link in the absence of any conventional unicast DNS
    server. In addition, mDNS designates a portion of the DNS namespace
    to be free for local use, without the need to pay any annual fee, and
    without the need to set up delegations or otherwise configure a

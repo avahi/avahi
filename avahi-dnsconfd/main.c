@@ -242,7 +242,7 @@ static void set_env(const char *name, const char *value) {
         if (strncmp(*e, name, l) != 0 || (*e)[l] != '=')
             continue;
 
-        /* We simply free the record, sicne we know that we created it previously */
+        /* We simply free the record, since we know that we created it previously */
         avahi_free(*e);
         *e = avahi_strdup_printf("%s=%s", name, value);
         return;

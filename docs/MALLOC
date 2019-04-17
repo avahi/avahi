@@ -1,4 +1,4 @@
-Avahi supports pluggable memory allocator implemenations. See
+Avahi supports pluggable memory allocator implementations. See
 <avahi-common/malloc.h> for more information.
 
 Currently, Avahi does not deal well with out-of-memory

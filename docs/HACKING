@@ -1,6 +1,6 @@
 Please comply with the following rules when hacking on Avahi:
 
- * Before commiting check with "git st" that all built files are ignored
+ * Before committing check with "git st" that all built files are ignored
    by git. To change the list of ignored files use
 
        $VISUAL .gitignore
@@ -20,10 +20,10 @@ Please comply with the following rules when hacking on Avahi:
 
  * Never forget that Avahi should be buildable without DBUS, GTK or python!
 
- * Before commiting, test your code! In case of C consider running it
+ * Before committing, test your code! In case of C consider running it
    a few times through valgrind, to make sure that you got everything
    right.  You have to call libtool explicitly when running valgrind
-   on binaries that depend on shared objects. e.g:
+   on binaries that depend on shared objects. e.g.:
 
        libtool --mode=execute valgrind ./avahi-daemon
 

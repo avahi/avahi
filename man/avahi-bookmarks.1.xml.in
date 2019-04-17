@@ -51,9 +51,9 @@
       <option>
         <p><opt>-H | --host-names</opt></p>
         <optdesc><p>Create links pointing to mDNS host names instead
-        of resolved IP addreses. This is only compatible with your
+        of resolved IP addresses. This is only compatible with your
         browser if you run some kind of local NSS module to resolve
-        mDNS host names (e.g. nss-mdns). If both -A and -H are ommited
+        mDNS host names (e.g. nss-mdns). If both -A and -H are omitted
         avahi-bookmarks detects whether NSS support is available
         locally. This option conflicts with -A.</p></optdesc>
       </option>
@@ -62,7 +62,7 @@
         <p><opt>-A | --addresses</opt></p>
         <optdesc><p>Create links pointing to numeric IP addresses
         instead of mDNS host names. This will break access to hosts
-        running virtual servers. If both -A and -H are ommited
+        running virtual servers. If both -A and -H are omitted
         avahi-bookmarks detects whether NSS support is available
         locally. This option conflicts with -H.</p></optdesc>
       </option>

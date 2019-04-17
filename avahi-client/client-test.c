@@ -163,7 +163,7 @@ static void avahi_host_name_resolver_callback (
 ar = avahi_address_resolver_new(client, interface, protocol, a, 0, avahi_address_resolver_callback, (char*) "omghai6u");
     if (ar)
     {
-        printf ("Succesfully created address resolver object\n");
+        printf ("Successfully created address resolver object\n");
     } else {
         printf ("Failed to create AddressResolver\n");
     }
@@ -253,7 +253,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     assert(group);
 
-    printf("Sucessfully created entry group %p\n", (void*) group);
+    printf("Successfully created entry group %p\n", (void*) group);
 
     printf("%s\n", avahi_strerror(avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar", NULL)));
     printf("add_record: %d\n", avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", 0x01, 0x10, 120, "\5booya", 6));
@@ -265,19 +265,19 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     if (domain == NULL)
         printf ("Failed to create domain browser object\n");
     else
-        printf ("Sucessfully created domain browser %p\n", (void*) domain);
+        printf ("Successfully created domain browser %p\n", (void*) domain);
 
     st = avahi_service_type_browser_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, 0, avahi_service_type_browser_callback, (char*) "omghai3u");
     if (st == NULL)
         printf ("Failed to create service type browser object\n");
     else
-        printf ("Sucessfully created service type browser %p\n", (void*) st);
+        printf ("Successfully created service type browser %p\n", (void*) st);
 
     sb = avahi_service_browser_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, avahi_service_browser_callback, (char*) "omghai3u");
     if (sb == NULL)
         printf ("Failed to create service browser object\n");
     else
-        printf ("Sucessfully created service browser %p\n", (void*) sb);
+        printf ("Successfully created service browser %p\n", (void*) sb);
 
     hnr = avahi_host_name_resolver_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "ecstasy.local", AVAHI_PROTO_UNSPEC, 0, avahi_host_name_resolver_callback, (char*) "omghai4u");
     if (hnr == NULL)

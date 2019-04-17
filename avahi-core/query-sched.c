@@ -281,7 +281,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     s = qj->scheduler;
 
     if (qj->done) {
-        /* Lets remove it  from the history */
+        /* Let's remove it  from the history */
         job_free(s, qj);
         return;
     }
@@ -398,7 +398,7 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
 
     /* This function is called whenever an incoming query was
      * received. We drop scheduled queries that match. The keyword is
-     * "DUPLICATE QUESTION SUPPRESION". */
+     * "DUPLICATE QUESTION SUPPRESSION". */
 
     if ((qj = find_scheduled_job(s, key))) {
         job_mark_done(s, qj);

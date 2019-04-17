@@ -447,7 +447,7 @@ Internet Draft               Multicast DNS                 7th June 2005
      are necessarily deemed to have originated on the local link,
      regardless of source IP address. This is essential to allow devices
      to work correctly and reliably in unusual configurations, such as
-     multiple logical IP subnets overlayed on a single link, or in cases
+     multiple logical IP subnets overlaid on a single link, or in cases
      of severe misconfiguration, where devices are physically connected
      to the same link, but are currently misconfigured with completely
      unrelated IP addresses and subnet masks.
@@ -464,7 +464,7 @@ Internet Draft               Multicast DNS                 7th June 2005
    Since queriers will ignore responses apparently originating outside
    the local subnet, responders SHOULD avoid generating responses that
    it can reasonably predict will be ignored. This applies particularly
-   in the case of overlayed subnets. If a responder receives a query
+   in the case of overlaid subnets. If a responder receives a query
    addressed to the link-local multicast address 224.0.0.251, from a
    source address not apparently on the same subnet as the responder,
    then even if the query indicates that a unicast response is preferred
@@ -2307,7 +2307,7 @@ Internet Draft               Multicast DNS                 7th June 2005
      addresses, to choose to fail-over to a single multicast response in
      place of multiple unicast responses, when appropriate.
 
-   * In the case of overlayed subnets and other misconfigurations,
+   * In the case of overlaid subnets and other misconfigurations,
      multicast responses allow a receiver to know with certainty that
      a response originated on the local link, even when its source
      address may apparently suggest otherwise. This can be extremely

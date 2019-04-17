@@ -118,11 +118,11 @@ const char* avahi_server_get_host_name(AvahiServer *s);
 const char* avahi_server_get_host_name_fqdn(AvahiServer *s);
 
 /** Change the host name of a running mDNS responder. This will drop
-all automicatilly generated RRs and readd them with the new
+all automatically generated RRs and re-add them with the new
 name. Since the responder has to probe for the new RRs this function
-takes some time to take effect altough it returns immediately. This
+takes some time to take effect although it returns immediately. This
 function is intended to be called when a host name conflict is
-reported using AvahiServerCallback. The caller should readd all user
+reported using AvahiServerCallback. The caller should re-add all user
 defined RRs too since they otherwise continue to point to the outdated
 host name..*/
 int avahi_server_set_host_name(AvahiServer *s, const char *host_name);

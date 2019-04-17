@@ -972,7 +972,7 @@ static void service_resolver_callback(
 
             /* Apparently there is no way in HOWL to inform about failed resolvings ... */
 
-            avahi_warn("A service failed to resolve in the HOWL compatiblity layer of Avahi which is used by '%s'. "
+            avahi_warn("A service failed to resolve in the HOWL compatibility layer of Avahi which is used by '%s'. "
                        "Since the HOWL API doesn't offer any means to inform the application about this, we have to ignore the failure. "
                        "Please fix your application to use the native API of Avahi!",
                        avahi_exe_name());

@@ -41,7 +41,7 @@ namespace Avahi
     }
 
     public enum EntryGroupState {
-        Uncommited,
+        Uncommitted,
         Registering,
         Established,
         Collision,

@@ -5,7 +5,7 @@
 # Required-Start: $network messagebus
 # Required-Stop: $network messagebus
 # Default-Start: 3 5
-# Description: Avahi, a ZeroConf daemon whichs implements an mDNS stack 
+# Description: Avahi, a ZeroConf daemon which implements an mDNS stack 
 ### END INIT INFO
 
 AVAHI_BIN=@sbindir@/avahi-daemon

@@ -421,7 +421,7 @@ static void reannounce(AvahiAnnouncer *a) {
     assert(a);
     e = a->entry;
 
-    /* If the group this entry belongs to is not even commited, there's nothing to reannounce */
+    /* If the group this entry belongs to is not even committed, there's nothing to reannounce */
     if (e->group && (e->group->state == AVAHI_ENTRY_GROUP_UNCOMMITED || e->group->state == AVAHI_ENTRY_GROUP_COLLISION))
         return;
 

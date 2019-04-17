@@ -26,7 +26,7 @@ set -e
 #          UNBIND:   The IP address is no longer needed
 #          STOP:     The daemon is terminating
 #   $2 interface name
-#   $3 IP adddress
+#   $3 IP address
 
 # We have the BSD ifconfig tool
 

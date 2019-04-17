@@ -123,7 +123,7 @@ main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[])
     /* Make a call to get the version string from the daemon */
     version = avahi_client_get_version_string (client);
 
-    /* Check if the call suceeded */
+    /* Check if the call succeeded */
     if (version == NULL)
     {
         g_warning ("Error getting version string: %s", avahi_strerror (avahi_client_errno (client)));

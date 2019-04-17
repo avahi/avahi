@@ -379,9 +379,9 @@ Internet Draft       DNS-Based Service Discovery      14th February 2004
    with the <Instance> portion, since it is allowed to contain any
    characters, including dots.
 
-   Any dots in the <Instance> portion should be escaped by preceeding
+   Any dots in the <Instance> portion should be escaped by preceding
    them with a backslash ("." becomes "\."). Likewise, any backslashes
-   in the <Instance> portion should also be escaped by preceeding them
+   in the <Instance> portion should also be escaped by preceding them
    with a backslash ("\" becomes "\\"). Having done this, the three
    components of the name may be safely concatenated. The
    backslash-escaping allows literal dots in the name (escaped) to be

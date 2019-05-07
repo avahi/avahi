@@ -42,7 +42,8 @@ except Exception as e:
 ##
 try:
     from dbus import DBusException
-    import dbus.glib
+    from dbus.mainloop.glib import DBusGMainLoop
+    DBusGMainLoop(set_as_default=True)
 except ImportError as e:
     pass
 

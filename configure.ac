@@ -1094,6 +1094,20 @@ AC_ARG_ENABLE(tests,
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$ENABLE_TESTS" = "xyes"])
 
 #
+# Conditionally compile avahi fuzzer
+#
+AC_ARG_ENABLE(fuzzer,
+        AS_HELP_STRING([--enable-fuzzer],[Enable building of Fuzzer]),
+        [case "${enableval}" in
+                yes) ENABLE_FUZZER=yes ;;
+                no)  ENABLE_FUZZER=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-fuzzer) ;;
+        esac],
+        [ENABLE_FUZZER=no])
+
+AM_CONDITIONAL([ENABLE_FUZZER], [test "x$ENABLE_FUZZER" = "xyes"])
+
+#
 # Optionally enable libdns_sd compatibility support
 #
 AC_ARG_ENABLE(compat-libdns_sd,
@@ -1284,4 +1298,5 @@ echo "\
     Building avahi-autoipd:             ${ENABLE_AUTOIPD}
     Building libavahi-ui:               ${BUILD_UI}
     Building libavahi-libevent:		${HAVE_LIBEVENT}
+    Building Fuzzer:                    ${ENABLE_FUZZER}
 "

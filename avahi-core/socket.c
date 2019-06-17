@@ -64,12 +64,14 @@
 #endif
 #endif
 
+static int avahi_mdns_port = 5353;
+
 static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     assert(ret_sa);
 
     memset(ret_sa, 0, sizeof(struct sockaddr_in));
     ret_sa->sin_family = AF_INET;
-    ret_sa->sin_port = htons(AVAHI_MDNS_PORT);
+    ret_sa->sin_port = htons(get_mdns_port());
     inet_pton(AF_INET, AVAHI_IPV4_MCAST_GROUP, &ret_sa->sin_addr);
 }
 
@@ -78,7 +80,7 @@ static void mdns_mcast_group_ipv6(struct sockaddr_in6 *ret_sa) {
 
     memset(ret_sa, 0, sizeof(struct sockaddr_in6));
     ret_sa->sin6_family = AF_INET6;
-    ret_sa->sin6_port = htons(AVAHI_MDNS_PORT);
+    ret_sa->sin6_port = htons(get_mdns_port());
     inet_pton(AF_INET6, AVAHI_IPV6_MCAST_GROUP, &ret_sa->sin6_addr);
 }
 
@@ -338,7 +340,7 @@ int avahi_open_socket_ipv4(int no_reuse) {
 
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
-    local.sin_port = htons(AVAHI_MDNS_PORT);
+    local.sin_port = htons(get_mdns_port());
 
     if (no_reuse)
         r = bind(fd, (struct sockaddr*) &local, sizeof(local));
@@ -350,6 +352,17 @@ int avahi_open_socket_ipv4(int no_reuse) {
 
     if (ipv4_pktinfo (fd) < 0)
          goto fail;
+
+    if (get_mdns_port() == 0) {
+        struct sockaddr_in sin;
+        socklen_t len = sizeof(sin);
+        if (getsockname(fd, (struct sockaddr *) &sin, &len) == -1) {
+            perror("getsockname");
+        }
+        else {
+            set_mdns_port(ntohs(sin.sin_port));
+        }
+    }
 
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
@@ -408,7 +421,7 @@ int avahi_open_socket_ipv6(int no_reuse) {
 
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
-    local.sin6_port = htons(AVAHI_MDNS_PORT);
+    local.sin6_port = htons(get_mdns_port());
 
     if (no_reuse)
         r = bind(fd, (struct sockaddr*) &local, sizeof(local));
@@ -420,6 +433,17 @@ int avahi_open_socket_ipv6(int no_reuse) {
 
     if (ipv6_pktinfo(fd) < 0)
         goto fail;
+
+    if (get_mdns_port() == 0) { // If port was zero, it was ephemeral and now needs to change to the actual (testing only)
+        struct sockaddr_in6 sin;
+        socklen_t len = sizeof(sin);
+        if (getsockname(fd, (struct sockaddr *) &sin, &len) == -1) {
+            perror("getsockname");
+        }
+        else {
+            set_mdns_port(ntohs(sin.sin6_port));
+        }
+    }
 
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
@@ -783,6 +807,14 @@ fail:
         avahi_dns_packet_free(p);
 
     return NULL;
+}
+
+void set_mdns_port(int port) {
+  avahi_mdns_port = port;
+}
+
+int get_mdns_port(void) {
+  return avahi_mdns_port;
 }
 
 AvahiDnsPacket *avahi_recv_dns_packet_ipv6(

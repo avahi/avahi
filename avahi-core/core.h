@@ -79,6 +79,14 @@ AvahiServer *avahi_server_new(
     void* userdata,                /**< An opaque pointer which is passed to the callback function */
     int *error);
 
+/** Allocate a new mDNS responder object. - Test only */
+AvahiServer *avahi_server_unreg_running(
+    const AvahiPoll *poll_api,
+    const AvahiServerConfig *sc,
+    AvahiServerCallback callback,
+    void* userdata,
+    int *error);
+
 /** Free an mDNS responder object */
 void avahi_server_free(AvahiServer* s);
 

@@ -31,6 +31,24 @@ core_browse_services_SOURCES = core-browse-services.c
 core_browse_services_CFLAGS = $(AM_CFLAGS)
 core_browse_services_LDADD = $(AM_LDADD) ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la
 
+
+if ENABLE_FUZZER
+if ENABLE_TESTS
+noinst_PROGRAMS += \
+	client-publish-service \
+	client-browse-services \
+	recv_fuzzer
+else
+noinst_PROGRAMS = recv_fuzzer
+endif
+
+recv_fuzzer_SOURCES = recv_fuzzer.c
+recv_fuzzer_CFLAGS = $(AM_CFLAGS) -fsanitize=fuzzer
+recv_fuzzer_LDADD = $(AM_LDADD)  ../avahi-core/libavahi-core.la ../avahi-common/libavahi-common.la  $(LIBDAEMON_LIBS) $(XML_LIBS)
+recv_fuzzer_LDFLAGS = -fsanitize=fuzzer
+
+endif
+
 if HAVE_DBUS
 if ENABLE_TESTS
 

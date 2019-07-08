@@ -122,10 +122,8 @@ static void next_state(AvahiAnnouncer *a) {
         if (a->n_iteration >= 4) {
             /* Probing done */
 
-            if (a->entry->group) {
-                assert(a->entry->group->n_probing);
+            if (a->entry->group && a->entry->group->n_probing > 0)
                 a->entry->group->n_probing--;
-            }
 
             if (a->entry->group && a->entry->group->state == AVAHI_ENTRY_GROUP_REGISTERING)
                 a->state = AVAHI_WAITING;
@@ -195,7 +193,7 @@ static AvahiAnnouncer *get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterfa
     return NULL;
 }
 
-static void go_to_initial_state(AvahiAnnouncer *a) {
+static void go_to_initial_state(AvahiAnnouncer *a, int increase_probing) {
     AvahiEntry *e;
     struct timeval tv;
 
@@ -217,7 +215,7 @@ static void go_to_initial_state(AvahiAnnouncer *a) {
     a->n_iteration = 1;
     a->sec_delay = 1;
 
-    if (a->state == AVAHI_PROBING && e->group)
+    if (a->state == AVAHI_PROBING && e->group && (e->group->n_probing == 0 || increase_probing))
         e->group->n_probing++;
 
     if (a->state == AVAHI_PROBING)
@@ -228,7 +226,7 @@ static void go_to_initial_state(AvahiAnnouncer *a) {
         set_timeout(a, NULL);
 }
 
-static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
+static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, int increase_probing) {
     AvahiAnnouncer *a;
 
     assert(s);
@@ -256,7 +254,7 @@ static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
     AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_interface, i->announcers, a);
     AVAHI_LLIST_PREPEND(AvahiAnnouncer, by_entry, e->announcers, a);
 
-    go_to_initial_state(a);
+    go_to_initial_state(a, increase_probing);
 }
 
 void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {
@@ -270,7 +268,7 @@ void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {
 
     for (e = s->entries; e; e = e->entries_next)
         if (!e->dead)
-            new_announcer(s, i, e);
+            new_announcer(s, i, e, 0);
 }
 
 static void announce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
@@ -281,7 +279,7 @@ static void announce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, 
     assert(e);
     assert(!e->dead);
 
-    new_announcer(m->server, i, e);
+    new_announcer(m->server, i, e, 1);
 }
 
 void avahi_announce_entry(AvahiServer *s, AvahiEntry *e) {
@@ -349,7 +347,7 @@ void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInt
     if (a->state == AVAHI_PROBING && a->entry->group)
         a->entry->group->n_probing--;
 
-    go_to_initial_state(a);
+    go_to_initial_state(a, 1);
 }
 
 static AvahiRecord *make_goodbye_record(AvahiRecord *r) {

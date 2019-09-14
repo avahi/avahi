@@ -1,23 +1,25 @@
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Hungarian translation for Avahi.
+# Copyright (C) 2016, 2019 Free Software Foundation, Inc.
+# This file is distributed under the same license as the Avahi package.
 #
 # Translators:
 # Gabor Kelemen <kelemeng at ubuntu dot com>, 2016.
+# Balázs Úr <ur.balazs at fsf dot hu>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-20 08:58+0200\n"
-"PO-Revision-Date: 2016-09-20 08:59+0200\n"
-"Last-Translator: Gabor Kelemen <kelemeng at ubuntu dot com>\n"
-"Language-Team: Hungarian <openscope at googlegroups dot com>\n"
-"hu/)\n"
+"Report-Msgid-Bugs-To: https://github.com/lathiat/avahi/issues\n"
+"POT-Creation-Date: 2019-04-23 12:11+0000\n"
+"PO-Revision-Date: 2019-08-24 23:09+0200\n"
+"Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
+"Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"hu/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 1.5\n"
+"X-Generator: Lokalize 18.12.3\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -239,52 +241,57 @@ msgstr "A kért művelet érvénytelen, mivel redundáns"
 msgid "Invalid Error Code"
 msgstr "Érvénytelen hibakód"
 
-#: ../avahi-discover-standalone/avahi-discover.ui.h:1
+#: ../avahi-discover-standalone/avahi-discover.ui:6
 msgid "Avahi Discovery"
 msgstr "Avahi feltérképezés"
 
-#: ../avahi-discover-standalone/avahi-discover.ui.h:2
-#: ../avahi-python/avahi-discover/avahi-discover.py:77
+#: ../avahi-discover-standalone/avahi-discover.ui:60
+#: ../avahi-python/avahi-discover/avahi-discover.py:82
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Nincs kiválasztva szolgáltatás.</i>"
 
-#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in:4
 msgid "Avahi Zeroconf Browser"
 msgstr "Avahi Zeroconf-böngésző"
 
-#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in:5
 msgid "Browse for Zeroconf services available on your network"
 msgstr "Zeroconf szolgáltatások keresése a hálózaton"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:225
+#: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in:9
+#: ../avahi-ui/bssh.desktop.in.in:9 ../avahi-ui/bvnc.desktop.in.in:9
+msgid "network-wired"
+msgstr "network-wired"
+
+#: ../avahi-python/avahi-discover/avahi-discover.py:237
 msgid "TXT"
 msgstr "TXT"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:227
+#: ../avahi-python/avahi-discover/avahi-discover.py:239
 msgid "TXT Data:"
 msgstr "TXT adat:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:227
+#: ../avahi-python/avahi-discover/avahi-discover.py:239
 msgid "empty"
 msgstr "üres"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:229
+#: ../avahi-python/avahi-discover/avahi-discover.py:241
 msgid "Service Type:"
 msgstr "Szolgáltatástípus:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:230
+#: ../avahi-python/avahi-discover/avahi-discover.py:242
 msgid "Service Name:"
 msgstr "Szolgáltatásnév:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:231
+#: ../avahi-python/avahi-discover/avahi-discover.py:243
 msgid "Domain Name:"
 msgstr "Tartománynév:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:232
+#: ../avahi-python/avahi-discover/avahi-discover.py:244
 msgid "Interface:"
 msgstr "Csatoló:"
 
-#: ../avahi-python/avahi-discover/avahi-discover.py:233
+#: ../avahi-python/avahi-discover/avahi-discover.py:245
 msgid "Address:"
 msgstr "Cím:"
 
@@ -541,23 +548,22 @@ msgid "execlp() failed: %s\n"
 msgstr "Az execlp() meghiúsult: %s\n"
 
 #: ../avahi-ui/bssh.c:250
-#, c-format
 msgid "Canceled.\n"
 msgstr "Megszakítva.\n"
 
-#: ../avahi-ui/bssh.desktop.in.in.h:1
+#: ../avahi-ui/bssh.desktop.in.in:4
 msgid "Avahi SSH Server Browser"
 msgstr "Avahi SSH-kiszolgálóböngésző"
 
-#: ../avahi-ui/bssh.desktop.in.in.h:2
+#: ../avahi-ui/bssh.desktop.in.in:5
 msgid "Browse for Zeroconf-enabled SSH Servers"
 msgstr "Zeroconf-képes SSH kiszolgálók keresése"
 
-#: ../avahi-ui/bvnc.desktop.in.in.h:1
+#: ../avahi-ui/bvnc.desktop.in.in:4
 msgid "Avahi VNC Server Browser"
 msgstr "Avahi VNC-kiszolgálóböngésző"
 
-#: ../avahi-ui/bvnc.desktop.in.in.h:2
+#: ../avahi-ui/bvnc.desktop.in.in:5
 msgid "Browse for Zeroconf-enabled VNC Servers"
 msgstr "Zeroconf-képes VNC kiszolgálók keresése"
 
@@ -874,4 +880,3 @@ msgstr "Érvénytelen számú argumentum, pontosan egy szükséges.\n"
 #, c-format
 msgid "Host name successfully changed to %s\n"
 msgstr "A gépnév sikeresen módosítva a következőre: %s\n"
-

@@ -1,6 +1,6 @@
 prefix=@prefix@
-exec_prefix=${prefix}
-libdir=@libdir@
+exec_prefix=@prefix@
+libdir=${exec_prefix}/@libdir@
 includedir=${prefix}/include/avahi-compat-howl/
 
 Name: avahi-compat-howl

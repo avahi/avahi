@@ -1,6 +1,6 @@
 prefix=@prefix@
 exec_prefix=@prefix@
-libdir=@libdir@
+libdir=${exec_prefix}/@libdir@
 
 Name: avahi-sharp
 Description: Mono bindings for the Avahi mDNS/DNS-SD stack

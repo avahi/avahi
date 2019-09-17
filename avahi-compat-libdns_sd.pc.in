@@ -1,6 +1,6 @@
 prefix=@prefix@
-exec_prefix=${prefix}
-libdir=@libdir@
+exec_prefix=@prefix@
+libdir=${exec_prefix}/@libdir@
 includedir=${prefix}/include/avahi-compat-libdns_sd/
 
 Name: avahi-compat-libdns_sd

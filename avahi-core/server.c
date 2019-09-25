@@ -674,37 +674,37 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
         }
 
         if (!avahi_key_is_pattern(record->key)) {
-            // Filter services that will be cached. Allow all local services
-            if (!from_local_iface && s->config.enable_reflector && s->config.reflect_filters != NULL){
+            /* Filter services that will be cached. Allow all local services */
+            if (!from_local_iface && s->config.enable_reflector && s->config.reflect_filters != NULL) {
                AvahiStringList *l;
                int match = 0;
 
-                if (record->key->type == AVAHI_DNS_TYPE_PTR){
-                    // Need to match DNS pointer target with filter
+                if (record->key->type == AVAHI_DNS_TYPE_PTR) {
+                    /* Need to match DNS pointer target with filter */
                     for (l = s->config.reflect_filters; l; l = l->next) {
-                        if (strstr( record->data.ptr.name, (char*) l->text) != NULL) {
+                        if (strstr(record->data.ptr.name, (char*) l->text) != NULL) {
                             match = 1;
                             break;
                         }
                     }
 
-                    if (! match){
+                    if (!match) {
                         avahi_log_debug("Reject Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
                         goto unref;
                     }
                     else
                         avahi_log_debug("Match Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
                 }
-                else if (record->key->type == AVAHI_DNS_TYPE_SRV || record->key->type == AVAHI_DNS_TYPE_TXT){
-                    // Need to match key name with filter
+                else if (record->key->type == AVAHI_DNS_TYPE_SRV || record->key->type == AVAHI_DNS_TYPE_TXT) {
+                    /* Need to match key name with filter */
                     for (l = s->config.reflect_filters; l; l = l->next) {
-                        if (strstr( record->key->name, (char*) l->text) != NULL) {
+                        if (strstr(record->key->name, (char*) l->text) != NULL) {
                             match = 1;
                             break;
                         }
                     }
 
-                    if (! match){
+                    if (!match) {
                         avahi_log_debug("Reject Key [%s] iface [%d]", record->key->name, from_local_iface);
                         goto unref;
                     }

@@ -690,7 +690,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 
                     if (! match){
                         avahi_log_debug("Reject Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
-                        return;
+                        goto unref;
                     }
                     else
                         avahi_log_debug("Match Ptr SRC [%s] Dest [%s]", record->key->name, record->data.ptr.name);
@@ -706,7 +706,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
 
                     if (! match){
                         avahi_log_debug("Reject Key [%s] iface [%d]", record->key->name, from_local_iface);
-                        return;
+                        goto unref;
                     }
                     else
                         avahi_log_debug("Match Key [%s] iface [%d]", record->key->name, from_local_iface);
@@ -721,6 +721,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
             }
         }
 
+    unref:
         avahi_record_unref(record);
     }
 

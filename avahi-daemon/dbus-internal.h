@@ -46,6 +46,7 @@ typedef struct RecordBrowserInfo RecordBrowserInfo;
 #define DEFAULT_CLIENTS_MAX 4096
 #define DEFAULT_OBJECTS_PER_CLIENT_MAX 1024
 #define DEFAULT_ENTRIES_PER_ENTRY_GROUP_MAX 32
+#define DEFAULT_START_DELAY_MS 10
 
 struct EntryGroupInfo {
     unsigned id;
@@ -192,6 +193,7 @@ void avahi_dbus_sync_host_name_resolver_free(SyncHostNameResolverInfo *i);
 void avahi_dbus_sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata);
 
 void avahi_dbus_async_host_name_resolver_free(AsyncHostNameResolverInfo *i);
+void avahi_dbus_async_host_name_resolver_start(AsyncHostNameResolverInfo *i);
 void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata);
 DBusHandlerResult avahi_dbus_msg_async_host_name_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 
@@ -199,18 +201,22 @@ void avahi_dbus_sync_address_resolver_free(SyncAddressResolverInfo *i);
 void avahi_dbus_sync_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata);
 
 void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i);
+void avahi_dbus_async_address_resolver_start(AsyncAddressResolverInfo *i);
 void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata);
 DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 
 void avahi_dbus_domain_browser_free(DomainBrowserInfo *i);
+void avahi_dbus_domain_browser_start(DomainBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,  void* userdata);
 
 void avahi_dbus_service_type_browser_free(ServiceTypeBrowserInfo *i);
+void avahi_dbus_service_type_browser_start(ServiceTypeBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_service_type_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_service_type_browser_callback(AvahiSServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata);
 
 void avahi_dbus_service_browser_free(ServiceBrowserInfo *i);
+void avahi_dbus_service_browser_start(ServiceBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata);
 
@@ -232,6 +238,7 @@ void avahi_dbus_sync_service_resolver_callback(
     void* userdata);
 
 void avahi_dbus_async_service_resolver_free(AsyncServiceResolverInfo *i);
+void avahi_dbus_async_service_resolver_start(AsyncServiceResolverInfo *i);
 void avahi_dbus_async_service_resolver_callback(
     AvahiSServiceResolver *r,
     AvahiIfIndex interface,
@@ -250,7 +257,18 @@ void avahi_dbus_async_service_resolver_callback(
 DBusHandlerResult avahi_dbus_msg_async_service_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 
 void avahi_dbus_record_browser_free(RecordBrowserInfo *i);
+void avahi_dbus_record_browser_start(RecordBrowserInfo *i);
 DBusHandlerResult avahi_dbus_msg_record_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata);
 void avahi_dbus_record_browser_callback(AvahiSRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, AvahiRecord *record, AvahiLookupResultFlags flags, void* userdata);
+
+
+#define GET_DBUS_DELAY_FUNC(object_type, object_name) dbus_delay_##object_type##_##object_name##_start
+
+#define CREATE_DBUS_DELAY_FUNC(object_type, object_name, start_func) \
+static void GET_DBUS_DELAY_FUNC(object_type, object_name)(AVAHI_GCC_UNUSED AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) { \
+    object_type *data; \
+    data = userdata; \
+    start_func(data->object_name); \
+}\
 
 #endif

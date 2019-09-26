@@ -31,9 +31,11 @@ AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:3:5])
 AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [7:2:0])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:9:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:2:0])
+AC_SUBST(LIBAVAHI_LIBEVENT_VERSION_INFO, [1:0:0])
 AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:5:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
+AC_SUBST(LIBAVAHI_QT5_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:4:1])
 
 # Do not touch these, since they we took this version-info from upstream HOWL/Bonjour
@@ -413,11 +415,11 @@ if test "x$have_kqueue" = "xyes" ; then
     AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
 fi
 
-IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=avahi
 AC_SUBST([GETTEXT_PACKAGE])
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
-AM_GLIB_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION([0.19.8])
+AM_GNU_GETTEXT([external])
 
 avahilocaledir='${prefix}/${DATADIRNAME}/locale'
 AC_SUBST(avahilocaledir)
@@ -476,16 +478,35 @@ AM_CONDITIONAL(HAVE_GOBJECT, test "x$HAVE_GOBJECT" = "xyes")
 GOBJECT_INTROSPECTION_CHECK([0.9.5])
 
 #
+# Check for libevent 2.0.21
+#
+AC_ARG_ENABLE(libevent,
+	AS_HELP_STRING([--disable-libevent],[Disable use of libevent]),
+	[case "${enableval}" in
+		yes) HAVE_LIBEVENT=yes ;;
+		no)  HAVE_LIBEVENT=no ;;
+		*) AC_MSG_ERROR(bad value ${enableval} for --enable-libevent) ;;
+	esac],
+	[HAVE_LIBEVENT=yes])
+
+if test "x$HAVE_LIBEVENT" = "xyes" ; then
+	PKG_CHECK_MODULES(LIBEVENT, [ libevent >= 2.0.21 ])
+	AC_SUBST(LIBEVENT_CFLAGS)
+	AC_SUBST(LIBEVENT_LIBS)
+fi
+AM_CONDITIONAL(HAVE_LIBEVENT, test "x$HAVE_LIBEVENT" = "xyes")
+
+#
 # Check for Qt 3
 #
 AC_ARG_ENABLE(qt3,
-        AS_HELP_STRING([--disable-qt3],[Disable building of Qt3 mainloop integration]),
+        AS_HELP_STRING([--enable-qt3],[Enable building of Qt3 mainloop integration]),
         [case "${enableval}" in
                 yes) HAVE_QT3=yes ;;
                 no)  HAVE_QT3=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt3) ;;
         esac],
-        [HAVE_QT3=yes])
+        [HAVE_QT3=no])
 
 if test "x$HAVE_QT3" = "xyes" ; then
         PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])
@@ -524,6 +545,32 @@ if test "x$HAVE_QT4" = "xyes" ; then
         AC_SUBST(MOC_QT4)
 fi
 AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")
+
+#
+# Check for Qt 5
+#
+AC_ARG_ENABLE(qt5,
+        AS_HELP_STRING([--disable-qt5],[Disable building of Qt5Core mainloop integration]),
+        [case "${enableval}" in
+                yes) HAVE_QT5=yes ;;
+                no)  HAVE_QT5=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt5) ;;
+        esac],
+        [HAVE_QT5=yes])
+
+if test "x$HAVE_QT5" = "xyes" ; then
+        PKG_CHECK_MODULES( QT5, [ Qt5Core >= 5.0.0 ])
+        AC_AVAHI_QT_ADD_PIC_IF_NEEDED
+        AC_SUBST(QT5_CFLAGS)
+        AC_SUBST(QT5_LIBS)
+        QT5_PREFIX="`$PKG_CONFIG --variable=host_bins Qt5Core`"
+        AC_PATH_PROGS(MOC_QT5, [moc-qt5 moc], no, [$QT5_PREFIX])
+        if test "$MOC_QT5" = no; then
+            AC_MSG_ERROR([Could not find QT5 moc])
+        fi
+        AC_SUBST(MOC_QT5)
+fi
+AM_CONDITIONAL(HAVE_QT5, test "x$HAVE_QT5" = "xyes")
 
 #
 # Check for GTK+ 2.0
@@ -824,11 +871,10 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         fi
 
         AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
-        if test "x$HAVE_GDBM" = "xyes"; then
-            AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
-        fi
-        if test "x$HAVE_DBM" = "xyes"; then
-            AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
+        if test "x$HAVE_GDBM" = "xyes" || test "x$HAVE_DBM" = "xyes"; then
+            AM_CHECK_PYMOD(anydbm,,,[
+                AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
+            ])
         fi
     fi
 fi
@@ -1126,6 +1172,7 @@ avahi-compat-howl/Makefile
 avahi-compat-howl/samples/Makefile
 avahi-autoipd/Makefile
 avahi-ui/Makefile
+avahi-libevent/Makefile
 po/Makefile.in
 ])
 AC_OUTPUT
@@ -1158,6 +1205,7 @@ echo "
     Enable python-dbus:                        ${HAVE_PYTHON_DBUS}
     Enable QT3:                                ${HAVE_QT3}
     Enable QT4:                                ${HAVE_QT4}
+    Enable QT5:                                ${HAVE_QT5}
     Enable Mono:                               ${HAVE_MONO}
     Enable Monodoc:                            ${HAVE_MONODOC}
     Distribution/OS:                           ${with_distro}
@@ -1227,6 +1275,7 @@ echo "\
     Building avahi-discover-standalone: ${HAVE_GTK2OR3}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
+    Building libavahi-qt5:              ${HAVE_QT5}
     Building avahi-sharp:               ${HAVE_MONO}
     Building avahi-compat-libdns_sd:    ${ENABLE_COMPAT_LIBDNS_SD}
     Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}
@@ -1234,4 +1283,5 @@ echo "\
     Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
     Building avahi-autoipd:             ${ENABLE_AUTOIPD}
     Building libavahi-ui:               ${BUILD_UI}
+    Building libavahi-libevent:		${HAVE_LIBEVENT}
 "

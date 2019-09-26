@@ -1,1 +1,6 @@
+*.log
+*.pyc
+*.pyo
+*.trs
 ServiceTypeDatabase.py
+__pycache__/

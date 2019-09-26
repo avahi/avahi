@@ -1,4 +1,7 @@
+git:
+  quiet: true
 language: c
+dist: xenial
 compiler:
   - gcc
   - clang
@@ -8,4 +11,5 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get build-dep avahi avahi-sharp
   - sudo apt-get install python-gi-dev gir1.2-gtk-3.0
-  - sudo apt-get install mono-mcs
+  - sudo apt-get install mono-mcs qtbase5-dev
+  - sudo apt-get install libevent-dev

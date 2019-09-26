@@ -1208,6 +1208,7 @@ static void register_hinfo(AvahiServer *s) {
 
             if (avahi_server_add(s, s->hinfo_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_UNIQUE, r) < 0) {
                 avahi_log_warn("Failed to add HINFO RR: %s", avahi_strerror(s->error));
+                avahi_record_unref(r);
                 return;
             }
         }

@@ -161,7 +161,7 @@
  * avahi_service_resolver_new() to acquire service data for a service
  * name.
  * - You can use avahi_domain_browser_new() to get a list of announced
- * browsing domains. Please note that not all domains whith services
+ * browsing domains. Please note that not all domains with services
  * on the LAN are mandatorily announced.
  * - There is no need to subscribe to server state changes.
  *

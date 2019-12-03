@@ -627,8 +627,8 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
 
                 switch (u->txt_type) {
                     case TXT_RECORD_VALUE_TEXT:
-                        value_buf_len = strlen(u->buf);
-                        value_buf = (uint8_t*)u->buf;
+                        value_buf_len = u->buf ? strlen(u->buf) : 0;
+                        value_buf = u->buf ? (uint8_t*)u->buf : "";
                         break;
 
                     case TXT_RECORD_VALUE_BINARY_HEX:

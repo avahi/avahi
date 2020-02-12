@@ -485,6 +485,7 @@ static DBusHandlerResult dbus_prepare_domain_browser_object(DomainBrowserInfo **
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(DomainBrowserInfo, domain_browsers, client->domain_browsers, i);
     client->n_objects++;
 
@@ -542,6 +543,7 @@ static DBusHandlerResult dbus_prepare_service_type_browser_object(ServiceTypeBro
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(ServiceTypeBrowserInfo, service_type_browsers, client->service_type_browsers, i);
     client->n_objects++;
 
@@ -600,6 +602,7 @@ static DBusHandlerResult dbus_prepare_service_browser_object(ServiceBrowserInfo 
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(ServiceBrowserInfo, service_browsers, client->service_browsers, i);
     client->n_objects++;
 
@@ -712,6 +715,7 @@ static DBusHandlerResult dbus_prepare_async_service_resolver_object(AsyncService
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(AsyncServiceResolverInfo, async_service_resolvers, client->async_service_resolvers, i);
     client->n_objects++;
 
@@ -810,6 +814,7 @@ static DBusHandlerResult dbus_prepare_async_host_name_resolver_object(AsyncHostN
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(AsyncHostNameResolverInfo, async_host_name_resolvers, client->async_host_name_resolvers, i);
     client->n_objects++;
 
@@ -912,6 +917,7 @@ static DBusHandlerResult dbus_prepare_async_address_resolver_object(AsyncAddress
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(AsyncAddressResolverInfo, async_address_resolvers, client->async_address_resolvers, i);
     client->n_objects++;
 
@@ -972,6 +978,7 @@ static DBusHandlerResult dbus_prepare_record_browser_object(RecordBrowserInfo **
     i->id = ++client->current_id;
     i->client = client;
     i->path = NULL;
+    i->delay_timeout = NULL;
     AVAHI_LLIST_PREPEND(RecordBrowserInfo, record_browsers, client->record_browsers, i);
     client->n_objects++;
 
@@ -1070,43 +1077,50 @@ static DBusHandlerResult dbus_select_browser(DBusConnection *c, DBusMessage *m, 
     if (dbus_message_is_method_call(m, iface, "DomainBrowserNew")) {
         DomainBrowserInfo *db = NULL;
         r = dbus_prepare_domain_browser_object(&db, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(DomainBrowserInfo, domain_browser), db);
+        if (db)
+            db->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(DomainBrowserInfo, domain_browser), db);
         return r;
 
     } else if (dbus_message_is_method_call(m, iface, "ServiceTypeBrowserNew")) {
         ServiceTypeBrowserInfo *stbi = NULL;
         r = dbus_prepare_service_type_browser_object(&stbi, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(ServiceTypeBrowserInfo, service_type_browser), stbi);
+        if (stbi)
+            stbi->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(ServiceTypeBrowserInfo, service_type_browser), stbi);
         return r;
 
     } else if (dbus_message_is_method_call(m, iface, "ServiceBrowserNew")) {
         ServiceBrowserInfo *sbi = NULL;
         r = dbus_prepare_service_browser_object(&sbi, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(ServiceBrowserInfo, service_browser), sbi);
+        if (sbi)
+            sbi->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(ServiceBrowserInfo, service_browser), sbi);
         return r;
 
     } else if (dbus_message_is_method_call(m, iface, "ServiceResolverNew")) {
         AsyncServiceResolverInfo *sri = NULL;
         r = dbus_prepare_async_service_resolver_object(&sri, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(AsyncServiceResolverInfo, service_resolver), sri);
+        if (sri)
+            sri->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(AsyncServiceResolverInfo, service_resolver), sri);
         return r;
 
     } else if (dbus_message_is_method_call(m, iface, "HostNameResolverNew")) {
         AsyncHostNameResolverInfo *hri = NULL;
         r = dbus_prepare_async_host_name_resolver_object(&hri, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(AsyncHostNameResolverInfo, host_name_resolver), hri);
+        if (hri)
+            hri->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(AsyncHostNameResolverInfo, host_name_resolver), hri);
         return r;
 
     } else if (dbus_message_is_method_call(m, iface, "AddressResolverNew")) {
         AsyncAddressResolverInfo *ari = NULL;
         r = dbus_prepare_async_address_resolver_object(&ari, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(AsyncAddressResolverInfo, address_resolver), ari);
+        if (ari)
+            ari->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(AsyncAddressResolverInfo, address_resolver), ari);
         return r;
 
     } else if (dbus_message_is_method_call(m, iface, "RecordBrowserNew")) {
         RecordBrowserInfo *rbi = NULL;
         r = dbus_prepare_record_browser_object(&rbi, c, m, error);
-        poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(RecordBrowserInfo, record_browser), rbi);
+        if (rbi)
+            rbi->delay_timeout = poll_api->timeout_new(poll_api, &tv, GET_DBUS_DELAY_FUNC(RecordBrowserInfo, record_browser), rbi);
         return r;
     }
 

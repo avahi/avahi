@@ -72,6 +72,7 @@ struct AsyncHostNameResolverInfo {
     Client *client;
     AvahiSHostNameResolver *host_name_resolver;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(AsyncHostNameResolverInfo, async_host_name_resolvers);
 };
@@ -89,6 +90,7 @@ struct AsyncAddressResolverInfo {
     Client *client;
     AvahiSAddressResolver *address_resolver;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(AsyncAddressResolverInfo, async_address_resolvers);
 };
@@ -98,6 +100,7 @@ struct DomainBrowserInfo {
     Client *client;
     AvahiSDomainBrowser *domain_browser;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(DomainBrowserInfo, domain_browsers);
 };
@@ -107,6 +110,7 @@ struct ServiceTypeBrowserInfo {
     Client *client;
     AvahiSServiceTypeBrowser *service_type_browser;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(ServiceTypeBrowserInfo, service_type_browsers);
 };
@@ -116,6 +120,7 @@ struct ServiceBrowserInfo {
     Client *client;
     AvahiSServiceBrowser *service_browser;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(ServiceBrowserInfo, service_browsers);
 };
@@ -133,6 +138,7 @@ struct AsyncServiceResolverInfo {
     Client *client;
     AvahiSServiceResolver *service_resolver;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(AsyncServiceResolverInfo, async_service_resolvers);
 };
@@ -142,6 +148,7 @@ struct RecordBrowserInfo {
     Client *client;
     AvahiSRecordBrowser *record_browser;
     char *path;
+    AvahiTimeout *delay_timeout;
 
     AVAHI_LLIST_FIELDS(RecordBrowserInfo, record_browsers);
 };

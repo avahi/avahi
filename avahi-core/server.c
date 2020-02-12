@@ -1054,8 +1054,6 @@ static void mcast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent events, vo
             avahi_log_error("Incoming packet received on address that isn't local.");
 
         avahi_dns_packet_free(p);
-
-        avahi_cleanup_dead_entries(s);
     }
 }
 
@@ -1077,8 +1075,6 @@ static void legacy_unicast_socket_event(AvahiWatch *w, int fd, AvahiWatchEvent e
     if (p) {
         dispatch_legacy_unicast_packet(s, p);
         avahi_dns_packet_free(p);
-
-        avahi_cleanup_dead_entries(s);
     }
 }
 

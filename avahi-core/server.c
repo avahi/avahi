@@ -714,9 +714,11 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
             }
 
             if (handle_conflict(s, i, record, cache_flush)) {
-                if (!from_local_iface && !avahi_record_is_link_local_address(record))
-                    reflect_response(s, i, record, cache_flush);
-                avahi_cache_update(i->cache, record, cache_flush, a);
+                if (!from_local_iface) {
+                    if (!avahi_record_is_link_local_address(record))
+                        reflect_response(s, i, record, cache_flush);
+                    avahi_cache_update(i->cache, record, cache_flush, a);
+                }
                 avahi_response_scheduler_incoming(i->response_scheduler, record, cache_flush);
             }
         }

@@ -531,7 +531,7 @@ AC_ARG_ENABLE(qt4,
                 no)  HAVE_QT4=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt4) ;;
         esac],
-        [HAVE_QT4=yes])
+        [HAVE_QT4=no])
 
 if test "x$HAVE_QT4" = "xyes" ; then
         PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ])
@@ -582,7 +582,7 @@ AC_ARG_ENABLE(gtk,
                 no)  HAVE_GTK=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk) ;;
         esac],
-        [HAVE_GTK=yes])
+        [HAVE_GTK=no])
 
 if test "x$HAVE_GTK" = "xyes" ; then
         # Check for GTK 2.0

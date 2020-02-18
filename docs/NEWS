@@ -84,9 +84,9 @@ requests, including the the following people who contributed changes to this
 release: Daniel S, David Kerr, Eric Bischoff, James Rudd, Jan Alexander
 Steffens (heftig), Karl Cronburg, Krzesimir Nowak, Mario Blättermann, Martin
 Blanchard, Michal Sekletar, msk-nightingale, Philip Prindeville, Piotr Drąg,
-Rafael Fontenelle, scootergrisen, Simon Lauser, Simon McVittie, Thomas Jollans,
-Tony Garnock-Jones, Trent Lloyd, wisd0me, Yclept Nemo, Zlopez, Дамјан
-Георгиевски.
+Rafael Fontenelle, scootergrisen, Simon Lauser, Simon McVittie, Till Kamppeter,
+Thomas Jollans, Tony Garnock-Jones, Trent Lloyd, wisd0me, Yclept Nemo, Zlopez,
+Дамјан Георгиевски.
 
 This release is backwards compatible with Avahi 0.6.x and 0.7.
 

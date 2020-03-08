@@ -1426,10 +1426,15 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
 
     s->poll_api = poll_api;
 
-    if (sc)
-        avahi_server_config_copy(&s->config, sc);
-    else
-        avahi_server_config_init(&s->config);
+    if (sc) {
+        if (!avahi_server_config_copy(&s->config, sc)) {
+            *error = AVAHI_ERR_NO_MEMORY;
+            return NULL;
+        }
+    } else if (!avahi_server_config_init(&s->config)) {
+        *error = AVAHI_ERR_NO_MEMORY;
+        return NULL;
+    }
 
     if ((e = setup_sockets(s)) < 0) {
         if (error)

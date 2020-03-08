@@ -31,6 +31,7 @@ typedef struct AvahiServer AvahiServer;
 #include <avahi-common/watch.h>
 #include <avahi-common/timeval.h>
 #include <avahi-core/rr.h>
+#include <avahi-core/hashmap.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -57,6 +58,7 @@ typedef struct AvahiServerConfig {
     int enable_reflector;             /**< Reflect incoming mDNS traffic to all local networks. This allows mDNS based network browsing beyond ethernet borders */
     int reflect_ipv;                  /**< if enable_reflector is 1, enable/disable reflecting between IPv4 and IPv6 */
     AvahiStringList *reflect_filters;  /**< if enable_reflector is 1, will only add services containing one of these strings */
+    AvahiHashmap *reflect_interfaces_visibility; /**< If enable_reflector is 1, specify visibility of services on an interface to other interfaces */
     int add_service_cookie;           /**< Add magic service cookie to all locally generated records implicitly */
     int enable_wide_area;             /**< Enable wide area support */
     AvahiAddress wide_area_servers[AVAHI_WIDE_AREA_SERVERS_MAX]; /** Unicast DNS server to use for wide area lookup */

@@ -496,6 +496,20 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
     avahi_record_list_flush(s->record_list);
 }
 
+static int reflect_interface_is_visible(AvahiServer *s, AvahiInterface *iface, AvahiInterface *to) {
+    AvahiStringList* l;
+    if (!s->config.reflect_interfaces_visibility)
+        return 1;
+    if (!(l = avahi_hashmap_lookup(s->config.reflect_interfaces_visibility, iface->hardware->name)))
+        return 1;
+    do {
+        if (strcmp(to->hardware->name, (char*)l->text) == 0) {
+            return 1;
+        }
+    } while ((l = l->next));
+    return 0;
+}
+
 static void reflect_response(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, int flush_cache) {
     AvahiInterface *j;
 
@@ -507,8 +521,14 @@ static void reflect_response(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, 
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol))
+        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol)) {
+            if (!reflect_interface_is_visible(s, i, j)) {
+                avahi_log_debug("Reject response reflection from [%s] to [%s]", i->hardware->name, j->hardware->name);
+                continue;
+            }
+            avahi_log_debug("Match response reflection from [%s] to [%s]", i->hardware->name, j->hardware->name);
             avahi_interface_post_response(j, r, flush_cache, NULL, 1);
+        }
 }
 
 static void* reflect_cache_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void* userdata) {
@@ -543,6 +563,12 @@ static void reflect_query(AvahiServer *s, AvahiInterface *i, AvahiKey *k) {
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
         if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol)) {
+            if (!reflect_interface_is_visible(s, j, i)) {
+                avahi_log_debug("Reject query reflection from [%s] to [%s]", i->hardware->name, j->hardware->name);
+                continue;
+            }
+            avahi_log_debug("Match query reflection from [%s] to [%s]", i->hardware->name, j->hardware->name);
+
             /* Post the query to other networks */
             avahi_interface_post_query(j, k, 1, NULL);
 
@@ -564,8 +590,14 @@ static void reflect_probe(AvahiServer *s, AvahiInterface *i, AvahiRecord *r) {
         return;
 
     for (j = s->monitor->interfaces; j; j = j->interface_next)
-        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol))
+        if (j != i && (s->config.reflect_ipv || j->protocol == i->protocol)) {
+            if (!reflect_interface_is_visible(s, j, i)) {
+                avahi_log_debug("Reject probe reflection from [%s] to [%s]", i->hardware->name, j->hardware->name);
+                continue;
+            }
+            avahi_log_debug("Match probe reflection from [%s] to [%s]", i->hardware->name, j->hardware->name);
             avahi_interface_post_probe(j, r, 1);
+        }
 }
 
 static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterface *i, const AvahiAddress *a, uint16_t port, int legacy_unicast, int from_local_iface) {
@@ -1645,6 +1677,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->enable_reflector = 0;
     c->reflect_ipv = 0;
     c->reflect_filters = NULL;
+    c->reflect_interfaces_visibility = NULL;
     c->add_service_cookie = 0;
     c->enable_wide_area = 0;
     c->n_wide_area_servers = 0;
@@ -1668,13 +1701,51 @@ void avahi_server_config_free(AvahiServerConfig *c) {
     avahi_free(c->domain_name);
     avahi_string_list_free(c->browse_domains);
     avahi_string_list_free(c->reflect_filters);
+    if (c->reflect_interfaces_visibility)
+        avahi_hashmap_free(c->reflect_interfaces_visibility);
     avahi_string_list_free(c->allow_interfaces);
     avahi_string_list_free(c->deny_interfaces);
+}
+
+static void interfaces_visibility_copy_callback(void *key, void *value, void *userdata) {
+    AvahiHashmap **m = (AvahiHashmap**)userdata;
+    char *k;
+    AvahiStringList *v;
+    if (!*m)
+        return;
+    if (!(k = avahi_strdup(key))) {
+        *m = NULL;
+        return;
+    }
+    if (!(v = avahi_string_list_copy(value)) && value) {
+        avahi_free(k);
+        *m = NULL;
+        return;
+    }
+    if (avahi_hashmap_insert(*m, k, v) == -1) {
+        avahi_string_list_free(v);
+        avahi_free(k);
+        *m = NULL;
+        return;
+    }
+}
+
+static AvahiHashmap* interfaces_visibility_copy(AvahiHashmap *i) {
+    AvahiHashmap *c, *r;
+    if (!i)
+        return NULL;
+    if (!(r = c = avahi_hashmap_new((AvahiHashFunc)avahi_string_hash, (AvahiEqualFunc)avahi_string_equal, avahi_free, (AvahiFreeFunc)avahi_string_list_free)))
+        return NULL;
+    avahi_hashmap_foreach(i, interfaces_visibility_copy_callback, &r);
+    if (!r)
+        avahi_hashmap_free(c);
+    return r;
 }
 
 AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiServerConfig *c) {
     char *d = NULL, *h = NULL;
     AvahiStringList *browse = NULL, *allow = NULL, *deny = NULL, *reflect = NULL ;
+    AvahiHashmap *interfaces_visibility = NULL;
     assert(ret);
     assert(c);
 
@@ -1718,6 +1789,16 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
         return NULL;
     }
 
+    if (!(interfaces_visibility = interfaces_visibility_copy(c->reflect_interfaces_visibility)) && c->reflect_interfaces_visibility) {
+        avahi_string_list_free(reflect);
+        avahi_string_list_free(deny);
+        avahi_string_list_free(allow);
+        avahi_string_list_free(browse);
+        avahi_free(h);
+        avahi_free(d);
+        return NULL;
+    }
+
     *ret = *c;
     ret->host_name = h;
     ret->domain_name = d;
@@ -1725,6 +1806,7 @@ AvahiServerConfig* avahi_server_config_copy(AvahiServerConfig *ret, const AvahiS
     ret->allow_interfaces = allow;
     ret->deny_interfaces = deny;
     ret->reflect_filters = reflect;
+    ret->reflect_interfaces_visibility = interfaces_visibility;
 
     return ret;
 }

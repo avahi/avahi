@@ -26,6 +26,7 @@
 #include <string.h>
 #include <signal.h>
 #include <errno.h>
+#include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 #include <grp.h>
@@ -837,8 +838,29 @@ static int load_config_file(DaemonConfig *c) {
                         c->server_config.reflect_filters = avahi_string_list_add(c->server_config.reflect_filters, *t);
 
                     avahi_strfreev(e);
-                }
-                else {
+                } else if (strncasecmp(p->key, "reflect-interface-visibility:", 29) == 0 && *(p->key + 29)) {
+                    char *k = avahi_strdup(p->key + 29), *v = p->value;
+                    int vn;
+                    AvahiStringList *l = NULL;
+                    if (!c->server_config.reflect_interfaces_visibility) {
+                        c->server_config.reflect_interfaces_visibility = avahi_hashmap_new((AvahiHashFunc)avahi_string_hash, (AvahiEqualFunc)avahi_string_equal, avahi_free, (AvahiFreeFunc)avahi_string_list_free);
+                    }
+
+                    for (; isblank(*v); ++v);
+                    for (vn = strlen(v); isblank(v[vn - 1]); --vn);
+
+                    if (!*v || strncmp("!", v, vn) == 0) {
+                        l = avahi_string_list_add(l, "");
+                    } else if (strncmp("*", v, vn) != 0) {
+                        char **e = avahi_split_csv(v), **t;
+                        for (t = e; *t; t++)
+                            l = avahi_string_list_add(l, *t);
+                        avahi_strfreev(e);
+                    }
+                    if (avahi_hashmap_insert(c->server_config.reflect_interfaces_visibility, k, l) == -1) {
+                        avahi_free(k);
+                    }
+                } else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
                     goto finish;
                 }

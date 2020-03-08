@@ -337,6 +337,20 @@
       services.</p>
 
     </option>
+
+    <option>
+      <p><opt>reflect-interface-visibility:<arg>source-interface</arg>=</opt>
+      Specify the visibility of an interface to a set of other
+      interfaces. Each interface listed will be able to participate
+      in reflection of services with the source interface. The
+      default is to allow reflection with all interfaces. If an
+      empty value or "!" is given, no services from the interface
+      will be reflected to any other interface (but it will still
+      receive reflections from other interfaces, unless prohibited
+      by their configuration). Conversely, giving a "*" value
+      allows reflection to all interfaces (same as the default).</p>
+    </option>
+
   </section>
 
   <section name="Section [rlimits]">

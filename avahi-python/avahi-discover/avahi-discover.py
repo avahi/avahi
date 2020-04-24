@@ -238,15 +238,17 @@ class Main_window:
                 txts+="<b>" + _("TXT") + " <i>%s</i></b> = %s\n" % (k,v)
         else:
             txts = "<b>" + _("TXT Data:") + "</b> <i>" + _("empty") + "</i>"
-        
-        txts = txts.decode("utf-8")
+
+        if isinstance(txts, bytes):     # Python 2
+            txts = txts.decode("utf-8")
 
         infos = "<b>" + _("Service Type:") + "</b> %s\n"
         infos += "<b>" + _("Service Name:") + "</b> %s\n"
         infos += "<b>" + _("Domain Name:") + "</b> %s\n"
         infos += "<b>" + _("Interface:") + "</b> %s %s\n"
         infos += "<b>" + _("Address:") + "</b> %s/%s:%i\n%s"
-        infos = infos.decode("utf-8")
+        if isinstance(infos, bytes):    # Python 2
+            infos = infos.decode("utf-8")
         infos = infos % (stype, name, domain, self.siocgifname(interface), self.protoname(protocol), host, address, port, txts.strip())
         self.info_label.set_markup(infos)
 

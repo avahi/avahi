@@ -24,7 +24,7 @@ pkglibdata_DATA=
 if HAVE_PYTHON
 if HAVE_GDBM
 
-noinst_SCRIPTS=build-db
+dist_noinst_SCRIPTS=build-db
 pkglibdata_DATA+=service-types.db
 
 service-types.db: service-types
@@ -36,7 +36,7 @@ CLEANFILES = service-types.db
 endif
 if HAVE_DBM
 
-noinst_SCRIPTS=build-db
+dist_noinst_SCRIPTS=build-db
 pkglibdata_DATA+=service-types.db.pag service-types.db.dir
 
 service-types.db.pag: service-types.db

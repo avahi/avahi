@@ -169,7 +169,7 @@ static AvahiSRBLookup *lookup_find(
     for (l = b->lookups; l; l = l->lookups_next) {
 
         if ((l->interface == AVAHI_IF_UNSPEC || l->interface == interface) &&
-            (l->interface == AVAHI_PROTO_UNSPEC || l->protocol == protocol) &&
+            (l->protocol == AVAHI_PROTO_UNSPEC || l->protocol == protocol) &&
             l->flags == flags &&
             avahi_key_equal(l->key, key))
 

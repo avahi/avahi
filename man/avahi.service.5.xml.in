@@ -45,7 +45,7 @@
       <option>
         <p><opt>&lt;name replace-wildcards="yes|no"&gt;</opt> The
         service name. If <opt>replace-wildcards</opt> is "yes", any
-        occurence of the string "%h" will be replaced by the local
+        occurrence of the string "%h" will be replaced by the local
         host name. This can be used for service names like "Remote
         Terminal on %h". If <opt>replace-wildcards</opt> is not
         specified, defaults to "no".</p>
@@ -75,7 +75,7 @@
 
       <option>
         <p><opt>&lt;domain-name&gt;</opt> The domain name this service
-        should be registered. If omited defaults to the default domain
+        should be registered. If omitted defaults to the default domain
         of the avahi daemon. (probably .local)</p>
       </option>
 

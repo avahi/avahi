@@ -22,7 +22,9 @@ case "$reason" in
         ;;
 
     PREINIT|BOUND|RENEW|REBIND|REBOOT|STOP|RELEASE)
-        @sbindir@/avahi-autoipd -k $interface 2> /dev/null
+        if [ -x @sbindir@/avahi-autoipd ] && @sbindir@/avahi-autoipd -c $interface; then
+            @sbindir@/avahi-autoipd -k $interface 2> /dev/null
+        fi
         ;;
     
     EXPIRE|FAIL|TIMEOUT)

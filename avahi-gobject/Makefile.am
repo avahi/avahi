@@ -76,7 +76,7 @@ dist-hook:
 
 signals-marshal.list: $(CORE_SOURCES) Makefile.am
 	$(AM_V_GEN)( cd $(srcdir) && \
-	sed -n -e 's/.*_ga_signals_marshal_\([A-Z]*__[A-Z_]*\).*/\1/p' \
+	LC_ALL=C sed -n -e 's/.*_ga_signals_marshal_\([A-Z]*__[A-Z_]*\).*/\1/p' \
 		$(CORE_SOURCES) ) \
 		| sed -e 's/__/:/' -e 'y/_/,/' | sort -u > $@.tmp && \
 	if cmp -s $@.tmp $@; then \

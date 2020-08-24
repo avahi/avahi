@@ -308,12 +308,20 @@ typedef enum {
     XML_TAG_TXT_RECORD
 } xml_tag_name;
 
+typedef enum {
+    TXT_RECORD_VALUE_TEXT,
+    TXT_RECORD_VALUE_BINARY_HEX,
+    TXT_RECORD_VALUE_BINARY_BASE64,
+} txt_record_value_type;
+
 struct xml_userdata {
     StaticServiceGroup *group;
     StaticService *service;
     xml_tag_name current_tag;
     int failed;
     char *buf;
+    txt_record_value_type txt_type;
+    char *txt_key;
 };
 
 #ifndef XMLCALL
@@ -403,8 +411,29 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
 
         u->current_tag = XML_TAG_PORT;
     } else if (u->current_tag == XML_TAG_SERVICE && strcmp(el, "txt-record") == 0) {
-        if (attr[0])
-            goto invalid_attr;
+        if (attr[0]) {
+            if (strcmp(attr[0], "value-format") == 0) {
+                txt_record_value_type value_type;
+
+                if (strcmp(attr[1], "text") == 0) {
+                    value_type = TXT_RECORD_VALUE_TEXT;
+                } else if (strcmp(attr[1], "binary-hex") == 0) {
+                    value_type = TXT_RECORD_VALUE_BINARY_HEX;
+                } else if (strcmp(attr[1], "binary-base64") == 0) {
+                    value_type = TXT_RECORD_VALUE_BINARY_BASE64;
+                } else {
+                    avahi_log_error("%s: parse failure: invalid txt record value format specification \"%s\".", u->group->filename, attr[1]);
+                    u->failed = 1;
+                    return;
+                }
+
+                u->txt_type = value_type;
+                if (attr[2])
+                    goto invalid_attr;
+            } else
+                goto invalid_attr;
+        } else
+            u->txt_type = TXT_RECORD_VALUE_TEXT;
 
         u->current_tag = XML_TAG_TXT_RECORD;
     } else {
@@ -418,6 +447,121 @@ invalid_attr:
     avahi_log_error("%s: parse failure: invalid attribute for element <%s>.", u->group->filename, el);
     u->failed = 1;
     return;
+}
+
+static uint8_t hex(char c) {
+  if ((c >= '0') && (c <= '9'))
+    return c - '0';
+  if ((c >= 'A') && (c <= 'F'))
+    return c - 'A' + 10;
+  if ((c >= 'a') && (c <= 'f'))
+    return c - 'a' + 10;
+  return 0xFF;
+}
+
+static int decode_hex_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out_buf_len) {
+    const char *buf = (u->buf != NULL) ? u->buf : "";
+    size_t buf_len = strlen(buf);
+    uint8_t *raw_buf;
+    size_t iter;
+    size_t raw_buf_len;
+
+    if (buf_len % 2) {
+        avahi_log_error("%s: parse failure: hex value of the txt record should have an even length", u->group->filename);
+        u->failed = 1;
+        return -1;
+    }
+    raw_buf_len = buf_len / 2;
+    raw_buf = avahi_malloc(raw_buf_len);
+    for (iter = 0; iter < raw_buf_len; iter++) {
+        uint8_t high_nibble = hex(buf[iter * 2]);
+        uint8_t low_nibble = hex(buf[iter * 2 + 1]);
+
+        if (high_nibble > 0xF || low_nibble > 0xF) {
+            avahi_log_error("%s: parse failure: failed to parse hex data: invalid hex data", u->group->filename);
+            u->failed = 1;
+            avahi_free(raw_buf);
+            return -1;
+        }
+        raw_buf[iter] = (high_nibble << 4) | low_nibble;
+    }
+    *out_buf = raw_buf;
+    *out_buf_len = raw_buf_len;
+    return 0;
+}
+
+static uint8_t base64(char c) {
+  if (c >= 'A' && c <= 'Z')
+    return c - 'A';
+  if (c >= 'a' && c <= 'z')
+    return c - 'a' + 26;
+  if (c >= '0' && c <= '9')
+    return c - '0' + 52;
+  if (c == '+')
+    return 62;
+  if (c == '/')
+    return 63;
+  return 255;
+}
+
+static int base64_error(struct xml_userdata *u, uint8_t *raw_buf) {
+    avahi_log_error("%s: parse failure: failed to parse base64 data: invalid base64 data", u->group->filename);
+    u->failed = 1;
+    avahi_free(raw_buf);
+    return -1;
+}
+
+static int decode_base64_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out_buf_len) {
+    const char *buf = (u->buf != NULL) ? u->buf : "";
+    size_t buf_len = strlen(buf);
+    uint8_t *raw_buf;
+    size_t iter, raw_iter;
+    size_t raw_buf_len;
+    size_t buf_len_no_equals = buf_len;
+
+    if (buf_len % 4) {
+        avahi_log_error("%s: parse failure: length of the base64 value of the txt record should be a multiple of 4", u->group->filename);
+        u->failed = 1;
+        return -1;
+    }
+    raw_buf_len = (buf_len / 4) * 3;
+    if (buf_len > 0 && buf[buf_len - 1] == '=') {
+        buf_len_no_equals -= 4;
+        raw_buf_len--;
+        if (buf[buf_len - 2] == '=')
+            raw_buf_len--;
+    }
+    raw_buf = avahi_malloc(raw_buf_len);
+    for (iter = 0, raw_iter = 0; iter < buf_len_no_equals; iter += 4, raw_iter += 3) {
+        uint8_t nibble1 = base64(buf[iter + 0]);
+        uint8_t nibble2 = base64(buf[iter + 1]);
+        uint8_t nibble3 = base64(buf[iter + 2]);
+        uint8_t nibble4 = base64(buf[iter + 3]);
+
+        if (nibble1 > 63 || nibble2 > 63 || nibble3 > 63 || nibble4 > 63)
+            return base64_error(u, raw_buf);
+        raw_buf[raw_iter + 0] = (nibble1 << 2) | (nibble2 >> 4);
+        raw_buf[raw_iter + 1] = (nibble2 << 4) | (nibble3 >> 2);
+        raw_buf[raw_iter + 2] = (nibble3 << 6) | nibble4;
+    }
+    if (buf_len_no_equals < buf_len) {
+        uint8_t nibble1 = base64(buf[iter + 0]);
+        uint8_t nibble2 = base64(buf[iter + 1]);
+
+        if (nibble1 > 63 || nibble2 > 63)
+            return base64_error(u, raw_buf);
+        raw_buf[raw_iter + 0] = (nibble1 << 2) | (nibble2 >> 4);
+        if (buf[iter + 2] != '=') {
+            uint8_t nibble3 = base64(buf[iter + 2]);
+
+            if (nibble3 > 63)
+                return base64_error(u, raw_buf);
+            raw_buf[raw_iter + 1] = (nibble2 << 4) | (nibble3 >> 2);
+        }
+    }
+    *out_buf = raw_buf;
+    *out_buf_len = raw_buf_len;
+    return 0;
 }
 
 static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
@@ -475,9 +619,51 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
 
         case XML_TAG_TXT_RECORD: {
             assert(u->service);
+            if (u->txt_key != NULL) {
+                size_t key_len = strlen(u->txt_key);
+                uint8_t *value_buf;
+                uint8_t *free_value_buf = NULL;
+                size_t value_buf_len = 0;
 
-            u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
+                switch (u->txt_type) {
+                    case TXT_RECORD_VALUE_TEXT:
+                        if (u->buf != NULL) {
+                            value_buf_len = strlen(u->buf);
+                            value_buf = (uint8_t*)u->buf;
+                        } else {
+                            value_buf_len = 0;
+                            value_buf = (uint8_t*)"";
+                        }
+                        break;
+
+                    case TXT_RECORD_VALUE_BINARY_HEX:
+                        if (decode_hex_buf(u, &value_buf, &value_buf_len) < 0)
+                            return;
+                        free_value_buf = value_buf;
+                        break;
+
+                    case TXT_RECORD_VALUE_BINARY_BASE64:
+                        if (decode_base64_buf(u, &value_buf, &value_buf_len) < 0)
+                            return;
+                        free_value_buf = value_buf;
+                        break;
+
+                    default:
+                        assert(0);
+                }
+
+                u->service->txt_records = avahi_string_list_add_anonymous(u->service->txt_records, key_len + 1 + value_buf_len);
+                memcpy(u->service->txt_records->text, u->txt_key, key_len);
+                u->service->txt_records->text[key_len] = '=';
+                memcpy(u->service->txt_records->text + key_len + 1, value_buf, value_buf_len);
+                avahi_free(u->txt_key);
+                u->txt_key = NULL;
+                avahi_free(free_value_buf);
+            } else
+                u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
+
             u->current_tag = XML_TAG_SERVICE;
+            u->txt_type = TXT_RECORD_VALUE_TEXT;
             break;
         }
 
@@ -550,10 +736,26 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
             break;
 
         case XML_TAG_PORT:
-        case XML_TAG_TXT_RECORD:
         case XML_TAG_SUBTYPE:
             assert(u->service);
             u->buf = append_cdata(u->buf, s, len);
+            break;
+
+        case XML_TAG_TXT_RECORD:
+            assert(u->service);
+            if (u->txt_key == NULL) {
+              char *equals = memchr(s, '=', len);
+
+              if (equals != NULL) {
+                u->txt_key = append_cdata(u->buf, s, equals - s);
+                u->buf = NULL;
+                /* len is now length of the rest of the string past the equals sign */
+                len -= equals - s + 1;
+                s = equals + 1;
+              }
+            }
+            if (len > 0)
+                u->buf = append_cdata(u->buf, s, len);
             break;
 
         case XML_TAG_SERVICE_GROUP:
@@ -578,6 +780,8 @@ static int static_service_group_load(StaticServiceGroup *g) {
     u.service = NULL;
     u.current_tag = XML_TAG_INVALID;
     u.failed = 0;
+    u.txt_type = TXT_RECORD_VALUE_TEXT;
+    u.txt_key = NULL;
 
     /* Cleanup old data in this service group, if available */
     remove_static_service_group_from_server(g);

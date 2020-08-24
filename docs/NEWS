@@ -1,3 +1,152 @@
+Avahi 0.8, the 'Dobro Jutro' release
+====================================
+
+The Avahi 0.8 release brings a number of new features and bug fix changes
+including a backward-compatible addition to the D-Bus API and the avahi-core
+API.
+
+The existing API is still fully supported however clients using the new
+API will not work with older Avahi releases. The avahi-client library is not
+affected. See the "API Changes" section for further details.
+
+New Features:
+- New options for filtering reflected queries between networks (reflect-filter)
+- New mainloop integration for Qt5 and libevent
+- docs/THREADS: Information for multi-threaded avahi-client apps
+- Listen on loopback interfaces by default, allowing local-only services to be
+  consumed by the local machine
+- New D-Bus V2 API and additions to the avahi-core API for splitting "New"
+  calls into "Prepare" and "Start". See "API Changes" for more details.
+
+Notable Changes:
+- avahi-autoipd: Initial IP selection based on MAC previously ignored first
+  octet - this will cause all hosts to select a different link-local IP than
+  previous versions based on the same MAC address
+- avahi-daemon: Delay sending results on an object for 10ms in an attempt to
+  give clients enough time to subscribe to signals from the new object after
+  receiving it's path in response so the New call. See "API Changes" for more
+  info
+
+Bug Fixes:
+- avahi-python: Various Python 3 enhancements including encoding unicode
+  strings as UTF-8
+- avahi-common: avahi_string_list_to_string will now escape embedded quotes,
+  backslashes and control characters.
+- avahi-daemon: Fix a crash when txt records have an empty value in .xml
+  service files
+- avahi-daemon: reflector: do not incorrectly cache responses on outgoing
+  interfaces. Previously we would incorrectly cache responses reflected from
+  one interface on the outgoing interface. These responses were later sent to
+  clients on that network even if the original client had disappeared and could
+  cause those clients to have a hostname conflict with themselves on restart.
+  We no longer incorrectly cache such traffic.
+
+Security Fixes:
+- Drop legacy unicast queries from address not on local link which can lead to
+  UDP traffic amplification attacks (CVE-2017-6519)
+
+API Changes: The avahi-core API and D-Bus API have implemented a new API where
+a call to the "New" method can now be split into a "Prepare" and then "Start"
+method for some objects. The previous "New" API is still fully supported and
+there is no intention to deprecate it.
+
+This change affects the the following objects: AsyncAddressResolver,
+AsyncHostNameResolver, AsyncServiceResolver, DomainBrowser, RecordBrowser,
+ServiceBrowser, ServiceTypeBrowser
+
+This is because the D-Bus implementation in some languages would only bind to
+signals of an object after it was created and had received the new object's
+path. This led to such languages missing the initial results sent between the
+time the object was created and it had setup a filter to receive it's signals.
+This primarily occured in languages that create dynamic bindings for D-Bus
+objects using introspection such as Python. The avahi-client C api was not
+affected as it globally binds to all avahi signals without specifying
+individual object paths and still makes use of the V1 API.
+
+The v2 Prepare/Start API is available under the new
+org.freedesktop.Avahi.Server2 D-Bus interface and also has corresponding
+avahi_s_* calls for users of the embedded avahi-core library.
+
+The old org.freedesktop.Avahi.Server interface is still supported and there is
+no intention to remove this API. Additionally this problem has also been solved
+for old clients by adding a very small 10ms delay before we start sending
+results to give the client time to bind to the signals which should silently
+fix the issue in most cases without introducing a noticable or impactful delay.
+
+Clients implementing the new org.freedesktop.Avahi.Server2 D-Bus interface will
+not work with older Avahi daemons. It is suggested that clients may wish to
+either check for and fallback to the older API version, or continue to use the
+OLD API and rely on the 10ms timer to resolve the issue.
+
+
+Big thank-you to everyone contributing to the project through issues & pull
+requests, including the the following people who contributed changes to this
+release: Daniel S, David Kerr, Eric Bischoff, James Rudd, Jan Alexander
+Steffens (heftig), Karl Cronburg, Krzesimir Nowak, Mario Blättermann, Martin
+Blanchard, Michal Sekletar, msk-nightingale, Philip Prindeville, Piotr Drąg,
+Rafael Fontenelle, scootergrisen, Simon Lauser, Simon McVittie, Till Kamppeter,
+Thomas Jollans, Tony Garnock-Jones, Trent Lloyd, wisd0me, Yclept Nemo, Zlopez,
+Дамјан Георгиевски.
+
+This release is backwards compatible with Avahi 0.6.x and 0.7.
+
+Avahi 0.7, the 'Adieu' release
+==============================
+
+The Avahi 0.7 release brings two new features, binary TXT records in XML
+service files and the ability to start the gobject client in a custom context.
+
+A number of other changes are detailed below.
+
+New Features:
+ * Add support for binary values in TXT records in XML service files by
+   specifying value-format="text|binary-hex|binary-base64".  If not specified,
+   defaults to the normal value of "text" (thus backwards compatible)
+ * avahi-gobject: Allow starting the client in a custom GMainContext by
+   passing context to ga_client_start_in_context instead of ga_client_start
+   (avahi-gobject minor version has been incremented)
+
+ Thanks to Krzesimir Nowak for both of these additions.
+
+Notable Changes:
+ * avahi-daemon: Remove all default rlimits from avahi-daemon.conf, as two
+   main problems happened with firstly rlimit-nproc causing avahi to fail when
+   started in a container without user namespaces and secondly because memory
+   rlimits were causing avahi to crash in some cases.  Leave it up to the init
+   system to impose any modified limits instead. It is recommend to ship this
+   change in distribution default config files.
+ * avahi-common: Fix watch cleanup issue in watch_free
+ * avahi-discover (python): Updated for Python3 & GTK3
+ * avahi-autoipd: clear previously set address before binding a new one
+ * avahi-autoipd: fix dhclient hooks to check for avahi-autoipd before running
+ * build: Move default rundir from /var/run to /run as per modern system setups
+
+Other Changes:
+ * build: Fix the printed value of "Building libavahi-client" in ./configure
+ * build: autogen.sh improved to work when called from another directory
+ * build: Fix warnings when compiling against musl libc
+ * Updated translations: Polish, Ukranian, Turkish, Indonesian, Swedish,
+   Hungarian, Occitan (New), Czech, Chinese (Simplified)
+ * avahi-compat-libdns_sd: Fix incorrect URL in warnings
+ * service-type-database: Add new service Types: _ipps._tcp, _xpra._tcp
+ * avahi-dnsconfd: Update manpage with the correct action script name
+ * avahi-gobject: Use the correct shared library name in AvahiCore-0.6.gir
+ * avahi-gobject: Fix build failing under some locales
+ * avahi-common/dbus-watch-glue.c: remove Unneeded semicolon
+ * Update gentoo init scripts for newer openrc version
+
+Big thank-you to everyone contributing to the project through issues & pull
+requests, including the the following people who contributed changes to this
+release: Andika Triwidada, Andreas Henriksson, Anthony G. Basile,
+Antoine Martin, Ben Chan, Cedric Hombourger, Cedric Valmary, Gabor Kelemen,
+HMikolon, Jan Alexander, Steffens (heftig), Josef Andersson, Jussi Kukkonen,
+Krzesimir Nowak, Kylie McClain, Michael Biebl, Muhammet Kara, Peter Meerwald,
+Philip Withnall, Piotr Drąg, Sebastiaan Lokhorst, Thomas Kluyver, Trent Lloyd
+
+This release is otherwise backwards compatible with Avahi 0.6.x except for
+ga_client_start_in_context (new function, incremented avahi-goject SO minor
+version) and value-format in XML service files.
+
 Avahi 0.6.32
 ============
 

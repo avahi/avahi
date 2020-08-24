@@ -455,7 +455,7 @@ int avahi_dns_packet_consume_uint32(AvahiDnsPacket *p, uint32_t *ret_v) {
         return -1;
 
     d = (uint8_t*) (AVAHI_DNS_PACKET_DATA(p) + p->rindex);
-    *ret_v = (d[0] << 24) | (d[1] << 16) | (d[2] << 8) | d[3];
+    *ret_v = ((uint32_t)d[0] << 24) | ((uint32_t)d[1] << 16) | ((uint32_t)d[2] << 8) | (uint32_t)d[3];
     p->rindex += sizeof(uint32_t);
 
     return 0;

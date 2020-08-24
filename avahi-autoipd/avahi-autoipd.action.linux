@@ -41,6 +41,7 @@ if [ -x /bin/ip -o -x /sbin/ip ] ; then
 
     case "$1" in
         BIND)
+            ip addr flush dev "$2" label "$2:avahi"
             ip addr add "$3"/16 brd 169.254.255.255 label "$2:avahi" scope link dev "$2"
             ip route add default dev "$2" metric "$METRIC" scope link ||:
             ;;

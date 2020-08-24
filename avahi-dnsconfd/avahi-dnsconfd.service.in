@@ -26,4 +26,3 @@ ExecStart=@sbindir@/avahi-dnsconfd -s
 
 [Install]
 WantedBy=multi-user.target
-Also=avahi-daemon.socket

@@ -77,7 +77,7 @@
       <option>
         <p><opt>--subtype=</opt> <arg>SUBTYPE</arg></p>
         <optdesc><p>Register the service with an additional subtype in
-        addition to the main type. DNS-SD subtypes  have the form
+        addition to the main type. DNS-SD subtypes have the form
         _anon._sub._ftp._tcp, where _anon is the identifier of the
         subtype and _ftp._tcp is the main type. You may pass this
         option multiple times to register the service with multiple

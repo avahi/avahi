@@ -55,7 +55,7 @@ typedef void (*AvahiTimeoutCallback)(AvahiTimeout *t, void *userdata);
 /** Defines an abstracted event polling API. This may be used to
  connect Avahi to other main loops. This is loosely based on Unix
  poll(2). A consumer will call watch_new() for all file descriptors it
- wants to listen for events on. In addition he can call timeout_new()
+ wants to listen for events on. In addition they can call timeout_new()
  to define time based events .*/
 struct AvahiPoll {
 

@@ -198,7 +198,7 @@
  * domains becomes more important for Avahi enabled applications. All
  * applications that offer the user a list of services discovered with
  * Avahi should offer some kind of editable drop down box where the
- * user can either enter his own domain or select one of those offered
+ * user can either enter their own domain or select one of those offered
  * by AvahiDomainBrowser. The default domain to browse should be the
  * one returned by avahi_client_get_domain_name(). The list of domains
  * returned by AvahiDomainBrowser is assembled by the browsing domains

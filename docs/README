@@ -30,7 +30,7 @@ Avahi has the following requirements:
 	- DBUS 0.3x (optional, if you disable this, the daemon is not
 	  accessible over IPC to other applications!)
 	- gtk2 + glade (optional, needed for avahi-discover-standalone)
-	- doxygen (optional, needed for he API documentaton)
+	- doxygen (optional, needed for the API documentaton)
 	- Python 2.4, pygtk2 (optional, needed by all client tools)
 	- python-twisted (optional, needed by avahi-bookmarks)
     - xmltoman (if building from SVN rather than a tarball)

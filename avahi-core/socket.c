@@ -212,8 +212,8 @@ static int bind_with_warn(int fd, const struct sockaddr *sa, socklen_t l) {
     } else {
 
         /* We enable SO_REUSEADDR afterwards, to make sure that the
-         * user may run other mDNS implementations if he really
-         * wants. */
+         * user may run other mDNS implementations if they really
+         * want. */
 
         if (reuseaddr(fd) < 0)
             return -1;

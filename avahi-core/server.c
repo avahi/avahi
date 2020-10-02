@@ -193,7 +193,7 @@ static void withdraw_rrset(AvahiServer *s, AvahiKey *key) {
         withdraw_entry(s, e);
 }
 
-static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i) {
+static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i, int from_local_iface) {
     AvahiEntry *e, *n;
     int ours = 0, won = 0, lost = 0;
 
@@ -210,7 +210,7 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         if (e->dead)
             continue;
 
-        if ((cmp = avahi_record_lexicographical_compare(e->record, record)) == 0) {
+        if ((cmp = avahi_record_lexicographical_compare(e->record, record)) == 0 || from_local_iface) {
             ours = 1;
             break;
         } else {
@@ -639,7 +639,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             if (!avahi_key_is_pattern(record->key)) {
                 if (!from_local_iface)
                     reflect_probe(s, i, record);
-                incoming_probe(s, record, i);
+                incoming_probe(s, record, i, from_local_iface);
             }
 
             avahi_record_unref(record);
@@ -961,8 +961,7 @@ static void dispatch_packet(AvahiServer *s, AvahiDnsPacket *p, const AvahiAddres
         return;
 
     /* We don't want to reflect local traffic, so we check if this packet is generated locally. */
-    if (s->config.enable_reflector)
-        from_local_iface = originates_from_local_iface(s, iface, src_address, port);
+    from_local_iface = originates_from_local_iface(s, iface, src_address, port);
 
     if (avahi_dns_packet_check_valid_multicast(p) < 0) {
         avahi_log_debug("Received invalid packet.");

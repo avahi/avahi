@@ -29,8 +29,24 @@
     </method>
   </interface>
 
-  <interface name="org.freedesktop.Avahi.Server">
+  <interface name="org.freedesktop.DBus.Properties">
+    <method name="Get">
+      <arg name="interface_name" type="s" direction="in"/>
+      <arg name="property_name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="out"/>
+    </method>
+    <method name="GetAll">
+      <arg name="interface_name" type="s" direction="in"/>
+      <arg name="values" type="a{sv}" direction="out"/>
+    </method>
+    <method name="Set">
+      <arg name="interface_name" type="s" direction="in"/>
+      <arg name="property_name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="in"/>
+    </method>
+  </interface>
 
+  <interface name="org.freedesktop.Avahi.Server">
     <method name="GetVersionString">
       <arg name="version" type="s" direction="out"/>
     </method>
@@ -217,6 +233,21 @@
   </interface>
 
   <interface name="org.freedesktop.Avahi.Server2">
+    <property name="VersionString" type="s" access="read"/>
+
+    <property name="APIVersion" type="u" access="read"/>
+
+    <property name="HostName" type="s" access="readwrite"/>
+
+    <property name="HostNameFqdn" type="s" access="read"/>
+
+    <property name="DomainName" type="s" access="read"/>
+
+    <property name="NSSSupportAvailable" type="b" access="read"/>
+
+    <property name="State" type="i" access="read"/>
+
+    <property name="LocalServiceCookie" type="u" access="read"/>
 
     <method name="GetVersionString">
       <arg name="version" type="s" direction="out"/>

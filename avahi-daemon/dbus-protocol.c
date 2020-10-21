@@ -999,11 +999,199 @@ static DBusHandlerResult dbus_prepare_record_browser_object(RecordBrowserInfo **
     return avahi_dbus_respond_path(c, m, i->path);
 }
 
+static DBusHandlerResult dbus_get_property(DBusConnection *c, DBusMessage *m, DBusError *error) {
+    char *interface_name, *property_name;
+
+    if (!dbus_message_get_args(
+            m, error,
+            DBUS_TYPE_STRING, &interface_name,
+            DBUS_TYPE_STRING, &property_name,
+            DBUS_TYPE_INVALID) || !interface_name || !property_name) {
+        return dbus_parsing_error("Error parsing Properties::Get message", error);
+    }
+
+    if (!strcmp(interface_name, AVAHI_DBUS_INTERFACE_SERVER2)) {
+        if (!strcmp(property_name, "VersionString")) {
+            return avahi_dbus_respond_variant_string(c, m, PACKAGE_STRING);
+        } else if (!strcmp(property_name, "APIVersion")) {
+            return avahi_dbus_respond_variant_uint32(c, m, AVAHI_DBUS_API_VERSION);
+        } else if (!strcmp(property_name, "HostName")) {
+            return avahi_dbus_respond_variant_string(c, m, avahi_server_get_host_name(avahi_server));
+        } else if (!strcmp(property_name, "HostNameFqdn")) {
+            return avahi_dbus_respond_variant_string(c, m, avahi_server_get_host_name_fqdn(avahi_server));
+        } else if (!strcmp(property_name, "DomainName")) {
+            return avahi_dbus_respond_variant_string(c, m, avahi_server_get_domain_name(avahi_server));
+        } else if (!strcmp(property_name, "NSSSupportAvailable")) {
+            return avahi_dbus_respond_variant_boolean(c, m, nss_support);
+        } else if (!strcmp(property_name, "State")) {
+            return avahi_dbus_respond_variant_int32(c, m, avahi_server_get_state(avahi_server));
+        } else if (!strcmp(property_name, "LocalServiceCookie")) {
+            return avahi_dbus_respond_variant_uint32(c, m, avahi_server_get_local_service_cookie(avahi_server));
+        } else {
+            return avahi_dbus_respond_unknown_property_error(c, m);
+        }
+    } else {
+        return avahi_dbus_respond_unknown_property_error(c, m);
+    }
+}
+
+static void add_property(DBusMessageIter *values, const char *name, int type, void *value)
+{
+    DBusMessageIter entry, variant;
+    char sig[2];
+
+    sig[0] = type;
+    sig[1] = 0;
+
+    dbus_message_iter_open_container(values, DBUS_TYPE_DICT_ENTRY, NULL, &entry);
+    dbus_message_iter_append_basic(&entry, DBUS_TYPE_STRING, &name);
+    dbus_message_iter_open_container(&entry, DBUS_TYPE_VARIANT, sig, &variant);
+    dbus_message_iter_append_basic(&variant, type, value);
+    dbus_message_iter_close_container(&entry, &variant);
+    dbus_message_iter_close_container(values, &entry);
+}
+
+static void add_property_string(DBusMessageIter *values, const char *name, const char *text)
+{
+   add_property(values, name, DBUS_TYPE_STRING, &text);
+}
+
+static void add_property_int32(DBusMessageIter *values, const char *name, int32_t i)
+{
+   add_property(values, name, DBUS_TYPE_INT32, &i);
+}
+
+static void add_property_uint32(DBusMessageIter *values, const char *name, uint32_t u)
+{
+   add_property(values, name, DBUS_TYPE_UINT32, &u);
+}
+
+static void add_property_boolean(DBusMessageIter *values, const char *name, int b)
+{
+   add_property(values, name, DBUS_TYPE_BOOLEAN, &b);
+}
+
+static DBusHandlerResult dbus_get_all_properties(DBusConnection *c, DBusMessage *m, DBusError *error) {
+    char *interface_name;
+    DBusMessage *reply;
+    DBusMessageIter iter, values;
+
+    if (!dbus_message_get_args(
+            m, error,
+            DBUS_TYPE_STRING, &interface_name,
+            DBUS_TYPE_INVALID) || !interface_name) {
+        return dbus_parsing_error("Error parsing Properties::GetAll message", error);
+    }
+
+    reply = dbus_message_new_method_return(m);
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_message_iter_init_append(reply, &iter);
+    dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY, "{sv}", &values);
+    if (!strcmp(interface_name, AVAHI_DBUS_INTERFACE_SERVER2)) {
+        add_property_string (&values, "VersionString", PACKAGE_STRING);
+        add_property_uint32 (&values, "APIVersion", AVAHI_DBUS_API_VERSION);
+        add_property_string (&values, "HostName", avahi_server_get_host_name(avahi_server));
+        add_property_string (&values, "HostNameFqdn", avahi_server_get_host_name_fqdn(avahi_server));
+        add_property_string (&values, "DomainName", avahi_server_get_domain_name(avahi_server));
+        add_property_boolean (&values, "NSSSupportAvailable", nss_support);
+        add_property_int32 (&values, "State", avahi_server_get_state(avahi_server));
+        add_property_uint32 (&values, "LocalServiceCookie", avahi_server_get_local_service_cookie(avahi_server));
+    }
+    dbus_message_iter_close_container(&iter, &values);
+
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+static dbus_bool_t parse_set_property_args(DBusMessage *m, char **interface_name, char **property_name, DBusMessageIter *value)
+{
+    DBusMessageIter args;
+
+    if (!dbus_message_iter_init(m, &args) ||
+        dbus_message_iter_get_arg_type(&args) != DBUS_TYPE_STRING) {
+        return FALSE;
+    }
+    dbus_message_iter_get_basic(&args, interface_name);
+
+    if (!dbus_message_iter_next(&args) ||
+        dbus_message_iter_get_arg_type(&args) != DBUS_TYPE_STRING) {
+        return FALSE;
+    }
+    dbus_message_iter_get_basic(&args, property_name);
+
+    if (!dbus_message_iter_next(&args) ||
+        dbus_message_iter_get_arg_type(&args) != DBUS_TYPE_VARIANT) {
+        return FALSE;
+    }
+    dbus_message_iter_recurse(&args, value);
+
+    if (dbus_message_iter_next(&args)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static DBusHandlerResult dbus_set_property(DBusConnection *c, DBusMessage *m, DBusError *error) {
+    char *interface_name, *property_name;
+    DBusMessageIter value;
+
+    if (!parse_set_property_args(m, &interface_name, &property_name, &value)) {
+        return dbus_parsing_error("Error parsing Properties::Set message", error);
+    }
+
+    if (!strcmp(interface_name, AVAHI_DBUS_INTERFACE_SERVER2)) {
+        if (!strcmp(property_name, "HostName")) {
+            char *name;
+
+            if (dbus_message_iter_get_arg_type(&value) != DBUS_TYPE_STRING) {
+                return avahi_dbus_respond_invalid_signature_error(c, m);
+            }
+            dbus_message_iter_get_basic(&value, &name);
+
+            if (avahi_server_set_host_name(avahi_server, name) < 0)
+                return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
+
+            avahi_log_info("Changing host name to '%s'.", name);
+
+            return avahi_dbus_respond_ok(c, m);
+        } else if (!strcmp(property_name, "VersionString") ||
+                   !strcmp(property_name, "APIVersion") ||
+                   !strcmp(property_name, "HostNameFqdn") ||
+                   !strcmp(property_name, "DomainName") ||
+                   !strcmp(property_name, "NSSSupportAvailable") ||
+                   !strcmp(property_name, "State") ||
+                   !strcmp(property_name, "LocalServiceCookie")) {
+            return avahi_dbus_respond_read_only_property_error(c, m);
+        } else {
+            return avahi_dbus_respond_unknown_property_error(c, m);
+        }
+    } else {
+        return avahi_dbus_respond_unknown_property_error(c, m);
+    }
+}
+
 static DBusHandlerResult dbus_select_common_methods(DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata, const char *iface, DBusError *error) {
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
         return avahi_dbus_handle_introspect(c, m, "org.freedesktop.Avahi.Server.xml");
 
-    else if (dbus_message_is_method_call(m, iface, "GetHostName")) {
+    else if (dbus_message_is_method_call(m, DBUS_INTERFACE_PROPERTIES, "Get")) {
+        return dbus_get_property(c, m, error);
+
+    } else if (dbus_message_is_method_call(m, DBUS_INTERFACE_PROPERTIES, "GetAll")) {
+        return dbus_get_all_properties(c, m, error);
+
+    } else if (dbus_message_is_method_call(m, DBUS_INTERFACE_PROPERTIES, "Set")) {
+        return dbus_set_property(c, m, error);
+
+    } else if (dbus_message_is_method_call(m, iface, "GetHostName")) {
         return dbus_get_host_name(c, m, error);
 
     } else if (dbus_message_is_method_call(m, iface, "SetHostName")) {

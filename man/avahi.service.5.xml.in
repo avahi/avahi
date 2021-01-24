@@ -114,10 +114,10 @@
         "text". Examples (all the values are decoded to the string
         "value" without quotes):</p>
 
-        <p>&lt;txt-record&gt;key=value&lt;txt-record&gt;</p>
-        <p>&lt;txt-record value-format="text"&gt;key=value&lt;txt-record&gt;</p>
-        <p>&lt;txt-record value-format="binary-hex"&gt;key=76616c7565&lt;txt-record&gt;</p>
-        <p>&lt;txt-record value-format="binary-base64"&gt;key=dmFsdWU=&lt;txt-record&gt;</p>
+        <p>&lt;txt-record&gt;key=value&lt;/txt-record&gt;</p>
+        <p>&lt;txt-record value-format="text"&gt;key=value&lt;/txt-record&gt;</p>
+        <p>&lt;txt-record value-format="binary-hex"&gt;key=76616c7565&lt;/txt-record&gt;</p>
+        <p>&lt;txt-record value-format="binary-base64"&gt;key=dmFsdWU=&lt;/txt-record&gt;</p>
       </option>
 
 

@@ -1206,7 +1206,7 @@ static int loop(int iface, uint32_t addr) {
                 retval_sent = 1;
             }
 
-        } else if (event == EVENT_PACKET) {
+        } else if (state != STATE_SLEEPING && event == EVENT_PACKET) {
             ArpPacketInfo info;
 
             assert(in_packet);

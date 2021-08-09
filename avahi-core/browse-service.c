@@ -103,7 +103,9 @@ AvahiSServiceBrowser *avahi_s_service_browser_prepare(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_is_valid_service_type_generic(service_type), AVAHI_ERR_INVALID_SERVICE_TYPE);
+
+    if (!avahi_is_valid_service_type_generic(service_type))
+        service_type = "_invalid._tcp";
 
     if (!domain)
         domain = server->domain_name;

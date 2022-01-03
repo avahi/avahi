@@ -238,7 +238,7 @@ static void cleanup_watches(AvahiSimplePoll *s, int all) {
             destroy_watch(w);
     }
 
-    s->timeout_req_cleanup = 0;
+    s->watch_req_cleanup = 0;
 }
 
 static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata) {

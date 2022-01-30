@@ -27,7 +27,7 @@ try:
     gettext.textdomain(@GETTEXT_PACKAGE@)
     import gi
     gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, GObject
+    from gi.repository import Gtk, GObject, GLib
     _ = gettext.gettext
 except ImportError as e:
     print("Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e)
@@ -235,7 +235,10 @@ class Main_window:
             txts = ""
             txtd = self.pair_to_dict(txt)
             for k,v in txtd.items():
-                txts+="<b>" + _("TXT") + " <i>%s</i></b> = %s\n" % (k,v)
+                txts+="<b>" + _("TXT") + " <i>%s</i></b> = %s\n" % (
+                    GLib.markup_escape_text(k),
+                    GLib.markup_escape_text(v),
+                )
         else:
             txts = "<b>" + _("TXT Data:") + "</b> <i>" + _("empty") + "</i>"
 
@@ -249,7 +252,17 @@ class Main_window:
         infos += "<b>" + _("Address:") + "</b> %s/%s:%i\n%s"
         if isinstance(infos, bytes):    # Python 2
             infos = infos.decode("utf-8")
-        infos = infos % (stype, name, domain, self.siocgifname(interface), self.protoname(protocol), host, address, port, txts.strip())
+        infos = infos % (
+            GLib.markup_escape_text(stype),
+            GLib.markup_escape_text(name),
+            GLib.markup_escape_text(domain),
+            GLib.markup_escape_text(self.siocgifname(interface)),
+            GLib.markup_escape_text(self.protoname(protocol)),
+            GLib.markup_escape_text(host),
+            GLib.markup_escape_text(address),
+            port,
+            txts.strip(),
+        )
         self.info_label.set_markup(infos)
 
     def insert_row(self, model,parent,

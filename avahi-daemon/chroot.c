@@ -188,8 +188,8 @@ static int recv_fd(int fd) {
             return -1;
         }
 
-        assert(h->cmsg_len = CMSG_LEN(sizeof(int)));
-        assert(h->cmsg_level = SOL_SOCKET);
+        assert(h->cmsg_len == CMSG_LEN(sizeof(int)));
+        assert(h->cmsg_level == SOL_SOCKET);
         assert(h->cmsg_type == SCM_RIGHTS);
 
         return *((int*)CMSG_DATA(h));

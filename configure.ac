@@ -19,7 +19,7 @@
 # USA.
 
 AC_PREREQ(2.63)
-AC_INIT([avahi],[0.6.32-rc],[avahi (at) lists (dot) freedesktop (dot) org])
+AC_INIT([avahi],[0.8],[avahi (at) lists (dot) freedesktop (dot) org])
 AC_CONFIG_SRCDIR([avahi-core/server.c])
 AC_CONFIG_MACRO_DIR([common])
 AC_CONFIG_HEADERS([config.h])
@@ -27,13 +27,15 @@ AM_INIT_AUTOMAKE([foreign 1.11 -Wall -Wno-portability silent-rules tar-pax])
 
 AC_SUBST(PACKAGE_URL, [http://avahi.org/])
 
-AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:3:5])
-AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [7:2:0])
+AC_SUBST(LIBAVAHI_COMMON_VERSION_INFO, [8:4:5])
+AC_SUBST(LIBAVAHI_CORE_VERSION_INFO, [8:0:1])
 AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:9:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:2:0])
-AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:4:0])
+AC_SUBST(LIBAVAHI_LIBEVENT_VERSION_INFO, [1:0:0])
+AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:5:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
+AC_SUBST(LIBAVAHI_QT5_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:4:1])
 
 # Do not touch these, since they we took this version-info from upstream HOWL/Bonjour
@@ -413,11 +415,11 @@ if test "x$have_kqueue" = "xyes" ; then
     AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
 fi
 
-IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=avahi
 AC_SUBST([GETTEXT_PACKAGE])
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
-AM_GLIB_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION([0.19.8])
+AM_GNU_GETTEXT([external])
 
 avahilocaledir='${prefix}/${DATADIRNAME}/locale'
 AC_SUBST(avahilocaledir)
@@ -476,16 +478,35 @@ AM_CONDITIONAL(HAVE_GOBJECT, test "x$HAVE_GOBJECT" = "xyes")
 GOBJECT_INTROSPECTION_CHECK([0.9.5])
 
 #
+# Check for libevent 2.0.21
+#
+AC_ARG_ENABLE(libevent,
+	AS_HELP_STRING([--disable-libevent],[Disable use of libevent]),
+	[case "${enableval}" in
+		yes) HAVE_LIBEVENT=yes ;;
+		no)  HAVE_LIBEVENT=no ;;
+		*) AC_MSG_ERROR(bad value ${enableval} for --enable-libevent) ;;
+	esac],
+	[HAVE_LIBEVENT=yes])
+
+if test "x$HAVE_LIBEVENT" = "xyes" ; then
+	PKG_CHECK_MODULES(LIBEVENT, [ libevent >= 2.0.21 ])
+	AC_SUBST(LIBEVENT_CFLAGS)
+	AC_SUBST(LIBEVENT_LIBS)
+fi
+AM_CONDITIONAL(HAVE_LIBEVENT, test "x$HAVE_LIBEVENT" = "xyes")
+
+#
 # Check for Qt 3
 #
 AC_ARG_ENABLE(qt3,
-        AS_HELP_STRING([--disable-qt3],[Disable building of Qt3 mainloop integration]),
+        AS_HELP_STRING([--enable-qt3],[Enable building of Qt3 mainloop integration]),
         [case "${enableval}" in
                 yes) HAVE_QT3=yes ;;
                 no)  HAVE_QT3=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt3) ;;
         esac],
-        [HAVE_QT3=yes])
+        [HAVE_QT3=no])
 
 if test "x$HAVE_QT3" = "xyes" ; then
         PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])
@@ -510,7 +531,7 @@ AC_ARG_ENABLE(qt4,
                 no)  HAVE_QT4=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt4) ;;
         esac],
-        [HAVE_QT4=yes])
+        [HAVE_QT4=no])
 
 if test "x$HAVE_QT4" = "xyes" ; then
         PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ])
@@ -526,6 +547,32 @@ fi
 AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")
 
 #
+# Check for Qt 5
+#
+AC_ARG_ENABLE(qt5,
+        AS_HELP_STRING([--disable-qt5],[Disable building of Qt5Core mainloop integration]),
+        [case "${enableval}" in
+                yes) HAVE_QT5=yes ;;
+                no)  HAVE_QT5=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt5) ;;
+        esac],
+        [HAVE_QT5=yes])
+
+if test "x$HAVE_QT5" = "xyes" ; then
+        PKG_CHECK_MODULES( QT5, [ Qt5Core >= 5.0.0 ])
+        AC_AVAHI_QT_ADD_PIC_IF_NEEDED
+        AC_SUBST(QT5_CFLAGS)
+        AC_SUBST(QT5_LIBS)
+        QT5_PREFIX="`$PKG_CONFIG --variable=host_bins Qt5Core`"
+        AC_PATH_PROGS(MOC_QT5, [moc-qt5 moc], no, [$QT5_PREFIX])
+        if test "$MOC_QT5" = no; then
+            AC_MSG_ERROR([Could not find QT5 moc])
+        fi
+        AC_SUBST(MOC_QT5)
+fi
+AM_CONDITIONAL(HAVE_QT5, test "x$HAVE_QT5" = "xyes")
+
+#
 # Check for GTK+ 2.0
 #
 AC_ARG_ENABLE(gtk,
@@ -535,7 +582,7 @@ AC_ARG_ENABLE(gtk,
                 no)  HAVE_GTK=no ;;
                 *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk) ;;
         esac],
-        [HAVE_GTK=yes])
+        [HAVE_GTK=no])
 
 if test "x$HAVE_GTK" = "xyes" ; then
         # Check for GTK 2.0
@@ -789,22 +836,23 @@ AC_ARG_ENABLE(python,
     esac],[HAVE_PYTHON=yes])
 
 HAVE_PYTHON_DBUS=no
-HAVE_PYGTK=no
+HAVE_PYGOBJECT=no
 
 if test "x$HAVE_PYTHON" = "xyes" ; then
-    AM_PATH_PYTHON([2.4])
+    AM_PATH_PYTHON([2.6])
 
-    AC_ARG_ENABLE(pygtk,
-        AS_HELP_STRING([--disable-pygtk],[Disable use of GTK in Python]),
+    AC_ARG_ENABLE(pygobject,
+        AS_HELP_STRING([--disable-pygobject],[Disable use of Python GObject]),
         [case "${enableval}" in
-                yes) HAVE_PYGTK=yes ;;
-                no)  HAVE_PYGTK=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-pygtk) ;;
+                yes) HAVE_PYGOBJECT=yes ;;
+                no)  HAVE_PYGOBJECT=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-pygobject) ;;
         esac],
-        [HAVE_PYGTK=yes])
+        [HAVE_PYGOBJECT=yes])
 
-    if test "x$HAVE_PYGTK" = "xyes" ; then
-        AM_CHECK_PYMOD(gtk,,,[AC_MSG_ERROR(Could not find Python module gtk)])
+    if test "x$HAVE_PYGOBJECT" = "xyes" ; then
+        PKG_CHECK_MODULES([PYGOBJECT],[pygobject-3.0],,
+            [AC_MSG_ERROR(Could not find Python GObject)])
     fi
 
 
@@ -823,16 +871,15 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         fi
 
         AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
-        if test "x$HAVE_GDBM" = "xyes"; then
-            AM_CHECK_PYMOD(gdbm,,,[AC_MSG_ERROR(Could not find Python module gdbm)])
-        fi
-        if test "x$HAVE_DBM" = "xyes"; then
-            AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
+        if test "x$HAVE_GDBM" = "xyes" || test "x$HAVE_DBM" = "xyes"; then
+            AM_CHECK_PYMOD(anydbm,,,[
+                AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
+            ])
         fi
     fi
 fi
 AM_CONDITIONAL(HAVE_PYTHON, [test "x$HAVE_PYTHON" = "xyes" ])
-AM_CONDITIONAL(HAVE_PYGTK, test "x$HAVE_PYGTK" = "xyes")
+AM_CONDITIONAL(HAVE_PYGOBJECT, test "x$HAVE_PYGOBJECT" = "xyes")
 AM_CONDITIONAL(HAVE_PYTHON_DBUS, test "x$HAVE_PYTHON_DBUS" = "xyes")
 
 #
@@ -957,7 +1004,7 @@ AC_DEFINE_UNQUOTED(AVAHI_AUTOIPD_GROUP,"$AVAHI_AUTOIPD_GROUP", [Group for runnin
 #
 # Avahi runtime dir
 #
-avahi_runtime_dir="${localstatedir}/run"
+avahi_runtime_dir="/run"
 avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
 AC_SUBST(avahi_runtime_dir)
 AC_SUBST(avahi_socket)
@@ -965,7 +1012,7 @@ AC_SUBST(avahi_socket)
 #
 # Avahi interfaces dir
 #
-if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes"; then
+if test "x$HAVE_PYTHON_DBUS" = "xyes" -o "x$HAVE_GTK" = "xyes" -o "x$HAVE_GTK3" = "xyes"; then
 	interfacesdir="${datadir}/${PACKAGE}/interfaces/"
 	AC_SUBST(interfacesdir)
 fi
@@ -1101,7 +1148,6 @@ avahi-client/Makefile
 initscript/Makefile
 initscript/debian/Makefile
 initscript/gentoo/Makefile
-initscript/archlinux/Makefile
 initscript/suse/Makefile
 initscript/fedora/Makefile
 initscript/lfs/Makefile
@@ -1126,6 +1172,7 @@ avahi-compat-howl/Makefile
 avahi-compat-howl/samples/Makefile
 avahi-autoipd/Makefile
 avahi-ui/Makefile
+avahi-libevent/Makefile
 po/Makefile.in
 ])
 AC_OUTPUT
@@ -1154,10 +1201,11 @@ echo "
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}
     Enable Python:                             ${HAVE_PYTHON}
-    Enable pygtk:                              ${HAVE_PYGTK}
+    Enable pygobject:                          ${HAVE_PYGOBJECT}
     Enable python-dbus:                        ${HAVE_PYTHON_DBUS}
     Enable QT3:                                ${HAVE_QT3}
     Enable QT4:                                ${HAVE_QT4}
+    Enable QT5:                                ${HAVE_QT5}
     Enable Mono:                               ${HAVE_MONO}
     Enable Monodoc:                            ${HAVE_MONODOC}
     Distribution/OS:                           ${with_distro}
@@ -1178,15 +1226,15 @@ if test "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBDAEMON" = "xyes" ; then
     BUILD_DAEMON=yes
 fi
 
-BUILD_PYTHON="no   (You need python, pygtk and python-dbus!)"
+BUILD_PYTHON="no   (You need python, pygobject and python-dbus!)"
 
-if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGTK" = "xyes" ; then
+if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" -a "x$HAVE_PYTHON" = "xyes" -a "x$HAVE_PYTHON_DBUS" = "xyes" -a "x$HAVE_PYGOBJECT" = "xyes" ; then
     BUILD_PYTHON=yes
 fi
 
 BUILD_CLIENT="no   (You need avahi-daemon and D-Bus!)"
 
-if test "x$BUILD_DAEMON" = "xyes" -a "x$HAVE_DBUS" = "xyes" ; then
+if test "x$HAVE_DBUS" = "xyes" ; then
     BUILD_CLIENT=yes
 fi
 
@@ -1227,6 +1275,7 @@ echo "\
     Building avahi-discover-standalone: ${HAVE_GTK2OR3}
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
+    Building libavahi-qt5:              ${HAVE_QT5}
     Building avahi-sharp:               ${HAVE_MONO}
     Building avahi-compat-libdns_sd:    ${ENABLE_COMPAT_LIBDNS_SD}
     Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}
@@ -1234,4 +1283,5 @@ echo "\
     Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
     Building avahi-autoipd:             ${ENABLE_AUTOIPD}
     Building libavahi-ui:               ${BUILD_UI}
+    Building libavahi-libevent:		${HAVE_LIBEVENT}
 "

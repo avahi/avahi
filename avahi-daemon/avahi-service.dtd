@@ -15,4 +15,4 @@
 <!ELEMENT port (#PCDATA)>
 <!ATTLIST port>
 <!ELEMENT txt-record (#PCDATA)>
-<!ATTLIST txt-record>
+<!ATTLIST txt-record value-format (text|binary-hex|binary-base64) "text">

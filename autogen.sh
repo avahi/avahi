@@ -40,7 +40,14 @@ run_versioned() {
     "$P" "$@"
 }
 
-set -ex
+set -e
+
+test -n "$srcdir" || srcdir=$(dirname "$0")
+test -n "$srcdir" || srcdir=.
+
+olddir=$(pwd)
+
+cd $srcdir
 
 if [ -f .git/hooks/pre-commit.sample -a ! -f .git/hooks/pre-commit ] ; then
     cp -p .git/hooks/pre-commit.sample .git/hooks/pre-commit && \
@@ -63,15 +70,15 @@ else
 
     test "x$LIBTOOLIZE" = "x" && LIBTOOLIZE=libtoolize
 
-    intltoolize --copy --force --automake
     "$LIBTOOLIZE" -c --force
     run_versioned aclocal "$AM_VERSION" -I common
     run_versioned autoconf "$AC_VERSION" -Wall
     run_versioned autoheader "$AC_VERSION"
     run_versioned automake "$AM_VERSION" -a -c --foreign
 
+    cd "$olddir"
     if test "x$NOCONFIGURE" = "x"; then
-        ./configure "$@"
+        $srcdir/configure "$@"
         make clean
     fi
 fi

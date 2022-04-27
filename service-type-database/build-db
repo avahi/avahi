@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*-python-*-
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it
@@ -15,24 +17,33 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-initddir = $(sysconfdir)/rc.d
+try:
+    import anydbm as dbm
+except ImportError:
+    import dbm
 
-EXTRA_DIST = \
-	avahi-daemon.in \
-	avahi-dnsconfd.in
+import sys
 
-initd_SCRIPTS = \
-	avahi-daemon \
-	avahi-dnsconfd
+if len(sys.argv) > 1:
+    infn = sys.argv[1]
+else:
+    infn = "service-types"
 
-CLEANFILES = \
-	avahi-daemon \
-	avahi-dnsconfd
+if len(sys.argv) > 2:
+    outfn = sys.argv[2]
+else:
+    outfn = infn + ".db"
 
-avahi-daemon: avahi-daemon.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
-	chmod +x $@
+db = dbm.open(outfn, "n")
 
-avahi-dnsconfd: avahi-dnsconfd.in
-	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
-	chmod +x $@
+for ln in open(infn, "r"):
+    ln = ln.strip(" \r\n\t")
+    
+    if ln == "" or ln.startswith("#"):
+        continue
+
+    t, n = ln.split(":", 1)
+
+    db[t.strip()] = n.strip()
+
+db.close()

@@ -56,7 +56,7 @@ man_MANS += \
 	avahi-publish.1 \
 	avahi-set-host-name.1
 
-if HAVE_GTK
+if HAVE_GTK2OR3
 man_MANS += \
 	bssh.1
 endif
@@ -64,10 +64,11 @@ endif
 if HAVE_PYTHON
 man_MANS += \
 	avahi-bookmarks.1
-if HAVE_GTK
+endif
+
+if HAVE_PYGOBJECT
 man_MANS += \
 	avahi-discover.1
-endif
 endif
 endif
 
@@ -134,15 +135,16 @@ EXTRA_DIST = \
 if HAVE_DBUS
 
 BSSH_LN =
-if HAVE_GTK
+if HAVE_GTK2OR3
 if HAVE_GLIB
 BSSH_LN += $(LN_S) bssh.1 bvnc.1 &&
+BSSH_LN += $(LN_S) bssh.1 bshell.1 &&
 endif
 endif
 install-exec-local:
 	mkdir -p $(DESTDIR)/$(mandir)/man1 && \
 		cd $(DESTDIR)/$(mandir)/man1 && \
-		rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 avahi-browse-domains.1 avahi-publish-address.1 avahi-publish-service.1 bvnc.1 && \
+		rm -f avahi-resolve-host-name.1 avahi-resolve-address.1 avahi-browse-domains.1 avahi-publish-address.1 avahi-publish-service.1 bvnc.1 bshell.1 && \
 		$(BSSH_LN) \
 		$(LN_S) avahi-resolve.1 avahi-resolve-host-name.1 && \
 		$(LN_S) avahi-resolve.1 avahi-resolve-address.1 && \

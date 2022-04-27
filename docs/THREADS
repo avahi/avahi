@@ -1,0 +1,94 @@
+= Running the Avahi Client as a Thread =
+
+avahi-client does not do access locking out-of-the-box. An
+AvahiClient/AvahiPoll instance may be used in a multithreaded application as
+long as it is accessed from a single thread only. You can even run multiple
+AvahiClient/AvahiPoll instances in the same process, with one event loop thread
+for each. However, as soon as you want to access an AvahiClient/AvahiPoll
+object from more than one thread you must add proper locking support with
+a mutex.
+
+Applications that do not have a proper event loop might need to schedule
+AvahiClient/AvahiPoll in its own thread. Avahi 0.6.4 has basic support for this
+kind of operation, using the new AvahiThreadedPoll object.
+
+AvahiThreadedPoll is similar to an AvahiSimplePoll, with the difference that
+the main loop is run in its own helper thread. After creation of the object
+(avahi_threaded_poll_new()), you may get the associated AvahiPoll object using
+avahi_threaded_poll_get()) for passing it to avahi_client_new(). After setting
+up everything, you should be ready to start the main loop in its own thread. To
+do that just call avahi_threaded_poll_start(). To shut down the main loop, you
+may call avahi_threaded_poll_stop(), for freeing it afterwards call
+avahi_threaded_poll_free() on the object. In most programs this is all you need
+to do. Please remember that event loop callbacks are executed from the helper
+thread, hence you might need to do your own locking if you want to pass data
+from it to some other thread.
+
+It is not safe to access the AvahiClient/AvahiPoll objects from anything but
+the helper thread after it is been started (such an access might be adding
+a new service or a new browser to the existing AvahiClient object from the main
+thread). If you need to do such things you need to lock those objects manually.
+AvahiThreadedPoll offers two functions to facilitate this:
+avahi_threaded_poll_lock() and avahi_threaded_poll_unlock(). This functions are
+not intended to be called from the helper thread itself, since the event loop
+callbacks are called with these locks held.
+
+API Documentation for AvahiThreadedPoll is available from doxygen.
+
+== Example ==
+
+This is an example how to integrate Avahi in an application that doesn't have
+a proper event loop, such as an FTP server. (This is untested pseudo-code!)
+
+static AvahiClient *client = NULL;
+static AvahiThreadedPoll *threaded_poll = NULL;
+
+void zeroconf_setup(void) {
+   /* Call this when the application starts up. */
+
+   if (!(threaded_poll = avahi_threaded_poll_new())) {
+     /* do something bad */
+     return;
+   }
+
+   if (!(client = avahi_client_new(avahi_threaded_poll_get(threaded_poll), ...))) {
+     /* do something bad */
+     return;
+   }
+
+   /* create some browsers on the client object here, if you wish */
+   if (!avahi_service_browser_new(client, .....)) {
+     /* so something bad */
+     return;
+   }
+
+   /* Finally, start the event loop thread */
+   if (avahi_threaded_poll_start(threaded_poll) < 0) {
+     /* do something bad */
+     return;
+   }
+}
+
+void zeroconf_shutdown(void) {
+  /* Call this when the app shuts down */
+
+  avahi_threaded_poll_stop(threaded_poll);
+  avahi_client_free(client);
+  avahi_threaded_poll_free(threaded_poll);
+}
+
+void zeroconf_foobar(void) {
+   /* In case you need to attach or remove an object from the AvahiClient or
+      AvahiPoll objects in the main process thread, do it like this */
+
+   /* First, block the event loop */
+   avahi_thread_poll_lock(threaded_poll);
+
+   /* Then, do your stuff */
+   if (!avahi_service_browser_new(client, ....)) {
+     /* do something bad */
+   }
+
+   /* Finally, unblock the event loop */
+   avahi_thread_poll_unlock(threaded_poll);
+}

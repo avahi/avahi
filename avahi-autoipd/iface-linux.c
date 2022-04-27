@@ -141,7 +141,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
             return 0;
 
         l = NLMSG_PAYLOAD(n, sizeof(*ifa));
-        a = IFLA_RTA(ifa);
+        a = IFA_RTA(ifa);
 
         while(RTA_OK(a, l)) {
 

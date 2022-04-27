@@ -150,7 +150,7 @@
 
 	<section name="See also">
 	  <p>
-        <manref name="autoipd.action" section="8"/>, <manref name="dhclient" section="8"/>
+        <manref name="avahi-autoipd.action" section="8"/>, <manref name="dhclient" section="8"/>
 	  </p>
 
       <p>http://avahi.org/wiki/AvahiAutoipd documents how avahi-autoipd is best packaged and integrated into distributions.</p>

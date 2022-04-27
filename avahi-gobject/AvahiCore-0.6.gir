@@ -3,7 +3,7 @@
             xmlns="http://www.gtk.org/introspection/core/1.0"
             xmlns:c="http://www.gtk.org/introspection/c/1.0"
             xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
-  <namespace name="AvahiCore" version="0.6" shared-library="avahi-core">
+  <namespace name="AvahiCore" version="0.6" shared-library="libavahi-core.so.7">
     <alias name="IfIndex" c:type="AvahiIfIndex">
       <type name="gint" c:type="int"/>
     </alias>

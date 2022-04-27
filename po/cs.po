@@ -245,7 +245,7 @@ msgstr "Zjišťování přes Avahi"
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
-msgstr "<i> Žádná služba není aktuálně vybrána. </ i>"
+msgstr "<i>Žádná služba není aktuálně vybrána.</i>"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
@@ -567,7 +567,7 @@ msgstr ""
 #, c-format
 msgid ": Cache exhausted\n"
 msgstr ""
-": Cache vačerpána\n"
+": Cache vyčerpána\n"
 "\n"
 
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261

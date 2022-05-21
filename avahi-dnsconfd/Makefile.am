@@ -24,7 +24,7 @@ pkgsysconfdir=$(sysconfdir)/avahi
 
 AM_CFLAGS= \
 	-I$(top_srcdir) \
-	-DAVAHI_RUNTIME_DIR=\"$(avahi_runtime_dir)/\" \
+	-DAVAHI_RUNTIME_DIR=\"$(runstatedir)/\" \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_DNSCONF_SCRIPT=\"$(pkgsysconfdir)/avahi-dnsconfd.action\"
 

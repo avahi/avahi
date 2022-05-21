@@ -1020,12 +1020,14 @@ fi
 AC_SUBST(AVAHI_AUTOIPD_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_AUTOIPD_GROUP,"$AVAHI_AUTOIPD_GROUP", [Group for running the avahi-autoipd daemon])
 
+# Autoconf 2.70 supports this natively but it is not yet universally available.
+AS_IF([test -z "${runstatedir}"], [runstatedir='${localstatedir}/run'])
+AC_SUBST([runstatedir])
+
 #
 # Avahi runtime dir
 #
-avahi_runtime_dir="/run"
-avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
-AC_SUBST(avahi_runtime_dir)
+avahi_socket="${runstatedir}/avahi-daemon/socket"
 AC_SUBST(avahi_socket)
 
 #

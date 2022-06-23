@@ -38,6 +38,12 @@ static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     assert(s);
     assert(a);
 
+    if (a->state == AVAHI_PROBING && a->entry->group) {
+        assert(a->entry->group->n_probing);
+        a->entry->group->n_probing--;
+        avahi_s_entry_group_check_probed(a->entry->group, 1);
+    }
+
     if (a->time_event)
         avahi_time_event_free(a->time_event);
 

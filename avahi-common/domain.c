@@ -159,9 +159,9 @@ char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, si
                 return NULL;
 
             *((*ret_name) ++) = '\\';
-            *((*ret_name) ++) = '0' + (char)  ((uint8_t) *src / 100);
-            *((*ret_name) ++) = '0' + (char) (((uint8_t) *src / 10) % 10);
-            *((*ret_name) ++) = '0' + (char)  ((uint8_t) *src % 10);
+            *((*ret_name) ++) = '0' + (char)  ((uint8_t) *src / 64);
+            *((*ret_name) ++) = '0' + (char) (((uint8_t) *src / 8) % 8);
+            *((*ret_name) ++) = '0' + (char)  ((uint8_t) *src % 8);
 
             (*ret_size) -= 4;
         }

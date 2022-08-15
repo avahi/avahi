@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: avahi\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2018-02-02 14:59+0000\n"
-"PO-Revision-Date: 2018-04-16 13:18+0200\n"
+"PO-Revision-Date: 2022-08-16 00:25+0200\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
+"Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2018-04-16 10:04+0000\n"
-"X-Generator: Poedit 2.0.6\n"
-"Language: hr\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -44,7 +44,7 @@ msgstr "Nema prikladnog mrežnog protokola"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr "Neispravan DNS TTL"
+msgstr "Nevaljan DNS TTL"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
@@ -56,27 +56,27 @@ msgstr "Sukob lokalnog naziva"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
-msgstr "Neispravan zapis"
+msgstr "Nevaljan zapis"
 
 #: ../avahi-common/error.c:41
 msgid "Invalid service name"
-msgstr "Neispravan naziv usluge"
+msgstr "Nevaljan naziv usluge"
 
 #: ../avahi-common/error.c:42
 msgid "Invalid service type"
-msgstr "Neispravna vrsta usluge"
+msgstr "Nevaljana vrsta usluge"
 
 #: ../avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr "Neispravan broj ulaza"
+msgstr "Nevaljan broj ulaza"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr "Neispravan ključ zapisa"
+msgstr "Nevaljan ključ zapisa"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
-msgstr "Neispravna adresa"
+msgstr "Nevaljana adresa"
 
 #: ../avahi-common/error.c:46
 msgid "Timeout reached"
@@ -108,7 +108,7 @@ msgstr "Neispravna radnja"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr "Nastala je neočekivana D-bus greška"
+msgstr "Dogodila se neočekivana D-bus greška"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
@@ -144,7 +144,7 @@ msgstr "Nije pronađeno"
 
 #: ../avahi-common/error.c:64
 msgid "Invalid configuration"
-msgstr "Neispravno podešavanje"
+msgstr "Nevaljano podešavanje"
 
 #: ../avahi-common/error.c:65
 msgid "Version mismatch"
@@ -152,15 +152,15 @@ msgstr "Inačica se ne podudara"
 
 #: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
-msgstr "Neispravna podvrsta usluge"
+msgstr "Nevaljana podvrsta usluge"
 
 #: ../avahi-common/error.c:67
 msgid "Invalid packet"
-msgstr "Neispravni paket"
+msgstr "Nevaljan paket"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr "Neispravni DNS povratni kôd"
+msgstr "Nevaljan DNS povratni kôd"
 
 #: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
@@ -204,15 +204,15 @@ msgstr "DNS neuspjeh: NOTZONE"
 
 #: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr "DNS neuspjeh: RDATA"
+msgstr "Nevaljan RDATA"
 
 #: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr "Neispravna DNS vrsta"
+msgstr "Nevaljana DNS vrsta"
 
 #: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
-msgstr "Neispravna DNS klasa"
+msgstr "Nevaljana DNS klasa"
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
@@ -224,7 +224,7 @@ msgstr "Nije dopušteno"
 
 #: ../avahi-common/error.c:86
 msgid "Invalid argument"
-msgstr "Neispravan argument"
+msgstr "Nevaljan argument"
 
 #: ../avahi-common/error.c:87
 msgid "Is empty"
@@ -232,11 +232,11 @@ msgstr "Je prazno"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr "Zahtjevana radnja je neispravna zato jer je suvišna"
+msgstr "Zahtijevana radnja je neispravna zato jer je suvišna"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
-msgstr "Neispravan kôd greške"
+msgstr "Nevaljan kôd greške"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
 msgid "Avahi Discovery"
@@ -379,12 +379,12 @@ msgstr "Adresa obitelji za razlučivost naziva poslužitelja"
 #: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr "Avahi klijent neuspjeh: %s"
+msgstr "Neuspjeh Avahi klijenta: %s"
 
 #: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr "Avahi razrješitelj neuspjeh: %s"
+msgstr "Neuspjeh Avahi razrješitelja: %s"
 
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
@@ -423,7 +423,7 @@ msgstr "Pregledavanje usluga na <b>lokalnoj mreži</b>:"
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr "Pregledavanje usluga na na domeni <b>%s</b>:"
+msgstr "Pregledavanje usluga na domeni <b>%s</b>:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
@@ -528,7 +528,7 @@ msgstr "Odaberi SSH poslužitelja"
 #: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr "Povezivanje s '%s' ...\n"
+msgstr "Povezivanje s '%s'...\n"
 
 #: ../avahi-ui/bssh.c:240
 #, c-format
@@ -574,27 +574,27 @@ msgstr "Neuspjelo razrješavanje usluge '%s' vrste '%s' na domeni '%s': %s\n"
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
 msgid "service_browser failed: %s\n"
-msgstr "service_browser neuspjelo: %s\n"
+msgstr "service_browser neuspio: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:378
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr "avahi_service_browser_new() neuspjelo: %s\n"
+msgstr "avahi_service_browser_new() neuspio: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:414
 #, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr "service_type_browser neuspjelo: %s\n"
+msgstr "service_type_browser neuspio: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:444
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
-msgstr "avahi_service_type_browser_new() neuspjelo: %s\n"
+msgstr "avahi_service_type_browser_new() neuspio: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:519
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
-msgstr "avahi_domain_browser_new() neuspjelo: %s\n"
+msgstr "avahi_domain_browser_new() neuspio: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
 #: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
@@ -633,7 +633,7 @@ msgstr "E Ifce Prot %-*s %-20s domena\n"
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr "Povezivanje prekinuto, ponovno povezivanje ...\n"
+msgstr "Povezivanje prekinuto, ponovno povezivanje...\n"
 
 #: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
 #: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
@@ -651,7 +651,7 @@ msgstr "Neuspjeh klijenta, zatvaram: %s\n"
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr "Čekanje pozadinskog programa ...\n"
+msgstr "Čekanje pozadinskog programa...\n"
 
 #: ../avahi-utils/avahi-browse.c:647
 msgid ""
@@ -677,9 +677,9 @@ msgstr ""
 "    -d --domain=DOMENA   Domena za pregledavanje\n"
 "    -v --verbose         Omogući opširniji način\n"
 "    -t --terminate       Prekini nakon zapisa više-manje završenog popisa\n"
-"    -c --cache           Prekini nakon zapisa  svih unosa iz predmemorije\n"
+"    -c --cache           Prekini nakon zapisa svih unosa iz predmemorije\n"
 "    -l --ignore-local    Zanemari lokalne usluge\n"
-"    -r --resolve         Razrješi pronađene usluge\n"
+"    -r --resolve         Razriješi pronađene usluge\n"
 "    -f --no-fail         Uspij unatoč ako pozadinski program nije dostupan\n"
 "    -p --parsable        Izlaz u obradivome formatu\n"
 
@@ -818,8 +818,8 @@ msgstr ""
 "\n"
 "    -h --help            Prikaži ovu pomoć\n"
 "    -V --version         Prikaži inačicu\n"
-"    -n --name            Razrješi naziv poslužitelja\n"
-"    -a --address         Razrješi adresu\n"
+"    -n --name            Razriješi naziv poslužitelja\n"
+"    -a --address         Razriješi adresu\n"
 "    -v --verbose         Omogući opširniji način\n"
 "    -6                   Potraži IPv6 adrese\n"
 "    -4                   Potraži IPv4 adrese\n"

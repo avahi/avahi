@@ -99,6 +99,11 @@
 		<optdesc><p>Show version information.</p></optdesc>
 	  </option>
 
+	  <option>
+		<p><opt>-R | --no-reverse</opt></p>
+		<optdesc><p>Do not publish reverse entry with address.</p></optdesc>
+	  </option>
+
 	</options>
 
 	<section name="Authors">

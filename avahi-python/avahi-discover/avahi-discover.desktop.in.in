@@ -8,3 +8,4 @@ Type=Application
 Icon=network-wired
 Categories=GNOME;System;
 StartupNotify=false
+NoDisplay=true

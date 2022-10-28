@@ -84,6 +84,11 @@
         subtypes.</p></optdesc>
       </option>
 
+      <option>
+        <p><opt>-R | --no-reverse</opt></p>
+        <optdesc><p>Do not publish reverse entry with address.</p></optdesc>
+      </option>
+
 	  <option>
 		<p><opt>-f | --no-fail</opt></p>
 		<optdesc><p>Don't fail if the daemon is not found running. Instead, wait until it appears. If it disconnects, try to reconnect.</p></optdesc>

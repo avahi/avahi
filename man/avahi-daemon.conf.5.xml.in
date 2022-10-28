@@ -204,7 +204,7 @@
       are resolved via unicast DNS. If you want to maintain multiple
       different multicast DNS domains even with this option enabled
       we encourage you to use subdomains of .local, such as
-      "kitchen.local". This option defaults to "yes".</p>
+      "kitchen.local". This option defaults to "no".</p>
     </option>
 
   </section>

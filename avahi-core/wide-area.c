@@ -308,7 +308,7 @@ void avahi_wide_area_lookup_free(AvahiWideAreaLookup *l) {
     if(l->packet) {
         //need to free the packet
         avahi_dns_packet_free(l->packet);
-        l->packet=NULL;
+        l->packet = NULL;
     }
 }
 

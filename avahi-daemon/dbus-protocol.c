@@ -375,10 +375,14 @@ static DBusHandlerResult dbus_get_alternative_host_name(DBusConnection *c, DBusM
     }
 
     t = avahi_alternative_host_name(n);
-    avahi_dbus_respond_string(c, m, t);
-    avahi_free(t);
+    if (t) {
+        avahi_dbus_respond_string(c, m, t);
+        avahi_free(t);
 
-    return DBUS_HANDLER_RESULT_HANDLED;
+        return DBUS_HANDLER_RESULT_HANDLED;
+    } else {
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_NOT_FOUND, "Hostname not found");
+    }
 }
 
 static DBusHandlerResult dbus_get_alternative_service_name(DBusConnection *c, DBusMessage *m, DBusError *error) {
@@ -389,10 +393,14 @@ static DBusHandlerResult dbus_get_alternative_service_name(DBusConnection *c, DB
     }
 
     t = avahi_alternative_service_name(n);
-    avahi_dbus_respond_string(c, m, t);
-    avahi_free(t);
+    if (t) {
+        avahi_dbus_respond_string(c, m, t);
+        avahi_free(t);
 
-    return DBUS_HANDLER_RESULT_HANDLED;
+        return DBUS_HANDLER_RESULT_HANDLED;
+    } else {
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_NOT_FOUND, "Service not found");
+    }
 }
 
 static DBusHandlerResult dbus_create_new_entry_group(DBusConnection *c, DBusMessage *m, DBusError *error) {

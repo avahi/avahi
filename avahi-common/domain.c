@@ -477,22 +477,6 @@ int avahi_service_name_join(char *p, size_t size, const char *name, const char *
     return AVAHI_OK;
 }
 
-#ifndef HAVE_STRLCPY
-
-static size_t strlcpy(char *dest, const char *src, size_t n) {
-    assert(dest);
-    assert(src);
-
-    if (n > 0) {
-        strncpy(dest, src, n-1);
-        dest[n-1] = 0;
-    }
-
-    return strlen(src);
-}
-
-#endif
-
 int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain, size_t domain_size) {
     enum {
         NAME,
@@ -500,6 +484,7 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
         DOMAIN
     } state;
     int type_empty = 1, domain_empty = 1;
+    int name_labels = 0;
 
     assert(p);
     assert(type);
@@ -524,9 +509,18 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
 
         switch (state) {
             case NAME:
-                strlcpy(name, buf, name_size);
+		if (name_labels == 0 || buf[0] != '_') {
+		    /* allow multiple label service name */
+		    if (name_labels > 0)
+			strncat(name, ".", name_size-1);
+                    strncat(name, buf, name_size-1);
+		    name[name_size-1] = 0;
+		    name_labels++;
+                    break;
+		}
+
                 state = TYPE;
-                break;
+                /* fall through */
 
             case TYPE:
 

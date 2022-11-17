@@ -322,6 +322,7 @@ int main(int argc, char *argv[]) {
     GtkTreeViewColumn *c;
     gint error;
     AvahiGLibPoll *poll_api;
+    GError *gerror = NULL;
 
     gtk_init(&argc, &argv);
 
@@ -331,7 +332,12 @@ int main(int argc, char *argv[]) {
 
     ui = gtk_builder_new();
     gtk_builder_set_translation_domain(ui, "avahi");
-    gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover.ui", NULL);
+    if (!gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover.ui", &gerror)) {
+        fprintf(stderr, "Failed to load UI interface: %s\n", gerror->message);
+        g_error_free(gerror);
+        g_object_unref(G_OBJECT(ui));
+        return 1;
+    }
     main_window = GTK_WIDGET(gtk_builder_get_object(ui, "main_window"));
     g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);
 

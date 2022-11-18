@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "log.h"
 
@@ -33,14 +34,24 @@ void avahi_set_log_function(AvahiLogFunction function) {
 }
 
 void avahi_log_ap(AvahiLogLevel level, const char*format, va_list ap) {
-    char txt[256];
-
-    vsnprintf(txt, sizeof(txt), format, ap);
-
-    if (log_function)
-        log_function(level, txt);
-    else
-        fprintf(stderr, "%s\n", txt);
+    if (log_function) {
+	char txt[2048];
+	int r;
+        r = vsnprintf(txt, sizeof(txt), format, ap);
+        if (r < (int)sizeof(txt))
+            log_function(level, txt);
+	else {
+	    char *buf = malloc(r+1);
+	    if (buf) {
+                (void)vsnprintf(buf, r+1, format, ap);
+                log_function(level, buf);
+		free(buf);
+            }
+	}
+    } else {
+	vfprintf(stderr, format, ap);
+	fputs("\n", stderr);
+    }
 }
 
 void avahi_log(AvahiLogLevel level, const char*format, ...) {

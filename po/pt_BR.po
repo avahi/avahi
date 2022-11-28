@@ -1,15 +1,15 @@
 # Brazilian Portuguese translation for avahi.
-# Copyright (C) 2019 THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2020 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the avahi package.
 # nullck <nullck@fedoraproject.org>, 2011
-# Rafael Fontenelle <rafaelff@gnome.org>, 2018-2019.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2018-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/lathiat/avahi/issues\n"
-"POT-Creation-Date: 2019-04-23 12:11+0000\n"
-"PO-Revision-Date: 2019-07-04 11:51-0300\n"
+"POT-Creation-Date: 2020-07-18 03:24+0000\n"
+"PO-Revision-Date: 2020-07-18 08:50-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"X-Generator: Gtranslator 3.32.0\n"
+"X-Generator: Gtranslator 3.36.0\n"
 
 #: avahi-common/error.c:30
 msgid "OK"
@@ -244,7 +244,7 @@ msgid "Avahi Discovery"
 msgstr "Avahi Discovery"
 
 #: avahi-discover-standalone/avahi-discover.ui:60
-#: avahi-python/avahi-discover/avahi-discover.py:82
+#: avahi-python/avahi-discover/avahi-discover.py:83
 msgid "<i>No service currently selected.</i>"
 msgstr "<i>Nenhum serviço selecionado atualmente.</i>"
 
@@ -262,35 +262,35 @@ msgstr "Procura por serviços Zeroconf disponíveis em sua rede"
 msgid "network-wired"
 msgstr "network-wired"
 
-#: avahi-python/avahi-discover/avahi-discover.py:237
+#: avahi-python/avahi-discover/avahi-discover.py:238
 msgid "TXT"
 msgstr "TXT"
 
-#: avahi-python/avahi-discover/avahi-discover.py:239
+#: avahi-python/avahi-discover/avahi-discover.py:240
 msgid "TXT Data:"
 msgstr "TXT Dado:"
 
-#: avahi-python/avahi-discover/avahi-discover.py:239
+#: avahi-python/avahi-discover/avahi-discover.py:240
 msgid "empty"
 msgstr "vazio"
 
-#: avahi-python/avahi-discover/avahi-discover.py:241
+#: avahi-python/avahi-discover/avahi-discover.py:244
 msgid "Service Type:"
 msgstr "Tipo de serviço:"
 
-#: avahi-python/avahi-discover/avahi-discover.py:242
+#: avahi-python/avahi-discover/avahi-discover.py:245
 msgid "Service Name:"
 msgstr "Name do serviço:"
 
-#: avahi-python/avahi-discover/avahi-discover.py:243
+#: avahi-python/avahi-discover/avahi-discover.py:246
 msgid "Domain Name:"
 msgstr "Nome de domínio:"
 
-#: avahi-python/avahi-discover/avahi-discover.py:244
+#: avahi-python/avahi-discover/avahi-discover.py:247
 msgid "Interface:"
 msgstr "Interface:"
 
-#: avahi-python/avahi-discover/avahi-discover.py:245
+#: avahi-python/avahi-discover/avahi-discover.py:248
 msgid "Address:"
 msgstr "Endereço:"
 
@@ -554,7 +554,7 @@ msgstr "Navegador de servidores SSH do Avahi"
 
 #: avahi-ui/bssh.desktop.in.in:5
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr "Procurar por servidores SSH com o Zeroconf habilitado"
+msgstr "Procure por servidores SSH com Zeroconf habilitado"
 
 #: avahi-ui/bvnc.desktop.in.in:4
 msgid "Avahi VNC Server Browser"
@@ -562,7 +562,7 @@ msgstr "Navegador de servidores VNC do Avahi"
 
 #: avahi-ui/bvnc.desktop.in.in:5
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr "Procurar por servidores VNC com Zeroconf habilitado"
+msgstr "Procure por servidores VNC com Zeroconf habilitado"
 
 #: avahi-utils/avahi-browse.c:107
 #, c-format

@@ -23,6 +23,7 @@ jobs:
       matrix:
         env:
           - { CC: "gcc" }
+          - { CC: "gcc", ASAN_UBSAN: "true" }
           - { CC: "clang" }
     env: ${{ matrix.env }}
     steps:

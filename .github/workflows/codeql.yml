@@ -37,7 +37,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - run: sudo -E .github/workflows/get-build-deps.sh
+    - run: sudo -E .github/workflows/build.sh install-build-deps
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2

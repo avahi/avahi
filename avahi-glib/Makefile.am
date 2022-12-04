@@ -34,6 +34,9 @@ lib_LTLIBRARIES = \
 if ENABLE_TESTS
 noinst_PROGRAMS = \
 	glib-watch-test
+
+TESTS = \
+	glib-watch-test
 endif
 
 libavahi_glib_la_SOURCES = \

@@ -33,6 +33,9 @@ lib_LTLIBRARIES = \
 if ENABLE_TESTS
 noinst_PROGRAMS = \
 	libevent-watch-test
+
+TESTS = \
+	libevent-watch-test
 endif
 
 libavahi_libevent_la_SOURCES = \

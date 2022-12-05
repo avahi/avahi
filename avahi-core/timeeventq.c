@@ -135,10 +135,10 @@ AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api) {
 oom:
 
     if (q) {
-        avahi_free(q);
-
         if (q->prioq)
             avahi_prio_queue_free(q->prioq);
+
+        avahi_free(q);
     }
 
     return NULL;

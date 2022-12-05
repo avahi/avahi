@@ -1,0 +1,33 @@
+---
+name: Build test
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - { CC: "gcc" }
+          - { CC: "gcc", ASAN_UBSAN: "true" }
+          - { CC: "clang" }
+    env: ${{ matrix.env }}
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v3
+      - run: sudo -E .github/workflows/build.sh install-build-deps
+      - run: .github/workflows/build.sh build

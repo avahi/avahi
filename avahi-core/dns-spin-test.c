@@ -111,7 +111,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     /* This is expected to fail (if it returns) */
     ret = avahi_dns_packet_consume_name(packet, name, sizeof(name));
-
+    avahi_dns_packet_free(packet);
     if (ret != -1)
         fail("avahi_dns_packet_consume_name() returned %d; -1 was expected", ret);
 

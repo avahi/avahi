@@ -22,10 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - { CC: "gcc" }
-          - { CC: "gcc", ASAN_UBSAN: "true" }
-          - { CC: "clang" }
-          - { CC: "clang", ASAN_UBSAN: "true" }
+          - { CC: "gcc", CXX: "g++" }
+          - { CC: "gcc", CXX: "g++", ASAN_UBSAN: "true" }
+          - { CC: "clang", CXX: "clang++" }
+          - { CC: "clang", CXX: "clang++", ASAN_UBSAN: "true" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

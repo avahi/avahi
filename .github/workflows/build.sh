@@ -16,6 +16,7 @@ case "$1" in
     build)
         if [[ "$ASAN_UBSAN" == true ]]; then
             export CFLAGS="-fsanitize=address,undefined -g"
+            export CXXFLAGS="$CFLAGS"
             export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
             export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
 

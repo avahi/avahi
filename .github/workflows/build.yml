@@ -25,6 +25,7 @@ jobs:
           - { CC: "gcc" }
           - { CC: "gcc", ASAN_UBSAN: "true" }
           - { CC: "clang" }
+          - { CC: "clang", ASAN_UBSAN: "true" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

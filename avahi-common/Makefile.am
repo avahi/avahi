@@ -48,6 +48,15 @@ noinst_PROGRAMS = \
 	watch-test \
 	watch-test-thread \
 	utf8-test
+
+TESTS = \
+	strlst-test \
+	domain-test \
+	alternative-test \
+	timeval-test \
+	watch-test \
+	watch-test-thread \
+	utf8-test
 endif
 
 lib_LTLIBRARIES = \

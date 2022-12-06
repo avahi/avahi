@@ -20,7 +20,11 @@ case "$1" in
             export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
         fi
 
-        ./bootstrap.sh --enable-tests --prefix=/usr
+        if ! ./bootstrap.sh --enable-tests --prefix=/usr; then
+            cat config.log
+            exit 1
+        fi
+
         make -j"$(nproc)" V=1
         make check VERBOSE=1
         ;;

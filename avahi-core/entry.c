@@ -980,17 +980,16 @@ int avahi_server_add_dns_server_address(
     if (address->proto == AVAHI_PROTO_INET) {
         hexstring(h, sizeof(h), &address->data, sizeof(AvahiIPv4Address));
         snprintf(n, sizeof(n), "ip-%s.%s", h, domain);
-        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);
+        if (!(r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME)))
+                return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         r->data.a.address = address->data.ipv4;
     } else {
         hexstring(h, sizeof(h), &address->data, sizeof(AvahiIPv6Address));
         snprintf(n, sizeof(n), "ip6-%s.%s", h, domain);
-        r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME);
+        if (!(r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME)))
+                return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         r->data.aaaa.address = address->data.ipv6;
     }
-
-    if (!r)
-        return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
     a_entry = server_add_internal(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_ALLOW_MULTIPLE, r);
     avahi_record_unref(r);

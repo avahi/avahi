@@ -23,8 +23,10 @@ jobs:
       matrix:
         env:
           - { CC: "gcc" }
+          - { CC: "gcc", WERROR: "true" }
           - { CC: "gcc", ASAN_UBSAN: "true" }
           - { CC: "clang" }
+          - { CC: "clang", WERROR: "true" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

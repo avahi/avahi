@@ -4,6 +4,7 @@ set -eux
 set -o pipefail
 
 export ASAN_UBSAN=${ASAN_UBSAN:-false}
+export BUILD_ONLY=${BUILD_ONLY:-false}
 export CFLAGS=${CFLAGS:-}
 export WERROR=${WERROR:-false}
 
@@ -98,6 +99,11 @@ case "$1" in
         fi
 
         make -j"$(nproc)" V=1
+
+        if [[ "$BUILD_ONLY" == true ]]; then
+            exit 0
+        fi
+
         make check VERBOSE=1
         ;;
     *)

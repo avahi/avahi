@@ -23,10 +23,16 @@ jobs:
       matrix:
         env:
           - { CC: "gcc" }
-          - { CC: "gcc", WERROR: "true" }
+          - { CC: "gcc", WERROR: "true", CFLAGS: "-O0" }
+          - { CC: "gcc", WERROR: "true", CFLAGS: "-O1" }
+          - { CC: "gcc", WERROR: "true", CFLAGS: "-O2" }
+          - { CC: "gcc", WERROR: "true", CFLAGS: "-O3" }
           - { CC: "gcc", ASAN_UBSAN: "true" }
           - { CC: "clang" }
-          - { CC: "clang", WERROR: "true" }
+          - { CC: "clang", WERROR: "true", CFLAGS: "-O0" }
+          - { CC: "clang", WERROR: "true", CFLAGS: "-O1" }
+          - { CC: "clang", WERROR: "true", CFLAGS: "-O2" }
+          - { CC: "clang", WERROR: "true", CFLAGS: "-O3" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

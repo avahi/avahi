@@ -33,6 +33,7 @@ jobs:
           - { CC: "clang", WERROR: "true", CFLAGS: "-O1" }
           - { CC: "clang", WERROR: "true", CFLAGS: "-O2" }
           - { CC: "clang", WERROR: "true", CFLAGS: "-O3" }
+          - { CC: "clang", ASAN_UBSAN: "true" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

@@ -32,6 +32,11 @@ case "$1" in
         apt-get install -y autoconf-archive
         ;;
     build)
+        # acx_pthread isn't compatible with CFLAGS=-Werror at all. It isn't compatible with
+        # clang and -fsanitize=address,undefined either so it's just replaced here with ax_pthread
+        # from autoconf-archive.
+        rm -rf common/acx_pthread.m4
+
         if [[ "$ASAN_UBSAN" == true ]]; then
             CFLAGS+=" -fsanitize=address,undefined -g"
             export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
@@ -39,10 +44,6 @@ case "$1" in
         fi
 
         if [[ "$WERROR" == true ]]; then
-            # acx_pthread isn't compatible with CFLAGS=-Werror at all so it's just replaced
-            # with ax_pthread from autoconf-archive.
-            rm -rf common/acx_pthread.m4
-
             CFLAGS+=" -Werror"
 
             # The following warnings are ignored because it's hard to fix them all in one fell swoop.
@@ -80,6 +81,16 @@ case "$1" in
                 ignore_warnings avahi-ui deprecated-declarations
             fi
         fi
+
+        # Some parts of avahi like avahi-qt and c-plus-plus-test are built with CXX so
+        # it should match CC. To avoid weird side-effects CXXFLAGS should fully match
+        # CFLAGS as well so CXXFLAGS is fully replaced with CFLAGS here.
+        if [[ "$CC" == gcc ]]; then
+            export CXX=g++
+        elif [[ "$CC" == clang ]]; then
+            export CXX=clang++
+        fi
+        export CXXFLAGS="$CFLAGS"
 
         if ! ./autogen.sh $autogen_args --prefix=/usr; then
             cat config.log

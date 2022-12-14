@@ -36,6 +36,7 @@
 #include <systemd/sd-daemon.h>
 #endif
 
+#include <avahi-common/domain.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
@@ -267,7 +268,7 @@ static void dns_server_browser_callback(
 }
 
 static void handle_line(Client *c, const char *s) {
-    char cmd[64], arg[64];
+    char cmd[64], arg[AVAHI_DOMAIN_NAME_MAX];
     int n_args;
 
     assert(c);
@@ -276,7 +277,7 @@ static void handle_line(Client *c, const char *s) {
     if (c->state != CLIENT_IDLE)
         return;
 
-    if ((n_args = sscanf(s, "%63s %63s", cmd, arg)) < 1 ) {
+    if ((n_args = sscanf(s, "%63s %1013s", cmd, arg)) < 1 ) {
         client_output_printf(c, "%+i Failed to parse command, try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION);
         c->state = CLIENT_DEAD;
         return;

@@ -346,6 +346,8 @@ const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiSEntryGroup *g, voi
 
 int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata) {
     AvahiEntry *e;
+    char ln[256];
+    size_t deads = 0;
 
     assert(s);
     assert(callback);
@@ -354,10 +356,11 @@ int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata
 
     for (e = s->entries; e; e = e->entries_next) {
         char *t;
-        char ln[256];
 
-        if (e->dead)
+        if (e->dead) {
+            ++deads;
             continue;
+	}
 
         if (!(t = avahi_record_to_string(e->record)))
             return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
@@ -367,6 +370,9 @@ int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata
 
         callback(ln, userdata);
     }
+
+    snprintf(ln, sizeof(ln), ";; dead entries: %zu", deads);
+    callback(ln, userdata);
 
     avahi_dump_caches(s->monitor, callback, userdata);
 

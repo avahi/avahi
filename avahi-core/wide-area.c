@@ -671,8 +671,23 @@ void avahi_wide_area_set_servers(AvahiWideAreaLookupEngine *e, const AvahiAddres
     avahi_wide_area_clear_cache(e);
 }
 
+static void avahi_wide_area_dump_lookup(AvahiWideAreaLookup *l, AvahiDumpCallback callback, void* userdata) {
+    char *k, *t;
+
+    k = avahi_key_to_string(l->key);
+    if (!k)
+        return;
+    t = avahi_strdup_printf("%s ; n_send=%i%s", k, l->n_send, l->dead ? " (dead)" : "");
+    avahi_free(k);
+    if (!t)
+        return;
+    callback(t, userdata);
+    avahi_free(t);
+}
+
 void avahi_wide_area_cache_dump(AvahiWideAreaLookupEngine *e, AvahiDumpCallback callback, void* userdata) {
     AvahiWideAreaCacheEntry *c;
+    AvahiWideAreaLookup *l;
 
     assert(e);
     assert(callback);
@@ -683,6 +698,11 @@ void avahi_wide_area_cache_dump(AvahiWideAreaLookupEngine *e, AvahiDumpCallback 
         char *t = avahi_record_to_string(c->record);
         callback(t, userdata);
         avahi_free(t);
+    }
+
+    callback(";; WIDE AREA LOOKUPS ;;; ", userdata);
+    for (l = e->lookups; l; l = l->lookups_next) {
+        avahi_wide_area_dump_lookup(l, callback, userdata);
     }
 }
 

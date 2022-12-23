@@ -564,6 +564,7 @@ static void socket_event(AVAHI_GCC_UNUSED AvahiWatch *w, int fd, AVAHI_GCC_UNUSE
     if (p) {
         handle_packet(e, p);
         avahi_dns_packet_free(p);
+        avahi_cleanup_dead_entries(e->server);
     }
 }
 

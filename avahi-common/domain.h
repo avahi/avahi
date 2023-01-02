@@ -33,7 +33,7 @@ AVAHI_C_DECL_BEGIN
  * is calculated like this: RFC1034 mandates maximum length of FQDNs
  * is 255. The maximum label length is 63. To minimize the number of
  * (non-escaped) dots, we comprise our maximum-length domain name of
- * four labels แ 63 characters plus three inner dots. Escaping the
+ * four labels รก 63 characters plus three inner dots. Escaping the
  * four labels quadruples their length at maximum. An escaped domain
  * name has the therefore the maximum length of 63*4*4+3=1011. A
  * trailing NUL and perhaps two unnecessary dots leading and trailing

@@ -1,0 +1,57 @@
+---
+# See: https://google.github.io/oss-fuzz/getting-started/continuous-integration/
+
+name: CIFuzz
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  Fuzzing:
+    permissions:
+      actions: read
+      contents: read
+
+    runs-on: ubuntu-22.04
+    if: github.repository == 'lathiat/avahi'
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.sanitizer }}-${{ matrix.architecture }}-${{ github.ref }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, undefined, memory]
+        architecture: [x86_64]
+        include:
+          - sanitizer: address
+            architecture: i386
+    steps:
+      - name: Build Fuzzers (${{ matrix.sanitizer }})
+        id: build
+        uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+        with:
+          oss-fuzz-project-name: 'avahi'
+          dry-run: false
+          allowed-broken-targets-percentage: 0
+          sanitizer: ${{ matrix.sanitizer }}
+          architecture: ${{ matrix.architecture }}
+      - name: Run Fuzzers (${{ matrix.sanitizer }})
+        uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+        with:
+          oss-fuzz-project-name: 'avahi'
+          fuzz-seconds: 180
+          dry-run: false
+          sanitizer: ${{ matrix.sanitizer }}
+      - name: Upload Crash
+        uses: actions/upload-artifact@v3
+        if: failure() && steps.build.outcome == 'success'
+        with:
+          name: ${{ matrix.sanitizer }}-${{ matrix.architecture }}-artifacts
+          path: ./out/artifacts

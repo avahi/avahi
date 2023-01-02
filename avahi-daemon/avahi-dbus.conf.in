@@ -18,6 +18,8 @@
 
     <deny send_destination="org.freedesktop.Avahi"
           send_interface="org.freedesktop.Avahi.Server" send_member="SetHostName"/>
+    <deny send_destination="org.freedesktop.Avahi"
+          send_interface="org.freedesktop.Avahi.Server2" send_member="SetHostName"/>
   </policy>
 
   <!-- Allow everything, including access to SetHostName to users of the group "@AVAHI_PRIV_ACCESS_GROUP@" -->

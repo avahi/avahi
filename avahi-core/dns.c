@@ -782,7 +782,7 @@ static int append_rdata(AvahiDnsPacket *p, AvahiRecord *r) {
 
 
 uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int cache_flush, unsigned max_ttl) {
-    uint8_t *t, *l, *start;
+    uint8_t *t, *l, *start, *end;
     size_t size;
 
     assert(p);
@@ -802,8 +802,13 @@ uint8_t* avahi_dns_packet_append_record(AvahiDnsPacket *p, AvahiRecord *r, int c
     if (append_rdata(p, r) < 0)
         goto fail;
 
-    size = avahi_dns_packet_extend(p, 0) - start;
-    assert(size <= AVAHI_DNS_RDATA_MAX);
+    end = avahi_dns_packet_extend(p, 0);
+    if (!end)
+	goto fail;
+
+    size = end - start;
+    if (size > AVAHI_DNS_RDATA_MAX)
+        goto fail;
 
 /*     avahi_log_debug("appended %u", size); */
 

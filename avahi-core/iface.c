@@ -678,25 +678,30 @@ static int avahi_interface_is_relevant_internal(AvahiInterface *i) {
     return 0;
 }
 
+int avahi_interface_label_is_relevant(AvahiInterface *i, const char *label) {
+    AvahiStringList *l;
+    assert(i);
+    assert(label);
+
+    for (l = i->monitor->server->config.deny_interfaces; l; l = l->next)
+        if (strcasecmp((char*) l->text, label) == 0)
+            return 0;
+    if (!i->monitor->server->config.allow_interfaces)
+        return 1;
+    for (l = i->monitor->server->config.allow_interfaces; l; l = l->next)
+        if (strcasecmp((char*)l->text, label) == 0)
+            return 1;
+    return 0;
+}
+
 int avahi_interface_is_relevant(AvahiInterface *i) {
     AvahiStringList *l;
     assert(i);
 
-    for (l = i->monitor->server->config.deny_interfaces; l; l = l->next)
-        if (strcasecmp((char*) l->text, i->hardware->name) == 0)
-            return 0;
-
-    if (i->monitor->server->config.allow_interfaces) {
-
-        for (l = i->monitor->server->config.allow_interfaces; l; l = l->next)
-            if (strcasecmp((char*) l->text, i->hardware->name) == 0)
-                goto good;
-
+    if (avahi_interface_label_is_relevant(i, i->hardware->name))
+        return avahi_interface_is_relevant_internal(i);
+    else
         return 0;
-    }
-
-good:
-    return avahi_interface_is_relevant_internal(i);
 }
 
 int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {

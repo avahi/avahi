@@ -164,6 +164,7 @@ void avahi_interface_free(AvahiInterface *i, int send_goodbye);
 
 void avahi_interface_update_rrs(AvahiInterface *i, int remove_rrs);
 void avahi_interface_check_relevant(AvahiInterface *i);
+int avahi_interface_label_is_relevant(AvahiInterface *i, const char *label);
 int avahi_interface_is_relevant(AvahiInterface *i);
 
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);

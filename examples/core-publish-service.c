@@ -217,7 +217,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     /* Free the configuration data */
     avahi_server_config_free(&config);
 
-    /* Check wether creating the server object succeeded */
+    /* Check whether creating the server object succeeded */
     if (!server) {
         fprintf(stderr, "Failed to create server: %s\n", avahi_strerror(error));
         goto fail;

@@ -195,7 +195,7 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
     /* Mark this job for addition to the packet */
     pj->chosen = 1;
 
-    /* Scan for more jobs whith matching key pattern */
+    /* Scan for more jobs with matching key pattern */
     for (pj = s->jobs; pj; pj = pj->jobs_next) {
         if (pj->chosen)
             continue;

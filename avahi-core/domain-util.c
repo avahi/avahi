@@ -93,8 +93,13 @@ static int load_lsb_distrib_id(char *ret_s, size_t size) {
     return load_id(ret_s, size, "/etc/lsb-release", "DISTRIB_ID=");
 }
 
-static int load_os_id(char *ret_s, size_t size) {
-    return load_id(ret_s, size, "/etc/os-release", "ID=");
+static int load_os_hostname(char *ret_s, size_t size) {
+    int r;
+
+    r = load_id(ret_s, size, "/etc/os-release", "DEFAULT_HOSTNAME=");
+    if (r < 0)
+        r = load_id(ret_s, size, "/etc/os-release", "ID=");
+    return r;
 }
 #endif
 
@@ -119,7 +124,7 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
 #ifdef __linux__
 
         /* Try os-release or LSB distribution name first */
-        if (load_os_id(ret_s, size) >= 0 || load_lsb_distrib_id(ret_s, size) >= 0) {
+        if (load_os_hostname(ret_s, size) >= 0 || load_lsb_distrib_id(ret_s, size) >= 0) {
             strip_bad_chars(ret_s);
             avahi_strdown(ret_s);
         }

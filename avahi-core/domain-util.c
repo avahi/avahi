@@ -53,6 +53,7 @@ static void strip_bad_chars(char *s) {
 #ifdef __linux__
 static int load_id(char *ret_s, size_t size, const char *filename, const char *field) {
     FILE *f;
+    size_t flen;
 
     assert(ret_s);
     assert(size > 0);
@@ -63,16 +64,18 @@ static int load_id(char *ret_s, size_t size, const char *filename, const char *f
     if (!(f = fopen(filename, "r")))
         return -1;
 
+    flen = strlen(field);
+
     while (!feof(f)) {
         char ln[256], *p;
 
         if (!fgets(ln, sizeof(ln), f))
             break;
 
-        if (strncmp(ln, field, strlen(field)))
+        if (strncmp(ln, field, flen))
             continue;
 
-        p = ln + strlen(field);
+        p = ln + flen;
         p += strspn(p, "\"");
         p[strcspn(p, "\"")] = 0;
 

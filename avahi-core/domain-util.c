@@ -51,14 +51,20 @@ static void strip_bad_chars(char *s) {
 }
 
 #ifdef __linux__
-static int load_lsb_distrib_id(char *ret_s, size_t size) {
+static int load_id(char *ret_s, size_t size, const char *filename, const char *field) {
     FILE *f;
+    size_t flen;
 
     assert(ret_s);
     assert(size > 0);
+    assert(filename);
+    assert(field);
+    assert(strchr(field, '='));
 
-    if (!(f = fopen("/etc/lsb-release", "r")))
+    if (!(f = fopen(filename, "r")))
         return -1;
+
+    flen = strlen(field);
 
     while (!feof(f)) {
         char ln[256], *p;
@@ -66,10 +72,10 @@ static int load_lsb_distrib_id(char *ret_s, size_t size) {
         if (!fgets(ln, sizeof(ln), f))
             break;
 
-        if (strncmp(ln, "DISTRIB_ID=", 11))
+        if (strncmp(ln, field, flen))
             continue;
 
-        p = ln + 11;
+        p = ln + flen;
         p += strspn(p, "\"");
         p[strcspn(p, "\"")] = 0;
 
@@ -81,6 +87,19 @@ static int load_lsb_distrib_id(char *ret_s, size_t size) {
 
     fclose(f);
     return -1;
+}
+
+static int load_lsb_distrib_id(char *ret_s, size_t size) {
+    return load_id(ret_s, size, "/etc/lsb-release", "DISTRIB_ID=");
+}
+
+static int load_os_hostname(char *ret_s, size_t size) {
+    int r;
+
+    r = load_id(ret_s, size, "/etc/os-release", "DEFAULT_HOSTNAME=");
+    if (r < 0)
+        r = load_id(ret_s, size, "/etc/os-release", "ID=");
+    return r;
 }
 #endif
 
@@ -104,8 +123,8 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
 
 #ifdef __linux__
 
-        /* Try LSB distribution name first */
-        if (load_lsb_distrib_id(ret_s, size) >= 0) {
+        /* Try os-release or LSB distribution name first */
+        if (load_os_hostname(ret_s, size) >= 0 || load_lsb_distrib_id(ret_s, size) >= 0) {
             strip_bad_chars(ret_s);
             avahi_strdown(ret_s);
         }

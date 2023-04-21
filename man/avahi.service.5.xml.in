@@ -75,7 +75,7 @@
 
       <option>
         <p><opt>&lt;domain-name&gt;</opt> The domain name this service
-        should be registered. If omited defaults to the default domain
+        should be registered. If omitted defaults to the default domain
         of the avahi daemon. (probably .local)</p>
       </option>
 

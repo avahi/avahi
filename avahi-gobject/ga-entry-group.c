@@ -192,7 +192,7 @@ static GQuark detail_for_state(AvahiEntryGroupState state) {
         { AVAHI_ENTRY_GROUP_UNCOMMITED, "uncommitted", 0},
         { AVAHI_ENTRY_GROUP_REGISTERING, "registering", 0},
         { AVAHI_ENTRY_GROUP_ESTABLISHED, "established", 0},
-        { AVAHI_ENTRY_GROUP_COLLISION, "collistion", 0},
+        { AVAHI_ENTRY_GROUP_COLLISION, "collision", 0},
         { AVAHI_ENTRY_GROUP_FAILURE, "failure", 0},
         { 0, NULL, 0}
     };

@@ -54,7 +54,7 @@ done:
 * case insensitive comparison
 * drop records from cache only one second after flush cache bit entry was received
 * either send entire RRSET or don't set flush cache bit!
-* mantain flush cache bit correctly in psched
+* maintain flush cache bit correctly in psched
 * Return to probing state on conflict
 * response job dependencies
 * enlarge packet in case a record/query is too large to fit in a normal packet
@@ -70,7 +70,7 @@ done:
 * avahi-client:
    * service resolving
    * examples
-* publish IP addresses with scope "link" only, unless ther are the only one the interface
+* publish IP addresses with scope "link" only, unless there are the only one the interface
 * release 0.2!
 * add identical service detection cookie
 * add API to detect if a service is local

@@ -282,7 +282,7 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
         if (avahi_record_equal_no_ttl(e->record, record)) {
             ours = 1; /* We have an identical record, so this is no conflict */
 
-            /* Check wheter there is a TTL conflict */
+            /* Check whether there is a TTL conflict */
             if (record->ttl <= e->record->ttl/2 &&
                 avahi_entry_is_registered(s, e, i)) {
                 char *t;
@@ -476,7 +476,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                         }
                     }
 
-                    /* Appending the record didn't succeeed, so let's send this packet, and create a new one */
+                    /* Appending the record didn't succeed, so let's send this packet, and create a new one */
                     avahi_interface_send_packet_unicast(i, reply, a, port);
                     avahi_dns_packet_free(reply);
                     reply = NULL;

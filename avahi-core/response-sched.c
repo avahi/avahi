@@ -30,7 +30,7 @@
 #include "log.h"
 #include "rr-util.h"
 
-/* Local packets are supressed this long after sending them */
+/* Local packets are suppressed this long after sending them */
 #define AVAHI_RESPONSE_HISTORY_MSEC 500
 
 /* Local packets are deferred this long before sending them */
@@ -207,7 +207,7 @@ static int packet_add_response_job(AvahiResponseScheduler *s, AvahiDnsPacket *p,
         return 0;
 
     /* Ok, this record will definitely be sent, so schedule the
-     * auxilliary packets, too */
+     * auxiliary packets, too */
     avahi_server_enumerate_aux_records(s->interface->monitor->server, s->interface, rj->record, enumerate_aux_records_callback, rj);
     job_mark_done(s, rj);
 
@@ -268,7 +268,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     assert(rj);
 
     if (rj->state == AVAHI_DONE || rj->state == AVAHI_SUPPRESSED)
-        job_free(rj->scheduler, rj);         /* Lets drop this entry */
+        job_free(rj->scheduler, rj);         /* Let's drop this entry */
     else
         send_response_packet(rj->scheduler, rj);
 }
@@ -431,8 +431,8 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
     assert(s);
 
     /* This function is called whenever an incoming response was
-     * receieved. We drop scheduled responses which match here. The
-     * keyword is "DUPLICATE ANSWER SUPPRESION". */
+     * received. We drop scheduled responses which match here. The
+     * keyword is "DUPLICATE ANSWER SUPPRESSION". */
 
     if ((rj = find_scheduled_job(s, record))) {
 

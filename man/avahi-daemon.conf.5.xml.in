@@ -35,7 +35,7 @@
 
     <option>
       <p><opt>host-name=</opt> Set the host name avahi-daemon tries
-      to register on the LAN. If omited defaults to the system host
+      to register on the LAN. If omitted defaults to the system host
       name as set with the sethostname() system call.</p>
     </option>
 

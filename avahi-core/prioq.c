@@ -124,7 +124,7 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
                 b->left->parent = b;
         }
     } else if (b->parent == a) {
-        /* A ist parent of B */
+        /* A is parent of B */
 
         p = a->parent;
         a->parent = b;

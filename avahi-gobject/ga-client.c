@@ -193,7 +193,7 @@ static GQuark detail_for_state(AvahiClientState state) {
     } states[] = {
         { AVAHI_CLIENT_S_REGISTERING, "registering", 0},
         { AVAHI_CLIENT_S_RUNNING, "running", 0},
-        { AVAHI_CLIENT_S_COLLISION, "collistion", 0},
+        { AVAHI_CLIENT_S_COLLISION, "collision", 0},
         { AVAHI_CLIENT_FAILURE, "failure", 0},
         { AVAHI_CLIENT_CONNECTING, "connecting", 0},
         { 0, NULL, 0}

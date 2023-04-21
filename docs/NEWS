@@ -125,7 +125,7 @@ Other Changes:
  * build: Fix the printed value of "Building libavahi-client" in ./configure
  * build: autogen.sh improved to work when called from another directory
  * build: Fix warnings when compiling against musl libc
- * Updated translations: Polish, Ukranian, Turkish, Indonesian, Swedish,
+ * Updated translations: Polish, Ukrainian, Turkish, Indonesian, Swedish,
    Hungarian, Occitan (New), Czech, Chinese (Simplified)
  * avahi-compat-libdns_sd: Fix incorrect URL in warnings
  * service-type-database: Add new service Types: _ipps._tcp, _xpra._tcp
@@ -296,7 +296,7 @@ Avahi 0.6.24
 
 This is mostly a bugfix release.
 
- * A huge number of bug fixes, including a security relavant one (low
+ * A huge number of bug fixes, including a security relevant one (low
    risk)
  * Add two new configuration directives "allow-interfaces" and
    "deny-interfaces" which can be used to make Avahi ignore certain
@@ -313,7 +313,7 @@ This is an bugfix release.
  * A lot of translation updates
  * Beef up bnvc quite a bit, including passing a domain to browse in
    (patch from lkundrak)
- * Increase numer of open files resource limit to 300 so that we can
+ * Increase number of open files resource limit to 300 so that we can
    deal with more clients simultaneously.
  * Rework 'poof' algorithm a bit to reduce traffic load on noisy links.
  * Build fixes
@@ -404,7 +404,7 @@ This is a bugfix release, but also adds a new component "avahi-ui-sharp".
    by default. It was a bad idea in the first place. A better
    replacement will hopefully be made available in Avahi eventually.
  * Properly set umask before writing to /var/lib/avahi-autoipd
- * Update .deskop files to work around KDE menu issue
+ * Update .desktop files to work around KDE menu issue
  * Various build fixes and other minor fixes and updates
 
 This release is backwards compatible with Avahi 0.6.x with x < 19.
@@ -467,7 +467,7 @@ from the last release
    defined (Closes: #86)
  * Fix doxygen comments for avahi watch, thanks to tedp (Closes: #77)
  * Make d-bus version detection work for >= 1.0 (Closes: #71)
- * Dont dbus_connection_close on shared dbus connections (Closes: #68)
+ * Don't dbus_connection_close on shared dbus connections (Closes: #68)
  * Fix potential endless loop in dns label unpacking code (Closes: #84)
  * Fix bogus assertion in client-publish-service.c example
  * Mild fix to some doxygen docs for avahi-common/address.h
@@ -498,7 +498,7 @@ Changes:
   * Add new daemon "avahi-autoipd" which is an implementation of
     IPv4LL as defined in RFC3927, a technology for assigning link-local IP
     addresses without DHCP server. The same functionality has been available on
-    Windows under the name APIPA. While it is not the first implemenatation of
+    Windows under the name APIPA. While it is not the first implementation of
     this technology for Free operating systems it is clearly the most powerful
     and hopefully even the most secure. (Because it chroot()s and drops
     privileges and suchlike) For more information, especially about packaging
@@ -552,7 +552,7 @@ Changes:
         * Implement subtype registration in DNSServiceRegister() in a
           way that is compatible with Bonjour.
 	* Update to newer copy of dns_sd.h
-  * If the host name changes update names of static services wich
+  * If the host name changes update names of static services which
     contain wildcards.
   * Don't build documentation about embedding the Avahi mDNS stack into
     other programs by default. This is a feature used only by embedded
@@ -695,7 +695,7 @@ This release fixes some bugs and adds a few new features
  * Don't require X11 to run avahi-bookmarks
  * API: Return AVAHI_ERR_IS_EMPTY when the user tries to commit an
    empty entry group.
- * Improved Slackware and Fedora suppport
+ * Improved Slackware and Fedora support
 
 This release is backwards compatible with Avahi 0.6, 0.6.1, 0.6.2,
 0.6.3, 0.6.4, 0.6.5 and 0.6.6.
@@ -710,7 +710,7 @@ This release fixes some bugs and includes some documentation updates
  * Many doxygen documentation improvements
  * Fix destruction of AvahiEntryGroup objects using
    avahi_entry_group_free().
- * Don't allow commiting of empty entry groups
+ * Don't allow committing of empty entry groups
  * Use a little less memory in avahi-qt
  * Don't accept empty TXT strings
  * Update example "client-publish-service.c" to show how to modify an
@@ -922,9 +922,9 @@ Avahi 0.2, the 'Dzień Dobry' release
    unless it is the only IP address on the interface.
  * avahi-daemon will no longer fail to start if D-BUS is not
    available (if configured with enable-dbus=warn)
- * Fixed a potential crasher when resolving things in libavahi-core.
+ * Fixed a potential crash when resolving things in libavahi-core.
  * New example demonstrating integration into glib applications
- * Addtion of a set of convenience functions for AvahiStringList
+ * Addition of a set of convenience functions for AvahiStringList
    avahi_string_list_find()
    avahi_string_list_get_pair()
    avahi_string_list_add_pair()
@@ -975,7 +975,7 @@ and boasts the following features
    Howl and Apple Bonjour (previously Rendezvous)
  * Ability to correctly "reflect" mDNS between two or more LAN segments
  * Ability to configure DNS servers based on mDNS/DNS-SD published
-   information, a feature that is very usefull on IPv6
+   information, a feature that is very useful on IPv6
    which has no other mechanism for this.
  * Combined with nss-mdns, allows hostname lookup such as
    'laptop.local' without the configuration of a DNS server.

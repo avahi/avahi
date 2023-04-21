@@ -54,7 +54,7 @@ typedef void (*AvahiEntryGroupCallback) (
 AvahiEntryGroup* avahi_entry_group_new(
     AvahiClient* c,
     AvahiEntryGroupCallback callback /**< This callback is called whenever the state of this entry group changes. May not be NULL. Please note that this function is called for the first time from within the avahi_entry_group_new() context! Thus, in the callback you should not make use of global variables that are initialized only after your call to avahi_entry_group_new(). A common mistake is to store the AvahiEntryGroup pointer returned by avahi_entry_group_new() in a global variable and assume that this global variable already contains the valid pointer when the callback is called for the first time. A work-around for this is to always use the AvahiEntryGroup pointer passed to the callback function instead of the global pointer. */,
-    void *userdata /**< This arbitrary user data pointer will be passed to the callback functon */);
+    void *userdata /**< This arbitrary user data pointer will be passed to the callback function */);
 
 /** Clean up and free an AvahiEntryGroup object */
 int avahi_entry_group_free (AvahiEntryGroup *);
@@ -63,7 +63,7 @@ int avahi_entry_group_free (AvahiEntryGroup *);
 
 /** @{ \name State */
 
-/** Commit an AvahiEntryGroup. The entries in the entry group are now registered on the network. Commiting empty entry groups is considered an error. */
+/** Commit an AvahiEntryGroup. The entries in the entry group are now registered on the network. Committing empty entry groups is considered an error. */
 int avahi_entry_group_commit (AvahiEntryGroup*);
 
 /** Reset an AvahiEntryGroup. This takes effect immediately. */

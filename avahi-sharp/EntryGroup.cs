@@ -45,7 +45,8 @@ namespace Avahi
         Registering,
         Established,
         Collision,
-        Failure
+        Failure,
+        Uncommited = Uncommitted, /* deprecated backward compatible value */
     }
 
     public class EntryGroupStateArgs : EventArgs

@@ -824,6 +824,26 @@ fi
 AM_CONDITIONAL(HAVE_LIBDAEMON, test "x$HAVE_LIBDAEMON" = "xyes")
 
 #
+# libsystemd
+#
+AC_ARG_ENABLE(libsystemd,
+        AS_HELP_STRING([--disable-libsystemd],[Disable use of libsystemd]),
+        [case "${enableval}" in
+                yes) HAVE_LIBSYSTEMD=yes ;;
+                no)  HAVE_LIBSYSTEMD=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-libsystemd) ;;
+        esac],
+        [HAVE_LIBSYSTEMD=yes])
+
+if test "x$HAVE_LIBSYSTEMD" = "xyes" ; then
+    PKG_CHECK_MODULES(LIBSYSTEMD, [ libsystemd ])
+    AC_DEFINE([HAVE_LIBSYSTEMD], 1, [Support for libsystemd])
+    AC_SUBST(LIBSYSTEMD_CFLAGS)
+    AC_SUBST(LIBSYSTEMD_LIBS)
+fi
+AM_CONDITIONAL(HAVE_LIBSYSTEMD, test "x$HAVE_LIBSYSTEMD" = "xyes")
+
+#
 # Python stuff
 #
 AC_ARG_ENABLE(python,
@@ -1199,6 +1219,7 @@ echo "
     Enable GDBM:                               ${HAVE_GDBM}
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}
+    Enable libsystemd:                         ${HAVE_LIBSYSTEMD}
     Enable Python:                             ${HAVE_PYTHON}
     Enable pygobject:                          ${HAVE_PYGOBJECT}
     Enable python-dbus:                        ${HAVE_PYTHON_DBUS}

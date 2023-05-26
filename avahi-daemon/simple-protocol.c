@@ -32,6 +32,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
+
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
@@ -42,7 +46,6 @@
 
 #include "simple-protocol.h"
 #include "main.h"
-#include "sd-daemon.h"
 
 #ifdef ENABLE_CHROOT
 #include "chroot.h"
@@ -453,7 +456,9 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
 int simple_protocol_setup(const AvahiPoll *poll_api) {
     struct sockaddr_un sa;
     mode_t u;
+#ifdef HAVE_LIBSYSTEMD
     int n;
+#endif
 
     assert(!server);
 
@@ -467,6 +472,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
 
     u = umask(0000);
 
+#ifdef HAVE_LIBSYSTEMD
     if ((n = sd_listen_fds(1)) < 0) {
         avahi_log_warn("Failed to acquire systemd file descriptors: %s", strerror(-n));
         goto fail;
@@ -487,7 +493,9 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
 
         server->fd = SD_LISTEN_FDS_START;
 
-    } else {
+    } else
+#endif
+    {
 
         if ((server->fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0) {
             avahi_log_warn("socket(AF_LOCAL, SOCK_STREAM, 0): %s", strerror(errno));

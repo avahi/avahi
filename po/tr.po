@@ -1,8 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Turkish translation for Avahi
+# Copyright (C) 2011-2023 Avahi's COPYRIGHT HOLDER
+# This file is distributed under the same license as the Avahi package.
 #
-# Translators:
 # H. İbrahim Güngör <igungor@gmail.com>, 2011-2012
 # Necdet Yücel <necdetyucel@gmail.com>, 2014
 # Muhammet Kara <muhammetk@gmail.com>, 2011, 2016.
@@ -12,15 +11,15 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/lathiat/avahi/issues\n"
 "POT-Creation-Date: 2016-06-24 13:30+0000\n"
-"PO-Revision-Date: 2016-11-29 23:36+0300\n"
-"Last-Translator: Muhammet Kara <muhammetk@gmail.com>\n"
-"Language-Team: Türkçe <gnome-turk@gnome.org>\n"
+"PO-Revision-Date: 2023-05-26 23:56+0300\n"
+"Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
+"Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -116,7 +115,7 @@ msgstr "Beklenmedik bir D-Bus hatası oluştu"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr "Artalan süreci bağlantısı başarısız oldu"
+msgstr "Art alan hizmeti bağlantısı başarısız oldu"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
@@ -128,7 +127,7 @@ msgstr "Verilen nesne geçerli değil"
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr "Artalan süreci çalışır değil"
+msgstr "Art alan hizmeti çalışır değil"
 
 #: ../avahi-common/error.c:59
 msgid "Invalid interface index"
@@ -655,7 +654,7 @@ msgstr "İstemci hatası, çıkılıyor: %s\n"
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr "Artalan süreci bekleniyor ...\n"
+msgstr "Art alan hizmeti bekleniyor ...\n"
 
 #: ../avahi-utils/avahi-browse.c:647
 msgid ""
@@ -677,14 +676,14 @@ msgstr ""
 "    -V --version         Sürüm bilgisini göster\n"
 "    -D --browse-domains  Servisleri değil gözatma alanlarına gözat\n"
 "    -a --all             Türü ne olursa olsun tüm servisleri göster\n"
-"    -d --domain=ALAN   Gözatılacak alan\n"
+"    -d --domain=ALAN     Gözatılacak alan\n"
 "    -v --verbose         Ayrıntılı kipi etkinleştir\n"
 "    -t --terminate       Tam liste dökümünden sonra sonlandır\n"
 "    -c --cache           Ön bellekteki tüm girdilerin dökümünden sonra "
 "sonlandır\n"
 "    -l --ignore-local    Yerel servisleri yoksay\n"
 "    -r --resolve         Bulunan servisleri çözümle\n"
-"    -f --no-fail         Artalan süreci kullanılamaz olduğunda kapanma\n"
+"    -f --no-fail         Art alan hizmeti kullanılamaz olduğunda kapanma\n"
 "    -p --parsable        Ayrıştırılabilir biçimde çıktı\n"
 
 #: ../avahi-utils/avahi-browse.c:660
@@ -772,11 +771,11 @@ msgstr ""
 "    -s --service         Servisi yayınla\n"
 "    -a --address         Adresi yayınla\n"
 "    -v --verbose         Ayrıntılı kipi etkinleştir\n"
-"    -d --domain=ALAN   Servisin yayınlanacağı etki alanı\n"
-"    -H --host=ALAN     Servisin bulunduğu istemci\n"
-"       --subtype=ALTTÜR Bu servise kaydolacak ek alt tür\n"
+"    -d --domain=ALAN     Servisin yayınlanacağı etki alanı\n"
+"    -H --host=ALAN       Servisin bulunduğu istemci\n"
+"       --subtype=ALTTÜR  Bu servise kaydolacak ek alt tür\n"
 "    -R --no-reverse      Ters girdileri adresle yayınlama\n"
-"    -f --no-fail         Artalan süreci kullanılamaz olduğunda kapanma\n"
+"    -f --no-fail         Art alan hizmeti kullanılamaz olduğunda kapanma\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format

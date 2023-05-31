@@ -121,6 +121,21 @@ parts:
       - -usr/lib/avahi
       - -var
 
+  # snap helper scripts
+  glue:
+    source: glue
+    plugin: dump
+    stage-packages:
+      - jq
+      - libjq1
+      - libnss-mdns
+    organize:
+      'lib/${CRAFT_ARCH_TRIPLET}*': usr/lib/${CRAFT_ARCH_TRIPLET}/
+    stage:
+      - usr
+      - -usr/share/doc
+      - -usr/share/man
+
 build-packages:
   - gettext
   - intltool

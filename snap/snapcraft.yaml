@@ -41,6 +41,14 @@ architectures:
   - build-on: amd64
   - build-on: riscv64
 
+# expose services folder for other snaps
+slots:
+  services-content:
+    interface: content
+    content: avahi-services
+    write:
+      - $SNAP_COMMON/etc/avahi/services
+
 apps:
   daemon:
     command: usr/sbin/avahi-daemon -f $SNAP_COMMON/etc/avahi/avahi-daemon.conf --no-drop-root --debug

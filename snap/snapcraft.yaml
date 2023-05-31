@@ -40,3 +40,13 @@ architectures:
   - build-on: amd64
   - build-on: riscv64
 
+build-packages:
+  - gettext
+  - intltool
+  - libdaemon-dev
+  - libdbus-1-dev
+  - libevent-dev
+  - libexpat1-dev
+  - libglib2.0-dev
+  - libsystemd-dev
+  - xmltoman

@@ -40,6 +40,48 @@ architectures:
   - build-on: arm64
   - build-on: amd64
   - build-on: riscv64
+
+apps:
+  daemon:
+    command: usr/sbin/avahi-daemon -f $SNAP_COMMON/etc/avahi/avahi-daemon.conf --no-drop-root --debug
+    daemon: simple
+    adapter: none
+    plugs:
+      - network
+      - network-bind
+      - network-control
+    slots:
+      - avahi-observe
+      - avahi-control
+
+  browse:
+    command: usr/bin/avahi-browse
+    adapter: none
+    plugs:
+      - network
+
+  publish:
+    command: usr/bin/avahi-publish
+    adapter: none
+    plugs:
+      - network
+
+  resolve:
+      command: usr/bin/avahi-resolve
+      adapter: none
+      plugs:
+        - network
+
+  set-host-name:
+    command: usr/bin/avahi-set-host-name
+    adapter: none
+    plugs:
+      - network
+
+  help:
+    command: usr/bin/avahi-help
+    adapter: none
+
 parts:
   avahi:
     plugin: autotools

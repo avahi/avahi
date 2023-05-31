@@ -1,0 +1,42 @@
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+name: avahi
+summary: avahi-daemon
+license: LGPL-2.1
+description: |
+  avahi service daemon
+
+  Avahi is a free, LGPL implementation of DNS Service Discovery (DNS-SD RFC 6763) over Multicast DNS (mDNS RFC 6762),
+  commonly known as and compatible with Apple Bonjour primarily targetting Linux.
+
+  Copyright 2004-2015 by the Avahi developers.
+
+base: core20
+confinement: strict
+grade: stable
+
+environment:
+  PATH: $SNAP/usr/bin:$PATH
+  LD_LIBRARY_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:$SNAP/usr/lib
+
+architectures:
+  - build-on: armhf
+  - build-on: arm64
+  - build-on: amd64
+  - build-on: riscv64
+

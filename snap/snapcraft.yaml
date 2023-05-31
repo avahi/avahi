@@ -29,6 +29,7 @@ description: |
 base: core20
 confinement: strict
 grade: stable
+adopt-info: avahi
 
 environment:
   PATH: $SNAP/usr/bin:$PATH
@@ -39,6 +40,86 @@ architectures:
   - build-on: arm64
   - build-on: amd64
   - build-on: riscv64
+parts:
+  avahi:
+    plugin: autotools
+    source: https://github.com/avahi/avahi.git
+    source-type: git
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --disable-qt3
+      - --disable-qt4
+      - --disable-qt5
+      - --disable-gtk
+      - --disable-gtk3
+      - --disable-gdbm
+      - --disable-python
+      - --disable-pygtk
+      - --disable-python-dbus
+      - --disable-mono
+      - --disable-monodoc
+      - --disable-manpages
+      - --disable-xmltoman
+      - --with-avahi-user=root
+      - --with-avahi-group=root
+      - --with-distro=debian
+      - --disable-gobject
+      - --sysconfdir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc
+      - --datadir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share
+      - --localstatedir=/var
+    stage-packages:
+      - libdaemon0
+      - libevent-2.1-7
+    override-pull: |
+      snapcraftctl pull
+      track="20"
+      # depending on a channel in the snap store, build last release tag or master
+      # last stable tag
+      stable_tag=$(git tag --list | sed 's/v//g' | sort --version-sort | grep -v "rc" | tail -1)
+      latest_tag=$(git tag --list | sed 's/v//g' | sort --version-sort | tail -1)
+      if [ "${stable_tag}" != "${latest_tag}" ]; then
+        # last release candidate tag
+        rc_tag=$(git tag --list | sed 's/v//g' | sort --version-sort | grep "rc" | tail -1)
+      fi
+      release_candidate_tag="${rc_tag:-}"
+      stable_version="$(snap info avahi | awk -v track="${track}" '$1 == track"/stable:" {gsub(/--/,"",$2); print $2 }')"
+      candidate_version="$(snap info avahi | awk -v track="${track}" '$1 == track"/candidate:" {gsub(/--/,"",$2); print $2 }')"
+      beta_version="$(snap info avahi | awk -v track="${track}" '$1 == track"/beta:" {gsub(/--/,"",$2); print $2 }')"
+      # If there is no stable, build latest stable_tag
+      # If there is release_candidate_tag, check if this version is also in the candate channel,
+      # If there is different version or channel is closed, build release candidate version
+      if [ -z "${stable_version}" ]; then
+        version="${stable_tag}"
+      elif [ -n "${release_candidate_tag}" ] && [ "${release_candidate_tag}" != "${candidate_version}" ] ; then
+        version="${release_candidate_tag}"
+      # if beta channel is closed or version is less than stable tag version, build last stable version
+      elif [ "^" = "${beta_version}" ] || $(dpkg --compare-versions "${beta_version}" "lt" "${stable_tag}" ); then
+        version="${stable_tag}"
+      fi
+      # if we have no version defined, we are building tip from master
+      if [ -n "${version-}" ]; then
+        git checkout v${version}
+      else
+        version="$(git describe --tags | cut -c 2-)"
+      fi
+      snapcraftctl set-version "${version}"
+    override-build: |
+        snapcraftctl build
+        # add tag with txt record os=snappy
+        sed -i \
+            '/<\/service>/ i\    <txt-record>os=snappy</txt-record>' \
+            $SNAPCRAFT_PART_INSTALL/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc/avahi/services/ssh.service
+    organize:
+      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc:              etc
+      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share/dbus-1: usr/share/dbus-1
+      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share/avahi:  usr/share/avahi
+    stage:
+      - -lib
+      - -run
+      - -usr/include
+      - -usr/lib/*.a
+      - -usr/lib/avahi
+      - -var
 
 build-packages:
   - gettext

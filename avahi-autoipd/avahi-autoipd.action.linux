@@ -35,20 +35,33 @@ PATH="$PATH:/usr/bin:/usr/sbin:/bin:/sbin"
 
 METRIC=$((1000 + `cat "/sys/class/net/$2/ifindex" 2>/dev/null || echo 0`))
 
+# determine what will be used for the avahi interface label
+# the length of the label is limited to 15 characters
+
+AVAHI_LABEL=
+# check if interface name + :avahi is too long
+if [ $((${#2} + 6)) -gt 15 ]; then
+  # the label would be too long with the avahi suffix, fall back to using just the interface name
+  AVAHI_LABEL="$2"
+else
+  # the interface name is short enough to allow the avahi suffix
+  AVAHI_LABEL="$2:avahi"
+fi
+
 if [ -x /bin/ip -o -x /sbin/ip ] ; then
 
     # We have the Linux ip tool from the iproute package
 
     case "$1" in
         BIND)
-            ip addr flush dev "$2" label "$2:avahi"
-            ip addr add "$3"/16 brd 169.254.255.255 label "$2:avahi" scope link dev "$2"
+            ip addr flush dev "$2" label "$AVAHI_LABEL"
+            ip addr add "$3"/16 brd 169.254.255.255 label "$AVAHI_LABEL" scope link dev "$2"
             ip route add default dev "$2" metric "$METRIC" scope link ||:
             ;;
 
         CONFLICT|UNBIND|STOP)
             ip route del default dev "$2" metric "$METRIC" scope link ||:
-            ip addr del "$3"/16 brd 169.254.255.255 label "$2:avahi" scope link dev "$2"
+            ip addr del "$3"/16 brd 169.254.255.255 label "$AVAHI_LABEL" scope link dev "$2"
             ;;
 
         *)
@@ -63,13 +76,13 @@ elif [ -x /bin/ifconfig -o -x /sbin/ifconfig ] ; then
 
     case "$1" in
         BIND)
-            ifconfig "$2:avahi" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255 up
-            route add default dev "$2:avahi" metric "$METRIC" ||:
+            ifconfig "$AVAHI_LABEL" inet "$3" netmask 255.255.0.0 broadcast 169.254.255.255 up
+            route add default dev "$AVAHI_LABEL" metric "$METRIC" ||:
             ;;
 
         CONFLICT|STOP|UNBIND)
-            route del default dev "$2:avahi" metric "$METRIC" ||:
-            ifconfig "$2:avahi" down
+            route del default dev "$AVAHI_LABEL" metric "$METRIC" ||:
+            ifconfig "$AVAHI_LABEL" down
             ;;
 
         *)

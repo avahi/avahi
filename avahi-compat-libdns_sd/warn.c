@@ -68,7 +68,7 @@ const char *avahi_exe_name(void) {
             exe_name[k] = 0;
 
             if ((slash = strrchr(exe_name, '/')))
-                memmove(exe_name, slash+1, strlen(slash)+1);
+                memmove(exe_name, slash+1, strlen(slash+1)+1);
         }
     }
 

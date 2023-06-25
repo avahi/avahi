@@ -31,6 +31,8 @@ lib_LTLIBRARIES = libdns_sd.la
 
 if ENABLE_TESTS
 noinst_PROGRAMS = txt-test null-test
+
+TESTS = txt-test null-test
 endif
 
 libdns_sd_la_SOURCES = \

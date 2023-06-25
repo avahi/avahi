@@ -4,6 +4,7 @@ set -eux
 set -o pipefail
 
 export ASAN_UBSAN=${ASAN_UBSAN:-false}
+export BUILD_ONLY=${BUILD_ONLY:-false}
 export COVERAGE=${COVERAGE:-false}
 
 case "$1" in
@@ -27,6 +28,11 @@ case "$1" in
 
         ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests --prefix=/usr
         make -j"$(nproc)" V=1
+
+        if [[ "$BUILD_ONLY" == true ]]; then
+            exit 0
+        fi
+
         make check VERBOSE=1
 
         if [[ "$COVERAGE" == true ]]; then

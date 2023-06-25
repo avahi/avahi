@@ -25,7 +25,7 @@ case "$1" in
             export CFLAGS="--coverage"
         fi
 
-        ./bootstrap.sh --enable-tests --prefix=/usr
+        ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests --prefix=/usr
         make -j"$(nproc)" V=1
         make check VERBOSE=1
 

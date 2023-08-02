@@ -71,6 +71,11 @@ lib_LTLIBRARIES = libhowl.la
 
 if ENABLE_TESTS
 noinst_PROGRAMS = address-test text-test browse-domain-test
+
+# browser-domain-test is excluded because without avahi-daemon it crashes with:
+# browse-domain-test: browse-domain-test.c:67: main: Assertion `_r == SW_OKAY' failed.
+# Aborted (core dumped)
+TESTS = address-test text-test
 endif
 
 libhowl_la_SOURCES = \

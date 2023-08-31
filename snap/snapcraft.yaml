@@ -26,14 +26,14 @@ description: |
 
   Copyright 2004-2015 by the Avahi developers.
 
-base: core20
+base: core22
 confinement: strict
 grade: stable
 adopt-info: avahi
 
 environment:
   PATH: $SNAP/usr/bin:$PATH
-  LD_LIBRARY_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:$SNAP/usr/lib
+  LD_LIBRARY_PATH: $SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
 
 architectures:
   - build-on: armhf
@@ -53,7 +53,6 @@ apps:
   daemon:
     command: usr/sbin/avahi-daemon -f $SNAP_COMMON/etc/avahi/avahi-daemon.conf --no-drop-root --debug
     daemon: simple
-    adapter: none
     plugs:
       - network
       - network-bind
@@ -64,31 +63,26 @@ apps:
 
   browse:
     command: usr/bin/avahi-browse
-    adapter: none
     plugs:
       - network
 
   publish:
     command: usr/bin/avahi-publish
-    adapter: none
     plugs:
       - network
 
   resolve:
       command: usr/bin/avahi-resolve
-      adapter: none
       plugs:
         - network
 
   set-host-name:
     command: usr/bin/avahi-set-host-name
-    adapter: none
     plugs:
       - network
 
   help:
     command: usr/bin/avahi-help
-    adapter: none
 
 parts:
   avahi:
@@ -114,15 +108,15 @@ parts:
       - --with-avahi-group=root
       - --with-distro=debian
       - --disable-gobject
-      - --sysconfdir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc
-      - --datadir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share
+      - --sysconfdir=/var/snap/${CRAFT_PROJECT_NAME}/common/etc
+      - --datadir=/var/snap/${CRAFT_PROJECT_NAME}/common/usr/share
       - --localstatedir=/var
     stage-packages:
       - libdaemon0
       - libevent-2.1-7
     override-pull: |
-      snapcraftctl pull
-      track="20"
+      craftctl default
+      track="22"
       # depending on a channel in the snap store, build last release tag or master
       # last stable tag
       stable_tag=$(git tag --list | sed 's/v//g' | sort --version-sort | grep -v "rc" | tail -1)
@@ -152,17 +146,17 @@ parts:
       else
         version="$(git describe --tags | cut -c 2-)"
       fi
-      snapcraftctl set-version "${version}"
+      craftctl set version="${version}"
     override-build: |
-        snapcraftctl build
+        craftctl default
         # add tag with txt record os=snappy
         sed -i \
             '/<\/service>/ i\    <txt-record>os=snappy</txt-record>' \
-            $SNAPCRAFT_PART_INSTALL/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc/avahi/services/ssh.service
+            $CRAFT_PART_INSTALL/var/snap/${CRAFT_PROJECT_NAME}/common/etc/avahi/services/ssh.service
     organize:
-      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc:              etc
-      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share/dbus-1: usr/share/dbus-1
-      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share/avahi:  usr/share/avahi
+      var/snap/${CRAFT_PROJECT_NAME}/common/etc:              etc
+      var/snap/${CRAFT_PROJECT_NAME}/common/usr/share/dbus-1: usr/share/dbus-1
+      var/snap/${CRAFT_PROJECT_NAME}/common/usr/share/avahi:  usr/share/avahi
     stage:
       - -lib
       - -run
@@ -180,7 +174,7 @@ parts:
       - libjq1
       - libnss-mdns
     organize:
-      'lib/${CRAFT_ARCH_TRIPLET}*': usr/lib/${CRAFT_ARCH_TRIPLET}/
+      'lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}*': usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/
     stage:
       - usr
       - -usr/share/doc

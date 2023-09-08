@@ -327,6 +327,8 @@ int avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
     if (a == b)
         return 1;
 
+    if (!(a->name) || !(b->name))
+        return 0;
     return avahi_domain_equal(a->name, b->name) &&
         a->type == b->type &&
         a->clazz == b->clazz;

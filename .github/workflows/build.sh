@@ -15,7 +15,7 @@ case "$1" in
         sed -i -e '/^#\s*deb-src.*\smain\s\+restricted/s/^#//' /etc/apt/sources.list
         apt-get update -y
         apt-get build-dep -y avahi
-        apt-get install -y libevent-dev qtbase5-dev
+        apt-get install -y libevent-dev qtbase5-dev libsystemd-dev
         apt-get install -y gcc clang lcov
 
         apt-get install -y valgrind ncat

@@ -30,7 +30,8 @@ try:
     from gi.repository import Gtk, GObject, GLib
     _ = gettext.gettext
 except ImportError as e:
-    print("Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.\n Error: %s" % e)
+    sys.stderr.write("Error: {}\n".format(e))
+    print("Sorry, to use this tool you need to install Avahi, pygtk and python-dbus.")
     sys.exit(1)
 except Exception as e:
     print("Failed to initialize: %s" % e)

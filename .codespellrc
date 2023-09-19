@@ -1,0 +1,4 @@
+[codespell]
+skip = po,specs,build,./docs/*.svg,./docs/*.dia,autom4te.cache,*.xsl,*.m4,depcomp,config.sub
+ignore-words = tests/codespell-ignore.txt
+exclude-file = tests/codespell-exclude.txt

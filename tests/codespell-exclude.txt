@@ -1,0 +1,10 @@
+char *etxt;
+DBUS_TYPE_STRING, &etxt,
+                    DBUS_TYPE_STRING, &etxt,
+            char *etxt;
+        Uncommited = Uncommitted, /* deprecated backward compatible value */
+_dpap._tcp[it]:Condivisione Foto
+            avahi_client_set_errno(r->client, avahi_error_dbus_to_number(etxt));
+            avahi_client_set_errno(b->client, avahi_error_dbus_to_number(etxt));
+            avahi_client_set_errno(db->client, avahi_error_dbus_to_number(etxt));
+    printf("%s\n", s = avahi_normalize_name_strdup("fo\\\\o\\..f oo."));

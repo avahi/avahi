@@ -1,0 +1,40 @@
+---
+name: "Codespell"
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+env:
+  CC: "gcc"
+  BUILD_ONLY: "true"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.language }}-${{ github.ref }}
+      cancel-in-progress: true
+    permissions:
+      actions: read
+      security-events: write
+
+    strategy:
+      fail-fast: true
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Do CodeSpell check
+      uses: codespell-project/actions-codespell@v2
+      with:
+        only_warn: 1

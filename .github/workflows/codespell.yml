@@ -12,14 +12,10 @@ on:
 permissions:
   contents: read
 
-env:
-  CC: "gcc"
-  BUILD_ONLY: "true"
-
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.language }}-${{ github.ref }}
       cancel-in-progress: true
@@ -36,5 +32,3 @@ jobs:
 
     - name: Do CodeSpell check
       uses: codespell-project/actions-codespell@v2
-      with:
-        only_warn: 1

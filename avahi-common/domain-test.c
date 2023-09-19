@@ -79,8 +79,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_service_name_split(t, NULL, 0, type, sizeof(type), domain, sizeof(domain));
     printf("name: <>; type: <%s>; domain <%s>\n", type, domain);
 
-
-    p = "--:---\\\\\\123\\065_äöü\\064\\.\\\\sjöödfhh.sdfjhskjdf";
+    p = "--:---\\\\\\123\\065_\344\366\374\\064\\.\\\\sj\366\366dfhh.sdfjhskjdf";
     printf("unescaped: <%s>, rest: %s\n", avahi_unescape_label(&p, t, sizeof(t)), p);
 
     size = sizeof(r);

@@ -58,7 +58,7 @@ This is because the D-Bus implementation in some languages would only bind to
 signals of an object after it was created and had received the new object's
 path. This led to such languages missing the initial results sent between the
 time the object was created and it had setup a filter to receive it's signals.
-This primarily occured in languages that create dynamic bindings for D-Bus
+This primarily occurred in languages that create dynamic bindings for D-Bus
 objects using introspection such as Python. The avahi-client C api was not
 affected as it globally binds to all avahi signals without specifying
 individual object paths and still makes use of the V1 API.
@@ -71,7 +71,7 @@ The old org.freedesktop.Avahi.Server interface is still supported and there is
 no intention to remove this API. Additionally this problem has also been solved
 for old clients by adding a very small 10ms delay before we start sending
 results to give the client time to bind to the signals which should silently
-fix the issue in most cases without introducing a noticable or impactful delay.
+fix the issue in most cases without introducing a noticeable or impactful delay.
 
 Clients implementing the new org.freedesktop.Avahi.Server2 D-Bus interface will
 not work with older Avahi daemons. It is suggested that clients may wish to
@@ -848,7 +848,7 @@ Avahi 0.5.2
 ===========
 
  * Bug fix release.
- * Fix browing in QT applications (was totally broken)
+ * Fix browsing in QT applications (was totally broken)
  * Minor documentation update.
 
 Avahi 0.5.1
@@ -881,7 +881,7 @@ Avahi 0.4, the 'Hyvää päivää' release
  * Fix a critical bug in avahi-daemon triggered by configuring an interface
    with various DHCP clients when you have no other active addresses which
    caused avahi-daemon to abort.
- * Move to using python-gdbm exclusivly for the service type database.
+ * Move to using python-gdbm exclusively for the service type database.
  * Add support for SUSE
  * Various fixes to the build system
 

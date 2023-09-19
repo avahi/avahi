@@ -48,7 +48,7 @@ done:
 * check: TC bit is valid for queries ONLY
 * add SRV and TXT records referenced from PTR records automatically to packet
 * add A and AAAA records referenced from SRV records automatically to packet
-* support known answer suppresion for incoming unicast queries
+* support known answer suppression for incoming unicast queries
 * check whether RRsets are supported correctly (i.e. that all records of an
   RRset are really sent if it is requested) (rfc 2181)
 * case insensitive comparison

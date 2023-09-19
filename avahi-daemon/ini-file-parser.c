@@ -33,13 +33,13 @@
 
 AvahiIniFile* avahi_ini_file_load(const char *fname) {
     AvahiIniFile *f;
-    FILE *fo;
+    FILE *fout;
     AvahiIniFileGroup *group = NULL;
     unsigned line;
 
     assert(fname);
 
-    if (!(fo = fopen(fname, "r"))) {
+    if (!(fout = fopen(fname, "r"))) {
         avahi_log_error("Failed to open file '%s': %s", fname, strerror(errno));
         return NULL;
     }
@@ -49,11 +49,11 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
     f->n_groups = 0;
 
     line = 0;
-    while (!feof(fo)) {
+    while (!feof(fout)) {
         char ln[256], *s, *e;
         AvahiIniFilePair *pair;
 
-        if (!(fgets(ln, sizeof(ln), fo)))
+        if (!(fgets(ln, sizeof(ln), fout)))
             break;
 
         line++;
@@ -107,14 +107,14 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
         }
     }
 
-    fclose(fo);
+    fclose(fout);
 
     return f;
 
 fail:
 
-    if (fo)
-        fclose(fo);
+    if (fout)
+        fclose(fout);
 
     if (f)
         avahi_ini_file_free(f);

@@ -345,10 +345,10 @@ static void cache_entry_free(AvahiWideAreaCacheEntry *c) {
     avahi_free(c);
 }
 
-static void expiry_event(AvahiTimeEvent *te, void *userdata) {
+static void expiry_event(AvahiTimeEvent *t, void *userdata) {
     AvahiWideAreaCacheEntry *e = userdata;
 
-    assert(te);
+    assert(t);
     assert(e);
 
     cache_entry_free(e);

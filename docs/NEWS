@@ -881,7 +881,7 @@ Avahi 0.4, the 'Hyvää päivää' release
  * Fix a critical bug in avahi-daemon triggered by configuring an interface
    with various DHCP clients when you have no other active addresses which
    caused avahi-daemon to abort.
- * Move to using python-gdbm exclusivly for the service type database.
+ * Move to using python-gdbm exclusively for the service type database.
  * Add support for SUSE
  * Various fixes to the build system
 

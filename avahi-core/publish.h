@@ -113,7 +113,7 @@ int avahi_server_add_service(
     const char *name,         /**< Service name, e.g. "Lennart's Files" */
     const char *type,         /**< DNS-SD type, e.g. "_http._tcp" */
     const char *domain,
-    const char *host,         /**< Host name where this servcie resides, or NULL if on the local host */
+    const char *host,         /**< Host name where this service resides, or NULL if on the local host */
     uint16_t port,              /**< Port number of the service */
     ...  /**< Text records, terminated by NULL */) AVAHI_GCC_SENTINEL;
 

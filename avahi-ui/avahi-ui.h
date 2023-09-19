@@ -66,7 +66,7 @@ typedef struct _AuiServiceDialog AuiServiceDialog;
 /** @{ \name Construction */
 
 /** Create a new service browser dialog with the specific title,
- * parent window and the speicified buttons. The buttons are specified
+ * parent window and the specified buttons. The buttons are specified
  * in a similar way to GtkFileChooserDialog. Please note that at least
  * one button has to respond GTK_RESPONSE_ACCEPT. */
 GtkWidget* aui_service_dialog_new(

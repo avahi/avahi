@@ -273,7 +273,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         }
 
         /* Avahi only considers interfaces with at least one address
-         * attached relevant. Since we migh have added or removed an
+         * attached relevant. Since we might have added or removed an
          * address, let's have it check again whether the interface is
          * now relevant */
         avahi_interface_check_relevant(i);

@@ -214,7 +214,7 @@ enum
     kDNSServiceType_CERT      = 37,     /* Certification record */
     kDNSServiceType_A6        = 38,     /* IPv6 Address (deprecated) */
     kDNSServiceType_DNAME     = 39,     /* Non-terminal DNAME (for IPv6) */
-    kDNSServiceType_SINK      = 40,     /* Kitchen sink (experimentatl) */
+    kDNSServiceType_SINK      = 40,     /* Kitchen sink (experimental) */
     kDNSServiceType_OPT       = 41,     /* EDNS0 option (meta-RR) */
     kDNSServiceType_TKEY      = 249,    /* Transaction key */
     kDNSServiceType_TSIG      = 250,    /* Transaction signature. */

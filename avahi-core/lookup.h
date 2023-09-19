@@ -107,10 +107,10 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
     const char *host_name,                  /**< The host name to look for */
     AvahiProtocol aprotocol,                /**< The address family of the desired address or AVAHI_PROTO_UNSPEC if doesn't matter. */
     AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSHostNameResolverCallback calback,
+    AvahiSHostNameResolverCallback callback,
     void* userdata);
 
-/** Prepare an AvahiSHostNameResolver object for resolving a host name to an adddress. See AvahiSRecordBrowser for more info on the paramters. */
+/** Prepare an AvahiSHostNameResolver object for resolving a host name to an address. See AvahiSRecordBrowser for more info on the parameters. */
 AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(
     AvahiServer *server,
     AvahiIfIndex interface,
@@ -118,7 +118,7 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(
     const char *host_name,                  /**< The host name to look for */
     AvahiProtocol aprotocol,                /**< The address family of the desired address or AVAHI_PROTO_UNSPEC if doesn't matter. */
     AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSHostNameResolverCallback calback,
+    AvahiSHostNameResolverCallback callback,
     void* userdata);
 
 /** Start querying on an AvahiSHostNameResolver object */
@@ -145,17 +145,17 @@ AvahiSAddressResolver *avahi_s_address_resolver_new(
     AvahiProtocol protocol,
     const AvahiAddress *address,
     AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSAddressResolverCallback calback,
+    AvahiSAddressResolverCallback callback,
     void* userdata);
 
-/** Prepare an AvahiSAddressResolver object. See AvahiSRecordBrowser for more info on the paramters. */
+/** Prepare an AvahiSAddressResolver object. See AvahiSRecordBrowser for more info on the parameters. */
 AvahiSAddressResolver *avahi_s_address_resolver_prepare(
     AvahiServer *server,
     AvahiIfIndex interface,
     AvahiProtocol protocol,
     const AvahiAddress *address,
     AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSAddressResolverCallback calback,
+    AvahiSAddressResolverCallback callback,
     void* userdata);
 
 /** Start querying on an AvahiSAddressResolver object */
@@ -305,7 +305,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_new(
     const char *domain,
     AvahiProtocol aprotocol,    /**< Address family of the desired service address. Use AVAHI_PROTO_UNSPEC if you don't care */
     AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSServiceResolverCallback calback,
+    AvahiSServiceResolverCallback callback,
     void* userdata);
 
 /** Prepare a new AvahiSServiceResolver object. The specified callback function will be called with the resolved service data. */
@@ -318,7 +318,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_prepare(
     const char *domain,
     AvahiProtocol aprotocol,    /**< Address family of the desired service address. Use AVAHI_PROTO_UNSPEC if you don't care */
     AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSServiceResolverCallback calback,
+    AvahiSServiceResolverCallback callback,
     void* userdata);
 
 /** Start querying on an AvahiSServiceResolver object */

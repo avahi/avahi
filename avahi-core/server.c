@@ -434,7 +434,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
 
                     if (avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
 
-                        /* Appending this record succeeded, so incremeant
+                        /* Appending this record succeeded, so increment
                          * the specific header field, and return to the caller */
 
                         avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);
@@ -454,7 +454,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
 
                         if (avahi_dns_packet_append_record(reply, r, flush_cache, 0)) {
 
-                            /* Appending this record succeeded, so incremeant
+                            /* Appending this record succeeded, so increment
                              * the specific header field, and return to the caller */
 
                             avahi_dns_packet_inc_field(reply, AVAHI_DNS_FIELD_ANCOUNT);

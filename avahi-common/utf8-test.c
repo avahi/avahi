@@ -30,7 +30,8 @@
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     assert(avahi_utf8_valid("hallo"));
-    assert(!avahi_utf8_valid("üxknürz"));
+    /* same word in iso-8859-1 as utf-8 below. */
+    assert(!avahi_utf8_valid("\xfcxkn\xfcrz"));
     assert(avahi_utf8_valid("Ã¼xknÃ¼rz"));
 
     return 0;

@@ -75,7 +75,9 @@ noinst_PROGRAMS = address-test text-test browse-domain-test
 # browser-domain-test is excluded because without avahi-daemon it crashes with:
 # browse-domain-test: browse-domain-test.c:67: main: Assertion `_r == SW_OKAY' failed.
 # Aborted (core dumped)
-TESTS = address-test text-test
+# address-test is excluded because it fails in environments like Packit where
+# gethostbyname is blocked.
+TESTS = text-test
 endif
 
 libhowl_la_SOURCES = \

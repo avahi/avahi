@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - { CC: "gcc" }
+          - { CC: "gcc", DISTCHECK: "true", VALGRIND: "true" }
           - { CC: "gcc", ASAN_UBSAN: "true" }
           - { CC: "clang" }
     env: ${{ matrix.env }}

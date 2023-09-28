@@ -41,8 +41,3 @@ for f in fuzz/fuzz-*.c; do
         $LIB_FUZZING_ENGINE \
         "avahi-core/.libs/libavahi-core.a" "avahi-common/.libs/libavahi-common.a"
 done
-
-for t in consume-{key,record}; do
-    wget -O "$OUT/fuzz-${t}_seed_corpus.zip" \
-        "https://storage.googleapis.com/avahi-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/avahi_packet_${t//-/_}_fuzzer/public.zip"
-done

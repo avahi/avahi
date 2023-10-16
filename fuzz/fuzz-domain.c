@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "avahi-common/alternative.h"
 #include "avahi-common/malloc.h"
 #include "avahi-common/domain.h"
 
@@ -44,6 +45,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     avahi_is_valid_service_name(s);
     avahi_is_valid_host_name(s);
     avahi_is_valid_fqdn(s);
+
+    avahi_free(avahi_alternative_host_name(s));
 
     avahi_free(t);
     avahi_free(s);

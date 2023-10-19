@@ -340,7 +340,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         if (!(r = avahi_record_new_full (name, clazz, type, ttl)))
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_NO_MEMORY, NULL);
 
-        if (avahi_rdata_parse (r, rdata, size) < 0) {
+        if (!rdata || avahi_rdata_parse (r, rdata, size) < 0) {
             avahi_record_unref (r);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_RDATA, NULL);
         }

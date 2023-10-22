@@ -23,22 +23,53 @@
 #include "avahi-common/malloc.h"
 #include "avahi-core/dns.h"
 #include "avahi-core/log.h"
+#include "avahi-core/rr-util.h"
 
 void log_function(AvahiLogLevel level, const char *txt) {}
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    AvahiDnsPacket *p = NULL;
+    AvahiRecord *r = NULL, *c = NULL;
+    int ret;
+
     avahi_set_log_function(log_function);
-    AvahiDnsPacket* packet = avahi_dns_packet_new(size + AVAHI_DNS_PACKET_EXTRA_SIZE);
-    memcpy(AVAHI_DNS_PACKET_DATA(packet), data, size);
-    packet->size = size;
-    AvahiRecord* rec = avahi_dns_packet_consume_record(packet, NULL);
-    if (rec) {
-        avahi_record_is_valid(rec);
-        char *s = avahi_record_to_string(rec);
-        avahi_free(s);
-        avahi_record_unref(rec);
-    }
-    avahi_dns_packet_free(packet);
+
+    if (!(p = avahi_dns_packet_new(size + AVAHI_DNS_PACKET_EXTRA_SIZE)))
+        goto finish;
+
+    memcpy(AVAHI_DNS_PACKET_DATA(p), data, size);
+    p->size = size;
+
+    if (!(r = avahi_dns_packet_consume_record(p, NULL)))
+        goto finish;
+
+    ret = avahi_record_is_valid(r);
+    assert(ret);
+
+    avahi_record_get_estimate_size(r);
+
+    avahi_free(avahi_record_to_string(r));
+
+    if (!(c = avahi_record_copy(r)))
+        goto finish;
+
+    ret = avahi_record_equal_no_ttl(r, c);
+    assert(ret);
+
+    avahi_dns_packet_free(p);
+    if (!(p = avahi_dns_packet_new(size + AVAHI_DNS_PACKET_EXTRA_SIZE)))
+        goto finish;
+
+    if (!avahi_dns_packet_append_record(p, r, 0, 0))
+        goto finish;
+
+finish:
+    if (c)
+        avahi_record_unref(c);
+    if (r)
+        avahi_record_unref(r);
+    if (p)
+        avahi_dns_packet_free(p);
 
     return 0;
 }

@@ -426,6 +426,7 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
     copy->ref = 1;
     copy->key = avahi_key_ref(r->key);
     copy->ttl = r->ttl;
+    memset(&copy->data, 0, sizeof(copy->data));
 
     switch (r->key->type) {
         case AVAHI_DNS_TYPE_PTR:
@@ -466,7 +467,7 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
             break;
 
         default:
-            if (!(copy->data.generic.data = avahi_memdup(r->data.generic.data, r->data.generic.size)))
+            if (r->data.generic.size && !(copy->data.generic.data = avahi_memdup(r->data.generic.data, r->data.generic.size)))
                 goto fail;
             copy->data.generic.size = r->data.generic.size;
             break;

@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/lathiat/avahi/issues\n"
-"POT-Creation-Date: 2016-06-24 13:30+0000\n"
-"PO-Revision-Date: 2023-05-26 23:56+0300\n"
+"POT-Creation-Date: 2023-10-23 15:24+0000\n"
+"PO-Revision-Date: 2023-10-24 00:58+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.4\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -296,7 +296,7 @@ msgstr "Hizmet Türlerine Gözat"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr "Gözatılacak servis türlerinin sonlandırılmış bir BOŞ listesi"
+msgstr "Gözatılacak hizmet türlerinin sonlandırılmış bir BOŞ listesi"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
@@ -328,7 +328,7 @@ msgstr "Adres"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
-msgstr "Çözümlenen servisin adresi"
+msgstr "Çözümlenen hizmetin adresi"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
@@ -336,7 +336,7 @@ msgstr "Bağlantı noktası"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
-msgstr "Çözümlenen servisin IP bağlantı noktası"
+msgstr "Çözümlenen hizmetin IP bağlantı noktası"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
@@ -344,7 +344,7 @@ msgstr "Makine Adı"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
-msgstr "Çözümlenen servisin makine adı"
+msgstr "Çözümlenen hizmetin makine adı"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
@@ -352,24 +352,24 @@ msgstr "TXT Verisi"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
-msgstr "Çözümlenen servisin TXT verisi"
+msgstr "Çözümlenen hizmetin TXT verisi"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve Service"
-msgstr "Servisi Çözümle"
+msgstr "Hizmeti Çözümle"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr "Döndürmeden önce seçilen servisi otomatik olarak çözümle"
+msgstr "Döndürmeden önce seçilen hizmeti otomatik olarak çözümle"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve Service Host Name"
-msgstr "Servis Makine Adını Çözümle"
+msgstr "Hizmet Makine Adını Çözümle"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr "Döndürmeden önce seçilen servisin makine adını otomatik olarak çözümle"
+msgstr "Döndürmeden önce seçilen hizmetin makine adını otomatik olarak çözümle"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
@@ -392,7 +392,7 @@ msgstr "Avahi çözümleyici başarısız oldu: %s"
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr "%s servis türünün %s etki alanında taranması başarısız oldu: %s"
+msgstr "%s hizmet türünün %s etki alanında taranması başarısız oldu: %s"
 
 #: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
@@ -412,7 +412,7 @@ msgstr "Avahi etki alanı okunamadı: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr "Tarama servis türü listesi boş!"
+msgstr "Tarama hizmet türü listesi boş!"
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
@@ -421,12 +421,12 @@ msgstr "Avahi sunucusuna bağlanılamadı: %s"
 
 #: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
-msgstr "<b>Yerel ağ</b> üzerindeki servisler taranıyor:"
+msgstr "<b>Yerel ağ</b> üzerindeki hizmetler taranıyor:"
 
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr "<b>%s</b> etki alanı üzerindeki servisler taranıyor:"
+msgstr "<b>%s</b> etki alanı üzerindeki hizmetler taranıyor:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
@@ -454,7 +454,7 @@ msgstr "Taranıyor..."
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
 msgid "_Cancel"
-msgstr "_İptal"
+msgstr "İ_ptal"
 
 #: ../avahi-ui/avahi-ui.c:1048
 msgid "_OK"
@@ -539,7 +539,6 @@ msgid "execlp() failed: %s\n"
 msgstr "execlp() başarısız oldu: %s\n"
 
 #: ../avahi-ui/bssh.c:250
-#, c-format
 msgid "Canceled.\n"
 msgstr "İptal edildi.\n"
 
@@ -572,7 +571,7 @@ msgstr ": Önbellek tükendi\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "%s için %s türünde servis '%s' alanında oluşturulamadı: %s\n"
+msgstr "%s için %s türünde hizmet '%s' alanında oluşturulamadı: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -674,15 +673,15 @@ msgid ""
 msgstr ""
 "    -h --help            Bu yardımı göster\n"
 "    -V --version         Sürüm bilgisini göster\n"
-"    -D --browse-domains  Servisleri değil gözatma alanlarına gözat\n"
-"    -a --all             Türü ne olursa olsun tüm servisleri göster\n"
+"    -D --browse-domains  Hizmetlere değil gözatma alanlarına gözat\n"
+"    -a --all             Türü ne olursa olsun tüm hizmetleri göster\n"
 "    -d --domain=ALAN     Gözatılacak alan\n"
 "    -v --verbose         Ayrıntılı kipi etkinleştir\n"
 "    -t --terminate       Tam liste dökümünden sonra sonlandır\n"
 "    -c --cache           Ön bellekteki tüm girdilerin dökümünden sonra "
 "sonlandır\n"
-"    -l --ignore-local    Yerel servisleri yoksay\n"
-"    -r --resolve         Bulunan servisleri çözümle\n"
+"    -l --ignore-local    Yerel hizmetleri yoksay\n"
+"    -r --resolve         Bulunan hizmetleri çözümle\n"
 "    -f --no-fail         Art alan hizmeti kullanılamaz olduğunda kapanma\n"
 "    -p --parsable        Ayrıştırılabilir biçimde çıktı\n"
 
@@ -691,8 +690,8 @@ msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
-"    -k --no-db-lookup    Servis türlerini arama\n"
-"    -b --dump-db         Servis türü veritabanının dökümünü al\n"
+"    -k --no-db-lookup    Hizmet türlerini arama\n"
+"    -b --dump-db         Hizmet türü veri tabanının dökümünü al\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format
@@ -733,7 +732,7 @@ msgstr "Adres eklenemedi: %s\n"
 #: ../avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
-msgstr "Servis eklenemedi: %s\n"
+msgstr "Hizmet eklenemedi: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
@@ -768,12 +767,12 @@ msgstr ""
 "\n"
 "    -h --help            Bu yardımı göster\n"
 "    -V --version         Sürüm bilgisini göster\n"
-"    -s --service         Servisi yayınla\n"
+"    -s --service         Hizmeti yayınla\n"
 "    -a --address         Adresi yayınla\n"
 "    -v --verbose         Ayrıntılı kipi etkinleştir\n"
-"    -d --domain=ALAN     Servisin yayınlanacağı etki alanı\n"
-"    -H --host=ALAN       Servisin bulunduğu istemci\n"
-"       --subtype=ALTTÜR  Bu servise kaydolacak ek alt tür\n"
+"    -d --domain=ALAN     Hizmetin yayınlanacağı etki alanı\n"
+"    -H --host=ALAN       Hizmetin bulunduğu istemci\n"
+"       --subtype=ALTTÜR  Bu hizmete kaydolacak ek alt tür\n"
 "    -R --no-reverse      Ters girdileri adresle yayınlama\n"
 "    -f --no-fail         Art alan hizmeti kullanılamaz olduğunda kapanma\n"
 

@@ -1309,10 +1309,13 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
     else
         hn = avahi_normalize_name_strdup(host_name);
 
+    if (!hn)
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
+
     h = hn;
     if (!avahi_unescape_label((const char **)&hn, label, sizeof(label))) {
         avahi_free(h);
-        return AVAHI_ERR_INVALID_HOST_NAME;
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
     }
 
     avahi_free(h);
@@ -1320,7 +1323,7 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
     h = label_escaped;
     len = sizeof(label_escaped);
     if (!avahi_escape_label(label, strlen(label), &h, &len))
-        return AVAHI_ERR_INVALID_HOST_NAME;
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
 
     if (avahi_domain_equal(s->host_name, label_escaped) && s->state != AVAHI_SERVER_COLLISION)
         return avahi_server_set_errno(s, AVAHI_ERR_NO_CHANGE);
@@ -1330,7 +1333,7 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
     avahi_free(s->host_name);
     s->host_name = avahi_strdup(label_escaped);
     if (!s->host_name)
-        return AVAHI_ERR_NO_MEMORY;
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
     update_fqdn(s);
 

@@ -62,6 +62,8 @@ done
 avahi-browse -varpt
 avahi-browse -varpc
 
+avahi-set-host-name -v 'A\.B'
+avahi-set-host-name -v "$(perl -e 'print(q/[/x63)')"
 avahi-set-host-name -v "$(hostname)-new"
 
 run dfuzzer -v -n org.freedesktop.Avahi

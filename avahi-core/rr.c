@@ -32,6 +32,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/defs.h>
 
+#include "dns.h"
 #include "rr.h"
 #include "log.h"
 #include "util.h"
@@ -689,10 +690,16 @@ int avahi_record_is_valid(AvahiRecord *r) {
         case AVAHI_DNS_TYPE_TXT: {
 
             AvahiStringList *strlst;
+            size_t used = 0;
 
-            for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next)
+            for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next) {
                 if (strlst->size > 255 || strlst->size <= 0)
                     return 0;
+
+                used += 1+strlst->size;
+                if (used > AVAHI_DNS_RDATA_MAX)
+                    return 0;
+            }
 
             return 1;
         }

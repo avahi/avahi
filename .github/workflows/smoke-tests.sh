@@ -40,6 +40,12 @@ run systemctl start avahi-daemon
 systemd-run avahi-browse -varp
 systemd-run avahi-publish -vs test _qotd._tcp 1234 a=1 b
 
+# https://github.com/lathiat/avahi/issues/455
+# The idea is to produce a lot of arguments by splitting the output
+# of the perl one-liner so it shouldn't be quoted.
+# shellcheck disable=SC2046
+avahi-publish -s T _qotd._tcp 22 $(perl -le 'print "A " x 100000')
+
 h="$(hostname).local"
 ipv4addr=$(avahi-resolve -v -4 -n "$h" | perl -alpe '$_ = $F[1]')
 ipv6addr=$(avahi-resolve -v -6 -n "$h" | perl -alpe '$_ = $F[1]')

@@ -22,6 +22,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 #include <avahi-client/client.h>
@@ -32,6 +33,8 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
+
+#include <avahi-core/dns.h>
 
 static const AvahiPoll *poll_api = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
@@ -222,6 +225,9 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     uint32_t cookie;
     struct timeval tv;
     AvahiAddress a;
+    uint8_t rdata[AVAHI_DNS_RDATA_MAX+1];
+    AvahiStringList *txt = NULL;
+    int r;
 
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
@@ -260,6 +266,14 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", 0x01, 0x10, 120, "", 0);
     assert(error != AVAHI_OK);
+
+    memset(rdata, 1, sizeof(rdata));
+    r = avahi_string_list_parse(rdata, sizeof(rdata), &txt);
+    assert(r >= 0);
+    assert(avahi_string_list_serialize(txt, NULL, 0) == sizeof(rdata));
+    error = avahi_entry_group_add_service_strlst(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", "_qotd._tcp", NULL, NULL, 123, txt);
+    assert(error == AVAHI_ERR_INVALID_RECORD);
+    avahi_string_list_free(txt);
 
     avahi_entry_group_commit (group);
 

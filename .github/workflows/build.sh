@@ -5,6 +5,7 @@ set -o pipefail
 
 export ASAN_UBSAN=${ASAN_UBSAN:-false}
 export BUILD_ONLY=${BUILD_ONLY:-false}
+export CFLAGS=${CFLAGS:-}
 export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
@@ -25,14 +26,33 @@ case "$1" in
         ;;
     build)
         if [[ "$ASAN_UBSAN" == true ]]; then
-            export CFLAGS="-fsanitize=address,undefined -g"
+            export CFLAGS+=" -fsanitize=address,undefined -g"
             export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
             export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
+
+            # avahi fails to compile with clang and ASan/UBSan with
+            #     configure: error: Missing POSIX Threads support
+            # because acx_pthread is out of date. The kludge should be
+            # removed once acx_pthread gets updated.
+            if [[ "$CC" == clang ]]; then
+                sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4
+            fi
+
         fi
 
         if [[ "$COVERAGE" == true ]]; then
-            export CFLAGS="--coverage"
+            export CFLAGS+=" --coverage"
         fi
+
+        # Some parts of avahi like avahi-qt and c-plus-plus-test are built with CXX so
+        # it should match CC. To avoid weird side-effects CXXFLAGS should fully match
+        # CFLAGS as well so they are fully replaced with CFLAGS here.
+        if [[ "$CC" == gcc ]]; then
+            export CXX=g++
+        elif [[ "$CC" == clang ]]; then
+            export CXX=clang++
+        fi
+        export CXXFLAGS="$CFLAGS"
 
         ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests --prefix=/usr
         make -j"$(nproc)" V=1

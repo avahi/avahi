@@ -54,7 +54,8 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
-        ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests --prefix=/usr
+        ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests \
+            --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
         make -j"$(nproc)" V=1
 
         if [[ "$BUILD_ONLY" == true ]]; then
@@ -96,6 +97,7 @@ case "$1" in
         printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
 
         sudo make install
+        sudo ldconfig
         sudo adduser --system --group avahi
         sudo systemctl reload dbus
         sudo .github/workflows/smoke-tests.sh

@@ -42,7 +42,6 @@ EXTRA_DIST = \
 	avahi-glib.pc.in \
 	avahi-libevent.pc.in \
 	avahi-gobject.pc.in \
-	avahi-qt3.pc.in \
 	avahi-qt4.pc.in \
 	avahi-qt5.pc.in \
 	avahi-sharp.pc.in \
@@ -96,10 +95,6 @@ DX_INPUT = \
 DX_EXAMPLE_PATH = $(srcdir)/examples
 DX_EXAMPLE_PATTERNS = *.c
 
-if HAVE_QT3
-DX_INPUT += \
-	$(srcdir)/avahi-qt/qt-watch.h
-else
 if HAVE_QT4
 DX_INPUT += \
 	$(srcdir)/avahi-qt/qt-watch.h
@@ -107,7 +102,6 @@ endif
 if HAVE_QT5
 DX_INPUT += \
 	$(srcdir)/avahi-qt/qt-watch.h
-endif
 endif
 
 if HAVE_GLIB
@@ -216,11 +210,6 @@ if HAVE_DBUS
 pkgconfig_DATA += avahi-ui-gtk3.pc
 CLEANFILES += avahi-ui-gtk3.pc
 endif
-endif
-
-if HAVE_QT3
-pkgconfig_DATA += avahi-qt3.pc
-CLEANFILES += avahi-qt3.pc
 endif
 
 if HAVE_QT4

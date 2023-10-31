@@ -18,15 +18,9 @@
 ***/
 
 #include <sys/time.h>
-#if defined(QT5) || defined(QT4)
 #include <QSocketNotifier>
 #include <QObject>
 #include <QTimer>
-#else
-#include <qsocketnotifier.h>
-#include <qobject.h>
-#include <qtimer.h>
-#endif
 #include <avahi-common/timeval.h>
 #include "qt-watch.h"
 
@@ -195,6 +189,4 @@ const AvahiPoll* avahi_qt_poll_get(void)
 #include "qt-watch.moc5"
 #elif defined(QT4)
 #include "qt-watch.moc4"
-#elif defined(QT3)
-#include "qt-watch.moc3"
 #endif

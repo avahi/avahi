@@ -18,11 +18,14 @@ case "$1" in
         apt-get install -y libevent-dev qtbase5-dev
         apt-get install -y gcc clang lcov
 
-        apt-get install -y valgrind
+        apt-get install -y valgrind ncat
 
         apt-get install -y libglib2.0-dev meson
         git clone https://github.com/dbus-fuzzer/dfuzzer
         (cd dfuzzer && meson build && ninja -C build install)
+
+        git clone https://gitlab.com/akihe/radamsa
+        (cd radamsa && make -j"$(nproc)" && make install)
         ;;
     build)
         if [[ "$ASAN_UBSAN" == true ]]; then

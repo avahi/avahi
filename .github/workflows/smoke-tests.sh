@@ -60,10 +60,20 @@ cmds=(
     "RESOLVE-HOSTNAME-IPV4 $h"
     "RESOLVE-ADDRESS $ipv4addr"
     "RESOLVE-ADDRESS $ipv6addr"
+    "BROWSE-DNS-SERVERS"
+    "BROWSE-DNS-SERVERS-IPV4"
+    "BROWSE-DNS-SERVERS-IPV6"
 )
+
+mkdir -p CORPUS
 for cmd in "${cmds[@]}"; do
-    printf "%s\n" "$cmd" | nc -U /run/avahi-daemon/socket
+    printf "%s\n" "$cmd" >CORPUS/"$cmd"
+    printf "%s\n" "$cmd" | ncat -w1 -U /run/avahi-daemon/socket
 done
+
+timeout --foreground 180 bash -c 'while :; do
+    radamsa -r CORPUS | ncat -w1 -i0.5 -U /run/avahi-daemon/socket
+done >&/dev/null' || true
 
 avahi-browse -varpt
 avahi-browse -varpc

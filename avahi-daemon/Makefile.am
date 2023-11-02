@@ -52,11 +52,10 @@ avahi_daemon_SOURCES = \
 	static-hosts.c static-hosts.h \
 	ini-file-parser.c ini-file-parser.h \
 	setproctitle.c setproctitle.h \
-	sd-daemon.h sd-daemon.c \
 	../avahi-client/check-nss.c
 
-avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS)
-avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) $(XML_LIBS)
+avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS) $(LIBSYSTEMD_CFLAGS)
+avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) $(XML_LIBS) $(LIBSYSTEMD_LIBS)
 
 ini_file_parser_test_SOURCES = \
 	ini-file-parser.c ini-file-parser.h \
@@ -170,7 +169,3 @@ xmllint:
 
 install-data-local:
 	test -z "$(avahi_runtime_dir)" || $(MKDIR_P) "$(DESTDIR)$(avahi_runtime_dir)"
-
-update-systemd:
-	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.c > sd-daemon.c
-	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.h > sd-daemon.h

@@ -88,6 +88,8 @@ run systemctl kill --signal HUP avahi-daemon
 run systemctl kill --signal USR1 avahi-daemon
 run systemctl reload avahi-daemon
 
+[[ -n "$(systemctl show --property StatusText avahi-daemon --value)" ]]
+
 run systemctl stop avahi-daemon
 if systemctl is-failed avahi-daemon; then
     journalctl --sync

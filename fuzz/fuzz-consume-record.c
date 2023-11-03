@@ -67,11 +67,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     ret = avahi_record_equal_no_ttl(r, rs);
     assert(ret);
 
+    ret = avahi_record_lexicographical_compare(r, rs);
+    assert(ret == 0);
+
     if (!(c = avahi_record_copy(r)))
         goto finish;
 
     ret = avahi_record_equal_no_ttl(r, c);
     assert(ret);
+
+    ret = avahi_record_lexicographical_compare(r, c);
+    assert(ret == 0);
 
     avahi_dns_packet_free(p);
     if (!(p = avahi_dns_packet_new(size + AVAHI_DNS_PACKET_EXTRA_SIZE)))

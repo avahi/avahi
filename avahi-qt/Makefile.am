@@ -20,28 +20,6 @@ AM_CFLAGS=-I$(top_srcdir)
 lib_LTLIBRARIES =
 BUILT_SOURCES =
 
-if HAVE_QT4
-
-avahiqt4includedir=$(includedir)/avahi-qt4
-avahiqt4include_HEADERS = \
-	qt-watch.h
-
-lib_LTLIBRARIES += \
-	libavahi-qt4.la
-
-BUILT_SOURCES += qt-watch.moc4
-
-libavahi_qt4_la_SOURCES = \
-	qt-watch.cpp
-
-qt-watch.moc4: qt-watch.cpp
-	$(AM_V_GEN)$(MOC_QT4) $^ > $@
-
-libavahi_qt4_la_CPPFLAGS = $(AM_CFLAGS) $(QT4_CFLAGS) -DQT4 $(VISIBILITY_HIDDEN_CFLAGS)
-libavahi_qt4_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la $(QT4_LIBS)
-libavahi_qt4_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBAVAHI_QT4_VERSION_INFO)
-endif
-
 if HAVE_QT5
 
 avahiqt5includedir=$(includedir)/avahi-qt5

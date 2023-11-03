@@ -33,6 +33,7 @@
 
 #include "dns.h"
 #include "log.h"
+#include "rr-util.h"
 #include "util.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
@@ -42,6 +43,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiRecord *r, *r2;
     uint8_t rdata[AVAHI_DNS_RDATA_MAX];
     size_t l;
+    int res;
 
     p = avahi_dns_packet_new(0);
 
@@ -108,6 +110,53 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     avahi_free(m);
     avahi_record_unref(r);
+
+    r = avahi_record_new_full("test", 77, 77, AVAHI_DEFAULT_TTL);
+    assert(r);
+
+    r2 = avahi_record_new_full("test", 77, 77, AVAHI_DEFAULT_TTL);
+    assert(r2);
+
+    // "" == ""
+    res = avahi_record_lexicographical_compare(r, r2);
+    assert(res == 0);
+
+    r->data.generic.data = avahi_memdup("WAT", r->data.generic.size = 3);
+    assert(r->data.generic.data);
+
+    // "WAT" > ""
+    res = avahi_record_lexicographical_compare(r, r2);
+    assert(res == 1);
+
+    // "" < "WAT"
+    res = avahi_record_lexicographical_compare(r2, r);
+    assert(res == -1);
+
+    r2->data.generic.data = avahi_memdup("WA", r2->data.generic.size = 2);
+    assert(r2->data.generic.data);
+
+    // "WAT" > "WA"
+    res = avahi_record_lexicographical_compare(r, r2);
+    assert(res == 1);
+
+    // "WA" < "WAT"
+    res = avahi_record_lexicographical_compare(r2, r);
+    assert(res == -1);
+
+    avahi_record_unref(r);
+
+    r = avahi_record_new_full("test", 77, 77, AVAHI_DEFAULT_TTL);
+    assert(r);
+
+    r->data.generic.data = avahi_memdup("WA", r->data.generic.size = 2);
+    assert(r->data.generic.data);
+
+    // "WA" == "WA"
+    res = avahi_record_lexicographical_compare(r, r2);
+    assert(res == 0);
+
+    avahi_record_unref(r);
+    avahi_record_unref(r2);
 
     return 0;
 }

@@ -547,7 +547,7 @@ static int lexicographical_memcmp(const void* a, size_t al, const void* b, size_
     if (al == bl)
         return 0;
     else
-        return al == c ? 1 : -1;
+        return al == c ? -1 : 1;
 }
 
 static int uint16_cmp(uint16_t a, uint16_t b) {
@@ -640,9 +640,23 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
         case AVAHI_DNS_TYPE_AAAA:
             return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address));
 
-        default:
-            return lexicographical_memcmp(a->data.generic.data, a->data.generic.size,
-                                          b->data.generic.data, b->data.generic.size);
+        default: {
+            size_t asize, bsize;
+
+            asize = a->data.generic.size;
+            bsize = b->data.generic.size;
+
+            if (asize && bsize)
+                r = lexicographical_memcmp(a->data.generic.data, asize, b->data.generic.data, bsize);
+            else if (asize && !bsize)
+                r = 1;
+            else if (!asize && bsize)
+                r = -1;
+            else
+                r = 0;
+
+            return r;
+        }
     }
 
 

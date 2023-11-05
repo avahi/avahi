@@ -41,3 +41,8 @@ for f in fuzz/fuzz-*.c; do
         $LIB_FUZZING_ENGINE \
         "avahi-core/.libs/libavahi-core.a" "avahi-common/.libs/libavahi-common.a"
 done
+
+# Let's take the systemd public corpus here. It has been accumulating since 2018
+# so it should be good enough for our purposes.
+wget -O "$OUT/fuzz-packet_seed_corpus.zip" \
+    https://storage.googleapis.com/systemd-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/systemd_fuzz-dns-packet/public.zip

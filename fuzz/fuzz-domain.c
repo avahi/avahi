@@ -47,6 +47,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     avahi_is_valid_fqdn(s);
 
     avahi_free(avahi_alternative_host_name(s));
+    avahi_free(avahi_alternative_service_name(s));
 
     avahi_free(t);
     avahi_free(s);

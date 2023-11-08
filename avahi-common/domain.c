@@ -397,7 +397,7 @@ int avahi_is_valid_domain_name(const char *t) {
 int avahi_is_valid_service_name(const char *t) {
     assert(t);
 
-    if (strlen(t) >= AVAHI_LABEL_MAX || !*t)
+    if (strlen(t) >= AVAHI_LABEL_MAX || !*t || !avahi_utf8_valid(t))
         return 0;
 
     return 1;

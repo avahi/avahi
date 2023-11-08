@@ -88,6 +88,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         }
     }
 
+    avahi_alternative_service_name("\xc1\x0a");
+
     avahi_free(r);
     return 0;
 }

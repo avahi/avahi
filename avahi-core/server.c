@@ -1795,7 +1795,7 @@ int avahi_server_get_group_of_service(AvahiServer *s, AvahiIfIndex interface, Av
     AVAHI_CHECK_VALIDITY(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    if ((ret = avahi_service_name_join(n, sizeof(n), name, type, domain) < 0))
+    if ((ret = avahi_service_name_join(n, sizeof(n), name, type, domain)) < 0)
         return avahi_server_set_errno(s, ret);
 
     if (!(key = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV)))

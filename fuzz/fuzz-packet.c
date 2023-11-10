@@ -25,9 +25,16 @@
 #include "avahi-common/domain.h"
 #include "avahi-common/malloc.h"
 #include "avahi-core/dns.h"
+#include "avahi-core/domain-util.h"
 #include "avahi-core/log.h"
 
 void log_function(AvahiLogLevel level, const char *txt) {}
+
+void domain_ends_with_mdns_suffix(const char *domain) {
+    avahi_domain_ends_with(domain, AVAHI_MDNS_SUFFIX_LOCAL);
+    avahi_domain_ends_with(domain, AVAHI_MDNS_SUFFIX_ADDR_IPV4);
+    avahi_domain_ends_with(domain, AVAHI_MDNS_SUFFIX_ADDR_IPV6);
+}
 
 bool copy_rrs(AvahiDnsPacket *from, AvahiDnsPacket *to, unsigned idx) {
     for (uint16_t n = avahi_dns_packet_get_field(from, idx); n > 0; n--) {
@@ -37,6 +44,10 @@ bool copy_rrs(AvahiDnsPacket *from, AvahiDnsPacket *to, unsigned idx) {
 
         if (!(record = avahi_dns_packet_consume_record(from, &cache_flush)))
             return false;
+
+        avahi_free(avahi_record_to_string(record));
+
+        domain_ends_with_mdns_suffix(record->key->name);
 
         // This resembles the RR callbacks responsible for browsing services
         if (record->key->type == AVAHI_DNS_TYPE_PTR) {
@@ -93,6 +104,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
         if (!(key = avahi_dns_packet_consume_key(p1, &unicast_response)))
             goto finish;
+
+        avahi_free(avahi_key_to_string(key));
+
+        domain_ends_with_mdns_suffix(key->name);
 
         res = avahi_dns_packet_append_key(p2, key, unicast_response);
         avahi_key_unref(key);

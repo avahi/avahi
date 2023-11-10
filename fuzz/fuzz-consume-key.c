@@ -22,13 +22,15 @@
 
 #include "avahi-common/malloc.h"
 #include "avahi-core/dns.h"
+#include "avahi-core/domain-util.h"
 #include "avahi-core/log.h"
+#include "avahi-core/rr-util.h"
 
 void log_function(AvahiLogLevel level, const char *txt) {}
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     AvahiDnsPacket *p = NULL;
-    AvahiKey *k = NULL;
+    AvahiKey *k1 = NULL, *k2 = NULL;
     int ret;
 
     avahi_set_log_function(log_function);
@@ -39,17 +41,33 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     memcpy(AVAHI_DNS_PACKET_DATA(p), data, size);
     p->size = size;
 
-    if (!(k = avahi_dns_packet_consume_key(p, NULL)))
+    if (!(k1 = avahi_dns_packet_consume_key(p, NULL)))
         goto finish;
 
-    ret = avahi_key_is_valid(k);
+    ret = avahi_key_is_valid(k1);
     assert(ret);
 
-    avahi_free(avahi_key_to_string(k));
+    avahi_key_hash(k1);
+
+    avahi_free(avahi_key_to_string(k1));
+
+    if ((k2 = avahi_key_new_cname(k1)))
+        avahi_key_unref(k2);
+
+    if (!(k2 = avahi_dns_packet_consume_key(p, NULL)))
+        goto finish;
+
+    ret = avahi_key_is_valid(k2);
+    assert(ret);
+
+    if (!avahi_key_is_pattern(k2))
+        avahi_key_pattern_match(k1, k2);
 
 finish:
-    if (k)
-        avahi_key_unref(k);
+    if (k2)
+        avahi_key_unref(k2);
+    if (k1)
+        avahi_key_unref(k1);
     if (p)
         avahi_dns_packet_free(p);
 

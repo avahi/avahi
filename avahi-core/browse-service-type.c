@@ -65,7 +65,7 @@ static void record_browser_callback(
         assert(record->key->type == AVAHI_DNS_TYPE_PTR);
 
         if (avahi_service_name_split(record->data.ptr.name, NULL, 0, type, sizeof(type), domain, sizeof(domain)) < 0) {
-            avahi_log_warn("Invalid service type '%s'", record->key->name);
+            avahi_log_debug("Failed to split service name '%s'", record->data.ptr.name);
             return;
         }
 

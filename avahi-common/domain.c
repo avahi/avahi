@@ -501,12 +501,17 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
         DOMAIN
     } state;
     int type_empty = 1, domain_empty = 1;
+    char *oname, *otype, *odomain;
 
     assert(p);
     assert(type);
     assert(type_size > 0);
     assert(domain);
     assert(domain_size > 0);
+
+    oname = name;
+    otype = type;
+    odomain = domain;
 
     if (name) {
         assert(name_size > 0);
@@ -569,6 +574,15 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
                 break;
         }
     }
+
+    if ((oname && !avahi_is_valid_service_name(oname)))
+        return AVAHI_ERR_INVALID_SERVICE_NAME;
+
+    if (!avahi_is_valid_service_type_generic(otype))
+        return AVAHI_ERR_INVALID_SERVICE_TYPE;
+
+    if (!avahi_is_valid_domain_name(odomain))
+        return AVAHI_ERR_INVALID_DOMAIN_NAME;
 
     return 0;
 }

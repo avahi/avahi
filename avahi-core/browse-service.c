@@ -69,7 +69,7 @@ static void record_browser_callback(
             flags |= AVAHI_LOOKUP_RESULT_LOCAL;
 
         if (avahi_service_name_split(record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) < 0) {
-            avahi_log_warn("Failed to split '%s'", record->key->name);
+            avahi_log_debug("Failed to split service name '%s'", record->data.ptr.name);
             return;
         }
 

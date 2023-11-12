@@ -26,6 +26,7 @@
 #include <assert.h>
 
 #include "domain.h"
+#include "error.h"
 #include "malloc.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
@@ -34,6 +35,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     const char *p;
     size_t size;
     char name[64], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
+    int res;
 
     printf("%s\n", s = avahi_normalize_name_strdup("foo.foo\\046."));
     avahi_free(s);
@@ -131,6 +133,40 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(!avahi_is_valid_fqdn("192.168.50.1"));
     assert(!avahi_is_valid_fqdn("::1"));
     assert(!avahi_is_valid_fqdn(".192.168.50.1."));
+
+    res = avahi_service_name_split("test._ssh._tcp.local", name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
+    assert(res >= 0);
+    assert(strcmp(name, "test") == 0);
+    assert(strcmp(type, "_ssh._tcp") == 0);
+    assert(strcmp(domain, "local") == 0);
+
+    res = avahi_service_name_split("test._hop._sub._ssh._tcp.local", name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
+    assert(res >= 0);
+    assert(strcmp(name, "test") == 0);
+    assert(strcmp(type, "_hop._sub._ssh._tcp") == 0);
+    assert(strcmp(domain, "local") == 0);
+
+    res = avahi_service_name_split("_qotd._udp.hey.local", NULL, 0, type, sizeof(type), domain, sizeof(domain));
+    assert(res >= 0);
+    assert(strcmp(type, "_qotd._udp") == 0);
+    assert(strcmp(domain, "hey.local") == 0);
+
+    res = avahi_service_name_split("_wat._sub._qotd._udp.hey.local", NULL, 0, type, sizeof(type), domain, sizeof(domain));
+    assert(res >= 0);
+    assert(strcmp(type, "_wat._sub._qotd._udp") == 0);
+    assert(strcmp(domain, "hey.local") == 0);
+
+    res = avahi_service_name_split("wat.bogus.service.local", name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
+    assert(res == AVAHI_ERR_INVALID_SERVICE_TYPE);
+
+    res = avahi_service_name_split("bogus.service.local", NULL, 0, type, sizeof(type), domain, sizeof(domain));
+    assert(res == AVAHI_ERR_INVALID_SERVICE_TYPE);
+
+    res = avahi_service_name_split("", name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
+    assert(res == AVAHI_ERR_INVALID_SERVICE_NAME);
+
+    res = avahi_service_name_split("", NULL, 0, type, sizeof(type), domain, sizeof(domain));
+    assert(res == AVAHI_ERR_INVALID_SERVICE_TYPE);
 
     return 0;
 }

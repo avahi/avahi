@@ -39,6 +39,7 @@ run systemctl start avahi-daemon
 
 systemd-run avahi-browse -varp
 systemd-run avahi-publish -vs test _qotd._tcp 1234 a=1 b
+systemd-run avahi-publish -s --subtype _beep._sub._qotd._tcp BOOP _qotd._tcp 1234
 
 # https://github.com/lathiat/avahi/issues/455
 # The idea is to produce a lot of arguments by splitting the output
@@ -77,6 +78,7 @@ done >&/dev/null' || true
 
 avahi-browse -varpt
 avahi-browse -varpc
+[[ -n "$(avahi-browse -vrpc _beep._sub._qotd._tcp)" ]]
 
 avahi-set-host-name -v 'A\.B'
 avahi-set-host-name -v "$(perl -e 'print(q/[/x63)')"

@@ -53,17 +53,17 @@ bool copy_rrs(AvahiDnsPacket *from, AvahiDnsPacket *to, unsigned idx) {
         if (record->key->type == AVAHI_DNS_TYPE_PTR) {
             char service[AVAHI_LABEL_MAX], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
             char name[AVAHI_DOMAIN_NAME_MAX];
+            int res;
 
-            /* Ideally there should also be assertions to make sure that all the components
-             * can be joined back together successfully but in its current form avahi_service_name_split
-             * can supply invalid arguments rejected by avahi_service_name_join and that's where
-             * issues like https://github.com/lathiat/avahi/issues/212 come from. Let's just exercise
-             * those code paths for now to at least make sure they don't crash. */
-            if (avahi_service_name_split(record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) >= 0)
-                avahi_service_name_join(name, sizeof(name), service, type, domain);
+            if (avahi_service_name_split(record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) >= 0) {
+                res = avahi_service_name_join(name, sizeof(name), service, type, domain);
+                assert(res >= 0);
+            }
 
-            if (avahi_service_name_split(record->data.ptr.name, NULL, 0, type, sizeof(type), domain, sizeof(domain)) >= 0)
-                avahi_service_name_join(name, sizeof(name), NULL, type, domain);
+            if (avahi_service_name_split(record->data.ptr.name, NULL, 0, type, sizeof(type), domain, sizeof(domain)) >= 0) {
+                res = avahi_service_name_join(name, sizeof(name), NULL, type, domain);
+                assert(res >= 0);
+            }
         }
 
         res = avahi_dns_packet_append_record(to, record, cache_flush, 0);

@@ -32,6 +32,8 @@
 #include "log.h"
 #include "rr-util.h"
 
+#define ONE_SECOND          1000000
+
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
 
@@ -161,6 +163,7 @@ static AvahiCacheEntry *lookup_record(AvahiCache *c, AvahiRecord *r) {
     return avahi_cache_walk(c, r->key, lookup_record_callback, r);
 }
 
+static void update_state_set_timer(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state, AvahiUsec usec);
 static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent);
 
 static void elapse_func(AvahiTimeEvent *t, void *userdata) {
@@ -263,13 +266,13 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
     update_time_event(c, e);
 }
 
-static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state) {
+static void update_state_set_timer(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state, AvahiUsec usec) {
     assert(c);
     assert(e);
 
     e->state = state;
     gettimeofday(&e->expiry, NULL);
-    avahi_timeval_add(&e->expiry, 1000000); /* 1s */
+    avahi_timeval_add(&e->expiry, usec);
     update_time_event(c, e);
 }
 
@@ -287,7 +290,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
         AvahiCacheEntry *e;
 
         if ((e = lookup_record(c, r)))
-            expire_in_one_second(c, e, AVAHI_CACHE_GOODBYE_FINAL);
+            update_state_set_timer(c, e, AVAHI_CACHE_GOODBYE_FINAL, ONE_SECOND);
 
     } else {
         AvahiCacheEntry *e = NULL, *first;
@@ -307,8 +310,8 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
                     t = avahi_timeval_diff(&now, &e->timestamp);
 
-                    if (t > 1000000)
-                        expire_in_one_second(c, e, AVAHI_CACHE_REPLACE_FINAL);
+                    if (t > ONE_SECOND)
+                        update_state_set_timer(c, e, AVAHI_CACHE_REPLACE_FINAL, ONE_SECOND);
                 }
             }
 
@@ -423,7 +426,7 @@ int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 
     gettimeofday(&now, NULL);
 
-    age = (unsigned) (avahi_timeval_diff(&now, &e->timestamp)/1000000);
+    age = (unsigned) (avahi_timeval_diff(&now, &e->timestamp)/ONE_SECOND);
 
 /*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
 
@@ -464,7 +467,7 @@ static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
             break;
 
         case AVAHI_CACHE_POOF:
-            if (avahi_timeval_diff(&now, &e->poof_timestamp) < 1000000)
+            if (avahi_timeval_diff(&now, &e->poof_timestamp) < ONE_SECOND)
               break;
 
             e->poof_timestamp = now;
@@ -474,7 +477,7 @@ static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
             /* This is the 4th time we got no response, so let's
              * fucking remove this entry. */
             if (e->poof_num > 3)
-              expire_in_one_second(c, e, AVAHI_CACHE_POOF_FINAL);
+                update_state_set_timer(c, e, AVAHI_CACHE_POOF_FINAL, ONE_SECOND);
             break;
 
         default:

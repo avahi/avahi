@@ -103,12 +103,39 @@ int avahi_record_reconfirm(
     AvahiProtocol protocol,
     AvahiRecord *r) {
 
+    AvahiRecord *r_assoc;
+
     assert(server);
     assert(r);
 
     if (!(avahi_s_record_browser_new(server, interface, protocol, r->key, 0, record_browser_callback, avahi_record_ref(r)))) {
         avahi_record_unref(r);
         return 0;
+    }
+
+    /* If reconfirming an SRV record then also reconfirm the associated PTR record */
+    if (r->key->type == AVAHI_DNS_TYPE_SRV) {
+        char service[AVAHI_LABEL_MAX], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX], name[AVAHI_DOMAIN_NAME_MAX];
+
+        if (avahi_service_name_split(r->key->name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) < 0) {
+            avahi_log_warn(__FILE__": Failed to split '%s'", r->key->name);
+            return 0;
+        }
+
+        snprintf(name, sizeof(name), "%s.%s", type, domain);
+
+        if (!(r_assoc = avahi_record_new_full(name, r->key->clazz, AVAHI_DNS_TYPE_PTR, 0)))
+            return 0;
+
+        if (!(r_assoc->data.ptr.name = avahi_strdup(r->key->name))) {
+            avahi_record_unref(r_assoc);
+            return 0;
+        }
+
+        if (!(avahi_s_record_browser_new(server, interface, protocol, r_assoc->key, 0, record_browser_callback, r_assoc))) {
+            avahi_record_unref(r_assoc);
+            return 0;
+        }
     }
 
     return 1;

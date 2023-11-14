@@ -453,6 +453,15 @@ int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
     return age >= e->record->ttl/2;
 }
 
+int avahi_cache_entry_reconfirming(AvahiCacheEntry *e) {
+    assert(e);
+
+    return ((e->state == AVAHI_CACHE_RECONFIRM1) ||
+            (e->state == AVAHI_CACHE_RECONFIRM2) ||
+            (e->state == AVAHI_CACHE_RECONFIRM3) ||
+            (e->state == AVAHI_CACHE_RECONFIRM_FINAL));
+}
+
 void avahi_cache_entry_reconfirm(AvahiCacheEntry *e) {
     assert(e);
 

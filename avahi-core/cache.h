@@ -92,6 +92,7 @@ typedef void* AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCach
 void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void* userdata);
 
 int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
+int avahi_cache_entry_reconfirming(AvahiCacheEntry *e);
 void avahi_cache_entry_reconfirm(AvahiCacheEntry *e);
 
 /** Start the "Passive observation of Failure" algorithm for all

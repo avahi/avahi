@@ -33,6 +33,7 @@
 #include "rr-util.h"
 
 #define ONE_SECOND          1000000
+#define RECONFIRM_TIMEOUT   1500000
 
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
@@ -182,6 +183,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         case AVAHI_CACHE_POOF_FINAL:
         case AVAHI_CACHE_GOODBYE_FINAL:
         case AVAHI_CACHE_REPLACE_FINAL:
+        case AVAHI_CACHE_RECONFIRM_FINAL:
 
             remove_entry(e->cache, e);
 
@@ -207,6 +209,24 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         case AVAHI_CACHE_EXPIRY3:
             e->state = AVAHI_CACHE_EXPIRY_FINAL;
             percent = 100;
+            break;
+
+        case AVAHI_CACHE_RECONFIRM1:
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+            update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM2, RECONFIRM_TIMEOUT);
+            e = NULL;
+            break;
+
+        case AVAHI_CACHE_RECONFIRM2:
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+            update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM3, RECONFIRM_TIMEOUT);
+            e = NULL;
+            break;
+
+        case AVAHI_CACHE_RECONFIRM3:
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+            update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM_FINAL, RECONFIRM_TIMEOUT);
+            e = NULL;
             break;
     }
 
@@ -431,6 +451,18 @@ int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 /*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
 
     return age >= e->record->ttl/2;
+}
+
+void avahi_cache_entry_reconfirm(AvahiCacheEntry *e) {
+    assert(e);
+
+    avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+
+    /* Only start the timer if one is not already running. Restarting
+     * a timer in the middle of an existing reconfirm can prevent the
+     * record from ever being removed. */
+    if (!avahi_cache_entry_reconfirming(e))
+        update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM1, RECONFIRM_TIMEOUT);
 }
 
 void avahi_cache_flush(AvahiCache *c) {

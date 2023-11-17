@@ -36,6 +36,7 @@ run systemctl start avahi-daemon
 ./avahi-compat-howl/address-test
 ./avahi-core/avahi-test
 ./examples/glib-integration
+./tests/c-plus-plus-test
 
 systemd-run avahi-browse -varp
 systemd-run avahi-publish -vs test _qotd._tcp 1234 a=1 b

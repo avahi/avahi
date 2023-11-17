@@ -252,10 +252,6 @@ fi
 run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
 
-if [[ ! "$OS" =~ (alpine|omnios) ]]; then
-    run ./avahi-compat-howl/address-test
-fi
-
 if [[ "$OS" != freebsd || "$VALGRIND" != true ]]; then
     run ./avahi-compat-libdns_sd/null-test
 fi

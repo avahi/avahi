@@ -48,7 +48,6 @@ EXTRA_DIST = \
 	avahi-sharp.pc.in \
 	avahi-ui-sharp.pc.in \
 	avahi-compat-libdns_sd.pc.in \
-	avahi-compat-howl.pc.in \
 	avahi-ui.pc.in \
 	avahi-ui-gtk3.pc.in \
 	doxygen_to_devhelp.xsl \
@@ -74,7 +73,6 @@ SUBDIRS = \
 	tests \
 	service-type-database \
 	avahi-compat-libdns_sd \
-	avahi-compat-howl \
 	avahi-autoipd \
 	avahi-ui \
 	avahi-ui-sharp \
@@ -170,7 +168,6 @@ pkgconfigdir = $(libdir)/pkgconfig
 %.pc: %.pc.in
 	$(AM_V_GEN)sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@libdir\@,$(libdir),g' \
-	    -e 's,@HOWL_COMPAT_VERSION\@,$(HOWL_COMPAT_VERSION),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 pkgconfig_DATA = avahi-core.pc
@@ -179,11 +176,6 @@ CLEANFILES = avahi-core.pc
 if HAVE_DBUS
 pkgconfig_DATA += avahi-client.pc
 CLEANFILES += avahi-client.pc
-
-if ENABLE_COMPAT_HOWL
-pkgconfig_DATA += avahi-compat-howl.pc
-CLEANFILES += avahi-compat-howl.pc
-endif
 
 if ENABLE_COMPAT_LIBDNS_SD
 pkgconfig_DATA += avahi-compat-libdns_sd.pc

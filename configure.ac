@@ -1167,7 +1167,6 @@ avahi-daemon/avahi-dbus.conf
 avahi-discover-standalone/Makefile
 avahi-client/Makefile
 initscript/Makefile
-initscript/debian/Makefile
 initscript/gentoo/Makefile
 initscript/lfs/Makefile
 initscript/mandriva/Makefile

@@ -57,7 +57,7 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
-        ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests \
+        ./bootstrap.sh --enable-compat-libdns_sd --enable-tests \
             --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
         make -j"$(nproc)" V=1
 

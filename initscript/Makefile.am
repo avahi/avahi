@@ -29,10 +29,6 @@ if TARGET_GENTOO
 SUBDIRS += gentoo
 endif
 
-if TARGET_SUSE
-SUBDIRS += suse
-endif
-
 if TARGET_MANDRIVA
 SUBDIRS += mandriva
 endif

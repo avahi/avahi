@@ -33,10 +33,6 @@ if TARGET_SUSE
 SUBDIRS += suse
 endif
 
-if TARGET_FEDORA
-SUBDIRS += fedora
-endif
-
 if TARGET_MANDRIVA
 SUBDIRS += mandriva
 endif

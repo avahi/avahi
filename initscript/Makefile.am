@@ -25,10 +25,6 @@ if TARGET_GENTOO
 SUBDIRS += gentoo
 endif
 
-if TARGET_MANDRIVA
-SUBDIRS += mandriva
-endif
-
 if TARGET_DARWIN
 SUBDIRS += darwin
 endif

@@ -1169,7 +1169,6 @@ avahi-client/Makefile
 initscript/Makefile
 initscript/gentoo/Makefile
 initscript/lfs/Makefile
-initscript/mandriva/Makefile
 initscript/darwin/Makefile
 initscript/freebsd/Makefile
 initscript/slackware/Makefile

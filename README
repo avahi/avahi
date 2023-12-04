@@ -6,13 +6,13 @@ commonly known as and compatible with Apple Bonjour primarily targeting Linux.
 Copyright 2004-2022 by the Avahi developers.
 
 BUGS:
-	https://github.com/lathiat/avahi
+	https://github.com/avahi/avahi
 
 WEB SITE:
 	https://avahi.org/
 
 GIT:
-	https://github.com/lathiat/avahi.git
+	https://github.com/avahi/avahi.git
 
 MAILING LIST:
 	https://lists.freedesktop.org/mailman/listinfo/avahi

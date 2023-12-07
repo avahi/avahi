@@ -42,7 +42,7 @@ systemd-run avahi-browse -varp
 systemd-run avahi-publish -vs test _qotd._tcp 1234 a=1 b
 systemd-run avahi-publish -s --subtype _beep._sub._qotd._tcp BOOP _qotd._tcp 1234
 
-# https://github.com/lathiat/avahi/issues/455
+# https://github.com/avahi/avahi/issues/455
 # The idea is to produce a lot of arguments by splitting the output
 # of the perl one-liner so it shouldn't be quoted.
 # shellcheck disable=SC2046

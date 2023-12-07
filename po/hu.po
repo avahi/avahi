@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
-"Report-Msgid-Bugs-To: https://github.com/lathiat/avahi/issues\n"
+"Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2019-04-23 12:11+0000\n"
 "PO-Revision-Date: 2019-08-24 23:09+0200\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"

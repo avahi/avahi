@@ -90,7 +90,7 @@ case "$1" in
             sed -i "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-daemon/avahi-daemon.service
         fi
 
-        # publish-workstation=yes triggers https://github.com/lathiat/avahi/issues/485
+        # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
         # so it isn't set to yes here.
         sed -i '
             s/^#\(add-service-cookie=\).*/\1yes/;

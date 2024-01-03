@@ -440,7 +440,8 @@ fail:
     return -1;
 }
 
-static int sendmsg_loop(int fd, struct msghdr *msg, int flags) {
+static int sendmsg_loop(int fd, struct msghdr *msg, int flags, AvahiIfIndex interface) {
+
     assert(fd >= 0);
     assert(msg);
 
@@ -464,7 +465,7 @@ static int sendmsg_loop(int fd, struct msghdr *msg, int flags) {
                 where[0] = '\0';
             }
 
-            avahi_log_debug("sendmsg() to %s failed: %s", where, strerror(errno));
+            avahi_log_debug("sendmsg() to %s (iface #%d) failed: %s", where, interface, strerror(errno));
 
             return -1;
 
@@ -568,7 +569,7 @@ int avahi_send_dns_packet_ipv4(
 #warning "FIXME: We need some code to set the outgoing interface/local address here if IP_PKTINFO/IP_MULTICAST_IF is not available"
 #endif
 
-    return sendmsg_loop(fd, &msg, 0);
+    return sendmsg_loop(fd, &msg, 0, interface);
 }
 
 int avahi_send_dns_packet_ipv6(
@@ -630,7 +631,7 @@ int avahi_send_dns_packet_ipv6(
         msg.msg_controllen = 0;
     }
 
-    return sendmsg_loop(fd, &msg, 0);
+    return sendmsg_loop(fd, &msg, 0, interface);
 }
 
 AvahiDnsPacket *avahi_recv_dns_packet_ipv4(

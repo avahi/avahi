@@ -21,6 +21,7 @@
 #include <config.h>
 #endif
 
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -81,7 +82,11 @@ char *avahi_alternative_host_name(const char *s) {
         char *c, *m;
         int n;
 
-        n = atoi(e)+1;
+        n = atoi(e);
+        if (n == INT_MAX)
+            n = 1;
+        else
+            n++;
         if (!(m = avahi_strdup_printf("%i", n)))
             return NULL;
 
@@ -156,7 +161,11 @@ char *avahi_alternative_service_name(const char *s) {
         size_t l;
         int n;
 
-        n = atoi(e)+1;
+        n = atoi(e);
+        if (n == INT_MAX)
+            n = 1;
+        else
+            n++;
         if (!(m = avahi_strdup_printf("%i", n)))
             return NULL;
 

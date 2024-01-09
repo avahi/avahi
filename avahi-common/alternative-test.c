@@ -59,6 +59,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         "gurke---",
         "gurke #",
         "gurke ###",
+	"testalt #2147483548", /* MAX_INT-100 */
         NULL
     };
 
@@ -74,7 +75,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
             for (i = 0; i <= 100; i++) {
                 char *n;
 
-                n = i == 0 ? avahi_strdup(test_strings[k]) : (j ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
+		if (i == 0)
+		    n = avahi_strdup(test_strings[k]);
+		else if (j)
+		    n = avahi_alternative_service_name(r);
+		else
+		    n = avahi_alternative_host_name(r);
+
                 avahi_free(r);
                 r = n;
 
@@ -89,7 +96,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     }
 
     avahi_alternative_service_name("\xc1\x0a");
-
     avahi_free(r);
     return 0;
 }

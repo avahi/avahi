@@ -389,14 +389,23 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
 
             n = avahi_alternative_host_name(avahi_server_get_host_name(s));
 
-            avahi_log_warn("Host name conflict, retrying with %s", n);
+	    if (n) {
+		avahi_log_warn("Host name conflict, retrying with %s", n);
 #ifdef HAVE_LIBSYSTEMD
-            sd_notifyf(0, "STATUS=Host name conflict, retrying with %s", n);
+		sd_notifyf(0, "STATUS=Host name conflict, retrying with %s", n);
 #endif
-            avahi_set_proc_title(argv0, "%s: collision [%s]", argv0, n);
+		avahi_set_proc_title(argv0, "%s: collision [%s]", argv0, n);
 
-            avahi_server_set_host_name(s, n);
-            avahi_free(n);
+		avahi_server_set_host_name(s, n);
+		avahi_free(n);
+	    } else {
+		avahi_log_error("Host name conflict, failed to get alternative for %s",
+				avahi_server_get_host_name(s));
+#ifdef HAVE_LIBSYSTEMD
+		sd_notifyf(0, "STATUS=Server error: failed to get alternative host name");
+#endif
+		avahi_simple_poll_quit(simple_poll_api);
+	    }
 
             break;
         }

@@ -91,11 +91,15 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
                 n = avahi_alternative_host_name(config->name);
             }
 
-            fprintf(stderr, _("Name collision, picking new name '%s'.\n"), n);
-            avahi_free(config->name);
-            config->name = n;
+	    if (n) {
+		fprintf(stderr, _("Name collision, picking new name '%s'.\n"), n);
+		avahi_free(config->name);
+		config->name = n;
 
-            register_stuff(config);
+		register_stuff(config);
+	    } else
+		fprintf(stderr, _("Name collision, failed to pick a new name for '%s'.\n"),
+				config->name);
 
             break;
         }

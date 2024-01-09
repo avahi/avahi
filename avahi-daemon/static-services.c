@@ -195,6 +195,10 @@ static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGro
             remove_static_service_group_from_server(g);
 
             n = avahi_alternative_service_name(g->chosen_name);
+	    if (!n) {
+		    avahi_log_error("Failed getting alternative name for \"%s\" (%s)", g->name, g->filename);
+		    break;
+	    }
             avahi_free(g->chosen_name);
             g->chosen_name = n;
 

@@ -58,13 +58,16 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
 
             /* A service name collision happened. Let's pick a new name */
             n = avahi_alternative_service_name(name);
-            avahi_free(name);
-            name = n;
+	    if (n) {
+		avahi_free(name);
+		name = n;
 
-            fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+		fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
 
-            /* And recreate the services */
-            create_services(s);
+		/* And recreate the services */
+		create_services(s);
+	    } else
+		fprintf(stderr, "Service name collision, failed to get alternative name for '%s'\n", name);
             break;
         }
 

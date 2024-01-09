@@ -112,9 +112,13 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         char *n;
 
         n = avahi_alternative_host_name(avahi_server_get_host_name(s));
-        avahi_log_warn("Host name conflict, retrying with <%s>", n);
-        avahi_server_set_host_name(s, n);
-        avahi_free(n);
+	if (n) {
+	    avahi_log_warn("Host name conflict, retrying with <%s>", n);
+	    avahi_server_set_host_name(s, n);
+	    avahi_free(n);
+	} else
+	    avahi_log_error("Host name conflict, failed to get alternative host for <%s>",
+			    avahi_server_get_host_name(s));
 
     }
 }

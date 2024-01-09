@@ -59,13 +59,16 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
             /* A service name collision with a remote service
              * happened. Let's pick a new name */
             n = avahi_alternative_service_name(name);
-            avahi_free(name);
-            name = n;
+	    if (n) {
+		avahi_free(name);
+		name = n;
 
-            fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+		fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
 
-            /* And recreate the services */
-            create_services(avahi_entry_group_get_client(g));
+		/* And recreate the services */
+		create_services(avahi_entry_group_get_client(g));
+	    } else
+		fprintf(stderr, "Service name collision, failed to get alternative name for '%s'\n", name);
             break;
         }
 
@@ -151,14 +154,17 @@ collision:
     /* A service name collision with a local service happened. Let's
      * pick a new name */
     n = avahi_alternative_service_name(name);
-    avahi_free(name);
-    name = n;
+    if (n) {
+	avahi_free(name);
+	name = n;
 
-    fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+	fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
 
-    avahi_entry_group_reset(group);
+	avahi_entry_group_reset(group);
 
-    create_services(c);
+	create_services(c);
+    } else
+	fprintf(stderr, "Service name collision, failed to get alternative name for '%s'\n", name);
     return;
 
 fail:

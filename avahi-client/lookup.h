@@ -62,13 +62,13 @@ AvahiDomainBrowser* avahi_domain_browser_new (
     AvahiDomainBrowserType btype,
     AvahiLookupFlags flags,
     AvahiDomainBrowserCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 7);
 
 /** Get the parent client of an AvahiDomainBrowser object */
-AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *);
+AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *) AVAHI_GCC_NONNULL();
 
 /** Cleans up and frees an AvahiDomainBrowser object */
-int avahi_domain_browser_free (AvahiDomainBrowser *);
+int avahi_domain_browser_free (AvahiDomainBrowser *) AVAHI_GCC_NONNULL();
 
 /** @} */
 
@@ -108,13 +108,13 @@ AvahiServiceBrowser* avahi_service_browser_new (
     const char *domain,         /**< A domain to browse in. In most cases you want to pass NULL here for the default domain (usually ".local") */
     AvahiLookupFlags flags,
     AvahiServiceBrowserCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 4, 7);
 
 /** Get the parent client of an AvahiServiceBrowser object */
-AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *);
+AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *) AVAHI_GCC_NONNULL();
 
 /** Cleans up and frees an AvahiServiceBrowser object */
-int avahi_service_browser_free (AvahiServiceBrowser *);
+int avahi_service_browser_free (AvahiServiceBrowser *) AVAHI_GCC_NONNULL();
 
 /** @} */
 
@@ -141,13 +141,13 @@ AvahiServiceTypeBrowser* avahi_service_type_browser_new (
     const char *domain,
     AvahiLookupFlags flags,
     AvahiServiceTypeBrowserCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 6);
 
 /** Get the parent client of an AvahiServiceTypeBrowser object */
-AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *);
+AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *) AVAHI_GCC_NONNULL();
 
 /** Cleans up and frees an AvahiServiceTypeBrowser object */
-int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
+int avahi_service_type_browser_free (AvahiServiceTypeBrowser *) AVAHI_GCC_NONNULL();
 
 /** \endcond */
 
@@ -197,22 +197,22 @@ typedef void (*AvahiServiceResolverCallback) (
  * That's why, given most daemons, all four combinations of concrete query and
  * address protocols resolve except INET addresses via INET6 queries. */
 AvahiServiceResolver * avahi_service_resolver_new(
-    AvahiClient *client,
+    AvahiClient *client,      /**< Initialized client, never NULL. */
     AvahiIfIndex interface,   /**< Pass the interface argument you received in AvahiServiceBrowserCallback here. */
     AvahiProtocol protocol,   /**< Pass the protocol argument you received in AvahiServiceBrowserCallback here. */
     const char *name,         /**< Pass the name argument you received in AvahiServiceBrowserCallback here. */
-    const char *type,         /**< Pass the type argument you received in AvahiServiceBrowserCallback here. */
+    const char *type,         /**< Pass the type argument you received in AvahiServiceBrowserCallback here. Never NULL. */
     const char *domain,       /**< Pass the domain argument you received in AvahiServiceBrowserCallback here. */
     AvahiProtocol aprotocol,  /**< The desired address family of the service address to resolve. AVAHI_PROTO_UNSPEC if your application can deal with both IPv4 and IPv6 */
     AvahiLookupFlags flags,
     AvahiServiceResolverCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 5);
 
 /** Get the parent client of an AvahiServiceResolver object */
-AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *);
+AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *) AVAHI_GCC_NONNULL();
 
 /** Free a service resolver object */
-int avahi_service_resolver_free(AvahiServiceResolver *r);
+int avahi_service_resolver_free(AvahiServiceResolver *r) AVAHI_GCC_NONNULL();
 
 /** @} */
 
@@ -240,13 +240,13 @@ AvahiHostNameResolver * avahi_host_name_resolver_new(
     AvahiProtocol aprotocol,
     AvahiLookupFlags flags,
     AvahiHostNameResolverCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 4);
 
 /** Get the parent client of an AvahiHostNameResolver object */
-AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *);
+AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *) AVAHI_GCC_NONNULL();
 
 /** Free a hostname resolver object */
-int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
+int avahi_host_name_resolver_free(AvahiHostNameResolver *r) AVAHI_GCC_NONNULL();
 
 /** An address resolver object */
 typedef struct AvahiAddressResolver AvahiAddressResolver;
@@ -270,13 +270,13 @@ AvahiAddressResolver* avahi_address_resolver_new(
     const AvahiAddress *a,
     AvahiLookupFlags flags,
     AvahiAddressResolverCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 4);
 
 /** Get the parent client of an AvahiAddressResolver object */
-AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *);
+AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *) AVAHI_GCC_NONNULL();
 
 /** Free a AvahiAddressResolver resolver object */
-int avahi_address_resolver_free(AvahiAddressResolver *r);
+int avahi_address_resolver_free(AvahiAddressResolver *r) AVAHI_GCC_NONNULL();
 
 /** \endcond */
 
@@ -309,13 +309,13 @@ AvahiRecordBrowser* avahi_record_browser_new(
     uint16_t type,
     AvahiLookupFlags flags,
     AvahiRecordBrowserCallback callback,
-    void *userdata);
+    void *userdata) AVAHI_GCC_NONNULL(1, 4, 8);
 
 /** Get the parent client of an AvahiRecordBrowser object */
-AvahiClient* avahi_record_browser_get_client(AvahiRecordBrowser *);
+AvahiClient* avahi_record_browser_get_client(AvahiRecordBrowser *) AVAHI_GCC_NONNULL();
 
 /** Cleans up and frees an AvahiRecordBrowser object */
-int avahi_record_browser_free(AvahiRecordBrowser *);
+int avahi_record_browser_free(AvahiRecordBrowser *) AVAHI_GCC_NONNULL();
 
 /** @} */
 

@@ -63,6 +63,13 @@ AVAHI_C_DECL_BEGIN
 #endif
 
 #ifdef __GNUC__
+/* https://gcc.gnu.org/onlinedocs/gcc-3.4.3/gcc/Function-Attributes.html */
+#define AVAHI_GCC_NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
+#else
+#define AVAHI_GCC_NONNULL
+#endif
+
+#ifdef __GNUC__
 #define AVAHI_GCC_UNUSED __attribute__ ((unused))
 #else
 /** Macro for not used parameter */

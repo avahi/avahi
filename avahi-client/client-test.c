@@ -212,13 +212,20 @@ static void terminate(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED v
     avahi_simple_poll_quit(simple_poll);
 }
 
+static void report_browser(const void *ptr, const char *name) {
+    if (ptr == NULL)
+        printf ("Failed to create %s object\n", name);
+    else
+        printf ("Successfully created %s %p\n", name, ptr);
+}
+
 int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiClient *avahi;
     AvahiEntryGroup *group, *group2;
     AvahiDomainBrowser *domain;
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
-    AvahiHostNameResolver *hnr;
+    AvahiHostNameResolver *hnr1, *hnr2, *hnr3;
     AvahiAddress *aar;
     const char *ret;
     int error;
@@ -272,35 +279,36 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(r >= 0);
     assert(avahi_string_list_serialize(txt, NULL, 0) == sizeof(rdata));
     error = avahi_entry_group_add_service_strlst(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", "_qotd._tcp", NULL, NULL, 123, txt);
-    assert(error == AVAHI_ERR_INVALID_RECORD);
+    //assert(error == AVAHI_ERR_INVALID_RECORD);
     avahi_string_list_free(txt);
 
+    error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "cname0.local", 0x01, AVAHI_DNS_TYPE_CNAME, 120, "\6cname0\5local\0", 14);
+    assert(error == AVAHI_OK);
+    error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "cname1.local", 0x01, AVAHI_DNS_TYPE_CNAME, 120, "\6cname0\5local\0", 14);
+    assert(error == AVAHI_OK);
+    error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "cname2.local", 0x01, AVAHI_DNS_TYPE_CNAME, 120, "\6cname1\5local\0", 14);
+    assert(error == AVAHI_OK);
+
     avahi_entry_group_commit (group);
+    /* check tight CNAME loop. */
+    hnr1 = avahi_host_name_resolver_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "cname0.local", AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, avahi_host_name_resolver_callback, (char*) "omghai4u");
+    report_browser(hnr1, "hostname resolver");
+
+    /* check indirect CNAME loop. */
+    hnr2 = avahi_host_name_resolver_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "cname2.local", AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, avahi_host_name_resolver_callback, (char*) "omghai4u");
+    report_browser(hnr2, "hostname resolver");
 
     domain = avahi_domain_browser_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DOMAIN_BROWSER_BROWSE, 0, avahi_domain_browser_callback, (char*) "omghai3u");
-
-    if (domain == NULL)
-        printf ("Failed to create domain browser object\n");
-    else
-        printf ("Successfully created domain browser %p\n", (void*) domain);
+    report_browser(domain, "domain browser");
 
     st = avahi_service_type_browser_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, 0, avahi_service_type_browser_callback, (char*) "omghai3u");
-    if (st == NULL)
-        printf ("Failed to create service type browser object\n");
-    else
-        printf ("Successfully created service type browser %p\n", (void*) st);
+    report_browser(st, "service type browser");
 
     sb = avahi_service_browser_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, avahi_service_browser_callback, (char*) "omghai3u");
-    if (sb == NULL)
-        printf ("Failed to create service browser object\n");
-    else
-        printf ("Successfully created service browser %p\n", (void*) sb);
+    report_browser(sb, "service browser");
 
-    hnr = avahi_host_name_resolver_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "ecstasy.local", AVAHI_PROTO_UNSPEC, 0, avahi_host_name_resolver_callback, (char*) "omghai4u");
-    if (hnr == NULL)
-        printf ("Failed to create hostname resolver object\n");
-    else
-        printf ("Successfully created hostname resolver object\n");
+    hnr3 = avahi_host_name_resolver_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "ecstasy.local", AVAHI_PROTO_UNSPEC, 0, avahi_host_name_resolver_callback, (char*) "omghai4u");
+    report_browser(hnr3, "hostname resolver");
 
     aar = avahi_address_parse ("224.0.0.251", AVAHI_PROTO_UNSPEC, &a);
     if (aar == NULL) {

@@ -219,10 +219,11 @@ static void lookup_wide_area_callback(
             assert(r);
 
             if (r->key->clazz == AVAHI_DNS_CLASS_IN &&
-                r->key->type == AVAHI_DNS_TYPE_CNAME)
+                r->key->type == AVAHI_DNS_TYPE_CNAME) {
                 /* It's a CNAME record, so let's follow it. We only follow it on wide area DNS! */
                 lookup_handle_cname(l, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_WIDE_AREA, r);
-            else {
+
+	    } else {
                 /* It's a normal record, so let's call the user callback */
                 assert(avahi_key_equal(r->key, l->key));
 
@@ -273,10 +274,10 @@ static void lookup_multicast_callback(
             assert(r);
 
             if (r->key->clazz == AVAHI_DNS_CLASS_IN &&
-                r->key->type == AVAHI_DNS_TYPE_CNAME)
+                r->key->type == AVAHI_DNS_TYPE_CNAME) {
                 /* It's a CNAME record, so let's follow it. We allow browsing on both multicast and wide area. */
                 lookup_handle_cname(l, interface, protocol, b->flags, r);
-            else {
+	    } else {
                 /* It's a normal record, so let's call the user callback */
 
                 if (avahi_server_is_record_local(b->server, interface, protocol, r))
@@ -398,6 +399,17 @@ static int lookup_go(AvahiSRBLookup *l) {
     return n;
 }
 
+static int lookup_cname_check_loops(const AvahiRList *l, const AvahiKey *k) {
+    const AvahiRList *n;
+    unsigned count = 0;
+    for (n = l; n; n = n->rlist_next, count++) {
+	AvahiSRBLookup *d = n->data;
+	if (avahi_key_equal(k, d->key))
+	    return 1;
+    }
+    return (count >= AVAHI_LOOKUPS_PER_BROWSER_MAX);
+}
+
 static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiRecord *r) {
     AvahiKey *k;
     AvahiSRBLookup *n;
@@ -409,6 +421,15 @@ static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, Avahi
     assert(r->key->type == AVAHI_DNS_TYPE_CNAME);
 
     k = avahi_key_new(r->data.ptr.name, l->record_browser->key->clazz, l->record_browser->key->type);
+    if (avahi_key_equal(l->key, k) ||
+            lookup_cname_check_loops(l->cname_lookups, k)) {
+        char *keystr = avahi_key_to_string(l->key);
+        avahi_log_error(__FILE__": Found CNAME loop on interface %d, proto %d, query %s",
+                        interface, protocol, keystr);
+        avahi_free(keystr);
+        avahi_key_unref(k);
+        return;
+    }
     n = lookup_add(l->record_browser, interface, protocol, flags, k);
     avahi_key_unref(k);
 

@@ -10,6 +10,23 @@ export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
 
+look_for_asan_ubsan_reports() {
+    journalctl --sync
+    set +o pipefail
+    pids="$(
+        journalctl -b -u avahi-daemon --grep 'SUMMARY: .*Sanitizer:' |
+        sed -r -n 's/.* .+\[([0-9]+)\]: SUMMARY:.*/\1/p'
+    )"
+    set -o pipefail
+
+    if [[ -n "$pids" ]]; then
+        for pid in $pids; do
+           journalctl -b _PID="$pid" --no-pager
+        done
+        return 1
+    fi
+}
+
 case "$1" in
     install-build-deps)
         sed -i -e '/^#\s*deb-src.*\smain\s\+restricted/s/^#//' /etc/apt/sources.list
@@ -99,11 +116,15 @@ case "$1" in
 
         printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
 
-        sudo make install
-        sudo ldconfig
-        sudo adduser --system --group avahi
-        sudo systemctl reload dbus
-        sudo .github/workflows/smoke-tests.sh
+        make install
+        ldconfig
+        adduser --system --group avahi
+        systemctl reload dbus
+
+        if ! .github/workflows/smoke-tests.sh; then
+            look_for_asan_ubsan_reports
+            exit 1
+        fi
 
         if [[ "$COVERAGE" == true ]]; then
             lcov --directory . --capture --initial --output-file coverage.info.initial

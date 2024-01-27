@@ -31,7 +31,7 @@ jobs:
       - name: Repository checkout
         uses: actions/checkout@v4
       - run: sudo -E .github/workflows/build.sh install-build-deps
-      - run: .github/workflows/build.sh build
+      - run: sudo -E .github/workflows/build.sh build
   coverage:
     if: github.repository == 'lathiat/avahi'
     runs-on: ubuntu-22.04
@@ -48,7 +48,7 @@ jobs:
       - name: Repository checkout
         uses: actions/checkout@v4
       - run: sudo -E .github/workflows/build.sh install-build-deps
-      - run: .github/workflows/build.sh build
+      - run: sudo -E .github/workflows/build.sh build
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         with:

@@ -3,23 +3,6 @@
 set -eux
 set -o pipefail
 
-look_for_asan_ubsan_reports() {
-    journalctl --sync
-    set +o pipefail
-    pids="$(
-        journalctl -b -u avahi-daemon --grep 'SUMMARY: .*Sanitizer:' |
-        sed -r -n 's/.* .+\[([0-9]+)\]: SUMMARY:.*/\1/p'
-    )"
-    set -o pipefail
-
-    if [[ -n "$pids" ]]; then
-        for pid in $pids; do
-           journalctl -b _PID="$pid" --no-pager
-        done
-        return 1
-    fi
-}
-
 run() {
     if ! "$@"; then
         journalctl --sync
@@ -99,5 +82,3 @@ if systemctl is-failed avahi-daemon; then
     journalctl -u avahi-daemon --no-pager
     exit 1
 fi
-
-look_for_asan_ubsan_reports

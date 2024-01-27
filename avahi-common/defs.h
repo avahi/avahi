@@ -324,7 +324,12 @@ typedef enum {
 
 /** @{ \name DNS RR definitions */
 
-/** DNS record types, see RFC 1035 */
+/** DNS record types, see RFC 1035.
+ *
+ * types registry:
+ * https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
+ * Any new types should be added to avahi_dns_type_to_string function.
+ */
 enum {
     AVAHI_DNS_TYPE_A = 0x01,
     AVAHI_DNS_TYPE_NS = 0x02,
@@ -335,7 +340,27 @@ enum {
     AVAHI_DNS_TYPE_MX = 0x0F,
     AVAHI_DNS_TYPE_TXT = 0x10,
     AVAHI_DNS_TYPE_AAAA = 0x1C,
-    AVAHI_DNS_TYPE_SRV = 0x21
+    AVAHI_DNS_TYPE_SRV = 0x21,
+    /* following types do not implement avahi_record_to_string yet. */
+    AVAHI_DNS_TYPE_NAPTR = 0x23,
+    AVAHI_DNS_TYPE_CERT = 0x25,
+    AVAHI_DNS_TYPE_DNAME = 0x27,
+    AVAHI_DNS_TYPE_OPT = 0x29,     /**< EDNS0 option (41) */
+    AVAHI_DNS_TYPE_SSHFP = 0x2c,
+    AVAHI_DNS_TYPE_NSEC = 0x2f,
+    AVAHI_DNS_TYPE_TLSA = 0x34,
+    AVAHI_DNS_TYPE_OPEPGPKEY = 0x3d,
+    AVAHI_DNS_TYPE_SVCB = 0x40,
+    AVAHI_DNS_TYPE_HTTPS = 0x41,
+    /* DNS specific record types, see RFC 1035 */
+    AVAHI_DNS_TYPE_TKEY = 0xf9, /* 249 */
+    AVAHI_DNS_TYPE_TSIG = 0xfa, /* 250 */
+    AVAHI_DNS_TYPE_IXFR = 0xfb, /* 251 */
+    AVAHI_DNS_TYPE_AXFR = 0xfc, /* 252 */
+    AVAHI_DNS_TYPE_ANY = 0xff, /**< Special query type for requesting all records, "*" */
+    AVAHI_DNS_TYPE_URI = 0x100,
+    AVAHI_DNS_TYPE_CAA = 0x101,
+    AVAHI_DNS_TYPE_RESINFO = 0x105,
 };
 
 /** DNS record classes, see RFC 1035 */

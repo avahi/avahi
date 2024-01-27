@@ -31,16 +31,6 @@
 
 AVAHI_C_DECL_BEGIN
 
-/** DNS record types, see RFC 1035, in addition to those defined in defs.h */
-enum {
-    AVAHI_DNS_TYPE_ANY = 0xFF,   /**< Special query type for requesting all records */
-    AVAHI_DNS_TYPE_OPT = 41,     /**< EDNS0 option */
-    AVAHI_DNS_TYPE_TKEY = 249,
-    AVAHI_DNS_TYPE_TSIG = 250,
-    AVAHI_DNS_TYPE_IXFR = 251,
-    AVAHI_DNS_TYPE_AXFR = 252
-};
-
 /** DNS record classes, see RFC 1035, in addition to those defined in defs.h */
 enum {
     AVAHI_DNS_CLASS_ANY = 0xFF,         /**< Special query type for requesting all records */

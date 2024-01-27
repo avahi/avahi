@@ -197,6 +197,9 @@ const char *avahi_dns_class_to_string(uint16_t class) {
     }
 }
 
+/* selected record types from registry:
+ * https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
+ */
 const char *avahi_dns_type_to_string(uint16_t type) {
     switch (type) {
         case AVAHI_DNS_TYPE_CNAME:
@@ -213,12 +216,37 @@ const char *avahi_dns_type_to_string(uint16_t type) {
             return "TXT";
         case AVAHI_DNS_TYPE_SRV:
             return "SRV";
-        case AVAHI_DNS_TYPE_ANY:
-            return "ANY";
         case AVAHI_DNS_TYPE_SOA:
             return "SOA";
         case AVAHI_DNS_TYPE_NS:
             return "NS";
+        /* TODO: implement avahi_record_to_string for following types */
+        case AVAHI_DNS_TYPE_NAPTR:
+            return "NAPTR";
+        case AVAHI_DNS_TYPE_CERT:
+            return "CERT";
+        case AVAHI_DNS_TYPE_DNAME:
+            return "DNAME";
+        case AVAHI_DNS_TYPE_SSHFP:
+            return "SSHFP";
+        case AVAHI_DNS_TYPE_NSEC:
+            return "NSEC";
+        case AVAHI_DNS_TYPE_TLSA:
+            return "TLSA";
+        case AVAHI_DNS_TYPE_OPEPGPKEY:
+            return "OPENPGPKEY";
+        case AVAHI_DNS_TYPE_SVCB:
+            return "SVCB";
+        case AVAHI_DNS_TYPE_HTTPS:
+            return "HTTPS";
+        case AVAHI_DNS_TYPE_ANY:
+            return "ANY";
+        case AVAHI_DNS_TYPE_URI:
+            return "URI";
+        case AVAHI_DNS_TYPE_CAA:
+            return "CAA";
+        case AVAHI_DNS_TYPE_RESINFO:
+            return "RESINFO";
         default:
             return NULL;
     }

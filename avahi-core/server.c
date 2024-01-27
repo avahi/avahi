@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <avahi-common/address.h>
 #include <avahi-common/domain.h>
 #include <avahi-common/timeval.h>
 #include <avahi-common/malloc.h>
@@ -193,13 +194,14 @@ static void withdraw_rrset(AvahiServer *s, AvahiKey *key) {
         withdraw_entry(s, e);
 }
 
-static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i) {
+static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *i, const AvahiAddress *a) {
     AvahiEntry *e, *n;
     int ours = 0, won = 0, lost = 0;
 
     assert(s);
     assert(record);
     assert(i);
+    assert(a);
 
     /* Handle incoming probes and check if they conflict our own probes */
 
@@ -225,12 +227,18 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     }
 
     if (!ours) {
+	char address[AVAHI_ADDRESS_STR_MAX] = "(unknown)";
+        const char *iface = i->hardware ? i->hardware->name : "(unknown)";
         char *t = avahi_record_to_string(record);
 
+	avahi_address_snprint(address, sizeof(address), a);
+
         if (won)
-            avahi_log_debug("Received conflicting probe [%s]. Local host won.", t);
+            avahi_log_debug("Received conflicting probe [%s] from %s(%s). Local host won.",
+                            t, address, iface);
         else if (lost) {
-            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Withdrawing.", t);
+            avahi_log_info("Received conflicting probe [%s] from %s(%s). Local host lost. Withdrawing.",
+                           t, address, iface);
             withdraw_rrset(s, record->key);
         }
 
@@ -238,13 +246,14 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     }
 }
 
-static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, int unique) {
+static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, const AvahiAddress *a, int unique) {
     int valid = 1, ours = 0, conflict = 0, withdraw_immediately = 0;
     AvahiEntry *e, *n, *conflicting_entry = NULL;
 
     assert(s);
     assert(i);
     assert(record);
+    assert(a);
 
     /* Check whether an incoming record conflicts with one of our own */
 
@@ -319,18 +328,21 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
     }
 
     if (!ours && conflict) {
-        char *t;
+	char address[AVAHI_ADDRESS_STR_MAX] = "(unknown)";
+        const char *iface = i->hardware ? i->hardware->name : "(unknown)";
+        char *t = avahi_record_to_string(record);;
 
         valid = 0;
-
-        t = avahi_record_to_string(record);
+	avahi_address_snprint(address, sizeof(address), a);
 
         if (withdraw_immediately) {
-            avahi_log_debug("Received conflicting record [%s] with local record to be. Withdrawing.", t);
+            avahi_log_info("Received conflicting record [%s] with local record to be from %s(%s). Withdrawing.",
+                           t, address, iface);
             withdraw_rrset(s, record->key);
         } else {
             assert(conflicting_entry);
-            avahi_log_debug("Received conflicting record [%s]. Resetting our record.", t);
+            avahi_log_info("Received conflicting record [%s] from %s(%s). Resetting our record.",
+                           t, address, iface);
             avahi_entry_return_to_initial_state(s, conflicting_entry, i);
 
             /* Local unique records are returned to probing
@@ -639,7 +651,7 @@ static void handle_query_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInterfac
             if (!avahi_key_is_pattern(record->key)) {
                 if (!from_local_iface)
                     reflect_probe(s, i, record);
-                incoming_probe(s, record, i);
+                incoming_probe(s, record, i, a);
             }
 
             avahi_record_unref(record);
@@ -713,7 +725,7 @@ static void handle_response_packet(AvahiServer *s, AvahiDnsPacket *p, AvahiInter
                 }
             }
 
-            if (handle_conflict(s, i, record, cache_flush)) {
+            if (handle_conflict(s, i, record, a, cache_flush)) {
                 if (!from_local_iface) {
                     if (!avahi_record_is_link_local_address(record))
                         reflect_response(s, i, record, cache_flush);

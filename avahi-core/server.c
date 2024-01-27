@@ -1547,21 +1547,30 @@ void avahi_server_free(AvahiServer* s) {
 
     while(s->entries)
         avahi_entry_free(s, s->entries);
+    s->entries = NULL;
 
     avahi_interface_monitor_free(s->monitor);
+    s->monitor = NULL;
 
     while (s->groups)
         avahi_entry_group_free(s, s->groups);
+    s->groups = NULL;
 
     free_slots(s);
 
     avahi_hashmap_free(s->entries_by_key);
+    s->entries_by_key = NULL;
     avahi_record_list_free(s->record_list);
+    s->record_list = NULL;
     avahi_hashmap_free(s->record_browser_hashmap);
+    s->record_browser_hashmap = NULL;
 
-    if (s->wide_area_lookup_engine)
+    if (s->wide_area_lookup_engine) {
         avahi_wide_area_engine_free(s->wide_area_lookup_engine);
+        s->wide_area_lookup_engine = NULL;
+    }
     avahi_multicast_lookup_engine_free(s->multicast_lookup_engine);
+    s->multicast_lookup_engine = NULL;
 
     if (s->cleanup_time_event)
         avahi_time_event_free(s->cleanup_time_event);

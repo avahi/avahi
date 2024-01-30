@@ -18,15 +18,9 @@
 ***/
 
 #include <sys/time.h>
-#if defined(QT5) || defined(QT4)
 #include <QSocketNotifier>
 #include <QObject>
 #include <QTimer>
-#else
-#include <qsocketnotifier.h>
-#include <qobject.h>
-#include <qtimer.h>
-#endif
 #include <avahi-common/timeval.h>
 #include "qt-watch.h"
 
@@ -114,9 +108,7 @@ AvahiTimeout::AvahiTimeout(const struct timeval* tv, AvahiTimeoutCallback callba
     m_callback(callback), m_userdata(userdata)
 {
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
-#if defined(QT5) || defined(QT4)
     m_timer.setSingleShot(true);
-#endif
     update(tv);
 }
 
@@ -125,11 +117,7 @@ void AvahiTimeout::update(const struct timeval *tv)
     m_timer.stop();
     if (tv) {
     AvahiUsec u = avahi_age(tv)/1000;
-#if defined(QT5) || defined(QT4)
     m_timer.start( (u>0) ? 0 : -u);
-#else
-    m_timer.start( (u>0) ? 0 : -u,true);
-#endif
     }
 }
 
@@ -193,8 +181,4 @@ const AvahiPoll* avahi_qt_poll_get(void)
 
 #if defined(QT5)
 #include "qt-watch.moc5"
-#elif defined(QT4)
-#include "qt-watch.moc4"
-#elif defined(QT3)
-#include "qt-watch.moc3"
 #endif

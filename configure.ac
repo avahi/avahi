@@ -33,8 +33,6 @@ AC_SUBST(LIBAVAHI_CLIENT_VERSION_INFO, [5:9:2])
 AC_SUBST(LIBAVAHI_GLIB_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_LIBEVENT_VERSION_INFO, [1:0:0])
 AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:5:0])
-AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
-AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT5_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:4:1])
 
@@ -494,56 +492,6 @@ if test "x$HAVE_LIBEVENT" = "xyes" ; then
 	AC_SUBST(LIBEVENT_LIBS)
 fi
 AM_CONDITIONAL(HAVE_LIBEVENT, test "x$HAVE_LIBEVENT" = "xyes")
-
-#
-# Check for Qt 3
-#
-AC_ARG_ENABLE(qt3,
-        AS_HELP_STRING([--enable-qt3],[Enable building of Qt3 mainloop integration]),
-        [case "${enableval}" in
-                yes) HAVE_QT3=yes ;;
-                no)  HAVE_QT3=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt3) ;;
-        esac],
-        [HAVE_QT3=no])
-
-if test "x$HAVE_QT3" = "xyes" ; then
-        PKG_CHECK_MODULES( QT3, [ qt-mt >= 3.0.0 ])
-        AC_SUBST(QT3_CFLAGS)
-        AC_SUBST(QT3_LIBS)
-	    QT3_PREFIX="`$PKG_CONFIG --variable=prefix qt-mt`/bin"
-        AC_PATH_PROGS(MOC_QT3, [moc-qt3 moc], no, [$QT3_PREFIX])
-        if test "$MOC_QT3" = no; then
-            AC_MSG_ERROR([Could not find QT3 moc])
-        fi
-        AC_SUBST(MOC_QT3)
-fi
-AM_CONDITIONAL(HAVE_QT3, test "x$HAVE_QT3" = "xyes")
-
-#
-# Check for Qt 4
-#
-AC_ARG_ENABLE(qt4,
-        AS_HELP_STRING([--disable-qt4],[Disable building of Qt4Core mainloop integration]),
-        [case "${enableval}" in
-                yes) HAVE_QT4=yes ;;
-                no)  HAVE_QT4=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt4) ;;
-        esac],
-        [HAVE_QT4=no])
-
-if test "x$HAVE_QT4" = "xyes" ; then
-        PKG_CHECK_MODULES( QT4, [ QtCore >= 4.0.0 ])
-        AC_SUBST(QT4_CFLAGS)
-        AC_SUBST(QT4_LIBS)
-	    QT4_PREFIX="`$PKG_CONFIG --variable=prefix QtCore`/bin"
-        AC_PATH_PROGS(MOC_QT4, [moc-qt4 moc], no, [$QT4_PREFIX])
-        if test "$MOC_QT4" = no; then
-            AC_MSG_ERROR([Could not find QT4 moc])
-        fi
-        AC_SUBST(MOC_QT4)
-fi
-AM_CONDITIONAL(HAVE_QT4, test "x$HAVE_QT4" = "xyes")
 
 #
 # Check for Qt 5
@@ -1221,7 +1169,6 @@ echo "
     Enable Python:                             ${HAVE_PYTHON}
     Enable pygobject:                          ${HAVE_PYGOBJECT}
     Enable python-dbus:                        ${HAVE_PYTHON_DBUS}
-    Enable QT3:                                ${HAVE_QT3}
     Enable QT4:                                ${HAVE_QT4}
     Enable QT5:                                ${HAVE_QT5}
     Enable Mono:                               ${HAVE_MONO}
@@ -1291,7 +1238,6 @@ echo "\
     Building libavahi-glib:             ${HAVE_GLIB}
     Building libavahi-gobject:          ${BUILD_GOBJECT}
     Building avahi-discover-standalone: ${HAVE_GTK2OR3}
-    Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
     Building libavahi-qt5:              ${HAVE_QT5}
     Building avahi-sharp:               ${HAVE_MONO}

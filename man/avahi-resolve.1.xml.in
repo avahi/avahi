@@ -37,9 +37,12 @@
 	<options>
 
       <p>When passing -n, specify one or more fully qualified mDNS/DNS host name(s)
-      (e.g. "foo.local") to resolve into IP addresses on the
-      command line. When passing -a, specify one or more IP address
-      to resolve into host names.</p>
+      (e.g. "foo.local") to resolve into IP addresses on the command line.</p>
+
+      <p>When passing -a, specify one or more IP addresses
+      to resolve into host names. When <opt>enable-wide-area</opt> is
+      set to yes in <manref name="avahi-daemon.conf" section="5"/>,
+      reverse lookups will go over unicast DNS first and fallback to mDNS.</p>
 
       <p>avahi-resolve-host-name is equivalent to avahi-resolve --name.</p>
 

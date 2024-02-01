@@ -44,13 +44,25 @@ mkdir -p "$OUT"
 
 export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
 
+if [[ -n "$FUZZING_ENGINE" ]]; then
+    apt-get update
+    apt-get install -y autoconf gettext libtool m4 automake pkg-config libexpat-dev
+
+    if [[ "$ARCHITECTURE" == i386 ]]; then
+        apt-get install -y libexpat-dev:i386
+    fi
+fi
+
 sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4
 
-./autogen.sh \
+if ! ./autogen.sh \
     --disable-stack-protector --disable-qt3 --disable-qt4 --disable-qt5 --disable-gtk \
     --disable-gtk3 --disable-dbus --disable-gdbm --disable-libdaemon --disable-python \
     --disable-manpages --disable-mono --disable-monodoc --disable-glib --disable-gobject \
-    --disable-libevent --disable-libsystemd
+    --disable-libevent --disable-libsystemd; then
+    cat config.log
+    exit 1
+fi
 
 make -j"$(nproc)" V=1
 

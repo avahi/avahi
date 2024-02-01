@@ -23,16 +23,21 @@
 
 #include "avahi-common/malloc.h"
 #include "avahi-common/strlst.h"
+#include "avahi-common/utf8.h"
 
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     AvahiStringList *a = NULL, *b = NULL;
     uint8_t *rdata = NULL;
+    char *t = NULL;
     size_t s, n;
     int ret;
 
     if (avahi_string_list_parse(data, size, &a) < 0)
         goto finish;
+
+    if ((t = avahi_string_list_to_string(a)))
+        assert(avahi_utf8_valid(t));
 
     avahi_free(avahi_string_list_to_string(a));
     avahi_string_list_get_service_cookie(a);
@@ -59,6 +64,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     assert(ret);
 
 finish:
+    avahi_free(t);
     avahi_free(rdata);
     if (b)
         avahi_string_list_free(b);

@@ -17,6 +17,18 @@ GIT:
 MAILING LIST:
 	https://lists.freedesktop.org/mailman/listinfo/avahi
 
+COVERITY SCAN REPORT:
+	https://scan.coverity.com/projects/avahi-daemon
+
+OSS-FUZZ REPORT:
+	https://introspector.oss-fuzz.com/project-profile?project=avahi
+
+COVERAGE REPORT:
+	https://coveralls.io/github/avahi/avahi
+
+CODESPELL REPORT:
+	https://fossies.org/linux/test/avahi-master.tar.gz/codespell.html
+
 AUTHORS:
 	Lennart Poettering
 	Trent Lloyd

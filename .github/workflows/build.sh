@@ -14,7 +14,7 @@ look_for_asan_ubsan_reports() {
     journalctl --sync
     set +o pipefail
     pids="$(
-        journalctl -b -u avahi-daemon --grep 'SUMMARY: .*Sanitizer:' |
+        journalctl -b -u 'avahi-*' --grep 'SUMMARY: .*Sanitizer:' |
         sed -r -n 's/.* .+\[([0-9]+)\]: SUMMARY:.*/\1/p'
     )"
     set -o pipefail
@@ -90,11 +90,24 @@ case "$1" in
 
         sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
 
+        # avahi-dnsconfd is used to test the DNS server browser only.
+        # It shouldn't actually change any settings so the action just
+        # logs what it receives from avahi-daemon.
+        cat <<'EOL' >avahi-dnsconfd/avahi-dnsconfd.action
+#!/bin/bash
+
+printf "%s\n" "<$1> <$2> <$3> <$4>" | systemd-cat
+EOL
+
         if [[ "$VALGRIND" == true ]]; then
             sed -i '
                 /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
             ' avahi-daemon/avahi-daemon.service
             sed -i '/^ExecStart=/s/$/ --no-chroot --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
+
+            sed -i '
+                /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
+            ' avahi-dnsconfd/avahi-dnsconfd.service
         fi
 
         if [[ "$COVERAGE" == true ]]; then
@@ -105,12 +118,17 @@ case "$1" in
             sed -i '/^ExecStart=/s/$/ --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
             sed -i "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-daemon/avahi-daemon.service
             sed -i "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-daemon/avahi-daemon.service
+
+            sed -i "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
+            sed -i "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
         fi
 
         # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
         # so it isn't set to yes here.
         sed -i '
             s/^#\(add-service-cookie=\).*/\1yes/;
+            s/^#\(publish-dns-servers=\)/\1/;
+            s/^#\(publish-resolv-conf-dns-servers=\).*/\1yes/;
             s/^\(publish-hinfo=\).*/\1yes/;
         ' avahi-daemon/avahi-daemon.conf
 

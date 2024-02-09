@@ -3,15 +3,32 @@
 set -eux
 set -o pipefail
 
+dump_journal() {
+    journalctl --sync
+    journalctl -b -u "avahi-*" --no-pager
+}
+
 run() {
     if ! "$@"; then
-        journalctl --sync
-        journalctl -b -u avahi-daemon --no-pager
+        dump_journal
         exit 1
     fi
 }
 
+should_fail() {
+    if "$@"; then
+        dump_journal
+        exit 1
+    fi
+}
+
+dbus_call() {
+    busctl call org.freedesktop.Avahi / org.freedesktop.Avahi.Server -- "$@"
+    busctl call org.freedesktop.Avahi / org.freedesktop.Avahi.Server2 -- "$@"
+}
+
 run systemctl start avahi-daemon
+run systemctl start avahi-dnsconfd
 
 ./avahi-client/check-nss-test
 ./avahi-client/client-test
@@ -21,9 +38,23 @@ run systemctl start avahi-daemon
 ./examples/glib-integration
 ./tests/c-plus-plus-test
 
-systemd-run avahi-browse -varp
-systemd-run avahi-publish -vs test _qotd._tcp 1234 a=1 b
-systemd-run avahi-publish -s --subtype _beep._sub._qotd._tcp BOOP _qotd._tcp 1234
+systemd-run -u avahi-test-rr-test ./avahi-client/rr-test
+
+run avahi-dnsconfd -h
+run avahi-dnsconfd -c
+run avahi-dnsconfd -r
+
+run avahi-daemon -h
+run avahi-daemon -c
+run avahi-daemon -r
+
+run avahi-browse -b
+systemd-run -u avahi-test-browse-vd avahi-browse -vD
+systemd-run -u avahi-test-browse-varp avahi-browse -varp
+systemd-run -u avahi-test-browse-varpf avahi-browse -varpf
+systemd-run -u avahi-test-browse-var avahi-browse -var
+systemd-run -u avahi-test-publish-vs avahi-publish -vs test _qotd._tcp 1234 a=1 b
+systemd-run -u avahi-test-publish-subtype avahi-publish -s --subtype _beep._sub._qotd._tcp BOOP _qotd._tcp 1234
 
 # https://github.com/avahi/avahi/issues/455
 # The idea is to produce a lot of arguments by splitting the output
@@ -37,6 +68,15 @@ ipv6addr=$(avahi-resolve -v -6 -n "$h" | perl -alpe '$_ = $F[1]')
 
 avahi-resolve -v -a "$ipv4addr"
 avahi-resolve -v -a "$ipv6addr"
+
+dbus_call ResolveAddress "iisu" -1 -1 "$ipv4addr" 0
+should_fail dbus_call ResolveAddress "iisu" -1 -1 1.1.1.1 2
+
+dbus_call ResolveHostName "iisiu" -1 -1 "$(hostname).local" -1 0
+should_fail dbus_call ResolveHostName "iisiu" -1 -1 one.one.one.one -1 2
+
+dbus_call ResolveService "iisssiu" -1 -1 "$(hostname)" _ssh._tcp local -1 0
+should_fail dbus_call ResolveService "iisssiu" -1 -1 "$(hostname)" _ssh._tcp dns-sd.org -1 2
 
 cmds=(
     "HELP"
@@ -64,6 +104,12 @@ avahi-browse -varpt
 avahi-browse -varpc
 [[ -n "$(avahi-browse -vrpc _beep._sub._qotd._tcp)" ]]
 
+# sleep is used here to let the HINFO record browser see
+# the ADD/REMOVE events. If the hostname changes too fast
+# the ADD events coalesce and the last one wins.
+avahi-set-host-name -v "ecstasy"
+sleep 2
+
 avahi-set-host-name -v 'A\.B'
 avahi-set-host-name -v "$(perl -e 'print(q/[/x63)')"
 avahi-set-host-name -v "$(hostname)-new"
@@ -76,9 +122,14 @@ run systemctl reload avahi-daemon
 
 [[ -n "$(systemctl show --property StatusText avahi-daemon --value)" ]]
 
+run systemctl stop avahi-dnsconfd
+# https://github.com/avahi/avahi/issues/563
+# should_fail systemctl is-failed avahi-dnsconfd
+
 run systemctl stop avahi-daemon
-if systemctl is-failed avahi-daemon; then
-    journalctl --sync
-    journalctl -u avahi-daemon --no-pager
-    exit 1
-fi
+should_fail systemctl is-failed avahi-daemon
+
+should_fail avahi-daemon -c
+should_fail avahi-dnsconfd -c
+
+run systemctl stop "avahi-test-*"

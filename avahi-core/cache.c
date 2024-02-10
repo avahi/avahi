@@ -281,7 +281,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
 /*     txt = avahi_record_to_string(r); */
 
-    if (r->ttl == 0) {
+    if (r->ttl == 0 || c->server->config.ignore_ttl) {
         /* This is a goodbye request */
 
         AvahiCacheEntry *e;

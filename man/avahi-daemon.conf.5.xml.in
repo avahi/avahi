@@ -338,7 +338,6 @@
       networks. This list can match the type of service or the name
       of the machine providing the service. Defaults to allowing all
       services.</p>
-      
     </option>
 
     <option>

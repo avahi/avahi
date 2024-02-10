@@ -848,7 +848,7 @@ static int load_config_file(DaemonConfig *c) {
                         c->server_config.reflect_filters = avahi_string_list_add(c->server_config.reflect_filters, *t);
 
                     avahi_strfreev(e);
-                } else if (strcasecmp(p->key, "ignore_ttl") == 0)
+                } else if (strcasecmp(p->key, "ignore-ttl") == 0)
                     c->server_config.ignore_ttl = is_yes(p->value);
                 else {
                     avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);

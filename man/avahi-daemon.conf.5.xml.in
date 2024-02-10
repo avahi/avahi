@@ -338,15 +338,19 @@
       networks. This list can match the type of service or the name
       of the machine providing the service. Defaults to allowing all
       services.</p>
-
+      
     </option>
 
-      <option>
-      <p><opt>ignore-ttl=</opt> Takes a boolean value ("yes" or
-      "no"). If set to "yes" and <opt>ignore-ttl</opt> is
-      enabled, avahi-daemon will ignore TTL entries and expire 
-      entries after one second, this is to circumvent bad client-side
-      implementations that mishandle caching. Defaults to "no".</p>
+    <option>
+      <p><opt>ignore-ttl=</opt> Takes a boolean value ("yes" or "no").
+      If set to "yes" and <opt>ignore-ttl</opt> is enabled, 
+      avahi-daemon will ignore TTL values in cache entries and
+      instead expire these entries after one second. 
+      This adjustment is designed to accommodate scenarios where 
+      either client-side software or devices within the network may 
+      not adhere to standard practices in managing TTL values, 
+      leading to premature expiration or persistence of service 
+      records. By default, this option is set to "no".</p>
     </option>
   </section>
 

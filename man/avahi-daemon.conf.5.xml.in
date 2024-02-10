@@ -340,6 +340,14 @@
       services.</p>
 
     </option>
+
+      <option>
+      <p><opt>ignore-ttl=</opt> Takes a boolean value ("yes" or
+      "no"). If set to "yes" and <opt>ignore-ttl</opt> is
+      enabled, avahi-daemon will ignore TTL entries and expire 
+      entries after one second, this is to circumvent bad client-side
+      implementations that mishandle caching. Defaults to "no".</p>
+    </option>
   </section>
 
   <section name="Section [rlimits]">

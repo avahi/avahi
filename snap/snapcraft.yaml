@@ -49,6 +49,14 @@ slots:
     write:
       - $SNAP_COMMON/etc/avahi/services
 
+layout:
+  /etc/avahi:
+    bind: $SNAP_COMMON/etc/avahi
+  /usr/share/avahi:
+    bind: $SNAP_COMMON/usr/share/avahi
+  /usr/share/dbus-1:
+    bind: $SNAP/usr/share/dbus-1
+
 apps:
   daemon:
     command: usr/sbin/avahi-daemon -f $SNAP_COMMON/etc/avahi/avahi-daemon.conf --no-drop-root --debug
@@ -108,9 +116,10 @@ parts:
       - --with-avahi-group=root
       - --with-distro=debian
       - --disable-gobject
-      - --sysconfdir=/var/snap/${CRAFT_PROJECT_NAME}/common/etc
-      - --datadir=/var/snap/${CRAFT_PROJECT_NAME}/common/usr/share
+      - --datadir=/usr/share
+      - --libdir=/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
       - --localstatedir=/var
+      - --sysconfdir=/etc
     stage-packages:
       - libdaemon0
       - libevent-2.1-7
@@ -152,18 +161,24 @@ parts:
         # add tag with txt record os=snappy
         sed -i \
             '/<\/service>/ i\    <txt-record>os=snappy</txt-record>' \
-            $CRAFT_PART_INSTALL/var/snap/${CRAFT_PROJECT_NAME}/common/etc/avahi/services/ssh.service
+            $CRAFT_PART_INSTALL/etc/avahi/services/ssh.service
     organize:
-      var/snap/${CRAFT_PROJECT_NAME}/common/etc:              etc
-      var/snap/${CRAFT_PROJECT_NAME}/common/usr/share/dbus-1: usr/share/dbus-1
-      var/snap/${CRAFT_PROJECT_NAME}/common/usr/share/avahi:  usr/share/avahi
+      lib/* : usr/lib/
     stage:
-      - -lib
-      - -run
+      - etc/avahi
+      - usr
+      - -usr/lib/**/*.a
+      - -usr/lib/**/*.la
+      - -usr/lib/**/avahi
+      - -usr/lib/**/libavahi-glib*
+      - -usr/lib/**/libavahi-libevent*
+      - -usr/lib/**/libevent-*
+      - -usr/lib/**/libnss_mdns*
+      - -usr/lib/**/pkgconfig
       - -usr/include
-      - -usr/lib/*.a
-      - -usr/lib/avahi
-      - -var
+      - -usr/share/doc
+      - -usr/share/man
+      - -usr/share/locale
 
   # snap helper scripts
   glue:

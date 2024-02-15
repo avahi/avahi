@@ -78,6 +78,12 @@ should_fail dbus_call ResolveHostName "iisiu" -1 -1 one.one.one.one -1 2
 dbus_call ResolveService "iisssiu" -1 -1 "$(hostname)" _ssh._tcp local -1 0
 should_fail dbus_call ResolveService "iisssiu" -1 -1 "$(hostname)" _ssh._tcp dns-sd.org -1 2
 
+# https://github.com/avahi/avahi/issues/491
+dbus_call GetAlternativeHostName "s" "a-2147483647"
+
+# https://github.com/avahi/avahi/issues/526
+dbus_call GetAlternativeServiceName "s" "a #2147483647"
+
 printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | ncat -w1 -U /run/avahi-daemon/socket
 
 cmds=(

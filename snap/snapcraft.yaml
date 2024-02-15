@@ -118,6 +118,7 @@ parts:
       - --disable-gobject
       - --datadir=/usr/share
       - --libdir=/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
+      - --with-systemdsystemunitdir=/usr/lib/systemd/system
       - --localstatedir=/var
       - --sysconfdir=/etc
     stage-packages:
@@ -162,8 +163,16 @@ parts:
         sed -i \
             '/<\/service>/ i\    <txt-record>os=snappy</txt-record>' \
             $CRAFT_PART_INSTALL/etc/avahi/services/ssh.service
-    organize:
-      lib/* : usr/lib/
+        # for reference sort systemd service files
+        sed -i \
+            -e 's|\(.*\)avahi-daemon -s.*|\1avahi-daemon -s --no-drop-root|g' \
+            -e 's|\(.*\)avahi-daemon -r.*|\1avahi-daemon -r --no-drop-root|g' \
+            ${CRAFT_PART_INSTALL}/usr/lib/systemd/system/avahi-daemon.service
+        mkdir -p \
+            ${CRAFT_PART_INSTALL}/usr/lib/systemd/system/multi-user.target.wants
+        ln -sf \
+            ../avahi-daemon.service \
+            ${CRAFT_PART_INSTALL}/usr/lib/systemd/system/multi-user.target.wants/avahi-daemon.service
     stage:
       - etc/avahi
       - usr

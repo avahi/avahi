@@ -30,13 +30,16 @@ jobs:
 - job: copr_build
   trigger: pull_request
   targets:
-  - fedora-stable-aarch64
-  - fedora-stable-i386
-  - fedora-stable-ppc64le
-  - fedora-stable-s390x
-  - fedora-stable-x86_64
-  - fedora-rawhide-aarch64
-  - fedora-rawhide-i386
-  - fedora-rawhide-ppc64le
-  - fedora-rawhide-s390x
-  - fedora-rawhide-x86_64
+  - fedora-all-aarch64
+  - fedora-all-i386
+  - fedora-all-ppc64le
+  - fedora-all-s390x
+  - fedora-all-x86_64
+- job: copr_build
+  trigger: commit
+  targets:
+  - fedora-all-aarch64
+  - fedora-all-i386
+  - fedora-all-ppc64le
+  - fedora-all-s390x
+  - fedora-all-x86_64

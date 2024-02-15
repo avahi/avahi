@@ -51,6 +51,13 @@ if [[ -n "$FUZZING_ENGINE" ]]; then
     if [[ "$ARCHITECTURE" == i386 ]]; then
         apt-get install -y libexpat-dev:i386
     fi
+
+    if [[ "$SANITIZER" == undefined ]]; then
+        additional_ubsan_checks=pointer-overflow,alignment
+        UBSAN_FLAGS="-fsanitize=$additional_ubsan_checks -fno-sanitize-recover=$additional_ubsan_checks"
+        CFLAGS="$CFLAGS $UBSAN_FLAGS"
+        CXXFLAGS="$CXXFLAGS $UBSAN_FLAGS"
+    fi
 fi
 
 sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4

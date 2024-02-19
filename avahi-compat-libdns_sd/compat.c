@@ -366,7 +366,7 @@ static DNSServiceRef sdref_new(void) {
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) < 0)
         goto fail;
 
-    if (!(sdref = avahi_new(struct _DNSServiceRef_t, 1)))
+    if (!(sdref = avahi_new0(struct _DNSServiceRef_t, 1)))
         goto fail;
 
     sdref->n_ref = 1;

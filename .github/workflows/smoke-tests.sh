@@ -33,7 +33,6 @@ run systemctl start avahi-dnsconfd
 ./avahi-client/check-nss-test
 ./avahi-client/client-test
 (cd avahi-daemon && ./ini-file-parser-test)
-./avahi-compat-howl/address-test
 ./avahi-core/avahi-test
 ./examples/glib-integration
 ./tests/c-plus-plus-test

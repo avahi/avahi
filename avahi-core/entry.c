@@ -598,7 +598,7 @@ static int server_add_service_strlst_nocopy(
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
-    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !host || avahi_is_valid_fqdn(host), AVAHI_ERR_INVALID_HOST_NAME);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !host || avahi_is_valid_fqdn(host) || !strcmp(host, "localhost"), AVAHI_ERR_INVALID_HOST_NAME);
 
     if (!domain)
         domain = s->domain_name;

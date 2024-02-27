@@ -35,7 +35,7 @@ case "$1" in
         apt-get install -y libevent-dev qtbase5-dev libsystemd-dev
         apt-get install -y gcc clang lcov
 
-        apt-get install -y valgrind ncat
+        apt-get install -y valgrind ncat ldnsutils
 
         apt-get install -y libglib2.0-dev meson
         git clone https://github.com/dbus-fuzzer/dfuzzer

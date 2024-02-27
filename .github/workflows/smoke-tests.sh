@@ -34,6 +34,7 @@ run systemctl start avahi-dnsconfd
 ./avahi-client/client-test
 (cd avahi-daemon && ./ini-file-parser-test)
 ./avahi-compat-howl/address-test
+./avahi-compat-libdns_sd/null-test
 ./avahi-core/avahi-test
 ./examples/glib-integration
 ./tests/c-plus-plus-test
@@ -68,6 +69,12 @@ ipv6addr=$(avahi-resolve -v -6 -n "$h" | perl -alpe '$_ = $F[1]')
 
 avahi-resolve -v -a "$ipv4addr"
 avahi-resolve -v -a "$ipv6addr"
+
+# ::1 isn't here due to https://github.com/avahi/avahi/issues/574
+for s in 127.0.0.1 224.0.0.1 ff02::fb; do
+   drill "@$s" -p5353 "$h" ANY
+   drill "@$s" -p5353 "_services._dns-sd._udp.local" ANY
+done
 
 dbus_call ResolveAddress "iisu" -1 -1 "$ipv4addr" 0
 should_fail dbus_call ResolveAddress "iisu" -1 -1 1.1.1.1 2

@@ -27,6 +27,11 @@ dbus_call() {
     busctl call org.freedesktop.Avahi / org.freedesktop.Avahi.Server2 -- "$@"
 }
 
+for p in avahi-{browse,daemon,publish,resolve,set-host-name}; do
+    "$p" -h
+    "$p" -V
+done
+
 run systemctl start avahi-daemon
 run systemctl start avahi-dnsconfd
 
@@ -36,6 +41,7 @@ run systemctl start avahi-dnsconfd
 ./avahi-compat-howl/address-test
 ./avahi-compat-libdns_sd/null-test
 ./avahi-core/avahi-test
+./avahi-core/querier-test
 ./examples/glib-integration
 ./tests/c-plus-plus-test
 
@@ -55,7 +61,8 @@ systemd-run -u avahi-test-browse-varp avahi-browse -varp
 systemd-run -u avahi-test-browse-varpf avahi-browse -varpf
 systemd-run -u avahi-test-browse-var avahi-browse -var
 systemd-run -u avahi-test-publish-vs avahi-publish -vs test _qotd._tcp 1234 a=1 b
-systemd-run -u avahi-test-publish-subtype avahi-publish -s --subtype _beep._sub._qotd._tcp BOOP _qotd._tcp 1234
+systemd-run -u avahi-test-publish-subtype avahi-publish -fs --subtype _beep._sub._qotd._tcp BOOP _qotd._tcp 1234
+systemd-run -u avahi-test-publish-vsfh avahi-publish -vsf -H X.sub.local test-vsfh _http._tcp 1
 
 # https://github.com/avahi/avahi/issues/455
 # The idea is to produce a lot of arguments by splitting the output
@@ -69,6 +76,8 @@ ipv6addr=$(avahi-resolve -v -6 -n "$h" | perl -alpe '$_ = $F[1]')
 
 avahi-resolve -v -a "$ipv4addr"
 avahi-resolve -v -a "$ipv6addr"
+
+systemd-run -u avahi-test-publish-address avahi-publish -fvaR  "$h" "$ipv4addr"
 
 # ::1 isn't here due to https://github.com/avahi/avahi/issues/574
 for s in 127.0.0.1 224.0.0.1 ff02::fb; do

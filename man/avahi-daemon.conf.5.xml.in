@@ -41,8 +41,11 @@
 
     <option>
       <p><opt>host-name-from-machine-id=</opt> Takes a boolean
-      value ("yes" or "no"). If set to "yes" avahi-daemon
-      will use the machine-id as name on the LAN.</p>
+      value ("yes" or "no"). If set to "yes" avahi-daemon will use the
+      <manref name="machine-id" section="5"/>
+      as name on the LAN. It should be noted that this ID
+      uniquely identifies the host. It should be considered "confidential",
+      and must not be exposed in untrusted environments. Defaults to "no".</p>
     </option>
 
     <option>

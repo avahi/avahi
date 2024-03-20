@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# parse config file for supported settings keys
+source $SNAP/bin/config &>/dev/null
+echo -e "avahi snap help"
+echo -e "avahi supports settings keys:"
+echo -e "values can be changed by calling\n$ snap set avahi avahi-daemon-conf.<key name>='<key value>'"
+echo -e "\te.g. $ snap set avahi avahi-daemon-conf.host-name=<host name>"
+
+echo -e "Curretly defined keys:"
+for index in ${!DEFINED_K[*]}; do
+   echo -e "\t${DEFINED_K[${index}]}=${DEFINED_V[${index}]}"
+done
+
+echo -e "Keys with no set value:"
+for index in ${!UNDEFINED_K[*]}; do
+    echo -e "\t${UNDEFINED_K[${index}]}, proposed value '${UNDEFINED_V[${index}]}'"
+done

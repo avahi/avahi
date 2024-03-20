@@ -1,0 +1,12 @@
+#!/bin/sh
+
+hook_name="$(basename ${0})"
+logger "avahi.hook.${hook_name}: entering the hook"
+
+mkdir -p ${SNAP_COMMON}/etc ${SNAP_COMMON}/usr/share
+
+[ ! -d ${SNAP_COMMON}/etc/avahi ] && cp -r ${SNAP}/etc/avahi ${SNAP_COMMON}/etc
+[ ! -d ${SNAP_COMMON}/usr/share/dbus-1 ] && cp -r ${SNAP}/usr/share/dbus-1 ${SNAP_COMMON}/usr/share
+[ ! -d ${SNAP_COMMON}/usr/share/avahi ] && cp -r ${SNAP}/usr/share/avahi ${SNAP_COMMON}/usr/share
+
+logger "avahi.hook.${hook_name}: hook finished successfully"

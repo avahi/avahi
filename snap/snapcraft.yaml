@@ -1,0 +1,154 @@
+name: avahi
+summary: avahi-daemon
+description: |
+  avahi service daemon
+
+  Avahi is a free, LGPL implementation of DNS Service Discovery (DNS-SD RFC 6763) over Multicast DNS (mDNS RFC 6762),
+  commonly known as and compatible with Apple Bonjour primarily targetting Linux.
+
+  Copyright 2004-2015 by the Avahi developers.
+
+base: core20
+confinement: strict
+grade: stable
+adopt-info: avahi
+
+environment:
+  PATH: $SNAP/usr/bin:$PATH
+  LD_LIBRARY_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:$SNAP/usr/lib
+
+architectures:
+  - build-on: armhf
+  - build-on: arm64
+  - build-on: amd64
+  - build-on: riscv64
+
+# expose services folder for other snaps
+slots:
+  services-content:
+    interface: content
+    content: avahi-services
+    write:
+      - $SNAP_COMMON/etc/avahi/services
+
+apps:
+  daemon:
+    command: usr/sbin/avahi-daemon -f $SNAP_COMMON/etc/avahi/avahi-daemon.conf --no-drop-root --debug
+    daemon: simple
+    adapter: none
+    plugs:
+      - network
+      - network-bind
+      - network-control
+    slots:
+      - avahi-observe
+      - avahi-control
+
+  browse:
+    command: usr/bin/avahi-browse
+    adapter: none
+    plugs:
+      - network
+
+  publish:
+    command: usr/bin/avahi-publish
+    adapter: none
+    plugs:
+      - network
+
+  resolve:
+      command: usr/bin/avahi-resolve
+      adapter: none
+      plugs:
+        - network
+
+  set-host-name:
+    command: usr/bin/avahi-set-host-name
+    adapter: none
+    plugs:
+      - network
+
+  help:
+    command: bin/avahi-help
+    adapter: none
+
+parts:
+  avahi:
+    plugin: autotools
+    source: .
+    source-type: git
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --disable-qt3
+      - --disable-qt4
+      - --disable-qt5
+      - --disable-gtk
+      - --disable-gtk3
+      - --disable-gdbm
+      - --disable-python
+      - --disable-pygtk
+      - --disable-python-dbus
+      - --disable-mono
+      - --disable-monodoc
+      - --disable-manpages
+      - --disable-xmltoman
+      - --with-avahi-user=root
+      - --with-avahi-group=root
+      - --with-distro=debian
+      - --disable-gobject
+      - --sysconfdir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc
+      - --datadir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share
+      - --localstatedir=/var
+    stage-packages:
+      - libdaemon0
+      - libevent-2.1-7
+    override-pull: |
+      snapcraftctl pull
+      # depending on a channel in the snap store, build last release tag or master
+      last_released_tag="$(snap info avahi | awk '$1 == "latest/beta:" { print $2 }')"
+      last_commited_tag=$(git describe --abbrev=0 --tags)
+      # If the latest tag from the upstream project has not been released to
+      # the beta channel, build the latest tag, otherwise build master.
+      # Closing beta channel allows rebuild of the stable release, otherwise master is used
+      if [ "${last_commited_tag:1}" != "${last_released_tag}" ]; then
+          git checkout ${last_commited_tag}
+          snapcraftctl set-version $(echo ${last_commited_tag} | cut -c 2- )
+      else
+          snapcraftctl set-version $(git describe --tags | cut -c 2-)
+      fi
+    override-build: |
+        snapcraftctl build
+        # add tag with txt record os=snappy
+        sed -i \
+            '/<\/service>/ i\    <txt-record>os=snappy</txt-record>' \
+            $SNAPCRAFT_PART_INSTALL/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc/avahi/services/ssh.service
+    organize:
+      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc:              etc
+      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share/dbus-1: usr/share/dbus-1
+      var/snap/${SNAPCRAFT_PROJECT_NAME}/common/usr/share/avahi:  usr/share/avahi
+    stage:
+      - -lib
+      - -run
+      - -usr/include
+      - -usr/lib/*.a
+      - -usr/lib/avahi
+      - -var
+
+  # snap helper scripts
+  glue:
+    source: glue
+    plugin: dump
+    stage-packages:
+      - jq
+      - libjq1
+      - libnss-mdns
+
+build-packages:
+  - gettext
+  - intltool
+  - libdaemon-dev
+  - libdbus-1-dev
+  - libevent-dev
+  - libexpat1-dev
+  - libglib2.0-dev
+  - xmltoman

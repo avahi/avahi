@@ -578,7 +578,7 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
     if ((oname && !avahi_is_valid_service_name(oname)))
         return AVAHI_ERR_INVALID_SERVICE_NAME;
 
-    if (!avahi_is_valid_service_type_generic(otype))
+    if (!avahi_is_valid_service_type_strict(otype) && !avahi_is_valid_service_subtype(otype))
         return AVAHI_ERR_INVALID_SERVICE_TYPE;
 
     if (!avahi_is_valid_domain_name(odomain))

@@ -69,6 +69,11 @@ static void record_browser_callback(
             return;
         }
 
+        if (!avahi_is_valid_service_type_strict(type)) {
+            avahi_log_debug("Invalid service '%s'", record->data.ptr.name);
+            return;
+        }
+
         b->callback(b, interface, protocol, event, type, domain, flags, b->userdata);
     } else
         b->callback(b, interface, protocol, event, NULL, b->domain_name, flags, b->userdata);

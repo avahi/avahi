@@ -134,6 +134,12 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(!avahi_is_valid_fqdn("::1"));
     assert(!avahi_is_valid_fqdn(".192.168.50.1."));
 
+    res = avahi_service_name_split("_ssh._tcp.local", name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
+    assert(res < 0);
+
+    res = avahi_service_name_split("_services._dns-sd._udp.local", NULL, 0, type, sizeof(type), domain, sizeof(domain));
+    assert(res < 0);
+
     res = avahi_service_name_split("test._ssh._tcp.local", name, sizeof(name), type, sizeof(type), domain, sizeof(domain));
     assert(res >= 0);
     assert(strcmp(name, "test") == 0);

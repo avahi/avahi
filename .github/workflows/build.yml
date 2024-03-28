@@ -24,7 +24,7 @@ jobs:
         env:
           - { CC: "gcc", DISTCHECK: "true", VALGRIND: "true" }
           - { CC: "gcc", ASAN_UBSAN: "true" }
-          - { CC: "clang" }
+          - { CC: "clang", ASAN_UBSAN: "false" }
           - { CC: "clang", ASAN_UBSAN: "true" }
     env: ${{ matrix.env }}
     steps:

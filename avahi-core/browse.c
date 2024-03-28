@@ -439,7 +439,7 @@ static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiPr
         assert(n);
 
         if ((n->interface == AVAHI_IF_UNSPEC || n->interface == interface) &&
-            (n->interface == AVAHI_PROTO_UNSPEC || n->protocol == protocol) &&
+            (n->protocol == AVAHI_PROTO_UNSPEC || n->protocol == protocol) &&
             n->flags == flags &&
             avahi_key_equal(n->key, k))
             break;

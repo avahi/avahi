@@ -93,7 +93,7 @@ int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
  * records of the specified key. The specified address is  */
 void avahi_cache_start_poof(AvahiCache *c, AvahiKey *key, const AvahiAddress *a);
 
-/* Stop a previously started POOF algorithm for a record. (Used for response suppresions records */
+/* Stop a previously started POOF algorithm for a record. (Used for response suppression records */
 void avahi_cache_stop_poof(AvahiCache *c, AvahiRecord *record, const AvahiAddress *a);
 
 void avahi_cache_flush(AvahiCache *c);

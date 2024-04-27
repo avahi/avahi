@@ -80,7 +80,7 @@ struct AvahiPoll {
     callback function when the absolute time *tv is reached. If tv is
     NULL, the timeout is disabled. After the timeout expired the
     callback function will be called and the timeout is disabled. You
-    can reenable it by calling timeout_update()  */
+    can re-enable it by calling timeout_update()  */
     AvahiTimeout* (*timeout_new)(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata);
 
     /** Update the absolute expiration time for a timeout, If tv is

@@ -1,0 +1,45 @@
+---
+specfile_path: .packit_rpm/avahi.spec
+files_to_sync:
+  - .packit.yml
+  - src: .packit_rpm/avahi.spec
+    dest: avahi.spec
+upstream_package_name: avahi
+downstream_package_name: avahi
+upstream_tag_template: "v{version}"
+srpm_build_deps: []
+
+actions:
+  post-upstream-clone:
+    # Use the Fedora Rawhide specfile
+    - "git clone https://src.fedoraproject.org/rpms/avahi .packit_rpm --depth=1"
+    # Drop the "sources" file so rebase-helper doesn't think it's a dist-git
+    - "rm -fv .packit_rpm/sources"
+    # Drop all patches apart from avahi-0.6.30-mono-libdir.patch
+    - "sed -ri '/^Patch[0-9]+\\:.+\\.patch/d' .packit_rpm/avahi.spec"
+    - "sed -ri '/^## downstream patches/aPatch100: avahi-0.6.30-mono-libdir.patch' .packit_rpm/avahi.spec"
+    # https://github.com/avahi/avahi/pull/376
+    - "sed -i '/avahi-dbus.conf/s/sysconf/data/' .packit_rpm/avahi.spec"
+    # Run make check
+    - "sed -i '/^%check$/amake check VERBOSE=1' .packit_rpm/avahi.spec"
+    # https://github.com/avahi/avahi/pull/513
+    - "sed -i '/^%configure/a--enable-libsystemd \\\\' .packit_rpm/avahi.spec"
+    - "sed -i '/^BuildRequires: *automake/aBuildRequires: systemd-devel' .packit_rpm/avahi.spec"
+
+jobs:
+- job: copr_build
+  trigger: pull_request
+  targets:
+  - fedora-all-aarch64
+  - fedora-all-i386
+  - fedora-all-ppc64le
+  - fedora-all-s390x
+  - fedora-all-x86_64
+- job: copr_build
+  trigger: commit
+  targets:
+  - fedora-all-aarch64
+  - fedora-all-i386
+  - fedora-all-ppc64le
+  - fedora-all-s390x
+  - fedora-all-x86_64

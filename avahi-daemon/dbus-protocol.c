@@ -57,8 +57,6 @@
 #include "dbus-internal.h"
 #include "main.h"
 
-/* #define VALGRIND_WORKAROUND 1 */
-
 #define RECONNECT_MSEC 3000
 
 Server *server = NULL;
@@ -333,9 +331,6 @@ static DBusHandlerResult dbus_get_net_if_by_index(DBusConnection *c, DBusMessage
         return dbus_parsing_error("Error parsing Server::GetNetworkInterfaceNameByIndex message", error);
     }
 
-#ifdef VALGRIND_WORKAROUND
-    return respond_string(c, m, "blah");
-#else
     if ((!if_indextoname(idx, name))) {
         char txt[256];
         snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
@@ -343,7 +338,6 @@ static DBusHandlerResult dbus_get_net_if_by_index(DBusConnection *c, DBusMessage
     }
 
     return avahi_dbus_respond_string(c, m, name);
-#endif
 }
 
 static DBusHandlerResult dbus_get_net_if_by_name(DBusConnection *c, DBusMessage *m, DBusError *error) {
@@ -354,9 +348,6 @@ static DBusHandlerResult dbus_get_net_if_by_name(DBusConnection *c, DBusMessage 
         return dbus_parsing_error("Error parsing Server::GetNetworkInterfaceIndexByName message", error);
     }
 
-#ifdef VALGRIND_WORKAROUND
-    return respond_int32(c, m, 1);
-#else
     if (!(idx = if_nametoindex(n))) {
         char txt[256];
         snprintf(txt, sizeof(txt), "OS Error: %s", strerror(errno));
@@ -364,7 +355,6 @@ static DBusHandlerResult dbus_get_net_if_by_name(DBusConnection *c, DBusMessage 
     }
 
     return avahi_dbus_respond_int32(c, m, idx);
-#endif
 }
 
 static DBusHandlerResult dbus_get_alternative_host_name(DBusConnection *c, DBusMessage *m, DBusError *error) {
@@ -375,10 +365,14 @@ static DBusHandlerResult dbus_get_alternative_host_name(DBusConnection *c, DBusM
     }
 
     t = avahi_alternative_host_name(n);
-    avahi_dbus_respond_string(c, m, t);
-    avahi_free(t);
+    if (t) {
+        avahi_dbus_respond_string(c, m, t);
+        avahi_free(t);
 
-    return DBUS_HANDLER_RESULT_HANDLED;
+        return DBUS_HANDLER_RESULT_HANDLED;
+    } else {
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_NOT_FOUND, "Hostname not found");
+    }
 }
 
 static DBusHandlerResult dbus_get_alternative_service_name(DBusConnection *c, DBusMessage *m, DBusError *error) {
@@ -389,10 +383,14 @@ static DBusHandlerResult dbus_get_alternative_service_name(DBusConnection *c, DB
     }
 
     t = avahi_alternative_service_name(n);
-    avahi_dbus_respond_string(c, m, t);
-    avahi_free(t);
+    if (t) {
+        avahi_dbus_respond_string(c, m, t);
+        avahi_free(t);
 
-    return DBUS_HANDLER_RESULT_HANDLED;
+        return DBUS_HANDLER_RESULT_HANDLED;
+    } else {
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_NOT_FOUND, "Service not found");
+    }
 }
 
 static DBusHandlerResult dbus_create_new_entry_group(DBusConnection *c, DBusMessage *m, DBusError *error) {

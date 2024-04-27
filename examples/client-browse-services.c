@@ -164,7 +164,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     /* Allocate a new client */
     client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, NULL, &error);
 
-    /* Check wether creating the client object succeeded */
+    /* Check whether creating the client object succeeded */
     if (!client) {
         fprintf(stderr, "Failed to create client: %s\n", avahi_strerror(error));
         goto fail;

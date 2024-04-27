@@ -282,7 +282,7 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
         if (avahi_record_equal_no_ttl(e->record, record)) {
             ours = 1; /* We have an identical record, so this is no conflict */
 
-            /* Check wheter there is a TTL conflict */
+            /* Check whether there is a TTL conflict */
             if (record->ttl <= e->record->ttl/2 &&
                 avahi_entry_is_registered(s, e, i)) {
                 char *t;
@@ -476,7 +476,7 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                         }
                     }
 
-                    /* Appending the record didn't succeeed, so let's send this packet, and create a new one */
+                    /* Appending the record didn't succeed, so let's send this packet, and create a new one */
                     avahi_interface_send_packet_unicast(i, reply, a, port);
                     avahi_dns_packet_free(reply);
                     reply = NULL;
@@ -1295,7 +1295,11 @@ static void update_fqdn(AvahiServer *s) {
 }
 
 int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
-    char *hn = NULL;
+    char label_escaped[AVAHI_LABEL_MAX*4+1];
+    char label[AVAHI_LABEL_MAX];
+    char *hn = NULL, *h;
+    size_t len;
+
     assert(s);
 
     AVAHI_CHECK_VALIDITY(s, !host_name || avahi_is_valid_host_name(host_name), AVAHI_ERR_INVALID_HOST_NAME);
@@ -1305,17 +1309,31 @@ int avahi_server_set_host_name(AvahiServer *s, const char *host_name) {
     else
         hn = avahi_normalize_name_strdup(host_name);
 
-    hn[strcspn(hn, ".")] = 0;
+    if (!hn)
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
-    if (avahi_domain_equal(s->host_name, hn) && s->state != AVAHI_SERVER_COLLISION) {
-        avahi_free(hn);
-        return avahi_server_set_errno(s, AVAHI_ERR_NO_CHANGE);
+    h = hn;
+    if (!avahi_unescape_label((const char **)&hn, label, sizeof(label))) {
+        avahi_free(h);
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
     }
+
+    avahi_free(h);
+
+    h = label_escaped;
+    len = sizeof(label_escaped);
+    if (!avahi_escape_label(label, strlen(label), &h, &len))
+        return avahi_server_set_errno(s, AVAHI_ERR_INVALID_HOST_NAME);
+
+    if (avahi_domain_equal(s->host_name, label_escaped) && s->state != AVAHI_SERVER_COLLISION)
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_CHANGE);
 
     withdraw_host_rrs(s);
 
     avahi_free(s->host_name);
-    s->host_name = hn;
+    s->host_name = avahi_strdup(label_escaped);
+    if (!s->host_name)
+        return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
 
     update_fqdn(s);
 
@@ -1777,7 +1795,7 @@ int avahi_server_get_group_of_service(AvahiServer *s, AvahiIfIndex interface, Av
     AVAHI_CHECK_VALIDITY(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
 
-    if ((ret = avahi_service_name_join(n, sizeof(n), name, type, domain) < 0))
+    if ((ret = avahi_service_name_join(n, sizeof(n), name, type, domain)) < 0)
         return avahi_server_set_errno(s, ret);
 
     if (!(key = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV)))

@@ -195,7 +195,7 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
     /* Mark this job for addition to the packet */
     pj->chosen = 1;
 
-    /* Scan for more jobs whith matching key pattern */
+    /* Scan for more jobs with matching key pattern */
     for (pj = s->jobs; pj; pj = pj->jobs_next) {
         if (pj->chosen)
             continue;
@@ -230,7 +230,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     s = pj->scheduler;
 
     if (pj->done) {
-        /* Lets remove it  from the history */
+        /* Let's remove it  from the history */
         job_free(s, pj);
         return;
     }
@@ -294,7 +294,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
 
     n = 0;
 
-    /* Now add the chosen records to the authorative section */
+    /* Now add the chosen records to the authoritative section */
     for (pj = s->jobs; pj; pj = next) {
 
         next = pj->jobs_next;

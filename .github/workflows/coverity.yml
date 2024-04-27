@@ -1,0 +1,26 @@
+---
+name: Coverity
+
+on:
+  schedule:
+    # Run Coverity daily at midnight
+    - cron:  '0 0 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-22.04
+    if: github.repository == 'avahi/avahi'
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v4
+
+      - run: sudo -E .github/workflows/build.sh install-build-deps
+
+      - name: Run Coverity
+        env:
+          COVERITY_SCAN_TOKEN: "${{ secrets.COVERITY_SCAN_TOKEN }}"
+        run: .github/workflows/coverity.sh

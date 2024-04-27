@@ -29,7 +29,7 @@ introspectiondir=$(datadir)/dbus-1/interfaces
 dbussystemservicesdir=$(datadir)/dbus-1/system-services
 
 AM_CFLAGS+= \
-	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(avahi_runtime_dir)/avahi-daemon/\" \
+	-DAVAHI_DAEMON_RUNTIME_DIR=\"$(runstatedir)/avahi-daemon/\" \
 	-DAVAHI_SOCKET=\"$(avahi_socket)\" \
 	-DAVAHI_SERVICE_DIR=\"$(servicedir)\" \
 	-DAVAHI_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-daemon.conf\" \
@@ -52,11 +52,10 @@ avahi_daemon_SOURCES = \
 	static-hosts.c static-hosts.h \
 	ini-file-parser.c ini-file-parser.h \
 	setproctitle.c setproctitle.h \
-	sd-daemon.h sd-daemon.c \
 	../avahi-client/check-nss.c
 
-avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS)
-avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) $(XML_LIBS)
+avahi_daemon_CFLAGS = $(AM_CFLAGS) $(LIBDAEMON_CFLAGS) $(XML_CFLAGS) $(LIBSYSTEMD_CFLAGS)
+avahi_daemon_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la ../avahi-core/libavahi-core.la $(LIBDAEMON_LIBS) $(XML_LIBS) $(LIBSYSTEMD_LIBS)
 
 ini_file_parser_test_SOURCES = \
 	ini-file-parser.c ini-file-parser.h \
@@ -81,7 +80,7 @@ dist_pkgdata_DATA = \
 
 %.socket: %.socket.in
 	$(AM_V_GEN)sed -e 's,@sbindir\@,$(sbindir),g' \
-		-e 's,@avahi_runtime_dir\@,$(avahi_runtime_dir),g' $< > $@
+		-e 's,@runstatedir\@,$(runstatedir),g' $< > $@
 
 if HAVE_SYSTEMD
 systemdsystemunit_DATA = \
@@ -169,8 +168,4 @@ xmllint:
 	done
 
 install-data-local:
-	test -z "$(avahi_runtime_dir)" || $(MKDIR_P) "$(DESTDIR)$(avahi_runtime_dir)"
-
-update-systemd:
-	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.c > sd-daemon.c
-	curl http://cgit.freedesktop.org/systemd/plain/src/sd-daemon.h > sd-daemon.h
+	test -z "$(runstatedir)" || $(MKDIR_P) "$(DESTDIR)$(runstatedir)"

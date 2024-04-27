@@ -5,7 +5,7 @@ dnl 1.1 - August 2006 - Ted Percival <ted@midg3t.net>
 dnl     * Stricter language checking (C or C++)
 dnl     * Adds GCC_STACK_PROTECT_LIB to add -lssp to LDFLAGS as necessary
 dnl     * Caches all results
-dnl     * Uses macros to ensure correct ouput in quiet/silent mode
+dnl     * Uses macros to ensure correct output in quiet/silent mode
 dnl 1.2 - April 2007 - Ted Percival <ted@midg3t.net>
 dnl     * Added GCC_STACK_PROTECTOR macro for simpler (one-line) invocation
 dnl     * GCC_STACK_PROTECT_LIB now adds -lssp to LIBS rather than LDFLAGS

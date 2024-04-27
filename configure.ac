@@ -313,7 +313,7 @@ if test "x$GCC" = "xyes" ; then
 
     if test "x$HAVE_NETLINK" = "xyes" ; then
         # Test whether rtnetlink.h can be included when compiled with -std=c99
-        # some distributions (e.g. archlinux) have broken headers that dont
+        # some distributions (e.g. archlinux) have broken headers that don't
         # define __u64 with -std=c99
         AC_MSG_CHECKING([checking whether rtnetlink.h can be included with -std=c99])
         OLDCFLAGS="$CFLAGS"
@@ -824,6 +824,26 @@ fi
 AM_CONDITIONAL(HAVE_LIBDAEMON, test "x$HAVE_LIBDAEMON" = "xyes")
 
 #
+# libsystemd
+#
+AC_ARG_ENABLE(libsystemd,
+        AS_HELP_STRING([--disable-libsystemd],[Disable use of libsystemd]),
+        [case "${enableval}" in
+                yes) HAVE_LIBSYSTEMD=yes ;;
+                no)  HAVE_LIBSYSTEMD=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-libsystemd) ;;
+        esac],
+        [HAVE_LIBSYSTEMD=yes])
+
+if test "x$HAVE_LIBSYSTEMD" = "xyes" ; then
+    PKG_CHECK_MODULES(LIBSYSTEMD, [ libsystemd ])
+    AC_DEFINE([HAVE_LIBSYSTEMD], 1, [Support for libsystemd])
+    AC_SUBST(LIBSYSTEMD_CFLAGS)
+    AC_SUBST(LIBSYSTEMD_LIBS)
+fi
+AM_CONDITIONAL(HAVE_LIBSYSTEMD, test "x$HAVE_LIBSYSTEMD" = "xyes")
+
+#
 # Python stuff
 #
 AC_ARG_ENABLE(python,
@@ -973,7 +993,7 @@ fi
 AC_SUBST(AVAHI_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_GROUP,"$AVAHI_GROUP", [Group for Avahi])
 
-AC_ARG_WITH(avahi_priv_access_group,AS_HELP_STRING([--with-avahi-priv-access-group=<group>],[Priviliged access group for Avahi clients (netdev)]))
+AC_ARG_WITH(avahi_priv_access_group,AS_HELP_STRING([--with-avahi-priv-access-group=<group>],[Privileged access group for Avahi clients (netdev)]))
 if test -z "$with_avahi_priv_access_group" ; then
     AVAHI_PRIV_ACCESS_GROUP=netdev
 else
@@ -1000,12 +1020,14 @@ fi
 AC_SUBST(AVAHI_AUTOIPD_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_AUTOIPD_GROUP,"$AVAHI_AUTOIPD_GROUP", [Group for running the avahi-autoipd daemon])
 
+# Autoconf 2.70 supports this natively but it is not yet universally available.
+AS_IF([test -z "${runstatedir}"], [runstatedir='${localstatedir}/run'])
+AC_SUBST([runstatedir])
+
 #
 # Avahi runtime dir
 #
-avahi_runtime_dir="/run"
-avahi_socket="${avahi_runtime_dir}/avahi-daemon/socket"
-AC_SUBST(avahi_runtime_dir)
+avahi_socket="${runstatedir}/avahi-daemon/socket"
 AC_SUBST(avahi_socket)
 
 #
@@ -1068,7 +1090,7 @@ if test x$manpages = xyes ; then
 
     if test x$have_xmltoman = xno -o x$xmltoman = xno; then
         if ! test -e $srcdir/man/avahi-daemon.8 ; then
-            AC_MSG_ERROR([*** xmltoman was not found or was disabled, it is required to build the manpages as they have not been pre-built, install xmltoman, pass --disable-manpages or dont pass --disable-xmltoman])
+            AC_MSG_ERROR([*** xmltoman was not found or was disabled, it is required to build the manpages as they have not been pre-built, install xmltoman, pass --disable-manpages or don't pass --disable-xmltoman])
             exit 1
         fi
         AC_MSG_WARN([*** Not rebuilding man pages as xmltoman is not found ***])
@@ -1145,12 +1167,8 @@ avahi-daemon/avahi-dbus.conf
 avahi-discover-standalone/Makefile
 avahi-client/Makefile
 initscript/Makefile
-initscript/debian/Makefile
 initscript/gentoo/Makefile
-initscript/suse/Makefile
-initscript/fedora/Makefile
 initscript/lfs/Makefile
-initscript/mandriva/Makefile
 initscript/darwin/Makefile
 initscript/freebsd/Makefile
 initscript/slackware/Makefile
@@ -1199,6 +1217,7 @@ echo "
     Enable GDBM:                               ${HAVE_GDBM}
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}
+    Enable libsystemd:                         ${HAVE_LIBSYSTEMD}
     Enable Python:                             ${HAVE_PYTHON}
     Enable pygobject:                          ${HAVE_PYGOBJECT}
     Enable python-dbus:                        ${HAVE_PYTHON_DBUS}
@@ -1210,7 +1229,7 @@ echo "
     Distribution/OS:                           ${with_distro}
     User for avahi-daemon:                     ${AVAHI_USER}
     Group for avahi-daemon:                    ${AVAHI_GROUP}
-    Priviliged access group for Avahi clients: ${AVAHI_PRIV_ACCESS_GROUP}
+    Privileged access group for Avahi clients: ${AVAHI_PRIV_ACCESS_GROUP}
     User for avahi-autoipd:                    ${AVAHI_AUTOIPD_USER}
     Group for avahi-autoipd:                   ${AVAHI_AUTOIPD_GROUP}
     Enable chroot():                           ${enable_chroot}

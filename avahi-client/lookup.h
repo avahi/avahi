@@ -98,7 +98,7 @@ typedef void (*AvahiServiceBrowserCallback) (
  * the same service data is dropped because redundant). If you want to
  * subscribe to service data changes, you should use
  * avahi_service_resolver_new() and keep it open, in which case you
- * will be notified via AVAHI_RESOLVE_FOUND everytime the service data
+ * will be notified via AVAHI_RESOLVE_FOUND every time the service data
  * changes. */
 AvahiServiceBrowser* avahi_service_browser_new (
     AvahiClient *client,
@@ -176,7 +176,7 @@ typedef void (*AvahiServiceResolverCallback) (
  * service data you received via avahi_service_browser_new()'s callback
  * function, especially interface and protocol. The protocol argument specifies
  * the protocol (IPv4 or IPv6) to use as transport for the queries which are
- * sent out by this resolver. The aprotocol argument specifies the adress
+ * sent out by this resolver. The aprotocol argument specifies the address
  * family (IPv4 or IPv6) of the address of the service we are looking for.
  * Generally, on "protocol" you should only pass what was supplied to you as
  * parameter to your AvahiServiceBrowserCallback. In "aprotocol" you should

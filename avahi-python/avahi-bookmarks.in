@@ -22,14 +22,13 @@ import sys, getopt, os
 try:
     from gi.repository import GObject
     import avahi, dbus
-except ImportError:
+    from dbus.mainloop.glib import DBusGMainLoop
+except ImportError as e:
+    sys.stderr.write("Error: {}\n".format(e))
     print("Sorry, to use this tool you need to install Avahi and python-dbus.")
     sys.exit(1)
 
-try:
-    import dbus.glib
-except ImportError:
-    pass
+DBusGMainLoop(set_as_default=True)
 
 urlproto = { "_http._tcp" : "http",  "_https._tcp" : "https", "_ftp._tcp" : "ftp" }
 

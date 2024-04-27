@@ -30,7 +30,7 @@ test "x$AVAHI_INTERFACE" != "x"
 # Available environment variables:
 #
 #   $AVAHI_INTERFACE               The interface name where this DNS server was found on
-#   $AVAHI_INTERFACE_DNS_SERVERS   A whitespace seperated list of DNS servers on $AVAHI_INTERFACE
+#   $AVAHI_INTERFACE_DNS_SERVERS   A whitespace separated list of DNS servers on $AVAHI_INTERFACE
 #   $AVAHI_DNS_SERVERS             The complete list of all DNS servers found on all interfaces
 
 if [ -x /sbin/netconfig ]; then

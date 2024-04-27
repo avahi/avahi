@@ -584,14 +584,14 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 
                 fprintf(stderr, _("Disconnected, reconnecting ...\n"));
 
+                while (services)
+                    remove_service(config, services);
+
                 avahi_client_free(client);
                 client = NULL;
 
                 avahi_string_list_free(browsed_types);
                 browsed_types = NULL;
-
-                while (services)
-                    remove_service(config, services);
 
                 browsing = 0;
 

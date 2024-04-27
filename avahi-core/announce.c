@@ -44,6 +44,12 @@ static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_interface, a->interface->announcers, a);
     AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_entry, a->entry->announcers, a);
 
+    if (a->state == AVAHI_PROBING && a->entry->group) {
+	assert(a->entry->group->n_probing);
+	a->entry->group->n_probing--;
+	avahi_s_entry_group_check_probed(a->entry->group, 1);
+    }
+
     avahi_free(a);
 }
 
@@ -421,7 +427,7 @@ static void reannounce(AvahiAnnouncer *a) {
     assert(a);
     e = a->entry;
 
-    /* If the group this entry belongs to is not even commited, there's nothing to reannounce */
+    /* If the group this entry belongs to is not even committed, there's nothing to reannounce */
     if (e->group && (e->group->state == AVAHI_ENTRY_GROUP_UNCOMMITED || e->group->state == AVAHI_ENTRY_GROUP_COLLISION))
         return;
 

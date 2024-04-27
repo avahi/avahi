@@ -107,7 +107,7 @@
 		<optdesc><p>Tell an already running avahi-daemon to reread
 		<file>/etc/resolv.conf</file> (in case you enabled
         <opt>publish-resolv-conf-dns-servers</opt> in
-		<file>avahi-daemon.conf</file>) the files from
+		<file>avahi-daemon.conf</file>) and the files from
 		<file>@servicedir@/</file>. Please note that this will not
 		reload the
 		<file>@pkgsysconfdir@/avahi-daemon.conf</file>. (equivalent to
@@ -133,7 +133,7 @@
 
     <section name="Files">
 
-      <p><file>@pkgsysconfdir@/avahi-daemon.conf</file>: the default configuration file for avahi-daemon, <manref name="avahi-daemon.conf" section="5"/> for more information.</p>
+      <p><file>@pkgsysconfdir@/avahi-daemon.conf</file>: the default configuration file for avahi-daemon, see <manref name="avahi-daemon.conf" section="5"/> for more information.</p>
 
       <p><file>@pkgsysconfdir@/hosts</file>: additional static hostname mappings to publish in mDNS, see <manref name="avahi.hosts" section="5"/> for more information.</p>
 

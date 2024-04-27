@@ -168,12 +168,14 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 
         case AVAHI_SERVER_REGISTERING:
 
-	    /* Let's drop our registered services. When the server is back
+            /* Let's drop our registered services. When the server is back
              * in AVAHI_SERVER_RUNNING state we will register them
              * again with the new host name. */
-            if (group)
+            if (group) {
                 avahi_s_entry_group_reset(group);
-
+                avahi_s_entry_group_free(group);
+                group = NULL;
+            }
             break;
 
         case AVAHI_SERVER_FAILURE:
@@ -217,7 +219,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     /* Free the configuration data */
     avahi_server_config_free(&config);
 
-    /* Check wether creating the server object succeeded */
+    /* Check whether creating the server object succeeded */
     if (!server) {
         fprintf(stderr, "Failed to create server: %s\n", avahi_strerror(error));
         goto fail;

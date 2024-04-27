@@ -20,7 +20,7 @@ jobs:
       contents: read
 
     runs-on: ubuntu-22.04
-    if: github.repository == 'lathiat/avahi'
+    if: github.repository == 'avahi/avahi'
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.sanitizer }}-${{ matrix.architecture }}-${{ github.ref }}
       cancel-in-progress: true
@@ -50,7 +50,7 @@ jobs:
           dry-run: false
           sanitizer: ${{ matrix.sanitizer }}
       - name: Upload Crash
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure() && steps.build.outcome == 'success'
         with:
           name: ${{ matrix.sanitizer }}-${{ matrix.architecture }}-artifacts

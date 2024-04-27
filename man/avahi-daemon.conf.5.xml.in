@@ -35,14 +35,17 @@
 
     <option>
       <p><opt>host-name=</opt> Set the host name avahi-daemon tries
-      to register on the LAN. If omited defaults to the system host
+      to register on the LAN. If omitted defaults to the system host
       name as set with the sethostname() system call.</p>
     </option>
 
     <option>
       <p><opt>host-name-from-machine-id=</opt> Takes a boolean
-      value ("yes" or "no"). If set to "yes" avahi-daemon
-      will use the machine-id as name on the LAN.</p>
+      value ("yes" or "no"). If set to "yes" avahi-daemon will use the
+      <manref name="machine-id" section="5"/>
+      as name on the LAN. It should be noted that this ID
+      uniquely identifies the host. It should be considered "confidential",
+      and must not be exposed in untrusted environments. Defaults to "no".</p>
     </option>
 
     <option>
@@ -201,10 +204,13 @@
       ("yes" or "no"). Enable wide-area DNS-SD, aka
       DNS-SD over unicast DNS. If this is enabled only domains
       ending in .local will be resolved on mDNS, all other domains
-      are resolved via unicast DNS. If you want to maintain multiple
-      different multicast DNS domains even with this option enabled
-      we encourage you to use subdomains of .local, such as
-      "kitchen.local". This option defaults to "yes".</p>
+      are resolved via unicast DNS. When this is enabled, unless
+      explicitly specified reverse lookups will go over unicast DNS
+      and fall back to mDNS if unicast DNS lookups fail.
+      If you want to maintain multiple different multicast DNS
+      domains even with this option enabled we encourage you to
+      use subdomains of .local, such as "kitchen.local".
+      This option defaults to "no".</p>
     </option>
 
   </section>

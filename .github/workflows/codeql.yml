@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+env:
+  CC: "gcc"
+  BUILD_ONLY: "true"
+
 jobs:
   analyze:
     name: Analyze
@@ -26,21 +30,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['cpp', 'python']
+        language: ['cpp', 'python', 'csharp']
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
 
     - run: sudo -E .github/workflows/build.sh install-build-deps
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    - run: .github/workflows/build.sh build
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3

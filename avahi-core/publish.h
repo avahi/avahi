@@ -78,7 +78,7 @@ int avahi_server_add(
     AvahiServer *s,           /**< The server object to add this record to */
     AvahiSEntryGroup *g,       /**< An entry group object if this new record shall be attached to one, or NULL. If you plan to remove the record sometime later you a required to pass an entry group object here. */
     AvahiIfIndex interface,   /**< A numeric index of a network interface to attach this record to, or AVAHI_IF_UNSPEC to attach this record to all interfaces */
-    AvahiProtocol protocol,   /**< A protocol family to attach this record to. One of the AVAHI_PROTO_xxx constants. Use AVAHI_PROTO_UNSPEC to make this record available on all protocols (wich means on both IPv4 and IPv6). */
+    AvahiProtocol protocol,   /**< A protocol family to attach this record to. One of the AVAHI_PROTO_xxx constants. Use AVAHI_PROTO_UNSPEC to make this record available on all protocols (which means on both IPv4 and IPv6). */
     AvahiPublishFlags flags,    /**< Special flags for this record */
     AvahiRecord *r            /**< The record to add. This function increases the reference counter of this object. */);
 

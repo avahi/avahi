@@ -53,6 +53,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
+
 #include <libdaemon/dfork.h>
 #include <libdaemon/dsignal.h>
 #include <libdaemon/dlog.h>
@@ -81,7 +85,6 @@
 #include "static-services.h"
 #include "static-hosts.h"
 #include "ini-file-parser.h"
-#include "sd-daemon.h"
 
 #ifdef HAVE_DBUS
 #include "dbus-protocol.h"
@@ -358,7 +361,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
     switch (state) {
         case AVAHI_SERVER_RUNNING:
             avahi_log_info("Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
+#ifdef HAVE_LIBSYSTEMD
             sd_notifyf(0, "STATUS=Server startup complete. Host name is %s. Local service cookie is %u.", avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
+#endif
             avahi_set_proc_title(argv0, "%s: running [%s]", argv0, avahi_server_get_host_name_fqdn(s));
 
             static_service_add_to_server();
@@ -385,7 +390,9 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
             n = avahi_alternative_host_name(avahi_server_get_host_name(s));
 
             avahi_log_warn("Host name conflict, retrying with %s", n);
+#ifdef HAVE_LIBSYSTEMD
             sd_notifyf(0, "STATUS=Host name conflict, retrying with %s", n);
+#endif
             avahi_set_proc_title(argv0, "%s: collision [%s]", argv0, n);
 
             avahi_server_set_host_name(s, n);
@@ -397,14 +404,18 @@ static void server_callback(AvahiServer *s, AvahiServerState state, void *userda
         case AVAHI_SERVER_FAILURE:
 
             avahi_log_error("Server error: %s", avahi_strerror(avahi_server_errno(s)));
+#ifdef HAVE_LIBSYSTEMD
             sd_notifyf(0, "STATUS=Server error: %s", avahi_strerror(avahi_server_errno(s)));
+#endif
 
             avahi_simple_poll_quit(simple_poll_api);
             break;
 
         case AVAHI_SERVER_REGISTERING:
 
+#ifdef HAVE_LIBSYSTEMD
             sd_notifyf(0, "STATUS=Registering host name %s", avahi_server_get_host_name_fqdn(s));
+#endif
             avahi_set_proc_title(argv0, "%s: registering [%s]", argv0, avahi_server_get_host_name_fqdn(s));
 
             static_service_remove_from_server();
@@ -1631,9 +1642,11 @@ int main(int argc, char *argv[]) {
         if (config.use_syslog || config.daemonize)
             daemon_log_use = DAEMON_LOG_SYSLOG;
 
+#ifdef HAVE_LIBSYSTEMD
         if (sd_listen_fds(0) <= 0)
             if (daemon_close_all(-1) < 0)
                 avahi_log_warn("Failed to close all remaining file descriptors: %s", strerror(errno));
+#endif
 
         daemon_reset_sigs(-1);
         daemon_unblock_sigs(-1);
@@ -1687,14 +1700,18 @@ int main(int argc, char *argv[]) {
             }
 #endif
         avahi_log_info("%s "PACKAGE_VERSION" starting up.", argv0);
+#ifdef HAVE_LIBSYSTEMD
         sd_notifyf(0, "STATUS=%s "PACKAGE_VERSION" starting up.", argv0);
+#endif
         avahi_set_proc_title(argv0, "%s: starting up", argv0);
 
         if (run_server(&config) == 0)
             r = 0;
 
         avahi_log_info("%s "PACKAGE_VERSION" exiting.", argv0);
+#ifdef HAVE_LIBSYSTEMD
         sd_notifyf(0, "STATUS=%s "PACKAGE_VERSION" exiting.", argv0);
+#endif
     }
 
 finish:

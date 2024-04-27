@@ -145,7 +145,7 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
                 avahi_client_is_connected(client)) {
 
                 /* Regardless if the server lost its name or
-                 * if the name was transfered: our services are no longer
+                 * if the name was transferred: our services are no longer
                  * available, so we disconnect ourselves */
                 avahi_client_set_errno(client, AVAHI_ERR_DISCONNECTED);
                 goto fail;
@@ -580,7 +580,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
         }
 
         /* The user doesn't want this call to fail if the daemon is not
-         * available, so let's return succesfully */
+         * available, so let's return successfully */
         client_set_state(client, AVAHI_CLIENT_CONNECTING);
 
     } else {

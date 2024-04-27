@@ -438,7 +438,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_prepare(
     AVAHI_LLIST_PREPEND(AvahiSServiceResolver, resolver, server->service_resolvers, r);
 
     k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV);
-    r->record_browser_srv = avahi_s_record_browser_new(server, interface, protocol, k, flags & ~(AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS), record_browser_callback, r);
+    r->record_browser_srv = avahi_s_record_browser_prepare(server, interface, protocol, k, flags & ~(AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS), record_browser_callback, r);
     avahi_key_unref(k);
 
     if (!r->record_browser_srv) {
@@ -448,7 +448,7 @@ AvahiSServiceResolver *avahi_s_service_resolver_prepare(
 
     if (!(flags & AVAHI_LOOKUP_NO_TXT)) {
         k = avahi_key_new(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT);
-        r->record_browser_txt = avahi_s_record_browser_new(server, interface, protocol, k, flags & ~(AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS),  record_browser_callback, r);
+        r->record_browser_txt = avahi_s_record_browser_prepare(server, interface, protocol, k, flags & ~(AVAHI_LOOKUP_NO_TXT|AVAHI_LOOKUP_NO_ADDRESS), record_browser_callback, r);
         avahi_key_unref(k);
 
         if (!r->record_browser_txt) {

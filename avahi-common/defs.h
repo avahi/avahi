@@ -29,7 +29,7 @@
  * \section choose_api Choosing an API
  *
  * Avahi provides three programming APIs for integration of
- * mDNS/DNS-SD features into your C progams:
+ * mDNS/DNS-SD features into your C programs:
  *
  * \li <b>avahi-core</b>: an API for embedding a complete mDNS/DNS-SD stack
  * into your software. This is intended for developers of embedded
@@ -41,10 +41,10 @@
  * using this API for software written in any language other than
  * C (e.g. Python).
  * \li <b>avahi-client</b>: a simplifying C wrapper around the D-Bus API. We
- * recommend using this API in C or C++ progams. The D-Bus internals
+ * recommend using this API in C or C++ programs. The D-Bus internals
  * are hidden completely.
  * \li <b>avahi-gobject</b>: an object-oriented C wrapper based on
- * GLib's GObject. We recommd using this API for GNOME/Gtk programs.
+ * GLib's GObject. We recommend using this API for GNOME/Gtk programs.
  *
  * All three APIs are very similar, however avahi-core is the most powerful.
  *
@@ -114,7 +114,7 @@
  * avahi_client_new(). An adapter for this abstraction layer is
  * available for the GLib main loop in the object AvahiGLibPoll. A
  * simple stand-alone implementation is available under the name
- * AvahiSimplePoll. An adpater for the Qt main loop is available from
+ * AvahiSimplePoll. An adapter for the Qt main loop is available from
  * avahi_qt_poll_get().
  *
  * \section good_publish How to Register Services
@@ -161,7 +161,7 @@
  * avahi_service_resolver_new() to acquire service data for a service
  * name.
  * - You can use avahi_domain_browser_new() to get a list of announced
- * browsing domains. Please note that not all domains whith services
+ * browsing domains. Please note that not all domains with services
  * on the LAN are mandatorily announced.
  * - There is no need to subscribe to server state changes.
  *
@@ -204,9 +204,9 @@
  * returned by AvahiDomainBrowser is assembled by the browsing domains
  * configured in the daemon's configuration file, the domains
  * announced inside the default domain, the domains set with the
- * environment variable $AVAHI_BROWSE_DOMAINS (colon-seperated) on the
+ * environment variable $AVAHI_BROWSE_DOMAINS (colon-separated) on the
  * client side and the domains set in the XDG configuration file
- * ~/.config/avahi/browse-domains on the client side (seperated by
+ * ~/.config/avahi/browse-domains on the client side (separated by
  * newlines). File managers offering some kind of "Network
  * Neighborhood" folder should show the entries of the default domain
  * right inside that and offer subfolders for the browsing domains
@@ -228,7 +228,7 @@ typedef enum {
 
 /** States of an entry group object */
 typedef enum {
-    AVAHI_ENTRY_GROUP_UNCOMMITED,    /**< The group has not yet been commited, the user must still call avahi_entry_group_commit() */
+    AVAHI_ENTRY_GROUP_UNCOMMITED,    /**< The group has not yet been committed, the user must still call avahi_entry_group_commit() */
     AVAHI_ENTRY_GROUP_REGISTERING,   /**< The entries of the group are currently being registered */
     AVAHI_ENTRY_GROUP_ESTABLISHED,   /**< The entries have successfully been established */
     AVAHI_ENTRY_GROUP_COLLISION,     /**< A name collision for one of the entries in the group has been detected, the entries have been withdrawn */

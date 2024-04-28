@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include <avahi-client/client.h>
 #include <avahi-client/publish.h>
@@ -45,11 +46,15 @@ typedef struct mdns_dns_srv {
 } mdns_dns_srv_t;
 #define MDNS_DNS_SRV_HEAD_SIZE (3 * sizeof(uint16_t))
 
+static bool enable_debug = 0;
 static AvahiEntryGroup *group = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 static char *name = NULL;
+static char *host_cname = NULL;
 
 static void create_services(AvahiClient *c);
+static void print_txt_record(char *txt);
+static char *mdns_dns_srv_record(mdns_dns_srv_t *srv, const char *txt, int *rr_size);
 
 static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
     assert(g == group || group == NULL);
@@ -74,6 +79,12 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
 
             fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
 
+            /* CNAME collision could also happen */
+            n = avahi_alternative_service_name(host_cname);
+            avahi_free(host_cname);
+            host_cname = n;
+            fprintf(stderr, "host CNAME collision, renaming CNAME to '%s'\n", host_cname);
+
             /* And recreate the services */
             create_services(avahi_entry_group_get_client(g));
             break;
@@ -94,7 +105,7 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
 }
 
 /* for debug use */
-void print_txt_record(char *txt) {
+static void print_txt_record(char *txt) {
     char *s = txt;
     int len;
     int i;
@@ -142,14 +153,17 @@ static char *mdns_name_to_txt_record(const char *_name) {
         // the last part
         *str1 = strlen(str1+1);
     }
+    if (enable_debug)
+        print_txt_record(buf);
 
     return buf;
 }
 
-char *mdns_dns_srv_record(mdns_dns_srv_t *srv, const char *txt, int *rr_size) {
-    char len = strlen(txt);
+static char *mdns_dns_srv_record(mdns_dns_srv_t *srv, const char *txt, int *rr_size) {
+    char *buf;
+
     *rr_size = MDNS_DNS_SRV_HEAD_SIZE + (strlen(txt) + 1);   // 1B '\0'
-    char *buf = avahi_malloc(*rr_size);
+    buf = avahi_malloc(*rr_size);
     memcpy(buf, srv, MDNS_DNS_SRV_HEAD_SIZE);
     strcpy(buf + MDNS_DNS_SRV_HEAD_SIZE, txt);
 
@@ -159,18 +173,20 @@ char *mdns_dns_srv_record(mdns_dns_srv_t *srv, const char *txt, int *rr_size) {
 static void create_services(AvahiClient *c) {
     char *n, r[128];
     int ret;
-    assert(c);
-
-    char full_name[128] = {0};
+    char full_name[128];
     char *full_name_txt;
     char service_name[] = "_printer._tcp.local";
     char *service_name_txt;
-    const char *host_name = avahi_client_get_host_name(c);
+    const char *host_name;
+    char _host_cname[128];
     char *host_name_txt;
     char *host_name_srv;
     char dns_sd_service_name[] = "_services._dns-sd._udp.local";
     char *random_txt;
     int rr_size;
+    mdns_dns_srv_t srv;
+    bool cname_collide = false;
+    assert(c);
 
     /* If this is the first time we're called, let's create a new
      * entry group if necessary */
@@ -200,9 +216,11 @@ static void create_services(AvahiClient *c) {
          * avahi_entry_group_add_service(), but not in here. So
          * you have to pass all the flags you need. */
         ret = avahi_entry_group_add_record(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC,
-                AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_USE_MULTICAST,
+                AVAHI_PUBLISH_USE_MULTICAST,
                 service_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR, AVAHI_DEFAULT_TTL,
                 full_name_txt, strlen(full_name_txt) + 1);  // +1 for '\0'
+        if (enable_debug)
+            printf("avahi_entry_group_add_record PTR\n");
         avahi_free(full_name_txt);
         if (ret < 0) {
             if (ret == AVAHI_ERR_COLLISION)
@@ -215,10 +233,10 @@ static void create_services(AvahiClient *c) {
         /* create a SRV record for our service.
          * SRV does not accept plain txt, but use a struct.
          * See avahi-core/dns.c : parse_rdata() for detail. */
-        mdns_dns_srv_t srv;
         srv.priority = 0;
         srv.weight = 0;
         srv.port = 1234;
+        host_name = avahi_client_get_host_name(c);
         host_name_txt = mdns_name_to_txt_record(host_name);
         host_name_srv = mdns_dns_srv_record(&srv, host_name_txt, &rr_size);
 
@@ -227,6 +245,8 @@ static void create_services(AvahiClient *c) {
                 AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_USE_MULTICAST,
                 full_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME,
                 host_name_srv, rr_size);
+        if (enable_debug)
+            printf("avahi_entry_group_add_record SRV\n");
         avahi_free(host_name_txt);
         avahi_free(host_name_srv);
         if (ret < 0) {
@@ -245,6 +265,8 @@ static void create_services(AvahiClient *c) {
                 AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_USE_MULTICAST,
                 full_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_TXT, AVAHI_DEFAULT_TTL,
                 random_txt, strlen(random_txt) + 1);  // +1 for '\0'
+        if (enable_debug)
+            printf("avahi_entry_group_add_record TXT\n");
         avahi_free(random_txt);
         if (ret < 0) {
             if (ret == AVAHI_ERR_COLLISION)
@@ -262,12 +284,42 @@ static void create_services(AvahiClient *c) {
                 AVAHI_PUBLISH_USE_MULTICAST,
                 dns_sd_service_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_PTR, AVAHI_DEFAULT_TTL,
                 service_name_txt, strlen(service_name_txt) + 1);  // +1 for '\0'
+        if (enable_debug)
+            printf("avahi_entry_group_add_record DNS-SD PTR\n");
         avahi_free(service_name_txt);
         if (ret < 0) {
             if (ret == AVAHI_ERR_COLLISION)
                 goto collision;
 
             fprintf(stderr, "Failed to add PTR record for %s: %s\n", dns_sd_service_name, avahi_strerror(ret));
+            goto fail;
+        }
+
+        /* create a CNAME record, this record is optional */
+        strcpy(_host_cname, host_name);
+        strcat(_host_cname, ".local");
+        host_name_txt = mdns_name_to_txt_record(_host_cname);
+
+        if (host_cname == NULL)
+            host_cname = (char *)host_name;
+        strcpy(_host_cname, host_cname);
+        strcat(_host_cname, "_cname.local");
+        if (host_cname == host_name)
+            host_cname = NULL;      // to prevent host_name being freed
+
+        ret = avahi_entry_group_add_record(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC,
+                AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_USE_MULTICAST,
+                _host_cname, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, AVAHI_DEFAULT_TTL_HOST_NAME,
+                host_name_txt, strlen(host_name_txt) + 1);  // +1 for '\0'
+        printf("Adding CNAME %s for %s\n", _host_cname, host_name);
+        avahi_free(host_name_txt);
+        if (ret < 0) {
+            if (ret == AVAHI_ERR_COLLISION) {
+                cname_collide = true;
+                goto cname_collision;
+            }
+
+            fprintf(stderr, "Failed to add CNAME record for %s: %s\n", _host_cname, avahi_strerror(ret));
             goto fail;
         }
 
@@ -289,6 +341,16 @@ collision:
     name = n;
 
     fprintf(stderr, "Service name collision, renaming service to '%s'\n", name);
+
+cname_collision:
+
+    if (cname_collide) {
+        cname_collide = false;
+        n = avahi_alternative_service_name(host_cname);
+        avahi_free(host_cname);
+        host_cname = n;
+        fprintf(stderr, "host CNAME collision, renaming CNAME to '%s'\n", host_cname);
+    }
 
     avahi_entry_group_reset(group);
 

@@ -95,9 +95,9 @@ class ServiceTypeDatabase:
     def __iter__(self):
 
         def want_key(key):
-            if not re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+', key):
+            if not re.search(r'_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+', key):
                 return False
-            if re.search('_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+\[.*\]', key):
+            if re.search(r'_[a-zA-Z0-9-]+\._[a-zA-Z0-9-]+\[.*\]', key):
                 return False
             return True
 

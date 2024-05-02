@@ -37,14 +37,12 @@
 #include <avahi-common/error.h>
 #include <avahi-common/timeval.h>
 
-static bool enable_debug = 0;
 static AvahiEntryGroup *group = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 const char *host_name = NULL;
 static char *host_cname = NULL;
 
 static void create_record(AvahiClient *c);
-static void print_txt_record(char *txt);
 
 static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
     assert(g == group || group == NULL);
@@ -88,28 +86,13 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
     }
 }
 
-/* for debug use */
-static void print_txt_record(char *txt) {
-    char *s = txt;
-    int len;
-    int i;
-
-    while (*s != '\0') {
-        len = *(s++);
-        printf("(%d)", len);
-        for (i = 0; i < len; i++)
-            putchar(*(s++));
-    }
-    putchar('\n');
-}
-
 /*
- * convert a dot separated string to raw txt record
+ * convert a dot separated string to raw rdata
  * e.g.
  * _name = "1.22.333.4444"
  * return = |1|"1"|2|"22"|3|"333"|4|"4444"|
  */
-static char *mdns_name_to_txt_record(const char *_name) {
+static char *dot_string_to_rdata(const char *_name) {
     char *str1;
     char *str2;
     char *buf;
@@ -137,8 +120,6 @@ static char *mdns_name_to_txt_record(const char *_name) {
         // the last part
         *str1 = strlen(str1+1);
     }
-    if (enable_debug)
-        print_txt_record(buf);
 
     return buf;
 }
@@ -147,7 +128,7 @@ static void create_record(AvahiClient *c) {
     char *n;
     int ret;
     char _host_cname[128];
-    char *host_name_txt;
+    char *host_name_rdata;
     assert(c);
 
     /* If this is the first time we're called, let's create a new
@@ -167,7 +148,7 @@ static void create_record(AvahiClient *c) {
         /* create a CNAME record */
         strcpy(_host_cname, host_name);
         strcat(_host_cname, ".local");
-        host_name_txt = mdns_name_to_txt_record(_host_cname);
+        host_name_rdata = dot_string_to_rdata(_host_cname);
 
         if (host_cname == NULL)
             host_cname = (char *)host_name;
@@ -180,9 +161,9 @@ static void create_record(AvahiClient *c) {
         ret = avahi_entry_group_add_record(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC,
                 AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_USE_MULTICAST,
                 _host_cname, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, AVAHI_DEFAULT_TTL_HOST_NAME,
-                host_name_txt, strlen(host_name_txt) + 1);  // +1 for '\0'
+                host_name_rdata, strlen(host_name_rdata) + 1);  // +1 for '\0'
         printf("Adding CNAME '%s' for '%s'\n", _host_cname, host_name);
-        avahi_free(host_name_txt);
+        avahi_free(host_name_rdata);
         if (ret < 0) {
             if (ret == AVAHI_ERR_COLLISION)
                 goto cname_collision;
@@ -264,33 +245,10 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
     }
 }
 
-static void modify_callback(AVAHI_GCC_UNUSED AvahiTimeout *e, void *userdata) {
-    AvahiClient *client = userdata;
-
-    fprintf(stderr, "Doing some weird modification\n");
-
-    if (host_cname != host_name)     // to prevent host_name being freed
-        avahi_free(host_cname);
-    host_cname = avahi_strdup("MyHost");
-
-    /* If the server is currently running, we need to remove our
-     * record and create it anew */
-    if (avahi_client_get_state(client) == AVAHI_CLIENT_S_RUNNING) {
-
-        /* Remove the old records */
-        if (group)
-            avahi_entry_group_reset(group);
-
-        /* And create them again with the new name */
-        create_record(client);
-    }
-}
-
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     AvahiClient *client = NULL;
     int error;
     int ret = 1;
-    struct timeval tv;
 
     /* Allocate main loop object */
     if (!(simple_poll = avahi_simple_poll_new())) {
@@ -306,13 +264,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
         fprintf(stderr, "Failed to create client: %s\n", avahi_strerror(error));
         goto fail;
     }
-
-    /* After 10s do some weird modification to the record */
-    avahi_simple_poll_get(simple_poll)->timeout_new(
-        avahi_simple_poll_get(simple_poll),
-        avahi_elapse_time(&tv, 1000*10, 0),
-        modify_callback,
-        client);
 
     /* Run the main loop */
     avahi_simple_poll_loop(simple_poll);

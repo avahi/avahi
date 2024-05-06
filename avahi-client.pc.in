@@ -8,3 +8,4 @@ Description: Avahi Multicast DNS Responder (Client Support)
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lavahi-common -lavahi-client
 Cflags: -D_REENTRANT -I${includedir}
+Requires.private: dbus-1

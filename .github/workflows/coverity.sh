@@ -41,13 +41,12 @@ function coverity_install_script {
 }
 
 function run_coverity {
-    local results_dir tool_dir results_archive sha author_email response status_code
+    local results_dir tool_dir results_archive sha response status_code
 
     results_dir="cov-int"
     tool_dir=$(find "$COVERITY_SCAN_TOOL_BASE" -type d -name 'cov-analysis*')
     results_archive="analysis-results.tgz"
     sha=$(git rev-parse --short HEAD)
-    author_email=$(git log -1 --pretty="%aE")
 
     ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests \
         --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
@@ -62,7 +61,7 @@ function run_coverity {
                --silent --write-out "\n%{http_code}\n" \
                --form project="$COVERITY_SCAN_PROJECT_NAME" \
                --form token="$COVERITY_SCAN_TOKEN" \
-               --form email="$author_email" \
+               --form email="$COVERITY_SCAN_NOTIFICATION_EMAIL" \
                --form file="@$results_archive" \
                --form version="$sha" \
                --form description="Daily build" \

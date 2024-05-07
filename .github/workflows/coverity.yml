@@ -23,4 +23,5 @@ jobs:
       - name: Run Coverity
         env:
           COVERITY_SCAN_TOKEN: "${{ secrets.COVERITY_SCAN_TOKEN }}"
+          COVERITY_SCAN_NOTIFICATION_EMAIL: "${{ secrets.COVERITY_SCAN_NOTIFICATION_EMAIL }}"
         run: .github/workflows/coverity.sh

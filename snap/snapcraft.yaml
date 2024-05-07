@@ -26,7 +26,7 @@ description: |
 
   Copyright 2004-2015 by the Avahi developers.
 
-base: core22
+base: core24
 confinement: strict
 grade: stable
 adopt-info: avahi
@@ -35,11 +35,11 @@ environment:
   PATH: $SNAP/usr/bin:$PATH
   LD_LIBRARY_PATH: $SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
 
-architectures:
-  - build-on: armhf
-  - build-on: arm64
-  - build-on: amd64
-  - build-on: riscv64
+platforms:
+  armhf:
+  arm64:
+  amd64:
+  riscv64:
 
 # expose services folder for other snaps
 slots:
@@ -123,10 +123,10 @@ parts:
       - --sysconfdir=/etc
     stage-packages:
       - libdaemon0
-      - libevent-2.1-7
+      - libevent-2.1-7t64
     override-pull: |
       craftctl default
-      track="22"
+      track="24"
       # depending on a channel in the snap store, build last release tag or master
       # last stable tag
       stable_tag=$(git tag --list | sed 's/v//g' | sort --version-sort | grep -v "rc" | tail -1)
@@ -205,6 +205,8 @@ parts:
       - -usr/share/man
 
 build-packages:
+  - g++
+  - gcc
   - gettext
   - intltool
   - libdaemon-dev

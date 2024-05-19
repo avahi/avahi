@@ -1,0 +1,864 @@
+# Hindi translation for avahi.
+# Copyright (C) 2024 avahi's COPYRIGHT HOLDER
+# This file is distributed under the same license as the avahi package.
+# Scrambled 777 <weblate.scrambled777@simplelogin.com>, 2024.
+# Scrambled777 <weblate.scrambled777@simplelogin.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Avahi\n"
+"Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
+"POT-Creation-Date: 2024-05-18 15:24+0000\n"
+"PO-Revision-Date: 2024-05-19 14:21+0530\n"
+"Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
+"Language-Team: Hindi <indlinux-hindi@lists.sourceforge.net>\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Gtranslator 46.1\n"
+
+#: avahi-common/error.c:30
+msgid "OK"
+msgstr "ठीक है"
+
+#: avahi-common/error.c:31
+msgid "Operation failed"
+msgstr "अभियान विफल"
+
+#: avahi-common/error.c:32
+msgid "Bad state"
+msgstr "खराब स्थिति"
+
+#: avahi-common/error.c:33
+msgid "Invalid host name"
+msgstr "अमान्य होस्ट नाम"
+
+#: avahi-common/error.c:34
+msgid "Invalid domain name"
+msgstr "अमान्य डोमेन नाम"
+
+#: avahi-common/error.c:35
+msgid "No suitable network protocol available"
+msgstr "कोई उपयुक्त नेटवर्क प्रोटोकॉल उपलब्ध नहीं है"
+
+#: avahi-common/error.c:36
+msgid "Invalid DNS TTL"
+msgstr "अमान्य DNS TTL"
+
+#: avahi-common/error.c:37
+msgid "Resource record key is pattern"
+msgstr "संसाधन रिकॉर्ड कुंजी प्रतिमान है"
+
+#: avahi-common/error.c:38
+msgid "Local name collision"
+msgstr "स्थानीय नाम का टकराव"
+
+#: avahi-common/error.c:39
+msgid "Invalid record"
+msgstr "अमान्य रिकॉर्ड"
+
+#: avahi-common/error.c:41
+msgid "Invalid service name"
+msgstr "अमान्य सेवा नाम"
+
+#: avahi-common/error.c:42
+msgid "Invalid service type"
+msgstr "अमान्य सेवा प्रकार"
+
+#: avahi-common/error.c:43
+msgid "Invalid port number"
+msgstr "अमान्य पोर्ट नंबर"
+
+#: avahi-common/error.c:44
+msgid "Invalid record key"
+msgstr "अमान्य रिकॉर्ड कुंजी"
+
+#: avahi-common/error.c:45
+msgid "Invalid address"
+msgstr "अमान्य पता"
+
+#: avahi-common/error.c:46
+msgid "Timeout reached"
+msgstr "समय समाप्ति पर पहुंच गया"
+
+#: avahi-common/error.c:47
+msgid "Too many clients"
+msgstr "बहुत सारे क्लाइंट"
+
+#: avahi-common/error.c:48
+msgid "Too many objects"
+msgstr "बहुत सारी वस्तुएं"
+
+#: avahi-common/error.c:49
+msgid "Too many entries"
+msgstr "बहुत अधिक प्रविष्टियां"
+
+#: avahi-common/error.c:50
+msgid "OS Error"
+msgstr "OS त्रुटि"
+
+#: avahi-common/error.c:52
+msgid "Access denied"
+msgstr "पहुंच अस्वीकृत"
+
+#: avahi-common/error.c:53
+msgid "Invalid operation"
+msgstr "अज्ञात अभियान"
+
+#: avahi-common/error.c:54
+msgid "An unexpected D-Bus error occurred"
+msgstr "एक अप्रत्याशित डी-बस त्रुटि उत्पन्न हुई"
+
+#: avahi-common/error.c:55
+msgid "Daemon connection failed"
+msgstr "डेमॉन कनेक्शन विफल"
+
+#: avahi-common/error.c:56
+msgid "Memory exhausted"
+msgstr "मेमोरी समाप्त हो गई"
+
+#: avahi-common/error.c:57
+msgid "The object passed in was not valid"
+msgstr "पारित वस्तु मान्य नहीं थी"
+
+#: avahi-common/error.c:58
+msgid "Daemon not running"
+msgstr "डेमॉन नहीं चल रहा"
+
+#: avahi-common/error.c:59
+msgid "Invalid interface index"
+msgstr "अमान्य इंटरफ़ेस सूचकांक"
+
+#: avahi-common/error.c:60
+msgid "Invalid protocol specification"
+msgstr "अमान्य प्रोटोकॉल विनिर्देशन"
+
+#: avahi-common/error.c:61
+msgid "Invalid flags"
+msgstr "अमान्य फ्लैग"
+
+#: avahi-common/error.c:63
+msgid "Not found"
+msgstr "नहीं मिला"
+
+#: avahi-common/error.c:64
+msgid "Invalid configuration"
+msgstr "अमान्य विन्यास"
+
+#: avahi-common/error.c:65
+msgid "Version mismatch"
+msgstr "बेमेल संस्करण"
+
+#: avahi-common/error.c:66
+msgid "Invalid service subtype"
+msgstr "अमान्य सेवा उपप्रकार"
+
+#: avahi-common/error.c:67
+msgid "Invalid packet"
+msgstr "अमान्य पैकेट"
+
+#: avahi-common/error.c:68
+msgid "Invalid DNS return code"
+msgstr "अमान्य DNS रिटर्न कोड"
+
+#: avahi-common/error.c:69
+msgid "DNS failure: FORMERR"
+msgstr "DNS विफलता: FORMERR"
+
+#: avahi-common/error.c:70
+msgid "DNS failure: SERVFAIL"
+msgstr "DNS विफलता: SERVFAIL"
+
+#: avahi-common/error.c:71
+msgid "DNS failure: NXDOMAIN"
+msgstr "DNS विफलता: NXDOMAIN"
+
+#: avahi-common/error.c:72
+msgid "DNS failure: NOTIMP"
+msgstr "DNS विफलता: NOTIMP"
+
+#: avahi-common/error.c:74
+msgid "DNS failure: REFUSED"
+msgstr "DNS विफलता: REFUSED"
+
+#: avahi-common/error.c:75
+msgid "DNS failure: YXDOMAIN"
+msgstr "DNS विफलता: YXDOMAIN"
+
+#: avahi-common/error.c:76
+msgid "DNS failure: YXRRSET"
+msgstr "DNS विफलता: YXRRSET"
+
+#: avahi-common/error.c:77
+msgid "DNS failure: NXRRSET"
+msgstr "DNS विफलता: NXRRSET"
+
+#: avahi-common/error.c:78
+msgid "DNS failure: NOTAUTH"
+msgstr "DNS विफलता: NOTAUTH"
+
+#: avahi-common/error.c:79
+msgid "DNS failure: NOTZONE"
+msgstr "DNS विफलता: NOTZONE"
+
+#: avahi-common/error.c:80
+msgid "Invalid RDATA"
+msgstr "अमान्य RDATA"
+
+#: avahi-common/error.c:81
+msgid "Invalid DNS type"
+msgstr "अमान्य DNS प्रकार"
+
+#: avahi-common/error.c:82
+msgid "Invalid DNS class"
+msgstr "अमान्य DNS क्लास"
+
+#: avahi-common/error.c:83
+msgid "Not supported"
+msgstr "असमर्थित"
+
+#: avahi-common/error.c:85
+msgid "Not permitted"
+msgstr "अनुमति नहीं"
+
+#: avahi-common/error.c:86
+msgid "Invalid argument"
+msgstr "अमान्य तर्क"
+
+#: avahi-common/error.c:87
+msgid "Is empty"
+msgstr "खाली है"
+
+#: avahi-common/error.c:88
+msgid "The requested operation is invalid because redundant"
+msgstr "अनुरोधित कार्रवाई अनावश्यक होने के कारण अमान्य है"
+
+#: avahi-common/error.c:94
+msgid "Invalid Error Code"
+msgstr "अमान्य त्रुटि कोड"
+
+#: avahi-discover-standalone/avahi-discover.ui:6
+msgid "Avahi Discovery"
+msgstr "Avahi Discovery"
+
+#: avahi-discover-standalone/avahi-discover.ui:60
+#: avahi-python/avahi-discover/avahi-discover.py:84
+msgid "<i>No service currently selected.</i>"
+msgstr "<i>वर्तमान में कोई सेवा चयनित नहीं है।</i>"
+
+#: avahi-python/avahi-discover/avahi-discover.desktop.in.in:4
+msgid "Avahi Zeroconf Browser"
+msgstr "Avahi Zeroconf Browser"
+
+#: avahi-python/avahi-discover/avahi-discover.desktop.in.in:5
+msgid "Browse for Zeroconf services available on your network"
+msgstr "आपके नेटवर्क पर उपलब्ध Zeroconf सेवाओं के लिए ब्राउज़र"
+
+#: avahi-python/avahi-discover/avahi-discover.py:239
+msgid "TXT"
+msgstr "TXT"
+
+#: avahi-python/avahi-discover/avahi-discover.py:244
+msgid "TXT Data:"
+msgstr "TXT डेटा:"
+
+#: avahi-python/avahi-discover/avahi-discover.py:244
+msgid "empty"
+msgstr "खाली"
+
+#: avahi-python/avahi-discover/avahi-discover.py:249
+msgid "Service Type:"
+msgstr "सेवा प्रकार:"
+
+#: avahi-python/avahi-discover/avahi-discover.py:250
+msgid "Service Name:"
+msgstr "सेवा नाम:"
+
+#: avahi-python/avahi-discover/avahi-discover.py:251
+msgid "Domain Name:"
+msgstr "डोमेन नाम:"
+
+#: avahi-python/avahi-discover/avahi-discover.py:252
+msgid "Interface:"
+msgstr "इंटरफ़ेस:"
+
+#: avahi-python/avahi-discover/avahi-discover.py:253
+msgid "Address:"
+msgstr "पता:"
+
+#: avahi-ui/avahi-ui.c:185
+msgid "Browse Service Types"
+msgstr "सेवा प्रकार ब्राउज़ करें"
+
+#: avahi-ui/avahi-ui.c:185
+msgid "A NULL terminated list of service types to browse for"
+msgstr "ब्राउज़ करने के लिए सेवा प्रकारों की एक शून्य समाप्त सूची"
+
+#: avahi-ui/avahi-ui.c:190
+msgid "Domain"
+msgstr "डोमेन"
+
+#: avahi-ui/avahi-ui.c:190
+msgid "The domain to browse in, or NULL for the default domain"
+msgstr "ब्राउज़ करने के लिए डोमेन, या तयशुदा डोमेन के लिए NULL"
+
+#: avahi-ui/avahi-ui.c:196
+msgid "Service Type"
+msgstr "सेवा प्रकार"
+
+#: avahi-ui/avahi-ui.c:196
+msgid "The service type of the selected service"
+msgstr "चयनित सेवा का सेवा प्रकार"
+
+#: avahi-ui/avahi-ui.c:202 avahi-ui/avahi-ui.c:1035
+msgid "Service Name"
+msgstr "सेवा नाम"
+
+#: avahi-ui/avahi-ui.c:202
+msgid "The service name of the selected service"
+msgstr "चयनित सेवा का सेवा नाम"
+
+#: avahi-ui/avahi-ui.c:208
+msgid "Address"
+msgstr "पता"
+
+#: avahi-ui/avahi-ui.c:208
+msgid "The address of the resolved service"
+msgstr "रिज़ॉल्व सेवा का पता"
+
+#: avahi-ui/avahi-ui.c:213
+msgid "Port"
+msgstr "पोर्ट"
+
+#: avahi-ui/avahi-ui.c:213
+msgid "The IP port number of the resolved service"
+msgstr "रिज़ॉल्व सेवा का IP पोर्ट नंबर"
+
+#: avahi-ui/avahi-ui.c:219
+msgid "Host Name"
+msgstr "होस्ट नाम"
+
+#: avahi-ui/avahi-ui.c:219
+msgid "The host name of the resolved service"
+msgstr "रिज़ॉल्व सेवा का होस्ट नाम"
+
+#: avahi-ui/avahi-ui.c:225
+msgid "TXT Data"
+msgstr "TXT डेटा"
+
+#: avahi-ui/avahi-ui.c:225
+msgid "The TXT data of the resolved service"
+msgstr "रिज़ॉल्व सेवा का TXT डेटा"
+
+#: avahi-ui/avahi-ui.c:230
+msgid "Resolve Service"
+msgstr "रिज़ॉल्व सेवा"
+
+#: avahi-ui/avahi-ui.c:230
+msgid "Resolve the selected service automatically before returning"
+msgstr "लौटने से पहले चयनित सेवा का स्वचालित रिज़ॉल्व करें"
+
+#: avahi-ui/avahi-ui.c:236
+msgid "Resolve Service Host Name"
+msgstr "सेवा होस्ट नाम का रिज़ॉल्व करें"
+
+#: avahi-ui/avahi-ui.c:236
+msgid ""
+"Resolve the host name of the selected service automatically before returning"
+msgstr "लौटने से पहले चयनित सेवा का होस्ट नाम स्वचालित रूप से रिज़ॉल्व करें"
+
+#: avahi-ui/avahi-ui.c:242
+msgid "Address family"
+msgstr "पता परिवार"
+
+#: avahi-ui/avahi-ui.c:242
+msgid "The address family for host name resolution"
+msgstr "होस्ट नाम समाधान के लिए पता परिवार"
+
+#: avahi-ui/avahi-ui.c:326
+#, c-format
+msgid "Avahi client failure: %s"
+msgstr "Avahi क्लाइंट विफलता: %s"
+
+#: avahi-ui/avahi-ui.c:388
+#, c-format
+msgid "Avahi resolver failure: %s"
+msgstr "Avahi रिज़ॉल्वर विफलता: %s"
+
+#: avahi-ui/avahi-ui.c:518
+#, c-format
+msgid "Browsing for service type %s in domain %s failed: %s"
+msgstr "डोमेन %2$s में सेवा प्रकार %1$s के लिए ब्राउज़िंग विफल: %3$s"
+
+#: avahi-ui/avahi-ui.c:519 avahi-utils/avahi-browse.c:168
+#: avahi-utils/avahi-browse.c:169 avahi-utils/avahi-browse.c:178
+#: avahi-utils/avahi-browse.c:179
+msgid "n/a"
+msgstr "n/a"
+
+#: avahi-ui/avahi-ui.c:649
+#, c-format
+msgid "Avahi domain browser failure: %s"
+msgstr "Avahi डोमेन ब्राउज़र विफलता: %s"
+
+#: avahi-ui/avahi-ui.c:684
+#, c-format
+msgid "Failed to read Avahi domain: %s"
+msgstr "Avahi डोमेन को पढ़ने में विफल: %s"
+
+#: avahi-ui/avahi-ui.c:706
+msgid "Browse service type list is empty!"
+msgstr "ब्राउज सेवा प्रकार सूची खाली है!"
+
+#: avahi-ui/avahi-ui.c:717
+#, c-format
+msgid "Failed to connect to Avahi server: %s"
+msgstr "Avahi सर्वर से जुड़ने में विफल: %s"
+
+#: avahi-ui/avahi-ui.c:735
+msgid "Browsing for services on <b>local network</b>:"
+msgstr "<b>स्थानीय नेटवर्क</b> पर सेवाओं के लिए ब्राउज़ किया जा रहा है:"
+
+#: avahi-ui/avahi-ui.c:737
+#, c-format
+msgid "Browsing for services in domain <b>%s</b>:"
+msgstr "डोमेन <b>%s</b> में सेवाओं के लिए ब्राउज़ किया जा रहा है:"
+
+#: avahi-ui/avahi-ui.c:773
+#, c-format
+msgid "Failed to create browser for %s: %s"
+msgstr "%s के लिए ब्राउज़र बनाने में विफल: %s"
+
+#: avahi-ui/avahi-ui.c:907
+#, c-format
+msgid "Failed to create resolver for %s of type %s in domain %s: %s"
+msgstr "डोमेन %3$s में %2$s प्रकार के %1$s के लिए रिज़ॉल्वर बनाने में विफल: %4$s"
+
+#: avahi-ui/avahi-ui.c:982
+#, c-format
+msgid "Failed to create domain browser: %s"
+msgstr "डोमेन ब्राउज़र बनाने में विफल: %s"
+
+#: avahi-ui/avahi-ui.c:993
+msgid "Change domain"
+msgstr "डोमेन बदलें"
+
+#: avahi-ui/avahi-ui.c:1043 avahi-ui/avahi-ui.c:1180
+msgid "Browsing..."
+msgstr "ब्राउजिंग..."
+
+#: avahi-ui/avahi-ui.c:1047 avahi-ui/bssh.c:149 avahi-ui/bssh.c:156
+#: avahi-ui/bssh.c:161
+msgid "_Cancel"
+msgstr "रद्द करें (_C)"
+
+#: avahi-ui/avahi-ui.c:1048
+msgid "_OK"
+msgstr "ठीक है (_O)"
+
+#: avahi-ui/avahi-ui.c:1134
+msgid "Initializing..."
+msgstr "प्रारंभ किया जा रहा है..."
+
+#: avahi-ui/avahi-ui.c:1162
+msgid "Location"
+msgstr "स्थान"
+
+#: avahi-ui/avahi-ui.c:1167 avahi-utils/avahi-browse.c:553
+msgid "Name"
+msgstr "नाम"
+
+#: avahi-ui/avahi-ui.c:1172 avahi-utils/avahi-browse.c:553
+msgid "Type"
+msgstr "प्रकार"
+
+#: avahi-ui/avahi-ui.c:1184
+msgid "_Domain..."
+msgstr "डोमेन (_D)..."
+
+#: avahi-ui/bssh.c:55
+#, c-format
+msgid ""
+"%s [options]\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -s --ssh             Browse SSH servers\n"
+"    -v --vnc             Browse VNC servers\n"
+"    -S --shell           Browse both SSH and VNC\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+msgstr ""
+"%s [विकल्प]\n"
+"\n"
+"    -h --help            यह सहायता दिखाएं\n"
+"    -s --ssh             SSH सर्वर ब्राउज़ करें\n"
+"    -v --vnc             VNC सर्वर ब्राउज़ करें\n"
+"    -S --shell           SSH और VNC दोनों ब्राउज़ करें\n"
+"    -d --domain=DOMAIN   ब्राउज़ करने के लिए डोमेन\n"
+
+#: avahi-ui/bssh.c:101 avahi-utils/avahi-browse.c:775
+#, c-format
+msgid "Too many arguments\n"
+msgstr "बहुत ज्यादा तर्क\n"
+
+#: avahi-ui/bssh.c:149
+msgid "Choose Shell Server"
+msgstr "शैल सर्वर चुनें"
+
+#: avahi-ui/bssh.c:149 avahi-ui/bssh.c:156 avahi-ui/bssh.c:161
+msgid "C_onnect"
+msgstr "जुड़ें (_o)"
+
+#: avahi-ui/bssh.c:151
+msgid "Desktop"
+msgstr "डेस्कटॉप"
+
+#: avahi-ui/bssh.c:152
+msgid "Terminal"
+msgstr "टर्मिनल"
+
+#: avahi-ui/bssh.c:156
+msgid "Choose VNC server"
+msgstr "VNC सर्वर चुनें"
+
+#: avahi-ui/bssh.c:161
+msgid "Choose SSH server"
+msgstr "SSH सर्वर चुनें"
+
+#: avahi-ui/bssh.c:185
+#, c-format
+msgid "Connecting to '%s' ...\n"
+msgstr "'%s' से कनेक्ट हो रहा है ...\n"
+
+#: avahi-ui/bssh.c:240
+#, c-format
+msgid "execlp() failed: %s\n"
+msgstr "execlp() विफल: %s\n"
+
+#: avahi-ui/bssh.c:250
+msgid "Canceled.\n"
+msgstr "रद्द।\n"
+
+#: avahi-ui/bssh.desktop.in.in:4
+msgid "Avahi SSH Server Browser"
+msgstr "Avahi SSH सर्वर ब्राउज़र"
+
+#: avahi-ui/bssh.desktop.in.in:5
+msgid "Browse for Zeroconf-enabled SSH Servers"
+msgstr "Zeroconf-सक्षम SSH सर्वर के लिए ब्राउज़ करें"
+
+#: avahi-ui/bvnc.desktop.in.in:4
+msgid "Avahi VNC Server Browser"
+msgstr "Avahi VNC सर्वर ब्राउज़र"
+
+#: avahi-ui/bvnc.desktop.in.in:5
+msgid "Browse for Zeroconf-enabled VNC Servers"
+msgstr "Zeroconf-सक्षम VNC सर्वर के लिए ब्राउज़ करें"
+
+#: avahi-utils/avahi-browse.c:107
+#, c-format
+msgid ": All for now\n"
+msgstr ": अब सभी के लिए\n"
+
+#: avahi-utils/avahi-browse.c:118
+#, c-format
+msgid ": Cache exhausted\n"
+msgstr ": कैशे समाप्त हो गया\n"
+
+#: avahi-utils/avahi-browse.c:239 avahi-utils/avahi-browse.c:261
+#, c-format
+msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
+msgstr "डोमेन '%3$s' में '%2$s' प्रकार की सेवा '%1$s' का रिज़ॉल्व करने में विफल: %4$s\n"
+
+#: avahi-utils/avahi-browse.c:340
+#, c-format
+msgid "service_browser failed: %s\n"
+msgstr "service_browser विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:378
+#, c-format
+msgid "avahi_service_browser_new() failed: %s\n"
+msgstr "avahi_service_browser_new() विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:414
+#, c-format
+msgid "service_type_browser failed: %s\n"
+msgstr "service_type_browser विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:444
+#, c-format
+msgid "avahi_service_type_browser_new() failed: %s\n"
+msgstr "avahi_service_type_browser_new() विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:519
+#, c-format
+msgid "avahi_domain_browser_new() failed: %s\n"
+msgstr "avahi_domain_browser_new() विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:535 avahi-utils/avahi-publish.c:394
+#: avahi-utils/avahi-resolve.c:280 avahi-utils/avahi-set-host-name.c:168
+#, c-format
+msgid "Failed to query version string: %s\n"
+msgstr "संस्करण स्ट्रिंग से पूछताछ करने में विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:540 avahi-utils/avahi-publish.c:399
+#: avahi-utils/avahi-resolve.c:285 avahi-utils/avahi-set-host-name.c:173
+#: avahi-utils/avahi-set-host-name.c:189
+#, c-format
+msgid "Failed to query host name: %s\n"
+msgstr "होस्ट नाम क्वेरी करने में विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:544 avahi-utils/avahi-publish.c:403
+#: avahi-utils/avahi-resolve.c:289 avahi-utils/avahi-set-host-name.c:177
+#, c-format
+msgid "Server version: %s; Host name: %s\n"
+msgstr "सर्वर संस्करण: %s; होस्ट नाम: %s\n"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: avahi-utils/avahi-browse.c:549
+#, c-format
+msgid "E Ifce Prot Domain\n"
+msgstr "E Ifce Prot डोमेन\n"
+
+#. Translators: This is a column heading with abbreviations for
+#. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
+#: avahi-utils/avahi-browse.c:553
+#, c-format
+msgid "E Ifce Prot %-*s %-20s Domain\n"
+msgstr "E Ifce Prot %-*s %-20s डोमेन\n"
+
+#. We have been disconnected, so let reconnect
+#: avahi-utils/avahi-browse.c:585 avahi-utils/avahi-publish.c:163
+#, c-format
+msgid "Disconnected, reconnecting ...\n"
+msgstr "विच्छेदित, पुनः जुड़ रहा है ...\n"
+
+#: avahi-utils/avahi-browse.c:599 avahi-utils/avahi-browse.c:829
+#: avahi-utils/avahi-publish.c:170 avahi-utils/avahi-publish.c:386
+#: avahi-utils/avahi-resolve.c:272 avahi-utils/avahi-set-host-name.c:160
+#, c-format
+msgid "Failed to create client object: %s\n"
+msgstr "क्लाइंट वस्तु बनाने में विफल: %s\n"
+
+#: avahi-utils/avahi-browse.c:604 avahi-utils/avahi-publish.c:175
+#: avahi-utils/avahi-resolve.c:143 avahi-utils/avahi-set-host-name.c:59
+#, c-format
+msgid "Client failure, exiting: %s\n"
+msgstr "क्लाइंट विफलता, बाहर निकल रहा है: %s\n"
+
+#: avahi-utils/avahi-browse.c:623 avahi-utils/avahi-publish.c:206
+#, c-format
+msgid "Waiting for daemon ...\n"
+msgstr "डेमॉन की प्रतीक्षा में ...\n"
+
+#: avahi-utils/avahi-browse.c:647
+msgid ""
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -D --browse-domains  Browse for browsing domains instead of services\n"
+"    -a --all             Show all services, regardless of the type\n"
+"    -d --domain=DOMAIN   The domain to browse in\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -t --terminate       Terminate after dumping a more or less complete "
+"list\n"
+"    -c --cache           Terminate after dumping all entries from the cache\n"
+"    -l --ignore-local    Ignore local services\n"
+"    -r --resolve         Resolve services found\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+"    -p --parsable        Output in parsable format\n"
+msgstr ""
+"    -h --help            यह सहायता दिखाएं\n"
+"    -V --version         संस्करण दिखाएं\n"
+"    -D --browse-domains  सेवाओं के बजाय डोमेन ब्राउज़ करने के लिए ब्राउज़ करें\n"
+"    -a --all             प्रकार की परवाह किए बिना सभी सेवाएं दिखाएं\n"
+"    -d --domain=DOMAIN   ब्राउज़ करने हेतु डोमेन\n"
+"    -v --verbose         वर्बोज़ मोड सक्षम करें\n"
+"    -t --terminate       लगभग पूरी सूची डंप करने के बाद समाप्त करें\n"
+"    -c --cache           कैश से सभी प्रविष्टियां डंप करने के बाद समाप्त करें\n"
+"    -l --ignore-local    स्थानीय सेवाओं पर ध्यान न दें\n"
+"    -r --resolve         रिज़ॉल्व सेवाएं मिलीं\n"
+"    -f --no-fail         यदि डेमॉन उपलब्ध नहीं है तो असफल न हों\n"
+"    -p --parsable        विश्लेषण-योग्य प्रारूप में आउटपुट\n"
+
+#: avahi-utils/avahi-browse.c:660
+msgid ""
+"    -k --no-db-lookup    Don't lookup service types\n"
+"    -b --dump-db         Dump service type database\n"
+msgstr ""
+"    -k --no-db-lookup    सेवा प्रकार न खोजें\n"
+"    -b --dump-db         डंप सेवा प्रकार डेटाबेस\n"
+
+#: avahi-utils/avahi-browse.c:766 avahi-utils/avahi-resolve.c:219
+#, c-format
+msgid "Too few arguments\n"
+msgstr "बहुत कम तर्क\n"
+
+#: avahi-utils/avahi-browse.c:821 avahi-utils/avahi-publish.c:378
+#: avahi-utils/avahi-resolve.c:264 avahi-utils/avahi-set-host-name.c:152
+#, c-format
+msgid "Failed to create simple poll object.\n"
+msgstr "सरल पोल वस्तु बनाने में विफल।\n"
+
+#: avahi-utils/avahi-publish.c:76
+#, c-format
+msgid "Established under name '%s'\n"
+msgstr "'%s' नाम से स्थापित\n"
+
+#: avahi-utils/avahi-publish.c:81
+#, c-format
+msgid "Failed to register: %s\n"
+msgstr "पंजीकरण करने में विफल: %s\n"
+
+#: avahi-utils/avahi-publish.c:94
+#, c-format
+msgid "Name collision, picking new name '%s'.\n"
+msgstr "नाम टकराव, नया नाम '%s' चुना जा रहा है।\n"
+
+#: avahi-utils/avahi-publish.c:114
+#, c-format
+msgid "Failed to create entry group: %s\n"
+msgstr "प्रवेश समूह बनाने में विफल: %s\n"
+
+#: avahi-utils/avahi-publish.c:124
+#, c-format
+msgid "Failed to add address: %s\n"
+msgstr "पता जोड़ने में विफल: %s\n"
+
+#: avahi-utils/avahi-publish.c:134
+#, c-format
+msgid "Failed to add service: %s\n"
+msgstr "सेवा जोड़ने में विफल: %s\n"
+
+#: avahi-utils/avahi-publish.c:140
+#, c-format
+msgid "Failed to add subtype '%s': %s\n"
+msgstr "उपप्रकार '%s' जोड़ने में विफल: %s\n"
+
+#: avahi-utils/avahi-publish.c:191
+#, c-format
+msgid "Host name conflict\n"
+msgstr "होस्ट नाम विरोध\n"
+
+#: avahi-utils/avahi-publish.c:216
+#, c-format
+msgid ""
+"%s [options] %s <name> <type> <port> [<txt ...>]\n"
+"%s [options] %s <host-name> <address>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -s --service         Publish service\n"
+"    -a --address         Publish address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -d --domain=DOMAIN   Domain to publish service in\n"
+"    -H --host=DOMAIN     Host where service resides\n"
+"       --subtype=SUBTYPE An additional subtype to register this service "
+"with\n"
+"    -R --no-reverse      Do not publish reverse entry with address\n"
+"    -f --no-fail         Don't fail if the daemon is not available\n"
+msgstr ""
+"%s [विकल्प] %s <नाम> <प्रकार> <पोर्ट> [<txt ...>]\n"
+"%s [विकल्प] %s <होस्ट-नाम> <पता>\n"
+"\n"
+"    -h --help            यह सहायता दिखाएं\n"
+"    -V --version         संस्करण दिखाएं\n"
+"    -s --service         सेवा प्रकाशित करें\n"
+"    -a --address         पता प्रकाशित करें\n"
+"    -v --verbose         वर्बोज़ मोड सक्षम करें\n"
+"    -d --domain=DOMAIN   सेवा प्रकाशित करने हेतु डोमेन\n"
+"    -H --host=DOMAIN     होस्ट जहां सेवा रहती है\n"
+"       --subtype=SUBTYPE इस सेवा को पंजीकृत करने के लिए एक अतिरिक्त उपप्रकार\n"
+"    -R --no-reverse      पते के साथ विपरीत प्रविष्टि प्रकाशित न करें\n"
+"    -f --no-fail         यदि डेमॉन उपलब्ध नहीं है तो असफल न हों\n"
+
+#: avahi-utils/avahi-publish.c:303 avahi-utils/avahi-publish.c:318
+#, c-format
+msgid "Bad number of arguments\n"
+msgstr "तर्कों की खराब संख्या\n"
+
+#: avahi-utils/avahi-publish.c:329
+#, c-format
+msgid "Failed to parse port number: %s\n"
+msgstr "पोर्ट क्रमांक का विश्लेषण करने में विफल: %s\n"
+
+#: avahi-utils/avahi-publish.c:361 avahi-utils/avahi-resolve.c:246
+#, c-format
+msgid "No command specified.\n"
+msgstr "कोई कमांड निर्दिष्ट नहीं।\n"
+
+#: avahi-utils/avahi-resolve.c:89
+#, c-format
+msgid "Failed to resolve host name '%s': %s\n"
+msgstr "होस्ट नाम '%s' का रिज़ॉल्व करने में विफल: %s\n"
+
+#: avahi-utils/avahi-resolve.c:126
+#, c-format
+msgid "Failed to resolve address '%s': %s\n"
+msgstr "'%s' पते का रिज़ॉल्व करने में विफल: %s\n"
+
+#: avahi-utils/avahi-resolve.c:157
+#, c-format
+msgid ""
+"%s [options] %s <host name ...>\n"
+"%s [options] %s <address ... >\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -n --name            Resolve host name\n"
+"    -a --address         Resolve address\n"
+"    -v --verbose         Enable verbose mode\n"
+"    -6                   Lookup IPv6 address\n"
+"    -4                   Lookup IPv4 address\n"
+msgstr ""
+"%s [विकल्प] %s <होस्ट नाम ...>\n"
+"%s [विकल्प] %s <पता ... >\n"
+"\n"
+"    -h --help            यह सहायता दिखाएं\n"
+"    -V --version         संस्करण दिखाएं\n"
+"    -n --name            होस्टनाम रिज़ॉल्व करें\n"
+"    -a --address         पता रिज़ॉल्व करें\n"
+"    -v --verbose         वर्बोज़ मोड सक्षम करें\n"
+"    -6                   IPv6 पता खोजें\n"
+"    -4                   IPv4 पता खोजें\n"
+
+#: avahi-utils/avahi-resolve.c:299 avahi-utils/avahi-set-host-name.c:181
+#, c-format
+msgid "Failed to create host name resolver: %s\n"
+msgstr "होस्ट नाम रिज़ॉल्वर बनाने में विफल: %s\n"
+
+#: avahi-utils/avahi-resolve.c:309
+#, c-format
+msgid "Failed to parse address '%s'\n"
+msgstr "'%s' पते का विश्लेषण करने में विफल\n"
+
+#: avahi-utils/avahi-resolve.c:314
+#, c-format
+msgid "Failed to create address resolver: %s\n"
+msgstr "पता रिज़ॉल्वर बनाने में विफल: %s\n"
+
+#: avahi-utils/avahi-set-host-name.c:73
+#, c-format
+msgid ""
+"%s [options] <new host name>\n"
+"\n"
+"    -h --help            Show this help\n"
+"    -V --version         Show version\n"
+"    -v --verbose         Enable verbose mode\n"
+msgstr ""
+"%s [विकल्प] <नया होस्ट नाम>\n"
+"\n"
+"    -h --help            यह सहायता दिखाएं\n"
+"    -V --version         संस्करण दिखाएं\n"
+"    -v --verbose         वर्बोज़ मोड सक्षम करें\n"
+
+#: avahi-utils/avahi-set-host-name.c:114
+#, c-format
+msgid "Invalid number of arguments, expecting exactly one.\n"
+msgstr "तर्कों की अमान्य संख्या, ठीक एक की अपेक्षा है।\n"
+
+#: avahi-utils/avahi-set-host-name.c:193
+#, c-format
+msgid "Host name successfully changed to %s\n"
+msgstr "होस्ट नाम सफलतापूर्वक %s में बदल गया\n"

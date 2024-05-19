@@ -6,8 +6,8 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: avahi master\n"
-"Report-Msgid-Bugs-To: https://github.com/lathiat/avahi/issues\n"
+"Project-Id-Version: Avahi master\n"
+"Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2024-05-18 15:24+0000\n"
 "PO-Revision-Date: 2024-05-19 14:21+0530\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"

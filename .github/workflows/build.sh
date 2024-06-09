@@ -57,6 +57,9 @@ case "$1" in
             # removed once acx_pthread gets updated.
             if [[ "$CC" == clang ]]; then
                 sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4
+
+                # https://github.com/avahi/avahi/issues/584
+                CFLAGS+=' -fno-sanitize=function'
             fi
 
         fi

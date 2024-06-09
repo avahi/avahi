@@ -29,7 +29,7 @@ look_for_asan_ubsan_reports() {
 
 case "$1" in
     install-build-deps)
-        sed -i -e '/^#\s*deb-src.*\smain\s\+restricted/s/^#//' /etc/apt/sources.list
+        sed -i 's/^\(Types: deb\)$/\1 deb-src/' /etc/apt/sources.list.d/ubuntu.sources
         apt-get update -y
         apt-get build-dep -y avahi
         apt-get install -y libevent-dev qtbase5-dev libsystemd-dev

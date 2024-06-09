@@ -34,7 +34,7 @@ jobs:
       - run: sudo -E .github/workflows/build.sh build
   coverage:
     if: github.repository == 'avahi/avahi'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true

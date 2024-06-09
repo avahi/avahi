@@ -149,7 +149,7 @@ EOL
         fi
 
         if [[ "$COVERAGE" == true ]]; then
-            lcov --directory . --capture --initial --output-file coverage.info.initial
+            lcov --ignore-errors source --directory . --capture --initial --output-file coverage.info.initial
             lcov --directory . --capture --output-file coverage.info.run --no-checksum --rc lcov_branch_coverage=1
             lcov -a coverage.info.initial -a coverage.info.run --rc lcov_branch_coverage=1 -o coverage.info.raw
             lcov --extract coverage.info.raw "$(pwd)/*" --rc lcov_branch_coverage=1 --output-file coverage.info

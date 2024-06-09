@@ -34,6 +34,7 @@ case "$1" in
         apt-get build-dep -y avahi
         apt-get install -y libevent-dev qtbase5-dev libsystemd-dev
         apt-get install -y gcc clang lcov
+        apt-get install -y mono-mcs monodoc-base libmono-posix4.0-ci
 
         apt-get install -y valgrind ncat ldnsutils
 

@@ -218,6 +218,13 @@ CLEANFILES += avahi-ui-gtk3.pc
 endif
 endif
 
+if HAVE_GTK4
+if HAVE_DBUS
+pkgconfig_DATA += avahi-ui-gtk4.pc
+CLEANFILES += avahi-ui-gtk4.pc
+endif
+endif
+
 if HAVE_QT3
 pkgconfig_DATA += avahi-qt3.pc
 CLEANFILES += avahi-qt3.pc

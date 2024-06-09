@@ -29,11 +29,12 @@ look_for_asan_ubsan_reports() {
 
 case "$1" in
     install-build-deps)
-        sed -i -e '/^#\s*deb-src.*\smain\s\+restricted/s/^#//' /etc/apt/sources.list
+        sed -i 's/^\(Types: deb\)$/\1 deb-src/' /etc/apt/sources.list.d/ubuntu.sources
         apt-get update -y
         apt-get build-dep -y avahi
         apt-get install -y libevent-dev qtbase5-dev libsystemd-dev
         apt-get install -y gcc clang lcov
+        apt-get install -y mono-mcs monodoc-base libmono-posix4.0-ci
 
         apt-get install -y valgrind ncat ldnsutils
 
@@ -56,6 +57,9 @@ case "$1" in
             # removed once acx_pthread gets updated.
             if [[ "$CC" == clang ]]; then
                 sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4
+
+                # https://github.com/avahi/avahi/issues/584
+                CFLAGS+=' -fno-sanitize=function'
             fi
 
         fi
@@ -145,7 +149,7 @@ EOL
         fi
 
         if [[ "$COVERAGE" == true ]]; then
-            lcov --directory . --capture --initial --output-file coverage.info.initial
+            lcov --ignore-errors source --directory . --capture --initial --output-file coverage.info.initial
             lcov --directory . --capture --output-file coverage.info.run --no-checksum --rc lcov_branch_coverage=1
             lcov -a coverage.info.initial -a coverage.info.run --rc lcov_branch_coverage=1 -o coverage.info.raw
             lcov --extract coverage.info.raw "$(pwd)/*" --rc lcov_branch_coverage=1 --output-file coverage.info

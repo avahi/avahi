@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: Lint GH Actions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Lint
-        uses: super-linter/super-linter/slim@v6.5.1
+        uses: super-linter/super-linter/slim@v6.6.0
         env:
           MULTI_STATUS: false
           VALIDATE_ALL_CODEBASE: false

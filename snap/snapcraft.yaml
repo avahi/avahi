@@ -126,7 +126,7 @@ parts:
       - libevent-2.1-7t64
     override-pull: |
       craftctl default
-      track="24"
+      track="latest"
       # depending on a channel in the snap store, build last release tag or master
       # last stable tag
       stable_tag=$(git tag --list | sed 's/v//g' | sort --version-sort | grep -v "rc" | tail -1)

@@ -51,6 +51,7 @@
 #include <avahi-core/core.h>
 #include <avahi-core/lookup.h>
 #include <avahi-core/publish.h>
+#include <avahi-core/reconfirm.h>
 
 #include "dbus-protocol.h"
 #include "dbus-util.h"
@@ -997,6 +998,52 @@ static DBusHandlerResult dbus_prepare_record_browser_object(RecordBrowserInfo **
     return avahi_dbus_respond_path(c, m, i->path);
 }
 
+static DBusHandlerResult dbus_start_reconfirm(DBusConnection *c, DBusMessage *m, DBusError *error) {
+    int32_t interface, protocol;
+    uint32_t flags, size;
+    char *name;
+    uint16_t type, clazz;
+    void *rdata;
+    AvahiRecord *r;
+    int result;
+
+    if (!dbus_message_get_args(
+            m, error,
+            DBUS_TYPE_INT32, &interface,
+            DBUS_TYPE_INT32, &protocol,
+            DBUS_TYPE_STRING, &name,
+            DBUS_TYPE_UINT16, &clazz,
+            DBUS_TYPE_UINT16, &type,
+            DBUS_TYPE_UINT32, &flags,
+            DBUS_TYPE_INVALID) || !name ||
+        avahi_dbus_read_rdata (m, 6, &rdata, &size)) {
+        return dbus_parsing_error("Error parsing Server::ReconfirmRecord message", error);
+    }
+
+    if (!AVAHI_IF_VALID(interface) || (interface == AVAHI_IF_UNSPEC))
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_INTERFACE, NULL);
+
+    if (!avahi_is_valid_domain_name(name))
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_DOMAIN_NAME, NULL);
+
+    if (!(r = avahi_record_new_full(name, clazz, type, 0)))
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_NO_MEMORY, NULL);
+
+    if (!rdata || (avahi_rdata_parse(r, rdata, size) < 0)) {
+        avahi_record_unref(r);
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_RDATA, NULL);
+    }
+
+    result = avahi_record_reconfirm(avahi_server, (AvahiIfIndex) interface, (AvahiProtocol) protocol, r);
+
+    avahi_record_unref(r);
+
+    if (!result)
+        return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_RECORD, NULL);
+
+    return avahi_dbus_respond_ok(c, m);
+}
+
 static DBusHandlerResult dbus_select_common_methods(DBusConnection *c, DBusMessage *m, AVAHI_GCC_UNUSED void *userdata, const char *iface, DBusError *error) {
     if (dbus_message_is_method_call(m, DBUS_INTERFACE_INTROSPECTABLE, "Introspect"))
         return avahi_dbus_handle_introspect(c, m, "org.freedesktop.Avahi.Server.xml");
@@ -1051,6 +1098,9 @@ static DBusHandlerResult dbus_select_common_methods(DBusConnection *c, DBusMessa
 
     } else if (dbus_message_is_method_call(m, iface, "ResolveService")) {
         return dbus_create_sync_service_resolver_object(c, m, error);
+
+    } else if (dbus_message_is_method_call(m, iface, "ReconfirmRecord")) {
+        return dbus_start_reconfirm(c, m, error);
     }
 
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;

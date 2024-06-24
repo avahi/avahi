@@ -25,13 +25,13 @@ typedef struct AvahiQuerier AvahiQuerier;
 #include "iface.h"
 
 /** Add querier for the specified key to the specified interface */
-void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_ctime);
+void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct AvahiTimeVal *ret_ctime);
 
 /** Remove a querier for the specified key from the specified interface */
 void avahi_querier_remove(AvahiInterface *i, AvahiKey *key);
 
 /** Add a querier for the specified key on all interfaces that mach */
-void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, struct timeval *ret_ctime);
+void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, struct AvahiTimeVal *ret_ctime);
 
 /** Remove a querier for the specified key on all interfaces that mach */
 void avahi_querier_remove_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key);

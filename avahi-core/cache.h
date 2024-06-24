@@ -45,9 +45,9 @@ typedef struct AvahiCacheEntry AvahiCacheEntry;
 struct AvahiCacheEntry {
     AvahiCache *cache;
     AvahiRecord *record;
-    struct timeval timestamp;
-    struct timeval poof_timestamp;
-    struct timeval expiry;
+    struct AvahiTimeVal timestamp;
+    struct AvahiTimeVal poof_timestamp;
+    struct AvahiTimeVal expiry;
     int cache_flush;
     int poof_num;
 

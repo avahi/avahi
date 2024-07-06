@@ -50,7 +50,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
 
     line = 0;
     while (!feof(fo)) {
-        char ln[256], *s, *e;
+        char ln[1024], *s, *e;
         AvahiIniFilePair *pair;
 
         if (!(fgets(ln, sizeof(ln), fo)))

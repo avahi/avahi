@@ -44,7 +44,7 @@ mkdir -p "$OUT"
 
 export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
 
-if [[ -n "$FUZZING_ENGINE" ]]; then
+if [[ -n "${FUZZING_ENGINE:-}" ]]; then
     apt-get update
     apt-get install -y autoconf gettext libtool m4 automake pkg-config libexpat-dev
 
@@ -75,6 +75,7 @@ make -j"$(nproc)" V=1
 
 for f in fuzz/fuzz-*.c; do
     fuzz_target=$(basename "$f" .c)
+    additional_obj_files=
 
     # CFLAGS have to be split
     # shellcheck disable=SC2086
@@ -82,12 +83,20 @@ for f in fuzz/fuzz-*.c; do
         "fuzz/$fuzz_target.c" \
         -o "$fuzz_target.o"
 
+    if [[ "$fuzz_target" == "fuzz-ini-file-parser" ]]; then
+        # CFLAGS have to be split
+        # shellcheck disable=SC2086
+        $CC -c $CFLAGS -I. avahi-daemon/ini-file-parser.c -o ini-file-parser.o
+        additional_obj_files+=" ini-file-parser.o"
+    fi
+
     # CXXFLAGS have to be split
     # shellcheck disable=SC2086
     $CXX $CXXFLAGS \
         "$fuzz_target.o" \
         -o "$OUT/$fuzz_target" \
         $LIB_FUZZING_ENGINE \
+        $additional_obj_files \
         "avahi-core/.libs/libavahi-core.a" "avahi-common/.libs/libavahi-common.a"
 done
 

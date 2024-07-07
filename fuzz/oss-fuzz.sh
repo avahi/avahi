@@ -44,7 +44,7 @@ mkdir -p "$OUT"
 
 export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
 
-if [[ -n "$FUZZING_ENGINE" ]]; then
+if [[ -n "${FUZZING_ENGINE:-}" ]]; then
     apt-get update
     apt-get install -y autoconf gettext libtool m4 automake pkg-config libexpat-dev
 

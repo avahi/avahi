@@ -284,8 +284,10 @@ static void remove_service(Config *c, ServiceInfo *i) {
 
     AVAHI_LLIST_REMOVE(ServiceInfo, info, services, i);
 
-    if (i->resolver)
+    if (i->resolver) {
         avahi_service_resolver_free(i->resolver);
+        n_resolving--;
+    }
 
     avahi_free(i->name);
     avahi_free(i->type);
@@ -331,6 +333,7 @@ static void service_browser_callback(
                 return;
 
             remove_service(c, info);
+            check_terminate(c);
 
             print_service_line(c, '-', interface, protocol, name, type, domain, 1);
             break;

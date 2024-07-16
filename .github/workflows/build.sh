@@ -78,8 +78,17 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
-        ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests \
-            --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
+        ./bootstrap.sh \
+            --enable-compat-howl \
+            --enable-compat-libdns_sd \
+            --enable-core-docs \
+            --enable-tests \
+            --libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+            --localstatedir=/var \
+            --prefix=/usr \
+            --runstatedir=/run \
+            --sysconfdir=/etc
+
         make -j"$(nproc)" V=1
 
         if [[ "$BUILD_ONLY" == true ]]; then

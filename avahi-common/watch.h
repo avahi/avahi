@@ -26,6 +26,7 @@
 #include <sys/time.h>
 
 #include <avahi-common/cdecl.h>
+#include <avahi-common/timeval.h>
 
 AVAHI_C_DECL_BEGIN
 
@@ -81,11 +82,11 @@ struct AvahiPoll {
     NULL, the timeout is disabled. After the timeout expired the
     callback function will be called and the timeout is disabled. You
     can re-enable it by calling timeout_update()  */
-    AvahiTimeout* (*timeout_new)(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata);
+    AvahiTimeout* (*timeout_new)(const AvahiPoll *api, const struct AvahiTimeVal *tv, AvahiTimeoutCallback callback, void *userdata);
 
     /** Update the absolute expiration time for a timeout, If tv is
      * NULL, the timeout is disabled. It is safe to call this function from an AvahiTimeoutCallback */
-    void (*timeout_update)(AvahiTimeout *, const struct timeval *tv);
+    void (*timeout_update)(AvahiTimeout *, const struct AvahiTimeVal *tv);
 
     /** Free a timeout. It is safe to call this function from an AvahiTimeoutCallback */
     void (*timeout_free)(AvahiTimeout *t);

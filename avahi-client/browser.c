@@ -33,6 +33,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/domain.h>
+#include <avahi-common/timeval.h>
 
 #include "client.h"
 #include "internal.h"
@@ -201,7 +202,7 @@ AvahiDomainBrowser* avahi_domain_browser_new(
     }
 
     if (db->static_browse_domains && btype == AVAHI_DOMAIN_BROWSER_BROWSE) {
-        struct timeval tv = { 0, 0 };
+        struct AvahiTimeVal tv = { 0, 0 };
 
         if (!(db->defer_timeout = client->poll_api->timeout_new(client->poll_api, &tv, defer_timeout_callback, db))) {
             avahi_client_set_errno(client, AVAHI_ERR_NO_MEMORY);

@@ -175,7 +175,7 @@ timeout_cb(AVAHI_GCC_UNUSED evutil_socket_t fd, AVAHI_GCC_UNUSED short events, v
 }
 
 static int
-timeout_add(AvahiTimeout *t, const struct timeval *tv)
+timeout_add(AvahiTimeout *t, const struct AvahiTimeVal *tv)
 {
 	AvahiLibeventPoll *ep = t->eventpoll;
 	struct timeval now, e_tv;
@@ -193,7 +193,7 @@ timeout_add(AvahiTimeout *t, const struct timeval *tv)
 }
 
 static AvahiTimeout *
-timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback cb, void *userdata)
+timeout_new(const AvahiPoll *api, const struct AvahiTimeVal *tv, AvahiTimeoutCallback cb, void *userdata)
 {
 	AvahiLibeventPoll *ep;
 	AvahiTimeout *t;
@@ -226,7 +226,7 @@ timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback
 }
 
 static void
-timeout_update(AvahiTimeout *t, const struct timeval *tv)
+timeout_update(AvahiTimeout *t, const struct AvahiTimeVal *tv)
 {
 	struct timeval now, e_tv;
 

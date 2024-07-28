@@ -44,7 +44,7 @@ struct AvahiNetlink {
 };
 
 int avahi_netlink_work(AvahiNetlink *nl, int block) {
-    ssize_t bytes;
+    ssize_t bytes, remaining;
     struct msghdr smsg;
     struct cmsghdr *cmsg;
     struct ucred *cred;
@@ -86,11 +86,12 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
         return -1;
 
     p = (struct nlmsghdr *) nl->buffer;
+    remaining = bytes;
 
     assert(nl->callback);
 
-    for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
-        if (!NLMSG_OK(p, (size_t) bytes)) {
+    for (; remaining > 0; p = NLMSG_NEXT(p, remaining), remaining = bytes - (((uint8_t *)p) - nl->buffer)) {
+        if (!NLMSG_OK(p, (size_t) remaining)) {
             avahi_log_warn(__FILE__": packet truncated");
             return -1;
         }

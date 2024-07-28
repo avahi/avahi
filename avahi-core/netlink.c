@@ -111,7 +111,7 @@ static void socket_event(AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent
     avahi_netlink_work(nl, 0);
 }
 
-AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, void* userdata), void* userdata) {
+AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, AvahiNetlinkCallback cb, void* userdata) {
     int fd = -1;
     const int on = 1;
     struct sockaddr_nl addr;

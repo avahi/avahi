@@ -72,7 +72,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
     assert(n);
     assert(m->osdep.netlink == nl);
 
-    if (n->nlmsg_type == RTM_NEWLINK) {
+    if (n->nlmsg_type == RTM_NEWLINK && n->nlmsg_len >= sizeof(struct ifinfomsg)) {
 
         /* A new interface appeared or an existing one has been modified */
 
@@ -155,7 +155,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
          * _workstation._tcp record containing the MAC address) */
         avahi_hw_interface_update_rrs(hw, 0);
 
-    } else if (n->nlmsg_type == RTM_DELLINK) {
+    } else if (n->nlmsg_type == RTM_DELLINK && n->nlmsg_len >= sizeof(struct ifinfomsg)) {
 
         /* An interface has been removed */
 
@@ -173,7 +173,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         /* Free our object */
         avahi_hw_interface_free(hw, 0);
 
-    } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
+    } else if ((n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) &&
+	       n->nlmsg_len >= sizeof(struct ifaddrmsg)) {
 
         /* An address has been added, modified or removed */
 
@@ -321,7 +322,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             avahi_log_info("Network interface enumeration completed.");
         }
 
-    } else if (n->nlmsg_type == NLMSG_ERROR &&
+    } else if (n->nlmsg_type == NLMSG_ERROR && n->nlmsg_len >= sizeof(struct nlmsgerr) &&
                (n->nlmsg_seq == m->osdep.query_link_seq || n->nlmsg_seq == m->osdep.query_addr_seq)) {
         struct nlmsgerr *e = NLMSG_DATA (n);
 

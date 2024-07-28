@@ -63,7 +63,7 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
     return avahi_netlink_send(nl, n, ret_seq);
 }
 
-static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdata) {
+static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, size_t len, void* userdata) {
     AvahiInterfaceMonitor *m = userdata;
 
     /* This routine is called for every RTNETLINK response packet */
@@ -72,7 +72,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
     assert(n);
     assert(m->osdep.netlink == nl);
 
-    if (n->nlmsg_type == RTM_NEWLINK) {
+    if (n->nlmsg_type == RTM_NEWLINK && NLMSG_PAYLOAD(n, len) >= sizeof(struct ifinfomsg)) {
 
         /* A new interface appeared or an existing one has been modified */
 
@@ -155,7 +155,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
          * _workstation._tcp record containing the MAC address) */
         avahi_hw_interface_update_rrs(hw, 0);
 
-    } else if (n->nlmsg_type == RTM_DELLINK) {
+    } else if (n->nlmsg_type == RTM_DELLINK && NLMSG_PAYLOAD(n, len) >= sizeof(struct ifinfomsg)) {
 
         /* An interface has been removed */
 
@@ -173,7 +173,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         /* Free our object */
         avahi_hw_interface_free(hw, 0);
 
-    } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
+    } else if ((n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) &&
+	       NLMSG_PAYLOAD(n, len) >= sizeof(struct ifinfomsg)) {
 
         /* An address has been added, modified or removed */
 
@@ -328,7 +329,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         /* Some kind of error happened. Let's just tell the user and
          * ignore it otherwise */
 
-        if (e->error)
+        if (NLMSG_PAYLOAD(n, len) >= sizeof(struct nlmsgerr) && e->error)
             avahi_log_warn("NETLINK: Failed to browse: %s", strerror(-e->error));
     }
 }

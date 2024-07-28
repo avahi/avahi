@@ -31,7 +31,7 @@
 
 typedef struct AvahiNetlink AvahiNetlink;
 
-typedef void (*AvahiNetlinkCallback)(AvahiNetlink *n, struct nlmsghdr *m, void* userdata);
+typedef void (*AvahiNetlinkCallback)(AvahiNetlink *n, struct nlmsghdr *m, size_t len, void* userdata);
 
 AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, AvahiNetlinkCallback callback, void* userdata);
 void avahi_netlink_free(AvahiNetlink *n);

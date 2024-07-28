@@ -189,14 +189,14 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
             return;
 
+        /* Fill in address family for our new address */
+        rlocal.proto = raddr.proto = avahi_af_to_proto(ifaddrmsg->ifa_family);
+
         /* Try to get a reference to our AvahiInterface object for the
          * interface this address is assigned to. If there is no object
          * for this interface, we ignore this address. */
-        if (!(i = avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, avahi_af_to_proto(ifaddrmsg->ifa_family))))
+        if (!(i = avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, rlocal.proto)))
             return;
-
-        /* Fill in address family for our new address */
-        rlocal.proto = raddr.proto = avahi_af_to_proto(ifaddrmsg->ifa_family);
 
         l = NLMSG_PAYLOAD(n, sizeof(struct ifaddrmsg));
         a = IFA_RTA(ifaddrmsg);

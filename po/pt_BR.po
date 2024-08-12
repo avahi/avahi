@@ -9,15 +9,16 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2020-07-18 03:24+0000\n"
-"PO-Revision-Date: 2020-07-18 08:50-0300\n"
+"PO-Revision-Date: 2024-08-11 01:38+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
-"Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.fedoraproject.org/"
+"projects/avahi/master/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"X-Generator: Gtranslator 3.36.0\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.6.2\n"
 
 #: avahi-common/error.c:30
 msgid "OK"
@@ -455,7 +456,7 @@ msgstr "Alterar domínio"
 
 #: avahi-ui/avahi-ui.c:1043 avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
-msgstr "Procurando…"
+msgstr "Procurando..."
 
 #: avahi-ui/avahi-ui.c:1047 avahi-ui/bssh.c:149 avahi-ui/bssh.c:156
 #: avahi-ui/bssh.c:161

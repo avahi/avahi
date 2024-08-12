@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# 김인수 <simmon@nplob.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2010-11-29 23:19+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Japanese (http://www.transifex.com/lennart/avahi/language/"
-"ja/)\n"
+"PO-Revision-Date: 2024-08-12 02:39+0000\n"
+"Last-Translator: 김인수 <simmon@nplob.com>\n"
+"Language-Team: Japanese <https://translate.fedoraproject.org/projects/avahi/"
+"master/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.6.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -261,7 +263,7 @@ msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "TXT Data:"
-msgstr "TXT データ"
+msgstr "TXT データ:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "empty"
@@ -429,12 +431,12 @@ msgstr "ドメイン <b>%s</b> でのサービス検索:"
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr "%1$s のブラウザ作成に失敗しました: %2$s"
+msgstr "ブラウザ作成に失敗しました %s: %s"
 
 #: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "ドメイン %3$s のタイプ %2$s の %1$s のリゾルバ作成に失敗しました: %4$s"
+msgstr "ドメインのタイプ %sの%sのリゾルバ作成に失敗しました %s: %s"
 
 #: ../avahi-ui/avahi-ui.c:982
 #, c-format
@@ -451,14 +453,12 @@ msgstr "検索中…"
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "キャンセルされました。\n"
+msgstr "取り消し(_C)"
 
 #: ../avahi-ui/avahi-ui.c:1048
-#, fuzzy
 msgid "_OK"
-msgstr "OK"
+msgstr "OK(_O)"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -510,7 +510,7 @@ msgstr "シェルサーバを選択"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "接続(_O)"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -572,9 +572,8 @@ msgstr ": キャッシュが不足しています\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr ""
-"ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: "
-"%4$s\n"
+msgstr "ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: %4$"
+"s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
@@ -618,7 +617,7 @@ msgstr "ホスト名のクエリに失敗しました: %s\n"
 #: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr "サーバのバージョン: %1$s; ホスト名: %2$s\n"
+msgstr "サーバのバージョン: %s; ホスト名: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
@@ -739,7 +738,7 @@ msgstr "サービスの追加に失敗しました: %s\n"
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr "サブタイプ '%1$s' の追加に失敗しました: %2$s\n"
+msgstr "サブタイプ の追加に失敗しました '%s': %s\n"
 
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format
@@ -796,12 +795,12 @@ msgstr "コマンドが指定されていません。\n"
 #: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr "ホスト名 '%1$s' の解決に失敗しました: %2$s\n"
+msgstr "ホスト名の解決に失敗しました '%s': %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr "アドレス '%1$s' の解決に失敗しました: %2$s\n"
+msgstr "アドレスの解決に失敗しました '%s': %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:157
 #, c-format

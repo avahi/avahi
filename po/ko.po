@@ -3,479 +3,481 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# 김인수 <simmon@nplob.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2010-11-29 23:19+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Korean (Korea) (http://www.transifex.com/lennart/avahi/"
-"language/ko_KR/)\n"
-"Language: ko_KR\n"
+"PO-Revision-Date: 2024-08-12 02:39+0000\n"
+"Last-Translator: 김인수 <simmon@nplob.com>\n"
+"Language-Team: Korean <https://translate.fedoraproject.org/projects/avahi/"
+"master/ko/>\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.6.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
-msgstr ""
+msgstr "확인"
 
 #: ../avahi-common/error.c:31
 msgid "Operation failed"
-msgstr ""
+msgstr "작업 실패"
 
 #: ../avahi-common/error.c:32
 msgid "Bad state"
-msgstr ""
+msgstr "나쁜 상태"
 
 #: ../avahi-common/error.c:33
 msgid "Invalid host name"
-msgstr ""
+msgstr "잘못된 호스트 이름"
 
 #: ../avahi-common/error.c:34
 msgid "Invalid domain name"
-msgstr ""
+msgstr "잘못된 호스트 이름"
 
 #: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
-msgstr ""
+msgstr "알맞은 네트워크 통신 규약을 사용 할 수 없습니다"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr ""
+msgstr "잘못된 DNS TTL"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
-msgstr ""
+msgstr "자원 레코드 키는 유형입니다"
 
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
-msgstr ""
+msgstr "로컬 이름이 충돌함"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
-msgstr ""
+msgstr "잘못된 레코드"
 
 #: ../avahi-common/error.c:41
 msgid "Invalid service name"
-msgstr ""
+msgstr "잘못된 서비스 이름"
 
 #: ../avahi-common/error.c:42
 msgid "Invalid service type"
-msgstr ""
+msgstr "잘못된 서비스 유형"
 
 #: ../avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr ""
+msgstr "잘못된 포트 번호"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr ""
+msgstr "잘못된 레코드 키"
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
-msgstr ""
+msgstr "잘못된 주소"
 
 #: ../avahi-common/error.c:46
 msgid "Timeout reached"
-msgstr ""
+msgstr "시간 만료에 도달함"
 
 #: ../avahi-common/error.c:47
 msgid "Too many clients"
-msgstr ""
+msgstr "너무 많은 클라이언트"
 
 #: ../avahi-common/error.c:48
 msgid "Too many objects"
-msgstr ""
+msgstr "너무 많은 대상"
 
 #: ../avahi-common/error.c:49
 msgid "Too many entries"
-msgstr ""
+msgstr "너무 많은 항목"
 
 #: ../avahi-common/error.c:50
 msgid "OS Error"
-msgstr ""
+msgstr "OS 오류"
 
 #: ../avahi-common/error.c:52
 msgid "Access denied"
-msgstr ""
+msgstr "접근 거부됨"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
-msgstr ""
+msgstr "잘못된 동작"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr ""
+msgstr "예상치 못한 D-Bus 오류가 발생함"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr ""
+msgstr "데몬 연결이 실패함"
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
-msgstr ""
+msgstr "메모리가 고갈됨"
 
 #: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr ""
+msgstr "전달된 객체가 유효하지 않습니다"
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr ""
+msgstr "데몬이 실행중이지 않습니다"
 
 #: ../avahi-common/error.c:59
 msgid "Invalid interface index"
-msgstr ""
+msgstr "잘못된 연결장치 표시"
 
 #: ../avahi-common/error.c:60
 msgid "Invalid protocol specification"
-msgstr ""
+msgstr "잘못된 통신규약 상세"
 
 #: ../avahi-common/error.c:61
 msgid "Invalid flags"
-msgstr ""
+msgstr "잘못된 플래그"
 
 #: ../avahi-common/error.c:63
 msgid "Not found"
-msgstr ""
+msgstr "찾을 수 없습니다"
 
 #: ../avahi-common/error.c:64
 msgid "Invalid configuration"
-msgstr ""
+msgstr "잘못된 구성"
 
 #: ../avahi-common/error.c:65
 msgid "Version mismatch"
-msgstr ""
+msgstr "버전이 일치하지 않음"
 
 #: ../avahi-common/error.c:66
 msgid "Invalid service subtype"
-msgstr ""
+msgstr "잘못된 서비스 하위유형"
 
 #: ../avahi-common/error.c:67
 msgid "Invalid packet"
-msgstr ""
+msgstr "잘못된 패킷"
 
 #: ../avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr ""
+msgstr "잘못된 DNS 반환 코드"
 
 #: ../avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
-msgstr ""
+msgstr "DNF 실패: FORMERR"
 
 #: ../avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
-msgstr ""
+msgstr "DNS 실패: SERVFAIL"
 
 #: ../avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
-msgstr ""
+msgstr "DNS 실패: NXDOMAIN"
 
 #: ../avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
-msgstr ""
+msgstr "DNS 실패: NOTIMP"
 
 #: ../avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
-msgstr ""
+msgstr "DNS 실패: REFUSED"
 
 #: ../avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
-msgstr ""
+msgstr "DNS 실패: YXDOMAIN"
 
 #: ../avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
-msgstr ""
+msgstr "DNS 실패: YXRRSET"
 
 #: ../avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
-msgstr ""
+msgstr "DNF 실패: NSRRSET"
 
 #: ../avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
-msgstr ""
+msgstr "DNS 실패: NOTAUTH"
 
 #: ../avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
-msgstr ""
+msgstr "DNS 실패: NOTZONE"
 
 #: ../avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr ""
+msgstr "잘못된 RDATA"
 
 #: ../avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr ""
+msgstr "잘못된 DNS 유형"
 
 #: ../avahi-common/error.c:82
 msgid "Invalid DNS class"
-msgstr ""
+msgstr "잘못된 DNS 등급"
 
 #: ../avahi-common/error.c:83
 msgid "Not supported"
-msgstr ""
+msgstr "지원되지 않음"
 
 #: ../avahi-common/error.c:85
 msgid "Not permitted"
-msgstr ""
+msgstr "허용되지 않음"
 
 #: ../avahi-common/error.c:86
 msgid "Invalid argument"
-msgstr ""
+msgstr "잘못된 인수"
 
 #: ../avahi-common/error.c:87
 msgid "Is empty"
-msgstr ""
+msgstr "비었습니다"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr ""
+msgstr "요청된 동작이 중복되었기 때문에 유효하지 않습니다"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
-msgstr ""
+msgstr "잘못된 오류 코드"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
 msgid "Avahi Discovery"
-msgstr ""
+msgstr "Avahi 발견"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
 msgid "<i>No service currently selected.</i>"
-msgstr ""
+msgstr "<i>어떤 서비스도 선택되지 않았습니다.</i>"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:1
 msgid "Avahi Zeroconf Browser"
-msgstr ""
+msgstr "Avahi Zeroconf 탐색기"
 
 #: ../avahi-python/avahi-discover/avahi-discover.desktop.in.in.h:2
 msgid "Browse for Zeroconf services available on your network"
-msgstr ""
+msgstr "Zeroconf 서비스를 위한 탐색기는 네트워크에서 사용 할 수 있습니다"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:224
 msgid "TXT"
-msgstr ""
+msgstr "TXT"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "TXT Data:"
-msgstr ""
+msgstr "TXT 자료:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:226
 msgid "empty"
-msgstr ""
+msgstr "비어 있음"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:228
 msgid "Service Type:"
-msgstr ""
+msgstr "서비스 유형:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:229
 msgid "Service Name:"
-msgstr ""
+msgstr "서비스 이름:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:230
 msgid "Domain Name:"
-msgstr ""
+msgstr "도메인 이름:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:231
 msgid "Interface:"
-msgstr ""
+msgstr "연결장치:"
 
 #: ../avahi-python/avahi-discover/avahi-discover.py:232
 msgid "Address:"
-msgstr ""
+msgstr "주소:"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
-msgstr ""
+msgstr "서비스 유형 찾아보기"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr ""
+msgstr "검색하려는 서비스 유형의 NULL로 끝나는 목록"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
-msgstr ""
+msgstr "도메인"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
+msgstr "검색하려는 도메인, 또는 기본 도메인을 위한 NULL"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
-msgstr ""
+msgstr "서비스 유형"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
-msgstr ""
+msgstr "선택된 서비스의 서비스 유형"
 
 #: ../avahi-ui/avahi-ui.c:202 ../avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
-msgstr ""
+msgstr "서비스 이름"
 
 #: ../avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
-msgstr ""
+msgstr "선택된 서비스의 서비스 이름"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "Address"
-msgstr ""
+msgstr "주소"
 
 #: ../avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
-msgstr ""
+msgstr "해결된 서비스의 주소"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "Port"
-msgstr ""
+msgstr "포트"
 
 #: ../avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
-msgstr ""
+msgstr "해결된 서비스의 IP 포트 번호"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "Host Name"
-msgstr ""
+msgstr "호스트 이름"
 
 #: ../avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
-msgstr ""
+msgstr "해결된 서비스의 호스트 이름"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
-msgstr ""
+msgstr "TXT 자료"
 
 #: ../avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
-msgstr ""
+msgstr "해결된 서비스의 TXT 자료"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve Service"
-msgstr ""
+msgstr "해결 서비스"
 
 #: ../avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "반환하기 전에 선택된 서비스를 자동으로 해결합니다"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid "Resolve Service Host Name"
-msgstr ""
+msgstr "서비스 호스트 이름을 해결합니다"
 
 #: ../avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr ""
+msgstr "반환하기 전에 선택된 서비스의 호스트 이름을 자동으로 해결합니다"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "Address family"
-msgstr ""
+msgstr "주소 단위"
 
 #: ../avahi-ui/avahi-ui.c:242
 msgid "The address family for host name resolution"
-msgstr ""
+msgstr "호스트 이름 해결을 위한 주소 체계"
 
 #: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr ""
+msgstr "Avahi 클라이언트 실패: %s"
 
 #: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr ""
+msgstr "Avahi resolver 실패: %s"
 
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr ""
+msgstr "서비스 유형 %s를 검색 중 실패함 (도메인 %s에서): %s"
 
 #: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
 #: ../avahi-utils/avahi-browse.c:179
 msgid "n/a"
-msgstr ""
+msgstr "해당 없음"
 
 #: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
-msgstr ""
+msgstr "Avahi 도메인 검색기가 실패함: %s"
 
 #: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr ""
+msgstr "Avahi 도메인을 읽는 데 실패함: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr ""
+msgstr "검색 서비스 유형 목록이 비어 있습니다!"
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
-msgstr ""
+msgstr "Avahi 서버로 연결하는 데 실패함: %s"
 
 #: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
-msgstr ""
+msgstr "<b>로컬 네트워크</b>에서 서비스를 위해 검색 중:"
 
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr ""
+msgstr "도메인 <b>%s</b>에서 서비스를 위해 검색 중:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr ""
+msgstr "검색기를 생성하는 데 실패함 %s: %s"
 
 #: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
+msgstr "도메인에서 유형 %s의 %s를 위한 리졸버를 생성하는 데 실패함 %s: %s"
 
 #: ../avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr ""
+msgstr "도메인 검색기를 생성하는 데 실패함: %s"
 
 #: ../avahi-ui/avahi-ui.c:993
 msgid "Change domain"
-msgstr ""
+msgstr "도메인 변경"
 
 #: ../avahi-ui/avahi-ui.c:1043 ../avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
-msgstr ""
+msgstr "검색중..."
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
 msgid "_Cancel"
-msgstr ""
+msgstr "취소(_C)"
 
 #: ../avahi-ui/avahi-ui.c:1048
 msgid "_OK"
-msgstr ""
+msgstr "좋음(_O)"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
-msgstr ""
+msgstr "초기화 중..."
 
 #: ../avahi-ui/avahi-ui.c:1162
 msgid "Location"
-msgstr ""
+msgstr "위치"
 
 #: ../avahi-ui/avahi-ui.c:1167 ../avahi-utils/avahi-browse.c:553
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: ../avahi-ui/avahi-ui.c:1172 ../avahi-utils/avahi-browse.c:553
 msgid "Type"
-msgstr ""
+msgstr "유형"
 
 #: ../avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
-msgstr ""
+msgstr "도메인(_D)..."
 
 #: ../avahi-ui/bssh.c:55
 #, c-format
@@ -488,163 +490,170 @@ msgid ""
 "    -S --shell           Browse both SSH and VNC\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
+"%s [options]\n"
+"\n"
+"    -h --help            도움말을 표시합니다\n"
+"    -s --ssh             SSH 서버를 검색합니다\n"
+"    -v --vnc             VNC 서버를 검색합니다\n"
+"    -S --shell           SSH 및 VNC 모두를 검색합니다\n"
+"    -d --domain=DOMAIN   검색하려는 도메인\n"
 
 #: ../avahi-ui/bssh.c:101 ../avahi-utils/avahi-browse.c:775
 #, c-format
 msgid "Too many arguments\n"
-msgstr ""
+msgstr "너무 많은 인수\n"
 
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
-msgstr ""
+msgstr "쉘 서버를 검색"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "연결(_o)"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
-msgstr ""
+msgstr "데스크탑"
 
 #: ../avahi-ui/bssh.c:152
 msgid "Terminal"
-msgstr ""
+msgstr "터미널"
 
 #: ../avahi-ui/bssh.c:156
 msgid "Choose VNC server"
-msgstr ""
+msgstr "VNC 서버를 선택"
 
 #: ../avahi-ui/bssh.c:161
 msgid "Choose SSH server"
-msgstr ""
+msgstr "SSH 서버를 선택"
 
 #: ../avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr ""
+msgstr "'%s'로 연결 중...\n"
 
 #: ../avahi-ui/bssh.c:240
 #, c-format
 msgid "execlp() failed: %s\n"
-msgstr ""
+msgstr "execlp() 실패함: %s\n"
 
 #: ../avahi-ui/bssh.c:250
 #, c-format
 msgid "Canceled.\n"
-msgstr ""
+msgstr "취소됨.\n"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:1
 msgid "Avahi SSH Server Browser"
-msgstr ""
+msgstr "Avahi SSH 서버 검색기"
 
 #: ../avahi-ui/bssh.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr ""
+msgstr "Zeroconf-활성화된 SSH 서버를 위한 검색"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr ""
+msgstr "Avahi VNC 서버 검색기"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr ""
+msgstr "Zeroconf-활성화된 VNC 서버를 위한 검색"
 
 #: ../avahi-utils/avahi-browse.c:107
 #, c-format
 msgid ": All for now\n"
-msgstr ""
+msgstr ": 현재로써 전부\n"
 
 #: ../avahi-utils/avahi-browse.c:118
 #, c-format
 msgid ": Cache exhausted\n"
-msgstr ""
+msgstr ": 캐쉬가 소진되었습니다\n"
 
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr ""
+msgstr "도메인에서 유형 '%s'의 서비스 '%s'를 해결하는 데 실패함 '%s': %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
 msgid "service_browser failed: %s\n"
-msgstr ""
+msgstr "service_browser 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:378
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr ""
+msgstr "avahi_service_browser_new() 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:414
 #, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr ""
+msgstr "service_type_browser 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:444
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
-msgstr ""
+msgstr "avahi_service_type_browser_new() 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:519
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
-msgstr ""
+msgstr "avahi_domain_browser_new() 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:535 ../avahi-utils/avahi-publish.c:394
 #: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
-msgstr ""
+msgstr "버전 문자열을 질의 하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
 #: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
-msgstr ""
+msgstr "호스트 이름을 질의 하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
 #: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr ""
+msgstr "서버 버전: %s; 호스트 이름: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:549
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr ""
+msgstr "E Ifce Prot 도메인\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr ""
+msgstr "E Ifce Prot %-*s %-20s 도메인\n"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr ""
+msgstr "끊어졌으며, 다시 연결 중...\n"
 
 #: ../avahi-utils/avahi-browse.c:599 ../avahi-utils/avahi-browse.c:829
 #: ../avahi-utils/avahi-publish.c:170 ../avahi-utils/avahi-publish.c:386
 #: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
-msgstr ""
+msgstr "클라이언트 대상 생성에 실패함: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr ""
+msgstr "클라이언트 실패, 종료: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr ""
+msgstr "데몬을 위해 대기 중...\n"
 
 #: ../avahi-utils/avahi-browse.c:647
 msgid ""
@@ -662,63 +671,77 @@ msgid ""
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
+"    -h --help            도움말 표시\n"
+"    -V --version         버전 표시\n"
+"    -D --browse-domains  서비스 대신에 검색 중인 도메인을 위한 탐색\n"
+"    -a --all             모든 서비스 표시(유형과 상관없이)\n"
+"    -d --domain=DOMAIN   검색하려는 도메인\n"
+"    -v --verbose         상세 방식 활성화\n"
+"    -t --terminate       거의 완전한 목록을 덤핑 후에 종료합니다\n"
+"    -c --cache           캐쉬에서 모든 항목르 덤핑 후에 종료합니다\n"
+"    -l --ignore-local    로컬 서비스를 무시합니다\n"
+"    -r --resolve         발견된 서비스를 해결합니다\n"
+"    -f --no-fail         만약 데몬이 가용하지 않다면 실패하지 않습니다\n"
+"    -p --parsable        구문 분석 할 수 있는 형식의 출력\n"
 
 #: ../avahi-utils/avahi-browse.c:660
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
+"    -k --no-db-lookup    서비스 유형을 조회하지 마세요\n"
+"    -b --dump-db         덤프 서비스 유형의 데이타베이스\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
-msgstr ""
+msgstr "너무 적은 인수\n"
 
 #: ../avahi-utils/avahi-browse.c:821 ../avahi-utils/avahi-publish.c:378
 #: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
-msgstr ""
+msgstr "단순 poll 객체 생성에 실패함.\n"
 
 #: ../avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
-msgstr ""
+msgstr "'%s' 이름으로 확립되었습니다\n"
 
 #: ../avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
-msgstr ""
+msgstr "등록에 실패함: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr ""
+msgstr "이름이 충돌하여, 새로운 이름으로 선택 중 '%s'.\n"
 
 #: ../avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
-msgstr ""
+msgstr "항목 그룹을 생성하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:124
 #, c-format
 msgid "Failed to add address: %s\n"
-msgstr ""
+msgstr "주소를 추가하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
-msgstr ""
+msgstr "서비스를 추가하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr ""
+msgstr "하위유형을 추가하는 데 실패함 '%s': %s\n"
 
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format
 msgid "Host name conflict\n"
-msgstr ""
+msgstr "호스트 이름 충돌\n"
 
 #: ../avahi-utils/avahi-publish.c:216
 #, c-format
@@ -738,31 +761,44 @@ msgid ""
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
+"%s [options] %s <name> <type> <port> [<txt ...>]\n"
+"%s [options] %s <host-name> <address>\n"
+"\n"
+"    -h --help            도움말 표시\n"
+"    -V --version         버전 표시\n"
+"    -s --service         서비스 게시\n"
+"    -a --address         주소 게시\n"
+"    -v --verbose         상세 방식 활성화\n"
+"    -d --domain=DOMAIN   서비스를 게시하려는 도메인\n"
+"    -H --host=DOMAIN     서비스가 상주하는 호스트\n"
+"       --subtype=SUBTYPE 이와 같은 서비스에 등록하려는 추가 하위유형\n"
+"    -R --no-reverse      주소와 함께 역방향 항목을 게시하지 않습니다\n"
+"    -f --no-fail         만약 데몬이 가용하지 않으면 실패하지 않습니다\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
-msgstr ""
+msgstr "인수의 수가 불량합니다\n"
 
 #: ../avahi-utils/avahi-publish.c:329
 #, c-format
 msgid "Failed to parse port number: %s\n"
-msgstr ""
+msgstr "포트 번호를 구문 분석하지 못했습니다: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:361 ../avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
-msgstr ""
+msgstr "지정된 명령이 없습니다.\n"
 
 #: ../avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr ""
+msgstr "호스트 이름을 해결하는 데 실패함 '%s': %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr ""
+msgstr "주소를 해결 하는 데 실패함 '%s': %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:157
 #, c-format
@@ -778,21 +814,31 @@ msgid ""
 "    -6                   Lookup IPv6 address\n"
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
+"%s [options] %s <host name ...>\n"
+"%s [options] %s <address ... >\n"
+"\n"
+"    -h --help            도움말 표시\n"
+"    -V --version         버전 표시\n"
+"    -n --name            호스트 이름 해결\n"
+"    -a --address         주소 해결\n"
+"    -v --verbose         상세 방식 활성화\n"
+"    -6                   IPv6 주소 조회\n"
+"    -4                   IPv4 주소 조회\n"
 
 #: ../avahi-utils/avahi-resolve.c:299 ../avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
-msgstr ""
+msgstr "호스트 이름 리졸버를 생성하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr ""
+msgstr "주소를 구문 분석하는 데 실패함 '%s'\n"
 
 #: ../avahi-utils/avahi-resolve.c:314
 #, c-format
 msgid "Failed to create address resolver: %s\n"
-msgstr ""
+msgstr "주소 리졸버를 생성하는 데 실패함: %s\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:73
 #, c-format
@@ -803,13 +849,18 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
+"%s [options] <신규 호스트 이름>\n"
+"\n"
+"    -h --help            도움말 표시\n"
+"    -V --version         버전 표시\n"
+"    -v --verbose         상세 방식 활성화\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:114
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
-msgstr ""
+msgstr "인수의 잘못된 수, 정확히 하나만 예상함.\n"
 
 #: ../avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr ""
+msgstr "호스트 이름이 성공적으로 변경되었습니다 %s\n"

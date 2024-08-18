@@ -11,9 +11,8 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2024-08-17 09:24+0000\n"
-"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
-"memory@weblate.org>\n"
+"PO-Revision-Date: 2024-08-18 09:38+0000\n"
+"Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian <https://translate.fedoraproject.org/projects/avahi/"
 "master/sl/>\n"
 "Language: sl\n"
@@ -114,7 +113,7 @@ msgstr "Neveljavno dejanje"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr "Prišlo je do nepričakovane napake vodila D-Bus."
+msgstr "Prišlo je do nepričakovane napake vodila D-Bus"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
@@ -514,7 +513,7 @@ msgstr "Izbor lupinskega strežnika"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr "P_oveži"
+msgstr "_Poveži"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"

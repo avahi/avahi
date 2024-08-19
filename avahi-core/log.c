@@ -33,7 +33,7 @@ void avahi_set_log_function(AvahiLogFunction function) {
 }
 
 void avahi_log_ap(AvahiLogLevel level, const char*format, va_list ap) {
-    char txt[1280];
+    char txt[256];
 
     vsnprintf(txt, sizeof(txt), format, ap);
 

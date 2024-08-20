@@ -112,7 +112,7 @@ static void create_services(AvahiServer *s) {
     }
 
     /* Add an additional (hypothetic) subtype */
-    if ((ret = avahi_server_add_service_subtype(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp") < 0)) {
+    if ((ret = avahi_server_add_service_subtype(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp")) < 0) {
         fprintf(stderr, "Failed to add subtype _magic._sub._printer._tcp: %s\n", avahi_strerror(ret));
         goto fail;
     }

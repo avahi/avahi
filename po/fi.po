@@ -4,14 +4,14 @@
 #
 # Translators:
 # Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024.
+# Jan Kuparinen <copper_fin@hotmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2024-09-06 19:38+0000\n"
-"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
-"memory@weblate.org>\n"
+"Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/avahi/"
 "master/fi/>\n"
 "Language: fi\n"
@@ -765,6 +765,19 @@ msgid ""
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
+"%s [asetukset] %s <nimi> <tyyppi> <portti> [<txt ...>]\n"
+"%s [asetukset] %s <isäntänimi> <osoite>\n"
+"\n"
+" -h --help Näytä tämä ohje\n"
+" -V --versio Näytä versio\n"
+" -s --service Julkaise palvelu\n"
+" -a --address Julkaise osoite\n"
+" -v --verbose Ota monisanainen tila käyttöön\n"
+" -d --domain=DOMAINI Verkkotunnus, jossa palvelu julkaistaan\n"
+" -H --host=DOMAINI Isäntä, jossa palvelu sijaitsee\n"
+" --subtype=ALATYYPPI Lisäalatyyppi tämän palvelun rekisteröimiseksi\n"
+" -R --no-reverse Älä julkaise käänteistä merkintää osoitteen kanssa\n"
+" -f --no-fail Älä epäonnistu, jos demonia ei ole saatavilla\n"
 
 #: ../avahi-utils/avahi-publish.c:303 ../avahi-utils/avahi-publish.c:318
 #, c-format

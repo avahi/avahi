@@ -51,7 +51,7 @@ avahi-discover.desktop: avahi-discover.desktop.in
 avahi-discover: avahi-discover.py
 	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@GETTEXT_PACKAGE\@,"$(GETTEXT_PACKAGE)",g' \
-		-e 's,@LOCALEDIR\@,"$(avahilocaledir)",g' \
+		-e 's,@LOCALEDIR\@,"$(localedir)",g' \
 		-e 's,@interfacesdir\@,$(interfacesdir),g' $< > $@ && \
 	chmod +x $@
 

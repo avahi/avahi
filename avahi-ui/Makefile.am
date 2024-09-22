@@ -30,7 +30,7 @@ desktop_DATA_in_in = bssh.desktop.in.in bvnc.desktop.in.in
 EXTRA_DIST = $(desktop_DATA_in_in)
 
 if HAVE_GTK2OR3
-AM_CFLAGS += -DGNOMELOCALEDIR=\"$(datadir)/locale\"
+AM_CFLAGS += -DGNOMELOCALEDIR=\"$(localedir)\"
 if HAVE_DBUS
 if HAVE_GLIB
 

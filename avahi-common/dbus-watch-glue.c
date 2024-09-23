@@ -84,7 +84,7 @@ static void connection_data_unref(ConnectionData *d) {
 }
 
 static void request_dispatch(ConnectionData *d, int enable) {
-    static const struct timeval tv = { 0, 0 };
+    static const struct AvahiTimeVal tv = { 0, 0 };
     assert(d);
 
     if (enable) {
@@ -225,7 +225,7 @@ static void update_timeout(TimeoutData *timeout) {
     assert(timeout->ref >= 1);
 
     if (dbus_timeout_get_enabled(timeout->dbus_timeout)) {
-        struct timeval tv;
+        struct AvahiTimeVal tv;
         avahi_elapse_time(&tv, dbus_timeout_get_interval(timeout->dbus_timeout), 0);
         timeout->poll_api->timeout_update(timeout->
                                       avahi_timeout, &tv);
@@ -254,7 +254,7 @@ static void timeout_callback(AvahiTimeout *avahi_timeout, void *userdata) {
 static dbus_bool_t add_timeout(DBusTimeout *dbus_timeout, void *userdata) {
     TimeoutData *timeout;
     ConnectionData *d = userdata;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     dbus_bool_t b;
 
     assert(dbus_timeout);

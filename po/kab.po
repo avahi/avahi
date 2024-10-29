@@ -2,13 +2,15 @@
 # Copyright (C) YEAR The Avahi developers.
 # This file is distributed under the same license as the avahi package.
 # ButterflyOfFire <butterflyoffire@protonmail.com>, 2024.
+# ButterflyOfFire <butterflyoffire@users.noreply.translate.fedoraproject.org>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2024-08-10 10:03+0000\n"
-"PO-Revision-Date: 2024-10-06 14:38+0000\n"
-"Last-Translator: ButterflyOfFire <butterflyoffire@protonmail.com>\n"
+"PO-Revision-Date: 2024-10-09 12:38+0000\n"
+"Last-Translator: ButterflyOfFire <butterflyoffire@users.noreply.translate."
+"fedoraproject.org>\n"
 "Language-Team: Kabyle <https://translate.fedoraproject.org/projects/avahi/"
 "master/kab/>\n"
 "Language: kab\n"
@@ -24,7 +26,7 @@ msgstr "IH"
 
 #: avahi-common/error.c:31
 msgid "Operation failed"
-msgstr ""
+msgstr "Tamhelt tecceḍ"
 
 #: avahi-common/error.c:32
 msgid "Bad state"
@@ -216,7 +218,7 @@ msgstr ""
 
 #: avahi-common/error.c:83
 msgid "Not supported"
-msgstr ""
+msgstr "Ur tettwasefrak ara"
 
 #: avahi-common/error.c:85
 msgid "Not permitted"

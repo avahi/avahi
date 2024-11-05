@@ -6,20 +6,23 @@
 # Christopher Meng <i@cicku.me>, 2012
 # Huan Chen <chenhuan126@126.com>, 2011
 # nihui <shuizhuyuanluo@126.com>, 2011
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024.
+# lumingzh <lumingzh@qq.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2013-11-20 09:58+0000\n"
-"Last-Translator: Christopher Meng <i@cicku.me>\n"
-"Language-Team: Chinese (China) (http://www.transifex.com/lennart/avahi/"
-"language/zh_CN/)\n"
+"PO-Revision-Date: 2024-10-13 00:38+0000\n"
+"Last-Translator: lumingzh <lumingzh@qq.com>\n"
+"Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
+"projects/avahi/master/zh_CN/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.7.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -235,7 +238,7 @@ msgstr "为空"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr "请求的操作因为太多所以无效。"
+msgstr "请求的操作因为太多所以无效"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
@@ -243,7 +246,7 @@ msgstr "无效错误代码"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:1
 msgid "Avahi Discovery"
-msgstr "Avahi Discovery"
+msgstr "Avahi 发现"
 
 #: ../avahi-discover-standalone/avahi-discover.ui.h:2
 #: ../avahi-python/avahi-discover/avahi-discover.py:76
@@ -392,7 +395,7 @@ msgstr "Avahi 解析器失败：%s"
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr "浏览在域 %s$2 中的服务类型 %s$1  失败：%s"
+msgstr "浏览在域 %2$s 中的服务类型 %1$s 失败：%3$s"
 
 #: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
@@ -453,14 +456,12 @@ msgstr "正在浏览..."
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "已取消。\n"
+msgstr "取消(_C)"
 
 #: ../avahi-ui/avahi-ui.c:1048
-#, fuzzy
 msgid "_OK"
-msgstr "确定"
+msgstr "确定(_O)"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -512,7 +513,7 @@ msgstr "选择 Shell 服务器"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "连接(_O)"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"
@@ -625,14 +626,14 @@ msgstr "服务器版本：%s；主机名：%s\n"
 #: ../avahi-utils/avahi-browse.c:549
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr "E Ifce Prot Domain\n"
+msgstr "E Ifce Prot 域\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr "E Ifce Prot %-*s %-20s Domain\n"
+msgstr "E Ifce Prot %-*s %-20s 域\n"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
@@ -674,26 +675,26 @@ msgid ""
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
-"   -h --help      显示本帮助信息\n"
-"  -V --version      显示版本\n"
-"  -D --browse-domains      浏览域而不浏览服务\n"
-"  -a --all      显示所有服务，不考虑类型\n"
-"  -d --domain=<域>      要浏览的域\n"
-"  -v --verbose      启用详细模式\n"
-"  -t --terminate      在转储基本完整的列表后终止\n"
-"  -c --cache      在转储缓存中的所有条目后终止\n"
-"  -l --ignore-local      忽略本地服务\n"
-"  -r --resolve      解析找到的服务\n"
-"  -f --no-fail      即使 daemon 不可用也不退出\n"
-"  -p --parsable      输出可解析的格式\n"
+"    -h --help            显示本帮助信息\n"
+"    -V --version         显示版本\n"
+"    -D --browse-domains  浏览域而不浏览服务\n"
+"    -a --all             显示所有服务，不考虑类型\n"
+"    -d --domain=<域>   要浏览的域\n"
+"    -v --verbose         启用详细模式\n"
+"    -t --terminate       在转储基本完整的列表后终止\n"
+"    -c --cache           在转储缓存中的所有条目后终止\n"
+"    -l --ignore-local    忽略本地服务\n"
+"    -r --resolve         解析找到的服务\n"
+"    -f --no-fail         即使 daemon 不可用也不退出\n"
+"    -p --parsable        输出可解析的格式\n"
 
 #: ../avahi-utils/avahi-browse.c:660
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
-"   -k --no-db-lookup    不查询服务类型\n"
-"  -b --dump-db         转储服务类型数据库\n"
+"    -k --no-db-lookup    不查询服务类型\n"
+"    -b --dump-db         转储服务类型数据库\n"
 
 #: ../avahi-utils/avahi-browse.c:766 ../avahi-utils/avahi-resolve.c:219
 #, c-format

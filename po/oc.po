@@ -4,20 +4,22 @@
 # Translators:
 #
 # Cédric VALMARY <cvalmary@yahoo.fr>, 2016.
+# Quentin PAGÈS <quentinantonin@free.fr>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2016-09-22 02:24+0000\n"
-"PO-Revision-Date: 2016-10-11 16:17+0200\n"
-"Last-Translator: Cédric VALMARY <cvalmary@yahoo.fr>\n"
-"Language-Team: Tot en òc (totenoc.eu)\n"
+"PO-Revision-Date: 2024-10-06 14:38+0000\n"
+"Last-Translator: Quentin PAGÈS <quentinantonin@free.fr>\n"
+"Language-Team: Occitan <https://translate.fedoraproject.org/projects/avahi/"
+"master/oc/>\n"
 "Language: oc\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Virtaal 0.7.1\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.7.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -105,7 +107,7 @@ msgstr "Accès refusat"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
-msgstr "Operacion invalida "
+msgstr "Operacion invalida"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
@@ -555,7 +557,7 @@ msgstr "Explorar los servidors SSH amb Zeroconf activat"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:1
 msgid "Avahi VNC Server Browser"
-msgstr "Explorador de servidors VNC Avahi "
+msgstr "Explorador de servidors VNC Avahi"
 
 #: ../avahi-ui/bvnc.desktop.in.in.h:2
 msgid "Browse for Zeroconf-enabled VNC Servers"
@@ -564,12 +566,12 @@ msgstr "Explorar los servidors VNC amb Zeroconf activat"
 #: ../avahi-utils/avahi-browse.c:107
 #, c-format
 msgid ": All for now\n"
-msgstr " : Res mai pel moment\n"
+msgstr ": Res mai pel moment\n"
 
 #: ../avahi-utils/avahi-browse.c:118
 #, c-format
 msgid ": Cache exhausted\n"
-msgstr " : memòria cache saturada\n"
+msgstr ": memòria cache saturada\n"
 
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
@@ -581,7 +583,7 @@ msgstr ""
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format
 msgid "service_browser failed: %s\n"
-msgstr "Fracàs de service_browser :  %s\n"
+msgstr "Fracàs de service_browser : %s\n"
 
 #: ../avahi-utils/avahi-browse.c:378
 #, c-format

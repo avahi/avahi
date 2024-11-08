@@ -69,7 +69,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiSimplePoll *simple_poll;
     const AvahiPoll *poll_api;
     AvahiServer *server;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();

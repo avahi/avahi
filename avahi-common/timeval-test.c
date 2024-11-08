@@ -28,7 +28,7 @@
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
-    struct timeval a = { 5, 5 }, b;
+    struct AvahiTimeVal a = { 5, 5 }, b;
 
     b = a;
 

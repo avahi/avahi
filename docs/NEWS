@@ -27,7 +27,8 @@ Security Fixes:
 - CVE-2023-1981: avahi-daemon can be crashed via DBus #375
 - CVE-2021-3502: reachable assertion in avahi_s_host_name_resolver_start when
   trying to resolve badly-formatted hostnames (CVE-2021-3502, CVE-2021-36217) #338
-- CVE-2021-3468
+- CVE-2021-3468: Avoid infinite-loop in avahi-daemon by handling HUP event in client_work #330
+- CVE-2024-52616: Avahi Wide-Area DNS Predictable Transaction IDs #659
 
 Bug fixes:
 - Corrections of accepting invalid mdns names from network #581

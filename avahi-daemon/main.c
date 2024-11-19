@@ -35,6 +35,9 @@
 #ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
 #endif
+#ifdef HAVE_SYS_RANDOM_H
+#include <sys/random.h>
+#endif
 #include <stdio.h>
 #include <fcntl.h>
 #include <time.h>
@@ -1503,6 +1506,12 @@ static void init_rand_seed(void) {
     int fd;
     unsigned seed = 0;
 
+#ifdef HAVE_GETRANDOM
+    if (getrandom(&seed, sizeof(seed), 0) != -1) {
+        goto initseed;
+    }
+#endif
+
     /* Try to initialize seed from /dev/urandom, to make it a little
      * less predictable, and to make sure that multiple machines
      * booted at the same time choose different random seeds.  */
@@ -1514,6 +1523,9 @@ static void init_rand_seed(void) {
     /* If the initialization failed by some reason, we add the time to the seed*/
     seed ^= (unsigned) time(NULL);
 
+#ifdef HAVE_GETRANDOM
+initseed:
+#endif
     srand(seed);
 }
 

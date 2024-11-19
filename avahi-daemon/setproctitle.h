@@ -25,4 +25,7 @@
 void avahi_init_proc_title(int argc, char **argv);
 void avahi_set_proc_title(const char *name, const char *fmt, ...) AVAHI_GCC_PRINTF_ATTR23;
 
+/** Initialize random generator. Shared with avahi-autoipd. */
+void avahi_init_rand_seed(void);
+
 #endif

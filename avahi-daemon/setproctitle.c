@@ -21,19 +21,27 @@
 #include <config.h>
 #endif
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <time.h>
 #include <unistd.h>
 
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
 
+#ifdef HAVE_SYS_RANDOM_H
+#include <sys/random.h>
+#endif
+
 #include <avahi-common/malloc.h>
 
 #include "setproctitle.h"
+
+#define RANDOM_DEVICE "/dev/urandom"
 
 #if !defined(HAVE_SETPROCTITLE) && defined(__linux__)
 static char** argv_buffer = NULL;
@@ -108,4 +116,32 @@ void avahi_set_proc_title(const char *name, const char *fmt,...) {
         prctl(PR_SET_NAME, (unsigned long) name, 0, 0, 0);
 
 #endif
+}
+
+void avahi_init_rand_seed(void)
+{
+    int fd;
+    unsigned seed = 0;
+
+#ifdef HAVE_GETRANDOM
+    if (getrandom(&seed, sizeof(seed), 0) != -1) {
+        goto initseed;
+    }
+#endif
+
+    /* Try to initialize seed from /dev/urandom, to make it a little
+     * less predictable, and to make sure that multiple machines
+     * booted at the same time choose different random seeds.  */
+    if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
+        read(fd, &seed, sizeof(seed));
+        close(fd);
+    }
+
+    /* If the initialization failed by some reason, we add the time to the seed*/
+    seed ^= (unsigned) time(NULL);
+
+#ifdef HAVE_GETRANDOM
+initseed:
+#endif
+    srand(seed);
 }

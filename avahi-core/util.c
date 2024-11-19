@@ -26,9 +26,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #include <avahi-common/malloc.h>
 #include "util.h"
+
+#define RANDOM_DEVICE "/dev/urandom"
 
 void avahi_hexdump(const void* p, size_t size) {
     const uint8_t *c = p;

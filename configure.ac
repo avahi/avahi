@@ -367,7 +367,8 @@ AC_FUNC_SELECT_ARGTYPES
 # whether libc's malloc does too. (Same for realloc.)
 #AC_FUNC_MALLOC
 #AC_FUNC_REALLOC
-AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid setresgid setregid strcasecmp gettimeofday putenv strncasecmp strlcpy gethostbyname seteuid setegid setproctitle getprogname])
+AC_CHECK_FUNCS([gethostname memchr memmove memset mkdir select socket strchr strcspn strdup strerror strrchr strspn strstr uname setresuid setreuid setresgid setregid strcasecmp gettimeofday putenv strncasecmp strlcpy gethostbyname seteuid setegid setproctitle getprogname getrandom])
+AC_CHECK_HEADERS([sys/random.h])
 
 AC_FUNC_CHOWN
 AC_FUNC_STAT

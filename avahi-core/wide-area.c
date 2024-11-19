@@ -40,6 +40,13 @@
 #include "addr-util.h"
 #include "rr-util.h"
 
+#ifdef HAVE_SYS_RANDOM_H
+#include <sys/random.h>
+#endif
+#ifndef HAVE_GETRANDOM
+#  define getrandom(d, len, flags) (-1)
+#endif
+
 #define CACHE_ENTRIES_MAX 500
 
 typedef struct AvahiWideAreaCacheEntry AvahiWideAreaCacheEntry;
@@ -83,8 +90,6 @@ struct AvahiWideAreaLookupEngine {
 
     int fd_ipv4, fd_ipv6;
     AvahiWatch *watch_ipv4, *watch_ipv6;
-
-    uint16_t next_id;
 
     /* Cache */
     AVAHI_LLIST_HEAD(AvahiWideAreaCacheEntry, cache);
@@ -201,6 +206,26 @@ static void sender_timeout_callback(AvahiTimeEvent *e, void *userdata) {
     avahi_time_event_update(e, avahi_elapse_time(&tv, 1000, 0));
 }
 
+static uint16_t get_random_uint16(void) {
+    uint16_t next_id;
+
+    if (getrandom(&next_id, sizeof(next_id), 0) == -1)
+        next_id = (uint16_t) rand();
+    return next_id;
+}
+
+static uint16_t avahi_wide_area_next_id(AvahiWideAreaLookupEngine *e) {
+    uint16_t next_id;
+
+    next_id = get_random_uint16();
+    while (find_lookup(e, next_id)) {
+        /* This ID is already used, get new. */
+        next_id = get_random_uint16();
+    }
+    return next_id;
+}
+
+
 AvahiWideAreaLookup *avahi_wide_area_lookup_new(
     AvahiWideAreaLookupEngine *e,
     AvahiKey *key,
@@ -227,11 +252,7 @@ AvahiWideAreaLookup *avahi_wide_area_lookup_new(
     /* If more than 65K wide area quries are issued simultaneously,
      * this will break. This should be limited by some higher level */
 
-    for (;; e->next_id++)
-        if (!find_lookup(e, e->next_id))
-            break; /* This ID is not yet used. */
-
-    l->id = e->next_id++;
+    l->id = avahi_wide_area_next_id(e);
 
     /* We keep the packet around in case we need to repeat our query */
     l->packet = avahi_dns_packet_new(0);
@@ -604,7 +625,6 @@ AvahiWideAreaLookupEngine *avahi_wide_area_engine_new(AvahiServer *s) {
         e->watch_ipv6 = s->poll_api->watch_new(e->server->poll_api, e->fd_ipv6, AVAHI_WATCH_IN, socket_event, e);
 
     e->n_dns_servers = e->current_dns_server = 0;
-    e->next_id = (uint16_t) rand();
 
     /* Initialize cache */
     AVAHI_LLIST_HEAD_INIT(AvahiWideAreaCacheEntry, e->cache);

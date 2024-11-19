@@ -169,32 +169,12 @@ typedef struct CalloutEventInfo {
     int ifindex;
 } CalloutEventInfo;
 
-#define RANDOM_DEVICE "/dev/urandom"
-
 #define DEBUG(x)                                \
     do {                                        \
         if (debug) {                            \
             x;                                  \
         }                                       \
     } while (0)
-
-static void init_rand_seed(void) {
-    int fd;
-    unsigned seed = 0;
-
-    /* Try to initialize seed from /dev/urandom, to make it a little
-     * less predictable, and to make sure that multiple machines
-     * booted at the same time choose different random seeds.  */
-    if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
-        read(fd, &seed, sizeof(seed));
-        close(fd);
-    }
-
-    /* If the initialization failed by some reason, we add the time to the seed */
-    seed ^= (unsigned) time(NULL);
-
-    srand(seed);
-}
 
 static uint32_t pick_addr(uint32_t old_addr) {
     uint32_t addr;
@@ -1614,7 +1594,7 @@ int main(int argc, char*argv[]) {
         pid_t pid;
         int ifindex;
 
-        init_rand_seed();
+        avahi_init_rand_seed();
 
         if ((ifindex = if_nametoindex(interface_name)) <= 0) {
             daemon_log(LOG_ERR, "Failed to get index for interface name '%s': %s", interface_name, strerror(errno));

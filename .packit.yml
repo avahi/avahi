@@ -8,7 +8,7 @@ upstream_package_name: avahi
 downstream_package_name: avahi
 upstream_tag_template: "v{version}"
 srpm_build_deps: []
-csmock_args: --cppcheck-add-flag=--enable=style
+csmock_args: --cppcheck-add-flag=--enable=style --gcc-add-flag=-flto=auto
 
 actions:
   post-upstream-clone:

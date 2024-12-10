@@ -1,8 +1,8 @@
-#compdef avahi-browse avahi-browse-domains avahi-resolve avahi-resolve-address avahi-resolve-host-name
+#compdef avahi-browse avahi-browse-domains avahi-publish avahi-publish-address avahi-publish-service avahi-resolve avahi-resolve-address avahi-resolve-host-name avahi-set-host-name
 
 # Completion function for zsh
 
-local curcontext="$curcontext" pri ret=1
+local curcontext="$curcontext" pri aarg sarg ret=1
 local -A opt_args
 local -a state line args serv desc disp
 
@@ -34,6 +34,33 @@ case $service in
 
     [[ -n $state ]] && _describe -t services "service type" disp && ret=0
   ;;
+  *-publish*)
+    aarg=${(M)words[1,CURRENT-1]:#-(a|-address)}
+    sarg=${(M)words[1,CURRENT-1]:#-(s|-service)}
+    if [[ -n $aarg || ( -z $sarg && $service = *-address ) ]]; then
+      args+=(
+        '1: : _guard "^-*" "hostname"'
+        '2:address'
+      )
+    elif [[ -n $sarg || $service = *-service ]]; then
+      args+=(
+        '1: : _guard "^-*" "name"'
+        '2:service type'
+        '3:port:_ports'
+        '*:TXT data'
+      )
+    fi
+
+    _arguments -s -S $args \
+      '(-d --domain)'{-d+,--domain=}'[domain to publish service in]:domain' \
+      '(-H --host)'{-H+,--host=}'[specify host where service resides]:host:_hosts' \
+      '--subtype=[specify additional subtype to register this service with]:subtype' \
+      '(-R --no-reverse)'{-R,--no-reverse}'[do not publish reverse entry with address]' \
+      '(-f --no-fail)'{-f,--no-fail}"[don't fail if the daemon is not available]" \
+      + '(action)' \
+      {-s,--service}'[publish service]' \
+      {-a,--address}'[publish address]' && ret=0
+  ;;
   *-resolve*)
     if (( ${words[(I)(-n|--name)]} )) || [[ $service = *-host-name ]]; then
        args=( '*:host:_hosts' )
@@ -48,6 +75,9 @@ case $service in
       '(-a --address -n --name -h --help -V --version)'{-n,--name}'[resolve host name]' \
       '(-4)-6[lookup IPv6 address]' \
       '(-6)-4[lookup IPv4 address]' && ret=0
+  ;;
+  *-set-host-name)
+    _arguments -s -S $args '1: : _guard "^-*" "hostname"' && ret=0
   ;;
 esac
 

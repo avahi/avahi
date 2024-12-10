@@ -79,7 +79,8 @@ SUBDIRS = \
 	avahi-ui \
 	avahi-ui-sharp \
 	avahi-libevent \
-	po
+	po \
+	completion
 
 DX_INPUT = \
 	$(srcdir)/avahi-common/address.h \

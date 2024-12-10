@@ -1155,16 +1155,15 @@ AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_sy
 #
 # Install zsh completion?
 #
-AC_ARG_ENABLE(zsh-completion,
-	AS_HELP_STRING([--disable-zsh-completion],[Disable installation of zsh completion file]),
-        [case "${enableval}" in
-                yes) ENABLE_ZSH_COMPLETION=yes ;;
-                no)  ENABLE_ZSH_COMPLETION=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --disable-zsh-completion) ;;
-        esac],
-        [ENABLE_ZSH_COMPLETION=yes])
-
-AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, test "x$ENABLE_ZSH_COMPLETION" = "xyes")
+AC_ARG_WITH([zsh-completion-dir],
+	AS_HELP_STRING([--with-zsh-completion-dir=DIR],[Directory for zsh completion file]))
+if test "x$with_zsh_completion_dir" = xyes; then
+	with_zsh_completion_dir="$datarootdir/zsh/site-functions"
+fi
+if test "x$with_zsh_completion_dir" != xno; then
+        AC_SUBST([zshcompdir], [$with_zsh_completion_dir])
+fi
+AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, test -n "$with_zsh_completion_dir" -a "x$with_zsh_completion_dir" != xno)
 
 # ==========================================================================
 AC_CONFIG_FILES([
@@ -1227,7 +1226,7 @@ echo "
     Enable GTK 3.0:                            ${HAVE_GTK3}
     Enable D-Bus:                              ${HAVE_DBUS}
     With XML:                                  ${with_xml}
-    Install Zsh completion:                    ${ENABLE_ZSH_COMPLETION}
+    Zsh completion path:                       ${with_zsh_completion_dir}
     Enable GDBM:                               ${HAVE_GDBM}
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}

@@ -17,7 +17,6 @@
 
 if ENABLE_ZSH_COMPLETION
 
-zshcompdir = $(datadir)/zsh/site-functions
 dist_zshcomp_DATA = _avahi
 
 endif

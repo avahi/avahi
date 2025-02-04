@@ -45,6 +45,19 @@ case "$1" in
         git clone https://gitlab.com/akihe/radamsa
         (cd radamsa && make -j"$(nproc)" && make install)
         ;;
+    install-build-deps-FreeBSD)
+        # Use latest package set
+        mkdir -p /usr/local/etc/pkg/repos/
+        cp /etc/pkg/FreeBSD.conf /usr/local/etc/pkg/repos/FreeBSD.conf
+        sed -i.bak -e 's|/quarterly|/latest|' /usr/local/etc/pkg/repos/FreeBSD.conf
+
+        pkg install -y gettext-runtime gettext-tools gmake intltool \
+            gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
+            libevent glib automake libtool libinotify qt5-core qt5-buildtools \
+            gtk3 py311-pygobject py311-dbus py311-gdbm mono
+        # some deps pull in avahi itself, remove it
+        pkg remove -f avahi-app
+        ;;
     build)
         if [[ "$ASAN_UBSAN" == true ]]; then
             export CFLAGS+=" -fsanitize=address,undefined -g"
@@ -78,30 +91,50 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
+        prefix="/usr"
+        MAKE="make"
+        disable_libsystemd_arg=""
+        disable_manpages_arg=""
+
+        if [ "$(type dpkg-architecture)" ]; then
+            libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+        fi
+
+        if [[ $(uname -s) = FreeBSD ]]; then
+            prefix="/usr/local"
+            libdir="$prefix/lib"
+            MAKE="gmake"
+            disable_libsystemd_arg="--disable-libsystemd"
+            disable_manpages_arg="--disable-manpages"
+        fi
+
         ./autogen.sh \
             --enable-compat-howl \
             --enable-compat-libdns_sd \
             --enable-core-docs \
             --enable-tests \
-            --libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+            --libdir="$libdir" \
             --localstatedir=/var \
-            --prefix=/usr \
+            --prefix=$prefix \
             --runstatedir=/run \
-            --sysconfdir=/etc
+            --sysconfdir=/etc \
+            $disable_libsystemd_arg \
+            $disable_manpages_arg
 
-        make -j"$(nproc)" V=1
+        $MAKE -j"$(nproc)" V=1
 
         if [[ "$BUILD_ONLY" == true ]]; then
             exit 0
         fi
 
         if [[ "$DISTCHECK" == true ]]; then
-            make distcheck
+            $MAKE distcheck \
+                DISTCHECK_CONFIGURE_FLAGS="$disable_libsystemd_arg $disable_manpages_arg"
         fi
 
-        make check VERBOSE=1
+        $MAKE check VERBOSE=1
 
-        sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
+        sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service || true
 
         # avahi-dnsconfd is used to test the DNS server browser only.
         # It shouldn't actually change any settings so the action just
@@ -138,7 +171,7 @@ EOL
 
         # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
         # so it isn't set to yes here.
-        sed -i '
+        sed -i.bak '
             s/^#\(add-service-cookie=\).*/\1yes/;
             s/^#\(publish-dns-servers=\)/\1/;
             s/^#\(publish-resolv-conf-dns-servers=\).*/\1yes/;
@@ -147,14 +180,17 @@ EOL
 
         printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
 
-        make install
+        $MAKE install
         ldconfig
-        adduser --system --group avahi
-        systemctl reload dbus
 
-        if ! .github/workflows/smoke-tests.sh; then
-            look_for_asan_ubsan_reports
-            exit 1
+        # smoke tests require systemd, so don't run them on FreeBSD
+        if [[ $(uname -s) != FreeBSD ]]; then
+            adduser --system --group avahi
+            systemctl reload dbus
+            if ! .github/workflows/smoke-tests.sh; then
+                look_for_asan_ubsan_reports
+                exit 1
+            fi
         fi
 
         if [[ "$COVERAGE" == true ]]; then

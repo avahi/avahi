@@ -55,3 +55,22 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: ./coverage.info
           format: lcov
+
+  freebsd:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v4
+      - uses: cross-platform-actions/action@a0672d7f6de3a78e7784bbaf491c7303f68d94b3 # v0.26.0
+        with:
+          operating_system: 'freebsd'
+          version: '14.2'
+          architecture: 'x86_64'
+          run: |
+            export CC=clang
+            sudo -E pkg install -y gettext-runtime gettext-tools gmake intltool \
+            gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
+            libevent glib automake libtool qt5-core qt5-buildtools gtk3 \
+            py311-pygobject py311-dbus py311-gdbm
+            sudo pkg remove -f avahi-app
+            sudo -E .github/workflows/build.sh build

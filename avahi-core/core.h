@@ -70,6 +70,7 @@ typedef struct AvahiServerConfig {
     unsigned n_cache_entries_max;     /**< Maximum number of cache entries per interface */
     AvahiUsec ratelimit_interval;     /**< If non-zero, rate-limiting interval parameter. */
     unsigned ratelimit_burst;         /**< If ratelimit_interval is non-zero, rate-limiting burst parameter. */
+    int always_publish_linklocal;     /**< Always publish link-local addresses, even if global addresses are configured on the same interface */
 } AvahiServerConfig;
 
 /** Allocate a new mDNS responder object. */

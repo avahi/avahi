@@ -295,7 +295,6 @@ static void lookup_multicast_callback(
                 lookup_drop_cname(l, interface, protocol, 0, r);
             else {
                 /* It's a normal record, so let's call the user callback */
-                assert(avahi_key_equal(b->key, l->key));
 
                 b->callback(b, interface, protocol, event, r, flags, b->userdata);
             }

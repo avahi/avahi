@@ -50,6 +50,23 @@ static void quit_timeout_callback(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *
 
 #define avahi_test_cache_flush() avahi_cache_flush(cache)
 
+static void avahi_test_add_a(const char *src, const char *dst, uint32_t ttl) {
+    AvahiRecord *record;
+    AvahiAddress src_addr;
+    AvahiAddress answer_addr;
+
+    avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &src_addr);
+    avahi_address_parse(dst, AVAHI_PROTO_UNSPEC, &answer_addr);
+
+    record = avahi_record_new_full(src, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, ttl);
+    record->data.a.address = answer_addr.data.ipv4;
+
+    avahi_cache_update(cache, record, 0, &src_addr);
+    avahi_record_unref(record);
+
+    avahi_log_debug("Added A record to cache: %s -> %s", src, dst);
+}
+
 static void avahi_test_add_cname(const char *src, const char *dst) {
     AvahiRecord *record;
     AvahiAddress src_addr;
@@ -126,6 +143,19 @@ static void diamond(void) {
     avahi_test_add_cname("Z.local", "A.local");
 }
 
+static void cname_answer_diamond(void) {
+    avahi_test_add_cname("X.local", "Y.local");
+    avahi_test_add_cname("X.local", "Z.local");
+    avahi_test_add_cname("Y.local", "A.local");
+    avahi_test_add_cname("Z.local", "A.local");
+    avahi_test_add_a("A.local", "192.168.50.99", 2);
+}
+
+static void cname_answer(void) {
+    avahi_test_add_cname("X.local", "Y.local");
+    avahi_test_add_a("Y.local", "192.168.50.99", 2);
+}
+
 static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void *userdata) {
     avahi_log_debug("server state: %i", state);
 
@@ -187,6 +217,8 @@ static void avahi_test_initialize(char *test_case) {
     CHECK_TEST_CASE("three_normal", three_normal);
     CHECK_TEST_CASE("three_loop", three_loop);
     CHECK_TEST_CASE("diamond", diamond);
+    CHECK_TEST_CASE("cname_answer_diamond", cname_answer_diamond);
+    CHECK_TEST_CASE("cname_answer", cname_answer);
 
     assert(avahi_test_case_function);
 }

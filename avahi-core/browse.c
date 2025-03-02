@@ -320,7 +320,10 @@ static int lookup_start(AvahiSRBLookup *l) {
     assert(l);
 
     assert(!(l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) != !(l->flags & AVAHI_LOOKUP_USE_MULTICAST));
-    assert(!l->wide_area && !l->multicast);
+    if (l->wide_area || l->multicast) {
+        /* Avoid starting a duplicate lookup */
+        return 0;
+    }
 
     if (l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) {
 

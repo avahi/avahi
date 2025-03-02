@@ -401,6 +401,40 @@ static int lookup_go(AvahiSRBLookup *l) {
     return n;
 }
 
+static int lookup_exists_in_path(AvahiSRBLookup* lookup, AvahiSRBLookup* from, AvahiSRBLookup* to) {
+    AvahiRList* rl;
+    if (from == to)
+        return 0;
+    for (rl = from->cname_lookups; rl; rl = rl->rlist_next) {
+        int r = lookup_exists_in_path(lookup, rl->data, to);
+        if (r == 1) {
+            /* loop detected, propagate result */
+            return r;
+        } else if (r == 0) {
+            /* is loop detected? */
+            return lookup == from;
+        } else {
+	        /* `to` not found, continue */
+            continue;
+        }
+    }
+    /* no path found */
+    return -1;
+}
+
+static int cname_would_create_loop(AvahiSRBLookup* l, AvahiSRBLookup* n) {
+    int ret;
+    if (l == n)
+        /* Loop to self */
+        return 1;
+
+    ret = lookup_exists_in_path(n, l->record_browser->root_lookup, l);
+
+    /* Path to n always exists */
+    assert(ret != -1);
+    return ret;
+}
+
 static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiRecord *r) {
     AvahiKey *k;
     AvahiSRBLookup *n;
@@ -417,6 +451,12 @@ static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, Avahi
 
     if (!n) {
         avahi_log_debug(__FILE__": Failed to create SRBLookup.");
+        return;
+    }
+
+    if (cname_would_create_loop(l, n)) {
+        /* CNAME loops are not allowed */
+        lookup_unref(n);
         return;
     }
 

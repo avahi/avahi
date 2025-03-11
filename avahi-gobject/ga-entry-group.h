@@ -43,14 +43,14 @@ typedef struct _GaEntryGroup GaEntryGroup;
 typedef struct _GaEntryGroupClass GaEntryGroupClass;
 
 struct _GaEntryGroupService {
-    AvahiIfIndex interface;
-    AvahiProtocol protocol;
-    AvahiPublishFlags flags;
     gchar *name;
     gchar *type;
     gchar *domain;
     gchar *host;
     guint16 port;
+    AvahiIfIndex interface;
+    AvahiProtocol protocol;
+    AvahiPublishFlags flags;
 };
 
 struct _GaEntryGroupClass {

@@ -187,16 +187,16 @@ GaClient *ga_client_new(GaClientFlags flags) {
 
 static GQuark detail_for_state(AvahiClientState state) {
     static struct {
-        AvahiClientState state;
         const gchar *name;
         GQuark quark;
+        AvahiClientState state;
     } states[] = {
-        { AVAHI_CLIENT_S_REGISTERING, "registering", 0},
-        { AVAHI_CLIENT_S_RUNNING, "running", 0},
-        { AVAHI_CLIENT_S_COLLISION, "collision", 0},
-        { AVAHI_CLIENT_FAILURE, "failure", 0},
-        { AVAHI_CLIENT_CONNECTING, "connecting", 0},
-        { 0, NULL, 0}
+        { "registering", 0, AVAHI_CLIENT_S_REGISTERING},
+        { "running", 0, AVAHI_CLIENT_S_RUNNING},
+        { "collision", 0, AVAHI_CLIENT_S_COLLISION},
+        { "failure", 0, AVAHI_CLIENT_FAILURE},
+        { "connecting", 0, AVAHI_CLIENT_CONNECTING},
+        { NULL, 0, 0}
     };
     int i;
 

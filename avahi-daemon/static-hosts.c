@@ -37,13 +37,13 @@
 typedef struct StaticHost StaticHost;
 
 struct StaticHost {
+    AVAHI_LLIST_FIELDS(StaticHost, hosts);
+
     AvahiSEntryGroup *group;
     int iteration;
 
-    char *host;
     AvahiAddress address;
-
-    AVAHI_LLIST_FIELDS(StaticHost, hosts);
+    char *host;
 };
 
 static AVAHI_LLIST_HEAD(StaticHost, hosts) = NULL;

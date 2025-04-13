@@ -19,8 +19,10 @@
 
 try:
     import anydbm as dbm
+    from whichdb import whichdb
 except ImportError:
     import dbm
+    from dbm import whichdb
 
 import sys
 
@@ -47,3 +49,19 @@ for ln in open(infn, "r"):
     db[t.strip()] = n.strip()
 
 db.close()
+
+if whichdb(outfn) == "dbm.sqlite3":
+    # Python dbm.sqlite3 module (which is used by default) sets journal_mode
+    # to WAL when creating the database. Unfortunately this makes the database
+    # unable to be opened again by the dbm.sqlite3 module if it is stored on a
+    # read-only directory.
+    #
+    # The behavior is documented here:
+    # https://sqlite.org/wal.html#read_only_databases
+    # > Even though it is possible to open a read-only WAL-mode database, it
+    # > is good practice to converted to PRAGMA journal_mode=DELETE prior to
+    # > burning an SQLite database image onto read-only media.
+    import sqlite3
+    conn = sqlite3.connect(outfn)
+    conn.execute("PRAGMA journal_mode = DELETE;")
+    conn.close()

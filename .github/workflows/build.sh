@@ -78,30 +78,44 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
+        if [[ $(uname -s) != FreeBSD ]]; then
+            prefix="/usr"
+            libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+            MAKE="make"
+            sed_i_arg="-i"
+        else
+            prefix="/usr/local"
+            libdir="$prefix/lib"
+            MAKE="gmake"
+            sed_i_arg='-i ""'
+        fi
+
         ./bootstrap.sh \
             --enable-compat-howl \
             --enable-compat-libdns_sd \
             --enable-core-docs \
             --enable-tests \
-            --libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+            --libdir="$libdir" \
             --localstatedir=/var \
-            --prefix=/usr \
+            --prefix=$prefix \
             --runstatedir=/run \
             --sysconfdir=/etc
 
-        make -j"$(nproc)" V=1
+        $MAKE -j"$(nproc)" V=1
 
         if [[ "$BUILD_ONLY" == true ]]; then
             exit 0
         fi
 
         if [[ "$DISTCHECK" == true ]]; then
-            make distcheck
+            $MAKE distcheck
         fi
 
-        make check VERBOSE=1
+        $MAKE check VERBOSE=1
 
-        sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
+        if [[ $(uname -s) != FreeBSD ]]; then
+            sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
+        fi
 
         # avahi-dnsconfd is used to test the DNS server browser only.
         # It shouldn't actually change any settings so the action just
@@ -138,7 +152,7 @@ EOL
 
         # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
         # so it isn't set to yes here.
-        sed -i '
+        sed $sed_i_arg '
             s/^#\(add-service-cookie=\).*/\1yes/;
             s/^#\(publish-dns-servers=\)/\1/;
             s/^#\(publish-resolv-conf-dns-servers=\).*/\1yes/;
@@ -147,14 +161,21 @@ EOL
 
         printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
 
-        make install
+        $MAKE install
         ldconfig
-        adduser --system --group avahi
-        systemctl reload dbus
 
-        if ! .github/workflows/smoke-tests.sh; then
-            look_for_asan_ubsan_reports
-            exit 1
+        if [[ $(uname -s) != FreeBSD ]]; then
+            adduser --system --group avahi
+            systemctl reload dbus
+        else
+            service dbus onerestart
+        fi
+
+        if [[ $(uname -s) != FreeBSD ]]; then
+            if ! .github/workflows/smoke-tests.sh; then
+                look_for_asan_ubsan_reports
+                exit 1
+            fi
         fi
 
         if [[ "$COVERAGE" == true ]]; then

@@ -1662,6 +1662,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     c->enable_wide_area = 0;
     c->n_wide_area_servers = 0;
     c->disallow_other_stacks = 0;
+    c->always_publish_linklocal = 0;
     c->browse_domains = NULL;
     c->disable_publishing = 0;
     c->allow_point_to_point = 0;

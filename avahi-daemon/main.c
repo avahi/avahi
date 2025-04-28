@@ -35,6 +35,9 @@
 #ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
 #endif
+#ifdef HAVE_SYS_RANDOM_H
+#include <sys/random.h>
+#endif
 #include <stdio.h>
 #include <fcntl.h>
 #include <time.h>
@@ -1497,33 +1500,13 @@ static void enforce_rlimits(void) {
 #endif
 }
 
-#define RANDOM_DEVICE "/dev/urandom"
-
-static void init_rand_seed(void) {
-    int fd;
-    unsigned seed = 0;
-
-    /* Try to initialize seed from /dev/urandom, to make it a little
-     * less predictable, and to make sure that multiple machines
-     * booted at the same time choose different random seeds.  */
-    if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
-        read(fd, &seed, sizeof(seed));
-        close(fd);
-    }
-
-    /* If the initialization failed by some reason, we add the time to the seed*/
-    seed ^= (unsigned) time(NULL);
-
-    srand(seed);
-}
-
 int main(int argc, char *argv[]) {
     int r = 255;
     int wrote_pid_file = 0;
 
     avahi_set_log_function(log_function);
 
-    init_rand_seed();
+    avahi_init_rand_seed();
 
     avahi_server_config_init(&config.server_config);
     config.command = DAEMON_RUN;

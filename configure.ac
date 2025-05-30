@@ -36,6 +36,7 @@ AC_SUBST(LIBAVAHI_GOBJECT_VERSION_INFO, [0:5:0])
 AC_SUBST(LIBAVAHI_QT3_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT5_VERSION_INFO, [1:2:0])
+AC_SUBST(LIBAVAHI_QT6_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:4:1])
 
 # Do not touch these, since they we took this version-info from upstream HOWL/Bonjour
@@ -557,7 +558,7 @@ AC_ARG_ENABLE(qt5,
 
 if test "x$HAVE_QT5" = "xyes" ; then
         PKG_CHECK_MODULES( QT5, [ Qt5Core >= 5.0.0 ])
-        AC_AVAHI_QT_ADD_PIC_IF_NEEDED
+        AC_AVAHI_QT5_ADD_PIC_IF_NEEDED
         AC_SUBST(QT5_CFLAGS)
         AC_SUBST(QT5_LIBS)
         QT5_PREFIX="`$PKG_CONFIG --variable=host_bins Qt5Core`"
@@ -568,6 +569,32 @@ if test "x$HAVE_QT5" = "xyes" ; then
         AC_SUBST(MOC_QT5)
 fi
 AM_CONDITIONAL(HAVE_QT5, test "x$HAVE_QT5" = "xyes")
+
+#
+# Check for Qt 6
+#
+AC_ARG_ENABLE(qt6,
+        AS_HELP_STRING([--disable-qt6],[Disable building of Qt6Core mainloop integration]),
+        [case "${enableval}" in
+                yes) HAVE_QT6=yes ;;
+                no)  HAVE_QT6=no ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --enable-qt6) ;;
+        esac],
+        [HAVE_QT6=yes])
+
+if test "x$HAVE_QT6" = "xyes" ; then
+        PKG_CHECK_MODULES( QT6, [ Qt6Core >= 6.0.0 ])
+        AC_AVAHI_QT6_ADD_PIC_IF_NEEDED
+        AC_SUBST(QT6_CFLAGS)
+        AC_SUBST(QT6_LIBS)
+        QT6_PREFIX="`$PKG_CONFIG --variable=libexecdir Qt6Core`"
+        AC_PATH_PROGS(MOC_QT6, [moc-qt6 moc], no, [$QT6_PREFIX])
+        if test "$MOC_QT6" = no; then
+            AC_MSG_ERROR([Could not find QT6 moc])
+        fi
+        AC_SUBST(MOC_QT6)
+fi
+AM_CONDITIONAL(HAVE_QT6, test "x$HAVE_QT6" = "xyes")
 
 #
 # Check for GTK+ 2.0
@@ -1222,6 +1249,7 @@ echo "
     Enable QT3:                                ${HAVE_QT3}
     Enable QT4:                                ${HAVE_QT4}
     Enable QT5:                                ${HAVE_QT5}
+    Enable QT6:                                ${HAVE_QT6}
     Enable Mono:                               ${HAVE_MONO}
     Enable Monodoc:                            ${HAVE_MONODOC}
     Distribution/OS:                           ${with_distro}
@@ -1292,6 +1320,7 @@ echo "\
     Building libavahi-qt3:              ${HAVE_QT3}
     Building libavahi-qt4:              ${HAVE_QT4}
     Building libavahi-qt5:              ${HAVE_QT5}
+    Building libavahi-qt6:              ${HAVE_QT6}
     Building avahi-sharp:               ${HAVE_MONO}
     Building avahi-compat-libdns_sd:    ${ENABLE_COMPAT_LIBDNS_SD}
     Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}

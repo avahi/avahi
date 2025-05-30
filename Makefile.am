@@ -45,6 +45,7 @@ EXTRA_DIST = \
 	avahi-qt3.pc.in \
 	avahi-qt4.pc.in \
 	avahi-qt5.pc.in \
+	avahi-qt6.pc.in \
 	avahi-sharp.pc.in \
 	avahi-ui-sharp.pc.in \
 	avahi-compat-libdns_sd.pc.in \
@@ -105,6 +106,10 @@ DX_INPUT += \
 	$(srcdir)/avahi-qt/qt-watch.h
 endif
 if HAVE_QT5
+DX_INPUT += \
+	$(srcdir)/avahi-qt/qt-watch.h
+endif
+if HAVE_QT6
 DX_INPUT += \
 	$(srcdir)/avahi-qt/qt-watch.h
 endif
@@ -234,6 +239,11 @@ endif
 if HAVE_QT5
 pkgconfig_DATA += avahi-qt5.pc
 CLEANFILES += avahi-qt5.pc
+endif
+
+if HAVE_QT6
+pkgconfig_DATA += avahi-qt6.pc
+CLEANFILES += avahi-qt6.pc
 endif
 
 if HAVE_LIBEVENT

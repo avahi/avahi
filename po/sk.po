@@ -5,19 +5,22 @@
 # Translators:
 # Dušan Kazik <prescott66@gmail.com>, 2015
 # Peter  Mráz <etkinator@gmail.com>, 2011
+# Ondrej Sulek <feonsu@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2015-09-26 17:10+0000\n"
-"Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
-"Language-Team: Slovak (http://www.transifex.com/lennart/avahi/language/sk/)\n"
+"PO-Revision-Date: 2025-04-24 13:38+0000\n"
+"Last-Translator: Ondrej Sulek <feonsu@gmail.com>\n"
+"Language-Team: Slovak <https://translate.fedoraproject.org/projects/avahi/"
+"master/sk/>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 5.11\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -451,14 +454,12 @@ msgstr "Skúma sa..."
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "Zrušené.\n"
+msgstr "_Zrušiť"
 
 #: ../avahi-ui/avahi-ui.c:1048
-#, fuzzy
 msgid "_OK"
-msgstr "OK"
+msgstr "_OK"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -510,7 +511,7 @@ msgstr "Zvoľte shell server"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "Prip_ojiť"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"

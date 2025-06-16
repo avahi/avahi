@@ -13,15 +13,16 @@ You have a chance to meet the developers on
 	#avahi on irc.libera.chat
 
 Avahi has the following requirements:
-	- glib2
+	- glib2 + gobject-introspection
 	- expat
 	- libdaemon (http://0pointer.de/lennart/projects/libdaemon/)
-	- Linux 2.4 or 2.6
-	- DBUS 0.3x (optional, if you disable this, the daemon is not
+	- libsystemd (optional, can be disabled with --disable-libsystemd)
+	- libevent (optional, needed for the libevent-based client library)
+	- D-Bus (optional, if you disable this, the daemon is not
 	  accessible over IPC to other applications!)
-	- gtk2 + glade (optional, needed for avahi-discover-standalone)
+	- gtk2/gtk3 + glade (optional, needed for avahi-discover-standalone)
 	- doxygen (optional, needed for the API documentation)
-	- Python 2.4, pygtk2 (optional, needed by all client tools)
+	- Python, pygobject, python-dbus (optional, needed by all client tools)
 	- python-twisted (optional, needed by avahi-bookmarks)
     - xmltoman (if building from SVN rather than a tarball)
       If you are not using debian or ubuntu, the upstream authors page has

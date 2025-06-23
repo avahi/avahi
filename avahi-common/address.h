@@ -71,9 +71,9 @@ typedef struct AvahiAddress {
     AvahiProtocol proto; /**< Address family */
 
     union {
-        AvahiIPv6Address ipv6;  /**< Address when IPv6 */
-        AvahiIPv4Address ipv4;  /**< Address when IPv4 */
-        uint8_t data[1];        /**< Type-independent data field */
+        AvahiIPv6Address ipv6;                   /**< Address when IPv6 */
+        AvahiIPv4Address ipv4;                   /**< Address when IPv4 */
+        uint8_t data[sizeof(AvahiIPv6Address)];  /**< Type-independent data field */
     } data;
 } AvahiAddress;
 

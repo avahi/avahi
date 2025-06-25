@@ -163,6 +163,16 @@ static const char * const callout_event_table[CALLOUT_MAX] = {
     [CALLOUT_STOP] = "STOP"
 };
 
+static const char* const state_table[] = {
+    [STATE_START] = "START",
+    [STATE_WAITING_PROBE] = "WAITING_PROBE",
+    [STATE_PROBING] = "PROBING",
+    [STATE_WAITING_ANNOUNCE] = "WAITING_ANNOUNCE",
+    [STATE_ANNOUNCING] = "ANNOUNCING",
+    [STATE_RUNNING] = "RUNNING",
+    [STATE_SLEEPING] = "SLEEPING"
+};
+
 typedef struct CalloutEventInfo {
     CalloutEvent event;
     uint32_t address;
@@ -379,15 +389,6 @@ static int packet_parse(const ArpPacket *packet, size_t packet_len, ArpPacketInf
 }
 
 static void set_state(State st, int reset_counter, uint32_t address) {
-    static const char* const state_table[] = {
-        [STATE_START] = "START",
-        [STATE_WAITING_PROBE] = "WAITING_PROBE",
-        [STATE_PROBING] = "PROBING",
-        [STATE_WAITING_ANNOUNCE] = "WAITING_ANNOUNCE",
-        [STATE_ANNOUNCING] = "ANNOUNCING",
-        [STATE_RUNNING] = "RUNNING",
-        [STATE_SLEEPING] = "SLEEPING"
-    };
     char buf[64];
 
     assert(st < STATE_MAX);
@@ -1365,8 +1366,16 @@ static int loop(int iface, uint32_t addr) {
 
                 assert(pollfds[FD_IFACE].revents == POLLIN);
 
-                if (iface_process(&event) < 0)
+                int rc = iface_process(&event);
+                if (rc < 0) {
+                    daemon_log(LOG_ERR, "iface_process() failed with code %d", rc);
                     goto fail;
+                } else if (rc > 0) {
+                    daemon_log(LOG_DEBUG, "iface_process() requested a status change: %s", state_table[rc]);
+                    set_state(rc, 1, addr);
+                } else {
+                    daemon_log(LOG_DEBUG, "iface_process() did not request a state change.");
+                }
             }
 
             if (event == EVENT_NULL &&

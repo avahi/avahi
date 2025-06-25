@@ -125,6 +125,11 @@ static int process_nlmsg(struct nlmsghdr *n) {
             return -1;
         }
 
+        if (ifi->ifi_flags & IFF_LOWER_UP) {
+            daemon_log(LOG_INFO, "Interface link is up, requesting state change to STATE_START.");
+            return STATE_START;
+        }
+
     } else if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
 
         /* An address was added or removed */
@@ -180,6 +185,7 @@ static int process_response(int wait_for_done, unsigned seq) {
     assert(fd >= 0);
 
     do {
+        int rc;
         size_t bytes;
         ssize_t r;
         char replybuf[8*1024];
@@ -239,8 +245,7 @@ static int process_response(int wait_for_done, unsigned seq) {
                 }
             }
 
-            if (process_nlmsg(p) < 0)
-                return -1;
+            if (rc = process_nlmsg(p)) return rc;
         }
     } while (wait_for_done);
 
@@ -252,7 +257,7 @@ int iface_get_initial_state(State *state) {
     struct ifinfomsg *ifi;
     struct ifaddrmsg *ifa;
     uint8_t req[1024];
-    int seq = 0;
+    int seq = 0, rc;
 
     assert(fd >= 0);
     assert(state);
@@ -274,8 +279,8 @@ int iface_get_initial_state(State *state) {
         return -1;
     }
 
-    if (process_response(1, 0) < 0)
-        return -1;
+    if (rc = process_response(1, 0))
+        return rc;
 
     n->nlmsg_type = RTM_GETADDR;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(*ifa));
@@ -290,8 +295,8 @@ int iface_get_initial_state(State *state) {
         return -1;
     }
 
-    if (process_response(1, seq) < 0)
-        return -1;
+    if (rc = process_response(1, seq))
+        return rc;
 
     *state = addresses ? STATE_SLEEPING : STATE_START;
 
@@ -299,13 +304,12 @@ int iface_get_initial_state(State *state) {
 }
 
 int iface_process(Event *event) {
-    int b;
+    int b, rc;
     assert(fd >= 0);
 
     b = !!addresses;
 
-    if (process_response(0, 0) < 0)
-        return -1;
+    if (rc = process_response(0, 0)) return rc;
 
     if (b && !addresses)
         *event = EVENT_ROUTABLE_ADDR_UNCONFIGURED;

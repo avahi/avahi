@@ -1066,7 +1066,7 @@ static int loop(int iface, uint32_t addr) {
     int iface_fd = -1;
     Event event = EVENT_NULL;
     int retval_sent = !daemonize;
-    State st;
+    State st = STATE_START;
     FILE *dispatcher = NULL;
     char *address_fn = NULL;
     const char *p;

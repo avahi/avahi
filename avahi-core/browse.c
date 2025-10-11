@@ -295,7 +295,6 @@ static void lookup_multicast_callback(
                 lookup_drop_cname(l, interface, protocol, 0, r);
             else {
                 /* It's a normal record, so let's call the user callback */
-                assert(avahi_key_equal(b->key, l->key));
 
                 b->callback(b, interface, protocol, event, r, flags, b->userdata);
             }
@@ -320,7 +319,10 @@ static int lookup_start(AvahiSRBLookup *l) {
     assert(l);
 
     assert(!(l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) != !(l->flags & AVAHI_LOOKUP_USE_MULTICAST));
-    assert(!l->wide_area && !l->multicast);
+    if (l->wide_area || l->multicast) {
+        /* Avoid starting a duplicate lookup */
+        return 0;
+    }
 
     if (l->flags & AVAHI_LOOKUP_USE_WIDE_AREA) {
 
@@ -398,6 +400,40 @@ static int lookup_go(AvahiSRBLookup *l) {
     return n;
 }
 
+static int lookup_exists_in_path(AvahiSRBLookup* lookup, AvahiSRBLookup* from, AvahiSRBLookup* to) {
+    AvahiRList* rl;
+    if (from == to)
+        return 0;
+    for (rl = from->cname_lookups; rl; rl = rl->rlist_next) {
+        int r = lookup_exists_in_path(lookup, rl->data, to);
+        if (r == 1) {
+            /* loop detected, propagate result */
+            return r;
+        } else if (r == 0) {
+            /* is loop detected? */
+            return lookup == from;
+        } else {
+	        /* `to` not found, continue */
+            continue;
+        }
+    }
+    /* no path found */
+    return -1;
+}
+
+static int cname_would_create_loop(AvahiSRBLookup* l, AvahiSRBLookup* n) {
+    int ret;
+    if (l == n)
+        /* Loop to self */
+        return 1;
+
+    ret = lookup_exists_in_path(n, l->record_browser->root_lookup, l);
+
+    /* Path to n always exists */
+    assert(ret != -1);
+    return ret;
+}
+
 static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, AvahiRecord *r) {
     AvahiKey *k;
     AvahiSRBLookup *n;
@@ -414,6 +450,12 @@ static void lookup_handle_cname(AvahiSRBLookup *l, AvahiIfIndex interface, Avahi
 
     if (!n) {
         avahi_log_debug(__FILE__": Failed to create SRBLookup.");
+        return;
+    }
+
+    if (cname_would_create_loop(l, n)) {
+        /* CNAME loops are not allowed */
+        lookup_unref(n);
         return;
     }
 

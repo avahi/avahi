@@ -43,7 +43,8 @@ noinst_PROGRAMS = \
 	timeeventq-test \
 	hashmap-test \
 	querier-test \
-	update-test
+	update-test \
+	cname-test
 
 TESTS = \
 	dns-spin-test \
@@ -123,6 +124,11 @@ querier_test_SOURCES = \
 	querier-test.c
 querier_test_CFLAGS = $(AM_CFLAGS)
 querier_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
+
+cname_test_SOURCES = \
+	cname-test.c
+cname_test_CFLAGS = $(AM_CFLAGS)
+cname_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
 
 conformance_test_SOURCES = \
 	conformance-test.c

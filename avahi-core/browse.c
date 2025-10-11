@@ -428,6 +428,11 @@ static int cname_would_create_loop(AvahiSRBLookup* l, AvahiSRBLookup* n) {
         return 1;
 
     ret = lookup_exists_in_path(n, l->record_browser->root_lookup, l);
+    if (ret == 1) {
+            char *keystr = avahi_key_to_string(l->record_browser->root_lookup->key);
+            avahi_log_debug(__FILE__": CNAME loop detected on %d query: %s", l->interface, keystr);
+            avahi_free(keystr);
+    }
 
     /* Path to n always exists */
     assert(ret != -1);

@@ -116,7 +116,10 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
     }
 
     if (c->command == COMMAND_UNSPEC) {
-        if (optind != argc-1) {
+	if (argc == 1) {
+	    c->command = COMMAND_GET;
+	    return 0;
+	} else if (optind != argc-1) {
             fprintf(stderr, _("Invalid number of arguments, expecting exactly one.\n"));
             return -1;
         }

@@ -49,9 +49,9 @@ static void quit_timeout_callback(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *
 }
 
 typedef struct {
-	const char *name;
-	void (*test_case)(void);
-	AvahiResolverEvent expected;
+    const char *name;
+    void (*test_case)(void);
+    AvahiResolverEvent expected;
 } test_cases_db_t;
 
 #define avahi_test_cache_flush() avahi_cache_flush(cache)
@@ -173,13 +173,13 @@ static void cname_toomuch(void) {
 
     avahi_test_add_cname("X.local", "C1.local");
     for (i=1; i<25; i++) {
-	snprintf(from, sizeof(from), "C%u.local", i);
-	snprintf(to, sizeof(to), "C%u.local", i+1);
-	avahi_test_add_cname(from, to);
+        snprintf(from, sizeof(from), "C%u.local", i);
+        snprintf(to, sizeof(to), "C%u.local", i+1);
+        avahi_test_add_cname(from, to);
     }
     snprintf(from, sizeof(from), "C%u.local", i);
-    avahi_test_add_cname(from, "Y.local");
-    avahi_test_add_a("Y.local", "192.168.50.99", 2);
+    avahi_test_add_cname(from, "A.local");
+    avahi_test_add_a("A.local", "192.168.50.99", 2);
 }
 
 static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void *userdata) {
@@ -248,7 +248,7 @@ static void test_list(void) {
     const test_cases_db_t *c;
 
     for (c=test_cases; c->name; c++) {
-	    printf("%s\n", c->name);
+        printf("%s\n", c->name);
     }
 }
 
@@ -258,9 +258,9 @@ static const test_cases_db_t * find_test(const char *test_case) {
     assert(test_case);
 
     for (c=test_cases; c->name; c++) {
-	if (!strcmp(test_case, c->name)) {
-	    return c;
-	}
+        if (!strcmp(test_case, c->name)) {
+            return c;
+        }
     }
     return NULL;
 }
@@ -302,10 +302,10 @@ static int run_single(const test_cases_db_t *test) {
 
     error = (revent != test->expected);
     avahi_log_info("%s: %s: test complete, result: %s, expected: %s!",
-		    error ? "FAIL" : "PASS",
-		    test->name,
-		    resolver_event_to_string(revent),
-		    resolver_event_to_string(test->expected));
+                    error ? "FAIL" : "PASS",
+                    test->name,
+                    resolver_event_to_string(revent),
+                    resolver_event_to_string(test->expected));
     if (server) {
         avahi_server_free(server);
     }
@@ -322,9 +322,9 @@ static int run_all(void) {
     int i = 0;
 
     for (c=test_cases; c->name; c++) {
-	    i++;
-	    if (run_single(c) != 0)
-		r++;
+        i++;
+        if (run_single(c) != 0)
+            r++;
     }
     avahi_log_info("# All %d test cases finished, failed tests: %d", i, r);
     return r;
@@ -335,13 +335,13 @@ int main(int argc, char *argv[]) {
     const test_cases_db_t *test;
 
     if (argc < 2) {
-	return run_all();
+        return run_all();
     }
 
     // TODO: implement proper getopt parsing
     if (!strcmp(argv[1], "--list")) {
-	test_list();
-	return 0;
+        test_list();
+        return 0;
     } else if (!strcmp(argv[1], "--help")) {
         printf("Usage: %s [--list | test_name]\n", argv[0]);
         return 0;
@@ -357,3 +357,5 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+// vim: sts=4 et:

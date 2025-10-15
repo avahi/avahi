@@ -87,11 +87,6 @@ static void avahi_test_add_cname(const char *src, const char *dst) {
     avahi_log_debug("Added CNAME record to cache: %s -> %s", src, dst);
 }
 
-static const char *myself(void) {
-	assert(server);
-	return avahi_server_get_host_name_fqdn(server);
-}
-
 static void self_loop(void) {
     avahi_test_add_cname("X.local", "X.local");
 }
@@ -103,7 +98,8 @@ static void retransmit_cname(void) {
 }
 
 static void one_normal(void) {
-    avahi_test_add_cname("X.local", myself());
+    avahi_test_add_cname("X.local", "A.local");
+    avahi_test_add_a("A.local", "192.168.50.99", 2);
 }
 
 static void one_loop(void) {
@@ -113,7 +109,8 @@ static void one_loop(void) {
 
 static void two_normal(void) {
     avahi_test_add_cname("X.local", "Y.local");
-    avahi_test_add_cname("Y.local", myself());
+    avahi_test_add_cname("Y.local", "A.local");
+    avahi_test_add_a("A.local", "192.168.50.99", 2);
 }
 
 static void two_loop(void) {
@@ -137,7 +134,8 @@ static void two_loop_inner2(void) {
 static void three_normal(void) {
     avahi_test_add_cname("X.local", "Y.local");
     avahi_test_add_cname("Y.local", "Z.local");
-    avahi_test_add_cname("Z.local", myself());
+    avahi_test_add_cname("Z.local", "A.local");
+    avahi_test_add_a("A.local", "192.168.50.99", 2);
 }
 
 static void three_loop(void) {
@@ -175,11 +173,11 @@ static void cname_toomuch(void) {
 
     avahi_test_add_cname("X.local", "C1.local");
     for (i=1; i<25; i++) {
-	snprintf(from, sizeof(from), "C%d.local", i);
-	snprintf(to, sizeof(to), "C%d.local", i+1);
+	snprintf(from, sizeof(from), "C%u.local", i);
+	snprintf(to, sizeof(to), "C%u.local", i+1);
 	avahi_test_add_cname(from, to);
     }
-    snprintf(from, sizeof(from), "C%d.local", i);
+    snprintf(from, sizeof(from), "C%u.local", i);
     avahi_test_add_cname(from, "Y.local");
     avahi_test_add_a("Y.local", "192.168.50.99", 2);
 }
@@ -254,7 +252,7 @@ static void test_list(void) {
     }
 }
 
-static const test_cases_db_t * avahi_test_initialize(const char *test_case) {
+static const test_cases_db_t * find_test(const char *test_case) {
     const test_cases_db_t *c;
 
     assert(test_case);
@@ -328,7 +326,7 @@ static int run_all(void) {
 	    if (run_single(c) != 0)
 		r++;
     }
-    avahi_log_info("# All %d test cases finished, status: %d", i, r);
+    avahi_log_info("# All %d test cases finished, failed tests: %d", i, r);
     return r;
 }
 
@@ -337,20 +335,24 @@ int main(int argc, char *argv[]) {
     const test_cases_db_t *test;
 
     if (argc < 2) {
-        printf("Usage: %s [--list] [test_name]\n", argv[0]);
 	return run_all();
     }
 
+    // TODO: implement proper getopt parsing
     if (!strcmp(argv[1], "--list")) {
 	test_list();
 	return 0;
+    } else if (!strcmp(argv[1], "--help")) {
+        printf("Usage: %s [--list | test_name]\n", argv[0]);
+        return 0;
     }
-    test = avahi_test_initialize(argv[1]);
+
+    test = find_test(argv[1]);
     if (test) {
         return run_single(test);
     } else {
-	printf("Test not found: %s\n", argv[1]);
-	return 2;
+        fprintf(stderr, "Test not found: %s\n", argv[1]);
+        return 2;
     }
 
     return 0;

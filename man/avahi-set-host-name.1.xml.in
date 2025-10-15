@@ -24,14 +24,17 @@
   <manpage name="avahi-set-host-name" section="1" desc="Change mDNS host name">
 
 	<synopsis>
-      <cmd>avahi-set-host-name <arg>host-name</arg></cmd>
+      <cmd>avahi-set-host-name <arg>[host-name]</arg></cmd>
 	</synopsis>
 
     <description>
       <p>Set the mDNS host name of a currently running Avahi
       daemon. The effect of this operation is not persistent across
       daemon restarts. This operation is usually privileged.</p>
-	</description>
+
+      <p>Gets the current mDNS host name of a currently running Avahi
+      daemon when no parameter is specified.</p>
+    </description>
 
 	<options>
 
@@ -49,6 +52,12 @@
 	  <option>
 		<p><opt>-V | --version</opt></p>
 		<optdesc><p>Show version information.</p></optdesc>
+	  </option>
+
+
+	  <option>
+		<p><opt>-g | --get</opt></p>
+		<optdesc><p>Show current hostname.</p></optdesc>
 	  </option>
 
 

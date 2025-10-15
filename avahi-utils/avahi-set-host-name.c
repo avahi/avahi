@@ -42,7 +42,8 @@
 typedef enum {
     COMMAND_UNSPEC,
     COMMAND_HELP,
-    COMMAND_VERSION
+    COMMAND_VERSION,
+    COMMAND_GET
 } Command;
 
 typedef struct Config {
@@ -73,7 +74,8 @@ static void help(FILE *f, const char *argv0) {
             _("%s [options] <new host name>\n\n"
               "    -h --help            Show this help\n"
               "    -V --version         Show version\n"
-              "    -v --verbose         Enable verbose mode\n"),
+              "    -v --verbose         Enable verbose mode\n"
+              "    -g --get             Show current hostname\n"),
             argv0);
 }
 
@@ -84,6 +86,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
         { "help",           no_argument,       NULL, 'h' },
         { "version",        no_argument,       NULL, 'V' },
         { "verbose",        no_argument,       NULL, 'v' },
+	{ "get",            no_argument,       NULL, 'g' },
         { NULL, 0, NULL, 0 }
     };
 
@@ -92,7 +95,7 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
     c->command = COMMAND_UNSPEC;
     c->verbose = 0;
 
-    while ((o = getopt_long(argc, argv, "hVv", long_options, NULL)) >= 0) {
+    while ((o = getopt_long(argc, argv, "hVvg", long_options, NULL)) >= 0) {
 
         switch(o) {
             case 'h':
@@ -101,6 +104,9 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
             case 'V':
                 c->command = COMMAND_VERSION;
                 break;
+            case 'g':
+                c->command = COMMAND_GET;
+		break;
             case 'v':
                 c->verbose = 1;
                 break;
@@ -110,7 +116,10 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
     }
 
     if (c->command == COMMAND_UNSPEC) {
-        if (optind != argc-1) {
+	if (argc == 1) {
+	    c->command = COMMAND_GET;
+	    return 0;
+	} else if (optind != argc-1) {
             fprintf(stderr, _("Invalid number of arguments, expecting exactly one.\n"));
             return -1;
         }
@@ -146,6 +155,7 @@ int main(int argc, char *argv[]) {
             ret = 0;
             break;
 
+	case COMMAND_GET:
         case COMMAND_UNSPEC:
 
             if (!(simple_poll = avahi_simple_poll_new())) {
@@ -160,6 +170,18 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, _("Failed to create client object: %s\n"), avahi_strerror(error));
                 goto fail;
             }
+
+	    if (config.command == COMMAND_GET) {
+                const char *hn;
+
+                if (!(hn = avahi_client_get_host_name_fqdn(client))) {
+                    fprintf(stderr, _("Failed to query host name: %s\n"), avahi_strerror(avahi_client_errno(client)));
+                    goto fail;
+                }
+		printf("%s\n", hn);
+		ret = 0;
+		goto fail; /* success, but we are done here. */
+	    }
 
             if (config.verbose) {
                 const char *version, *hn;

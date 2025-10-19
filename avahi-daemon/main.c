@@ -1183,8 +1183,9 @@ static int run_server(DaemonConfig *c) {
         goto finish;
     }
 
-    // We accept clients only of half socket descriptors allowed
-    if (simple_protocol_setup(poll_api, config.rlimit_nofile/2) < 0)
+    /* We accept clients only of 3/4 file descriptors allowed
+     * in this process. Keep extra for UDP sockets. */
+    if (simple_protocol_setup(poll_api, config.rlimit_nofile*3/4) < 0)
         goto finish;
 
 #ifdef HAVE_DBUS

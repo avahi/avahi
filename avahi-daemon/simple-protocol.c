@@ -63,7 +63,11 @@
 
 #define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
 #define CRED_VALS(ucred) (long)(ucred).uid, (long)(ucred).gid, (long)(ucred).pid
-#define CLIENT_DEBUG
+#ifndef CLIENT_DEBUG
+#define CLIENT_DEBUG false
+#endif
+/* Maximal number of clients, for legacy API. */
+#define CLIENT_MAX 512
 
 typedef struct Client Client;
 typedef struct Server Server;
@@ -131,7 +135,7 @@ static void client_free(Client *c) {
 
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
-#ifdef CLIENT_DEBUG
+#if CLIENT_DEBUG
     avahi_log_debug("simple client %d finished: " CRED_FMT,
                     c->fd, CRED_VALS(c->credentials));
 #endif
@@ -482,7 +486,7 @@ static int is_client_allowed(Server *s, int cfd, struct ucred *cred) {
             }
         }
     }
-#ifdef CLIENT_DEBUG
+#if CLIENT_DEBUG
     avahi_log_debug("simple client %d/%u accepted: "CRED_FMT,
                     cfd, n_clients, CRED_VALS(*cred));
 #endif
@@ -515,7 +519,7 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
     }
 }
 
-int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients) {
+int simple_protocol_setup2(const AvahiPoll *poll_api, unsigned max_clients) {
     struct sockaddr_un sa;
     mode_t u;
 #ifdef HAVE_LIBSYSTEMD
@@ -605,6 +609,11 @@ fail:
     simple_protocol_shutdown();
 
     return -1;
+}
+
+/* This function does not autoconfigure. Should be discouraged. */
+int simple_protocol_setup(const AvahiPoll *poll_api) {
+    return simple_protocol_setup2(poll_api, CLIENT_MAX);
 }
 
 void simple_protocol_shutdown(void) {

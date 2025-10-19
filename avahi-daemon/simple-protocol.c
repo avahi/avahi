@@ -61,6 +61,10 @@
 
 #define BUFFER_SIZE (20*1024)
 
+#define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
+#define CRED_VALS(ucred) (long)(ucred).uid, (long)(ucred).gid, (long)(ucred).pid
+#define CLIENT_DEBUG
+
 typedef struct Client Client;
 typedef struct Server Server;
 
@@ -100,8 +104,8 @@ struct Server {
     AVAHI_LLIST_HEAD(Client, clients);
 
     unsigned n_clients;
-    unsigned max_clients;
-    unsigned max_uid_clients;
+    unsigned max_clients;     /*< Maximal number of all simple clients. */
+    unsigned max_uid_clients; /*< Maximal number of clients of one UID. */
     int remove_socket;
     unsigned refused_clients;
 };
@@ -127,6 +131,10 @@ static void client_free(Client *c) {
 
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
+#ifdef CLIENT_DEBUG
+    avahi_log_debug("simple client %d finished: " CRED_FMT,
+                    c->fd, CRED_VALS(c->credentials));
+#endif
 
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
     avahi_free(c);
@@ -453,11 +461,32 @@ static int is_client_allowed(Server *s, int cfd, struct ucred *cred) {
         avahi_log_error("getsockopt(%d): SO_PEERCRED: %s", cfd, strerror(errno));
         return 0;
     }
-    avahi_log_debug("simple client %d: uid=%lu pid=%lu",
-                    cfd, (long)cred->uid, (long)cred->pid);
-    // FIXME: implement some serious check
-    if (n_clients > s->max_clients)
-            return 0;
+    if (n_clients > s->max_clients) {
+        avahi_log_debug("simple client %d refused: "CRED_FMT" too many clients",
+                        cfd, CRED_VALS(*cred));
+        return 0;
+    }
+    if (n_clients > s->max_uid_clients) {
+        // There is enough clients to reach limit for one UID.
+        // Check this UID does not have too many requests already.
+        Client *c;
+        unsigned present = 0;
+
+        for (c = s->clients; c; c = c->clients_next) {
+            if (c->credentials.uid == cred->uid) {
+                present++;
+                if (present > s->max_uid_clients) {
+                    avahi_log_debug("simple client %d refused: "CRED_FMT" too many uid clients: %u",
+                                    cfd, CRED_VALS(*cred), present);
+                    return 0;
+                }
+            }
+        }
+    }
+#ifdef CLIENT_DEBUG
+    avahi_log_debug("simple client %d/%u accepted: "CRED_FMT,
+                    cfd, n_clients, CRED_VALS(*cred));
+#endif
     return 1;
 }
 
@@ -500,6 +529,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients) {
     server->fd = -1;
     server->n_clients = 0;
     server->max_clients = max_clients;
+    server->max_uid_clients = max_clients / 2;
     server->refused_clients = 0;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
@@ -563,6 +593,8 @@ int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients) {
     umask(u);
 
     server->watch = poll_api->watch_new(poll_api, server->fd, AVAHI_WATCH_IN, server_work, server);
+    avahi_log_info("Maximal simple clients: %u, per_uid: %u",
+                    max_clients, server->max_uid_clients);
 
     return 0;
 

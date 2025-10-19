@@ -276,6 +276,15 @@ static void dns_server_browser_callback(
     }
 }
 
+static void log_request(const Client *c, const char *cmd, const char *arg) {
+    if (arg != NULL)
+        avahi_log_debug(__FILE__": Got %s request for '%s'. " CRED_FMT,
+                        cmd, arg, CRED_VALS(c->credentials));
+    else
+        avahi_log_debug(__FILE__": Got %s request. " CRED_FMT,
+                        cmd, CRED_VALS(c->credentials));
+}
+
 static void handle_line(Client *c, const char *s) {
     char cmd[64], arg[AVAHI_DOMAIN_NAME_MAX];
     int n_args;
@@ -311,19 +320,19 @@ static void handle_line(Client *c, const char *s) {
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
 
@@ -336,32 +345,28 @@ static void handle_line(Client *c, const char *s) {
                 goto fail;
         }
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
-
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else {
         client_output_printf(c, "%+i Invalid command \"%s\", try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION, cmd);
         c->state = CLIENT_DEAD;

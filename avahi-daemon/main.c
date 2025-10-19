@@ -1183,7 +1183,8 @@ static int run_server(DaemonConfig *c) {
         goto finish;
     }
 
-    if (simple_protocol_setup(poll_api) < 0)
+    // We accept clients only of half socket descriptors allowed
+    if (simple_protocol_setup(poll_api, config.rlimit_nofile/2) < 0)
         goto finish;
 
 #ifdef HAVE_DBUS
@@ -1462,6 +1463,20 @@ fail:
     return r;
 }
 
+static int get_one_rlimit(int resource, rlim_t *limit, const char *name) {
+    struct rlimit rl = {0,};
+    int r;
+
+    r = getrlimit(resource, &rl);
+    if (r < 0) {
+        avahi_log_warn("getrlimit(%s) failed: %s", name, strerror(errno));
+    } else {
+        *limit = rl.rlim_cur;
+    }
+
+    return r;
+}
+
 static void set_one_rlimit(int resource, rlim_t limit, const char *name) {
     struct rlimit rl;
     rl.rlim_cur = rl.rlim_max = limit;
@@ -1515,6 +1530,11 @@ static void init_rand_seed(void) {
     seed ^= (unsigned) time(NULL);
 
     srand(seed);
+}
+
+static void read_rlimits(void) {
+    config.rlimit_nofile_set = 0;
+    (void)get_one_rlimit(RLIMIT_NOFILE, &config.rlimit_nofile, "RLIMIT_NOFILE");
 }
 
 int main(int argc, char *argv[]) {
@@ -1615,6 +1635,7 @@ int main(int argc, char *argv[]) {
             goto finish;
         }
 
+        read_rlimits();
         if (load_config_file(&config) < 0)
             goto finish;
 

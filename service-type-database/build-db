@@ -19,14 +19,18 @@
 
 import sys
 
-if sys.argv[1] == '--gnu':
+db_type = None
+
+if len(sys.argv)>1 and sys.argv[1] == '--gnu':
+    db_type = 'dbm.gnu'
     if sys.version_info >= (3,):
         import dbm.gnu as chosen_dbm
     else:
         import gdbm as chosen_dbm
 
     sys.argv[1:] = sys.argv[2:]
-elif sys.argv[1] == '--ndbm':
+elif len(sys.argv)>1 and sys.argv[1] == '--ndbm':
+    db_type = 'dbm.ndbm'
     if sys.version_info >= (3,):
         import dbm.ndbm as chosen_dbm
     else:
@@ -36,15 +40,10 @@ elif sys.argv[1] == '--ndbm':
 else:
     if sys.version_info >= (3,):
         import dbm as chosen_dbm
+        from dbm import whichdb
     else:
         import anydbm as chosen_dbm
-
-if sys.version_info >= (3,):
-    from chosen_dbm import whichdb
-else:
-    from whichdb import whichdb
-
-
+        from whichdb import whichdb
 
 if len(sys.argv) > 1:
     infn = sys.argv[1]
@@ -70,7 +69,10 @@ for ln in open(infn, "r"):
 
 db.close()
 
-if whichdb(outfn) == "dbm.sqlite3":
+if db_type is None:
+    db_type = whichdb(outfn)
+
+if db_type == "dbm.sqlite3":
     # Python dbm.sqlite3 module (which is used by default) sets journal_mode
     # to WAL when creating the database. Unfortunately this makes the database
     # unable to be opened again by the dbm.sqlite3 module if it is stored on a

@@ -22,6 +22,9 @@
 
 #include <avahi-common/watch.h>
 
+/* max_clients is number of concurrent simple mdns clients allowed.
+ * When limit is reached, new clients are immediately closed.
+ * Per UID limit is derived from this number. */
 int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients);
 void simple_protocol_shutdown(void);
 void simple_protocol_restart_queries(void);

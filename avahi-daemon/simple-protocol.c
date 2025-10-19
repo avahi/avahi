@@ -508,8 +508,10 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
             struct ucred cred;
             if (is_client_allowed(s, cfd, &cred))
                 client_new(s, cfd, &cred);
-            else
+            else {
                 close(cfd);
+                s->refused_clients++;
+            }
         }
     }
 }

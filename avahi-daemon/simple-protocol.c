@@ -61,8 +61,6 @@
 
 #define BUFFER_SIZE (20*1024)
 
-#define CLIENTS_MAX 50
-
 typedef struct Client Client;
 typedef struct Server Server;
 
@@ -81,6 +79,7 @@ struct Client {
 
     int fd;
     AvahiWatch *watch;
+    struct ucred credentials;
 
     char inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     size_t inbuf_length, outbuf_length;
@@ -101,7 +100,10 @@ struct Server {
     AVAHI_LLIST_HEAD(Client, clients);
 
     unsigned n_clients;
+    unsigned max_clients;
+    unsigned max_uid_clients;
     int remove_socket;
+    unsigned refused_clients;
 };
 
 static Server *server = NULL;
@@ -130,7 +132,7 @@ static void client_free(Client *c) {
     avahi_free(c);
 }
 
-static void client_new(Server *s, int fd) {
+static void client_new(Server *s, int fd, const struct ucred *cred) {
     Client *c;
 
     assert(fd >= 0);
@@ -139,6 +141,7 @@ static void client_new(Server *s, int fd) {
     c->server = s;
     c->fd = fd;
     c->state = CLIENT_IDLE;
+    c->credentials = *cred;
 
     c->inbuf_length = c->outbuf_length = 0;
 
@@ -439,6 +442,25 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
         (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
 
+static int is_client_allowed(Server *s, int cfd, struct ucred *cred) {
+    socklen_t len = sizeof(*cred);
+    unsigned n_clients;
+
+    assert(s != NULL);
+
+    n_clients = s->n_clients + 1;
+    if (getsockopt(cfd, SOL_SOCKET, SO_PEERCRED, cred, &len)!= 0) {
+        avahi_log_error("getsockopt(%d): SO_PEERCRED: %s", cfd, strerror(errno));
+        return 0;
+    }
+    avahi_log_debug("simple client %d: uid=%lu pid=%lu",
+                    cfd, (long)cred->uid, (long)cred->pid);
+    // FIXME: implement some serious check
+    if (n_clients > s->max_clients)
+            return 0;
+    return 1;
+}
+
 static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
     Server *s = userdata;
 
@@ -447,14 +469,23 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
     if (events & AVAHI_WATCH_IN) {
         int cfd;
 
-        if ((cfd = accept(fd, NULL, NULL)) < 0)
-            avahi_log_error("accept(): %s", strerror(errno));
-        else
-            client_new(s, cfd);
+        if ((cfd = accept(fd, NULL, NULL)) < 0) {
+            s->refused_clients++;
+            if (errno != EMFILE && errno != ENFILE)
+                avahi_log_error(__FILE__" accept(): %s", strerror(errno));
+            else // Avoid client ability to flood log with too many requests
+                avahi_log_debug(__FILE__" accept(): %s", strerror(errno));
+        } else {
+            struct ucred cred;
+            if (is_client_allowed(s, cfd, &cred))
+                client_new(s, cfd, &cred);
+            else
+                close(cfd);
+        }
     }
 }
 
-int simple_protocol_setup(const AvahiPoll *poll_api) {
+int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients) {
     struct sockaddr_un sa;
     mode_t u;
 #ifdef HAVE_LIBSYSTEMD
@@ -468,6 +499,8 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     server->remove_socket = 0;
     server->fd = -1;
     server->n_clients = 0;
+    server->max_clients = max_clients;
+    server->refused_clients = 0;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
 

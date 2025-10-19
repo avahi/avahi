@@ -37,6 +37,14 @@ elif len(sys.argv)>1 and sys.argv[1] == '--ndbm':
         import dbm as chosen_dbm
 
     sys.argv[1:] = sys.argv[2:]
+elif len(sys.argv)>1 and sys.argv[1] == '--sqlite':
+    db_type = 'dbm.sqlite3'
+    if sys.version_info >= (3,):
+        import dbm.sqlite3 as chosen_dbm
+    else:
+        import dbm as chosen_dbm
+
+    sys.argv[1:] = sys.argv[2:]
 else:
     if sys.version_info >= (3,):
         import dbm as chosen_dbm

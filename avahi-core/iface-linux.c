@@ -180,6 +180,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         struct ifaddrmsg *ifaddrmsg = NLMSG_DATA(n);
         AvahiInterface *i;
         struct rtattr *a = NULL;
+        struct ifa_cacheinfo *ifa_cacheinfo = NULL;
         size_t l;
         AvahiAddress raddr, rlocal, *r;
         int raddr_valid = 0, rlocal_valid = 0;
@@ -232,6 +233,12 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
                     break;
 
+                case IFA_CACHEINFO:
+
+                    ifa_cacheinfo = RTA_DATA(a);
+
+                    break;
+
                 default:
                     ;
             }
@@ -259,7 +266,13 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
             /* Update the scope field for the address */
             addr->global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE;
-            addr->deprecated = !!(ifaddrmsg->ifa_flags & IFA_F_DEPRECATED);
+
+            /* Mark address as deprecated if explicitly flagged or has a lifetime of 0 */
+            if (ifaddrmsg->ifa_flags & IFA_F_DEPRECATED) {
+                addr->deprecated = 1;
+            } else if (ifa_cacheinfo && ifa_cacheinfo->ifa_prefered == 0) {
+                addr->deprecated = 1;
+            }
         } else {
             AvahiInterfaceAddress *addr;
             assert(n->nlmsg_type == RTM_DELADDR);

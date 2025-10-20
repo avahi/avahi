@@ -53,8 +53,8 @@ enum {
     reference counter. The structure is intended to be treated as "immutable", no
     changes should be imposed after creation */
 typedef struct AvahiKey {
-    int ref;           /**< Reference counter */
     char *name;        /**< Record name */
+    int ref;           /**< Reference counter */
     uint16_t clazz;    /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
     uint16_t type;     /**< Record type, one of the AVAHI_DNS_TYPE_xxx constants */
 } AvahiKey;
@@ -63,8 +63,8 @@ typedef struct AvahiKey {
  * be treated as "immutable", no changes should be imposed after
  * creation. */
 typedef struct AvahiRecord {
-    int ref;         /**< Reference counter */
     AvahiKey *key;   /**< Reference to the query key of this record */
+    int ref;         /**< Reference counter */
 
     uint32_t ttl;     /**< DNS TTL of this record */
 

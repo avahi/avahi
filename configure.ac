@@ -165,6 +165,14 @@ AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
 #include <asm/types.h>
 ])
 
+#
+# Check for freebsd netlink.h
+#
+AC_CHECK_HEADER(netlink/netlink.h,
+HAVE_NETLINK=yes
+AC_DEFINE([HAVE_NETLINK],[],[Support for FreeBSD netlink])
+, [], [])
+
 AM_CONDITIONAL(HAVE_NETLINK, [ test x"$HAVE_NETLINK" = xyes ])
 
 #

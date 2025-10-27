@@ -398,7 +398,15 @@ fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
 
 have_inotify=no
-AC_CHECK_HEADERS([sys/inotify.h], [have_inotify=yes])
+AC_LINK_IFELSE(
+        [AC_LANG_SOURCE([
+#include <sys/inotify.h>
+int main () {
+    return (-1 == inotify_init());
+}])],
+        [AC_MSG_RESULT([yes]); have_inotify=yes],
+        [AC_MSG_RESULT([no])]
+    )
 
 AM_CONDITIONAL(HAVE_INOTIFY, test "x$have_inotify" = "xyes")
 

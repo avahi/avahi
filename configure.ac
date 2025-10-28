@@ -1160,6 +1160,19 @@ if test "x$with_systemdsystemunitdir" != xno; then
 fi
 AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno ])
 
+#
+# Install zsh completion?
+#
+AC_ARG_WITH([zsh-completion-dir],
+	AS_HELP_STRING([--with-zsh-completion-dir=DIR],[Directory for zsh completion file]))
+if test "x$with_zsh_completion_dir" = xyes; then
+	with_zsh_completion_dir="$datarootdir/zsh/site-functions"
+fi
+if test "x$with_zsh_completion_dir" != xno; then
+        AC_SUBST([zshcompdir], [$with_zsh_completion_dir])
+fi
+AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, test -n "$with_zsh_completion_dir" -a "x$with_zsh_completion_dir" != xno)
+
 # ==========================================================================
 AC_CONFIG_FILES([
 Makefile
@@ -1197,6 +1210,7 @@ avahi-autoipd/Makefile
 avahi-ui/Makefile
 avahi-libevent/Makefile
 po/Makefile.in
+completion/Makefile
 ])
 AC_OUTPUT
 
@@ -1220,6 +1234,7 @@ echo "
     Enable GTK 3.0:                            ${HAVE_GTK3}
     Enable D-Bus:                              ${HAVE_DBUS}
     With XML:                                  ${with_xml}
+    Zsh completion path:                       ${with_zsh_completion_dir}
     Enable GDBM:                               ${HAVE_GDBM}
     Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}

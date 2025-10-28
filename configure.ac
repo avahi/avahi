@@ -896,9 +896,14 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         fi
 
         AM_CHECK_PYMOD(socket,,,[AC_MSG_ERROR(Could not find Python module socket)])
-        if test "x$HAVE_GDBM" = "xyes" || test "x$HAVE_DBM" = "xyes"; then
-            AM_CHECK_PYMOD(anydbm,,,[
-                AM_CHECK_PYMOD(dbm,,,[AC_MSG_ERROR(Could not find Python module dbm)])
+        if test "x$HAVE_GDBM" = "xyes"; then
+            AM_CHECK_PYMOD([dbm.gnu], [], [], [
+                AM_CHECK_PYMOD([gdbm], [], [], [AC_MSG_ERROR(Could not find Python module dbm.gnu or gdbm)])
+            ])
+        fi
+        if test "x$HAVE_DBM" = "xyes"; then
+            AM_CHECK_PYMOD([dbm.ndbm], [], [], [
+                AM_CHECK_PYMOD([dbm], [], [], [AC_MSG_ERROR(Could not find Python module dbm.ndbm or dbm)])
             ])
         fi
     fi

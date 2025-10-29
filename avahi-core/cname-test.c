@@ -39,6 +39,7 @@
 static AvahiCache *cache = NULL;
 static AvahiServer *server = NULL;
 static const AvahiPoll *poll_api;
+static AvahiResolverEvent resolver_event = AVAHI_RESOLVER_FAILURE;
 
 static void (*avahi_test_case_function)(void) = NULL;
 
@@ -156,6 +157,13 @@ static void cname_answer(void) {
     avahi_test_add_a("Y.local", "192.168.50.99", 2);
 }
 
+static void cname_answer_removed(void) {
+    avahi_test_add_cname("X.local", "Y.local");
+    avahi_test_cache_flush();
+    avahi_test_add_a("Y.local", "192.168.50.99", 2);
+    assert(resolver_event != AVAHI_RESOLVER_FOUND);
+}
+
 static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void *userdata) {
     avahi_log_debug("server state: %i", state);
 
@@ -194,6 +202,7 @@ static void hnr_callback(
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
+    resolver_event = event;
     avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a",
                     resolver_event_to_string(event));
 }
@@ -218,6 +227,7 @@ static void avahi_test_initialize(char *test_case) {
     CHECK_TEST_CASE("diamond", diamond);
     CHECK_TEST_CASE("cname_answer_diamond", cname_answer_diamond);
     CHECK_TEST_CASE("cname_answer", cname_answer);
+    CHECK_TEST_CASE("cname_answer_removed", cname_answer_removed);
 
     assert(avahi_test_case_function);
 }

@@ -5,7 +5,7 @@ set -o pipefail
 
 export ASAN_UBSAN=${ASAN_UBSAN:-false}
 export BUILD_ONLY=${BUILD_ONLY:-false}
-export CFLAGS=${CFLAGS:-}
+export CFLAGS=${CFLAGS:-"-g -O0"}
 export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
@@ -78,7 +78,7 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
-        ./bootstrap.sh \
+        ./autogen.sh \
             --enable-compat-howl \
             --enable-compat-libdns_sd \
             --enable-core-docs \

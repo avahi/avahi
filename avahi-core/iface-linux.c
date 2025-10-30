@@ -183,6 +183,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         size_t l;
         AvahiAddress raddr, rlocal, *r;
         int raddr_valid = 0, rlocal_valid = 0;
+        uint32_t flags = ifaddrmsg->ifa_flags;  /* may be overridden by IFA_FLAGS */
 
         /* We are only interested in IPv4 and IPv6 */
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
@@ -232,6 +233,14 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
                     break;
 
+                case IFA_FLAGS:
+                    if (RTA_PAYLOAD(a) != sizeof(flags))
+                        return;
+
+                    memcpy(&flags, RTA_DATA(a), RTA_PAYLOAD(a));
+
+                    break;
+
                 default:
                     ;
             }
@@ -249,6 +258,9 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
         if (n->nlmsg_type == RTM_NEWADDR) {
             AvahiInterfaceAddress *addr;
+
+            if (flags & IFA_F_TENTATIVE)
+                return;
 
             /* This address is new or has been modified, so let's get an object for it */
             if (!(addr = avahi_interface_monitor_get_address(m, i, r)))

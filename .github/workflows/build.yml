@@ -76,7 +76,7 @@ jobs:
             # Do what USES="localbase:ldflags gettext-runtime gmake" do
             # in FreeBSD Ports, namely:
             # - Add /usr/local/include to the compiler's search path
-            # - Add /usr/local/include to the linker's search path
+            # - Add /usr/local/lib to the linker's search path
             # - Additionally link to libintl because it is a separate library,
             #   unlike on Linux. See https://github.com/avahi/avahi/issues/726
             # - Use GNU make instead of BSD one

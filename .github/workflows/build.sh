@@ -10,6 +10,7 @@ export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
 export MAKE=${MAKE:-make}
+export OS=${OS:-$(uname -s)}
 
 look_for_asan_ubsan_reports() {
     journalctl --sync
@@ -100,7 +101,7 @@ case "$1" in
             libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
         fi
 
-        if [[ $(uname -s) = FreeBSD ]]; then
+        if [[ "$OS" == FreeBSD ]]; then
             prefix="/usr/local"
             libdir="$prefix/lib"
             disable_libsystemd_arg="--disable-libsystemd"
@@ -127,13 +128,23 @@ case "$1" in
         fi
 
         if [[ "$DISTCHECK" == true ]]; then
-            $MAKE distcheck \
-                DISTCHECK_CONFIGURE_FLAGS="$disable_libsystemd_arg $disable_manpages_arg"
+            # Due to a build system bug DISTCHECK_CONFIGURE_FLAGS
+            # changes the behavior of `make distcheck` even when
+            # it's empty. To keep testing the most common use case
+            # DISTCHECK_CONFIGURE_FLAGS isn't passed on Linux
+            if [[ "$OS" == FreeBSD ]]; then
+                $MAKE distcheck \
+                    DISTCHECK_CONFIGURE_FLAGS="$disable_libsystemd_arg $disable_manpages_arg"
+            else
+                $MAKE distcheck
+            fi
         fi
 
         $MAKE check VERBOSE=1
 
-        sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service || true
+        if [[ "$OS" != FreeBSD ]]; then
+            sed -i.bak '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
+        fi
 
         # avahi-dnsconfd is used to test the DNS server browser only.
         # It shouldn't actually change any settings so the action just
@@ -183,7 +194,8 @@ EOL
         ldconfig
 
         # smoke tests require systemd, so don't run them on FreeBSD
-        if [[ $(uname -s) != FreeBSD ]]; then
+        # https://github.com/avahi/avahi/issues/727
+        if [[ "$OS" != FreeBSD ]]; then
             adduser --system --group avahi
             systemctl reload dbus
             if ! .github/workflows/smoke-tests.sh; then

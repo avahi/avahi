@@ -9,6 +9,7 @@ export CFLAGS=${CFLAGS:-"-g -O0"}
 export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
+export MAKE=${MAKE:-make}
 
 look_for_asan_ubsan_reports() {
     journalctl --sync
@@ -43,7 +44,7 @@ case "$1" in
         (cd dfuzzer && meson build && ninja -C build install)
 
         git clone https://gitlab.com/akihe/radamsa
-        (cd radamsa && make -j"$(nproc)" && make install)
+        (cd radamsa && $MAKE -j"$(nproc)" && $MAKE install)
         ;;
     install-build-deps-FreeBSD)
         # Use latest package set
@@ -92,7 +93,6 @@ case "$1" in
         export CXXFLAGS="$CFLAGS"
 
         prefix="/usr"
-        MAKE="make"
         disable_libsystemd_arg=""
         disable_manpages_arg=""
 
@@ -103,7 +103,6 @@ case "$1" in
         if [[ $(uname -s) = FreeBSD ]]; then
             prefix="/usr/local"
             libdir="$prefix/lib"
-            MAKE="gmake"
             disable_libsystemd_arg="--disable-libsystemd"
             disable_manpages_arg="--disable-manpages"
         fi

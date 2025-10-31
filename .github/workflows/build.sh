@@ -93,33 +93,31 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
-        prefix="/usr"
-        disable_libsystemd_arg=""
-        disable_manpages_arg=""
+        autogen_args=(
+            "--enable-compat-howl"
+            "--enable-compat-libdns_sd"
+            "--enable-core-docs"
+            "--enable-tests"
+            "--localstatedir=/var"
+            "--runstatedir=/run"
+            "--sysconfdir=/etc"
+        )
 
-        if [ "$(type dpkg-architecture)" ]; then
-            libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+        if [[ "$OS" != FreeBSD ]]; then
+            autogen_args+=(
+                "--prefix=/usr"
+                "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+            )
+        else
+            autogen_args+=(
+                "--prefix=/usr/local"
+                "--libdir=/usr/local/lib"
+                "--disable-libsystemd"
+                "--disable-manpages"
+            )
         fi
 
-        if [[ "$OS" == FreeBSD ]]; then
-            prefix="/usr/local"
-            libdir="$prefix/lib"
-            disable_libsystemd_arg="--disable-libsystemd"
-            disable_manpages_arg="--disable-manpages"
-        fi
-
-        ./autogen.sh \
-            --enable-compat-howl \
-            --enable-compat-libdns_sd \
-            --enable-core-docs \
-            --enable-tests \
-            --libdir="$libdir" \
-            --localstatedir=/var \
-            --prefix=$prefix \
-            --runstatedir=/run \
-            --sysconfdir=/etc \
-            $disable_libsystemd_arg \
-            $disable_manpages_arg
+        ./autogen.sh "${autogen_args[@]}"
 
         $MAKE -j"$(nproc)" V=1
 
@@ -134,7 +132,7 @@ case "$1" in
             # DISTCHECK_CONFIGURE_FLAGS isn't passed on Linux
             if [[ "$OS" == FreeBSD ]]; then
                 $MAKE distcheck \
-                    DISTCHECK_CONFIGURE_FLAGS="$disable_libsystemd_arg $disable_manpages_arg"
+                    DISTCHECK_CONFIGURE_FLAGS="--disable-libsystemd --disable-manpages"
             else
                 $MAKE distcheck
             fi

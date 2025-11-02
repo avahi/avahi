@@ -69,6 +69,7 @@ else
     test -f configure.ac~ && mv configure.ac~ configure.ac
 
     test "x$LIBTOOLIZE" = "x" && LIBTOOLIZE=libtoolize
+    test "x$MAKE" = "x" && MAKE=make
 
     "$LIBTOOLIZE" -c --force
     run_versioned aclocal "$AM_VERSION" -I common
@@ -79,6 +80,6 @@ else
     cd "$olddir"
     if test "x$NOCONFIGURE" = "x"; then
         $srcdir/configure "$@"
-        make clean
+        $MAKE clean
     fi
 fi

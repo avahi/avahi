@@ -9,6 +9,8 @@ export CFLAGS=${CFLAGS:-"-g -O0"}
 export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
+export MAKE=${MAKE:-make}
+export OS=${OS:-$(uname -s)}
 
 look_for_asan_ubsan_reports() {
     journalctl --sync
@@ -43,7 +45,20 @@ case "$1" in
         (cd dfuzzer && meson build && ninja -C build install)
 
         git clone https://gitlab.com/akihe/radamsa
-        (cd radamsa && make -j"$(nproc)" && make install)
+        (cd radamsa && $MAKE -j"$(nproc)" && $MAKE install)
+        ;;
+    install-build-deps-FreeBSD)
+        # Use latest package set
+        mkdir -p /usr/local/etc/pkg/repos/
+        cp /etc/pkg/FreeBSD.conf /usr/local/etc/pkg/repos/FreeBSD.conf
+        sed -i.bak -e 's|/quarterly|/latest|' /usr/local/etc/pkg/repos/FreeBSD.conf
+
+        pkg install -y gettext-runtime gettext-tools gmake intltool \
+            gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
+            libevent glib automake libtool libinotify qt5-core qt5-buildtools \
+            gtk3 py311-pygobject py311-dbus py311-gdbm mono
+        # some deps pull in avahi itself, remove it
+        pkg remove -f avahi-app
         ;;
     build)
         if [[ "$ASAN_UBSAN" == true ]]; then
@@ -78,30 +93,56 @@ case "$1" in
         fi
         export CXXFLAGS="$CFLAGS"
 
-        ./autogen.sh \
-            --enable-compat-howl \
-            --enable-compat-libdns_sd \
-            --enable-core-docs \
-            --enable-tests \
-            --libdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
-            --localstatedir=/var \
-            --prefix=/usr \
-            --runstatedir=/run \
-            --sysconfdir=/etc
+        autogen_args=(
+            "--enable-compat-howl"
+            "--enable-compat-libdns_sd"
+            "--enable-core-docs"
+            "--enable-tests"
+            "--localstatedir=/var"
+            "--runstatedir=/run"
+            "--sysconfdir=/etc"
+        )
 
-        make -j"$(nproc)" V=1
+        if [[ "$OS" != FreeBSD ]]; then
+            autogen_args+=(
+                "--prefix=/usr"
+                "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+            )
+        else
+            autogen_args+=(
+                "--prefix=/usr/local"
+                "--libdir=/usr/local/lib"
+                "--disable-libsystemd"
+                "--disable-manpages"
+            )
+        fi
+
+        ./autogen.sh "${autogen_args[@]}"
+
+        $MAKE -j"$(nproc)" V=1
 
         if [[ "$BUILD_ONLY" == true ]]; then
             exit 0
         fi
 
         if [[ "$DISTCHECK" == true ]]; then
-            make distcheck
+            # Due to a build system bug DISTCHECK_CONFIGURE_FLAGS
+            # changes the behavior of `make distcheck` even when
+            # it's empty. To keep testing the most common use case
+            # DISTCHECK_CONFIGURE_FLAGS isn't passed on Linux
+            if [[ "$OS" == FreeBSD ]]; then
+                $MAKE distcheck \
+                    DISTCHECK_CONFIGURE_FLAGS="--disable-libsystemd --disable-manpages"
+            else
+                $MAKE distcheck
+            fi
         fi
 
-        make check VERBOSE=1
+        $MAKE check VERBOSE=1
 
-        sed -i '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
+        if [[ "$OS" != FreeBSD ]]; then
+            sed -i.bak '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
+        fi
 
         # avahi-dnsconfd is used to test the DNS server browser only.
         # It shouldn't actually change any settings so the action just
@@ -138,7 +179,7 @@ EOL
 
         # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
         # so it isn't set to yes here.
-        sed -i '
+        sed -i.bak '
             s/^#\(add-service-cookie=\).*/\1yes/;
             s/^#\(publish-dns-servers=\)/\1/;
             s/^#\(publish-resolv-conf-dns-servers=\).*/\1yes/;
@@ -147,14 +188,18 @@ EOL
 
         printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
 
-        make install
+        $MAKE install
         ldconfig
-        adduser --system --group avahi
-        systemctl reload dbus
 
-        if ! .github/workflows/smoke-tests.sh; then
-            look_for_asan_ubsan_reports
-            exit 1
+        # smoke tests require systemd, so don't run them on FreeBSD
+        # https://github.com/avahi/avahi/issues/727
+        if [[ "$OS" != FreeBSD ]]; then
+            adduser --system --group avahi
+            systemctl reload dbus
+            if ! .github/workflows/smoke-tests.sh; then
+                look_for_asan_ubsan_reports
+                exit 1
+            fi
         fi
 
         if [[ "$COVERAGE" == true ]]; then

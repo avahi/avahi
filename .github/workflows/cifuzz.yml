@@ -19,9 +19,7 @@ jobs:
       actions: read
       contents: read
 
-    # CIFuzz can't be switched to ubuntu-24.04
-    # https://github.com/google/oss-fuzz/issues/12042
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.repository == 'avahi/avahi'
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.sanitizer }}-${{ matrix.architecture }}-${{ github.ref }}

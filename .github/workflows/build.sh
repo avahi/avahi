@@ -62,15 +62,12 @@ case "$1" in
         ;;
     build)
         if [[ "$OS" == FreeBSD ]]; then
-            # Do what USES="localbase:ldflags gettext-runtime gmake" do
-            # in FreeBSD Ports, namely:
+            # Do what USES="localbase:ldflags" do in FreeBSD Ports, namely:
             # - Add /usr/local/include to the compiler's search path
             # - Add /usr/local/lib to the linker's search path
-            # - Additionally link to libintl because it is a separate library,
-            #   unlike on Linux. See https://github.com/avahi/avahi/issues/726
             export CFLAGS+=" -I/usr/local/include"
             export CPPFLAGS+=" -I/usr/local/include"
-            export LDFLAGS+=" -L/usr/local/lib -lintl"
+            export LDFLAGS+=" -L/usr/local/lib"
         fi
 
         if [[ "$ASAN_UBSAN" == true ]]; then

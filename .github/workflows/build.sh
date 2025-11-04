@@ -61,6 +61,18 @@ case "$1" in
         pkg remove -f avahi-app
         ;;
     build)
+        if [[ "$OS" == FreeBSD ]]; then
+            # Do what USES="localbase:ldflags gettext-runtime gmake" do
+            # in FreeBSD Ports, namely:
+            # - Add /usr/local/include to the compiler's search path
+            # - Add /usr/local/lib to the linker's search path
+            # - Additionally link to libintl because it is a separate library,
+            #   unlike on Linux. See https://github.com/avahi/avahi/issues/726
+            export CFLAGS+=" -I/usr/local/include"
+            export CPPFLAGS+=" -I/usr/local/include"
+            export LDFLAGS+=" -L/usr/local/lib -lintl"
+        fi
+
         if [[ "$ASAN_UBSAN" == true ]]; then
             export CFLAGS+=" -fsanitize=address,undefined -g"
             export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
@@ -71,7 +83,7 @@ case "$1" in
             # because acx_pthread is out of date. The kludge should be
             # removed once acx_pthread gets updated.
             if [[ "$CC" == clang ]]; then
-                sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4
+                sed -i.bak 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4
 
                 # https://github.com/avahi/avahi/issues/584
                 CFLAGS+=' -fno-sanitize=function'
@@ -117,7 +129,10 @@ case "$1" in
             )
         fi
 
-        ./autogen.sh "${autogen_args[@]}"
+        if ! ./autogen.sh "${autogen_args[@]}"; then
+            cat config.log
+            exit 1
+        fi
 
         $MAKE -j"$(nproc)" V=1
 
@@ -168,13 +183,13 @@ EOL
             sed -i '/^ExecStart=/s/$/ --no-chroot --no-drop-root/' avahi-daemon/avahi-daemon.service
         fi
 
-        if [[ "$ASAN_UBSAN" == true ]]; then
-            sed -i '/^ExecStart=/s/$/ --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
-            sed -i "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-daemon/avahi-daemon.service
-            sed -i "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-daemon/avahi-daemon.service
+        if [[ "$ASAN_UBSAN" == true && "$OS" != FreeBSD ]]; then
+            sed -i.bak '/^ExecStart=/s/$/ --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
+            sed -i.bak "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-daemon/avahi-daemon.service
+            sed -i.bak "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-daemon/avahi-daemon.service
 
-            sed -i "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
-            sed -i "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
+            sed -i.bak "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
+            sed -i.bak "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
         fi
 
         # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485

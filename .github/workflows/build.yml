@@ -59,8 +59,15 @@ jobs:
   freebsd:
     runs-on: ubuntu-24.04
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-freebsd
+      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-freebsd
       cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
+          - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
+    env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
         uses: actions/checkout@v4
@@ -69,21 +76,10 @@ jobs:
           operating_system: 'freebsd'
           version: '14.3'
           architecture: 'x86_64'
+          environment_variables: ASAN_UBSAN CC DISTCHECK
           run: |
-            export CC=clang
-            export DISTCHECK=true
-
-            # Do what USES="localbase:ldflags gettext-runtime gmake" do
-            # in FreeBSD Ports, namely:
-            # - Add /usr/local/include to the compiler's search path
-            # - Add /usr/local/lib to the linker's search path
-            # - Additionally link to libintl because it is a separate library,
-            #   unlike on Linux. See https://github.com/avahi/avahi/issues/726
             # - Use GNU make instead of BSD one
             export MAKE="gmake"
-            export CFLAGS="-I/usr/local/include"
-            export CPPFLAGS="-I/usr/local/include"
-            export LDFLAGS="-L/usr/local/lib -lintl"
 
             sudo -E .github/workflows/build.sh install-build-deps-FreeBSD
             sudo -E .github/workflows/build.sh build

@@ -58,7 +58,7 @@ case "$1" in
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
             gtk3 py311-pygobject py311-dbus py311-gdbm mono
         # some deps pull in avahi itself, remove it
-        pkg remove -f avahi-app
+        pkg remove -fy avahi-app
         ;;
     build)
         if [[ "$OS" == FreeBSD ]]; then

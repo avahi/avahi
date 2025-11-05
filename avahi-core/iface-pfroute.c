@@ -495,6 +495,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   avahi_interface_monitor_check_relevant(m);
   avahi_interface_monitor_update_rrs(m, 0);
   avahi_log_info("Network interface enumeration completed.");
+  avahi_free(buf);
 #elif defined (SIOCGLIFNUM) && defined(HAVE_STRUCT_LIFCONF) /* Solaris 8 and later; Sol 7? */
     int sockfd;
     int ret;

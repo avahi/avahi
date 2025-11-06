@@ -34,6 +34,25 @@ install_dfuzzer() {
     (cd dfuzzer && meson setup build && ninja -C build install)
 }
 
+install_radamsa() {
+    git clone https://gitlab.com/akihe/radamsa
+    pushd radamsa
+    # make is replaced with ${MAKE} to get around
+    # make[1]: illegal argument to -j -- must be positive integer!
+    sed -i.bak "s/make/${MAKE}/" Makefile
+    # CFLAGS is reset because it fails under UBSan with:
+    # bin/ol -O1 -o radamsa.c rad/main.scm
+    #     ol.c:21585:26: runtime error: left shift of 16777215 by 8 places cannot be represented in type 'int'
+    CFLAGS="" $MAKE -j"$(nproc)"
+    $MAKE install
+    popd
+    # At least radamsa.c is generated with the "-rw-------." permissions so
+    # cross-platform-actions/action trips on that with:
+    #  /usr/bin/rsync -auz runner@cross_platform_actions_host:/home/runner/work/ /home/runner/work
+    #   rsync: [sender] send_files failed to open "/home/runner/work/avahi/avahi/radamsa/radamsa.c": Permission denied (13)
+    chmod -R a+r radamsa
+}
+
 case "$1" in
     install-build-deps)
         sed -i 's/^\(Types: deb\)$/\1 deb-src/' /etc/apt/sources.list.d/ubuntu.sources
@@ -47,9 +66,7 @@ case "$1" in
 
         apt-get install -y libglib2.0-dev meson
         install_dfuzzer
-
-        git clone https://gitlab.com/akihe/radamsa
-        (cd radamsa && $MAKE -j"$(nproc)" && $MAKE install)
+        install_radamsa
         ;;
     install-build-deps-FreeBSD)
         # Use latest package set
@@ -64,6 +81,7 @@ case "$1" in
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         install_dfuzzer
+        install_radamsa
         ;;
     build)
         if [[ "$OS" == FreeBSD ]]; then

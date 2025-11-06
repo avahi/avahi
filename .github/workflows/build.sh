@@ -29,6 +29,11 @@ look_for_asan_ubsan_reports() {
     fi
 }
 
+install_dfuzzer() {
+    git clone https://github.com/dbus-fuzzer/dfuzzer
+    (cd dfuzzer && meson setup build && ninja -C build install)
+}
+
 case "$1" in
     install-build-deps)
         sed -i 's/^\(Types: deb\)$/\1 deb-src/' /etc/apt/sources.list.d/ubuntu.sources
@@ -41,8 +46,7 @@ case "$1" in
         apt-get install -y valgrind ncat ldnsutils
 
         apt-get install -y libglib2.0-dev meson
-        git clone https://github.com/dbus-fuzzer/dfuzzer
-        (cd dfuzzer && meson build && ninja -C build install)
+        install_dfuzzer
 
         git clone https://gitlab.com/akihe/radamsa
         (cd radamsa && $MAKE -j"$(nproc)" && $MAKE install)
@@ -56,9 +60,10 @@ case "$1" in
         pkg install -y gettext-runtime gettext-tools gmake intltool \
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
-            gtk3 py311-pygobject py311-dbus py311-gdbm mono
+            gtk3 py311-pygobject py311-dbus py311-gdbm mono git meson
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
+        install_dfuzzer
         ;;
     build)
         if [[ "$OS" == FreeBSD ]]; then

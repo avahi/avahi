@@ -67,6 +67,7 @@ jobs:
         env:
           - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
           - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
+          - { CC: "clang", ASAN_UBSAN: "false", VALGRIND: "true" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
@@ -76,7 +77,7 @@ jobs:
           operating_system: 'freebsd'
           version: '14.3'
           architecture: 'x86_64'
-          environment_variables: ASAN_UBSAN CC DISTCHECK
+          environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
           run: |
             # - Use GNU make instead of BSD one
             export MAKE="gmake"

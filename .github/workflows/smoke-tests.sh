@@ -100,7 +100,7 @@ dbus_call GetAlternativeHostName "s" "a-2147483647"
 # https://github.com/avahi/avahi/issues/526
 dbus_call GetAlternativeServiceName "s" "a #2147483647"
 
-printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | ncat -w1 -U /run/avahi-daemon/socket
+printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | socat - unix-connect:/run/avahi-daemon/socket
 
 cmds=(
     "HELP"
@@ -117,11 +117,11 @@ cmds=(
 mkdir -p CORPUS
 for cmd in "${cmds[@]}"; do
     printf "%s\n" "$cmd" >CORPUS/"$cmd"
-    printf "%s\n" "$cmd" | ncat -w1 -U /run/avahi-daemon/socket
+    printf "%s\n" "$cmd" | socat - unix-connect:/run/avahi-daemon/socket
 done
 
 timeout --foreground 180 bash -c 'while :; do
-    radamsa -r CORPUS | ncat -w1 -i0.5 -U /run/avahi-daemon/socket
+    radamsa -r CORPUS | socat -T2 - unix-connect:/run/avahi-daemon/socket
 done >&/dev/null' || true
 
 avahi-browse -varpt

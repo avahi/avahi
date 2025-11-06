@@ -62,7 +62,7 @@ case "$1" in
         apt-get install -y gcc clang lcov
         apt-get install -y mono-mcs monodoc-base libmono-posix4.0-ci
 
-        apt-get install -y valgrind ncat ldnsutils
+        apt-get install -y valgrind socat ldnsutils
 
         apt-get install -y libglib2.0-dev meson
         install_dfuzzer
@@ -77,7 +77,7 @@ case "$1" in
         pkg install -y gettext-runtime gettext-tools gmake intltool \
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
-            gtk3 py311-pygobject py311-dbus py311-gdbm mono git meson
+            gtk3 py311-pygobject py311-dbus py311-gdbm mono git meson socat
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         install_dfuzzer

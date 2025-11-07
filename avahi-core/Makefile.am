@@ -173,7 +173,7 @@ hashmap_test_CFLAGS = $(AM_CFLAGS)
 hashmap_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 
 valgrind: avahi-test
-	libtool --mode=execute valgrind ./avahi-test
+	$(LIBTOOL) --mode=execute valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 ./avahi-test
 
 gdb: avahi-test
 	libtool --mode=execute gdb ./avahi-test

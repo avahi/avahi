@@ -77,7 +77,8 @@ case "$1" in
         pkg install -y gettext-runtime gettext-tools gmake intltool \
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
-            gtk3 py311-pygobject py311-dbus py311-gdbm mono git meson socat
+            gtk3 py311-pygobject py311-dbus py311-gdbm mono git meson socat \
+            valgrind
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         install_dfuzzer
@@ -175,6 +176,15 @@ case "$1" in
 
         $MAKE check VERBOSE=1
 
+        # It's just a kludge using the existing valgrind target
+        # to run at least something under Valgrind on FreeBSD. It was
+        # enough to trigger a memory leak/conditional jumps/moves
+        # depending on uninitialised values there though. It can be
+        # removed when the smoke tests are run on FreeBSD.
+        if [[ "$VALGRIND" == true ]]; then
+            (cd avahi-core && $MAKE valgrind)
+        fi
+
         if [[ "$OS" != FreeBSD ]]; then
             sed -i.bak '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
         fi
@@ -188,13 +198,13 @@ case "$1" in
 printf "%s\n" "<$1> <$2> <$3> <$4>" | systemd-cat
 EOL
 
-        if [[ "$VALGRIND" == true ]]; then
-            sed -i '
+        if [[ "$VALGRIND" == true && "$OS" != FreeBSD ]]; then
+            sed -i.bak '
                 /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
             ' avahi-daemon/avahi-daemon.service
-            sed -i '/^ExecStart=/s/$/ --no-chroot --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
+            sed -i.bak '/^ExecStart=/s/$/ --no-chroot --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
 
-            sed -i '
+            sed -i.bak '
                 /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
             ' avahi-dnsconfd/avahi-dnsconfd.service
         fi

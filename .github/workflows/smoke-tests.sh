@@ -23,8 +23,11 @@ should_fail() {
 }
 
 dbus_call() {
-    busctl call org.freedesktop.Avahi / org.freedesktop.Avahi.Server -- "$@"
-    busctl call org.freedesktop.Avahi / org.freedesktop.Avahi.Server2 -- "$@"
+    local method="$1"
+
+    shift
+    gdbus call --system --dest org.freedesktop.Avahi --object-path / --method "org.freedesktop.Avahi.Server.$method" -- "$@"
+    gdbus call --system --dest org.freedesktop.Avahi --object-path / --method "org.freedesktop.Avahi.Server2.$method" -- "$@"
 }
 
 for p in avahi-{browse,daemon,publish,resolve,set-host-name}; do
@@ -85,20 +88,20 @@ for s in 127.0.0.1 224.0.0.1 ff02::fb; do
    drill "@$s" -p5353 "_services._dns-sd._udp.local" ANY
 done
 
-dbus_call ResolveAddress "iisu" -1 -1 "$ipv4addr" 0
-should_fail dbus_call ResolveAddress "iisu" -1 -1 1.1.1.1 2
+dbus_call ResolveAddress -1 -1 "$ipv4addr" 0
+should_fail dbus_call ResolveAddress -1 -1 1.1.1.1 2
 
-dbus_call ResolveHostName "iisiu" -1 -1 "$(hostname).local" -1 0
-should_fail dbus_call ResolveHostName "iisiu" -1 -1 one.one.one.one -1 2
+dbus_call ResolveHostName -1 -1 "$(hostname).local" -1 0
+should_fail dbus_call ResolveHostName -1 -1 one.one.one.one -1 2
 
-dbus_call ResolveService "iisssiu" -1 -1 "$(hostname)" _ssh._tcp local -1 0
-should_fail dbus_call ResolveService "iisssiu" -1 -1 "$(hostname)" _ssh._tcp dns-sd.org -1 2
+dbus_call ResolveService -1 -1 "$(hostname)" _ssh._tcp local -1 0
+should_fail dbus_call ResolveService -1 -1 "$(hostname)" _ssh._tcp dns-sd.org -1 2
 
 # https://github.com/avahi/avahi/issues/491
-dbus_call GetAlternativeHostName "s" "a-2147483647"
+dbus_call GetAlternativeHostName "a-2147483647"
 
 # https://github.com/avahi/avahi/issues/526
-dbus_call GetAlternativeServiceName "s" "a #2147483647"
+dbus_call GetAlternativeServiceName "a #2147483647"
 
 printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | socat - unix-connect:/run/avahi-daemon/socket
 

@@ -132,7 +132,6 @@ case "$1" in
             "--enable-core-docs"
             "--enable-tests"
             "--localstatedir=/var"
-            "--sysconfdir=/etc"
         )
 
         if [[ "$OS" != FreeBSD ]]; then
@@ -140,12 +139,14 @@ case "$1" in
                 "--prefix=/usr"
                 "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
                 "--runstatedir=/run"
+                "--sysconfdir=/etc"
             )
         else
             autogen_args+=(
                 "--prefix=/usr/local"
                 "--libdir=/usr/local/lib"
                 "--runstatedir=/var/run"
+                "--sysconfdir=/usr/local/etc"
                 "--disable-libsystemd"
                 "--disable-manpages"
             )

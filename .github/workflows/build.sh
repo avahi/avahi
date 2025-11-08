@@ -132,7 +132,6 @@ case "$1" in
             "--enable-core-docs"
             "--enable-tests"
             "--localstatedir=/var"
-            "--runstatedir=/run"
             "--sysconfdir=/etc"
         )
 
@@ -140,11 +139,13 @@ case "$1" in
             autogen_args+=(
                 "--prefix=/usr"
                 "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+                "--runstatedir=/run"
             )
         else
             autogen_args+=(
                 "--prefix=/usr/local"
                 "--libdir=/usr/local/lib"
+                "--runstatedir=/var/run"
                 "--disable-libsystemd"
                 "--disable-manpages"
             )

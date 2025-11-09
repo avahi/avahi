@@ -195,9 +195,9 @@ case "$1" in
         # It shouldn't actually change any settings so the action just
         # logs what it receives from avahi-daemon.
         cat <<'EOL' >avahi-dnsconfd/avahi-dnsconfd.action
-#!/bin/bash
+#!/usr/bin/env bash
 
-printf "%s\n" "<$1> <$2> <$3> <$4>" | systemd-cat
+printf "%s\n" "<$1> <$2> <$3> <$4>" | logger
 EOL
 
         if [[ "$VALGRIND" == true && "$OS" != FreeBSD ]]; then

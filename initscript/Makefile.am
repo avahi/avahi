@@ -29,10 +29,6 @@ if TARGET_DARWIN
 SUBDIRS += darwin
 endif
 
-if TARGET_FREEBSD
-SUBDIRS += freebsd
-endif
-
 if TARGET_SLACKWARE
 SUBDIRS += slackware
 endif

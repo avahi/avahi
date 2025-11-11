@@ -19,6 +19,8 @@ actions:
     # Drop all patches apart from avahi-0.6.30-mono-libdir.patch
     - "sed -ri '/^Patch[0-9]+\\:.+\\.patch/d' .packit_rpm/avahi.spec"
     - "sed -ri '/^## downstream patches/aPatch100: avahi-0.6.30-mono-libdir.patch' .packit_rpm/avahi.spec"
+    # The bug where the empty directory was created when Python was disabled is fixed upstream
+    - "sed -i '/libdir}\\/avahi$/d' .packit_rpm/avahi.spec"
 
 jobs:
 - job: copr_build

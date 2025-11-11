@@ -34,20 +34,4 @@ service-types.db: service-types
 CLEANFILES = service-types.db
 
 endif
-if HAVE_DBM
-
-dist_noinst_SCRIPTS=build-db
-pkglibdata_DATA+=service-types.db.pag service-types.db.dir
-
-service-types.db.pag: service-types.db
-	$(AM_V_GEN)mv service-types.db.coming.pag service-types.db.pag
-service-types.db.dir: service-types.db
-	$(AM_V_GEN)mv service-types.db.coming.dir service-types.db.dir
-service-types.db: service-types build-db
-	$(AM_V_GEN)$(PYTHON) $(srcdir)/build-db --ndbm $< $@.coming && \
-	if test -f "$@.coming"; then mv $@.coming $@; fi
-
-CLEANFILES = service-types.db*
-
-endif
 endif

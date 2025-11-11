@@ -43,7 +43,7 @@
 
 #include "sigint.h"
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
 #include "stdb.h"
 #endif
 
@@ -53,7 +53,7 @@ typedef enum {
     COMMAND_BROWSE_SERVICES,
     COMMAND_BROWSE_ALL_SERVICES,
     COMMAND_BROWSE_DOMAINS
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
     , COMMAND_DUMP_STDB
 #endif
 } Command;
@@ -69,7 +69,7 @@ typedef struct Config {
     int resolve;
     int no_fail;
     int parsable;
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
     int no_db_lookup;
 #endif
 } Config;
@@ -154,7 +154,7 @@ static char *make_printable(const char *from, char *to) {
 static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, int nl) {
     char ifname[IF_NAMESIZE];
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
     if (!config->no_db_lookup)
         type = stdb_lookup(type);
 #endif
@@ -634,11 +634,11 @@ static void help(FILE *f, const char *argv0) {
                 "%s [options] <service type>\n"
                 "%s [options] -a\n"
                 "%s [options] -D\n"
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
                 "%s [options] -b\n"
 #endif
                 "\n",
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
                 argv0,
 #endif
                 argv0, argv0, argv0);
@@ -656,7 +656,7 @@ static void help(FILE *f, const char *argv0) {
               "    -r --resolve         Resolve services found\n"
               "    -f --no-fail         Don't fail if the daemon is not available\n"
               "    -p --parsable        Output in parsable format\n"),
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
             _("    -k --no-db-lookup    Don't lookup service types\n"
               "    -b --dump-db         Dump service type database\n")
 #else
@@ -681,7 +681,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "resolve",        no_argument,       NULL, 'r' },
         { "no-fail",        no_argument,       NULL, 'f' },
         { "parsable",      no_argument,       NULL, 'p' },
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
         { "no-db-lookup",   no_argument,       NULL, 'k' },
         { "dump-db",        no_argument,       NULL, 'b' },
 #endif
@@ -700,12 +700,12 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         c->parsable = 0;
     c->domain = c->stype = NULL;
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
     c->no_db_lookup = 0;
 #endif
 
     while ((o = getopt_long(argc, argv, "hVd:avtclrDfp"
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
                             "kb"
 #endif
                             , long_options, NULL)) >= 0) {
@@ -748,7 +748,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
             case 'p':
                 c->parsable = 1;
                 break;
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
             case 'k':
                 c->no_db_lookup = 1;
                 break;
@@ -834,7 +834,7 @@ int main(int argc, char *argv[]) {
             ret = 0;
             break;
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
         case COMMAND_DUMP_STDB: {
             char *t;
             stdb_setent();
@@ -871,7 +871,7 @@ fail:
 
     avahi_string_list_free(browsed_types);
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
     stdb_shutdown();
 #endif
 

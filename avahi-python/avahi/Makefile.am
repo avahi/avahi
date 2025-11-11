@@ -32,10 +32,6 @@ if HAVE_GDBM
 nodist_avahi_SCRIPTS = ServiceTypeDatabase.py
 endif
 
-if HAVE_DBM
-nodist_avahi_SCRIPTS = ServiceTypeDatabase.py
-endif
-
 ServiceTypeDatabase.py: ServiceTypeDatabase.py.in
 	$(AM_V_GEN)sed -e 's,@PYTHON\@,$(PYTHON),g' \
 		-e 's,@pkglibdatadir\@,$(pkglibdatadir),g' $< > $@ && \

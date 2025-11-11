@@ -71,13 +71,6 @@ libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.d
 libavahi_ui_gtk3_la_LIBADD += -lgdbm
 endif
 
-if HAVE_DBM
-libavahi_ui_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
-libavahi_ui_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
-
-libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
-endif
-
 bin_PROGRAMS = bssh
 desktop_DATA += bssh.desktop bvnc.desktop
 

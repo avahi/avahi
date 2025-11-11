@@ -39,7 +39,7 @@
 
 #include "avahi-ui.h"
 
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
 #include "../avahi-utils/stdb.h"
 #endif
 
@@ -428,7 +428,7 @@ static void browse_callback(
                 pretty_type = g_hash_table_lookup (d->priv->service_type_names, type);
 
             if (!pretty_type) {
-#if defined(HAVE_GDBM) || defined(HAVE_DBM)
+#if defined(HAVE_GDBM)
                 pretty_type = stdb_lookup(type);
 #else
                 pretty_type = type;

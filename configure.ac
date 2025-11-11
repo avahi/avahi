@@ -766,18 +766,6 @@ AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
 #
 # GDBM
 #
-#
-# Check for dbm
-#
-AC_ARG_ENABLE(dbm,
-        AS_HELP_STRING([--enable-dbm],[Enable use of DBM]),
-        [case "${enableval}" in
-                yes) HAVE_DBM=yes ;;
-                no)  HAVE_DBM=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-dbm) ;;
-        esac],
-        [HAVE_DBM=no])
-
 AC_ARG_ENABLE(gdbm,
         AS_HELP_STRING([--disable-gdbm],[Disable use of GDBM]),
         [case "${enableval}" in
@@ -788,27 +776,23 @@ AC_ARG_ENABLE(gdbm,
         [HAVE_GDBM=yes])
 
 if test "x$HAVE_GDBM" = "xyes" ; then
-    if test "x$HAVE_DBM" = "xyes" ; then
-        AC_MSG_ERROR([*** --enable-gdbm and --enable-dbm both specified ***])
-    fi
     AC_CHECK_LIB(gdbm, gdbm_open, [ AC_CHECK_HEADERS(gdbm.h, have_gdbm=true, have_gdbm=false) ], have_gdbm=false)
 
     if ! $have_gdbm ; then
         AC_MSG_ERROR([*** libgdbm not found ***])
     fi
     AC_DEFINE([HAVE_GDBM],[],[Support for GDBM])
-else
-    if test "x$HAVE_DBM" = "xyes" ; then
-        AC_CHECK_HEADERS(ndbm.h, have_dbm=true, have_dbm=false)
-
-        if ! $have_dbm ; then
-            AC_MSG_ERROR([*** dbm not found ***])
-        fi
-        AC_DEFINE([HAVE_DBM],[],[Support for DBM])
-    fi
 fi
 AM_CONDITIONAL(HAVE_GDBM, test "x$HAVE_GDBM" = "xyes")
-AM_CONDITIONAL(HAVE_DBM, test "x$HAVE_DBM" = "xyes")
+
+# It's a compat option to prevent scripts where dbm is disabled explicitly
+# with --disable-dbm from breaking. --enable-dbm just fails loudly.
+AC_ARG_ENABLE(dbm,
+        AS_HELP_STRING([--enable-dbm],[--enable-dbm is no longer supported]),
+        [case "${enableval}" in
+                no) AC_MSG_NOTICE(--disable-dbm can be omitted because dbm is no longer supported) ;;
+                *) AC_MSG_ERROR(dbm is no longer supported) ;;
+        esac])
 
 #
 # libdaemon
@@ -899,11 +883,6 @@ if test "x$HAVE_PYTHON" = "xyes" ; then
         if test "x$HAVE_GDBM" = "xyes"; then
             AM_CHECK_PYMOD([dbm.gnu], [], [], [
                 AM_CHECK_PYMOD([gdbm], [], [], [AC_MSG_ERROR(Could not find Python module dbm.gnu or gdbm)])
-            ])
-        fi
-        if test "x$HAVE_DBM" = "xyes"; then
-            AM_CHECK_PYMOD([dbm.ndbm], [], [], [
-                AM_CHECK_PYMOD([dbm], [], [], [AC_MSG_ERROR(Could not find Python module dbm.ndbm or dbm)])
             ])
         fi
     fi
@@ -1225,7 +1204,6 @@ echo "
     Enable D-Bus:                              ${HAVE_DBUS}
     With XML:                                  ${with_xml}
     Enable GDBM:                               ${HAVE_GDBM}
-    Enable DBM:                                ${HAVE_DBM}
     Enable libdaemon:                          ${HAVE_LIBDAEMON}
     Enable libsystemd:                         ${HAVE_LIBSYSTEMD}
     Enable Python:                             ${HAVE_PYTHON}

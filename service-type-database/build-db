@@ -26,13 +26,6 @@ if sys.argv[1] == '--gnu':
         import gdbm as chosen_dbm
 
     sys.argv[1:] = sys.argv[2:]
-elif sys.argv[1] == '--ndbm':
-    if sys.version_info >= (3,):
-        import dbm.ndbm as chosen_dbm
-    else:
-        import dbm as chosen_dbm
-
-    sys.argv[1:] = sys.argv[2:]
 else:
     if sys.version_info >= (3,):
         import dbm as chosen_dbm

@@ -36,12 +36,6 @@ pythonscripts += \
 desktop_DATA += avahi-discover.desktop
 endif
 
-if HAVE_DBM
-pythonscripts += \
-	avahi-discover
-desktop_DATA += avahi-discover.desktop
-endif
-
 avahi-discover.desktop.in: avahi-discover.desktop.in.in
 	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
 

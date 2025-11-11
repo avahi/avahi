@@ -52,10 +52,10 @@ enum {
 typedef struct _GaEntryGroupPrivate GaEntryGroupPrivate;
 
 struct _GaEntryGroupPrivate {
-    GaEntryGroupState state;
     GaClient *client;
     AvahiEntryGroup *group;
     GHashTable *services;
+    GaEntryGroupState state;
     gboolean dispose_has_run;
 };
 
@@ -185,16 +185,16 @@ static void _free_service(gpointer data) {
 
 static GQuark detail_for_state(AvahiEntryGroupState state) {
     static struct {
-        AvahiEntryGroupState state;
         const gchar *name;
         GQuark quark;
+        AvahiEntryGroupState state;
     } states[] = {
-        { AVAHI_ENTRY_GROUP_UNCOMMITED, "uncommitted", 0},
-        { AVAHI_ENTRY_GROUP_REGISTERING, "registering", 0},
-        { AVAHI_ENTRY_GROUP_ESTABLISHED, "established", 0},
-        { AVAHI_ENTRY_GROUP_COLLISION, "collision", 0},
-        { AVAHI_ENTRY_GROUP_FAILURE, "failure", 0},
-        { 0, NULL, 0}
+        { "uncommitted", 0, AVAHI_ENTRY_GROUP_UNCOMMITED},
+        { "registering", 0, AVAHI_ENTRY_GROUP_REGISTERING},
+        { "established", 0, AVAHI_ENTRY_GROUP_ESTABLISHED},
+        { "collision", 0, AVAHI_ENTRY_GROUP_COLLISION},
+        { "failure", 0, AVAHI_ENTRY_GROUP_FAILURE},
+        { NULL, 0, 0}
     };
     int i;
 

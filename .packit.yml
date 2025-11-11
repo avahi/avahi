@@ -19,13 +19,6 @@ actions:
     # Drop all patches apart from avahi-0.6.30-mono-libdir.patch
     - "sed -ri '/^Patch[0-9]+\\:.+\\.patch/d' .packit_rpm/avahi.spec"
     - "sed -ri '/^## downstream patches/aPatch100: avahi-0.6.30-mono-libdir.patch' .packit_rpm/avahi.spec"
-    # https://github.com/avahi/avahi/pull/376
-    - "sed -i '/avahi-dbus.conf/s/sysconf/data/' .packit_rpm/avahi.spec"
-    # Run make check
-    - "sed -i '/^%check$/amake check VERBOSE=1' .packit_rpm/avahi.spec"
-    # https://github.com/avahi/avahi/pull/513
-    - "sed -i '/^%configure/a--enable-libsystemd \\\\' .packit_rpm/avahi.spec"
-    - "sed -i '/^BuildRequires: *automake/aBuildRequires: systemd-devel' .packit_rpm/avahi.spec"
 
 jobs:
 - job: copr_build

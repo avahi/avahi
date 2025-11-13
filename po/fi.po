@@ -5,13 +5,14 @@
 # Translators:
 # Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024.
 # Jan Kuparinen <copper_fin@hotmail.com>, 2024.
+# Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2024-09-06 19:38+0000\n"
-"Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
+"PO-Revision-Date: 2025-01-08 10:38+0000\n"
+"Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/avahi/"
 "master/fi/>\n"
 "Language: fi\n"
@@ -19,11 +20,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.7.2\n"
+"X-Generator: Weblate 5.9.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
-msgstr "OK"
+msgstr "Hyvä on"
 
 #: ../avahi-common/error.c:31
 msgid "Operation failed"
@@ -412,7 +413,7 @@ msgstr "Avahi-verkkoaluetta ei voi lukea: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr "Selattavien palvelutyyppien luettelo on tyhjä."
+msgstr "Selattavien palvelutyyppien luettelo on tyhjä!"
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format

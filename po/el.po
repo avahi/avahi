@@ -6,19 +6,22 @@
 # Alexandra Sarma <alex@indifex.com>, 2011
 # ΔΗΜΗΤΡΗΣ ΣΠΙΓΓΟΣ <dmtrs32@gmail.com>, 2014
 # Panos Bouklis <panos@echidna-band.com>, 2012
+# Jim Spentzos <jimspentzos2000@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2014-05-05 03:28+0000\n"
-"Last-Translator: ΔΗΜΗΤΡΗΣ ΣΠΙΓΓΟΣ <dmtrs32@gmail.com>\n"
-"Language-Team: Greek (http://www.transifex.com/lennart/avahi/language/el/)\n"
+"PO-Revision-Date: 2025-06-22 08:52+0000\n"
+"Last-Translator: Jim Spentzos <jimspentzos2000@gmail.com>\n"
+"Language-Team: Greek <https://translate.fedoraproject.org/projects/avahi/"
+"master/el/>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -454,14 +457,12 @@ msgstr "Εξερεύνηση..."
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "Ακυρώθηκε.\n"
+msgstr "_Ακύρωση"
 
 #: ../avahi-ui/avahi-ui.c:1048
-#, fuzzy
 msgid "_OK"
-msgstr "Εντάξει"
+msgstr "_OK"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -513,7 +514,7 @@ msgstr "Επιλογή εξυπηρετητή κελύφους"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "_Σύνδεση"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"

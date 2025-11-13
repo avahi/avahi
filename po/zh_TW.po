@@ -5,13 +5,15 @@
 # Translators:
 # Jeff Huang <s8321414@gmail.com>, 2015
 # hsu zangmen <chzang55@gmail.com>, 2025.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2025-04-03 00:53+0000\n"
-"Last-Translator: hsu zangmen <chzang55@gmail.com>\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
 "projects/avahi/master/zh_TW/>\n"
 "Language: zh_TW\n"
@@ -453,14 +455,12 @@ msgstr "正在瀏覽..."
 
 #: ../avahi-ui/avahi-ui.c:1047 ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156
 #: ../avahi-ui/bssh.c:161
-#, fuzzy
 msgid "_Cancel"
-msgstr "已取消。\n"
+msgstr "取消(_C)"
 
 #: ../avahi-ui/avahi-ui.c:1048
-#, fuzzy
 msgid "_OK"
-msgstr "確定"
+msgstr "確定(_O)"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
@@ -512,7 +512,7 @@ msgstr "選擇 Shell 伺服器"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr ""
+msgstr "連線(_C)"
 
 #: ../avahi-ui/bssh.c:151
 msgid "Desktop"

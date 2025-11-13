@@ -5,32 +5,35 @@
 # Translators:
 # mohammad Alhargan <malham1@gmail.com>, 2011
 # mohammad alhargan <malham1@hotmail.com>, 2011
+# Ahmed Najmawi <iramosu@protonmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2013-11-20 09:58+0000\n"
-"Last-Translator: mohammad alhargan <malham1@hotmail.com>\n"
-"Language-Team: Arabic (http://www.transifex.com/lennart/avahi/language/ar/)\n"
+"PO-Revision-Date: 2025-07-12 16:53+0000\n"
+"Last-Translator: Ahmed Najmawi <iramosu@protonmail.com>\n"
+"Language-Team: Arabic <https://translate.fedoraproject.org/projects/avahi/"
+"master/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
-"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.12.2\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
-msgstr "موافق"
+msgstr "حسنًا"
 
 #: ../avahi-common/error.c:31
 msgid "Operation failed"
-msgstr "فشلت العملية"
+msgstr "أخفقت العملية"
 
 #: ../avahi-common/error.c:32
 msgid "Bad state"
-msgstr "حاله سيئة"
+msgstr "حالة سيئة"
 
 #: ../avahi-common/error.c:33
 msgid "Invalid host name"
@@ -38,11 +41,11 @@ msgstr "اسم المضيف غير صالح"
 
 #: ../avahi-common/error.c:34
 msgid "Invalid domain name"
-msgstr "اسم مجال غير صالح"
+msgstr "اسم النطاق غير صالح"
 
 #: ../avahi-common/error.c:35
 msgid "No suitable network protocol available"
-msgstr "لا يوجد بروتوكول شبكة مناسبة متاحة"
+msgstr "لا يوجد بروتوكول شبكة مناسب متاح"
 
 #: ../avahi-common/error.c:36
 msgid "Invalid DNS TTL"
@@ -50,31 +53,31 @@ msgstr "DNS TTL غير صالح"
 
 #: ../avahi-common/error.c:37
 msgid "Resource record key is pattern"
-msgstr "المورد الرئيسي للمفتاح موثوق"
+msgstr ""
 
 #: ../avahi-common/error.c:38
 msgid "Local name collision"
-msgstr "تضارب الاسماء المحلية"
+msgstr "تضارب الأسماء المحلية"
 
 #: ../avahi-common/error.c:39
 msgid "Invalid record"
-msgstr "سجل غير صالح"
+msgstr ""
 
 #: ../avahi-common/error.c:41
 msgid "Invalid service name"
-msgstr "اسم الخدمة غير صالح"
+msgstr "اسم خدمة غير صالح"
 
 #: ../avahi-common/error.c:42
 msgid "Invalid service type"
-msgstr "نوع الخدمة غير صالحة"
+msgstr "نوع خدمة غير صالحة"
 
 #: ../avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr "عدد المنافذ غير صالح"
+msgstr "رقم منفذ غير صالح"
 
 #: ../avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr "سجل المفتيح غير صالح"
+msgstr ""
 
 #: ../avahi-common/error.c:45
 msgid "Invalid address"
@@ -86,23 +89,23 @@ msgstr "انتهت المهلة"
 
 #: ../avahi-common/error.c:47
 msgid "Too many clients"
-msgstr "عدد العملاء كبير"
+msgstr "عدد العملاء كبير جدًا"
 
 #: ../avahi-common/error.c:48
 msgid "Too many objects"
-msgstr "عناصر كثيرة جدا"
+msgstr "عدد العناصر كثير جدًا"
 
 #: ../avahi-common/error.c:49
 msgid "Too many entries"
-msgstr "مدخلات كثيرة جدا"
+msgstr "عدد المدخلات كثير جدًا"
 
 #: ../avahi-common/error.c:50
 msgid "OS Error"
-msgstr "خطأ نظام التشغيل"
+msgstr "خطأ في نظام التشغيل"
 
 #: ../avahi-common/error.c:52
 msgid "Access denied"
-msgstr "رفض الوصول"
+msgstr "رُفض الوصول"
 
 #: ../avahi-common/error.c:53
 msgid "Invalid operation"
@@ -110,11 +113,11 @@ msgstr "عملية غير صالحة"
 
 #: ../avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr "خطأ denied غير متوقع"
+msgstr "حصل خطأ D-Bus غير متوقع"
 
 #: ../avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr "فشل اتصال العفريت"
+msgstr ""
 
 #: ../avahi-common/error.c:56
 msgid "Memory exhausted"
@@ -122,11 +125,11 @@ msgstr "استنفذت الذاكرة"
 
 #: ../avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr "الهدف غير صالح"
+msgstr ""
 
 #: ../avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr "العفريت لا تعمل"
+msgstr ""
 
 #: ../avahi-common/error.c:59
 msgid "Invalid interface index"

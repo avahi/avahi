@@ -84,8 +84,8 @@ systemd-run -u avahi-test-publish-address avahi-publish -fvaR  "$h" "$ipv4addr"
 
 # ::1 isn't here due to https://github.com/avahi/avahi/issues/574
 for s in 127.0.0.1 224.0.0.1 ff02::fb; do
-   drill "@$s" -p5353 "$h" ANY
-   drill "@$s" -p5353 "_services._dns-sd._udp.local" ANY
+   drill -p5353 "@$s" "$h" ANY
+   drill -p5353 "@$s" "_services._dns-sd._udp.local" ANY
 done
 
 dbus_call ResolveAddress -1 -1 "$ipv4addr" 0

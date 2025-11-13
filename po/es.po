@@ -6,13 +6,15 @@
 # Adolfo Jayme Barrientos, 2013
 # N M <nm@users.noreply.translate.fedoraproject.org>, 2024.
 # Javier Francisco <fserrador@gmail.com>, 2025.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2025-03-29 13:10+0000\n"
-"Last-Translator: Javier Francisco <fserrador@gmail.com>\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/avahi/"
 "master/es/>\n"
 "Language: es\n"
@@ -462,7 +464,7 @@ msgstr "_Cancelar"
 
 #: ../avahi-ui/avahi-ui.c:1048
 msgid "_OK"
-msgstr "_OK"
+msgstr "_Aceptar"
 
 #: ../avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."

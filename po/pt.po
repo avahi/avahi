@@ -2,13 +2,15 @@
 # Copyright (C) YEAR The Avahi developers.
 # This file is distributed under the same license as the avahi package.
 # Américo Monteiro <a_monteiro@gmx.com>, 2025.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2024-08-10 10:03+0000\n"
 "PO-Revision-Date: 2025-11-06 22:55+0000\n"
-"Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Portuguese <https://translate.fedoraproject.org/projects/"
 "avahi/master/pt/>\n"
 "Language: pt\n"
@@ -68,7 +70,7 @@ msgstr "Tipo de serviço inválido"
 
 #: avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr "Número de porto inválido"
+msgstr "Número de Porto Inválido"
 
 #: avahi-common/error.c:44
 msgid "Invalid record key"
@@ -216,7 +218,7 @@ msgstr ""
 
 #: avahi-common/error.c:83
 msgid "Not supported"
-msgstr ""
+msgstr "Não suportado"
 
 #: avahi-common/error.c:85
 msgid "Not permitted"
@@ -224,7 +226,7 @@ msgstr ""
 
 #: avahi-common/error.c:86
 msgid "Invalid argument"
-msgstr ""
+msgstr "Argumento inválido"
 
 #: avahi-common/error.c:87
 msgid "Is empty"
@@ -265,7 +267,7 @@ msgstr ""
 
 #: avahi-python/avahi-discover/avahi-discover.py:244
 msgid "empty"
-msgstr ""
+msgstr "Vazio"
 
 #: avahi-python/avahi-discover/avahi-discover.py:249
 msgid "Service Type:"
@@ -277,7 +279,7 @@ msgstr ""
 
 #: avahi-python/avahi-discover/avahi-discover.py:251
 msgid "Domain Name:"
-msgstr ""
+msgstr "Nome do Domínio"
 
 #: avahi-python/avahi-discover/avahi-discover.py:252
 msgid "Interface:"
@@ -285,7 +287,7 @@ msgstr ""
 
 #: avahi-python/avahi-discover/avahi-discover.py:253
 msgid "Address:"
-msgstr ""
+msgstr "Endereço:"
 
 #: avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
@@ -297,7 +299,7 @@ msgstr ""
 
 #: avahi-ui/avahi-ui.c:190
 msgid "Domain"
-msgstr ""
+msgstr "Domínio"
 
 #: avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
@@ -321,7 +323,7 @@ msgstr ""
 
 #: avahi-ui/avahi-ui.c:208
 msgid "Address"
-msgstr ""
+msgstr "Endereço"
 
 #: avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
@@ -329,7 +331,7 @@ msgstr ""
 
 #: avahi-ui/avahi-ui.c:213
 msgid "Port"
-msgstr ""
+msgstr "Porta"
 
 #: avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
@@ -337,7 +339,7 @@ msgstr ""
 
 #: avahi-ui/avahi-ui.c:219
 msgid "Host Name"
-msgstr ""
+msgstr "Nome do Anfitrião"
 
 #: avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
@@ -395,7 +397,7 @@ msgstr ""
 #: avahi-utils/avahi-browse.c:169 avahi-utils/avahi-browse.c:178
 #: avahi-utils/avahi-browse.c:179
 msgid "n/a"
-msgstr ""
+msgstr "n/d"
 
 #: avahi-ui/avahi-ui.c:649
 #, c-format
@@ -451,27 +453,27 @@ msgstr ""
 #: avahi-ui/avahi-ui.c:1047 avahi-ui/bssh.c:149 avahi-ui/bssh.c:156
 #: avahi-ui/bssh.c:161
 msgid "_Cancel"
-msgstr ""
+msgstr "_Cancelar"
 
 #: avahi-ui/avahi-ui.c:1048
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
-msgstr ""
+msgstr "A iniciar..."
 
 #: avahi-ui/avahi-ui.c:1162
 msgid "Location"
-msgstr ""
+msgstr "Localização"
 
 #: avahi-ui/avahi-ui.c:1167 avahi-utils/avahi-browse.c:553
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: avahi-ui/avahi-ui.c:1172 avahi-utils/avahi-browse.c:553
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
@@ -492,7 +494,7 @@ msgstr ""
 #: avahi-ui/bssh.c:101 avahi-utils/avahi-browse.c:775
 #, c-format
 msgid "Too many arguments\n"
-msgstr ""
+msgstr "Demasiados argumentos.\n"
 
 #: avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
@@ -530,7 +532,7 @@ msgstr ""
 
 #: avahi-ui/bssh.c:250
 msgid "Canceled.\n"
-msgstr ""
+msgstr "Cancelada\n"
 
 #: avahi-ui/bssh.desktop.in.in:4
 msgid "Avahi SSH Server Browser"

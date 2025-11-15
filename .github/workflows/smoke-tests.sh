@@ -16,7 +16,27 @@ dump_journal() {
 }
 
 run() {
-    if ! "$@"; then
+    local cmd=()
+
+    if [[ "$VALGRIND" == true && "$1" =~ avahi ]]; then
+        if [[ "$1" =~ ^\. ]]; then
+            cmd+=("libtool" "--mode=execute")
+        fi
+        cmd+=("valgrind" "--track-origins=yes" "--exit-on-first-error=yes" "--error-exitcode=1")
+
+        # https://github.com/avahi/avahi/issues/761
+        if ! [[ "$1" =~ avahi-daemon ]]; then
+            cmd+=("--leak-check=full")
+        fi
+
+        # https://github.com/avahi/avahi/issues/758
+        if ! [[ "$1" =~ cname-test ]]; then
+            cmd+=("--track-fds=yes")
+        fi
+    fi
+    cmd+=("$@")
+
+    if ! "${cmd[@]}"; then
         dump_journal
         exit 1
     fi
@@ -38,22 +58,22 @@ dbus_call() {
 }
 
 for p in avahi-{browse,daemon,publish,resolve,set-host-name}; do
-    "$p" -h
-    "$p" -V
+    run "$p" -h
+    run "$p" -V
 done
 
 run systemctl start avahi-daemon
 run systemctl start avahi-dnsconfd
 
-./avahi-client/check-nss-test
-./avahi-client/client-test
-(cd avahi-daemon && ./ini-file-parser-test)
-./avahi-compat-howl/address-test
-./avahi-compat-libdns_sd/null-test
-./avahi-core/avahi-test
-./avahi-core/querier-test
-./examples/glib-integration
-./tests/c-plus-plus-test
+run ./avahi-client/check-nss-test
+run ./avahi-client/client-test
+(cd avahi-daemon && run ./ini-file-parser-test)
+run ./avahi-compat-howl/address-test
+run ./avahi-compat-libdns_sd/null-test
+run ./avahi-core/avahi-test
+run ./avahi-core/querier-test
+run ./examples/glib-integration
+run ./tests/c-plus-plus-test
 
 systemd-run -u avahi-test-rr-test ./avahi-client/rr-test
 
@@ -78,14 +98,14 @@ systemd-run -u avahi-test-publish-vsfh avahi-publish -vsf -H X.sub.local test-vs
 # The idea is to produce a lot of arguments by splitting the output
 # of the perl one-liner so it shouldn't be quoted.
 # shellcheck disable=SC2046
-avahi-publish -s T _qotd._tcp 22 $(perl -le 'print "A " x 100000')
+run avahi-publish -s T _qotd._tcp 22 $(perl -le 'print "A " x 100000')
 
 h="$(hostname).local"
 ipv4addr=$(avahi-resolve -v -4 -n "$h" | perl -alpe '$_ = $F[1]')
 ipv6addr=$(avahi-resolve -v -6 -n "$h" | perl -alpe '$_ = $F[1]')
 
-avahi-resolve -v -a "$ipv4addr"
-avahi-resolve -v -a "$ipv6addr"
+run avahi-resolve -v -a "$ipv4addr"
+run avahi-resolve -v -a "$ipv6addr"
 
 systemd-run -u avahi-test-publish-address avahi-publish -fvaR  "$h" "$ipv4addr"
 
@@ -134,19 +154,19 @@ timeout --foreground 180 bash -c 'while :; do
     radamsa -r CORPUS | socat -T2 - unix-connect:'"$avahi_socket"'
 done >&/dev/null' || true
 
-avahi-browse -varpt
-avahi-browse -varpc
+run avahi-browse -varpt
+run avahi-browse -varpc
 [[ -n "$(avahi-browse -vrpc _beep._sub._qotd._tcp)" ]]
 
 # sleep is used here to let the HINFO record browser see
 # the ADD/REMOVE events. If the hostname changes too fast
 # the ADD events coalesce and the last one wins.
-avahi-set-host-name -v "ecstasy"
+run avahi-set-host-name -v "ecstasy"
 sleep 2
 
-avahi-set-host-name -v 'A\.B'
-avahi-set-host-name -v "$(perl -e 'print(q/[/x63)')"
-avahi-set-host-name -v "$(hostname)-new"
+run avahi-set-host-name -v 'A\.B'
+run avahi-set-host-name -v "$(perl -e 'print(q/[/x63)')"
+run avahi-set-host-name -v "$(hostname)-new"
 
 run dfuzzer -v -n org.freedesktop.Avahi
 

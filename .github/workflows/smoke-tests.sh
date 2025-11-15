@@ -3,6 +3,13 @@
 set -eux
 set -o pipefail
 
+runstatedir=/run
+if [[ "$OS" == FreeBSD ]]; then
+    runstatedir=/var/run
+fi
+avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
+avahi_socket="$avahi_daemon_runtime_dir/socket"
+
 dump_journal() {
     journalctl --sync
     journalctl -b -u "avahi-*" --no-pager
@@ -103,7 +110,7 @@ dbus_call GetAlternativeHostName "a-2147483647"
 # https://github.com/avahi/avahi/issues/526
 dbus_call GetAlternativeServiceName "a #2147483647"
 
-printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | socat - unix-connect:/run/avahi-daemon/socket
+printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | socat - unix-connect:"$avahi_socket"
 
 cmds=(
     "HELP"
@@ -120,11 +127,11 @@ cmds=(
 mkdir -p CORPUS
 for cmd in "${cmds[@]}"; do
     printf "%s\n" "$cmd" >CORPUS/"$cmd"
-    printf "%s\n" "$cmd" | socat - unix-connect:/run/avahi-daemon/socket
+    printf "%s\n" "$cmd" | socat - unix-connect:"$avahi_socket"
 done
 
 timeout --foreground 180 bash -c 'while :; do
-    radamsa -r CORPUS | socat -T2 - unix-connect:/run/avahi-daemon/socket
+    radamsa -r CORPUS | socat -T2 - unix-connect:'"$avahi_socket"'
 done >&/dev/null' || true
 
 avahi-browse -varpt

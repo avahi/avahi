@@ -62,7 +62,7 @@ case "$1" in
         apt-get install -y gcc clang lcov
         apt-get install -y mono-mcs monodoc-base libmono-posix4.0-ci
 
-        apt-get install -y valgrind socat ldnsutils
+        apt-get install -y libtool-bin valgrind socat ldnsutils
 
         apt-get install -y libglib2.0-dev meson
         install_dfuzzer

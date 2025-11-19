@@ -16,7 +16,7 @@ jobs:
     if: github.repository == 'avahi/avahi'
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - run: sudo -E .github/workflows/build.sh install-build-deps
 

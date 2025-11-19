@@ -157,25 +157,26 @@ AvahiStringList* avahi_string_list_reverse(AvahiStringList *l) {
  *
  *   - escapes >>> " <<< to >>> \" <<<
  *   - escapes >>> \ <<< to >>> \\ <<<
- *   - escapes bytes less than 32 to backslash-prefixed 3-digit DECIMAL form
+ *   - escapes bytes less than 32 or more than 126 to backslash-prefixed 3-digit DECIMAL form
  */
 char* avahi_string_list_to_string(AvahiStringList *l) {
     AvahiStringList *n;
     size_t s = 0;
-    char *p, *t, *e;
+    uint8_t *p;
+    char *t, *e;
 
     for (n = l; n; n = n->next) {
         if (n != l)
             s ++; /* for the inter-string separating space */
 
-        for (p = (char*) n->text; ((size_t) (p - (char*) n->text) < n->size); p++) {
+        for (p = n->text; ((size_t) (p - n->text) < n->size); p++) {
             switch (*p) {
               case '"':
               case '\\':
                   s += 2;
                   break;
               default:
-                  if (*p < 32) {
+                  if (*p < 32 || *p >= 127) {
                       s += 4;
                   } else {
                       s ++;
@@ -196,18 +197,18 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
             *(e++) = ' ';
 
         *(e++) = '"';
-        for (p = (char*) n->text; ((size_t) (p - (char*) n->text) < n->size); p++) {
+        for (p = n->text; ((size_t) (p - n->text) < n->size); p++) {
             switch (*p) {
               case '"':
               case '\\':
                   *(e++) = '\\';
                   /* FALL THROUGH */
               default:
-                  if (*p < 32) {
+                  if (*p < 32 || *p >= 127) {
                       *(e++) = '\\';
-                      *(e++) = '0' + (char)  ((uint8_t) *p / 100);
-                      *(e++) = '0' + (char) (((uint8_t) *p / 10) % 10);
-                      *(e++) = '0' + (char)  ((uint8_t) *p % 10);
+                      *(e++) = '0' + (*p / 100);
+                      *(e++) = '0' + ((*p / 10) % 10);
+                      *(e++) = '0' + (*p % 10);
                   } else {
                       *(e++) = *p;
                   }

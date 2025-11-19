@@ -14,13 +14,14 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     concurrency:
-      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ matrix.runner }}-${{ github.ref }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
         env:
           - { CC: "gcc", DISTCHECK: "true", VALGRIND: "true" }
           - { CC: "gcc", ASAN_UBSAN: "true" }

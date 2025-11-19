@@ -23,12 +23,14 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "strlst.h"
 #include "malloc.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     char *t, *v;
+    uint8_t *u;
     uint8_t data[1024];
     AvahiStringList *a = NULL, *b, *p;
     size_t size, n;
@@ -49,6 +51,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     a = avahi_string_list_add_pair(a, "uxknurz", NULL);
     a = avahi_string_list_add_pair_arbitrary(a, "uxknurz2", (const uint8_t*) "blafasel\0oerks", 14);
     a = avahi_string_list_add(a, "i am a \"string\" with embedded double-quotes (\\\")\nand newlines (\\n).");
+    a = avahi_string_list_add(a, "gh_issue_169=\x1f\x20\x7e\x7f\xff");
 
     a = avahi_string_list_add(a, "end");
 
@@ -60,13 +63,17 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     size = avahi_string_list_serialize(a, data, sizeof(data));
     assert(size == n);
 
+    t = avahi_string_list_to_string(a);
+    assert(strstr(t, "gh_issue_169=\\031 ~\\127\\255"));
+    avahi_free(t);
+
     printf("%zu\n", size);
 
-    for (t = (char*) data, n = 0; n < size; n++, t++) {
-        if (*t <= 32)
-            printf("(%u)", *t);
+    for (u = data, n = 0; n < size; n++, u++) {
+        if (*u < 32 || *u >= 127)
+            printf("(%u)", *u);
         else
-            printf("%c", *t);
+            printf("%c", *u);
     }
 
     printf("\n");

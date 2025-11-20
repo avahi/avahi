@@ -3,6 +3,11 @@
 set -eux
 set -o pipefail
 
+export ASAN_OPTIONS=${ASAN_OPTIONS:-}
+export LD_PRELOAD=${LD_PRELOAD:-}
+export NSS_MDNS_BUILD_DIR=
+export ASAN_RT_PATH=
+
 runstatedir=/run
 if [[ "$OS" == FreeBSD ]]; then
     runstatedir=/var/run
@@ -11,8 +16,12 @@ avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
 
 dump_journal() {
-    journalctl --sync
-    journalctl -b -u "avahi-*" --no-pager
+    if [[ "$OS" == FreeBSD ]]; then
+        cat /var/log/messages
+    else
+        journalctl --sync
+        journalctl -b -u "avahi-*" --no-pager
+    fi
 }
 
 run() {
@@ -57,23 +66,175 @@ dbus_call() {
     gdbus call --system --dest org.freedesktop.Avahi --object-path / --method "org.freedesktop.Avahi.Server2.$method" -- "$@"
 }
 
+skip_nss_mdns() {
+    if [[ "$NSS_MDNS" != true ]]; then
+        return 0
+    fi
+
+    # -shared-libasan doesn't work on FreeBSD. It bails out with
+    # AddressSanitizer: CHECK failed: asan_posix.cpp:121 "((0)) == ((pthread_key_create(&tsd_key, destructor)))" (0x0, 0x4e) (tid=100146)
+    if [[ "$OS" == FreeBSD && "$ASAN_UBSAN" == true ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+install_nss_mdns() {
+    local _cflags="$CFLAGS" _cxxflags="$CXXFLAGS" _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
+
+    if skip_nss_mdns; then
+        return
+    fi
+
+    if [[ "$DISTCHECK" == true ]]; then
+        NSS_MDNS_BUILD_DIR=$(mktemp -d)
+    else
+        NSS_MDNS_BUILD_DIR="$(pwd)/nss-mdns"
+    fi
+
+    git clone https://github.com/avahi/nss-mdns "$NSS_MDNS_BUILD_DIR"
+    pushd "$NSS_MDNS_BUILD_DIR"
+    autoreconf -ivf
+    configure_args=("--enable-tests")
+    if [[ "$OS" == FreeBSD ]]; then
+        configure_args+=(
+            "--prefix=/usr/local"
+            "--runstatedir=/var/run"
+        )
+    else
+        configure_args+=(
+            "--prefix=/usr"
+            "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+            "--runstatedir=/run"
+        )
+    fi
+
+    # make check segfaults on FreeBSD
+    # https://github.com/avahi/nss-mdns/issues/99
+    if [[ "$OS" == FreeBSD ]]; then
+        sed -i.bak '/tcase_add_test(tc_verify_name, test_verify_name_allowed_empty);/d' tests/check_util.c
+    fi
+
+    if [[ "$ASAN_UBSAN" == true ]]; then
+        if [[ "$CC" == clang ]]; then
+            # make check fails under UBSan
+            # https://github.com/avahi/nss-mdns/issues/102
+            # -shared-libasan is needed to get the nss modules to work
+            CFLAGS+=" -fno-sanitize=pointer-overflow -shared-libasan"
+            CXXFLAGS+=" -fno-sanitize=pointer-overflow -shared-libasan"
+
+            ASAN_RT_PATH=$($CC --print-file-name="libclang_rt.asan-$($CC -dumpmachine | cut -d - -f 1).so")
+            LD_PRELOAD="$ASAN_RT_PATH"
+        fi
+        ASAN_OPTIONS="detect_leaks=0"
+    fi
+
+    if ! ./configure "${configure_args[@]}"; then
+        cat config.log
+        exit 1
+    fi
+
+    $MAKE -j"$(nproc)" V=1
+
+    if ! $MAKE check V=1; then
+        cat test-suite.log
+        exit 1
+    fi
+
+    # make distcheck fails on FreeBSD
+    # https://github.com/avahi/nss-mdns/issues/103
+    if [[ "$DISTCHECK" == true && "$OS" != FreeBSD ]]; then
+        $MAKE distcheck V=1
+    fi
+
+    if [[ "$ASAN_UBSAN" == true && "$CC" == gcc ]]; then
+        ASAN_RT_PATH=$(ldd "$NSS_MDNS_BUILD_DIR/check_util" | grep libasan.so | cut -d " " -f 3)
+    fi
+
+    $MAKE install
+    popd
+
+    chmod -R a+r "$NSS_MDNS_BUILD_DIR"
+    CFLAGS="$_cflags" CXXFLAGS="$_cxxflags" ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"
+}
+
+run_nss_tests() {
+    local _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
+    local _h=static-host-test.local
+
+    if skip_nss_mdns; then
+        return
+    fi
+
+    if [[ "$ASAN_UBSAN" == true ]]; then
+        LD_PRELOAD="$ASAN_RT_PATH"
+        ASAN_OPTIONS=detect_leaks=0
+    fi
+
+    sed -i.bak '/^hosts/s/files/& mdns_minimal/' /etc/nsswitch.conf
+    cat /etc/nsswitch.conf
+
+    run "$NSS_MDNS_BUILD_DIR/avahi-test" "$_h"
+    CK_FORK=no run "$NSS_MDNS_BUILD_DIR/check_util"
+
+    # nss-test fails under Valgrind on FreeBSD
+    # https://github.com/avahi/nss-mdns/issues/105
+    if [[ "$OS" != FreeBSD || "$VALGRIND" != true ]]; then
+        run "$NSS_MDNS_BUILD_DIR/nss-test" "$_h"
+    fi
+
+    if LD_PRELOAD="" avahi-daemon -c; then
+        run getent hosts "$_h"
+    else
+        should_fail getent hosts "$_h"
+    fi
+    sed -i.bak 's/ mdns_minimal//' /etc/nsswitch.conf
+    cat /etc/nsswitch.conf
+    ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"
+}
+
+install_nss_mdns
+
 for p in avahi-{browse,daemon,publish,resolve,set-host-name}; do
     run "$p" -h
     run "$p" -V
 done
 
-run systemctl start avahi-daemon
-run systemctl start avahi-dnsconfd
+run_nss_tests
+
+if [[ "$OS" == FreeBSD ]]; then
+    avahi-daemon -D
+    avahi-dnsconfd -D
+else
+    run systemctl start avahi-daemon
+    run systemctl start avahi-dnsconfd
+fi
 
 run ./avahi-client/check-nss-test
 run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
 run ./avahi-compat-howl/address-test
-run ./avahi-compat-libdns_sd/null-test
+
+if [[ "$OS" != FreeBSD || "$VALGRIND" != true ]]; then
+    run ./avahi-compat-libdns_sd/null-test
+fi
+
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test
 run ./examples/glib-integration
-run ./tests/c-plus-plus-test
+
+if [[ "$OS" != FreeBSD ]]; then
+    run ./tests/c-plus-plus-test
+fi
+
+run_nss_tests
+
+if [[ "$OS" == FreeBSD ]]; then
+    run avahi-dnsconfd --kill
+    run avahi-daemon --kill
+    exit 0
+fi
 
 systemd-run -u avahi-test-rr-test ./avahi-client/rr-test
 

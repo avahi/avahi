@@ -11,6 +11,7 @@ export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
 export MAKE=${MAKE:-make}
 export OS=${OS:-$(uname -s)}
+export NSS_MDNS=${NSS_MDNS:-true}
 
 look_for_asan_ubsan_reports() {
     journalctl --sync
@@ -65,6 +66,8 @@ case "$1" in
         apt-get install -y libtool-bin valgrind socat ldnsutils
 
         apt-get install -y libglib2.0-dev meson
+
+        apt-get install -y check
         install_dfuzzer
         install_radamsa
         ;;
@@ -78,7 +81,7 @@ case "$1" in
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
             gtk3 py311-pygobject py311-dbus py311-gdbm mono git socat \
-            valgrind dfuzzer
+            valgrind dfuzzer check
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         install_radamsa
@@ -233,6 +236,7 @@ EOL
         ' avahi-daemon/avahi-daemon.conf
 
         printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
+        printf "192.0.2.1 static-host-test.local\n" >>avahi-daemon/hosts
 
         $MAKE install
         ldconfig
@@ -242,10 +246,14 @@ EOL
         if [[ "$OS" != FreeBSD ]]; then
             adduser --system --group avahi
             systemctl reload dbus
-            if ! .github/workflows/smoke-tests.sh; then
-                look_for_asan_ubsan_reports
-                exit 1
-            fi
+        else
+            hostname freebsd
+            service dbus onerestart
+        fi
+
+        if ! .github/workflows/smoke-tests.sh; then
+            look_for_asan_ubsan_reports
+            exit 1
         fi
 
         if [[ "$COVERAGE" == true ]]; then

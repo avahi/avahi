@@ -81,10 +81,9 @@ case "$1" in
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
             gtk3 py311-pygobject py311-dbus py311-gdbm mono git socat \
-            valgrind dfuzzer check
+            valgrind dfuzzer check radamsa
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
-        install_radamsa
         ;;
     build)
         if [[ "$OS" == FreeBSD ]]; then

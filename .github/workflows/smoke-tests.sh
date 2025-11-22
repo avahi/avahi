@@ -110,12 +110,6 @@ install_nss_mdns() {
         )
     fi
 
-    # make check segfaults on FreeBSD
-    # https://github.com/avahi/nss-mdns/issues/99
-    if [[ "$OS" == FreeBSD ]]; then
-        sed -i.bak '/tcase_add_test(tc_verify_name, test_verify_name_allowed_empty);/d' tests/check_util.c
-    fi
-
     if [[ "$ASAN_UBSAN" == true ]]; then
         if [[ "$CC" == clang ]]; then
             # make check fails under UBSan

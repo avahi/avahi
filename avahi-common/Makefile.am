@@ -41,7 +41,8 @@ avahi_commoninclude_HEADERS = \
 
 if ENABLE_TESTS
 noinst_PROGRAMS = \
-	strlst-test \
+	strlst-test-signed-char \
+	strlst-test-unsigned-char \
 	domain-test \
 	alternative-test \
 	timeval-test \
@@ -50,7 +51,8 @@ noinst_PROGRAMS = \
 	utf8-test
 
 TESTS = \
-	strlst-test \
+	strlst-test-signed-char \
+	strlst-test-unsigned-char \
 	domain-test \
 	alternative-test \
 	timeval-test \
@@ -85,7 +87,10 @@ strlst_test_SOURCES = \
 	strlst.c strlst.h \
 	malloc.c malloc.h \
 	strlst-test.c
-strlst_test_CFLAGS = $(AM_CFLAGS)
+strlst_test_signed_char_SOURCES = $(strlst_test_SOURCES)
+strlst_test_signed_char_CFLAGS = $(AM_CFLAGS) -fsigned-char
+strlst_test_unsigned_char_SOURCES = $(strlst_test_SOURCES)
+strlst_test_unsigned_char_CFLAGS = $(AM_CFLAGS) -funsigned-char
 
 alternative_test_SOURCES = \
 	alternative.c alternative.h \

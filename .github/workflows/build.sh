@@ -234,8 +234,12 @@ EOL
             s/^\(publish-hinfo=\).*/\1yes/;
         ' avahi-daemon/avahi-daemon.conf
 
-        printf "2001:db8::1 static-host-test.local\n" >>avahi-daemon/hosts
-        printf "192.0.2.1 static-host-test.local\n" >>avahi-daemon/hosts
+        cat <<'EOL' >>avahi-daemon/hosts
+192.0.2.1 ipv4.local
+2001:db8::1 ipv6.local
+192.0.2.2 ipv46.local
+2001:db8::2 ipv46.local
+EOL
 
         $MAKE install
         ldconfig

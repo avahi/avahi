@@ -155,7 +155,6 @@ install_nss_mdns() {
 
 run_nss_tests() {
     local _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
-    local _h=static-host-test.local
 
     if skip_nss_mdns; then
         return
@@ -166,23 +165,27 @@ run_nss_tests() {
         ASAN_OPTIONS=detect_leaks=0
     fi
 
+    CK_FORK=no run "$NSS_MDNS_BUILD_DIR/check_util"
+
     sed -i.bak '/^hosts/s/files/& mdns_minimal/' /etc/nsswitch.conf
     cat /etc/nsswitch.conf
 
-    run "$NSS_MDNS_BUILD_DIR/avahi-test" "$_h"
-    CK_FORK=no run "$NSS_MDNS_BUILD_DIR/check_util"
+    for h in ipv4.local ipv6.local ipv46.local; do
+        run "$NSS_MDNS_BUILD_DIR/avahi-test" "$h"
 
-    # nss-test fails under Valgrind on FreeBSD
-    # https://github.com/avahi/nss-mdns/issues/105
-    if [[ "$OS" != FreeBSD || "$VALGRIND" != true ]]; then
-        run "$NSS_MDNS_BUILD_DIR/nss-test" "$_h"
-    fi
+        # nss-test fails under Valgrind on FreeBSD
+        # https://github.com/avahi/nss-mdns/issues/105
+        if [[ "$OS" != FreeBSD || "$VALGRIND" != true ]]; then
+            run "$NSS_MDNS_BUILD_DIR/nss-test" "$h"
+        fi
 
-    if LD_PRELOAD="" avahi-daemon -c; then
-        run getent hosts "$_h"
-    else
-        should_fail getent hosts "$_h"
-    fi
+        if LD_PRELOAD="" avahi-daemon -c; then
+            run getent hosts "$h"
+        else
+            should_fail getent hosts "$h"
+        fi
+    done
+
     sed -i.bak 's/ mdns_minimal//' /etc/nsswitch.conf
     cat /etc/nsswitch.conf
     ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"

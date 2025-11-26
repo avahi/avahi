@@ -273,6 +273,17 @@ for s in 127.0.0.1 224.0.0.251 ff02::fb; do
    drill -p5353 "@$s" "_services._dns-sd._udp.local" ANY
 done
 
+l=[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
+run drill -p5353 @224.0.0.251 "$l.local"
+run drill -p5353 -x @224.0.0.251 192.0.2.3
+run drill -p5353 @224.0.0.251 "$l._qotd._tcp.local" ANY
+run avahi-resolve -n "$l.local"
+run avahi-resolve -a 192.0.2.3
+dbus_call ResolveService -1 -1 "$l" _qotd._tcp local -1 0
+printf "RESOLVE-HOSTNAME %s.local\n" "$l" | socat - unix-connect:"$avahi_socket"
+printf "RESOLVE-ADDRESS 192.0.2.3\n" | socat - unix-connect:"$avahi_socket"
+systemd-run -u avahi-test-publish-long-label avahi-publish -s -H "$l.local" "$l" _qotd._udp 1
+
 dbus_call ResolveAddress -1 -1 "$ipv4addr" 0
 should_fail dbus_call ResolveAddress -1 -1 1.1.1.1 2
 

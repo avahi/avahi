@@ -234,15 +234,32 @@ EOL
             s/^\(publish-hinfo=\).*/\1yes/;
         ' avahi-daemon/avahi-daemon.conf
 
-        cat <<'EOL' >>avahi-daemon/hosts
+        label=[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
+        cat <<EOL >>avahi-daemon/hosts
 192.0.2.1 ipv4.local
 2001:db8::1 ipv6.local
 192.0.2.2 ipv46.local
 2001:db8::2 ipv46.local
+192.0.2.3 $label.local
 EOL
 
         $MAKE install
         ldconfig
+
+        sysconfdir=/etc
+        if [[ "$OS" == FreeBSD ]]; then
+            sysconfdir=/usr/local/etc
+        fi
+
+        cat <<EOL >"$sysconfdir/avahi/services/long-label.service"
+<service-group>
+  <name>$label</name>
+  <service>
+    <type>_qotd._tcp</type>
+    <port>1</port>
+  </service>
+</service-group>
+EOL
 
         # smoke tests require systemd, so don't run them on FreeBSD
         # https://github.com/avahi/avahi/issues/727

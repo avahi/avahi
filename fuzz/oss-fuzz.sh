@@ -37,16 +37,16 @@ export CFLAGS=${CFLAGS:-$flags}
 export CXX=${CXX:-clang++}
 export CXXFLAGS=${CXXFLAGS:-$flags}
 
-cd "$(dirname -- "$0")/.."
-
 export OUT=${OUT:-"$(pwd)/out"}
 mkdir -p "$OUT"
 
 export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
 
+export MERGE_WITH_OSS_FUZZ_CORPORA=${MERGE_WITH_OSS_FUZZ_CORPORA:-no}
+
 if [[ -n "${FUZZING_ENGINE:-}" ]]; then
     apt-get update
-    apt-get install -y autoconf gettext libtool m4 automake pkg-config libexpat-dev
+    apt-get install -y autoconf gettext libtool m4 automake pkg-config libexpat-dev zipmerge
 
     if [[ "$ARCHITECTURE" == i386 ]]; then
         apt-get install -y libexpat-dev:i386
@@ -104,3 +104,15 @@ done
 # so it should be good enough for our purposes.
 wget -O "$OUT/fuzz-packet_seed_corpus.zip" \
     https://storage.googleapis.com/systemd-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/systemd_fuzz-dns-packet/public.zip
+
+if [[ "$MERGE_WITH_OSS_FUZZ_CORPORA" == "yes" ]]; then
+    for f in "$OUT/"fuzz-*; do
+        [[ -x "$f" ]] || continue
+        fuzzer=$(basename "$f")
+        t=$(mktemp)
+        if wget -O "$t" "https://storage.googleapis.com/avahi-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/avahi_${fuzzer}/public.zip"; then
+            zipmerge "$OUT/${fuzzer}_seed_corpus.zip" "$t"
+        fi
+        rm -rf "$t"
+    done
+fi

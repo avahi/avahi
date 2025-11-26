@@ -49,10 +49,10 @@ typedef struct RecordBrowserInfo RecordBrowserInfo;
 #define DEFAULT_START_DELAY_MS 10
 
 struct EntryGroupInfo {
-    unsigned id;
     Client *client;
     AvahiSEntryGroup *entry_group;
     char *path;
+    unsigned id;
 
     unsigned n_entries;
 

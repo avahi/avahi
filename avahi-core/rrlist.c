@@ -33,8 +33,8 @@
 typedef struct AvahiRecordListItem AvahiRecordListItem;
 
 struct AvahiRecordListItem {
-    int read;
     AvahiRecord *record;
+    int read;
     int unicast_response;
     int flush_cache;
     int auxiliary;

@@ -46,7 +46,7 @@ jobs:
         uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
         with:
           oss-fuzz-project-name: 'avahi'
-          fuzz-seconds: 180
+          fuzz-seconds: 600
           dry-run: false
           sanitizer: ${{ matrix.sanitizer }}
       - name: Upload Crash

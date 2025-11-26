@@ -659,7 +659,7 @@ fail:
 }
 
 AvahiKey* avahi_dns_packet_consume_key(AvahiDnsPacket *p, int *ret_unicast_response) {
-    char name[256];
+    char name[AVAHI_DOMAIN_NAME_MAX];
     uint16_t type, class;
     AvahiKey *k;
 

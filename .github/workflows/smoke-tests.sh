@@ -173,11 +173,7 @@ run_nss_tests() {
     for h in ipv4.local ipv6.local ipv46.local; do
         run "$NSS_MDNS_BUILD_DIR/avahi-test" "$h"
 
-        # nss-test fails under Valgrind on FreeBSD
-        # https://github.com/avahi/nss-mdns/issues/105
-        if [[ "$OS" != FreeBSD || "$VALGRIND" != true ]]; then
-            run "$NSS_MDNS_BUILD_DIR/nss-test" "$h"
-        fi
+        run "$NSS_MDNS_BUILD_DIR/nss-test" "$h"
 
         if LD_PRELOAD="" avahi-daemon -c; then
             run getent hosts "$h"

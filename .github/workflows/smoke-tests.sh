@@ -136,9 +136,7 @@ install_nss_mdns() {
         exit 1
     fi
 
-    # make distcheck fails on FreeBSD
-    # https://github.com/avahi/nss-mdns/issues/103
-    if [[ "$DISTCHECK" == true && "$OS" != FreeBSD ]]; then
+    if [[ "$DISTCHECK" == true ]]; then
         $MAKE distcheck V=1
     fi
 

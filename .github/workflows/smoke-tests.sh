@@ -31,16 +31,11 @@ run() {
         if [[ "$1" =~ ^\. ]]; then
             cmd+=("libtool" "--mode=execute")
         fi
-        cmd+=("valgrind" "--track-origins=yes" "--exit-on-first-error=yes" "--error-exitcode=1")
+        cmd+=("valgrind" "--track-fds=yes" "--track-origins=yes" "--exit-on-first-error=yes" "--error-exitcode=1")
 
         # https://github.com/avahi/avahi/issues/761
         if ! [[ "$1" =~ avahi-daemon ]]; then
             cmd+=("--leak-check=full")
-        fi
-
-        # https://github.com/avahi/avahi/issues/758
-        if ! [[ "$1" =~ cname-test ]]; then
-            cmd+=("--track-fds=yes")
         fi
     fi
     cmd+=("$@")
@@ -224,6 +219,11 @@ fi
 
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test
+
+for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond cname_answer_diamond cname_answer; do
+    run ./avahi-core/cname-test $test_case
+done
+
 run ./examples/glib-integration
 
 if [[ "$OS" != FreeBSD ]]; then
@@ -359,9 +359,5 @@ should_fail systemctl is-failed avahi-daemon
 
 should_fail avahi-daemon -c
 should_fail avahi-dnsconfd -c
-
-for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond cname_answer_diamond cname_answer; do
-    run ./avahi-core/cname-test $test_case
-done
 
 run systemctl stop "avahi-test-*"

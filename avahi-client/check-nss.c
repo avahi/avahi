@@ -32,11 +32,19 @@ int avahi_nss_support(void) {
     int b = 0;
 
 #ifdef HAVE_DLOPEN
+#ifndef __FreeBSD__
     static const char * const libs[] = {
         "libnss_mdns.so.2",
         "libnss_mdns4.so.2",
         "libnss_mdns6.so.2",
         NULL };
+#else
+    static const char * const libs[] = {
+        "nss_mdns.so.1",
+        "nss_mdns4.so.1",
+        "nss_mdns6.so.1",
+        NULL };
+#endif
 
     const char * const *l;
 

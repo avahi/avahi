@@ -387,6 +387,7 @@ static DNSServiceRef sdref_new(void) {
     ASSERT_SUCCESS(pthread_mutexattr_init(&mutex_attr));
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
     ASSERT_SUCCESS(pthread_mutex_init(&sdref->mutex, &mutex_attr));
+    ASSERT_SUCCESS(pthread_mutexattr_destroy(&mutex_attr));
 
     sdref->thread_running = 0;
 

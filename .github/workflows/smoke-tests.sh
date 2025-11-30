@@ -83,6 +83,8 @@ skip_nss_mdns() {
 install_nss_mdns() {
     local _cflags="$CFLAGS" _cxxflags="$CXXFLAGS" _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
 
+    should_fail ./avahi-client/check-nss-test
+
     if skip_nss_mdns; then
         return
     fi
@@ -149,10 +151,20 @@ install_nss_mdns() {
 
     chmod -R a+r "$NSS_MDNS_BUILD_DIR"
     CFLAGS="$_cflags" CXXFLAGS="$_cxxflags" ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"
+
+    run ./avahi-client/check-nss-test
 }
 
 run_nss_tests() {
     local _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
+
+    if LD_PRELOAD="" avahi-daemon -c; then
+        if skip_nss_mdns; then
+            dbus_call IsNSSSupportAvailable | grep -F "(false,)"
+        else
+            dbus_call IsNSSSupportAvailable | grep -F "(true,)"
+        fi
+    fi
 
     if skip_nss_mdns; then
         return
@@ -202,7 +214,6 @@ else
     run systemctl start avahi-dnsconfd
 fi
 
-run ./avahi-client/check-nss-test
 run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
 run ./avahi-compat-howl/address-test

@@ -167,7 +167,6 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         assert(avahi_test_case_function);
         avahi_test_case_function();
         avahi_log_debug("Server configuration complete.");
-        server = NULL;
     }
 }
 

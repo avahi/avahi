@@ -1238,9 +1238,7 @@ static int run_server(DaemonConfig *c) {
             goto finish;
         }
     }
-#endif
-
-#ifdef HAVE_KQUEUE
+#elif defined(HAVE_KQUEUE)
     if ((kq = kqueue()) < 0)
         avahi_log_warn( "Failed to initialize kqueue: %s", strerror(errno));
     else {

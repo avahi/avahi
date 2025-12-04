@@ -58,6 +58,16 @@ if [[ -n "${FUZZING_ENGINE:-}" ]]; then
         CFLAGS="$CFLAGS $UBSAN_FLAGS"
         CXXFLAGS="$CXXFLAGS $UBSAN_FLAGS"
     fi
+
+    # The following kludge gets around MSan false positives like https://github.com/avahi/avahi/issues/787
+    # by reusing the homegrown strlcpy function even when glibc comes with strlcpy.
+    # It should be removed when https://github.com/llvm/llvm-project/issues/114377 is fixed.
+    if grep -qF strlcpy /usr/include/string.h && [[ "$SANITIZER" == memory ]]; then
+        sed -i '
+            s/#ifndef HAVE_STRLCPY/#ifdef HAVE_STRLCPY/
+            s/strlcpy/msan_friendly_strlcpy/
+            ' avahi-common/domain.c
+    fi
 fi
 
 sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthread.m4

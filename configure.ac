@@ -398,6 +398,7 @@ fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
 
 have_inotify=no
+AC_MSG_CHECKING(for inotify)
 AC_LINK_IFELSE(
         [AC_LANG_SOURCE([
 #include <sys/inotify.h>
@@ -408,19 +409,17 @@ int main () {
         [AC_MSG_RESULT([no])]
     )
 
-AM_CONDITIONAL(HAVE_INOTIFY, test "x$have_inotify" = "xyes")
-
-if test "x$have_inotify" = "xyes" ; then
-   AC_DEFINE([HAVE_INOTIFY], 1, [Enable Linux inotify() usage])
-fi
-
 have_kqueue=yes
 AC_CHECK_FUNCS([kqueue],,have_kqueue=no)
 
-AM_CONDITIONAL(HAVE_KQUEUE, test "x$have_kqueue" = "xyes")
-
+# FreeBSD 15 has both kqueue and inotify. The build system defaults
+# to kqueue because it's better integrated with Valgrind. The default
+# can probably be revisited once issues like https://github.com/avahi/avahi/issues/788
+# no longer pop up.
 if test "x$have_kqueue" = "xyes" ; then
     AC_DEFINE([HAVE_KQUEUE], 1, [Enable BSD kqueue() usage])
+elif test "x$have_inotify" = "xyes" ; then
+    AC_DEFINE([HAVE_INOTIFY], 1, [Enable Linux inotify() usage])
 fi
 
 GETTEXT_PACKAGE=avahi

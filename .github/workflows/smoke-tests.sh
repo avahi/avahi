@@ -12,6 +12,10 @@ runstatedir=/run
 if [[ "$OS" == FreeBSD ]]; then
     runstatedir=/var/run
 fi
+sysconfdir=/etc
+if [[ "$OS" == FreeBSD ]]; then
+    sysconfdir=/usr/local/etc
+fi
 avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
 
@@ -231,6 +235,18 @@ if [[ "$OS" != FreeBSD ]]; then
 fi
 
 run_nss_tests
+
+# make sure avahi picks up services it's notified about
+cat <<'EOL' >"$sysconfdir/avahi/services/test-notifications.service"
+<service-group>
+  <name>test-notifications</name>
+  <service>
+    <type>_qotd._tcp</type>
+    <port>1</port>
+  </service>
+</service-group>
+EOL
+drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 
 if [[ "$OS" == FreeBSD ]]; then
     run avahi-dnsconfd --kill

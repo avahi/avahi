@@ -80,8 +80,27 @@ jobs:
           architecture: 'x86_64'
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
           run: |
-            # - Use GNU make instead of BSD one
-            export MAKE="gmake"
-
             sudo -E .github/workflows/build.sh install-build-deps-FreeBSD
             sudo -E .github/workflows/build.sh build
+
+  alpine:
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-alpine
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - { CC: "gcc", VALGRIND: "true", DISTCHECK: "true" }
+          - { CC: "clang", VALGRIND: "false", DISTCHECK: "false" }
+    env: ${{ matrix.env }}
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v4
+      - uses: jirutka/setup-alpine@v1.4.1
+      - run: |
+            apk add bash
+            .github/workflows/build.sh install-build-deps-Alpine
+            .github/workflows/build.sh build
+        shell: alpine.sh --root {0}

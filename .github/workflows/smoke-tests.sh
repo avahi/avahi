@@ -9,18 +9,18 @@ export NSS_MDNS_BUILD_DIR=
 export ASAN_RT_PATH=
 
 runstatedir=/run
-if [[ "$OS" == FreeBSD ]]; then
+if [[ "$OS" == freebsd ]]; then
     runstatedir=/var/run
 fi
 sysconfdir=/etc
-if [[ "$OS" == FreeBSD ]]; then
+if [[ "$OS" == freebsd ]]; then
     sysconfdir=/usr/local/etc
 fi
 avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
 
 dump_journal() {
-    if [[ "$OS" == FreeBSD ]]; then
+    if [[ "$OS" == freebsd ]]; then
         cat /var/log/messages
     else
         journalctl --sync
@@ -72,7 +72,7 @@ skip_nss_mdns() {
 
     # -shared-libasan doesn't work on FreeBSD. It bails out with
     # AddressSanitizer: CHECK failed: asan_posix.cpp:121 "((0)) == ((pthread_key_create(&tsd_key, destructor)))" (0x0, 0x4e) (tid=100146)
-    if [[ "$OS" == FreeBSD && "$ASAN_UBSAN" == true ]]; then
+    if [[ "$OS" == freebsd && "$ASAN_UBSAN" == true ]]; then
         return 0
     fi
 
@@ -98,7 +98,7 @@ install_nss_mdns() {
     pushd "$NSS_MDNS_BUILD_DIR"
     autoreconf -ivf
     configure_args=("--enable-tests")
-    if [[ "$OS" == FreeBSD ]]; then
+    if [[ "$OS" == freebsd ]]; then
         configure_args+=(
             "--prefix=/usr/local"
             "--runstatedir=/var/run"
@@ -205,7 +205,7 @@ done
 
 run_nss_tests
 
-if [[ "$OS" == FreeBSD ]]; then
+if [[ "$OS" != ubuntu ]]; then
     avahi-daemon -D
     avahi-dnsconfd -D
 else
@@ -217,7 +217,7 @@ run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
 run ./avahi-compat-howl/address-test
 
-if [[ "$OS" != FreeBSD || "$VALGRIND" != true ]]; then
+if [[ "$OS" != freebsd || "$VALGRIND" != true ]]; then
     run ./avahi-compat-libdns_sd/null-test
 fi
 
@@ -230,7 +230,7 @@ done
 
 run ./examples/glib-integration
 
-if [[ "$OS" != FreeBSD ]]; then
+if [[ "$OS" != freebsd ]]; then
     run ./tests/c-plus-plus-test
 fi
 
@@ -248,7 +248,7 @@ cat <<'EOL' >"$sysconfdir/avahi/services/test-notifications.service"
 EOL
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 
-if [[ "$OS" == FreeBSD ]]; then
+if [[ "$OS" != ubuntu ]]; then
     run avahi-dnsconfd --kill
     run avahi-daemon --kill
     exit 0

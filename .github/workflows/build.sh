@@ -9,9 +9,19 @@ export CFLAGS=${CFLAGS:-"-g -O0"}
 export COVERAGE=${COVERAGE:-false}
 export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
-export MAKE=${MAKE:-make}
-export OS=${OS:-$(uname -s)}
-export NSS_MDNS=${NSS_MDNS:-true}
+export MAKE=make
+export NSS_MDNS=true
+export OS=
+
+OS=$(source /etc/os-release && printf "%s" "$ID")
+
+if [[ "$OS" == alpine ]]; then
+    NSS_MDNS=false
+fi
+
+if [[ "$OS" == freebsd ]]; then
+    MAKE=gmake
+fi
 
 look_for_asan_ubsan_reports() {
     journalctl --sync
@@ -85,8 +95,18 @@ case "$1" in
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         ;;
+    install-build-deps-Alpine)
+        apk add autoconf automake clang coreutils dbus-dev drill expat-dev gcc g++ \
+            gdbm-dev gettext-dev git glib-dev gobject-introspection-dev gtk+3.0-dev \
+            gzip libdaemon-dev libevent-dev libtool make meson mono-dev musl-dev \
+            py3-dbus py3-gobject3-dev py3-setuptools python3-dev python3-gdbm \
+            qt5-qtbase-dev socat tar valgrind xmltoman
+
+        install_dfuzzer
+        install_radamsa
+        ;;
     build)
-        if [[ "$OS" == FreeBSD ]]; then
+        if [[ "$OS" == freebsd ]]; then
             # Do what USES="localbase:ldflags" do in FreeBSD Ports, namely:
             # - Add /usr/local/include to the compiler's search path
             # - Add /usr/local/lib to the linker's search path
@@ -135,14 +155,7 @@ case "$1" in
             "--localstatedir=/var"
         )
 
-        if [[ "$OS" != FreeBSD ]]; then
-            autogen_args+=(
-                "--prefix=/usr"
-                "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
-                "--runstatedir=/run"
-                "--sysconfdir=/etc"
-            )
-        else
+        if [[ "$OS" == freebsd ]]; then
             autogen_args+=(
                 "--prefix=/usr/local"
                 "--libdir=/usr/local/lib"
@@ -150,6 +163,22 @@ case "$1" in
                 "--sysconfdir=/usr/local/etc"
                 "--disable-libsystemd"
                 "--disable-manpages"
+            )
+        elif [[ "$OS" == alpine ]]; then
+            autogen_args+=(
+                "--prefix=/usr"
+                "--runstatedir=/run"
+                "--sysconfdir=/etc"
+                "--disable-libsystemd"
+                "--disable-compat-howl"
+                "--with-distro=none"
+            )
+        else
+            autogen_args+=(
+                "--prefix=/usr"
+                "--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+                "--runstatedir=/run"
+                "--sysconfdir=/etc"
             )
         fi
 
@@ -169,9 +198,12 @@ case "$1" in
             # changes the behavior of `make distcheck` even when
             # it's empty. To keep testing the most common use case
             # DISTCHECK_CONFIGURE_FLAGS isn't passed on Linux
-            if [[ "$OS" == FreeBSD ]]; then
+            if [[ "$OS" == freebsd ]]; then
                 $MAKE distcheck \
                     DISTCHECK_CONFIGURE_FLAGS="--disable-libsystemd --disable-manpages"
+            elif [[ "$OS" == alpine ]]; then
+                $MAKE distcheck \
+                    DISTCHECK_CONFIGURE_FLAGS="--disable-libsystemd --with-distro=none"
             else
                 $MAKE distcheck
             fi
@@ -188,7 +220,7 @@ case "$1" in
             (cd avahi-core && $MAKE valgrind)
         fi
 
-        if [[ "$OS" != FreeBSD ]]; then
+        if [[ "$OS" == ubuntu ]]; then
             sed -i.bak '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
         fi
 
@@ -201,7 +233,7 @@ case "$1" in
 printf "%s\n" "<$1> <$2> <$3> <$4>" | logger
 EOL
 
-        if [[ "$VALGRIND" == true && "$OS" != FreeBSD ]]; then
+        if [[ "$VALGRIND" == true && "$OS" == ubuntu ]]; then
             sed -i.bak '
                 /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
             ' avahi-daemon/avahi-daemon.service
@@ -216,7 +248,7 @@ EOL
             sed -i '/^ExecStart=/s/$/ --no-chroot --no-drop-root/' avahi-daemon/avahi-daemon.service
         fi
 
-        if [[ "$ASAN_UBSAN" == true && "$OS" != FreeBSD ]]; then
+        if [[ "$ASAN_UBSAN" == true && "$OS" == ubuntu ]]; then
             sed -i.bak '/^ExecStart=/s/$/ --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
             sed -i.bak "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-daemon/avahi-daemon.service
             sed -i.bak "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-daemon/avahi-daemon.service
@@ -247,7 +279,7 @@ EOL
         ldconfig
 
         sysconfdir=/etc
-        if [[ "$OS" == FreeBSD ]]; then
+        if [[ "$OS" == freebsd ]]; then
             sysconfdir=/usr/local/etc
         fi
 
@@ -263,12 +295,19 @@ EOL
 
         # smoke tests require systemd, so don't run them on FreeBSD
         # https://github.com/avahi/avahi/issues/727
-        if [[ "$OS" != FreeBSD ]]; then
-            adduser --system --group avahi
-            systemctl reload dbus
-        else
+        if [[ "$OS" == alpine ]]; then
+            addgroup -S avahi
+            adduser -S -G avahi avahi
+        elif [[ "$OS" == freebsd ]]; then
             hostname freebsd
             service dbus onerestart
+        else
+            adduser --system --group avahi
+            systemctl reload dbus
+        fi
+
+        if [[ "$OS" == alpine ]]; then
+            exit 0
         fi
 
         if ! .github/workflows/smoke-tests.sh; then

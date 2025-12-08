@@ -60,11 +60,12 @@ jobs:
   freebsd:
     runs-on: ubuntu-24.04
     concurrency:
-      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-freebsd
+      group: ${{ github.workflow }}-${{ matrix.version }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-freebsd
       cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
+        version: ['14.3', '15.0']
         env:
           - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
           - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
@@ -73,10 +74,10 @@ jobs:
     steps:
       - name: Repository checkout
         uses: actions/checkout@v6
-      - uses: cross-platform-actions/action@v0.29.0
+      - uses: cross-platform-actions/action@freebsd-15.0
         with:
           operating_system: 'freebsd'
-          version: '14.3'
+          version: ${{ matrix.version }}
           architecture: 'x86_64'
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
           run: |

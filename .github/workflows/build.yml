@@ -85,6 +85,10 @@ jobs:
 
   alpine:
     runs-on: ubuntu-24.04
+    container:
+      image: alpine
+      env: ${{ matrix.env }}
+      options: --init
     concurrency:
       group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-alpine
       cancel-in-progress: true
@@ -94,13 +98,10 @@ jobs:
         env:
           - { CC: "gcc", VALGRIND: "true", DISTCHECK: "true" }
           - { CC: "clang", VALGRIND: "false", DISTCHECK: "false" }
-    env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
         uses: actions/checkout@v4
-      - uses: jirutka/setup-alpine@v1.4.1
       - run: |
-            apk add bash
-            .github/workflows/build.sh install-build-deps-Alpine
-            .github/workflows/build.sh build
-        shell: alpine.sh --root {0}
+          apk add bash
+          .github/workflows/build.sh install-build-deps-Alpine
+          .github/workflows/build.sh build

@@ -20,7 +20,7 @@ avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
 
 dump_journal() {
-    if [[ "$OS" == freebsd ]]; then
+    if [[ "$OS" != ubuntu ]]; then
         cat /var/log/messages
     else
         journalctl --sync
@@ -215,7 +215,10 @@ fi
 
 run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
-run ./avahi-compat-howl/address-test
+
+if [[ "$OS" != alpine ]]; then
+    run ./avahi-compat-howl/address-test
+fi
 
 if [[ "$OS" != freebsd || "$VALGRIND" != true ]]; then
     run ./avahi-compat-libdns_sd/null-test

@@ -96,9 +96,9 @@ case "$1" in
         pkg remove -fy avahi-app
         ;;
     install-build-deps-Alpine)
-        apk add autoconf automake clang coreutils dbus-dev drill expat-dev gcc g++ \
+        apk add autoconf automake clang coreutils dbus dbus-dev drill expat-dev gcc g++ \
             gdbm-dev gettext-dev git glib-dev gobject-introspection-dev gtk+3.0-dev \
-            gzip libdaemon-dev libevent-dev libtool make meson mono-dev musl-dev \
+            gzip libdaemon-dev libevent-dev libtool make meson mono-dev musl-dbg musl-dev \
             py3-dbus py3-gobject3-dev py3-setuptools python3-dev python3-gdbm \
             qt5-qtbase-dev socat tar valgrind xmltoman
 
@@ -298,16 +298,15 @@ EOL
         if [[ "$OS" == alpine ]]; then
             addgroup -S avahi
             adduser -S -G avahi avahi
+            syslogd
+            mkdir /run/dbus
+            dbus-daemon --system --fork
         elif [[ "$OS" == freebsd ]]; then
             hostname freebsd
             service dbus onerestart
         else
             adduser --system --group avahi
             systemctl reload dbus
-        fi
-
-        if [[ "$OS" == alpine ]]; then
-            exit 0
         fi
 
         if ! .github/workflows/smoke-tests.sh; then

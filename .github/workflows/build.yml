@@ -30,7 +30,7 @@ jobs:
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - run: sudo -E .github/workflows/build.sh install-build-deps
       - run: sudo -E .github/workflows/build.sh build
   coverage:
@@ -47,7 +47,7 @@ jobs:
       COVERAGE: "true"
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - run: sudo -E .github/workflows/build.sh install-build-deps
       - run: sudo -E .github/workflows/build.sh build
       - name: Coveralls
@@ -72,7 +72,7 @@ jobs:
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: cross-platform-actions/action@v0.29.0
         with:
           operating_system: 'freebsd'
@@ -100,7 +100,7 @@ jobs:
           - { CC: "clang", VALGRIND: "false", DISTCHECK: "false" }
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - run: |
           apk add bash
           .github/workflows/build.sh install-build-deps-Alpine

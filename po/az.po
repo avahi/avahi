@@ -1,261 +1,259 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR The Avahi developers.
 # This file is distributed under the same license as the avahi package.
-# ButterflyOfFire <butterflyoffire@protonmail.com>, 2024.
-# ButterflyOfFire <butterflyoffire@users.noreply.translate.fedoraproject.org>, 2024.
+# Ramal Rehimov <jhonaluman@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2024-08-10 10:03+0000\n"
-"PO-Revision-Date: 2024-12-10 09:40+0000\n"
-"Last-Translator: ButterflyOfFire <butterflyoffire@users.noreply.translate."
-"fedoraproject.org>\n"
-"Language-Team: Kabyle <https://translate.fedoraproject.org/projects/avahi/"
-"master/kab/>\n"
-"Language: kab\n"
+"PO-Revision-Date: 2025-06-11 20:17+0000\n"
+"Last-Translator: Ramal Rehimov <jhonaluman@gmail.com>\n"
+"Language-Team: Azerbaijani <https://translate.fedoraproject.org/projects/"
+"avahi/master/az/>\n"
+"Language: az\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.8.4\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.11.4\n"
 
 #: avahi-common/error.c:30
 msgid "OK"
-msgstr "IH"
+msgstr "OK"
 
 #: avahi-common/error.c:31
 msgid "Operation failed"
-msgstr "Tamhelt tecceḍ"
+msgstr "Əməliyyat uğursuz oldu"
 
 #: avahi-common/error.c:32
 msgid "Bad state"
-msgstr ""
+msgstr "Xətalı vəziyyət"
 
 #: avahi-common/error.c:33
 msgid "Invalid host name"
-msgstr ""
+msgstr "Etibarsız host adı"
 
 #: avahi-common/error.c:34
 msgid "Invalid domain name"
-msgstr ""
+msgstr "Etibarsız domen adı"
 
 #: avahi-common/error.c:35
 msgid "No suitable network protocol available"
-msgstr ""
+msgstr "Uyğun şəbəkə protokolu mövcud deyil"
 
 #: avahi-common/error.c:36
 msgid "Invalid DNS TTL"
-msgstr ""
+msgstr "Etibarsız DNS TTL"
 
 #: avahi-common/error.c:37
 msgid "Resource record key is pattern"
-msgstr ""
+msgstr "Resurs qeydi açarı nümunədir"
 
 #: avahi-common/error.c:38
 msgid "Local name collision"
-msgstr ""
+msgstr "Lokal ad toqquşması"
 
 #: avahi-common/error.c:39
 msgid "Invalid record"
-msgstr ""
+msgstr "Xətalı qeyd"
 
 #: avahi-common/error.c:41
 msgid "Invalid service name"
-msgstr ""
+msgstr "Xətalı xidmət adı"
 
 #: avahi-common/error.c:42
 msgid "Invalid service type"
-msgstr ""
+msgstr "Xətalı xidmət tipi"
 
 #: avahi-common/error.c:43
 msgid "Invalid port number"
-msgstr ""
+msgstr "Xətalı port nömrəsi"
 
 #: avahi-common/error.c:44
 msgid "Invalid record key"
-msgstr ""
+msgstr "Xətalı qeyd açarı"
 
 #: avahi-common/error.c:45
 msgid "Invalid address"
-msgstr "Tansa d tarmeɣtutt"
+msgstr "Etibarsız adres"
 
 #: avahi-common/error.c:46
 msgid "Timeout reached"
-msgstr ""
+msgstr "Vaxt limiti aşdı"
 
 #: avahi-common/error.c:47
 msgid "Too many clients"
-msgstr ""
+msgstr "Çox sayda müstəri var"
 
 #: avahi-common/error.c:48
 msgid "Too many objects"
-msgstr ""
+msgstr "Çox sayda obyekt var"
 
 #: avahi-common/error.c:49
 msgid "Too many entries"
-msgstr ""
+msgstr "Çox sayda qeyd var"
 
 #: avahi-common/error.c:50
 msgid "OS Error"
-msgstr "Tuccḍa n unagraw"
+msgstr "Əməliyyat Sistemi xətası"
 
 #: avahi-common/error.c:52
 msgid "Access denied"
-msgstr ""
+msgstr "Giriş rədd edildi"
 
 #: avahi-common/error.c:53
 msgid "Invalid operation"
-msgstr ""
+msgstr "Xətalı əməliyyat"
 
 #: avahi-common/error.c:54
 msgid "An unexpected D-Bus error occurred"
-msgstr ""
+msgstr "Gözlənilməz D-Bus xətası baş verdi"
 
 #: avahi-common/error.c:55
 msgid "Daemon connection failed"
-msgstr ""
+msgstr "Domen bağlantısı alınmadı"
 
 #: avahi-common/error.c:56
 msgid "Memory exhausted"
-msgstr ""
+msgstr "Yaddaş tükənib"
 
 #: avahi-common/error.c:57
 msgid "The object passed in was not valid"
-msgstr ""
+msgstr "Verilən obyekt düzgün deyil"
 
 #: avahi-common/error.c:58
 msgid "Daemon not running"
-msgstr ""
+msgstr "Domen işləmir"
 
 #: avahi-common/error.c:59
 msgid "Invalid interface index"
-msgstr ""
+msgstr "Xətalı interfeys indeksi"
 
 #: avahi-common/error.c:60
 msgid "Invalid protocol specification"
-msgstr ""
+msgstr "Etibarsız protokol göstəricisi"
 
 #: avahi-common/error.c:61
 msgid "Invalid flags"
-msgstr ""
+msgstr "Etibarsız bayraqlar"
 
 #: avahi-common/error.c:63
 msgid "Not found"
-msgstr "Ur yettwaf ara"
+msgstr "Tapılmadı"
 
 #: avahi-common/error.c:64
 msgid "Invalid configuration"
-msgstr ""
+msgstr "Xətalı konfiqurasiya"
 
 #: avahi-common/error.c:65
 msgid "Version mismatch"
-msgstr ""
+msgstr "Versiyalar uyğun gəlmir"
 
 #: avahi-common/error.c:66
 msgid "Invalid service subtype"
-msgstr ""
+msgstr "Xətalı xidmət alt tipi"
 
 #: avahi-common/error.c:67
 msgid "Invalid packet"
-msgstr ""
+msgstr "Etibarsız paket"
 
 #: avahi-common/error.c:68
 msgid "Invalid DNS return code"
-msgstr ""
+msgstr "Xətalı DNS cavab kodu"
 
 #: avahi-common/error.c:69
 msgid "DNS failure: FORMERR"
-msgstr ""
+msgstr "DNS xətası: FORMERR (sintaksis xətası)"
 
 #: avahi-common/error.c:70
 msgid "DNS failure: SERVFAIL"
-msgstr ""
+msgstr "DNS xətası: SERVFAIL (server uğursuzluğu)"
 
 #: avahi-common/error.c:71
 msgid "DNS failure: NXDOMAIN"
-msgstr ""
+msgstr "DNS xətası: NXDOMAIN (domen mövcud deyil)"
 
 #: avahi-common/error.c:72
 msgid "DNS failure: NOTIMP"
-msgstr ""
+msgstr "DNS xətası: NOTIMP (dəstəklənmir)"
 
 #: avahi-common/error.c:74
 msgid "DNS failure: REFUSED"
-msgstr ""
+msgstr "DNS xətası: REFUSED (rədd edildi)"
 
 #: avahi-common/error.c:75
 msgid "DNS failure: YXDOMAIN"
-msgstr ""
+msgstr "DNS xətası: YXDOMAIN (domen artıq mövcuddur)"
 
 #: avahi-common/error.c:76
 msgid "DNS failure: YXRRSET"
-msgstr ""
+msgstr "DNS xətası: YXRRSET (RRSET artıq mövcuddur)"
 
 #: avahi-common/error.c:77
 msgid "DNS failure: NXRRSET"
-msgstr ""
+msgstr "DNS xətası: NXRRSET (RRSET mövcud deyil)"
 
 #: avahi-common/error.c:78
 msgid "DNS failure: NOTAUTH"
-msgstr ""
+msgstr "DNS xətası: NOTAUTH (avtorizasiya yoxdur)"
 
 #: avahi-common/error.c:79
 msgid "DNS failure: NOTZONE"
-msgstr ""
+msgstr "DNS xətası: NOTZONE (zona uyğun deyil)"
 
 #: avahi-common/error.c:80
 msgid "Invalid RDATA"
-msgstr ""
+msgstr "Xətalı RDATA"
 
 #: avahi-common/error.c:81
 msgid "Invalid DNS type"
-msgstr ""
+msgstr "Xətalı DNS tipi"
 
 #: avahi-common/error.c:82
 msgid "Invalid DNS class"
-msgstr ""
+msgstr "Xətalı DNS sinfi"
 
 #: avahi-common/error.c:83
 msgid "Not supported"
-msgstr "Ur tettwasefrak ara"
+msgstr "Dəstəklənmir"
 
 #: avahi-common/error.c:85
 msgid "Not permitted"
-msgstr ""
+msgstr "İcazə verilmir"
 
 #: avahi-common/error.c:86
 msgid "Invalid argument"
-msgstr ""
+msgstr "Xətalı arqument"
 
 #: avahi-common/error.c:87
 msgid "Is empty"
-msgstr "D ilem"
+msgstr "Boşdur"
 
 #: avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr ""
+msgstr "Sorğulanan əməliyyat artıq mövcud olduğu üçün etibarsızdır"
 
 #: avahi-common/error.c:94
 msgid "Invalid Error Code"
-msgstr ""
+msgstr "Xətalı səhv kodu"
 
 #: avahi-discover-standalone/avahi-discover.ui:6
 msgid "Avahi Discovery"
-msgstr ""
+msgstr "Avahi Kəşfi"
 
 #: avahi-discover-standalone/avahi-discover.ui:60
 #: avahi-python/avahi-discover/avahi-discover.py:84
 msgid "<i>No service currently selected.</i>"
-msgstr ""
+msgstr "<i>Hazırda heç bir xidmət seçilməyib.</i>"
 
 #: avahi-python/avahi-discover/avahi-discover.desktop.in.in:4
 msgid "Avahi Zeroconf Browser"
-msgstr ""
+msgstr "Avahi Zeroconf Brauzeri"
 
 #: avahi-python/avahi-discover/avahi-discover.desktop.in.in:5
 msgid "Browse for Zeroconf services available on your network"
-msgstr ""
+msgstr "Şəbəkənizdə mövcud olan Zeroconf xidmətlərinə baxın"
 
 #: avahi-python/avahi-discover/avahi-discover.py:239
 msgid "TXT"
@@ -263,221 +261,222 @@ msgstr "TXT"
 
 #: avahi-python/avahi-discover/avahi-discover.py:244
 msgid "TXT Data:"
-msgstr "Isefka TXT:"
+msgstr "TXT Məlumatı:"
 
 #: avahi-python/avahi-discover/avahi-discover.py:244
 msgid "empty"
-msgstr "d ilem"
+msgstr "boş"
 
 #: avahi-python/avahi-discover/avahi-discover.py:249
 msgid "Service Type:"
-msgstr ""
+msgstr "Xidmət Tipi:"
 
 #: avahi-python/avahi-discover/avahi-discover.py:250
 msgid "Service Name:"
-msgstr "Isem n umeẓlu:"
+msgstr "Xidmət Adı:"
 
 #: avahi-python/avahi-discover/avahi-discover.py:251
 msgid "Domain Name:"
-msgstr ""
+msgstr "Domen adı:"
 
 #: avahi-python/avahi-discover/avahi-discover.py:252
 msgid "Interface:"
-msgstr "Agrudem:"
+msgstr "İnterfeys:"
 
 #: avahi-python/avahi-discover/avahi-discover.py:253
 msgid "Address:"
-msgstr "Tansa:"
+msgstr "Ünvan:"
 
 #: avahi-ui/avahi-ui.c:185
 msgid "Browse Service Types"
-msgstr ""
+msgstr "Xidmət Tiplərinə Bax"
 
 #: avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
 msgstr ""
+"Baxılması üçün nəzərdə tutulmuş, NULL ilə tamamlanan xidmət tipləri siyahısı"
 
 #: avahi-ui/avahi-ui.c:190
 msgid "Domain"
-msgstr "Taɣult"
+msgstr "Domen"
 
 #: avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
+msgstr "Baxış üçün domen adı və ya əsas domen üçün NULL"
 
 #: avahi-ui/avahi-ui.c:196
 msgid "Service Type"
-msgstr ""
+msgstr "Xidmət Tipi"
 
 #: avahi-ui/avahi-ui.c:196
 msgid "The service type of the selected service"
-msgstr ""
+msgstr "Seçilmiş xidmətin tipi"
 
 #: avahi-ui/avahi-ui.c:202 avahi-ui/avahi-ui.c:1035
 msgid "Service Name"
-msgstr "Isem n umeẓlu"
+msgstr "Xidmət Adı"
 
 #: avahi-ui/avahi-ui.c:202
 msgid "The service name of the selected service"
-msgstr ""
+msgstr "Seçilmiş xidmətin adı"
 
 #: avahi-ui/avahi-ui.c:208
 msgid "Address"
-msgstr "Tansa"
+msgstr "Ünvan"
 
 #: avahi-ui/avahi-ui.c:208
 msgid "The address of the resolved service"
-msgstr ""
+msgstr "Həll olunmuş xidmətin ünvanı"
 
 #: avahi-ui/avahi-ui.c:213
 msgid "Port"
-msgstr "Tawwurt"
+msgstr "Port"
 
 #: avahi-ui/avahi-ui.c:213
 msgid "The IP port number of the resolved service"
-msgstr ""
+msgstr "Həll olunmuş xidmətin IP port nömrəsi"
 
 #: avahi-ui/avahi-ui.c:219
 msgid "Host Name"
-msgstr "Isem n usenneftaɣ"
+msgstr "Host Adı"
 
 #: avahi-ui/avahi-ui.c:219
 msgid "The host name of the resolved service"
-msgstr ""
+msgstr "Həll olunmuş xidmətin host adı"
 
 #: avahi-ui/avahi-ui.c:225
 msgid "TXT Data"
-msgstr "Isefka TXT"
+msgstr "TXT məlumatı"
 
 #: avahi-ui/avahi-ui.c:225
 msgid "The TXT data of the resolved service"
-msgstr ""
+msgstr "Həll olunmuş xidmətin TXT məlumatı"
 
 #: avahi-ui/avahi-ui.c:230
 msgid "Resolve Service"
-msgstr ""
+msgstr "Xidməti həll et"
 
 #: avahi-ui/avahi-ui.c:230
 msgid "Resolve the selected service automatically before returning"
-msgstr ""
+msgstr "Qaytarmazdan əvvəl seçilmiş xidməti avtomatik həll et"
 
 #: avahi-ui/avahi-ui.c:236
 msgid "Resolve Service Host Name"
-msgstr ""
+msgstr "Xidmətin host adını həll et"
 
 #: avahi-ui/avahi-ui.c:236
 msgid ""
 "Resolve the host name of the selected service automatically before returning"
-msgstr ""
+msgstr "Qaytarmazdan əvvəl seçilmiş xidmətin host adını avtomatik həll et"
 
 #: avahi-ui/avahi-ui.c:242
 msgid "Address family"
-msgstr ""
+msgstr "Ünvan ailəsi"
 
 #: avahi-ui/avahi-ui.c:242
 msgid "The address family for host name resolution"
-msgstr ""
+msgstr "Host adı həlli üçün ünvan ailəsi"
 
 #: avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr ""
+msgstr "Avahi müştəri xətası: %s"
 
 #: avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr ""
+msgstr "Avahi həll edici xətası: %s"
 
 #: avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr ""
+msgstr "%s xidmət növü üzrə %s domenində baxış alınmadı: %s"
 
 #: avahi-ui/avahi-ui.c:519 avahi-utils/avahi-browse.c:168
 #: avahi-utils/avahi-browse.c:169 avahi-utils/avahi-browse.c:178
 #: avahi-utils/avahi-browse.c:179
 msgid "n/a"
-msgstr ""
+msgstr "mövcud deyil"
 
 #: avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
-msgstr ""
+msgstr "Avahi domen baxıcısı xətası: %s"
 
 #: avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr ""
+msgstr "Avahi domenini oxumaq mümkün olmadı: %s"
 
 #: avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr ""
+msgstr "Xidmət növləri siyahısı boşdur!"
 
 #: avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
-msgstr ""
+msgstr "Avahi serverinə qoşulmaq alınmadı: %s"
 
 #: avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
-msgstr ""
+msgstr "<b>Lokal şəbəkədə</b> xidmətlərə baxılır:"
 
 #: avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr ""
+msgstr "<b>%s</b> domenində xidmətlərə baxılır:"
 
 #: avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr ""
+msgstr "%s üçün baxıcı yaratmaq alınmadı: %s"
 
 #: avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
+msgstr "%s domenində %s tipli %s üçün həlledici yaratmaq alınmadı: %s"
 
 #: avahi-ui/avahi-ui.c:982
 #, c-format
 msgid "Failed to create domain browser: %s"
-msgstr ""
+msgstr "Domen baxıcısı yaratmaq mümkün olmadı: %s"
 
 #: avahi-ui/avahi-ui.c:993
 msgid "Change domain"
-msgstr ""
+msgstr "Domeni dəyiş"
 
 #: avahi-ui/avahi-ui.c:1043 avahi-ui/avahi-ui.c:1180
 msgid "Browsing..."
-msgstr ""
+msgstr "Baxılır..."
 
 #: avahi-ui/avahi-ui.c:1047 avahi-ui/bssh.c:149 avahi-ui/bssh.c:156
 #: avahi-ui/bssh.c:161
 msgid "_Cancel"
-msgstr "Sefsex (_C)"
+msgstr "_Ləğv et"
 
 #: avahi-ui/avahi-ui.c:1048
 msgid "_OK"
-msgstr "IH (_O)"
+msgstr "_OK"
 
 #: avahi-ui/avahi-ui.c:1134
 msgid "Initializing..."
-msgstr "Awennez…"
+msgstr "Başlanır..."
 
 #: avahi-ui/avahi-ui.c:1162
 msgid "Location"
-msgstr "Asun"
+msgstr "Yer"
 
 #: avahi-ui/avahi-ui.c:1167 avahi-utils/avahi-browse.c:553
 msgid "Name"
-msgstr "Isem"
+msgstr "Ad"
 
 #: avahi-ui/avahi-ui.c:1172 avahi-utils/avahi-browse.c:553
 msgid "Type"
-msgstr "Tawsit"
+msgstr "Tip"
 
 #: avahi-ui/avahi-ui.c:1184
 msgid "_Domain..."
-msgstr "Taɣult (_D)…"
+msgstr "_Domen..."
 
 #: avahi-ui/bssh.c:55
 #, c-format
@@ -490,162 +489,169 @@ msgid ""
 "    -S --shell           Browse both SSH and VNC\n"
 "    -d --domain=DOMAIN   The domain to browse in\n"
 msgstr ""
+"%s [seçimlər]\n"
+"\n"
+"    -h --help            Kömək mesajını göstər\n"
+"    -s --ssh             SSH serverlərinə bax\n"
+"    -v --vnc             VNC serverlərinə bax\n"
+"    -S --shell           Həm SSH, həm VNC serverlərinə bax\n"
+"    -d --domain=DOMAIN   Baxılacaq domen\n"
 
 #: avahi-ui/bssh.c:101 avahi-utils/avahi-browse.c:775
 #, c-format
 msgid "Too many arguments\n"
-msgstr ""
+msgstr "Çox sayda arqument\n"
 
 #: avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
-msgstr "Fren aqeddac Shell"
+msgstr "Shell serveri seç"
 
 #: avahi-ui/bssh.c:149 avahi-ui/bssh.c:156 avahi-ui/bssh.c:161
 msgid "C_onnect"
-msgstr "Tuqqna (_O)"
+msgstr "Qo_şul"
 
 #: avahi-ui/bssh.c:151
 msgid "Desktop"
-msgstr "Tanarit"
+msgstr "Masaüstü"
 
 #: avahi-ui/bssh.c:152
 msgid "Terminal"
-msgstr "Tadiwent"
+msgstr "Terminal"
 
 #: avahi-ui/bssh.c:156
 msgid "Choose VNC server"
-msgstr "Fren aqeddac VNC"
+msgstr "VNC serveri seç"
 
 #: avahi-ui/bssh.c:161
 msgid "Choose SSH server"
-msgstr "Fren aqeddac SSH"
+msgstr "SSH serveri seç"
 
 #: avahi-ui/bssh.c:185
 #, c-format
 msgid "Connecting to '%s' ...\n"
-msgstr ""
+msgstr "'%s' serverinə qoşulur...\n"
 
 #: avahi-ui/bssh.c:240
 #, c-format
 msgid "execlp() failed: %s\n"
-msgstr ""
+msgstr "execlp() uğursuz oldu: %s\n"
 
 #: avahi-ui/bssh.c:250
 msgid "Canceled.\n"
-msgstr ""
+msgstr "Ləğv edildi.\n"
 
 #: avahi-ui/bssh.desktop.in.in:4
 msgid "Avahi SSH Server Browser"
-msgstr ""
+msgstr "Avahi SSH Server Baxıcısı"
 
 #: avahi-ui/bssh.desktop.in.in:5
 msgid "Browse for Zeroconf-enabled SSH Servers"
-msgstr ""
+msgstr "Zeroconf dəstəkləyən SSH serverlərinə bax"
 
 #: avahi-ui/bvnc.desktop.in.in:4
 msgid "Avahi VNC Server Browser"
-msgstr ""
+msgstr "Avahi VNC Server Brauzeri"
 
 #: avahi-ui/bvnc.desktop.in.in:5
 msgid "Browse for Zeroconf-enabled VNC Servers"
-msgstr ""
+msgstr "Zeroconf dəstəkləyən VNC serverlərinə bax"
 
 #: avahi-utils/avahi-browse.c:107
 #, c-format
 msgid ": All for now\n"
-msgstr ""
+msgstr ": Hazırda bu qədər\n"
 
 #: avahi-utils/avahi-browse.c:118
 #, c-format
 msgid ": Cache exhausted\n"
-msgstr ""
+msgstr ": Keş tükənib\n"
 
 #: avahi-utils/avahi-browse.c:239 avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr ""
+msgstr "'%s' xidmətinin '%s' növü üzrə '%s' domenində həlli mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-browse.c:340
 #, c-format
 msgid "service_browser failed: %s\n"
-msgstr ""
+msgstr "xidmət baxıcısı xətası: %s\n"
 
 #: avahi-utils/avahi-browse.c:378
 #, c-format
 msgid "avahi_service_browser_new() failed: %s\n"
-msgstr ""
+msgstr "avahi_service_browser_new() funksiyası uğursuz oldu: %s\n"
 
 #: avahi-utils/avahi-browse.c:414
 #, c-format
 msgid "service_type_browser failed: %s\n"
-msgstr ""
+msgstr "xidmət növü baxıcısı xətası: %s\n"
 
 #: avahi-utils/avahi-browse.c:444
 #, c-format
 msgid "avahi_service_type_browser_new() failed: %s\n"
-msgstr ""
+msgstr "avahi_service_type_browser_new() funksiyası uğursuz oldu: %s\n"
 
 #: avahi-utils/avahi-browse.c:519
 #, c-format
 msgid "avahi_domain_browser_new() failed: %s\n"
-msgstr ""
+msgstr "avahi_domain_browser_new() funksiyası uğursuz oldu: %s\n"
 
 #: avahi-utils/avahi-browse.c:535 avahi-utils/avahi-publish.c:394
 #: avahi-utils/avahi-resolve.c:280 avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
-msgstr ""
+msgstr "Versiya sətrini sorğulamaq mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-browse.c:540 avahi-utils/avahi-publish.c:399
 #: avahi-utils/avahi-resolve.c:285 avahi-utils/avahi-set-host-name.c:173
 #: avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
-msgstr ""
+msgstr "Host adını sorğulamaq mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-browse.c:544 avahi-utils/avahi-publish.c:403
 #: avahi-utils/avahi-resolve.c:289 avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr ""
+msgstr "Server versiyası: %s; Host adı: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: avahi-utils/avahi-browse.c:549
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr ""
+msgstr "E İfn Prot Domen\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr ""
+msgstr "E İfn Prot %-*s %-20s Domen\n"
 
 #. We have been disconnected, so let reconnect
 #: avahi-utils/avahi-browse.c:585 avahi-utils/avahi-publish.c:163
 #, c-format
 msgid "Disconnected, reconnecting ...\n"
-msgstr ""
+msgstr "Bağlantı kəsildi, yenidən qoşulur...\n"
 
 #: avahi-utils/avahi-browse.c:599 avahi-utils/avahi-browse.c:829
 #: avahi-utils/avahi-publish.c:170 avahi-utils/avahi-publish.c:386
 #: avahi-utils/avahi-resolve.c:272 avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
-msgstr ""
+msgstr "Müştəri obyekti yaratmaq alınmadı: %s\n"
 
 #: avahi-utils/avahi-browse.c:604 avahi-utils/avahi-publish.c:175
 #: avahi-utils/avahi-resolve.c:143 avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr ""
+msgstr "Müştəri xətası, çıxılır: %s\n"
 
 #: avahi-utils/avahi-browse.c:623 avahi-utils/avahi-publish.c:206
 #, c-format
 msgid "Waiting for daemon ...\n"
-msgstr ""
+msgstr "Fon prosesi gözlənilir...\n"
 
 #: avahi-utils/avahi-browse.c:647
 msgid ""
@@ -663,63 +669,77 @@ msgid ""
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 "    -p --parsable        Output in parsable format\n"
 msgstr ""
+"    -h --help            Bu kömək mesajını göstər\n"
+"    -V --version         Versiyanı göstər\n"
+"    -D --browse-domains  Xidmətlər əvəzinə baxılacaq domenləri axtar\n"
+"    -a --all             Növündən asılı olmayaraq bütün xidmətləri göstər\n"
+"    -d --domain=DOMAIN   Baxılacaq domen\n"
+"    -v --verbose         Ətraflı rejimi aktiv et\n"
+"    -t --terminate       Təxminən tam siyahını çıxardıqdan sonra bitir\n"
+"    -c --cache           Keşdəki bütün elementləri çıxardıqdan sonra bitir\n"
+"    -l --ignore-local    Lokal xidmətləri nəzərə alma\n"
+"    -r --resolve         Tapılan xidmətləri həll et\n"
+"    -f --no-fail         Fon prosesi aktiv deyilsə, səhv çıxarma\n"
+"    -p --parsable        Nəticələri analizə yararlı formatda çıxar\n"
 
 #: avahi-utils/avahi-browse.c:660
 msgid ""
 "    -k --no-db-lookup    Don't lookup service types\n"
 "    -b --dump-db         Dump service type database\n"
 msgstr ""
+"    -k --no-db-lookup    Xidmət növlərini verilənlər bazasında axtarma\n"
+"    -b --dump-db         Xidmət növü verilənlər bazasını çıxart (göstər)\n"
 
 #: avahi-utils/avahi-browse.c:766 avahi-utils/avahi-resolve.c:219
 #, c-format
 msgid "Too few arguments\n"
-msgstr ""
+msgstr "Çox az arqument göstərilib\n"
 
 #: avahi-utils/avahi-browse.c:821 avahi-utils/avahi-publish.c:378
 #: avahi-utils/avahi-resolve.c:264 avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
-msgstr ""
+msgstr "Sadə sorğu obyekti yaratmaq mümkün olmadı.\n"
 
 #: avahi-utils/avahi-publish.c:76
 #, c-format
 msgid "Established under name '%s'\n"
-msgstr ""
+msgstr "'%s' adı ilə quruldu\n"
 
 #: avahi-utils/avahi-publish.c:81
 #, c-format
 msgid "Failed to register: %s\n"
-msgstr ""
+msgstr "Qeydiyyat uğursuz oldu: %s\n"
 
 #: avahi-utils/avahi-publish.c:94
 #, c-format
 msgid "Name collision, picking new name '%s'.\n"
-msgstr ""
+msgstr "Ad toqquşması baş verdi, yeni ad seçilir: '%s'\n"
 
 #: avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
-msgstr ""
+msgstr "Qeydiyyat qrupu yaratmaq mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-publish.c:124
 #, c-format
 msgid "Failed to add address: %s\n"
-msgstr ""
+msgstr "Ünvan əlavə etmək mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-publish.c:134
 #, c-format
 msgid "Failed to add service: %s\n"
-msgstr ""
+msgstr "Xidmət əlavə etmək mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr ""
+msgstr "'%s' alt növünü əlavə etmək mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-publish.c:191
 #, c-format
 msgid "Host name conflict\n"
-msgstr ""
+msgstr "Host adı ziddiyyəti\n"
 
 #: avahi-utils/avahi-publish.c:216
 #, c-format
@@ -739,31 +759,45 @@ msgid ""
 "    -R --no-reverse      Do not publish reverse entry with address\n"
 "    -f --no-fail         Don't fail if the daemon is not available\n"
 msgstr ""
+"%s [seçimlər] %s <ad> <növ> <port> [<txt ...>]\n"
+"%s [seçimlər] %s <host-adı> <ünvan>\n"
+"\n"
+"    -h --help              Bu kömək mesajını göstər\n"
+"    -V --version           Versiyanı göstər\n"
+"    -s --service           Xidməti yayımla\n"
+"    -a --address           Ünvanı yayımla\n"
+"    -v --verbose           Ətraflı rejimi aktiv et\n"
+"    -d --domain=DOMAIN     Xidmətin yayımlanacağı domen\n"
+"    -H --host=DOMAIN       Xidmətin yerləşdiyi host\n"
+"       --subtype=SUBTYPE   Xidmət üçün əlavə alt növ qeyd et\n"
+"    -R --no-reverse        Ünvanla birlikdə tərs qeydiyyat (reverse entry) "
+"yayımlanmasın\n"
+"    -f --no-fail           Fon prosesi aktiv deyilsə, səhv çıxarma\n"
 
 #: avahi-utils/avahi-publish.c:303 avahi-utils/avahi-publish.c:318
 #, c-format
 msgid "Bad number of arguments\n"
-msgstr ""
+msgstr "Arqumentlərin sayı yanlışdır\n"
 
 #: avahi-utils/avahi-publish.c:329
 #, c-format
 msgid "Failed to parse port number: %s\n"
-msgstr ""
+msgstr "Port nömrəsini təhlil etmək mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-publish.c:361 avahi-utils/avahi-resolve.c:246
 #, c-format
 msgid "No command specified.\n"
-msgstr ""
+msgstr "Heç bir əmr göstərilməyib.\n"
 
 #: avahi-utils/avahi-resolve.c:89
 #, c-format
 msgid "Failed to resolve host name '%s': %s\n"
-msgstr ""
+msgstr "Host adını həll etmək mümkün olmadı: '%s': %s\n"
 
 #: avahi-utils/avahi-resolve.c:126
 #, c-format
 msgid "Failed to resolve address '%s': %s\n"
-msgstr ""
+msgstr "Ünvanı həll etmək mümkün olmadı: '%s': %s\n"
 
 #: avahi-utils/avahi-resolve.c:157
 #, c-format
@@ -779,21 +813,31 @@ msgid ""
 "    -6                   Lookup IPv6 address\n"
 "    -4                   Lookup IPv4 address\n"
 msgstr ""
+"%s [seçimlər] %s <host adı ...>\n"
+"%s [seçimlər] %s <ünvan ...>\n"
+"\n"
+"    -h --help             Bu kömək mesajını göstər\n"
+"    -V --version          Versiyanı göstər\n"
+"    -n --name             Host adını həll et (resolve)\n"
+"    -a --address          Ünvanı həll et (resolve)\n"
+"    -v --verbose          Ətraflı rejimi aktiv et\n"
+"    -6                    IPv6 ünvanını axtar\n"
+"    -4                    IPv4 ünvanını axtar\n"
 
 #: avahi-utils/avahi-resolve.c:299 avahi-utils/avahi-set-host-name.c:181
 #, c-format
 msgid "Failed to create host name resolver: %s\n"
-msgstr ""
+msgstr "Host adını həll edən mexanizmi yaratmaq mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-resolve.c:309
 #, c-format
 msgid "Failed to parse address '%s'\n"
-msgstr ""
+msgstr "Ünvanı təhlil etmək mümkün olmadı: '%s'\n"
 
 #: avahi-utils/avahi-resolve.c:314
 #, c-format
 msgid "Failed to create address resolver: %s\n"
-msgstr ""
+msgstr "Ünvan həll edən mexanizmi yaratmaq mümkün olmadı: %s\n"
 
 #: avahi-utils/avahi-set-host-name.c:73
 #, c-format
@@ -804,13 +848,18 @@ msgid ""
 "    -V --version         Show version\n"
 "    -v --verbose         Enable verbose mode\n"
 msgstr ""
+"%s [seçimlər] <yeni host adı>\n"
+"\n"
+"    -h --help             Bu kömək mesajını göstər\n"
+"    -V --version          Versiyanı göstər\n"
+"    -v --verbose          Ətraflı rejimi aktiv et\n"
 
 #: avahi-utils/avahi-set-host-name.c:114
 #, c-format
 msgid "Invalid number of arguments, expecting exactly one.\n"
-msgstr ""
+msgstr "Arqumentlərin sayı düzgün deyil, yalnız bir arqument gözlənilirdi.\n"
 
 #: avahi-utils/avahi-set-host-name.c:193
 #, c-format
 msgid "Host name successfully changed to %s\n"
-msgstr ""
+msgstr "Host adı uğurla %s olaraq dəyişdirildi\n"

@@ -75,7 +75,7 @@ case "$1" in
 
         apt-get install -y libtool-bin valgrind socat ldnsutils
 
-        apt-get install -y libglib2.0-dev meson
+        apt-get install -y libglib2.0-dev meson curl
 
         apt-get install -y check
         install_dfuzzer

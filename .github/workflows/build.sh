@@ -11,6 +11,7 @@ export DISTCHECK=${DISTCHECK:-false}
 export VALGRIND=${VALGRIND:-false}
 export MAKE=make
 export NSS_MDNS=true
+export WITH_SYSTEMD=false
 export OS=
 
 OS=$(source /etc/os-release && printf "%s" "$ID")
@@ -69,7 +70,7 @@ case "$1" in
         sed -i 's/^\(Types: deb\)$/\1 deb-src/' /etc/apt/sources.list.d/ubuntu.sources
         apt-get update -y
         apt-get build-dep -y avahi
-        apt-get install -y libevent-dev qtbase5-dev libsystemd-dev
+        apt-get install -y libevent-dev qtbase5-dev libsystemd-dev systemd-dev
         apt-get install -y gcc clang lcov
         apt-get install -y mono-mcs monodoc-base libmono-posix4.0-ci
 
@@ -187,6 +188,10 @@ case "$1" in
             exit 1
         fi
 
+        if grep -q "^HAVE_SYSTEMD_TRUE=''" config.log; then
+            WITH_SYSTEMD=true
+        fi
+
         $MAKE -j"$(nproc)" V=1
 
         if [[ "$BUILD_ONLY" == true ]]; then
@@ -220,7 +225,7 @@ case "$1" in
             (cd avahi-core && $MAKE valgrind)
         fi
 
-        if [[ "$OS" == ubuntu ]]; then
+        if [[ "$WITH_SYSTEMD" == true ]]; then
             sed -i.bak '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
         fi
 
@@ -233,7 +238,7 @@ case "$1" in
 printf "%s\n" "<$1> <$2> <$3> <$4>" | logger
 EOL
 
-        if [[ "$VALGRIND" == true && "$OS" == ubuntu ]]; then
+        if [[ "$VALGRIND" == true && "$WITH_SYSTEMD" == true ]]; then
             sed -i.bak '
                 /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
             ' avahi-daemon/avahi-daemon.service
@@ -248,7 +253,7 @@ EOL
             sed -i '/^ExecStart=/s/$/ --no-chroot --no-drop-root/' avahi-daemon/avahi-daemon.service
         fi
 
-        if [[ "$ASAN_UBSAN" == true && "$OS" == ubuntu ]]; then
+        if [[ "$ASAN_UBSAN" == true && "$WITH_SYSTEMD" == true ]]; then
             sed -i.bak '/^ExecStart=/s/$/ --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
             sed -i.bak "/^\[Service\]/aEnvironment=ASAN_OPTIONS=$ASAN_OPTIONS" avahi-daemon/avahi-daemon.service
             sed -i.bak "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-daemon/avahi-daemon.service

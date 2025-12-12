@@ -205,7 +205,7 @@ done
 
 run_nss_tests
 
-if [[ "$OS" != ubuntu ]]; then
+if [[ "$WITH_SYSTEMD" == false ]]; then
     avahi-daemon -D
     avahi-dnsconfd -D
 else
@@ -251,7 +251,7 @@ cat <<'EOL' >"$sysconfdir/avahi/services/test-notifications.service"
 EOL
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 
-if [[ "$OS" != ubuntu ]]; then
+if [[ "$WITH_SYSTEMD" == false ]]; then
     run avahi-dnsconfd --kill
     run avahi-daemon --kill
     exit 0

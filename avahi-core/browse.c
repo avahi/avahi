@@ -167,7 +167,7 @@ static AvahiSRBLookup *lookup_find(
     for (l = b->lookups; l; l = l->lookups_next) {
 
         if ((l->interface == AVAHI_IF_UNSPEC || l->interface == interface) &&
-            (l->interface == AVAHI_PROTO_UNSPEC || l->protocol == protocol) &&
+            (l->protocol == AVAHI_PROTO_UNSPEC || l->protocol == protocol) &&
             l->flags == flags &&
             avahi_key_equal(l->key, key))
 
@@ -479,7 +479,7 @@ static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiPr
         assert(n);
 
         if ((n->interface == AVAHI_IF_UNSPEC || n->interface == interface) &&
-            (n->interface == AVAHI_PROTO_UNSPEC || n->protocol == protocol) &&
+            (n->protocol == AVAHI_PROTO_UNSPEC || n->protocol == protocol) &&
             n->flags == flags &&
             avahi_key_equal(n->key, k))
             break;

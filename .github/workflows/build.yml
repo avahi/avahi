@@ -30,7 +30,9 @@ jobs:
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - run: sudo -E .github/workflows/build.sh install-build-deps
       - run: sudo -E .github/workflows/build.sh build
   coverage:
@@ -47,11 +49,13 @@ jobs:
       COVERAGE: "true"
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - run: sudo -E .github/workflows/build.sh install-build-deps
       - run: sudo -E .github/workflows/build.sh build
       - name: Coveralls
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e # v2.3.7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: ./coverage.info
@@ -72,8 +76,10 @@ jobs:
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v6
-      - uses: cross-platform-actions/action@v0.29.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - uses: cross-platform-actions/action@46e8d7fb25520a8d6c64fd2b7a1192611da98eda # v0.30.0
         with:
           operating_system: 'freebsd'
           version: '14.3'
@@ -100,7 +106,9 @@ jobs:
           - { CC: "clang", VALGRIND: "false", DISTCHECK: "false" }
     steps:
       - name: Repository checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - run: |
           apk add bash
           .github/workflows/build.sh install-build-deps-Alpine

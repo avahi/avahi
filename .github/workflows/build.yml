@@ -64,11 +64,12 @@ jobs:
   freebsd:
     runs-on: ubuntu-24.04
     concurrency:
-      group: ${{ github.workflow }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-freebsd
+      group: ${{ github.workflow }}-${{ matrix.version }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-freebsd
       cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
+        version: ['14.3', '15.0']
         env:
           - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
           - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
@@ -79,10 +80,10 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: cross-platform-actions/action@46e8d7fb25520a8d6c64fd2b7a1192611da98eda # v0.30.0
+      - uses: cross-platform-actions/action@3fbf2723ff48aac8defe0070706f36088999fd47 # v0.31.0
         with:
           operating_system: 'freebsd'
-          version: '14.3'
+          version: ${{ matrix.version }}
           architecture: 'x86_64'
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
           run: |

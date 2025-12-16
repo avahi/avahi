@@ -30,3 +30,6 @@ jobs:
           MULTI_STATUS: false
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: true
+          LINTER_RULES_PATH: '.github'
+          GITHUB_ACTIONS_ZIZMOR_CONFIG_FILE: 'zizmor.yml'

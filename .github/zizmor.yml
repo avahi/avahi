@@ -1,0 +1,15 @@
+rules:
+  unpinned-images:
+    ignore:
+      # It would be great to pin images in workflows but Dependabot
+      # can't update them unfortunately:
+      # https://github.com/dependabot/dependabot-core/issues/5819
+      - build.yml
+  unpinned-uses:
+    config:
+      policies:
+        # CIFuzz and ClusterFuzzLite can't be meaninguflly pinned to
+        # their full-length commit SHAs so they just roll forward.
+        'google/clusterfuzzlite/*': ref-pin
+        'google/oss-fuzz/*': ref-pin
+        '*': hash-pin

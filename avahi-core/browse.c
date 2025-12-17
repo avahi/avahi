@@ -583,6 +583,11 @@ AvahiSRecordBrowser *avahi_s_record_browser_prepare(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !(flags & AVAHI_LOOKUP_USE_WIDE_AREA) || !(flags & AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
 
+    if ((flags & AVAHI_LOOKUP_USE_WIDE_AREA) && !server->wide_area_lookup_engine) {
+        avahi_server_set_errno(server, AVAHI_ERR_NOT_SUPPORTED);
+        return NULL;
+    }
+
     if (!(b = avahi_new(AvahiSRecordBrowser, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
         return NULL;

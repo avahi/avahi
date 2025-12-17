@@ -21,7 +21,7 @@ avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
 
 dump_journal() {
-    if [[ "$OS" != ubuntu ]]; then
+    if [[ "$WITH_SYSTEMD" == false ]]; then
         cat /var/log/messages
     else
         journalctl --sync

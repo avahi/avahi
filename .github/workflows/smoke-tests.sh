@@ -16,6 +16,7 @@ sysconfdir=/etc
 if [[ "$OS" == freebsd ]]; then
     sysconfdir=/usr/local/etc
 fi
+avahi_daemon_conf="$sysconfdir/avahi/avahi-daemon.conf"
 avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
 
@@ -324,6 +325,26 @@ dbus_call GetAlternativeHostName "a-2147483647"
 dbus_call GetAlternativeServiceName "a #2147483647"
 
 printf "%s\n" "RESOLVE-ADDRESS $(perl -e 'print q/A/ x 1014')" | socat - unix-connect:"$avahi_socket"
+
+if ! grep -q '^enable-wide-area=yes' "$avahi_daemon_conf"; then
+    dbus_call ResolveAddress -1 -1 "$ipv4addr" 0
+    should_fail dbus_call ResolveAddress -1 -1 "$ipv4addr" 1
+    run avahi-daemon -c
+    dbus_call ResolveAddress -1 -1 "$ipv4addr" 2
+    should_fail dbus_call ResolveAddress -1 -1 "$ipv4addr" 3
+
+    dbus_call ResolveHostName -1 -1 "$(hostname).local" -1 0
+    should_fail dbus_call ResolveHostName -1 -1 "$(hostname).local" -1 1
+    run avahi-daemon -c
+    dbus_call ResolveHostName -1 -1 "$(hostname).local" -1 2
+    should_fail dbus_call ResolveHostName -1 -1 "$(hostname).local" -1 3
+
+    dbus_call ResolveService -1 -1 "$(hostname)" _ssh._tcp local -1 0
+    should_fail dbus_call ResolveService -1 -1 "$(hostname)" _ssh._tcp local -1 1
+    run avahi-daemon -c
+    dbus_call ResolveService -1 -1 "$(hostname)" _ssh._tcp local -1 2
+    should_fail dbus_call ResolveService -1 -1 "$(hostname)" _ssh._tcp local -1 3
+fi
 
 cmds=(
     "HELP"

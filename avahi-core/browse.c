@@ -36,8 +36,6 @@
 #include "domain-util.h"
 #include "rr-util.h"
 
-#define AVAHI_LOOKUPS_PER_BROWSER_MAX 15
-
 struct AvahiSRBLookup {
     AvahiSRecordBrowser *record_browser;
 

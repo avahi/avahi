@@ -28,6 +28,8 @@
 #include "dns.h"
 #include "lookup.h"
 
+#define AVAHI_LOOKUPS_PER_BROWSER_MAX 15
+
 typedef struct AvahiSRBLookup AvahiSRBLookup;
 
 struct AvahiSRecordBrowser {

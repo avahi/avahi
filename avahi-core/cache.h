@@ -89,6 +89,8 @@ void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback 
 
 int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
 
+void avahi_cache_remove_entry(AvahiCache *c, AvahiCacheEntry *e);
+
 /** Start the "Passive observation of Failure" algorithm for all
  * records of the specified key. The specified address is  */
 void avahi_cache_start_poof(AvahiCache *c, AvahiKey *key, const AvahiAddress *a);

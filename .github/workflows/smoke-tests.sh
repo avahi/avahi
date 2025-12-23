@@ -18,7 +18,9 @@ if [[ "$OS" == freebsd ]]; then
 fi
 avahi_daemon_conf="$sysconfdir/avahi/avahi-daemon.conf"
 avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
+avahi_daemon_pid_file="$avahi_daemon_runtime_dir/pid"
 avahi_socket="$avahi_daemon_runtime_dir/socket"
+valgrind_log_file="/tmp/valgrind.avahi-daemon.%p"
 
 dump_journal() {
     if [[ "$WITH_SYSTEMD" == false ]]; then
@@ -207,7 +209,13 @@ done
 run_nss_tests
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
-    avahi-daemon -D
+    if [[ "$VALGRIND" == true ]]; then
+        valgrind --log-file="$valgrind_log_file" --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 --trace-children=yes \
+            -s --suppressions=.github/workflows/avahi-daemon.supp \
+            avahi-daemon -D --debug --no-drop-root
+    else
+        avahi-daemon -D --debug
+    fi
     avahi-dnsconfd -D
 else
     run systemctl start avahi-daemon
@@ -254,7 +262,17 @@ drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
     run avahi-dnsconfd --kill
+
+    pid=$(cat "$avahi_daemon_pid_file")
     run avahi-daemon --kill
+
+    if [[ "$VALGRIND" == true ]]; then
+        cat "${valgrind_log_file//%p/$pid}"
+        if grep -qE 'ERROR SUMMARY:\s+[^0]' "${valgrind_log_file//%p/$pid}"; then
+            exit 1
+        fi
+    fi
+
     exit 0
 fi
 

@@ -1,0 +1,20 @@
+{
+   libdaemon-stdin-stdout-stderr-dev-null
+   CoreError:FdNotClosed
+   fun:dup2
+   ...
+   fun:daemon_fork
+   fun:main
+}
+
+{
+   libdaemon-syslog
+   CoreError:FdNotClosed
+   fun:socket
+   ...
+   fun:daemon_log
+   fun:log_function
+   fun:avahi_log_ap
+   ...
+   fun:main
+}

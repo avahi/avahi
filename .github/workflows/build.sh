@@ -239,9 +239,9 @@ printf "%s\n" "<$1> <$2> <$3> <$4>" | logger
 EOL
 
         if [[ "$VALGRIND" == true && "$WITH_SYSTEMD" == true ]]; then
-            sed -i.bak '
-                /^ExecStart/s/=/=valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 /
-            ' avahi-daemon/avahi-daemon.service
+            sed -i.bak "
+                /^ExecStart/s!=!=valgrind -s --suppressions='$(pwd)/.github/workflows/avahi-daemon.supp' --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 !
+            " avahi-daemon/avahi-daemon.service
             sed -i.bak '/^ExecStart=/s/$/ --no-chroot --no-drop-root --no-proc-title/' avahi-daemon/avahi-daemon.service
 
             sed -i.bak '

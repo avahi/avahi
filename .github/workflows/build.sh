@@ -65,6 +65,10 @@ install_radamsa() {
     chmod -R a+r radamsa
 }
 
+trim_sandbox() {
+    sed -i.bak 's/^\(Lock\|Memory\|NoNew\|Private\|Protect\|Restart\|Restrict\|SystemCall\)/#\1/' "$1"
+}
+
 case "$1" in
     install-build-deps)
         sed -i 's/^\(Types: deb\)$/\1 deb-src/' /etc/apt/sources.list.d/ubuntu.sources
@@ -226,6 +230,10 @@ case "$1" in
         fi
 
         if [[ "$WITH_SYSTEMD" == true ]]; then
+            if [[ "$ASAN_UBSAN" == true || "$VALGRIND" == true || "$COVERAGE" == true ]]; then
+                trim_sandbox avahi-daemon/avahi-daemon.service
+            fi
+
             sed -i.bak '/^ExecStart=/s/$/ --debug /' avahi-daemon/avahi-daemon.service
         fi
 

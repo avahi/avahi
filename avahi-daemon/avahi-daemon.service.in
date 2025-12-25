@@ -20,11 +20,30 @@ Description=Avahi mDNS/DNS-SD Stack
 Requires=avahi-daemon.socket
 
 [Service]
-Type=dbus
 BusName=org.freedesktop.Avahi
 ExecStart=@sbindir@/avahi-daemon -s
 ExecReload=@sbindir@/avahi-daemon -r
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
 NotifyAccess=main
+PrivateDevices=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectSystem=full
+Restart=on-failure
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=chroot @system-service
+Type=dbus
 
 [Install]
 WantedBy=multi-user.target

@@ -218,7 +218,10 @@ if [[ "$WITH_SYSTEMD" == false ]]; then
     fi
     avahi-dnsconfd -D
 else
+    run systemd-analyze verify --recursive-errors=yes avahi-daemon.service
     run systemctl start avahi-daemon
+
+    run systemd-analyze verify --recursive-errors=yes avahi-dnsconfd.service
     run systemctl start avahi-dnsconfd
 fi
 

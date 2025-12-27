@@ -4,6 +4,7 @@ set -eux
 set -o pipefail
 
 export ASAN_OPTIONS=${ASAN_OPTIONS:-}
+export UBSAN_OPTIONS=${UBSAN_OPTIONS:-}
 export LD_PRELOAD=${LD_PRELOAD:-}
 export NSS_MDNS_BUILD_DIR=
 export ASAN_RT_PATH=
@@ -212,6 +213,10 @@ if [[ "$WITH_SYSTEMD" == false ]]; then
     if [[ "$VALGRIND" == true ]]; then
         valgrind --log-file="$valgrind_log_file" --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 --trace-children=yes \
             -s --suppressions=.github/workflows/avahi-daemon.supp \
+            avahi-daemon -D --debug --no-drop-root
+    elif [[ "$ASAN_UBSAN" == true ]]; then
+        ASAN_OPTIONS="$ASAN_OPTIONS:log_path=/tmp/asan.avahi-daemon" \
+        UBSAN_OPTIONS="$UBSAN_OPTIONS:log_path=/tmp/ubsan.avahi-daemon" \
             avahi-daemon -D --debug --no-drop-root
     else
         avahi-daemon -D --debug

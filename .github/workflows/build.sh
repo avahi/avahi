@@ -25,6 +25,19 @@ if [[ "$OS" == freebsd ]]; then
 fi
 
 look_for_asan_ubsan_reports() {
+    local _btraces
+
+    if [[ "$WITH_SYSTEMD" == false ]]; then
+        _btraces=$(mktemp)
+        find /tmp/ \( -name 'asan.avahi-daemon*' -or -name 'ubsan.avahi-daemon*' \) -exec cat {} \; >"$_btraces"
+        if [[ -s "$_btraces" ]]; then
+            cat "$_btraces"
+            return 1
+        else
+            return 0
+        fi
+    fi
+
     journalctl --sync
     set +o pipefail
     pids="$(
@@ -121,7 +134,7 @@ case "$1" in
         fi
 
         if [[ "$ASAN_UBSAN" == true ]]; then
-            export CFLAGS+=" -fsanitize=address,undefined -g"
+            export CFLAGS+=" -U_FORTIFY_SOURCE -fsanitize=address,undefined -g -fno-omit-frame-pointer"
             export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
             export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
 

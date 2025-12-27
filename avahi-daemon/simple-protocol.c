@@ -419,8 +419,7 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
         assert((size_t) r <= c->outbuf_length);
         c->outbuf_length -= r;
 
-        if (c->outbuf_length)
-            memmove(c->outbuf, c->outbuf + r, c->outbuf_length - r);
+        memmove(c->outbuf, c->outbuf + r, c->outbuf_length);
 
         if (c->outbuf_length == 0 && c->state == CLIENT_DEAD) {
             client_free(c);

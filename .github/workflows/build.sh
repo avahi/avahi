@@ -24,7 +24,7 @@ if [[ "$OS" == freebsd ]]; then
     MAKE=gmake
 fi
 
-look_for_asan_ubsan_reports() {
+asan_ubsan_reports_detected() {
     local _btraces
 
     if [[ "$WITH_SYSTEMD" == false ]]; then
@@ -32,9 +32,9 @@ look_for_asan_ubsan_reports() {
         find /tmp/ \( -name 'asan.avahi-daemon*' -or -name 'ubsan.avahi-daemon*' \) -exec cat {} \; >"$_btraces"
         if [[ -s "$_btraces" ]]; then
             cat "$_btraces"
-            return 1
-        else
             return 0
+        else
+            return 1
         fi
     fi
 
@@ -50,8 +50,23 @@ look_for_asan_ubsan_reports() {
         for pid in $pids; do
            journalctl -b _PID="$pid" --no-pager
         done
+        return 0
+    fi
+
+    return 1
+}
+
+coredumps_detected() {
+    if [[ "$WITH_SYSTEMD" == false ]]; then
         return 1
     fi
+
+    if coredumpctl list --no-pager avahi-daemon; then
+        coredumpctl debug --no-pager --debugger-arguments="-batch -ex 'bt full'" avahi-daemon
+        return 0
+    fi
+
+    return 1
 }
 
 install_dfuzzer() {
@@ -335,9 +350,21 @@ EOL
             systemctl reload dbus
         fi
 
+        exit_code=0
         if ! .github/workflows/smoke-tests.sh; then
-            look_for_asan_ubsan_reports
-            exit 1
+            ((++exit_code))
+        fi
+
+        if asan_ubsan_reports_detected; then
+            ((++exit_code))
+        fi
+
+        if coredumps_detected; then
+            ((++exit_code))
+        fi
+
+        if [[ "$exit_code" -ne 0 ]]; then
+            exit "$exit_code"
         fi
 
         if [[ "$COVERAGE" == true ]]; then

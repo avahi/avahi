@@ -1,0 +1,48 @@
+# Best-effort implementation of https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/Developer/CodingStyle/ in clang-format
+
+BasedOnStyle: LLVM
+
+# "No tabs please!"
+UseTab: Never
+
+# "Indentation is 4 characters."
+IndentWidth: 4
+
+# "Please keep the opening bracket of a block on the same line as the expression opening it."
+BreakBeforeBraces: Attach
+
+# "Don't put the return type of a function on a seperate line."
+AlwaysBreakAfterDefinitionReturnType: None
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+# "On function calls and definitions, don't put an extra space between the function name and the opening parenthesis of the argument list."
+# There is no explicit mention of control-statements, but this seems to be the case for the current codebase.
+SpaceBeforeParens: ControlStatements
+
+# "Please do not wrap your lines at 80 characters." ... "Wrap them at 128 characters."
+ColumnLimit: 128
+
+# "An exception: comments, especially multi-line comments, should be wrapped at 80 characters."
+# This difference between code and comments can't be implemented using clang-format, so leave comments as is.
+ReflowComments: false
+
+# This is implied from "pa_bluetooth_transport *pa_bluetooth_transport_new".
+PointerAlignment: Right
+
+# "That is, wrap at 128 characters, and start a new line aligned with the opening parenthesis."
+AlignAfterOpenBracket: Align
+
+# This is implied from the current codebase.
+AlignConsecutiveDeclarations: Consecutive
+
+# This is set to prevent unwanted code changes that might break builds.
+SortIncludes: false
+
+# This is implied from the current codebase, to keep enum values in seperate lines.
+AllowShortEnumsOnASingleLine: false
+
+# This is implied from the current codebase.
+BinPackArguments: false
+
+# This is implied from the current codebase.
+AlignArrayOfStructures: Left

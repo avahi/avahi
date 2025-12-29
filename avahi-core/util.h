@@ -28,7 +28,7 @@ AVAHI_C_DECL_BEGIN
 
 void avahi_hexdump(const void *p, size_t size);
 
-char *avahi_format_mac_address(char *t, size_t l, const uint8_t* mac, size_t size);
+char *avahi_format_mac_address(char *t, size_t l, const uint8_t *mac, size_t size);
 
 /** Change every character in the string to upper case (ASCII), return a pointer to the string */
 char *avahi_strup(char *s);

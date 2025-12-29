@@ -31,11 +31,11 @@
 
 #include "ini-file-parser.h"
 
-AvahiIniFile* avahi_ini_file_load(const char *fname) {
-    AvahiIniFile *f;
-    FILE *fo;
+AvahiIniFile *avahi_ini_file_load(const char *fname) {
+    AvahiIniFile      *f;
+    FILE              *fo;
     AvahiIniFileGroup *group = NULL;
-    unsigned line;
+    unsigned           line;
 
     assert(fname);
 
@@ -50,7 +50,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
 
     line = 0;
     while (!feof(fo)) {
-        char ln[1024], *s, *e;
+        char              ln[1024], *s, *e;
         AvahiIniFilePair *pair;
 
         if (!(fgets(ln, sizeof(ln), fo)))
@@ -76,7 +76,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
             *e = 0;
 
             group = avahi_new(AvahiIniFileGroup, 1);
-            group->name = avahi_strdup(s+1);
+            group->name = avahi_strdup(s + 1);
             group->n_pairs = 0;
             AVAHI_LLIST_HEAD_INIT(AvahiIniFilePair, group->pairs);
 
@@ -146,26 +146,28 @@ void avahi_ini_file_free(AvahiIniFile *f) {
     avahi_free(f);
 }
 
-char** avahi_split_csv(const char *t) {
-    unsigned n_comma = 0;
+char **avahi_split_csv(const char *t) {
+    unsigned    n_comma = 0;
     const char *p;
-    char **r, **i;
+    char      **r, **i;
 
     for (p = t; *p; p++)
         if (*p == ',')
             n_comma++;
 
-    i = r = avahi_new(char*, n_comma+2);
+    i = r = avahi_new(char *, n_comma + 2);
 
     for (;;) {
-        size_t n, l = strcspn(t, ",");
+        size_t      n, l = strcspn(t, ",");
         const char *c;
 
         /* Ignore leading blanks */
-        for (c = t, n = l; isblank(*c); c++, n--);
+        for (c = t, n = l; isblank(*c); c++, n--)
+            ;
 
         /* Ignore trailing blanks */
-        for (; n > 0 && isblank(c[n-1]); n--);
+        for (; n > 0 && isblank(c[n - 1]); n--)
+            ;
 
         *(i++) = avahi_strndup(c, n);
 

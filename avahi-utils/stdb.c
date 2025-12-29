@@ -42,15 +42,15 @@ static int init(void) {
     if (gdbm_file)
         return 0;
 
-    if (!(gdbm_file = gdbm_open((char*) DATABASE_FILE, 0, GDBM_READER, 0, NULL)))
+    if (!(gdbm_file = gdbm_open((char *)DATABASE_FILE, 0, GDBM_READER, 0, NULL)))
         return -1;
 #endif
 
     return 0;
 }
 
-const char* stdb_lookup(const char *name) {
-    datum key, data;
+const char *stdb_lookup(const char *name) {
+    datum       key, data;
     const char *loc;
 
     if (init() < 0)
@@ -98,7 +98,7 @@ const char* stdb_lookup(const char *name) {
     }
 
     if (!data.dptr) {
-        key.dptr = (char*) name;
+        key.dptr = (char *)name;
         key.dsize = strlen(name);
 #ifdef HAVE_GDBM
         data = gdbm_fetch(gdbm_file, key);

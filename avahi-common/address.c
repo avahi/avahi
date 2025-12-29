@@ -64,39 +64,52 @@ char *avahi_address_snprint(char *s, size_t length, const AvahiAddress *a) {
     return s;
 }
 
-char* avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length) {
+char *avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length) {
     assert(ret_s);
     assert(length > 0);
     assert(a);
 
     if (a->proto == AVAHI_PROTO_INET) {
         uint32_t n = ntohl(a->data.ipv4.address);
-        snprintf(
-            ret_s, length,
-            "%u.%u.%u.%u.in-addr.arpa",
-            n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
+        snprintf(ret_s, length, "%u.%u.%u.%u.in-addr.arpa", n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, n >> 24);
     } else {
         assert(a->proto == AVAHI_PROTO_INET6);
 
-        snprintf(
-            ret_s, length,
-            "%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.arpa",
-            a->data.ipv6.address[15] & 0xF, a->data.ipv6.address[15] >> 4,
-            a->data.ipv6.address[14] & 0xF, a->data.ipv6.address[14] >> 4,
-            a->data.ipv6.address[13] & 0xF, a->data.ipv6.address[13] >> 4,
-            a->data.ipv6.address[12] & 0xF, a->data.ipv6.address[12] >> 4,
-            a->data.ipv6.address[11] & 0xF, a->data.ipv6.address[11] >> 4,
-            a->data.ipv6.address[10] & 0xF, a->data.ipv6.address[10] >> 4,
-            a->data.ipv6.address[ 9] & 0xF, a->data.ipv6.address[ 9] >> 4,
-            a->data.ipv6.address[ 8] & 0xF, a->data.ipv6.address[ 8] >> 4,
-            a->data.ipv6.address[ 7] & 0xF, a->data.ipv6.address[ 7] >> 4,
-            a->data.ipv6.address[ 6] & 0xF, a->data.ipv6.address[ 6] >> 4,
-            a->data.ipv6.address[ 5] & 0xF, a->data.ipv6.address[ 5] >> 4,
-            a->data.ipv6.address[ 4] & 0xF, a->data.ipv6.address[ 4] >> 4,
-            a->data.ipv6.address[ 3] & 0xF, a->data.ipv6.address[ 3] >> 4,
-            a->data.ipv6.address[ 2] & 0xF, a->data.ipv6.address[ 2] >> 4,
-            a->data.ipv6.address[ 1] & 0xF, a->data.ipv6.address[ 1] >> 4,
-            a->data.ipv6.address[ 0] & 0xF, a->data.ipv6.address[ 0] >> 4);
+        snprintf(ret_s,
+                 length,
+                 "%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.ip6.arpa",
+                 a->data.ipv6.address[15] & 0xF,
+                 a->data.ipv6.address[15] >> 4,
+                 a->data.ipv6.address[14] & 0xF,
+                 a->data.ipv6.address[14] >> 4,
+                 a->data.ipv6.address[13] & 0xF,
+                 a->data.ipv6.address[13] >> 4,
+                 a->data.ipv6.address[12] & 0xF,
+                 a->data.ipv6.address[12] >> 4,
+                 a->data.ipv6.address[11] & 0xF,
+                 a->data.ipv6.address[11] >> 4,
+                 a->data.ipv6.address[10] & 0xF,
+                 a->data.ipv6.address[10] >> 4,
+                 a->data.ipv6.address[9] & 0xF,
+                 a->data.ipv6.address[9] >> 4,
+                 a->data.ipv6.address[8] & 0xF,
+                 a->data.ipv6.address[8] >> 4,
+                 a->data.ipv6.address[7] & 0xF,
+                 a->data.ipv6.address[7] >> 4,
+                 a->data.ipv6.address[6] & 0xF,
+                 a->data.ipv6.address[6] >> 4,
+                 a->data.ipv6.address[5] & 0xF,
+                 a->data.ipv6.address[5] >> 4,
+                 a->data.ipv6.address[4] & 0xF,
+                 a->data.ipv6.address[4] >> 4,
+                 a->data.ipv6.address[3] & 0xF,
+                 a->data.ipv6.address[3] >> 4,
+                 a->data.ipv6.address[2] & 0xF,
+                 a->data.ipv6.address[2] >> 4,
+                 a->data.ipv6.address[1] & 0xF,
+                 a->data.ipv6.address[1] >> 4,
+                 a->data.ipv6.address[0] & 0xF,
+                 a->data.ipv6.address[0] >> 4);
     }
 
     return ret_s;
@@ -144,7 +157,7 @@ AvahiProtocol avahi_af_to_proto(int af) {
     return AVAHI_PROTO_UNSPEC;
 }
 
-const char* avahi_proto_to_string(AvahiProtocol proto) {
+const char *avahi_proto_to_string(AvahiProtocol proto) {
     if (proto == AVAHI_PROTO_INET)
         return "IPv4";
     if (proto == AVAHI_PROTO_INET6)

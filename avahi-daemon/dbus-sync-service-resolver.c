@@ -46,20 +46,10 @@ void avahi_dbus_sync_service_resolver_free(SyncServiceResolverInfo *i) {
     avahi_free(i);
 }
 
-void avahi_dbus_sync_service_resolver_callback(
-    AvahiSServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AvahiStringList *txt,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+void avahi_dbus_sync_service_resolver_callback(AvahiSServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                               AvahiResolverEvent event, const char *name, const char *type, const char *domain,
+                                               const char *host_name, const AvahiAddress *a, uint16_t port,
+                                               AvahiStringList *txt, AvahiLookupResultFlags flags, void *userdata) {
 
     SyncServiceResolverInfo *i = userdata;
 
@@ -67,9 +57,9 @@ void avahi_dbus_sync_service_resolver_callback(
     assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
+        char         t[AVAHI_ADDRESS_STR_MAX], *pt = t;
+        int32_t      i_interface, i_protocol, i_aprotocol;
+        uint32_t     u_flags;
         DBusMessage *reply;
 
         assert(host_name);
@@ -87,13 +77,13 @@ void avahi_dbus_sync_service_resolver_callback(
         if (avahi_dbus_is_our_own_service(i->client, interface, protocol, name, type, domain) > 0)
             flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
 
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
+        i_interface = (int32_t)interface;
+        i_protocol = (int32_t)protocol;
         if (a)
-            i_aprotocol = (int32_t) a->proto;
+            i_aprotocol = (int32_t)a->proto;
         else
             i_aprotocol = AVAHI_PROTO_UNSPEC;
-        u_flags = (uint32_t) flags;
+        u_flags = (uint32_t)flags;
 
         reply = dbus_message_new_method_return(i->message);
 
@@ -102,25 +92,30 @@ void avahi_dbus_sync_service_resolver_callback(
             goto finish;
         }
 
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &name,
-            DBUS_TYPE_STRING, &type,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT16, &port,
-            DBUS_TYPE_INVALID);
+        dbus_message_append_args(reply,
+                                 DBUS_TYPE_INT32,
+                                 &i_interface,
+                                 DBUS_TYPE_INT32,
+                                 &i_protocol,
+                                 DBUS_TYPE_STRING,
+                                 &name,
+                                 DBUS_TYPE_STRING,
+                                 &type,
+                                 DBUS_TYPE_STRING,
+                                 &domain,
+                                 DBUS_TYPE_STRING,
+                                 &host_name,
+                                 DBUS_TYPE_INT32,
+                                 &i_aprotocol,
+                                 DBUS_TYPE_STRING,
+                                 &pt,
+                                 DBUS_TYPE_UINT16,
+                                 &port,
+                                 DBUS_TYPE_INVALID);
 
         avahi_dbus_append_string_list(reply, txt);
 
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
+        dbus_message_append_args(reply, DBUS_TYPE_UINT32, &u_flags, DBUS_TYPE_INVALID);
 
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);

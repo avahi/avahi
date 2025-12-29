@@ -34,153 +34,75 @@
 #include <corby/corby.h>
 #include <corby/buffer.h>
 
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-struct												_sw_corby_channel;
-typedef struct _sw_corby_channel			*	sw_corby_channel;
-struct												_sw_corby_message;
-struct												_sw_corby_profile;
-typedef struct _sw_corby_profile			*	sw_corby_profile;
-typedef struct _sw_corby_profile const	*	sw_const_corby_profile;
+struct _sw_corby_channel;
+typedef struct _sw_corby_channel *sw_corby_channel;
+struct _sw_corby_message;
+struct _sw_corby_profile;
+typedef struct _sw_corby_profile       *sw_corby_profile;
+typedef struct _sw_corby_profile const *sw_const_corby_profile;
 
-
-typedef enum _sw_corby_reply_status
-{
-   SW_CORBY_NO_EXCEPTION		=	0,
-   SW_CORBY_SYSTEM_EXCEPTION	=	1,
-   SW_CORBY_USER_EXCEPTION		=	2,
-   SW_CORBY_LOCATION_FORWARD	=	3
+typedef enum _sw_corby_reply_status {
+    SW_CORBY_NO_EXCEPTION = 0,
+    SW_CORBY_SYSTEM_EXCEPTION = 1,
+    SW_CORBY_USER_EXCEPTION = 2,
+    SW_CORBY_LOCATION_FORWARD = 3
 } sw_corby_reply_status;
 
+typedef sw_result(HOWL_API *sw_corby_channel_will_send_func)(sw_corby_channel channel, sw_octets bytes, sw_size_t len,
+                                                             sw_opaque_t extra);
 
-typedef sw_result
-(HOWL_API *sw_corby_channel_will_send_func)(
-						sw_corby_channel			channel,
-						sw_octets					bytes,
-						sw_size_t					len,
-						sw_opaque_t					extra);
+typedef sw_result(HOWL_API *sw_corby_channel_did_read_func)(sw_corby_channel channel, sw_octets bytes, sw_size_t len,
+                                                            sw_opaque_t extra);
 
+typedef void(HOWL_API *sw_corby_channel_cleanup_func)(sw_corby_channel channel);
 
-typedef sw_result
-(HOWL_API *sw_corby_channel_did_read_func)(
-						sw_corby_channel			channel,
-						sw_octets					bytes,
-						sw_size_t					len,
-						sw_opaque_t					extra);
+typedef struct _sw_corby_channel_delegate {
+    sw_opaque_t                     m_delegate;
+    sw_corby_channel_will_send_func m_will_send_func;
+    sw_corby_channel_did_read_func  m_did_read_func;
+    sw_corby_channel_cleanup_func   m_cleanup_func;
+    sw_opaque_t                     m_extra;
+} *sw_corby_channel_delegate;
 
+sw_result HOWL_API sw_corby_channel_start_request(sw_corby_channel self, sw_const_corby_profile profile,
+                                                  struct _sw_corby_buffer **buffer, sw_const_string op, sw_uint32 oplen,
+                                                  sw_bool reply_expected);
 
-typedef void
-(HOWL_API *sw_corby_channel_cleanup_func)(
-						sw_corby_channel			channel);
+sw_result HOWL_API sw_corby_channel_start_reply(sw_corby_channel self, struct _sw_corby_buffer **buffer, sw_uint32 request_id,
+                                                sw_corby_reply_status status);
 
+sw_result HOWL_API sw_corby_channel_send(sw_corby_channel self, struct _sw_corby_buffer *buffer,
+                                         sw_corby_buffer_observer observer, sw_corby_buffer_written_func func,
+                                         sw_opaque_t extra);
 
-typedef struct _sw_corby_channel_delegate
-{
-	sw_opaque_t								m_delegate;
-	sw_corby_channel_will_send_func	m_will_send_func;
-	sw_corby_channel_did_read_func	m_did_read_func;
-	sw_corby_channel_cleanup_func		m_cleanup_func;
-	sw_opaque_t								m_extra;
-} * sw_corby_channel_delegate;
+sw_result HOWL_API sw_corby_channel_recv(sw_corby_channel self, sw_salt *salt, struct _sw_corby_message **message,
+                                         sw_uint32 *request_id, sw_string *op, sw_uint32 *op_len,
+                                         struct _sw_corby_buffer **buffer, sw_uint8 *endian, sw_bool block);
 
+sw_result HOWL_API sw_corby_channel_last_recv_from(sw_corby_channel self, sw_ipv4_address *from, sw_port *from_port);
 
-sw_result HOWL_API
-sw_corby_channel_start_request(
-							sw_corby_channel				self,
-							sw_const_corby_profile		profile,
-							struct _sw_corby_buffer	**	buffer,
-							sw_const_string				op,
-							sw_uint32						oplen,
-							sw_bool						reply_expected);
+sw_result HOWL_API sw_corby_channel_ff(sw_corby_channel self, struct _sw_corby_buffer *buffer);
 
+sw_socket HOWL_API sw_corby_channel_socket(sw_corby_channel self);
 
-sw_result HOWL_API
-sw_corby_channel_start_reply(
-							sw_corby_channel				self,
-							struct _sw_corby_buffer	**	buffer,
-							sw_uint32						request_id,
-							sw_corby_reply_status		status);
+sw_result HOWL_API sw_corby_channel_retain(sw_corby_channel self);
 
+sw_result HOWL_API sw_corby_channel_set_delegate(sw_corby_channel self, sw_corby_channel_delegate delegate);
 
-sw_result HOWL_API
-sw_corby_channel_send(
-							sw_corby_channel					self,
-							struct _sw_corby_buffer		*	buffer,
-							sw_corby_buffer_observer		observer,
-							sw_corby_buffer_written_func	func,
-							sw_opaque_t							extra);
+sw_corby_channel_delegate HOWL_API sw_corby_channel_get_delegate(sw_corby_channel self);
 
+void HOWL_API sw_corby_channel_set_app_data(sw_corby_channel self, sw_opaque app_data);
 
-sw_result HOWL_API
-sw_corby_channel_recv(
-							sw_corby_channel					self,
-							sw_salt							*	salt,
-							struct _sw_corby_message	**	message,
-							sw_uint32						*	request_id,
-							sw_string						*	op,
-							sw_uint32						*	op_len,
-							struct _sw_corby_buffer		**	buffer,
-							sw_uint8						*	endian,
-							sw_bool							block);
+sw_opaque HOWL_API sw_corby_channel_get_app_data(sw_corby_channel self);
 
-
-sw_result HOWL_API
-sw_corby_channel_last_recv_from(
-							sw_corby_channel					self,
-							sw_ipv4_address				*	from,
-							sw_port						*	from_port);
-
-
-sw_result HOWL_API
-sw_corby_channel_ff(
-							sw_corby_channel					self,
-							struct _sw_corby_buffer		*	buffer);
-
-
-sw_socket HOWL_API
-sw_corby_channel_socket(
-							sw_corby_channel				self);
-
-
-sw_result HOWL_API
-sw_corby_channel_retain(
-							sw_corby_channel				self);
-
-
-sw_result HOWL_API
-sw_corby_channel_set_delegate(
-							sw_corby_channel				self,
-							sw_corby_channel_delegate	delegate);
-
-
-sw_corby_channel_delegate HOWL_API
-sw_corby_channel_get_delegate(
-							sw_corby_channel				self);
-
-
-void HOWL_API
-sw_corby_channel_set_app_data(
-							sw_corby_channel				self,
-							sw_opaque						app_data);
-
-
-sw_opaque HOWL_API
-sw_corby_channel_get_app_data(
-							sw_corby_channel				self);
-
-
-sw_result HOWL_API
-sw_corby_channel_fina(
-							sw_corby_channel				self);
-
+sw_result HOWL_API sw_corby_channel_fina(sw_corby_channel self);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

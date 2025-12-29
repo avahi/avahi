@@ -29,22 +29,22 @@ typedef struct AvahiAnnouncer AvahiAnnouncer;
 #include "publish.h"
 
 typedef enum {
-    AVAHI_PROBING,         /* probing phase */
-    AVAHI_WAITING,         /* wait for other records in group */
-    AVAHI_ANNOUNCING,      /* announcing phase */
-    AVAHI_ESTABLISHED      /* we'e established */
+    AVAHI_PROBING,    /* probing phase */
+    AVAHI_WAITING,    /* wait for other records in group */
+    AVAHI_ANNOUNCING, /* announcing phase */
+    AVAHI_ESTABLISHED /* we'e established */
 } AvahiAnnouncerState;
 
 struct AvahiAnnouncer {
-    AvahiServer *server;
+    AvahiServer    *server;
     AvahiInterface *interface;
-    AvahiEntry *entry;
+    AvahiEntry     *entry;
 
     AvahiTimeEvent *time_event;
 
     AvahiAnnouncerState state;
-    unsigned n_iteration;
-    unsigned sec_delay;
+    unsigned            n_iteration;
+    unsigned            sec_delay;
 
     AVAHI_LLIST_FIELDS(AvahiAnnouncer, by_interface);
     AVAHI_LLIST_FIELDS(AvahiAnnouncer, by_entry);

@@ -29,8 +29,6 @@
  *	either expressed or implied, of Porchdog Software.
  */
 
-
 #include <discovery/text_record.h>
-
 
 #endif

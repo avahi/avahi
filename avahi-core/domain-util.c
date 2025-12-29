@@ -41,10 +41,7 @@ static void strip_bad_chars(char *s) {
     s[strcspn(s, ".")] = 0;
 
     for (p = s, d = s; *p; p++)
-        if ((*p >= 'a' && *p <= 'z') ||
-            (*p >= 'A' && *p <= 'Z') ||
-            (*p >= '0' && *p <= '9') ||
-            *p == '-')
+        if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '-')
             *(d++) = *p;
 
     *d = 0;
@@ -52,7 +49,7 @@ static void strip_bad_chars(char *s) {
 
 #ifdef __linux__
 static int load_id(char *ret_s, size_t size, const char *filename, const char *field) {
-    FILE *f;
+    FILE  *f;
     size_t flen;
 
     assert(ret_s);
@@ -89,9 +86,7 @@ static int load_id(char *ret_s, size_t size, const char *filename, const char *f
     return -1;
 }
 
-static int load_lsb_distrib_id(char *ret_s, size_t size) {
-    return load_id(ret_s, size, "/etc/lsb-release", "DISTRIB_ID=");
-}
+static int load_lsb_distrib_id(char *ret_s, size_t size) { return load_id(ret_s, size, "/etc/lsb-release", "DISTRIB_ID="); }
 
 static int load_os_hostname(char *ret_s, size_t size) {
     int r;
@@ -108,14 +103,15 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
     assert(size > 0);
 
     if (gethostname(ret_s, size) >= 0) {
-        ret_s[size-1] = 0;
+        ret_s[size - 1] = 0;
         strip_bad_chars(ret_s);
     } else
         *ret_s = 0;
 
     if (strcmp(ret_s, "localhost") == 0 || strncmp(ret_s, "localhost.", 10) == 0) {
         *ret_s = 0;
-        avahi_log_warn("System host name is set to 'localhost'. This is not a suitable mDNS host name, looking for alternatives.");
+        avahi_log_warn(
+            "System host name is set to 'localhost'. This is not a suitable mDNS host name, looking for alternatives.");
     }
 
     if (*ret_s == 0) {
@@ -149,7 +145,7 @@ char *avahi_get_host_name(char *ret_s, size_t size) {
     }
 
     if (size >= AVAHI_LABEL_MAX)
-	ret_s[AVAHI_LABEL_MAX-1] = 0;
+        ret_s[AVAHI_LABEL_MAX - 1] = 0;
 
     return ret_s;
 }
@@ -172,7 +168,7 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
 
     for (;;) {
         char ca[AVAHI_LABEL_MAX], cb[AVAHI_LABEL_MAX], *p;
-        int r;
+        int  r;
 
         p = avahi_unescape_label(&a, ca, sizeof(ca));
         assert(p);
@@ -204,4 +200,3 @@ int avahi_domain_ends_with(const char *domain, const char *suffix) {
         assert(r);
     }
 }
-

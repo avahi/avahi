@@ -38,9 +38,9 @@ AVAHI_C_DECL_BEGIN
  * effectively a prepending to the linked list.  This object is used
  * primarily for storing DNS TXT record data. */
 typedef struct AvahiStringList {
-    struct AvahiStringList *next; /**< Pointer to the next linked list element */
-    size_t size;  /**< Size of text[] */
-    uint8_t text[1]; /**< Character data */
+    struct AvahiStringList *next;    /**< Pointer to the next linked list element */
+    size_t                  size;    /**< Size of text[] */
+    uint8_t                 text[1]; /**< Character data */
 } AvahiStringList;
 
 /** @{ \name Construction and destruction */
@@ -89,7 +89,7 @@ with data. The caller should fill in string data afterwards by writing
 it to l->text, where l is the pointer returned by this function. This
 function exists solely to optimize a few operations where otherwise
 superfluous string copying would be necessary. */
-AvahiStringList*avahi_string_list_add_anonymous(AvahiStringList *l, size_t size);
+AvahiStringList *avahi_string_list_add_anonymous(AvahiStringList *l, size_t size);
 
 /** Same as avahi_string_list_add(), but takes a variable number of
  * NUL terminated strings. The argument list must be terminated by a
@@ -109,12 +109,12 @@ AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va);
 /** Convert the string list object to a single character string,
  * separated by spaces and enclosed in "". avahi_free() the result! This
  * function doesn't work well with strings that contain NUL bytes. */
-char* avahi_string_list_to_string(AvahiStringList *l);
+char *avahi_string_list_to_string(AvahiStringList *l);
 
 /** \cond fulldocs */
 /** Serialize the string list object in a way that is compatible with
  * the storing of DNS TXT records. Strings longer than 255 bytes are truncated. */
-size_t avahi_string_list_serialize(AvahiStringList *l, void * data, size_t size);
+size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size);
 
 /** Inverse of avahi_string_list_serialize() */
 int avahi_string_list_parse(const void *data, size_t size, AvahiStringList **ret);
@@ -127,7 +127,7 @@ int avahi_string_list_equal(const AvahiStringList *a, const AvahiStringList *b);
 AvahiStringList *avahi_string_list_copy(const AvahiStringList *l);
 
 /** Reverse the string list. */
-AvahiStringList* avahi_string_list_reverse(AvahiStringList *l);
+AvahiStringList *avahi_string_list_reverse(AvahiStringList *l);
 
 /** Return the number of elements in the string list */
 unsigned avahi_string_list_length(const AvahiStringList *l);
@@ -177,4 +177,3 @@ uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l);
 AVAHI_C_DECL_END
 
 #endif
-

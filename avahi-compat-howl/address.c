@@ -52,7 +52,7 @@ sw_ipv4_address sw_ipv4_address_loopback(void) {
     return a;
 }
 
-sw_result sw_ipv4_address_init(sw_ipv4_address * self) {
+sw_result sw_ipv4_address_init(sw_ipv4_address *self) {
     assert(self);
 
     AVAHI_WARN_LINKAGE;
@@ -61,9 +61,7 @@ sw_result sw_ipv4_address_init(sw_ipv4_address * self) {
     return SW_OKAY;
 }
 
-sw_result sw_ipv4_address_init_from_saddr(
-    sw_ipv4_address *self,
-    sw_saddr addr) {
+sw_result sw_ipv4_address_init_from_saddr(sw_ipv4_address *self, sw_saddr addr) {
 
     assert(self);
 
@@ -73,9 +71,7 @@ sw_result sw_ipv4_address_init_from_saddr(
     return SW_OKAY;
 }
 
-sw_result sw_ipv4_address_init_from_name(
-    sw_ipv4_address *self,
-    sw_const_string name) {
+sw_result sw_ipv4_address_init_from_name(sw_ipv4_address *self, sw_const_string name) {
 
     struct hostent *he;
 
@@ -87,13 +83,11 @@ sw_result sw_ipv4_address_init_from_name(
     if (!(he = gethostbyname(name)))
         return SW_E_UNKNOWN;
 
-    self->m_addr = *(uint32_t*) he->h_addr;
+    self->m_addr = *(uint32_t *)he->h_addr;
     return SW_OKAY;
 }
 
-sw_result sw_ipv4_address_init_from_address(
-    sw_ipv4_address *self,
-    sw_ipv4_address addr) {
+sw_result sw_ipv4_address_init_from_address(sw_ipv4_address *self, sw_ipv4_address addr) {
 
     assert(self);
 
@@ -105,8 +99,8 @@ sw_result sw_ipv4_address_init_from_address(
 
 sw_result sw_ipv4_address_init_from_this_host(sw_ipv4_address *self) {
     struct sockaddr_in sa;
-    int fd;
-    socklen_t l = sizeof(sa);
+    int                fd;
+    socklen_t          l = sizeof(sa);
 
     assert(self);
 
@@ -119,9 +113,8 @@ sw_result sw_ipv4_address_init_from_this_host(sw_ipv4_address *self) {
     sa.sin_addr.s_addr = inet_addr("192.168.1.1"); /* Ouch */
     sa.sin_port = htons(5555);
 
-    if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0 ||
-        connect(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0 ||
-        getsockname(fd, (struct sockaddr*) &sa, &l) < 0) {
+    if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0 || connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0 ||
+        getsockname(fd, (struct sockaddr *)&sa, &l) < 0) {
         if (fd >= 0)
             close(fd);
 
@@ -156,10 +149,7 @@ sw_saddr sw_ipv4_address_saddr(sw_ipv4_address self) {
     return self.m_addr;
 }
 
-sw_string sw_ipv4_address_name(
-    sw_ipv4_address self,
-    sw_string name,
-    sw_uint32 len) {
+sw_string sw_ipv4_address_name(sw_ipv4_address self, sw_string name, sw_uint32 len) {
 
     assert(name);
     assert(len > 0);
@@ -175,12 +165,7 @@ sw_string sw_ipv4_address_name(
     return name;
 }
 
-sw_result sw_ipv4_address_decompose(
-    sw_ipv4_address self,
-    sw_uint8 * a1,
-    sw_uint8 * a2,
-    sw_uint8 * a3,
-    sw_uint8 * a4) {
+sw_result sw_ipv4_address_decompose(sw_ipv4_address self, sw_uint8 *a1, sw_uint8 *a2, sw_uint8 *a3, sw_uint8 *a4) {
 
     uint32_t a;
 
@@ -193,20 +178,17 @@ sw_result sw_ipv4_address_decompose(
     assert(a3);
     assert(a4);
 
-    *a1 = (uint8_t) (a >> 24);
-    *a2 = (uint8_t) (a >> 16);
-    *a3 = (uint8_t) (a >> 8);
-    *a4 = (uint8_t) (a);
+    *a1 = (uint8_t)(a >> 24);
+    *a2 = (uint8_t)(a >> 16);
+    *a3 = (uint8_t)(a >> 8);
+    *a4 = (uint8_t)(a);
 
     return SW_OKAY;
 }
 
-sw_bool sw_ipv4_address_equals(
-    sw_ipv4_address self,
-    sw_ipv4_address addr) {
+sw_bool sw_ipv4_address_equals(sw_ipv4_address self, sw_ipv4_address addr) {
 
     AVAHI_WARN_LINKAGE;
 
     return self.m_addr == addr.m_addr;
 }
-

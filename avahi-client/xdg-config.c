@@ -34,9 +34,9 @@
 #endif
 
 FILE *avahi_xdg_config_open(const char *filename) {
-    FILE *f;
+    FILE       *f;
     const char *e, *d;
-    char fn[PATH_MAX], *p = NULL, buf[2048], *s = NULL;
+    char        fn[PATH_MAX], *p = NULL, buf[2048], *s = NULL;
 
     assert(filename);
 

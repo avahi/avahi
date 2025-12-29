@@ -41,10 +41,10 @@
 #define N_(String) (String)
 #define textdomain(String) (String)
 #define gettext(String) (String)
-#define dgettext(Domain,String) (String)
-#define dcgettext(Domain,String,Type) (String)
-#define bindtextdomain(Domain,Directory) (Domain)
-#define bind_textdomain_codeset(Domain,Codeset) (Codeset)
+#define dgettext(Domain, String) (String)
+#define dcgettext(Domain, String, Type) (String)
+#define bindtextdomain(Domain, Directory) (Domain)
+#define bind_textdomain_codeset(Domain, Codeset) (Codeset)
 
 #endif /* ENABLE_NLS */
 

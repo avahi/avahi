@@ -29,100 +29,46 @@
  *	either expressed or implied, of Porchdog Software.
  */
 
-
 #include <salt/salt.h>
 
-
 #if defined(__cplusplus)
-extern "C"
-{
+extern "C" {
 #endif
 
-
-typedef struct _sw_ipv4_address
-{
-	sw_uint32	m_addr;
+typedef struct _sw_ipv4_address {
+    sw_uint32 m_addr;
 } sw_ipv4_address;
 
 typedef sw_uint32 sw_saddr;
 
+sw_ipv4_address HOWL_API sw_ipv4_address_any(void);
 
-sw_ipv4_address HOWL_API
-sw_ipv4_address_any(void);
+sw_ipv4_address HOWL_API sw_ipv4_address_loopback(void);
 
+sw_result HOWL_API sw_ipv4_address_init(sw_ipv4_address *self);
 
-sw_ipv4_address HOWL_API
-sw_ipv4_address_loopback(void);
+sw_result HOWL_API sw_ipv4_address_init_from_saddr(sw_ipv4_address *self, sw_saddr saddr);
 
+sw_result HOWL_API sw_ipv4_address_init_from_name(sw_ipv4_address *self, sw_const_string name);
 
-sw_result HOWL_API
-sw_ipv4_address_init(
-				sw_ipv4_address	*	self);
+sw_result HOWL_API sw_ipv4_address_init_from_address(sw_ipv4_address *self, sw_ipv4_address addr);
 
+sw_result HOWL_API sw_ipv4_address_init_from_this_host(sw_ipv4_address *self);
 
-sw_result HOWL_API
-sw_ipv4_address_init_from_saddr(
-				sw_ipv4_address	*	self,
-				sw_saddr			saddr);
+sw_result HOWL_API sw_ipv4_address_fina(sw_ipv4_address self);
 
+sw_bool HOWL_API sw_ipv4_address_is_any(sw_ipv4_address self);
 
-sw_result HOWL_API
-sw_ipv4_address_init_from_name(
-				sw_ipv4_address		*	self,
-				sw_const_string	name);
+sw_saddr HOWL_API sw_ipv4_address_saddr(sw_ipv4_address self);
 
+sw_string HOWL_API sw_ipv4_address_name(sw_ipv4_address self, sw_string name, sw_uint32 len);
 
-sw_result HOWL_API
-sw_ipv4_address_init_from_address(
-				sw_ipv4_address		*	self,
-				sw_ipv4_address			addr);
+sw_result HOWL_API sw_ipv4_address_decompose(sw_ipv4_address self, sw_uint8 *a1, sw_uint8 *a2, sw_uint8 *a3, sw_uint8 *a4);
 
-
-sw_result HOWL_API
-sw_ipv4_address_init_from_this_host(
-				sw_ipv4_address		*	self);
-
-
-sw_result HOWL_API
-sw_ipv4_address_fina(
-				sw_ipv4_address	self);
-
-
-sw_bool HOWL_API
-sw_ipv4_address_is_any(
-				sw_ipv4_address	self);
-
-
-sw_saddr HOWL_API
-sw_ipv4_address_saddr(
-				sw_ipv4_address	self);
-
-
-sw_string HOWL_API
-sw_ipv4_address_name(
-				sw_ipv4_address	self,
-				sw_string			name,
-				sw_uint32				len);
-
-
-sw_result HOWL_API
-sw_ipv4_address_decompose(
-				sw_ipv4_address	self,
-				sw_uint8			*	a1,
-				sw_uint8			*	a2,
-				sw_uint8			*	a3,
-				sw_uint8			*	a4);
-
-
-sw_bool HOWL_API
-sw_ipv4_address_equals(
-				sw_ipv4_address	self,
-				sw_ipv4_address	addr);
-
+sw_bool HOWL_API sw_ipv4_address_equals(sw_ipv4_address self, sw_ipv4_address addr);
 
 #if defined(__cplusplus)
 }
 #endif
-
 
 #endif

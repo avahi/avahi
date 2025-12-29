@@ -32,17 +32,17 @@
 #define AVAHI_QUERY_HISTORY_MSEC 100
 #define AVAHI_QUERY_DEFER_MSEC 100
 
-typedef struct AvahiQueryJob AvahiQueryJob;
+typedef struct AvahiQueryJob    AvahiQueryJob;
 typedef struct AvahiKnownAnswer AvahiKnownAnswer;
 
 struct AvahiQueryJob {
     unsigned id;
-    int n_posted;
+    int      n_posted;
 
     AvahiQueryScheduler *scheduler;
-    AvahiTimeEvent *time_event;
+    AvahiTimeEvent      *time_event;
 
-    int done;
+    int            done;
     struct timeval delivery;
 
     AvahiKey *key;
@@ -60,13 +60,13 @@ struct AvahiQueryJob {
 
 struct AvahiKnownAnswer {
     AvahiQueryScheduler *scheduler;
-    AvahiRecord *record;
+    AvahiRecord         *record;
 
     AVAHI_LLIST_FIELDS(AvahiKnownAnswer, known_answer);
 };
 
 struct AvahiQueryScheduler {
-    AvahiInterface *interface;
+    AvahiInterface      *interface;
     AvahiTimeEventQueue *time_event_queue;
 
     unsigned next_id;
@@ -76,14 +76,14 @@ struct AvahiQueryScheduler {
     AVAHI_LLIST_HEAD(AvahiKnownAnswer, known_answers);
 };
 
-static AvahiQueryJob* job_new(AvahiQueryScheduler *s, AvahiKey *key, int done) {
+static AvahiQueryJob *job_new(AvahiQueryScheduler *s, AvahiKey *key, int done) {
     AvahiQueryJob *qj;
 
     assert(s);
     assert(key);
 
     if (!(qj = avahi_new(AvahiQueryJob, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         return NULL;
     }
 
@@ -117,7 +117,7 @@ static void job_free(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
     avahi_free(qj);
 }
 
-static void elapse_callback(AvahiTimeEvent *e, void* data);
+static void elapse_callback(AvahiTimeEvent *e, void *data);
 
 static void job_set_elapse_time(AvahiQueryScheduler *s, AvahiQueryJob *qj, unsigned msec, unsigned jitter) {
     struct timeval tv;
@@ -153,7 +153,7 @@ AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i) {
     assert(i);
 
     if (!(s = avahi_new(AvahiQueryScheduler, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         return NULL; /* OOM */
     }
 
@@ -185,9 +185,9 @@ void avahi_query_scheduler_clear(AvahiQueryScheduler *s) {
         job_free(s, s->history);
 }
 
-static void* known_answer_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void* userdata) {
+static void *known_answer_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
     AvahiQueryScheduler *s = userdata;
-    AvahiKnownAnswer *ka;
+    AvahiKnownAnswer    *ka;
 
     assert(c);
     assert(pattern);
@@ -198,7 +198,7 @@ static void* known_answer_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiC
         return NULL;
 
     if (!(ka = avahi_new0(AvahiKnownAnswer, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         return NULL;
     }
 
@@ -227,7 +227,7 @@ static int packet_add_query_job(AvahiQueryScheduler *s, AvahiDnsPacket *p, Avahi
 
 static void append_known_answers_and_send(AvahiQueryScheduler *s, AvahiDnsPacket *p) {
     AvahiKnownAnswer *ka;
-    unsigned n;
+    unsigned          n;
     assert(s);
     assert(p);
 
@@ -248,7 +248,8 @@ static void append_known_answers_and_send(AvahiQueryScheduler *s, AvahiDnsPacket
                 break;
             }
 
-            avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_FLAGS, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) | AVAHI_DNS_FLAG_TC);
+            avahi_dns_packet_set_field(
+                p, AVAHI_DNS_FIELD_FLAGS, avahi_dns_packet_get_field(p, AVAHI_DNS_FIELD_FLAGS) | AVAHI_DNS_FLAG_TC);
             avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_ANCOUNT, n);
             avahi_interface_send_packet(s->interface, p);
             avahi_dns_packet_free(p);
@@ -270,12 +271,12 @@ static void append_known_answers_and_send(AvahiQueryScheduler *s, AvahiDnsPacket
     avahi_dns_packet_free(p);
 }
 
-static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
-    AvahiQueryJob *qj = data;
+static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *data) {
+    AvahiQueryJob       *qj = data;
     AvahiQueryScheduler *s;
-    AvahiDnsPacket *p;
-    unsigned n;
-    int b;
+    AvahiDnsPacket      *p;
+    unsigned             n;
+    int                  b;
 
     assert(qj);
     s = qj->scheduler;
@@ -310,7 +311,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     append_known_answers_and_send(s, p);
 }
 
-static AvahiQueryJob* find_scheduled_job(AvahiQueryScheduler *s, AvahiKey *key) {
+static AvahiQueryJob *find_scheduled_job(AvahiQueryScheduler *s, AvahiKey *key) {
     AvahiQueryJob *qj;
 
     assert(s);
@@ -326,7 +327,7 @@ static AvahiQueryJob* find_scheduled_job(AvahiQueryScheduler *s, AvahiKey *key) 
     return NULL;
 }
 
-static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
+static AvahiQueryJob *find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
     AvahiQueryJob *qj;
 
     assert(s);
@@ -338,7 +339,7 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
         if (avahi_key_equal(qj->key, key)) {
             /* Check whether this entry is outdated */
 
-            if (avahi_age(&qj->delivery) > AVAHI_QUERY_HISTORY_MSEC*1000) {
+            if (avahi_age(&qj->delivery) > AVAHI_QUERY_HISTORY_MSEC * 1000) {
                 /* it is outdated, so let's remove it */
                 job_free(s, qj);
                 return NULL;

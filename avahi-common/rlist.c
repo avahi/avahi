@@ -26,7 +26,7 @@
 #include "rlist.h"
 #include "malloc.h"
 
-AvahiRList* avahi_rlist_prepend(AvahiRList *r, void *data) {
+AvahiRList *avahi_rlist_prepend(AvahiRList *r, void *data) {
     AvahiRList *n;
 
     if (!(n = avahi_new(AvahiRList, 1)))
@@ -38,7 +38,7 @@ AvahiRList* avahi_rlist_prepend(AvahiRList *r, void *data) {
     return r;
 }
 
-AvahiRList* avahi_rlist_remove(AvahiRList *r, void *data) {
+AvahiRList *avahi_rlist_remove(AvahiRList *r, void *data) {
     AvahiRList *n;
 
     for (n = r; n; n = n->rlist_next)
@@ -52,7 +52,7 @@ AvahiRList* avahi_rlist_remove(AvahiRList *r, void *data) {
     return r;
 }
 
-AvahiRList* avahi_rlist_remove_by_link(AvahiRList *r, AvahiRList *n) {
+AvahiRList *avahi_rlist_remove_by_link(AvahiRList *r, AvahiRList *n) {
     assert(n);
 
     AVAHI_LLIST_REMOVE(AvahiRList, rlist, r, n);

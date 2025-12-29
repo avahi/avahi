@@ -26,33 +26,22 @@
 #include "dns_sd.h"
 #include "warn.h"
 
-DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord (
-    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
-    AVAHI_GCC_UNUSED DNSRecordRef *RecordRef,
-    AVAHI_GCC_UNUSED DNSServiceFlags flags,
-    AVAHI_GCC_UNUSED uint32_t interfaceIndex,
-    AVAHI_GCC_UNUSED const char *fullname,
-    AVAHI_GCC_UNUSED uint16_t rrtype,
-    AVAHI_GCC_UNUSED uint16_t rrclass,
-    AVAHI_GCC_UNUSED uint16_t rdlen,
-    AVAHI_GCC_UNUSED const void *rdata,
-    AVAHI_GCC_UNUSED uint32_t ttl,
-    AVAHI_GCC_UNUSED DNSServiceRegisterRecordReply callBack,
-    AVAHI_GCC_UNUSED void *context) {
+DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord(
+    AVAHI_GCC_UNUSED DNSServiceRef sdRef, AVAHI_GCC_UNUSED DNSRecordRef *RecordRef, AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    AVAHI_GCC_UNUSED uint32_t interfaceIndex, AVAHI_GCC_UNUSED const char *fullname, AVAHI_GCC_UNUSED uint16_t rrtype,
+    AVAHI_GCC_UNUSED uint16_t rrclass, AVAHI_GCC_UNUSED uint16_t rdlen, AVAHI_GCC_UNUSED const void *rdata,
+    AVAHI_GCC_UNUSED uint32_t ttl, AVAHI_GCC_UNUSED DNSServiceRegisterRecordReply callBack, AVAHI_GCC_UNUSED void *context) {
 
     AVAHI_WARN_UNSUPPORTED;
 
     return kDNSServiceErr_Unsupported;
 }
 
-DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord (
-    AVAHI_GCC_UNUSED DNSServiceFlags flags,
-    AVAHI_GCC_UNUSED uint32_t interfaceIndex,
-    AVAHI_GCC_UNUSED const char *fullname,
-    AVAHI_GCC_UNUSED uint16_t rrtype,
-    AVAHI_GCC_UNUSED uint16_t rrclass,
-    AVAHI_GCC_UNUSED uint16_t rdlen,
-    AVAHI_GCC_UNUSED const void *rdata) {
+DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord(AVAHI_GCC_UNUSED DNSServiceFlags flags,
+                                                        AVAHI_GCC_UNUSED uint32_t        interfaceIndex,
+                                                        AVAHI_GCC_UNUSED const char *fullname, AVAHI_GCC_UNUSED uint16_t rrtype,
+                                                        AVAHI_GCC_UNUSED uint16_t rrclass, AVAHI_GCC_UNUSED uint16_t rdlen,
+                                                        AVAHI_GCC_UNUSED const void *rdata) {
 
     AVAHI_WARN_UNSUPPORTED;
 
@@ -65,24 +54,20 @@ DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(AVAHI_GCC_UNUSED DNSSer
     return kDNSServiceErr_Unsupported;
 }
 
-DNSServiceErrorType DNSSD_API DNSServiceAddRecord(
-    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
-    AVAHI_GCC_UNUSED DNSRecordRef *RecordRef,
-    AVAHI_GCC_UNUSED DNSServiceFlags flags,
-    AVAHI_GCC_UNUSED uint16_t rrtype,
-    AVAHI_GCC_UNUSED uint16_t rdlen,
-    AVAHI_GCC_UNUSED const void *rdata,
-    AVAHI_GCC_UNUSED uint32_t ttl) {
+DNSServiceErrorType DNSSD_API DNSServiceAddRecord(AVAHI_GCC_UNUSED DNSServiceRef   sdRef,
+                                                  AVAHI_GCC_UNUSED DNSRecordRef   *RecordRef,
+                                                  AVAHI_GCC_UNUSED DNSServiceFlags flags, AVAHI_GCC_UNUSED uint16_t rrtype,
+                                                  AVAHI_GCC_UNUSED uint16_t rdlen, AVAHI_GCC_UNUSED const void *rdata,
+                                                  AVAHI_GCC_UNUSED uint32_t ttl) {
 
     AVAHI_WARN_UNSUPPORTED;
 
     return kDNSServiceErr_Unsupported;
 }
 
-DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord(
-    AVAHI_GCC_UNUSED DNSServiceRef sdRef,
-    AVAHI_GCC_UNUSED DNSRecordRef RecordRef,
-    AVAHI_GCC_UNUSED DNSServiceFlags flags) {
+DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord(AVAHI_GCC_UNUSED DNSServiceRef   sdRef,
+                                                     AVAHI_GCC_UNUSED DNSRecordRef    RecordRef,
+                                                     AVAHI_GCC_UNUSED DNSServiceFlags flags) {
 
     AVAHI_WARN_UNSUPPORTED;
 

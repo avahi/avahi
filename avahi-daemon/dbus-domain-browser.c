@@ -61,12 +61,12 @@ void avahi_dbus_domain_browser_free(DomainBrowserInfo *i) {
 void avahi_dbus_domain_browser_start(DomainBrowserInfo *i) {
     assert(i);
 
-    if(i->domain_browser)
+    if (i->domain_browser)
         avahi_s_domain_browser_start(i->domain_browser);
 }
 
 DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
+    DBusError          error;
     DomainBrowserInfo *i = userdata;
 
     assert(c);
@@ -75,7 +75,7 @@ DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMess
 
     dbus_error_init(&error);
 
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__ ": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -97,9 +97,7 @@ DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMess
 
         avahi_dbus_domain_browser_free(i);
         return avahi_dbus_respond_ok(c, m);
-
     }
-
 
     if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, "Start")) {
 
@@ -110,9 +108,7 @@ DBusHandlerResult avahi_dbus_msg_domain_browser_impl(DBusConnection *c, DBusMess
 
         avahi_dbus_domain_browser_start(i);
         return avahi_dbus_respond_ok(c, m);
-
     }
-
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 
@@ -123,18 +119,20 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,  void* userdata) {
+void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                        AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,
+                                        void *userdata) {
     DomainBrowserInfo *i = userdata;
-    DBusMessage *m;
-    int32_t i_interface, i_protocol;
-    uint32_t u_flags;
+    DBusMessage       *m;
+    int32_t            i_interface, i_protocol;
+    uint32_t           u_flags;
 
     assert(b);
     assert(i);
 
-    i_interface = (int32_t) interface;
-    i_protocol = (int32_t) protocol;
-    u_flags = (uint32_t) flags;
+    i_interface = (int32_t)interface;
+    i_protocol = (int32_t)protocol;
+    u_flags = (uint32_t)flags;
 
     m = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER, avahi_dbus_map_browse_signal_name(event));
 
@@ -145,13 +143,16 @@ void avahi_dbus_domain_browser_callback(AvahiSDomainBrowser *b, AvahiIfIndex int
 
     if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
         assert(domain);
-        dbus_message_append_args(
-            m,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
+        dbus_message_append_args(m,
+                                 DBUS_TYPE_INT32,
+                                 &i_interface,
+                                 DBUS_TYPE_INT32,
+                                 &i_protocol,
+                                 DBUS_TYPE_STRING,
+                                 &domain,
+                                 DBUS_TYPE_UINT32,
+                                 &u_flags,
+                                 DBUS_TYPE_INVALID);
     } else if (event == AVAHI_BROWSER_FAILURE)
         avahi_dbus_append_server_error(m);
 

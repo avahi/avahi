@@ -38,10 +38,10 @@ typedef struct AvahiProbeJob AvahiProbeJob;
 
 struct AvahiProbeJob {
     AvahiProbeScheduler *scheduler;
-    AvahiTimeEvent *time_event;
+    AvahiTimeEvent      *time_event;
 
-    int chosen; /* Use for packet assembling */
-    int done;
+    int            chosen; /* Use for packet assembling */
+    int            done;
     struct timeval delivery;
 
     AvahiRecord *record;
@@ -50,21 +50,21 @@ struct AvahiProbeJob {
 };
 
 struct AvahiProbeScheduler {
-    AvahiInterface *interface;
+    AvahiInterface      *interface;
     AvahiTimeEventQueue *time_event_queue;
 
     AVAHI_LLIST_HEAD(AvahiProbeJob, jobs);
     AVAHI_LLIST_HEAD(AvahiProbeJob, history);
 };
 
-static AvahiProbeJob* job_new(AvahiProbeScheduler *s, AvahiRecord *record, int done) {
+static AvahiProbeJob *job_new(AvahiProbeScheduler *s, AvahiRecord *record, int done) {
     AvahiProbeJob *pj;
 
     assert(s);
     assert(record);
 
     if (!(pj = avahi_new(AvahiProbeJob, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         return NULL; /* OOM */
     }
 
@@ -96,7 +96,7 @@ static void job_free(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
     avahi_free(pj);
 }
 
-static void elapse_callback(AvahiTimeEvent *e, void* data);
+static void elapse_callback(AvahiTimeEvent *e, void *data);
 
 static void job_set_elapse_time(AvahiProbeScheduler *s, AvahiProbeJob *pj, unsigned msec, unsigned jitter) {
     struct timeval tv;
@@ -133,7 +133,7 @@ AvahiProbeScheduler *avahi_probe_scheduler_new(AvahiInterface *i) {
     assert(i);
 
     if (!(s = avahi_new(AvahiProbeScheduler, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         return NULL;
     }
 
@@ -163,9 +163,9 @@ void avahi_probe_scheduler_clear(AvahiProbeScheduler *s) {
 }
 
 static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, AvahiProbeJob *pj) {
-    size_t size;
+    size_t    size;
     AvahiKey *k;
-    int b;
+    int       b;
 
     assert(s);
     assert(p);
@@ -174,9 +174,7 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
     assert(!pj->chosen);
 
     /* Estimate the size for this record */
-    size =
-        avahi_key_get_estimate_size(pj->record->key) +
-        avahi_record_get_estimate_size(pj->record);
+    size = avahi_key_get_estimate_size(pj->record->key) + avahi_record_get_estimate_size(pj->record);
 
     /* Too large */
     if (size > avahi_dns_packet_reserved_space(p))
@@ -208,8 +206,8 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
         if (avahi_record_get_estimate_size(pj->record) > avahi_dns_packet_reserved_space(p))
             break;
 
-   /* reserve size for record data */
-   avahi_dns_packet_reserve_size(p, avahi_record_get_estimate_size(pj->record));
+        /* reserve size for record data */
+        avahi_dns_packet_reserve_size(p, avahi_record_get_estimate_size(pj->record));
 
         /* Mark this job for addition to the packet */
         pj->chosen = 1;
@@ -220,11 +218,11 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
     return 1;
 }
 
-static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
-    AvahiProbeJob *pj = data, *next;
+static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *data) {
+    AvahiProbeJob       *pj = data, *next;
     AvahiProbeScheduler *s;
-    AvahiDnsPacket *p;
-    unsigned n;
+    AvahiDnsPacket      *p;
+    unsigned             n;
 
     assert(pj);
     s = pj->scheduler;
@@ -241,25 +239,23 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
 
     /* Add the import probe */
     if (!packet_add_probe_query(s, p, pj)) {
-        size_t size;
+        size_t    size;
         AvahiKey *k;
-        int b;
+        int       b;
 
         avahi_dns_packet_free(p);
 
         /* The probe didn't fit in the package, so let's allocate a larger one */
 
-        size =
-            avahi_key_get_estimate_size(pj->record->key) +
-            avahi_record_get_estimate_size(pj->record) +
-            AVAHI_DNS_PACKET_HEADER_SIZE;
+        size = avahi_key_get_estimate_size(pj->record->key) + avahi_record_get_estimate_size(pj->record) +
+               AVAHI_DNS_PACKET_HEADER_SIZE;
 
         if (!(p = avahi_dns_packet_new_query(size + AVAHI_DNS_PACKET_EXTRA_SIZE)))
             return; /* OOM */
 
         if (!(k = avahi_key_new(pj->record->key->name, pj->record->key->clazz, AVAHI_DNS_TYPE_ANY))) {
             avahi_dns_packet_free(p);
-            return;  /* OOM */
+            return; /* OOM */
         }
 
         b = avahi_dns_packet_append_key(p, k, 0) && avahi_dns_packet_append_record(p, pj->record, 0, 0);
@@ -303,7 +299,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
             continue;
 
         if (!avahi_dns_packet_append_record(p, pj->record, 0, 0)) {
-/*             avahi_log_warn("Bad probe size estimate!"); */
+            /*             avahi_log_warn("Bad probe size estimate!"); */
 
             /* Unmark all following jobs */
             for (; pj; pj = pj->jobs_next)
@@ -314,7 +310,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
 
         job_mark_done(s, pj);
 
-        n ++;
+        n++;
     }
 
     avahi_dns_packet_set_field(p, AVAHI_DNS_FIELD_NSCOUNT, n);
@@ -324,7 +320,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
     avahi_dns_packet_free(p);
 }
 
-static AvahiProbeJob* find_scheduled_job(AvahiProbeScheduler *s, AvahiRecord *record) {
+static AvahiProbeJob *find_scheduled_job(AvahiProbeScheduler *s, AvahiRecord *record) {
     AvahiProbeJob *pj;
 
     assert(s);
@@ -340,7 +336,7 @@ static AvahiProbeJob* find_scheduled_job(AvahiProbeScheduler *s, AvahiRecord *re
     return NULL;
 }
 
-static AvahiProbeJob* find_history_job(AvahiProbeScheduler *s, AvahiRecord *record) {
+static AvahiProbeJob *find_history_job(AvahiProbeScheduler *s, AvahiRecord *record) {
     AvahiProbeJob *pj;
 
     assert(s);
@@ -352,7 +348,7 @@ static AvahiProbeJob* find_history_job(AvahiProbeScheduler *s, AvahiRecord *reco
         if (avahi_record_equal_no_ttl(pj->record, record)) {
             /* Check whether this entry is outdated */
 
-            if (avahi_age(&pj->delivery) > AVAHI_PROBE_HISTORY_MSEC*1000) {
+            if (avahi_age(&pj->delivery) > AVAHI_PROBE_HISTORY_MSEC * 1000) {
                 /* it is outdated, so let's remove it */
                 job_free(s, pj);
                 return NULL;
@@ -395,8 +391,7 @@ int avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record, int 
         pj->delivery = tv;
         pj->time_event = avahi_time_event_new(s->time_event_queue, &pj->delivery, elapse_callback, pj);
 
-
-/*     avahi_log_debug("Accepted new probe job."); */
+        /*     avahi_log_debug("Accepted new probe job."); */
 
         return 1;
     }

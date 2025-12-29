@@ -34,13 +34,13 @@
 #include "glib-watch.h"
 
 static const AvahiPoll *api = NULL;
-static GMainLoop *loop = NULL;
+static GMainLoop       *loop = NULL;
 
 static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
 
     if (event & AVAHI_WATCH_IN) {
         ssize_t r;
-        char c;
+        char    c;
 
         if ((r = read(fd, &c, 1)) <= 0) {
             fprintf(stderr, "read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
@@ -54,7 +54,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNU
 
 static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
     struct timeval tv;
-    static int i = 0;
+    static int     i = 0;
 
     printf("Wakeup #%i\n", i++);
 

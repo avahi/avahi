@@ -30,8 +30,8 @@ void log_function(AvahiLogLevel level, const char *txt) {}
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     AvahiDnsPacket *p = NULL;
-    AvahiKey *k1 = NULL, *k2 = NULL;
-    int ret;
+    AvahiKey       *k1 = NULL, *k2 = NULL;
+    int             ret;
 
     avahi_set_log_function(log_function);
 

@@ -38,38 +38,45 @@
 #define SERVICE_TYPE "_http._tcp"
 
 static AvahiSServiceBrowser *service_browser1 = NULL, *service_browser2 = NULL;
-static const AvahiPoll * poll_api = NULL;
-static AvahiServer *server = NULL;
-static AvahiSimplePoll *simple_poll;
+static const AvahiPoll      *poll_api = NULL;
+static AvahiServer          *server = NULL;
+static AvahiSimplePoll      *simple_poll;
 
 static const char *browser_event_to_string(AvahiBrowserEvent event) {
     switch (event) {
-        case AVAHI_BROWSER_NEW : return "NEW";
-        case AVAHI_BROWSER_REMOVE : return "REMOVE";
-        case AVAHI_BROWSER_CACHE_EXHAUSTED : return "CACHE_EXHAUSTED";
-        case AVAHI_BROWSER_ALL_FOR_NOW : return "ALL_FOR_NOW";
-        case AVAHI_BROWSER_FAILURE : return "FAILURE";
+    case AVAHI_BROWSER_NEW:
+        return "NEW";
+    case AVAHI_BROWSER_REMOVE:
+        return "REMOVE";
+    case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        return "CACHE_EXHAUSTED";
+    case AVAHI_BROWSER_ALL_FOR_NOW:
+        return "ALL_FOR_NOW";
+    case AVAHI_BROWSER_FAILURE:
+        return "FAILURE";
     }
 
     abort();
 }
 
-static void sb_callback(
-    AvahiSServiceBrowser *b,
-    AvahiIfIndex iface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *name,
-    const char *service_type,
-    const char *domain,
-    AvahiLookupResultFlags flags,
-    AVAHI_GCC_UNUSED void* userdata) {
-    avahi_log_debug("SB%i: (%i.%s) <%s> as <%s> in <%s> [%s] cached=%i", b == service_browser1 ? 1 : 2, iface, avahi_proto_to_string(protocol), name, service_type, domain, browser_event_to_string(event), !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
+static void sb_callback(AvahiSServiceBrowser *b, AvahiIfIndex iface, AvahiProtocol protocol, AvahiBrowserEvent event,
+                        const char *name, const char *service_type, const char *domain, AvahiLookupResultFlags flags,
+                        AVAHI_GCC_UNUSED void *userdata) {
+    avahi_log_debug("SB%i: (%i.%s) <%s> as <%s> in <%s> [%s] cached=%i",
+                    b == service_browser1 ? 1 : 2,
+                    iface,
+                    avahi_proto_to_string(protocol),
+                    name,
+                    service_type,
+                    domain,
+                    browser_event_to_string(event),
+                    !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
 }
 
-static void create_second_service_browser(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* userdata) {
+static void create_second_service_browser(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
 
-    service_browser2 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
+    service_browser2 =
+        avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
     assert(service_browser2);
 
     poll_api->timeout_free(timeout);
@@ -80,7 +87,7 @@ static void quit(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    struct timeval tv;
+    struct timeval    tv;
     AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();
@@ -103,13 +110,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(server);
     avahi_server_config_free(&config);
 
-    service_browser1 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
+    service_browser1 =
+        avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
     assert(service_browser1);
 
     poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 10000, 0), create_second_service_browser, NULL);
 
     poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 60000, 0), quit, NULL);
-
 
     for (;;)
         if (avahi_simple_poll_iterate(simple_poll, -1) != 0)

@@ -32,112 +32,60 @@
 #include <salt/salt.h>
 
 #if defined(__cplusplus)
-extern "C"
-{
+extern "C" {
 #endif
 
 #define SW_TEXT_RECORD_MAX_LEN 255
 
-
-struct															_sw_text_record;
-typedef struct _sw_text_record						*	sw_text_record;
-struct															_sw_text_record_iterator;
-typedef struct _sw_text_record_iterator			*	sw_text_record_iterator;
-struct															_sw_text_record_string_iterator;
-typedef struct _sw_text_record_string_iterator	*	sw_text_record_string_iterator;
-
+struct _sw_text_record;
+typedef struct _sw_text_record *sw_text_record;
+struct _sw_text_record_iterator;
+typedef struct _sw_text_record_iterator *sw_text_record_iterator;
+struct _sw_text_record_string_iterator;
+typedef struct _sw_text_record_string_iterator *sw_text_record_string_iterator;
 
 /*
  * Text record APIs
  */
-sw_result HOWL_API
-sw_text_record_init(
-				sw_text_record	*	self);
+sw_result HOWL_API sw_text_record_init(sw_text_record *self);
 
+sw_result HOWL_API sw_text_record_fina(sw_text_record self);
 
-sw_result HOWL_API
-sw_text_record_fina(
-				sw_text_record		self);
+sw_result HOWL_API sw_text_record_add_string(sw_text_record self, sw_const_string string);
 
+sw_result HOWL_API sw_text_record_add_key_and_string_value(sw_text_record self, sw_const_string key, sw_const_string val);
 
-sw_result HOWL_API
-sw_text_record_add_string(
-				sw_text_record		self,
-				sw_const_string	string);
+sw_result HOWL_API sw_text_record_add_key_and_binary_value(sw_text_record self, sw_const_string key, sw_octets val,
+                                                           sw_uint32 len);
 
+sw_octets HOWL_API sw_text_record_bytes(sw_text_record self);
 
-sw_result HOWL_API
-sw_text_record_add_key_and_string_value(
-				sw_text_record		self,
-				sw_const_string	key,
-				sw_const_string	val);
-
-
-sw_result HOWL_API
-sw_text_record_add_key_and_binary_value(
-				sw_text_record		self,
-				sw_const_string	key,
-				sw_octets			val,
-				sw_uint32				len);
-
-
-sw_octets HOWL_API
-sw_text_record_bytes(
-				sw_text_record		self);
-
-
-sw_uint32 HOWL_API
-sw_text_record_len(
-				sw_text_record		self);
-
+sw_uint32 HOWL_API sw_text_record_len(sw_text_record self);
 
 /*
  * APIs for iterating through raw text records
  */
-sw_result HOWL_API
-sw_text_record_iterator_init(
-				sw_text_record_iterator	*	self,
-				sw_octets						text_record,
-				sw_uint32						text_record_len);
+sw_result HOWL_API sw_text_record_iterator_init(sw_text_record_iterator *self, sw_octets text_record,
+                                                sw_uint32 text_record_len);
 
+sw_result HOWL_API sw_text_record_iterator_fina(sw_text_record_iterator self);
 
-sw_result HOWL_API
-sw_text_record_iterator_fina(
-				sw_text_record_iterator		self);
-
-
-sw_result HOWL_API
-sw_text_record_iterator_next(
-				sw_text_record_iterator		self,
-				char								key[SW_TEXT_RECORD_MAX_LEN],
-				sw_uint8							val[SW_TEXT_RECORD_MAX_LEN],
-				sw_uint32					*	val_len);
-
+sw_result HOWL_API sw_text_record_iterator_next(sw_text_record_iterator self, char key[SW_TEXT_RECORD_MAX_LEN],
+                                                sw_uint8 val[SW_TEXT_RECORD_MAX_LEN], sw_uint32 *val_len);
 
 /*
  * APIs for iterating through stringified text records
  */
-sw_result HOWL_API
-sw_text_record_string_iterator_init(
-				sw_text_record_string_iterator	*	self,
-				sw_const_string							text_record_string);
+sw_result HOWL_API sw_text_record_string_iterator_init(sw_text_record_string_iterator *self,
+                                                       sw_const_string                 text_record_string);
 
+sw_result HOWL_API sw_text_record_string_iterator_fina(sw_text_record_string_iterator self);
 
-sw_result HOWL_API
-sw_text_record_string_iterator_fina(
-				sw_text_record_string_iterator	self);
-
-
-sw_result HOWL_API
-sw_text_record_string_iterator_next(
-				sw_text_record_string_iterator	self,
-				char										key[SW_TEXT_RECORD_MAX_LEN],
-				char										val[SW_TEXT_RECORD_MAX_LEN]);
-
+sw_result HOWL_API sw_text_record_string_iterator_next(sw_text_record_string_iterator self, char key[SW_TEXT_RECORD_MAX_LEN],
+                                                       char val[SW_TEXT_RECORD_MAX_LEN]);
 
 #if defined(__cplusplus)
 }
 #endif
-
 
 #endif

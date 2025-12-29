@@ -31,70 +31,36 @@
 
 #include <salt/platform.h>
 
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
+struct _sw_timer;
+typedef struct _sw_timer *sw_timer;
 
-struct								_sw_timer;
-typedef struct _sw_timer	*	sw_timer;
+sw_result HOWL_API sw_timer_init(sw_timer *self);
 
+sw_result HOWL_API sw_timer_fina(sw_timer self);
 
-sw_result HOWL_API
-sw_timer_init(
-		sw_timer	*	self);
-
-
-sw_result HOWL_API
-sw_timer_fina(
-		sw_timer	self);
-
-
-typedef struct _sw_time
-{
-	sw_uint32	m_secs;
-	sw_uint32 m_usecs;
+typedef struct _sw_time {
+    sw_uint32 m_secs;
+    sw_uint32 m_usecs;
 } sw_time;
 
+sw_result HOWL_API sw_time_init(sw_time *self);
 
-sw_result HOWL_API
-sw_time_init(
-		sw_time	*	self);
+sw_result HOWL_API sw_time_init_now(sw_time *self);
 
+sw_result HOWL_API sw_time_fina(sw_time self);
 
-sw_result HOWL_API
-sw_time_init_now(
-		sw_time	*	self);
+sw_time HOWL_API sw_time_add(sw_time self, sw_time y);
 
+sw_time HOWL_API sw_time_sub(sw_time self, sw_time y);
 
-sw_result HOWL_API
-sw_time_fina(
-		sw_time	self);
-
-
-sw_time HOWL_API
-sw_time_add(
-		sw_time	self,
-		sw_time	y);
-
-
-sw_time HOWL_API
-sw_time_sub(
-		sw_time	self,
-		sw_time	y);
-
-
-sw_int32 HOWL_API
-sw_time_cmp(
-		sw_time	self,
-		sw_time	y);
-
+sw_int32 HOWL_API sw_time_cmp(sw_time self, sw_time y);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

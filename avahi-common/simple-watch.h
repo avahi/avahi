@@ -42,7 +42,7 @@ void avahi_simple_poll_free(AvahiSimplePoll *s);
 /** Return the abstracted poll API object for this main loop
  * object. The is will return the same pointer each time it is
  * called. */
-const AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s);
+const AvahiPoll *avahi_simple_poll_get(AvahiSimplePoll *s);
 
 /** Run a single main loop iteration of this main loop. If sleep_time
 is < 0 this will block until any of the registered events happens,

@@ -8,10 +8,10 @@
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
-    int s;
+    int                     s;
     struct sockaddr_storage sa;
-    socklen_t salen;
-    uint16_t port;
+    socklen_t               salen;
+    uint16_t                port;
 
     if ((s = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
         if (errno == EAFNOSUPPORT)
@@ -29,15 +29,15 @@ int main(int argc, char *argv[]) {
     }
 
     salen = sizeof(sa);
-    if (getsockname(s, (struct sockaddr*) &sa, &salen) < 0) {
+    if (getsockname(s, (struct sockaddr *)&sa, &salen) < 0) {
         perror("getsockname()");
         return 3;
     }
 
-    if (((struct sockaddr*) &sa)->sa_family == AF_INET)
-        port = ((struct sockaddr_in*) &sa)->sin_port;
+    if (((struct sockaddr *)&sa)->sa_family == AF_INET)
+        port = ((struct sockaddr_in *)&sa)->sin_port;
     else
-        port = ((struct sockaddr_in6*) &sa)->sin6_port;
+        port = ((struct sockaddr_in6 *)&sa)->sin6_port;
 
     printf("Selected port number %u\n", ntohs(port));
 

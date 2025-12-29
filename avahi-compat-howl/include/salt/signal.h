@@ -31,31 +31,19 @@
 
 #include <salt/platform.h>
 
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
+struct _sw_signal;
+typedef struct _sw_signal *sw_signal;
 
-struct								_sw_signal;
-typedef struct _sw_signal	*	sw_signal;
+sw_result HOWL_API sw_signal_init(sw_signal *self, int signal);
 
-
-sw_result HOWL_API
-sw_signal_init(
-		sw_signal	*	self,
-		int				signal);
-
-
-sw_result HOWL_API
-sw_signal_fina(
-		sw_signal		self);
-
+sw_result HOWL_API sw_signal_fina(sw_signal self);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

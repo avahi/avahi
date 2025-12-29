@@ -50,10 +50,10 @@ static void drop_incomplete_utf8(char *c) {
 }
 
 char *avahi_alternative_host_name(const char *s) {
-    char label[AVAHI_LABEL_MAX], alternative[AVAHI_LABEL_MAX*4+1];
-    char *alt, *r, *ret;
+    char        label[AVAHI_LABEL_MAX], alternative[AVAHI_LABEL_MAX * 4 + 1];
+    char       *alt, *r, *ret;
     const char *e;
-    size_t len;
+    size_t      len;
 
     assert(s);
 
@@ -80,7 +80,7 @@ char *avahi_alternative_host_name(const char *s) {
 
     if (e) {
         char *c, *m;
-        int n;
+        int   n;
 
         n = atoi(e);
         if (n == INT_MAX)
@@ -90,10 +90,10 @@ char *avahi_alternative_host_name(const char *s) {
         if (!(m = avahi_strdup_printf("%i", n)))
             return NULL;
 
-        len = e-label-1;
+        len = e - label - 1;
 
-        if (len >= AVAHI_LABEL_MAX-1-strlen(m)-1)
-            len = AVAHI_LABEL_MAX-1-strlen(m)-1;
+        if (len >= AVAHI_LABEL_MAX - 1 - strlen(m) - 1)
+            len = AVAHI_LABEL_MAX - 1 - strlen(m) - 1;
 
         if (!(c = avahi_strndup(label, len))) {
             avahi_free(m);
@@ -109,7 +109,7 @@ char *avahi_alternative_host_name(const char *s) {
     } else {
         char *c;
 
-        if (!(c = avahi_strndup(label, AVAHI_LABEL_MAX-1-2)))
+        if (!(c = avahi_strndup(label, AVAHI_LABEL_MAX - 1 - 2)))
             return NULL;
 
         drop_incomplete_utf8(c);
@@ -132,7 +132,7 @@ char *avahi_alternative_host_name(const char *s) {
 
 char *avahi_alternative_service_name(const char *s) {
     const char *e;
-    char *r;
+    char       *r;
 
     assert(s);
 
@@ -157,9 +157,9 @@ char *avahi_alternative_service_name(const char *s) {
     }
 
     if (e) {
-        char *c, *m;
+        char  *c, *m;
         size_t l;
-        int n;
+        int    n;
 
         n = atoi(e);
         if (n == INT_MAX)
@@ -169,10 +169,10 @@ char *avahi_alternative_service_name(const char *s) {
         if (!(m = avahi_strdup_printf("%i", n)))
             return NULL;
 
-        l = e-s-2;
+        l = e - s - 2;
 
-        if (l >= AVAHI_LABEL_MAX-1-strlen(m)-2)
-            l = AVAHI_LABEL_MAX-1-strlen(m)-2;
+        if (l >= AVAHI_LABEL_MAX - 1 - strlen(m) - 2)
+            l = AVAHI_LABEL_MAX - 1 - strlen(m) - 2;
 
         if (!(c = avahi_strndup(s, l))) {
             avahi_free(m);
@@ -187,7 +187,7 @@ char *avahi_alternative_service_name(const char *s) {
     } else {
         char *c;
 
-        if (!(c = avahi_strndup(s, AVAHI_LABEL_MAX-1-3)))
+        if (!(c = avahi_strndup(s, AVAHI_LABEL_MAX - 1 - 3)))
             return NULL;
 
         drop_incomplete_utf8(c);

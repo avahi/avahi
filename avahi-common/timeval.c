@@ -51,23 +51,23 @@ AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b) {
     assert(b);
 
     if (avahi_timeval_compare(a, b) < 0)
-        return - avahi_timeval_diff(b, a);
+        return -avahi_timeval_diff(b, a);
 
-    return ((AvahiUsec) a->tv_sec - b->tv_sec)*1000000 + a->tv_usec - b->tv_usec;
+    return ((AvahiUsec)a->tv_sec - b->tv_sec) * 1000000 + a->tv_usec - b->tv_usec;
 }
 
-struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec) {
+struct timeval *avahi_timeval_add(struct timeval *a, AvahiUsec usec) {
     AvahiUsec u;
     assert(a);
 
     u = usec + a->tv_usec;
 
     if (u < 0) {
-        a->tv_usec = (long) (1000000 + (u % 1000000));
-        a->tv_sec += (long) (-1 + (u / 1000000));
+        a->tv_usec = (long)(1000000 + (u % 1000000));
+        a->tv_sec += (long)(-1 + (u / 1000000));
     } else {
-        a->tv_usec = (long) (u % 1000000);
-        a->tv_sec += (long) (u / 1000000);
+        a->tv_usec = (long)(u % 1000000);
+        a->tv_sec += (long)(u / 1000000);
     }
 
     return a;
@@ -89,15 +89,15 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
     gettimeofday(tv, NULL);
 
     if (msec)
-        avahi_timeval_add(tv, (AvahiUsec) msec*1000);
+        avahi_timeval_add(tv, (AvahiUsec)msec * 1000);
 
     if (jitter) {
         static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-        static int last_rand;
-        static time_t timestamp = 0;
+        static int             last_rand;
+        static time_t          timestamp = 0;
 
         time_t now;
-        int r;
+        int    r;
 
         now = time(NULL);
 
@@ -115,9 +115,8 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
          * time events elapse in bursts which has the advantage that
          * packet data can be aggregated better */
 
-        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*r/(RAND_MAX+1.0)));
+        avahi_timeval_add(tv, (AvahiUsec)(jitter * 1000.0 * r / (RAND_MAX + 1.0)));
     }
 
     return tv;
 }
-

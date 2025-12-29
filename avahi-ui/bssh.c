@@ -46,7 +46,7 @@ typedef enum {
 } Command;
 
 typedef struct Config {
-    char *domain;
+    char   *domain;
     Command command;
 } Config;
 
@@ -65,35 +65,35 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
     int o;
 
     static const struct option long_options[] = {
-        { "help",           no_argument,       NULL, 'h' },
-        { "ssh",            no_argument,       NULL, 's' },
-        { "vnc",            no_argument,       NULL, 'v' },
-        { "shell",          no_argument,       NULL, 'S' },
-        { "domain",         required_argument, NULL, 'd' },
-        { NULL, 0, NULL, 0 }
+        {"help",   no_argument,       NULL, 'h'},
+        {"ssh",    no_argument,       NULL, 's'},
+        {"vnc",    no_argument,       NULL, 'v'},
+        {"shell",  no_argument,       NULL, 'S'},
+        {"domain", required_argument, NULL, 'd'},
+        {NULL,     0,                 NULL, 0  }
     };
 
     while ((o = getopt_long(argc, argv, "hVd:svS", long_options, NULL)) >= 0) {
 
-        switch(o) {
-            case 'h':
-                c->command = COMMAND_HELP;
-                break;
-            case 's':
-                c->command = COMMAND_SSH;
-                break;
-            case 'v':
-                c->command = COMMAND_VNC;
-                break;
-            case 'S':
-                c->command = COMMAND_SHELL;
-                break;
-            case 'd':
-                avahi_free(c->domain);
-                c->domain = avahi_strdup(optarg);
-                break;
-            default:
-                return -1;
+        switch (o) {
+        case 'h':
+            c->command = COMMAND_HELP;
+            break;
+        case 's':
+            c->command = COMMAND_SSH;
+            break;
+        case 'v':
+            c->command = COMMAND_VNC;
+            break;
+        case 'S':
+            c->command = COMMAND_SHELL;
+            break;
+        case 'd':
+            avahi_free(c->domain);
+            c->domain = avahi_strdup(optarg);
+            break;
+        default:
+            return -1;
         }
     }
 
@@ -105,9 +105,9 @@ static int parse_command_line(Config *c, int argc, char *argv[]) {
     return 0;
 }
 
-int main(int argc, char*argv[]) {
-    GtkWidget *d;
-    Config config;
+int main(int argc, char *argv[]) {
+    GtkWidget  *d;
+    Config      config;
     const char *argv0;
 
     avahi_init_i18n();
@@ -133,45 +133,48 @@ int main(int argc, char*argv[]) {
         return 1;
     }
 
-    bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
+    bindtextdomain(GETTEXT_PACKAGE, GNOMELOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
 
     gtk_init(&argc, &argv);
 
     switch (config.command) {
-        case COMMAND_HELP:
-            help(stdout, argv0);
-            return 0;
-            break;
+    case COMMAND_HELP:
+        help(stdout, argv0);
+        return 0;
+        break;
 
-        case COMMAND_SHELL:
-            d = aui_service_dialog_new(_("Choose Shell Server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
-            aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "_ssh._tcp", NULL);
-            aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_rfb._tcp", _("Desktop"));
-            aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_ssh._tcp", _("Terminal"));
-            break;
+    case COMMAND_SHELL:
+        d = aui_service_dialog_new(
+            _("Choose Shell Server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
+        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", "_ssh._tcp", NULL);
+        aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_rfb._tcp", _("Desktop"));
+        aui_service_dialog_set_service_type_name(AUI_SERVICE_DIALOG(d), "_ssh._tcp", _("Terminal"));
+        break;
 
-        case COMMAND_VNC:
-            d = aui_service_dialog_new(_("Choose VNC server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
-            aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
-            break;
+    case COMMAND_VNC:
+        d = aui_service_dialog_new(
+            _("Choose VNC server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
+        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_rfb._tcp", NULL);
+        break;
 
-        case COMMAND_SSH:
-            d = aui_service_dialog_new(_("Choose SSH server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
-            aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
-            break;
+    case COMMAND_SSH:
+        d = aui_service_dialog_new(
+            _("Choose SSH server"), NULL, _("_Cancel"), GTK_RESPONSE_CANCEL, _("C_onnect"), GTK_RESPONSE_ACCEPT, NULL);
+        aui_service_dialog_set_browse_service_types(AUI_SERVICE_DIALOG(d), "_ssh._tcp", NULL);
+        break;
     }
 
-    aui_service_dialog_set_domain (AUI_SERVICE_DIALOG(d), config.domain);
+    aui_service_dialog_set_domain(AUI_SERVICE_DIALOG(d), config.domain);
     aui_service_dialog_set_resolve_service(AUI_SERVICE_DIALOG(d), TRUE);
     aui_service_dialog_set_resolve_host_name(AUI_SERVICE_DIALOG(d), !avahi_nss_support());
 
     gtk_window_present(GTK_WINDOW(d));
 
     if (gtk_dialog_run(GTK_DIALOG(d)) == GTK_RESPONSE_ACCEPT) {
-        char a[AVAHI_ADDRESS_STR_MAX], *u = NULL, *n = NULL;
-        char *h = NULL, *t = NULL;
+        char                   a[AVAHI_ADDRESS_STR_MAX], *u = NULL, *n = NULL;
+        char                  *h = NULL, *t = NULL;
         const AvahiStringList *txt;
 
         t = g_strdup(aui_service_dialog_get_service_type(AUI_SERVICE_DIALOG(d)));
@@ -185,8 +188,8 @@ int main(int argc, char*argv[]) {
         g_print(_("Connecting to '%s' ...\n"), n);
 
         if (avahi_domain_equal(t, "_rfb._tcp")) {
-            char p[AVAHI_DOMAIN_NAME_MAX+16];
-            snprintf(p, sizeof(p), "%s:%u", h, aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d))-5900);
+            char p[AVAHI_DOMAIN_NAME_MAX + 16];
+            snprintf(p, sizeof(p), "%s:%u", h, aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d)) - 5900);
 
             gtk_widget_destroy(d);
 
@@ -202,7 +205,7 @@ int main(int argc, char*argv[]) {
             for (txt = aui_service_dialog_get_txt_data(AUI_SERVICE_DIALOG(d)); txt; txt = txt->next) {
                 char *key, *value;
 
-                if (avahi_string_list_get_pair((AvahiStringList*) txt, &key, &value, NULL) < 0)
+                if (avahi_string_list_get_pair((AvahiStringList *)txt, &key, &value, NULL) < 0)
                     break;
 
                 if (strcmp(key, "u") == 0)

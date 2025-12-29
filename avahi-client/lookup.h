@@ -44,31 +44,20 @@ AVAHI_C_DECL_BEGIN
 typedef struct AvahiDomainBrowser AvahiDomainBrowser;
 
 /** The function prototype for the callback of an AvahiDomainBrowser */
-typedef void (*AvahiDomainBrowserCallback) (
-    AvahiDomainBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *domain,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiDomainBrowserCallback)(AvahiDomainBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                           AvahiBrowserEvent event, const char *domain, AvahiLookupResultFlags flags,
+                                           void *userdata);
 
 /** Browse for domains on the local network */
-AvahiDomainBrowser* avahi_domain_browser_new (
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *domain,
-    AvahiDomainBrowserType btype,
-    AvahiLookupFlags flags,
-    AvahiDomainBrowserCallback callback,
-    void *userdata);
+AvahiDomainBrowser *avahi_domain_browser_new(AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol,
+                                             const char *domain, AvahiDomainBrowserType btype, AvahiLookupFlags flags,
+                                             AvahiDomainBrowserCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiDomainBrowser object */
-AvahiClient* avahi_domain_browser_get_client (AvahiDomainBrowser *);
+AvahiClient *avahi_domain_browser_get_client(AvahiDomainBrowser *);
 
 /** Cleans up and frees an AvahiDomainBrowser object */
-int avahi_domain_browser_free (AvahiDomainBrowser *);
+int avahi_domain_browser_free(AvahiDomainBrowser *);
 
 /** @} */
 
@@ -78,16 +67,9 @@ int avahi_domain_browser_free (AvahiDomainBrowser *);
 typedef struct AvahiServiceBrowser AvahiServiceBrowser;
 
 /** The function prototype for the callback of an AvahiServiceBrowser */
-typedef void (*AvahiServiceBrowserCallback) (
-    AvahiServiceBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *name,
-    const char *type,
-    const char *domain,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiServiceBrowserCallback)(AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                            AvahiBrowserEvent event, const char *name, const char *type, const char *domain,
+                                            AvahiLookupResultFlags flags, void *userdata);
 
 /** Browse for services of a type on the network. In most cases you
  * probably want to pass AVAHI_IF_UNSPEC and AVAHI_PROTO_UNSPED in
@@ -100,21 +82,19 @@ typedef void (*AvahiServiceBrowserCallback) (
  * avahi_service_resolver_new() and keep it open, in which case you
  * will be notified via AVAHI_RESOLVE_FOUND every time the service data
  * changes. */
-AvahiServiceBrowser* avahi_service_browser_new (
-    AvahiClient *client,
-    AvahiIfIndex interface,     /**< In most cases pass AVAHI_IF_UNSPEC here */
-    AvahiProtocol protocol,     /**< In most cases pass AVAHI_PROTO_UNSPEC here */
-    const char *type,           /**< A service type such as "_http._tcp" */
-    const char *domain,         /**< A domain to browse in. In most cases you want to pass NULL here for the default domain (usually ".local") */
-    AvahiLookupFlags flags,
-    AvahiServiceBrowserCallback callback,
-    void *userdata);
+AvahiServiceBrowser *avahi_service_browser_new(
+    AvahiClient *client, AvahiIfIndex interface, /**< In most cases pass AVAHI_IF_UNSPEC here */
+    AvahiProtocol protocol,                      /**< In most cases pass AVAHI_PROTO_UNSPEC here */
+    const char   *type,                          /**< A service type such as "_http._tcp" */
+    const char *
+        domain, /**< A domain to browse in. In most cases you want to pass NULL here for the default domain (usually ".local") */
+    AvahiLookupFlags flags, AvahiServiceBrowserCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiServiceBrowser object */
-AvahiClient* avahi_service_browser_get_client (AvahiServiceBrowser *);
+AvahiClient *avahi_service_browser_get_client(AvahiServiceBrowser *);
 
 /** Cleans up and frees an AvahiServiceBrowser object */
-int avahi_service_browser_free (AvahiServiceBrowser *);
+int avahi_service_browser_free(AvahiServiceBrowser *);
 
 /** @} */
 
@@ -123,31 +103,20 @@ int avahi_service_browser_free (AvahiServiceBrowser *);
 typedef struct AvahiServiceTypeBrowser AvahiServiceTypeBrowser;
 
 /** The function prototype for the callback of an AvahiServiceTypeBrowser */
-typedef void (*AvahiServiceTypeBrowserCallback) (
-    AvahiServiceTypeBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *type,
-    const char *domain,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiServiceTypeBrowserCallback)(AvahiServiceTypeBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                AvahiBrowserEvent event, const char *type, const char *domain,
+                                                AvahiLookupResultFlags flags, void *userdata);
 
 /** Browse for service types on the local network */
-AvahiServiceTypeBrowser* avahi_service_type_browser_new (
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *domain,
-    AvahiLookupFlags flags,
-    AvahiServiceTypeBrowserCallback callback,
-    void *userdata);
+AvahiServiceTypeBrowser *avahi_service_type_browser_new(AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                        const char *domain, AvahiLookupFlags flags,
+                                                        AvahiServiceTypeBrowserCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiServiceTypeBrowser object */
-AvahiClient* avahi_service_type_browser_get_client (AvahiServiceTypeBrowser *);
+AvahiClient *avahi_service_type_browser_get_client(AvahiServiceTypeBrowser *);
 
 /** Cleans up and frees an AvahiServiceTypeBrowser object */
-int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
+int avahi_service_type_browser_free(AvahiServiceTypeBrowser *);
 
 /** \endcond */
 
@@ -157,20 +126,10 @@ int avahi_service_type_browser_free (AvahiServiceTypeBrowser *);
 typedef struct AvahiServiceResolver AvahiServiceResolver;
 
 /** The function prototype for the callback of an AvahiServiceResolver */
-typedef void (*AvahiServiceResolverCallback) (
-    AvahiServiceResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AvahiStringList *txt,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiServiceResolverCallback)(AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                             AvahiResolverEvent event, const char *name, const char *type, const char *domain,
+                                             const char *host_name, const AvahiAddress *a, uint16_t port, AvahiStringList *txt,
+                                             AvahiLookupResultFlags flags, void *userdata);
 
 /** Create a new service resolver object. Please make sure to pass all the
  * service data you received via avahi_service_browser_new()'s callback
@@ -196,20 +155,19 @@ typedef void (*AvahiServiceResolverCallback) (
  * (see 'publish-aaaa-on-ipv4' and 'publish-a-on-ipv6' in 'avahi-daemon.conf').
  * That's why, given most daemons, all four combinations of concrete query and
  * address protocols resolve except INET addresses via INET6 queries. */
-AvahiServiceResolver * avahi_service_resolver_new(
-    AvahiClient *client,
-    AvahiIfIndex interface,   /**< Pass the interface argument you received in AvahiServiceBrowserCallback here. */
-    AvahiProtocol protocol,   /**< Pass the protocol argument you received in AvahiServiceBrowserCallback here. */
-    const char *name,         /**< Pass the name argument you received in AvahiServiceBrowserCallback here. */
-    const char *type,         /**< Pass the type argument you received in AvahiServiceBrowserCallback here. */
-    const char *domain,       /**< Pass the domain argument you received in AvahiServiceBrowserCallback here. */
-    AvahiProtocol aprotocol,  /**< The desired address family of the service address to resolve. AVAHI_PROTO_UNSPEC if your application can deal with both IPv4 and IPv6 */
-    AvahiLookupFlags flags,
-    AvahiServiceResolverCallback callback,
-    void *userdata);
+AvahiServiceResolver *avahi_service_resolver_new(
+    AvahiClient  *client,
+    AvahiIfIndex  interface, /**< Pass the interface argument you received in AvahiServiceBrowserCallback here. */
+    AvahiProtocol protocol,  /**< Pass the protocol argument you received in AvahiServiceBrowserCallback here. */
+    const char   *name,      /**< Pass the name argument you received in AvahiServiceBrowserCallback here. */
+    const char   *type,      /**< Pass the type argument you received in AvahiServiceBrowserCallback here. */
+    const char   *domain,    /**< Pass the domain argument you received in AvahiServiceBrowserCallback here. */
+    AvahiProtocol
+        aprotocol, /**< The desired address family of the service address to resolve. AVAHI_PROTO_UNSPEC if your application can deal with both IPv4 and IPv6 */
+    AvahiLookupFlags flags, AvahiServiceResolverCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiServiceResolver object */
-AvahiClient* avahi_service_resolver_get_client (AvahiServiceResolver *);
+AvahiClient *avahi_service_resolver_get_client(AvahiServiceResolver *);
 
 /** Free a service resolver object */
 int avahi_service_resolver_free(AvahiServiceResolver *r);
@@ -221,29 +179,17 @@ int avahi_service_resolver_free(AvahiServiceResolver *r);
 typedef struct AvahiHostNameResolver AvahiHostNameResolver;
 
 /** The function prototype for the callback of an AvahiHostNameResolver */
-typedef void (*AvahiHostNameResolverCallback) (
-    AvahiHostNameResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *name,
-    const AvahiAddress *a,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiHostNameResolverCallback)(AvahiHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                              AvahiResolverEvent event, const char *name, const AvahiAddress *a,
+                                              AvahiLookupResultFlags flags, void *userdata);
 
 /** Create a new hostname resolver object */
-AvahiHostNameResolver * avahi_host_name_resolver_new(
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *name,
-    AvahiProtocol aprotocol,
-    AvahiLookupFlags flags,
-    AvahiHostNameResolverCallback callback,
-    void *userdata);
+AvahiHostNameResolver *avahi_host_name_resolver_new(AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                    const char *name, AvahiProtocol aprotocol, AvahiLookupFlags flags,
+                                                    AvahiHostNameResolverCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiHostNameResolver object */
-AvahiClient* avahi_host_name_resolver_get_client (AvahiHostNameResolver *);
+AvahiClient *avahi_host_name_resolver_get_client(AvahiHostNameResolver *);
 
 /** Free a hostname resolver object */
 int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
@@ -252,28 +198,17 @@ int avahi_host_name_resolver_free(AvahiHostNameResolver *r);
 typedef struct AvahiAddressResolver AvahiAddressResolver;
 
 /** The function prototype for the callback of an AvahiAddressResolver */
-typedef void (*AvahiAddressResolverCallback) (
-    AvahiAddressResolver *r,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const AvahiAddress *a,
-    const char *name,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiAddressResolverCallback)(AvahiAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                             AvahiResolverEvent event, const AvahiAddress *a, const char *name,
+                                             AvahiLookupResultFlags flags, void *userdata);
 
 /** Create a new address resolver object from an AvahiAddress object */
-AvahiAddressResolver* avahi_address_resolver_new(
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const AvahiAddress *a,
-    AvahiLookupFlags flags,
-    AvahiAddressResolverCallback callback,
-    void *userdata);
+AvahiAddressResolver *avahi_address_resolver_new(AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                 const AvahiAddress *a, AvahiLookupFlags flags,
+                                                 AvahiAddressResolverCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiAddressResolver object */
-AvahiClient* avahi_address_resolver_get_client (AvahiAddressResolver *);
+AvahiClient *avahi_address_resolver_get_client(AvahiAddressResolver *);
 
 /** Free a AvahiAddressResolver resolver object */
 int avahi_address_resolver_free(AvahiAddressResolver *r);
@@ -286,33 +221,17 @@ int avahi_address_resolver_free(AvahiAddressResolver *r);
 typedef struct AvahiRecordBrowser AvahiRecordBrowser;
 
 /** The function prototype for the callback of an AvahiRecordBrowser */
-typedef void (*AvahiRecordBrowserCallback) (
-    AvahiRecordBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *name,
-    uint16_t clazz,
-    uint16_t type,
-    const void *rdata,
-    size_t size,
-    AvahiLookupResultFlags flags,
-    void *userdata);
+typedef void (*AvahiRecordBrowserCallback)(AvahiRecordBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                           AvahiBrowserEvent event, const char *name, uint16_t clazz, uint16_t type,
+                                           const void *rdata, size_t size, AvahiLookupResultFlags flags, void *userdata);
 
 /** Browse for records of a type on the local network */
-AvahiRecordBrowser* avahi_record_browser_new(
-    AvahiClient *client,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *name,
-    uint16_t clazz,
-    uint16_t type,
-    AvahiLookupFlags flags,
-    AvahiRecordBrowserCallback callback,
-    void *userdata);
+AvahiRecordBrowser *avahi_record_browser_new(AvahiClient *client, AvahiIfIndex interface, AvahiProtocol protocol,
+                                             const char *name, uint16_t clazz, uint16_t type, AvahiLookupFlags flags,
+                                             AvahiRecordBrowserCallback callback, void *userdata);
 
 /** Get the parent client of an AvahiRecordBrowser object */
-AvahiClient* avahi_record_browser_get_client(AvahiRecordBrowser *);
+AvahiClient *avahi_record_browser_get_client(AvahiRecordBrowser *);
 
 /** Cleans up and frees an AvahiRecordBrowser object */
 int avahi_record_browser_free(AvahiRecordBrowser *);

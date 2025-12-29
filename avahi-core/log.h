@@ -31,11 +31,11 @@ AVAHI_C_DECL_BEGIN
 
 /** Log level for avahi_log_xxx() */
 typedef enum {
-    AVAHI_LOG_ERROR  = 0,    /**< Error messages */
-    AVAHI_LOG_WARN   = 1,    /**< Warning messages */
-    AVAHI_LOG_NOTICE = 2,    /**< Notice messages */
-    AVAHI_LOG_INFO   = 3,    /**< Info messages */
-    AVAHI_LOG_DEBUG  = 4,    /**< Debug messages */
+    AVAHI_LOG_ERROR = 0,  /**< Error messages */
+    AVAHI_LOG_WARN = 1,   /**< Warning messages */
+    AVAHI_LOG_NOTICE = 2, /**< Notice messages */
+    AVAHI_LOG_INFO = 3,   /**< Info messages */
+    AVAHI_LOG_DEBUG = 4,  /**< Debug messages */
     AVAHI_LOG_LEVEL_MAX
 } AvahiLogLevel;
 
@@ -51,22 +51,22 @@ void avahi_set_log_function(AvahiLogFunction function);
 void avahi_log_ap(AvahiLogLevel level, const char *format, va_list ap);
 
 /** Issue a log message by passing a log level and a format string */
-void avahi_log(AvahiLogLevel level, const char*format, ...) AVAHI_GCC_PRINTF_ATTR23;
+void avahi_log(AvahiLogLevel level, const char *format, ...) AVAHI_GCC_PRINTF_ATTR23;
 
 /** Shortcut for avahi_log(AVAHI_LOG_ERROR, ...) */
-void avahi_log_error(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_error(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_WARN, ...) */
-void avahi_log_warn(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_warn(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_NOTICE, ...) */
-void avahi_log_notice(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_notice(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_INFO, ...) */
-void avahi_log_info(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_info(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** Shortcut for avahi_log(AVAHI_LOG_DEBUG, ...) */
-void avahi_log_debug(const char*format, ...) AVAHI_GCC_PRINTF_ATTR12;
+void avahi_log_debug(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 AVAHI_C_DECL_END
 

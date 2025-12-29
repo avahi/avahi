@@ -31,23 +31,23 @@
 #include "log.h"
 
 struct AvahiTimeEvent {
-    AvahiTimeEventQueue *queue;
-    AvahiPrioQueueNode *node;
-    struct timeval expiry;
-    struct timeval last_run;
+    AvahiTimeEventQueue   *queue;
+    AvahiPrioQueueNode    *node;
+    struct timeval         expiry;
+    struct timeval         last_run;
     AvahiTimeEventCallback callback;
-    void* userdata;
+    void                  *userdata;
 };
 
 struct AvahiTimeEventQueue {
     const AvahiPoll *poll_api;
-    AvahiPrioQueue *prioq;
-    AvahiTimeout *timeout;
+    AvahiPrioQueue  *prioq;
+    AvahiTimeout    *timeout;
 };
 
-static int compare(const void* _a, const void* _b) {
-    const AvahiTimeEvent *a = _a,  *b = _b;
-    int ret;
+static int compare(const void *_a, const void *_b) {
+    const AvahiTimeEvent *a = _a, *b = _b;
+    int                   ret;
 
     if ((ret = avahi_timeval_compare(&a->expiry, &b->expiry)) != 0)
         return ret;
@@ -57,7 +57,7 @@ static int compare(const void* _a, const void* _b) {
     return avahi_timeval_compare(&a->last_run, &b->last_run);
 }
 
-static AvahiTimeEvent* time_event_queue_root(AvahiTimeEventQueue *q) {
+static AvahiTimeEvent *time_event_queue_root(AvahiTimeEventQueue *q) {
     assert(q);
 
     return q->prioq->root ? q->prioq->root->data : NULL;
@@ -75,7 +75,7 @@ static void update_timeout(AvahiTimeEventQueue *q) {
 
 static void expiration_event(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *userdata) {
     AvahiTimeEventQueue *q = userdata;
-    AvahiTimeEvent *e;
+    AvahiTimeEvent      *e;
 
     if ((e = time_event_queue_root(q))) {
         struct timeval now;
@@ -98,7 +98,7 @@ static void expiration_event(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *userd
         }
     }
 
-    avahi_log_debug(__FILE__": Strange, expiration_event() called, but nothing really happened.");
+    avahi_log_debug(__FILE__ ": Strange, expiration_event() called, but nothing really happened.");
     update_timeout(q);
 }
 
@@ -114,11 +114,11 @@ static void fix_expiry_time(AvahiTimeEvent *e) {
         e->expiry = now;
 }
 
-AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api) {
+AvahiTimeEventQueue *avahi_time_event_queue_new(const AvahiPoll *poll_api) {
     AvahiTimeEventQueue *q;
 
     if (!(q = avahi_new(AvahiTimeEventQueue, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         goto oom;
     }
 
@@ -158,11 +158,8 @@ void avahi_time_event_queue_free(AvahiTimeEventQueue *q) {
     avahi_free(q);
 }
 
-AvahiTimeEvent* avahi_time_event_new(
-    AvahiTimeEventQueue *q,
-    const struct timeval *timeval,
-    AvahiTimeEventCallback callback,
-    void* userdata) {
+AvahiTimeEvent *avahi_time_event_new(AvahiTimeEventQueue *q, const struct timeval *timeval, AvahiTimeEventCallback callback,
+                                     void *userdata) {
 
     AvahiTimeEvent *e;
 
@@ -171,7 +168,7 @@ AvahiTimeEvent* avahi_time_event_new(
     assert(userdata);
 
     if (!(e = avahi_new(AvahiTimeEvent, 1))) {
-        avahi_log_error(__FILE__": Out of memory");
+        avahi_log_error(__FILE__ ": Out of memory");
         return NULL; /* OOM */
     }
 
@@ -222,4 +219,3 @@ void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval) {
 
     update_timeout(e->queue);
 }
-

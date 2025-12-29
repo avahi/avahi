@@ -36,7 +36,7 @@
 #include "setproctitle.h"
 
 #if !defined(HAVE_SETPROCTITLE) && defined(__linux__)
-static char** argv_buffer = NULL;
+static char **argv_buffer = NULL;
 static size_t argv_size = 0;
 
 #if !HAVE_DECL_ENVIRON
@@ -50,22 +50,23 @@ void avahi_init_proc_title(int argc, char **argv) {
 #if !defined(HAVE_SETPROCTITLE) && defined(__linux__)
 
     unsigned i;
-    char **new_environ, *endptr;
+    char   **new_environ, *endptr;
 
     /* This code is really really ugly. We make some memory layout
      * assumptions and reuse the environment array as memory to store
      * our process title in */
 
-    for (i = 0; environ[i]; i++);
+    for (i = 0; environ[i]; i++)
+        ;
 
-    endptr = i ? environ[i-1] + strlen(environ[i-1]) : argv[argc-1] + strlen(argv[argc-1]);
+    endptr = i ? environ[i - 1] + strlen(environ[i - 1]) : argv[argc - 1] + strlen(argv[argc - 1]);
 
     argv_buffer = argv;
     argv_size = endptr - argv_buffer[0];
 
     /* Make a copy of environ */
 
-    new_environ = avahi_malloc(sizeof(char*) * (i + 1));
+    new_environ = avahi_malloc(sizeof(char *) * (i + 1));
     for (i = 0; environ[i]; i++)
         new_environ[i] = avahi_strdup(environ[i]);
     new_environ[i] = NULL;
@@ -75,7 +76,7 @@ void avahi_init_proc_title(int argc, char **argv) {
 #endif
 }
 
-void avahi_set_proc_title(const char *name, const char *fmt,...) {
+void avahi_set_proc_title(const char *name, const char *fmt, ...) {
 #ifdef HAVE_SETPROCTITLE
     char t[256];
 
@@ -86,7 +87,7 @@ void avahi_set_proc_title(const char *name, const char *fmt,...) {
 
     setproctitle("-%s", t);
 #elif defined(__linux__)
-    size_t l;
+    size_t  l;
     va_list ap;
 
     if (!argv_buffer)
@@ -105,7 +106,7 @@ void avahi_set_proc_title(const char *name, const char *fmt,...) {
 #if defined(HAVE_SYS_PRCTL_H) && defined(PR_SET_NAME)
 
     if (name)
-        prctl(PR_SET_NAME, (unsigned long) name, 0, 0, 0);
+        prctl(PR_SET_NAME, (unsigned long)name, 0, 0, 0);
 
 #endif
 }

@@ -29,7 +29,7 @@
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
-    AvahiIniFile *f;
+    AvahiIniFile      *f;
     AvahiIniFileGroup *g;
 
     if (!(f = avahi_ini_file_load("avahi-daemon.conf"))) {

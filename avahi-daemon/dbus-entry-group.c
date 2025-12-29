@@ -51,11 +51,11 @@ void avahi_dbus_entry_group_free(EntryGroupInfo *i) {
     avahi_free(i);
 }
 
-void avahi_dbus_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata) {
+void avahi_dbus_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata) {
     EntryGroupInfo *i = userdata;
-    DBusMessage *m;
-    int32_t t;
-    const char *e;
+    DBusMessage    *m;
+    int32_t         t;
+    const char     *e;
 
     assert(s);
     assert(g);
@@ -68,7 +68,7 @@ void avahi_dbus_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiE
         return;
     }
 
-    t = (int32_t) state;
+    t = (int32_t)state;
     if (state == AVAHI_ENTRY_GROUP_FAILURE)
         e = avahi_error_number_to_dbus(avahi_server_errno(s));
     else if (state == AVAHI_ENTRY_GROUP_COLLISION)
@@ -76,18 +76,14 @@ void avahi_dbus_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiE
     else
         e = AVAHI_DBUS_ERR_OK;
 
-    dbus_message_append_args(
-        m,
-        DBUS_TYPE_INT32, &t,
-        DBUS_TYPE_STRING, &e,
-        DBUS_TYPE_INVALID);
+    dbus_message_append_args(m, DBUS_TYPE_INT32, &t, DBUS_TYPE_STRING, &e, DBUS_TYPE_INVALID);
     dbus_message_set_destination(m, i->client->name);
     dbus_connection_send(server->bus, m, NULL);
     dbus_message_unref(m);
 }
 
 DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
+    DBusError       error;
     EntryGroupInfo *i = userdata;
 
     assert(c);
@@ -96,7 +92,7 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
 
     dbus_error_init(&error);
 
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__ ": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -131,7 +127,6 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
 
         return avahi_dbus_respond_ok(c, m);
 
-
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "Reset")) {
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_INVALID)) {
@@ -161,28 +156,35 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         }
 
         state = avahi_s_entry_group_get_state(i->entry_group);
-        return avahi_dbus_respond_int32(c, m, (int32_t) state);
+        return avahi_dbus_respond_int32(c, m, (int32_t)state);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddService")) {
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *type, *name, *domain, *host;
-        uint16_t port;
+        int32_t          interface, protocol;
+        uint32_t         flags;
+        char            *type, *name, *domain, *host;
+        uint16_t         port;
         AvahiStringList *strlst = NULL;
 
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_STRING, &host,
-                DBUS_TYPE_UINT16, &port,
-                DBUS_TYPE_INVALID) ||
-            !type || !name ||
-            avahi_dbus_read_strlst(m, 8, &strlst) < 0) {
+        if (!dbus_message_get_args(m,
+                                   &error,
+                                   DBUS_TYPE_INT32,
+                                   &interface,
+                                   DBUS_TYPE_INT32,
+                                   &protocol,
+                                   DBUS_TYPE_UINT32,
+                                   &flags,
+                                   DBUS_TYPE_STRING,
+                                   &name,
+                                   DBUS_TYPE_STRING,
+                                   &type,
+                                   DBUS_TYPE_STRING,
+                                   &domain,
+                                   DBUS_TYPE_STRING,
+                                   &host,
+                                   DBUS_TYPE_UINT16,
+                                   &port,
+                                   DBUS_TYPE_INVALID) ||
+            !type || !name || avahi_dbus_read_strlst(m, 8, &strlst) < 0) {
             avahi_log_warn("Error parsing EntryGroup::AddService message");
             goto fail;
         }
@@ -198,13 +200,23 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         if (host && !*host)
             host = NULL;
 
-        if (avahi_server_add_service_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, host, port, strlst) < 0) {
+        if (avahi_server_add_service_strlst(avahi_server,
+                                            i->entry_group,
+                                            (AvahiIfIndex)interface,
+                                            (AvahiProtocol)protocol,
+                                            (AvahiPublishFlags)flags,
+                                            name,
+                                            type,
+                                            domain,
+                                            host,
+                                            port,
+                                            strlst) < 0) {
             avahi_string_list_free(strlst);
             return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
 
         if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
+            i->n_entries++;
 
         avahi_string_list_free(strlst);
 
@@ -212,20 +224,28 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddServiceSubtype")) {
 
-        int32_t interface, protocol;
+        int32_t  interface, protocol;
         uint32_t flags;
-        char *type, *name, *domain, *subtype;
+        char    *type, *name, *domain, *subtype;
 
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_STRING, &subtype,
-                DBUS_TYPE_INVALID) || !type || !name || !subtype) {
+        if (!dbus_message_get_args(m,
+                                   &error,
+                                   DBUS_TYPE_INT32,
+                                   &interface,
+                                   DBUS_TYPE_INT32,
+                                   &protocol,
+                                   DBUS_TYPE_UINT32,
+                                   &flags,
+                                   DBUS_TYPE_STRING,
+                                   &name,
+                                   DBUS_TYPE_STRING,
+                                   &type,
+                                   DBUS_TYPE_STRING,
+                                   &domain,
+                                   DBUS_TYPE_STRING,
+                                   &subtype,
+                                   DBUS_TYPE_INVALID) ||
+            !type || !name || !subtype) {
             avahi_log_warn("Error parsing EntryGroup::AddServiceSubtype message");
             goto fail;
         }
@@ -236,31 +256,44 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         if (domain && !*domain)
             domain = NULL;
 
-        if (avahi_server_add_service_subtype(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, subtype) < 0)
+        if (avahi_server_add_service_subtype(avahi_server,
+                                             i->entry_group,
+                                             (AvahiIfIndex)interface,
+                                             (AvahiProtocol)protocol,
+                                             (AvahiPublishFlags)flags,
+                                             name,
+                                             type,
+                                             domain,
+                                             subtype) < 0)
             return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
 
         if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
+            i->n_entries++;
 
         return avahi_dbus_respond_ok(c, m);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "UpdateServiceTxt")) {
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *type, *name, *domain;
+        int32_t          interface, protocol;
+        uint32_t         flags;
+        char            *type, *name, *domain;
         AvahiStringList *strlst;
 
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &type,
-                DBUS_TYPE_STRING, &domain,
-                DBUS_TYPE_INVALID) ||
-            !type || !name ||
-            avahi_dbus_read_strlst(m, 6, &strlst)) {
+        if (!dbus_message_get_args(m,
+                                   &error,
+                                   DBUS_TYPE_INT32,
+                                   &interface,
+                                   DBUS_TYPE_INT32,
+                                   &protocol,
+                                   DBUS_TYPE_UINT32,
+                                   &flags,
+                                   DBUS_TYPE_STRING,
+                                   &name,
+                                   DBUS_TYPE_STRING,
+                                   &type,
+                                   DBUS_TYPE_STRING,
+                                   &domain,
+                                   DBUS_TYPE_INVALID) ||
+            !type || !name || avahi_dbus_read_strlst(m, 6, &strlst)) {
             avahi_log_warn("Error parsing EntryGroup::UpdateServiceTxt message");
             goto fail;
         }
@@ -268,7 +301,15 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         if (domain && !*domain)
             domain = NULL;
 
-        if (avahi_server_update_service_txt_strlst(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, type, domain, strlst) < 0) {
+        if (avahi_server_update_service_txt_strlst(avahi_server,
+                                                   i->entry_group,
+                                                   (AvahiIfIndex)interface,
+                                                   (AvahiProtocol)protocol,
+                                                   (AvahiPublishFlags)flags,
+                                                   name,
+                                                   type,
+                                                   domain,
+                                                   strlst) < 0) {
             avahi_string_list_free(strlst);
             return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
@@ -278,19 +319,25 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         return avahi_dbus_respond_ok(c, m);
 
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddAddress")) {
-        int32_t interface, protocol;
-        uint32_t flags;
-        char *name, *address;
+        int32_t      interface, protocol;
+        uint32_t     flags;
+        char        *name, *address;
         AvahiAddress a;
 
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_STRING, &address,
-                DBUS_TYPE_INVALID) || !name || !address) {
+        if (!dbus_message_get_args(m,
+                                   &error,
+                                   DBUS_TYPE_INT32,
+                                   &interface,
+                                   DBUS_TYPE_INT32,
+                                   &protocol,
+                                   DBUS_TYPE_UINT32,
+                                   &flags,
+                                   DBUS_TYPE_STRING,
+                                   &name,
+                                   DBUS_TYPE_STRING,
+                                   &address,
+                                   DBUS_TYPE_INVALID) ||
+            !name || !address) {
             avahi_log_warn("Error parsing EntryGroup::AddAddress message");
             goto fail;
         }
@@ -301,32 +348,45 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         if (!(avahi_address_parse(address, AVAHI_PROTO_UNSPEC, &a)))
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_ADDRESS, NULL);
 
-        if (avahi_server_add_address(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, name, &a) < 0)
+        if (avahi_server_add_address(avahi_server,
+                                     i->entry_group,
+                                     (AvahiIfIndex)interface,
+                                     (AvahiProtocol)protocol,
+                                     (AvahiPublishFlags)flags,
+                                     name,
+                                     &a) < 0)
             return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
 
         if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
+            i->n_entries++;
 
         return avahi_dbus_respond_ok(c, m);
     } else if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "AddRecord")) {
-        int32_t interface, protocol;
-        uint32_t flags, ttl, size;
-        uint16_t clazz, type;
-        char *name;
-        void *rdata;
+        int32_t      interface, protocol;
+        uint32_t     flags, ttl, size;
+        uint16_t     clazz, type;
+        char        *name;
+        void        *rdata;
         AvahiRecord *r;
 
-        if (!dbus_message_get_args(
-                m, &error,
-                DBUS_TYPE_INT32, &interface,
-                DBUS_TYPE_INT32, &protocol,
-                DBUS_TYPE_UINT32, &flags,
-                DBUS_TYPE_STRING, &name,
-                DBUS_TYPE_UINT16, &clazz,
-                DBUS_TYPE_UINT16, &type,
-                DBUS_TYPE_UINT32, &ttl,
-                DBUS_TYPE_INVALID) || !name ||
-            avahi_dbus_read_rdata (m, 7, &rdata, &size)) {
+        if (!dbus_message_get_args(m,
+                                   &error,
+                                   DBUS_TYPE_INT32,
+                                   &interface,
+                                   DBUS_TYPE_INT32,
+                                   &protocol,
+                                   DBUS_TYPE_UINT32,
+                                   &flags,
+                                   DBUS_TYPE_STRING,
+                                   &name,
+                                   DBUS_TYPE_UINT16,
+                                   &clazz,
+                                   DBUS_TYPE_UINT16,
+                                   &type,
+                                   DBUS_TYPE_UINT32,
+                                   &ttl,
+                                   DBUS_TYPE_INVALID) ||
+            !name || avahi_dbus_read_rdata(m, 7, &rdata, &size)) {
             avahi_log_warn("Error parsing EntryGroup::AddRecord message");
             goto fail;
         }
@@ -334,30 +394,31 @@ DBusHandlerResult avahi_dbus_msg_entry_group_impl(DBusConnection *c, DBusMessage
         if (!(flags & AVAHI_PUBLISH_UPDATE) && i->n_entries >= server->n_entries_per_entry_group_max)
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_TOO_MANY_ENTRIES, NULL);
 
-        if (!avahi_is_valid_domain_name (name))
+        if (!avahi_is_valid_domain_name(name))
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_DOMAIN_NAME, NULL);
 
-        if (!(r = avahi_record_new_full (name, clazz, type, ttl)))
+        if (!(r = avahi_record_new_full(name, clazz, type, ttl)))
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_NO_MEMORY, NULL);
 
-        if (!rdata || avahi_rdata_parse (r, rdata, size) < 0) {
-            avahi_record_unref (r);
+        if (!rdata || avahi_rdata_parse(r, rdata, size) < 0) {
+            avahi_record_unref(r);
             return avahi_dbus_respond_error(c, m, AVAHI_ERR_INVALID_RDATA, NULL);
         }
 
-        if (avahi_server_add(avahi_server, i->entry_group, (AvahiIfIndex) interface, (AvahiProtocol) protocol, (AvahiPublishFlags) flags, r) < 0) {
-            avahi_record_unref (r);
+        if (avahi_server_add(
+                avahi_server, i->entry_group, (AvahiIfIndex)interface, (AvahiProtocol)protocol, (AvahiPublishFlags)flags, r) <
+            0) {
+            avahi_record_unref(r);
             return avahi_dbus_respond_error(c, m, avahi_server_errno(avahi_server), NULL);
         }
 
         if (!(flags & AVAHI_PUBLISH_UPDATE))
-            i->n_entries ++;
+            i->n_entries++;
 
-        avahi_record_unref (r);
+        avahi_record_unref(r);
 
         return avahi_dbus_respond_ok(c, m);
     }
-
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

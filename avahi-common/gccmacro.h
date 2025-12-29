@@ -27,33 +27,33 @@
 AVAHI_C_DECL_BEGIN
 
 #if defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 3)
-#define AVAHI_GCC_ALLOC_SIZE(x) __attribute__ ((__alloc_size__(x)))
-#define AVAHI_GCC_ALLOC_SIZE2(x,y) __attribute__ ((__alloc_size__(x,y)))
+#define AVAHI_GCC_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))
+#define AVAHI_GCC_ALLOC_SIZE2(x, y) __attribute__((__alloc_size__(x, y)))
 #else
 /** Macro for usage of GCC's alloc_size attribute */
 #define AVAHI_GCC_ALLOC_SIZE(x)
-#define AVAHI_GCC_ALLOC_SIZE2(x,y)
+#define AVAHI_GCC_ALLOC_SIZE2(x, y)
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ >= 4)
-#define AVAHI_GCC_SENTINEL __attribute__ ((sentinel))
+#define AVAHI_GCC_SENTINEL __attribute__((sentinel))
 #else
 /** Macro for usage of GCC's sentinel compilation warnings */
 #define AVAHI_GCC_SENTINEL
 #endif
 
 #ifdef __GNUC__
-#define AVAHI_GCC_PRINTF_ATTR(a,b) __attribute__ ((format (printf, a, b)))
+#define AVAHI_GCC_PRINTF_ATTR(a, b) __attribute__((format(printf, a, b)))
 #else
 /** Macro for usage of GCC's printf compilation warnings */
-#define AVAHI_GCC_PRINTF_ATTR(a,b)
+#define AVAHI_GCC_PRINTF_ATTR(a, b)
 #endif
 
 /** Same as AVAHI_GCC_PRINTF_ATTR but hard coded to arguments 1 and 2 */
-#define AVAHI_GCC_PRINTF_ATTR12 AVAHI_GCC_PRINTF_ATTR(1,2)
+#define AVAHI_GCC_PRINTF_ATTR12 AVAHI_GCC_PRINTF_ATTR(1, 2)
 
 /** Same as AVAHI_GCC_PRINTF_ATTR but hard coded to arguments 2 and 3 */
-#define AVAHI_GCC_PRINTF_ATTR23 AVAHI_GCC_PRINTF_ATTR(2,3)
+#define AVAHI_GCC_PRINTF_ATTR23 AVAHI_GCC_PRINTF_ATTR(2, 3)
 
 #ifdef __GNUC__
 #define AVAHI_GCC_NORETURN __attribute__((noreturn))
@@ -63,7 +63,7 @@ AVAHI_C_DECL_BEGIN
 #endif
 
 #ifdef __GNUC__
-#define AVAHI_GCC_UNUSED __attribute__ ((unused))
+#define AVAHI_GCC_UNUSED __attribute__((unused))
 #else
 /** Macro for not used parameter */
 #define AVAHI_GCC_UNUSED

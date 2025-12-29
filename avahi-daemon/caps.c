@@ -33,9 +33,9 @@
 #include "caps.h"
 
 int avahi_caps_reduce(void) {
-    int ret = 0;
-    cap_t caps;
-    static cap_value_t cap_values[] = { CAP_SYS_CHROOT, CAP_SETUID, CAP_SETGID };
+    int                ret = 0;
+    cap_t              caps;
+    static cap_value_t cap_values[] = {CAP_SYS_CHROOT, CAP_SETUID, CAP_SETGID};
 
     /* Let's reduce our caps to the minimum set and tell Linux to keep
      * them across setuid(). This is called before we drop
@@ -64,9 +64,9 @@ int avahi_caps_reduce(void) {
 }
 
 int avahi_caps_reduce2(void) {
-    int ret = 0;
-    cap_t caps;
-    static cap_value_t cap_values[] = { CAP_SYS_CHROOT };
+    int                ret = 0;
+    cap_t              caps;
+    static cap_value_t cap_values[] = {CAP_SYS_CHROOT};
 
     /* Reduce our caps to the bare minimum and tell Linux not to keep
      * them across setuid(). This is called after we drop
@@ -97,7 +97,7 @@ int avahi_caps_reduce2(void) {
 
 int avahi_caps_drop_all(void) {
     cap_t caps;
-    int ret = 0;
+    int   ret = 0;
 
     /* Drop all capabilities and turn ourselves into a normal user process */
 

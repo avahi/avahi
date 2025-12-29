@@ -30,11 +30,11 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 
-static void hexdump(const void* p, size_t size) {
+static void hexdump(const void *p, size_t size) {
     const uint8_t *c = p;
     assert(p);
 
-    printf("Dumping %lu bytes from %p:\n", (unsigned long) size, p);
+    printf("Dumping %lu bytes from %p:\n", (unsigned long)size, p);
 
     while (size > 0) {
         unsigned i;
@@ -64,18 +64,10 @@ static void hexdump(const void* p, size_t size) {
     }
 }
 
-static void callback(
-    AVAHI_GCC_UNUSED AvahiRecordBrowser *r,
-    AVAHI_GCC_UNUSED AvahiIfIndex interface,
-    AVAHI_GCC_UNUSED AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *name,
-    uint16_t clazz,
-    uint16_t type,
-    const void *rdata,
-    size_t rdata_size,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    AVAHI_GCC_UNUSED void *userdata) {
+static void callback(AVAHI_GCC_UNUSED AvahiRecordBrowser *r, AVAHI_GCC_UNUSED AvahiIfIndex interface,
+                     AVAHI_GCC_UNUSED AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, uint16_t clazz,
+                     uint16_t type, const void *rdata, size_t rdata_size, AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+                     AVAHI_GCC_UNUSED void *userdata) {
 
     fprintf(stderr, "%i name=%s class=%u type=%u\n", event, name, clazz, type);
 
@@ -85,9 +77,9 @@ static void callback(
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
-    AvahiSimplePoll *simple_poll;
-    const AvahiPoll *poll_api;
-    AvahiClient *client;
+    AvahiSimplePoll    *simple_poll;
+    const AvahiPoll    *poll_api;
+    AvahiClient        *client;
     AvahiRecordBrowser *r;
 
     simple_poll = avahi_simple_poll_new();
@@ -99,7 +91,15 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     client = avahi_client_new(poll_api, 0, NULL, NULL, NULL);
     assert(client);
 
-    r = avahi_record_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "ecstasy.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO, 0, callback, simple_poll);
+    r = avahi_record_browser_new(client,
+                                 AVAHI_IF_UNSPEC,
+                                 AVAHI_PROTO_UNSPEC,
+                                 "ecstasy.local",
+                                 AVAHI_DNS_CLASS_IN,
+                                 AVAHI_DNS_TYPE_HINFO,
+                                 0,
+                                 callback,
+                                 simple_poll);
     assert(r);
 
     avahi_simple_poll_loop(simple_poll);

@@ -22,9 +22,9 @@
 
 #include <avahi-common/simple-watch.h>
 
-const char* stdb_lookup(const char *name);
-void stdb_shutdown(void);
-char *stdb_getent(void);
-void stdb_setent(void);
+const char *stdb_lookup(const char *name);
+void        stdb_shutdown(void);
+char       *stdb_getent(void);
+void        stdb_setent(void);
 
 #endif

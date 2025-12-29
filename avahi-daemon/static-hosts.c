@@ -38,9 +38,9 @@ typedef struct StaticHost StaticHost;
 
 struct StaticHost {
     AvahiSEntryGroup *group;
-    int iteration;
+    int               iteration;
 
-    char *host;
+    char        *host;
     AvahiAddress address;
 
     AVAHI_LLIST_FIELDS(StaticHost, hosts);
@@ -52,7 +52,8 @@ static int current_iteration = 0;
 static void add_static_host_to_server(StaticHost *h);
 static void remove_static_host_from_server(StaticHost *h);
 
-static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *eg, AvahiEntryGroupState state, void* userdata) {
+static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *eg, AvahiEntryGroupState state,
+                                 void *userdata) {
     StaticHost *h;
 
     assert(s);
@@ -62,21 +63,20 @@ static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGro
 
     switch (state) {
 
-        case AVAHI_ENTRY_GROUP_COLLISION:
-            avahi_log_error("Host name conflict for \"%s\", not established.", h->host);
-            break;
+    case AVAHI_ENTRY_GROUP_COLLISION:
+        avahi_log_error("Host name conflict for \"%s\", not established.", h->host);
+        break;
 
-        case AVAHI_ENTRY_GROUP_ESTABLISHED:
-            avahi_log_notice ("Static host name \"%s\" successfully established.", h->host);
-            break;
+    case AVAHI_ENTRY_GROUP_ESTABLISHED:
+        avahi_log_notice("Static host name \"%s\" successfully established.", h->host);
+        break;
 
-        case AVAHI_ENTRY_GROUP_FAILURE:
-            avahi_log_notice ("Failed to establish static host name \"%s\": %s.", h->host, avahi_strerror (avahi_server_errno (s)));
-            break;
+    case AVAHI_ENTRY_GROUP_FAILURE:
+        avahi_log_notice("Failed to establish static host name \"%s\": %s.", h->host, avahi_strerror(avahi_server_errno(s)));
+        break;
 
-        case AVAHI_ENTRY_GROUP_UNCOMMITED:
-        case AVAHI_ENTRY_GROUP_REGISTERING:
-            ;
+    case AVAHI_ENTRY_GROUP_UNCOMMITED:
+    case AVAHI_ENTRY_GROUP_REGISTERING:;
     }
 }
 
@@ -100,7 +100,7 @@ static void static_host_free(StaticHost *s) {
     AVAHI_LLIST_REMOVE(StaticHost, hosts, hosts, s);
 
     if (s->group)
-        avahi_s_entry_group_free (s->group);
+        avahi_s_entry_group_free(s->group);
 
     avahi_free(s->host);
 
@@ -120,37 +120,37 @@ static StaticHost *static_host_find(const char *host, const AvahiAddress *a) {
     return NULL;
 }
 
-static void add_static_host_to_server(StaticHost *h)
-{
+static void add_static_host_to_server(StaticHost *h) {
 
     if (!h->group)
-        if (!(h->group = avahi_s_entry_group_new (avahi_server, entry_group_callback, h))) {
+        if (!(h->group = avahi_s_entry_group_new(avahi_server, entry_group_callback, h))) {
             avahi_log_error("avahi_s_entry_group_new() failed: %s", avahi_strerror(avahi_server_errno(avahi_server)));
             return;
         }
 
     if (avahi_s_entry_group_is_empty(h->group)) {
-        AvahiProtocol p;
-        int err;
+        AvahiProtocol            p;
+        int                      err;
         const AvahiServerConfig *config;
         config = avahi_server_get_config(avahi_server);
 
         p = (h->address.proto == AVAHI_PROTO_INET && config->publish_a_on_ipv6) ||
-            (h->address.proto == AVAHI_PROTO_INET6 && config->publish_aaaa_on_ipv4) ? AVAHI_PROTO_UNSPEC : h->address.proto;
+                    (h->address.proto == AVAHI_PROTO_INET6 && config->publish_aaaa_on_ipv4)
+                ? AVAHI_PROTO_UNSPEC
+                : h->address.proto;
 
         if ((err = avahi_server_add_address(avahi_server, h->group, AVAHI_IF_UNSPEC, p, 0, h->host, &h->address)) < 0) {
-            avahi_log_error ("Static host name %s: avahi_server_add_address failure: %s", h->host, avahi_strerror(err));
+            avahi_log_error("Static host name %s: avahi_server_add_address failure: %s", h->host, avahi_strerror(err));
             return;
         }
 
-        avahi_s_entry_group_commit (h->group);
+        avahi_s_entry_group_commit(h->group);
     }
 }
 
-static void remove_static_host_from_server(StaticHost *h)
-{
+static void remove_static_host_from_server(StaticHost *h) {
     if (h->group)
-        avahi_s_entry_group_reset (h->group);
+        avahi_s_entry_group_reset(h->group);
 }
 
 void static_hosts_add_to_server(void) {
@@ -168,14 +168,14 @@ void static_hosts_remove_from_server(void) {
 }
 
 void static_hosts_load(int in_chroot) {
-    FILE *f;
+    FILE        *f;
     unsigned int line = 0;
-    StaticHost *h, *next;
-    const char *filename = in_chroot ? "/hosts" : AVAHI_CONFIG_DIR "/hosts";
+    StaticHost  *h, *next;
+    const char  *filename = in_chroot ? "/hosts" : AVAHI_CONFIG_DIR "/hosts";
 
     if (!(f = fopen(filename, "r"))) {
         if (errno != ENOENT)
-            avahi_log_error ("Failed to open static hosts file: %s", strerror (errno));
+            avahi_log_error("Failed to open static hosts file: %s", strerror(errno));
         return;
     }
 
@@ -183,11 +183,11 @@ void static_hosts_load(int in_chroot) {
 
     while (!feof(f)) {
         unsigned int len;
-        char ln[256], *s;
-        char *host, *ip;
+        char         ln[256], *s;
+        char        *host, *ip;
         AvahiAddress a;
 
-        if (!fgets(ln, sizeof (ln), f))
+        if (!fgets(ln, sizeof(ln), f))
             break;
 
         line++;
@@ -213,8 +213,7 @@ void static_hosts_load(int in_chroot) {
         len = strcspn(s, " \t");
         host = avahi_strndup(s, len);
 
-        if (*host == 0)
-        {
+        if (*host == 0) {
             avahi_log_error("%s:%d: Error, unexpected end of line!", filename, line);
             avahi_free(host);
             avahi_free(ip);
@@ -229,7 +228,7 @@ void static_hosts_load(int in_chroot) {
 
         /* Anything left? */
         if (*s != 0) {
-            avahi_log_error ("%s:%d: Junk on the end of the line!", filename, line);
+            avahi_log_error("%s:%d: Junk on the end of the line!", filename, line);
             avahi_free(host);
             avahi_free(ip);
             goto fail;
@@ -271,8 +270,7 @@ fail:
     fclose(f);
 }
 
-void static_hosts_free_all (void)
-{
-    while(hosts)
+void static_hosts_free_all(void) {
+    while (hosts)
         static_host_free(hosts);
 }

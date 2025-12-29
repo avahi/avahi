@@ -40,10 +40,10 @@ typedef struct AvahiPoll AvahiPoll;
 
 /** Type of watch events */
 typedef enum {
-    AVAHI_WATCH_IN = POLLIN,      /**< Input event */
-    AVAHI_WATCH_OUT = POLLOUT,    /**< Output event */
-    AVAHI_WATCH_ERR = POLLERR,    /**< Error event */
-    AVAHI_WATCH_HUP = POLLHUP     /**< Hangup event */
+    AVAHI_WATCH_IN = POLLIN,   /**< Input event */
+    AVAHI_WATCH_OUT = POLLOUT, /**< Output event */
+    AVAHI_WATCH_ERR = POLLERR, /**< Error event */
+    AVAHI_WATCH_HUP = POLLHUP  /**< Hangup event */
 } AvahiWatchEvent;
 
 /** Called whenever an I/O event happens  on an I/O watch */
@@ -60,12 +60,12 @@ typedef void (*AvahiTimeoutCallback)(AvahiTimeout *t, void *userdata);
 struct AvahiPoll {
 
     /** Some abstract user data usable by the provider of the API */
-    void* userdata;
+    void *userdata;
 
     /** Create a new watch for the specified file descriptor and for
      * the specified events. The API will call the callback function
      * whenever any of the events happens. */
-    AvahiWatch* (*watch_new)(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata);
+    AvahiWatch *(*watch_new)(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata);
 
     /** Update the events to wait for. It is safe to call this function from an AvahiWatchCallback */
     void (*watch_update)(AvahiWatch *w, AvahiWatchEvent event);
@@ -81,7 +81,7 @@ struct AvahiPoll {
     NULL, the timeout is disabled. After the timeout expired the
     callback function will be called and the timeout is disabled. You
     can re-enable it by calling timeout_update()  */
-    AvahiTimeout* (*timeout_new)(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata);
+    AvahiTimeout *(*timeout_new)(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata);
 
     /** Update the absolute expiration time for a timeout, If tv is
      * NULL, the timeout is disabled. It is safe to call this function from an AvahiTimeoutCallback */
@@ -94,4 +94,3 @@ struct AvahiPoll {
 AVAHI_C_DECL_END
 
 #endif
-

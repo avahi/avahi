@@ -53,24 +53,24 @@ typedef struct AvahiLegacyUnicastReflectSlot AvahiLegacyUnicastReflectSlot;
 struct AvahiLegacyUnicastReflectSlot {
     AvahiServer *server;
 
-    uint16_t id, original_id;
-    AvahiAddress address;
-    uint16_t port;
-    int interface;
-    struct timeval elapse_time;
+    uint16_t        id, original_id;
+    AvahiAddress    address;
+    uint16_t        port;
+    int             interface;
+    struct timeval  elapse_time;
     AvahiTimeEvent *time_event;
 };
 
 struct AvahiEntry {
-    AvahiServer *server;
+    AvahiServer      *server;
     AvahiSEntryGroup *group;
 
     int dead;
 
     AvahiPublishFlags flags;
-    AvahiRecord *record;
-    AvahiIfIndex interface;
-    AvahiProtocol protocol;
+    AvahiRecord      *record;
+    AvahiIfIndex      interface;
+    AvahiProtocol     protocol;
 
     AVAHI_LLIST_FIELDS(AvahiEntry, entries);
     AVAHI_LLIST_FIELDS(AvahiEntry, by_key);
@@ -81,16 +81,16 @@ struct AvahiEntry {
 
 struct AvahiSEntryGroup {
     AvahiServer *server;
-    int dead;
+    int          dead;
 
-    AvahiEntryGroupState state;
-    void* userdata;
+    AvahiEntryGroupState     state;
+    void                    *userdata;
     AvahiSEntryGroupCallback callback;
 
     unsigned n_probing;
 
-    unsigned n_register_try;
-    struct timeval register_time;
+    unsigned        n_register_try;
+    struct timeval  register_time;
     AvahiTimeEvent *register_time_event;
 
     struct timeval established_at;
@@ -103,7 +103,7 @@ struct AvahiServer {
     const AvahiPoll *poll_api;
 
     AvahiInterfaceMonitor *monitor;
-    AvahiServerConfig config;
+    AvahiServerConfig      config;
 
     AVAHI_LLIST_HEAD(AvahiEntry, entries);
     AvahiHashmap *entries_by_key;
@@ -133,23 +133,22 @@ struct AvahiServer {
         /* The following two sockets two are used for reflection only */
         fd_legacy_unicast_ipv4, fd_legacy_unicast_ipv6;
 
-    AvahiWatch *watch_ipv4, *watch_ipv6,
-        *watch_legacy_unicast_ipv4, *watch_legacy_unicast_ipv6;
+    AvahiWatch *watch_ipv4, *watch_ipv6, *watch_legacy_unicast_ipv4, *watch_legacy_unicast_ipv6;
 
-    AvahiServerState state;
+    AvahiServerState    state;
     AvahiServerCallback callback;
-    void* userdata;
+    void               *userdata;
 
     AvahiSEntryGroup *hinfo_entry_group;
     AvahiSEntryGroup *browse_domain_entry_group;
-    unsigned n_host_rr_pending;
+    unsigned          n_host_rr_pending;
 
     /* Used for assembling responses */
     AvahiRecordList *record_list;
 
     /* Used for reflection of legacy unicast packets */
     AvahiLegacyUnicastReflectSlot **legacy_unicast_reflect_slots;
-    uint16_t legacy_unicast_reflect_id;
+    uint16_t                        legacy_unicast_reflect_id;
 
     /* The last error code */
     int error;
@@ -158,23 +157,26 @@ struct AvahiServer {
     uint32_t local_service_cookie;
 
     AvahiMulticastLookupEngine *multicast_lookup_engine;
-    AvahiWideAreaLookupEngine *wide_area_lookup_engine;
+    AvahiWideAreaLookupEngine  *wide_area_lookup_engine;
 };
 
-void avahi_entry_free(AvahiServer*s, AvahiEntry *e);
+void avahi_entry_free(AvahiServer *s, AvahiEntry *e);
 void avahi_entry_group_free(AvahiServer *s, AvahiSEntryGroup *g);
 
 void avahi_cleanup_dead_entries(AvahiServer *s);
 
 void avahi_server_prepare_response(AvahiServer *s, AvahiInterface *i, AvahiEntry *e, int unicast_response, int auxiliary);
 void avahi_server_prepare_matching_responses(AvahiServer *s, AvahiInterface *i, AvahiKey *k, int unicast_response);
-void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port, int legacy_unicast, int is_probe);
+void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port,
+                                    int legacy_unicast, int is_probe);
 
 void avahi_s_entry_group_change_state(AvahiSEntryGroup *g, AvahiEntryGroupState state);
 
 int avahi_entry_is_commited(AvahiEntry *e);
 
-void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r, void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void* userdata), void* userdata);
+void avahi_server_enumerate_aux_records(AvahiServer *s, AvahiInterface *i, AvahiRecord *r,
+                                        void (*callback)(AvahiServer *s, AvahiRecord *r, int flush_cache, void *userdata),
+                                        void *userdata);
 
 void avahi_host_rr_entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata);
 
@@ -185,43 +187,41 @@ int avahi_server_set_errno(AvahiServer *s, int error);
 int avahi_server_is_service_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, const char *name);
 int avahi_server_is_record_local(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *record);
 
-int avahi_server_add_ptr(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    const char *dest);
+int avahi_server_add_ptr(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                         AvahiPublishFlags flags, uint32_t ttl, const char *name, const char *dest);
 
-#define AVAHI_CHECK_VALIDITY(server, expression, error) { \
-        if (!(expression)) \
-            return avahi_server_set_errno((server), (error)); \
-}
+#define AVAHI_CHECK_VALIDITY(server, expression, error)                                                                        \
+    {                                                                                                                          \
+        if (!(expression))                                                                                                     \
+            return avahi_server_set_errno((server), (error));                                                                  \
+    }
 
-#define AVAHI_CHECK_VALIDITY_RETURN_NULL(server, expression, error) { \
-        if (!(expression)) { \
-            avahi_server_set_errno((server), (error)); \
-            return NULL; \
-        } \
-}
+#define AVAHI_CHECK_VALIDITY_RETURN_NULL(server, expression, error)                                                            \
+    {                                                                                                                          \
+        if (!(expression)) {                                                                                                   \
+            avahi_server_set_errno((server), (error));                                                                         \
+            return NULL;                                                                                                       \
+        }                                                                                                                      \
+    }
 
-#define AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(server, expression, error) {\
-    if (!(expression)) { \
-        ret = avahi_server_set_errno((server), (error)); \
-        goto fail; \
-    } \
-}
+#define AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(server, expression, error)                                                      \
+    {                                                                                                                          \
+        if (!(expression)) {                                                                                                   \
+            ret = avahi_server_set_errno((server), (error));                                                                   \
+            goto fail;                                                                                                         \
+        }                                                                                                                      \
+    }
 
-#define AVAHI_ASSERT_TRUE(expression) { \
-    int __tmp = !!(expression); \
-    assert(__tmp); \
-}
+#define AVAHI_ASSERT_TRUE(expression)                                                                                          \
+    {                                                                                                                          \
+        int __tmp = !!(expression);                                                                                            \
+        assert(__tmp);                                                                                                         \
+    }
 
-#define AVAHI_ASSERT_SUCCESS(expression) { \
-    int __tmp = (expression); \
-    assert(__tmp == 0); \
-}
+#define AVAHI_ASSERT_SUCCESS(expression)                                                                                       \
+    {                                                                                                                          \
+        int __tmp = (expression);                                                                                              \
+        assert(__tmp == 0);                                                                                                    \
+    }
 
 #endif

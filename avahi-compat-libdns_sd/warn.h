@@ -29,8 +29,19 @@ void avahi_warn_linkage(void);
 
 void avahi_warn(const char *fmt, ...);
 
-#define AVAHI_WARN_LINKAGE do { avahi_warn_linkage(); } while(0)
-#define AVAHI_WARN_UNSUPPORTED do { avahi_warn_linkage(); avahi_warn_unsupported(__FUNCTION__); } while(0)
-#define AVAHI_WARN_UNSUPPORTED_ABORT do { AVAHI_WARN_UNSUPPORTED; abort(); } while(0)
+#define AVAHI_WARN_LINKAGE                                                                                                     \
+    do {                                                                                                                       \
+        avahi_warn_linkage();                                                                                                  \
+    } while (0)
+#define AVAHI_WARN_UNSUPPORTED                                                                                                 \
+    do {                                                                                                                       \
+        avahi_warn_linkage();                                                                                                  \
+        avahi_warn_unsupported(__FUNCTION__);                                                                                  \
+    } while (0)
+#define AVAHI_WARN_UNSUPPORTED_ABORT                                                                                           \
+    do {                                                                                                                       \
+        AVAHI_WARN_UNSUPPORTED;                                                                                                \
+        abort();                                                                                                               \
+    } while (0)
 
 #endif

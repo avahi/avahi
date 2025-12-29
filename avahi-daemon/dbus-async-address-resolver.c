@@ -61,13 +61,15 @@ void avahi_dbus_async_address_resolver_free(AsyncAddressResolverInfo *i) {
 void avahi_dbus_async_address_resolver_start(AsyncAddressResolverInfo *i) {
     assert(i);
 
-    if(i->address_resolver)
+    if (i->address_resolver)
         avahi_s_address_resolver_start(i->address_resolver);
 }
 
-void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const AvahiAddress *address, const char *host_name, AvahiLookupResultFlags flags, void* userdata) {
+void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                AvahiResolverEvent event, const AvahiAddress *address, const char *host_name,
+                                                AvahiLookupResultFlags flags, void *userdata) {
     AsyncAddressResolverInfo *i = userdata;
-    DBusMessage *reply;
+    DBusMessage              *reply;
 
     assert(r);
     assert(i);
@@ -80,30 +82,35 @@ void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiI
     }
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
+        char     t[AVAHI_ADDRESS_STR_MAX], *pt = t;
+        int32_t  i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
 
         assert(address);
         assert(host_name);
         avahi_address_snprint(t, sizeof(t), address);
 
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) address->proto;
-        u_flags = (uint32_t) flags;
+        i_interface = (int32_t)interface;
+        i_protocol = (int32_t)protocol;
+        i_aprotocol = (int32_t)address->proto;
+        u_flags = (uint32_t)flags;
 
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
+        dbus_message_append_args(reply,
+                                 DBUS_TYPE_INT32,
+                                 &i_interface,
+                                 DBUS_TYPE_INT32,
+                                 &i_protocol,
+                                 DBUS_TYPE_INT32,
+                                 &i_aprotocol,
+                                 DBUS_TYPE_STRING,
+                                 &pt,
+                                 DBUS_TYPE_STRING,
+                                 &host_name,
+                                 DBUS_TYPE_UINT32,
+                                 &u_flags,
+                                 DBUS_TYPE_INVALID);
 
-    }  else {
+    } else {
         assert(event == AVAHI_RESOLVER_FAILURE);
         avahi_dbus_append_server_error(reply);
     }
@@ -114,7 +121,7 @@ void avahi_dbus_async_address_resolver_callback(AvahiSAddressResolver *r, AvahiI
 }
 
 DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
+    DBusError                 error;
     AsyncAddressResolverInfo *i = userdata;
 
     assert(c);
@@ -123,7 +130,7 @@ DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, 
 
     dbus_error_init(&error);
 
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__ ": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -157,7 +164,6 @@ DBusHandlerResult avahi_dbus_msg_async_address_resolver_impl(DBusConnection *c, 
         avahi_dbus_async_address_resolver_start(i);
         return avahi_dbus_respond_ok(c, m);
     }
-
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

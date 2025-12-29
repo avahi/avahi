@@ -42,13 +42,13 @@
 #endif
 
 static pthread_mutex_t linkage_mutex = PTHREAD_MUTEX_INITIALIZER;
-static int linkage_warning = 0;
+static int             linkage_warning = 0;
 
 const char *avahi_exe_name(void) {
 #ifdef HAVE_GETPROGNAME
     return getprogname();
 #elif defined(__linux__)
-    static char exe_name[1024] = "";
+    static char            exe_name[1024] = "";
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     /* Yes, I know, this is not portable. But who cares? It's for
@@ -59,16 +59,16 @@ const char *avahi_exe_name(void) {
     if (exe_name[0] == 0) {
         int k;
 
-        if ((k = readlink("/proc/self/exe", exe_name, sizeof(exe_name)-1)) < 0)
+        if ((k = readlink("/proc/self/exe", exe_name, sizeof(exe_name) - 1)) < 0)
             snprintf(exe_name, sizeof(exe_name), "(unknown)");
         else {
             char *slash;
 
-            assert((size_t) k <= sizeof(exe_name)-1);
+            assert((size_t)k <= sizeof(exe_name) - 1);
             exe_name[k] = 0;
 
             if ((slash = strrchr(exe_name, '/')))
-                memmove(exe_name, slash+1, strlen(slash+1)+1);
+                memmove(exe_name, slash + 1, strlen(slash + 1) + 1);
         }
     }
 
@@ -84,9 +84,9 @@ const char *avahi_exe_name(void) {
 }
 
 void avahi_warn(const char *fmt, ...) {
-    char msg[512]  = "*** WARNING *** ";
+    char    msg[512] = "*** WARNING *** ";
     va_list ap;
-    size_t n;
+    size_t  n;
 
     assert(fmt);
 
@@ -111,14 +111,17 @@ void avahi_warn_linkage(void) {
     pthread_mutex_unlock(&linkage_mutex);
 
     if (!w && !getenv("AVAHI_COMPAT_NOWARN")) {
-        avahi_warn("The program '%s' uses the "COMPAT_LAYER" compatibility layer of Avahi.", avahi_exe_name());
+        avahi_warn("The program '%s' uses the " COMPAT_LAYER " compatibility layer of Avahi.", avahi_exe_name());
         avahi_warn("Please fix your application to use the native API of Avahi!");
         avahi_warn("For more information see <http://0pointer.de/blog/projects/avahi-compat.html>");
     }
 }
 
 void avahi_warn_unsupported(const char *function) {
-    avahi_warn("The program '%s' called '%s()' which is not supported (or only supported partially) in the "COMPAT_LAYER" compatibility layer of Avahi.", avahi_exe_name(), function);
+    avahi_warn("The program '%s' called '%s()' which is not supported (or only supported partially) in the " COMPAT_LAYER
+               " compatibility layer of Avahi.",
+               avahi_exe_name(),
+               function);
     avahi_warn("Please fix your application to use the native API of Avahi!");
     avahi_warn("For more information see <http://0pointer.de/blog/projects/avahi-compat.html>");
 }

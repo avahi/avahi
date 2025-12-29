@@ -32,9 +32,9 @@
 
 struct _sw_text_record {
     AvahiStringList *strlst;
-    uint8_t *buffer;
-    size_t buffer_size;
-    int buffer_valid;
+    uint8_t         *buffer;
+    size_t           buffer_size;
+    int              buffer_valid;
 };
 
 #ifndef HAVE_STRLCPY
@@ -44,8 +44,8 @@ static size_t strlcpy(char *dest, const char *src, size_t n) {
     assert(src);
 
     if (n > 0) {
-        strncpy(dest, src, n-1);
-        dest[n-1] = 0;
+        strncpy(dest, src, n - 1);
+        dest[n - 1] = 0;
     }
 
     return strlen(src);
@@ -82,9 +82,7 @@ sw_result sw_text_record_fina(sw_text_record self) {
     return SW_OKAY;
 }
 
-sw_result sw_text_record_add_string(
-    sw_text_record self,
-    sw_const_string string) {
+sw_result sw_text_record_add_string(sw_text_record self, sw_const_string string) {
 
     AvahiStringList *n;
 
@@ -101,10 +99,7 @@ sw_result sw_text_record_add_string(
     return SW_OKAY;
 }
 
-sw_result sw_text_record_add_key_and_string_value(
-    sw_text_record self,
-    sw_const_string key,
-    sw_const_string val) {
+sw_result sw_text_record_add_key_and_string_value(sw_text_record self, sw_const_string key, sw_const_string val) {
 
     AvahiStringList *n;
 
@@ -121,11 +116,7 @@ sw_result sw_text_record_add_key_and_string_value(
     return SW_OKAY;
 }
 
-sw_result sw_text_record_add_key_and_binary_value(
-    sw_text_record self,
-    sw_const_string key,
-    sw_octets val,
-    sw_uint32 len) {
+sw_result sw_text_record_add_key_and_binary_value(sw_text_record self, sw_const_string key, sw_octets val, sw_uint32 len) {
 
     AvahiStringList *n;
 
@@ -177,20 +168,16 @@ sw_uint32 sw_text_record_len(sw_text_record self) {
     AVAHI_WARN_LINKAGE;
 
     if (rebuild(self) < 0)
-        return (uint32_t) -1;
+        return (uint32_t)-1;
 
     return self->buffer_size;
 }
 
 struct _sw_text_record_iterator {
     AvahiStringList *strlst, *index;
-
 };
 
-sw_result sw_text_record_iterator_init(
-    sw_text_record_iterator * self,
-    sw_octets text_record,
-    sw_uint32 text_record_len) {
+sw_result sw_text_record_iterator_init(sw_text_record_iterator *self, sw_octets text_record, sw_uint32 text_record_len) {
 
     AvahiStringList *txt;
     assert(self);
@@ -224,13 +211,10 @@ sw_result sw_text_record_iterator_fina(sw_text_record_iterator self) {
     return SW_OKAY;
 }
 
-sw_result sw_text_record_iterator_next(
-    sw_text_record_iterator self,
-    char key[SW_TEXT_RECORD_MAX_LEN],
-    sw_uint8 val[SW_TEXT_RECORD_MAX_LEN],
-    sw_uint32 * val_len) {
+sw_result sw_text_record_iterator_next(sw_text_record_iterator self, char key[SW_TEXT_RECORD_MAX_LEN],
+                                       sw_uint8 val[SW_TEXT_RECORD_MAX_LEN], sw_uint32 *val_len) {
 
-    char *mkey = NULL, *mvalue = NULL;
+    char  *mkey = NULL, *mvalue = NULL;
     size_t msize = 0;
 
     assert(self);
@@ -256,4 +240,3 @@ sw_result sw_text_record_iterator_next(
 
     return SW_OKAY;
 }
-

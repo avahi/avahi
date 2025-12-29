@@ -50,7 +50,7 @@
 
 #define BROWSE_DNS_SERVERS "BROWSE-DNS-SERVERS\n"
 
-#define ENV_INTERFACE_DNS_SERVERS  "AVAHI_INTERFACE_DNS_SERVERS"
+#define ENV_INTERFACE_DNS_SERVERS "AVAHI_INTERFACE_DNS_SERVERS"
 #define ENV_DNS_SERVERS "AVAHI_DNS_SERVERS"
 #define ENV_INTERFACE "AVAHI_INTERFACE"
 
@@ -79,9 +79,9 @@ extern char **environ;
 typedef struct DNSServerInfo DNSServerInfo;
 
 struct DNSServerInfo {
-    AvahiIfIndex interface;
+    AvahiIfIndex  interface;
     AvahiProtocol protocol;
-    char *address;
+    char         *address;
     AVAHI_LLIST_FIELDS(DNSServerInfo, servers);
 };
 
@@ -96,20 +96,18 @@ static void server_info_free(DNSServerInfo *i) {
     avahi_free(i);
 }
 
-static DNSServerInfo* get_server_info(AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
+static DNSServerInfo *get_server_info(AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
     DNSServerInfo *i;
     assert(address);
 
     for (i = servers; i; i = i->servers_next)
-        if (i->interface == interface &&
-            i->protocol == protocol &&
-            strcmp(i->address, address) == 0)
+        if (i->interface == interface && i->protocol == protocol && strcmp(i->address, address) == 0)
             return i;
 
     return NULL;
 }
 
-static DNSServerInfo* new_server_info(AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
+static DNSServerInfo *new_server_info(AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
     DNSServerInfo *i;
 
     assert(address);
@@ -135,11 +133,11 @@ static int set_cloexec(int fd) {
     if (n & FD_CLOEXEC)
         return 0;
 
-    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
+    return fcntl(fd, F_SETFD, n | FD_CLOEXEC);
 }
 
 static int open_socket(void) {
-    int fd = -1;
+    int                fd = -1;
     struct sockaddr_un sa;
 
     if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
@@ -154,10 +152,10 @@ static int open_socket(void) {
 
     memset(&sa, 0, sizeof(sa));
     sa.sun_family = AF_UNIX;
-    strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path)-1);
-    sa.sun_path[sizeof(sa.sun_path)-1] = 0;
+    strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path) - 1);
+    sa.sun_path[sizeof(sa.sun_path) - 1] = 0;
 
-    if (connect(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
+    if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "connect(): %s", strerror(errno));
         daemon_log(LOG_INFO, "Failed to connect to the daemon. This probably means that you");
         daemon_log(LOG_INFO, "didn't start avahi-daemon before avahi-dnsconfd.");
@@ -173,7 +171,7 @@ fail:
     return -1;
 }
 
-static ssize_t loop_write(int fd, const void*data, size_t size) {
+static ssize_t loop_write(int fd, const void *data, size_t size) {
 
     ssize_t ret = 0;
     assert(fd >= 0 && data && size);
@@ -188,7 +186,7 @@ static ssize_t loop_write(int fd, const void*data, size_t size) {
             break;
 
         ret += r;
-        data = (const uint8_t*) data + r;
+        data = (const uint8_t *)data + r;
         size -= r;
     }
 
@@ -197,12 +195,12 @@ static ssize_t loop_write(int fd, const void*data, size_t size) {
 
 static char *concat_dns_servers(AvahiIfIndex interface) {
     DNSServerInfo *i;
-    char *r = NULL;
+    char          *r = NULL;
 
     for (i = servers; i; i = i->servers_next)
         if (i->interface == interface || interface <= 0) {
             DNSServerInfo *j;
-            char *t;
+            char          *t;
 
             /* Filter out double entries */
             for (j = servers; j != i; j = j->servers_next)
@@ -236,7 +234,7 @@ static void set_env(const char *name, const char *value) {
 
     for (e = environ; *e; e++) {
         /* Search for the variable */
-        if (strlen(*e) < l+1)
+        if (strlen(*e) < l + 1)
             continue;
 
         if (strncmp(*e, name, l) != 0 || (*e)[l] != '=')
@@ -253,9 +251,9 @@ static void set_env(const char *name, const char *value) {
 
 static void run_script(int new, AvahiIfIndex interface, AvahiProtocol protocol, const char *address) {
     char *p;
-    int ret;
-    char ia[16], pa[16];
-    char name[IF_NAMESIZE];
+    int   ret;
+    char  ia[16], pa[16];
+    char  name[IF_NAMESIZE];
 
     assert(interface > 0);
 
@@ -272,10 +270,19 @@ static void run_script(int new, AvahiIfIndex interface, AvahiProtocol protocol, 
 
     set_env(ENV_INTERFACE, name);
 
-    snprintf(ia, sizeof(ia), "%i", (int) interface);
-    snprintf(pa, sizeof(pa), "%i", (int) protocol);
+    snprintf(ia, sizeof(ia), "%i", (int)interface);
+    snprintf(pa, sizeof(pa), "%i", (int)protocol);
 
-    if (daemon_exec("/", &ret, AVAHI_DNSCONF_SCRIPT, AVAHI_DNSCONF_SCRIPT, new ? "+" : "-", address, ia, pa, avahi_proto_to_string(protocol), NULL) < 0)
+    if (daemon_exec("/",
+                    &ret,
+                    AVAHI_DNSCONF_SCRIPT,
+                    AVAHI_DNSCONF_SCRIPT,
+                    new ? "+" : "-",
+                    address,
+                    ia,
+                    pa,
+                    avahi_proto_to_string(protocol),
+                    NULL) < 0)
         daemon_log(LOG_WARNING, "Failed to run script");
     else if (ret != 0)
         daemon_log(LOG_WARNING, "Script returned with non-zero exit code %i", ret);
@@ -293,10 +300,10 @@ static int new_line(const char *l) {
         daemon_log(LOG_INFO, "Successfully connected to Avahi daemon.");
         state = BROWSING;
     } else {
-        AvahiIfIndex interface;
+        AvahiIfIndex  interface;
         AvahiProtocol protocol;
-        int i_interface, i_protocol, port;
-        char a[AVAHI_ADDRESS_STR_MAX];
+        int           i_interface, i_protocol, port;
+        char          a[AVAHI_ADDRESS_STR_MAX];
 
         assert(state == BROWSING);
 
@@ -305,13 +312,13 @@ static int new_line(const char *l) {
             return -1;
         }
 
-        if (sscanf(l+1, "%i %i %39s %i", &i_interface, &i_protocol, a, &port) != 4) {
+        if (sscanf(l + 1, "%i %i %39s %i", &i_interface, &i_protocol, a, &port) != 4) {
             daemon_log(LOG_ERR, "Failed to parse browsing line: %s", l);
             return -1;
         }
 
-        interface = (AvahiIfIndex) i_interface;
-        protocol = (AvahiProtocol) i_protocol;
+        interface = (AvahiIfIndex)i_interface;
+        protocol = (AvahiProtocol)i_protocol;
 
         if (*l == '>') {
             if (port != 53)
@@ -326,12 +333,12 @@ static int new_line(const char *l) {
 
             if (port == 53)
                 if ((i = get_server_info(interface, protocol, a))) {
-                    daemon_log(LOG_INFO, "DNS Server %s removed (interface: %i.%s)", a, interface, avahi_proto_to_string(protocol));
+                    daemon_log(
+                        LOG_INFO, "DNS Server %s removed (interface: %i.%s)", a, interface, avahi_proto_to_string(protocol));
                     server_info_free(i);
                     run_script(0, interface, protocol, a);
                 }
         }
-
     }
 
     return 0;
@@ -343,7 +350,7 @@ static int do_connect(void) {
     if ((fd = open_socket()) < 0)
         goto fail;
 
-    if (loop_write(fd, BROWSE_DNS_SERVERS, sizeof(BROWSE_DNS_SERVERS)-1) < 0) {
+    if (loop_write(fd, BROWSE_DNS_SERVERS, sizeof(BROWSE_DNS_SERVERS) - 1) < 0) {
         daemon_log(LOG_ERR, "write(): %s", strerror(errno));
         goto fail;
     }
@@ -360,9 +367,9 @@ fail:
 
 static void free_dns_server_info_list(void) {
     while (servers) {
-        AvahiIfIndex interface = servers->interface;
+        AvahiIfIndex  interface = servers->interface;
         AvahiProtocol protocol = servers->protocol;
-        char *address = avahi_strdup(servers->address);
+        char         *address = avahi_strdup(servers->address);
         server_info_free(servers);
 
         run_script(0, interface, protocol, address);
@@ -387,42 +394,42 @@ static int parse_command_line(int argc, char *argv[]) {
     int c;
 
     static const struct option long_options[] = {
-        { "help",      no_argument,       NULL, 'h' },
-        { "daemonize", no_argument,       NULL, 'D' },
-        { "syslog",    no_argument,       NULL, 's' },
-        { "kill",      no_argument,       NULL, 'k' },
-        { "version",   no_argument,       NULL, 'V' },
-        { "refresh",   no_argument,       NULL, 'r' },
-        { "check",     no_argument,       NULL, 'c' },
-        { NULL, 0, NULL, 0 }
+        {"help",      no_argument, NULL, 'h'},
+        {"daemonize", no_argument, NULL, 'D'},
+        {"syslog",    no_argument, NULL, 's'},
+        {"kill",      no_argument, NULL, 'k'},
+        {"version",   no_argument, NULL, 'V'},
+        {"refresh",   no_argument, NULL, 'r'},
+        {"check",     no_argument, NULL, 'c'},
+        {NULL,        0,           NULL, 0  }
     };
 
     while ((c = getopt_long(argc, argv, "hDkVrcs", long_options, NULL)) >= 0) {
 
-        switch(c) {
-            case 'h':
-                command = DAEMON_HELP;
-                break;
-            case 'D':
-                daemonize = 1;
-                break;
-            case 's':
-                use_syslog = 1;
-                break;
-            case 'k':
-                command = DAEMON_KILL;
-                break;
-            case 'V':
-                command = DAEMON_VERSION;
-                break;
-            case 'r':
-                command = DAEMON_REFRESH;
-                break;
-            case 'c':
-                command = DAEMON_CHECK;
-                break;
-            default:
-                return -1;
+        switch (c) {
+        case 'h':
+            command = DAEMON_HELP;
+            break;
+        case 'D':
+            daemonize = 1;
+            break;
+        case 's':
+            use_syslog = 1;
+            break;
+        case 'k':
+            command = DAEMON_KILL;
+            break;
+        case 'V':
+            command = DAEMON_VERSION;
+            break;
+        case 'r':
+            command = DAEMON_REFRESH;
+            break;
+        case 'c':
+            command = DAEMON_CHECK;
+            break;
+        default:
+            return -1;
         }
     }
 
@@ -435,8 +442,8 @@ static int parse_command_line(int argc, char *argv[]) {
 }
 
 static int run_daemon(void) {
-    int fd = -1, ret = -1;
-    char buf[1024];
+    int    fd = -1, ret = -1;
+    char   buf[1024];
     size_t buflen = 0;
 
     AVAHI_LLIST_HEAD_INIT(DNSServerInfo, servers);
@@ -444,9 +451,9 @@ static int run_daemon(void) {
     daemon_signal_init(SIGINT, SIGTERM, SIGCHLD, SIGHUP, 0);
 
     /* Allocate some memory for our environment variables */
-    putenv(avahi_strdup(ENV_INTERFACE"="));
-    putenv(avahi_strdup(ENV_DNS_SERVERS"="));
-    putenv(avahi_strdup(ENV_INTERFACE_DNS_SERVERS"="));
+    putenv(avahi_strdup(ENV_INTERFACE "="));
+    putenv(avahi_strdup(ENV_DNS_SERVERS "="));
+    putenv(avahi_strdup(ENV_INTERFACE_DNS_SERVERS "="));
 
     if ((fd = do_connect()) < 0)
         goto finish;
@@ -466,7 +473,7 @@ static int run_daemon(void) {
         FD_SET(daemon_signal_fd(), &rfds);
 
         for (;;) {
-            if (select(fd+1, &rfds, NULL, NULL, NULL) < 0) {
+            if (select(fd + 1, &rfds, NULL, NULL, NULL) < 0) {
                 if (errno == EINTR)
                     continue;
 
@@ -486,32 +493,32 @@ static int run_daemon(void) {
                 goto finish;
             }
 
-            switch(sig) {
-                case SIGINT:
-                case SIGTERM:
-                    daemon_log(LOG_INFO, "Got %s, quitting.", sig == SIGINT ? "SIGINT" : "SIGTERM");
-                    ret = 0;
+            switch (sig) {
+            case SIGINT:
+            case SIGTERM:
+                daemon_log(LOG_INFO, "Got %s, quitting.", sig == SIGINT ? "SIGINT" : "SIGTERM");
+                ret = 0;
+                goto finish;
+
+            case SIGCHLD:
+                waitpid(-1, NULL, WNOHANG);
+                break;
+
+            case SIGHUP:
+                daemon_log(LOG_INFO, "Refreshing DNS Server list");
+
+                close(fd);
+                free_dns_server_info_list();
+
+                if ((fd = do_connect()) < 0)
                     goto finish;
 
-                case SIGCHLD:
-                    waitpid(-1, NULL, WNOHANG);
-                    break;
-
-                case SIGHUP:
-                    daemon_log(LOG_INFO, "Refreshing DNS Server list");
-
-                    close(fd);
-                    free_dns_server_info_list();
-
-                    if ((fd = do_connect()) < 0)
-                        goto finish;
-
-                    break;
+                break;
             }
 
         } else if (FD_ISSET(fd, &rfds)) {
             ssize_t r;
-            char *n;
+            char   *n;
 
             if ((r = read(fd, buf, sizeof(buf) - buflen - 1)) <= 0) {
                 daemon_log(LOG_ERR, "read(): %s", r < 0 ? strerror(errno) : "EOF");
@@ -519,7 +526,7 @@ static int run_daemon(void) {
             }
 
             buflen += r;
-            assert(buflen <= sizeof(buf)-1);
+            assert(buflen <= sizeof(buf) - 1);
 
             while ((n = memchr(buf, '\n', buflen))) {
                 *(n++) = 0;
@@ -531,9 +538,9 @@ static int run_daemon(void) {
                 memmove(buf, n, buflen);
             }
 
-            if (buflen >= sizeof(buf)-1) {
+            if (buflen >= sizeof(buf) - 1) {
                 /* The incoming line is horribly long */
-                buf[sizeof(buf)-1] = 0;
+                buf[sizeof(buf) - 1] = 0;
 
                 if (new_line(buf) < 0)
                     goto finish;
@@ -558,14 +565,12 @@ finish:
     return ret;
 }
 
-static const char* pid_file_proc(void) {
-    return AVAHI_RUNTIME_DIR"/avahi-dnsconfd.pid";
-}
+static const char *pid_file_proc(void) { return AVAHI_RUNTIME_DIR "/avahi-dnsconfd.pid"; }
 
 int main(int argc, char *argv[]) {
     char *argv0;
-    int r = 1;
-    int wrote_pid_file = 0;
+    int   r = 1;
+    int   wrote_pid_file = 0;
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
@@ -635,7 +640,7 @@ int main(int argc, char *argv[]) {
 
         r = 0;
     } else if (command == DAEMON_VERSION) {
-        printf("%s "PACKAGE_VERSION"\n", argv0);
+        printf("%s " PACKAGE_VERSION "\n", argv0);
 
         r = 0;
     } else if (command == DAEMON_KILL) {
@@ -654,7 +659,6 @@ int main(int argc, char *argv[]) {
         r = 0;
     } else if (command == DAEMON_CHECK)
         r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
-
 
 finish:
 

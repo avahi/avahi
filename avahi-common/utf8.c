@@ -30,81 +30,70 @@
 
 #include "utf8.h"
 
-#define UNICODE_VALID(Char)                   \
-    ((Char) < 0x110000 &&                     \
-     (((Char) & 0xFFFFF800) != 0xD800) &&     \
-     ((Char) < 0xFDD0 || (Char) > 0xFDEF) &&  \
+#define UNICODE_VALID(Char)                                                                                                    \
+    ((Char) < 0x110000 && (((Char) & 0xFFFFF800) != 0xD800) && ((Char) < 0xFDD0 || (Char) > 0xFDEF) &&                         \
      ((Char) & 0xFFFE) != 0xFFFE)
 
+#define CONTINUATION_CHAR                                                                                                      \
+    do {                                                                                                                       \
+        if ((*(const unsigned char *)p & 0xc0) != 0x80) /* 10xxxxxx */                                                         \
+            goto error;                                                                                                        \
+        val <<= 6;                                                                                                             \
+        val |= (*(const unsigned char *)p) & 0x3f;                                                                             \
+    } while (0)
 
-#define CONTINUATION_CHAR                           \
- do {                                     \
-  if ((*(const unsigned char *)p & 0xc0) != 0x80) /* 10xxxxxx */ \
-    goto error;                                     \
-  val <<= 6;                                        \
-  val |= (*(const unsigned char *)p) & 0x3f;                     \
- } while(0)
-
-
-const char *
-avahi_utf8_valid (const char *str)
+const char *avahi_utf8_valid(const char *str)
 
 {
-  unsigned val = 0;
-  unsigned min = 0;
-  const char *p;
+    unsigned    val = 0;
+    unsigned    min = 0;
+    const char *p;
 
-  for (p = str; *p; p++)
-    {
-      if (*(const unsigned char *)p < 128)
-	/* done */;
-      else
-	{
-	  if ((*(const unsigned char *)p & 0xe0) == 0xc0) /* 110xxxxx */
-	    {
-	      if ( ((*(const unsigned char *)p & 0x1e) == 0))
-		goto error;
-	      p++;
-	      if ( ((*(const unsigned char *)p & 0xc0) != 0x80)) /* 10xxxxxx */
-		goto error;
-	    }
-	  else
-	    {
-	      if ((*(const unsigned char *)p & 0xf0) == 0xe0) /* 1110xxxx */
-		{
-		  min = (1 << 11);
-		  val = *(const unsigned char *)p & 0x0f;
-		  goto TWO_REMAINING;
-		}
-	      else if ((*(const unsigned char *)p & 0xf8) == 0xf0) /* 11110xxx */
-		{
-		  min = (1 << 16);
-		  val = *(const unsigned char *)p & 0x07;
-		}
-	      else
-		goto error;
+    for (p = str; *p; p++) {
+        if (*(const unsigned char *)p < 128)
+            /* done */;
+        else {
+            if ((*(const unsigned char *)p & 0xe0) == 0xc0) /* 110xxxxx */
+            {
+                if (((*(const unsigned char *)p & 0x1e) == 0))
+                    goto error;
+                p++;
+                if (((*(const unsigned char *)p & 0xc0) != 0x80)) /* 10xxxxxx */
+                    goto error;
+            } else {
+                if ((*(const unsigned char *)p & 0xf0) == 0xe0) /* 1110xxxx */
+                {
+                    min = (1 << 11);
+                    val = *(const unsigned char *)p & 0x0f;
+                    goto TWO_REMAINING;
+                } else if ((*(const unsigned char *)p & 0xf8) == 0xf0) /* 11110xxx */
+                {
+                    min = (1 << 16);
+                    val = *(const unsigned char *)p & 0x07;
+                } else
+                    goto error;
 
-	      p++;
-	      CONTINUATION_CHAR;
-	    TWO_REMAINING:
-	      p++;
-	      CONTINUATION_CHAR;
-	      p++;
-	      CONTINUATION_CHAR;
+                p++;
+                CONTINUATION_CHAR;
+            TWO_REMAINING:
+                p++;
+                CONTINUATION_CHAR;
+                p++;
+                CONTINUATION_CHAR;
 
-	      if ( (val < min))
-		goto error;
+                if ((val < min))
+                    goto error;
 
-	      if ( (!UNICODE_VALID(val)))
-		goto error;
-	    }
+                if ((!UNICODE_VALID(val)))
+                    goto error;
+            }
 
-	  continue;
+            continue;
 
-	error:
-	  return NULL;
-	}
+        error:
+            return NULL;
+        }
     }
 
-  return str;
+    return str;
 }

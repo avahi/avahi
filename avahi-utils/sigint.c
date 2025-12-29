@@ -34,8 +34,8 @@
 
 static AvahiSimplePoll *simple_poll = NULL;
 static struct sigaction old_sigint_sa, old_sigterm_sa;
-static int pipe_fds[2] = { -1, -1 };
-static AvahiWatch *watch = NULL;
+static int              pipe_fds[2] = {-1, -1};
+static AvahiWatch      *watch = NULL;
 
 static int set_nonblock(int fd) {
     int n;
@@ -48,12 +48,10 @@ static int set_nonblock(int fd) {
     if (n & O_NONBLOCK)
         return 0;
 
-    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
+    return fcntl(fd, F_SETFL, n | O_NONBLOCK);
 }
 
-static void handler(int s) {
-    write(pipe_fds[1], &s, sizeof(s));
-}
+static void handler(int s) { write(pipe_fds[1], &s, sizeof(s)); }
 
 static void close_pipe_fds(void) {
     if (pipe_fds[0] >= 0)
@@ -65,7 +63,7 @@ static void close_pipe_fds(void) {
 }
 
 static void watch_callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNUSED void *userdata) {
-    int s;
+    int     s;
     ssize_t l;
 
     assert(w);

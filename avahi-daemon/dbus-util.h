@@ -50,7 +50,8 @@ void avahi_dbus_append_string_list(DBusMessage *reply, AvahiStringList *txt);
 int avahi_dbus_read_rdata(DBusMessage *m, int idx, void **rdata, uint32_t *size);
 int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l);
 
-int avahi_dbus_is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain);
+int avahi_dbus_is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type,
+                                  const char *domain);
 
 int avahi_dbus_append_rdata(DBusMessage *message, const void *rdata, size_t size);
 

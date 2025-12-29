@@ -31,7 +31,8 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
 void avahi_querier_remove(AvahiInterface *i, AvahiKey *key);
 
 /** Add a querier for the specified key on all interfaces that mach */
-void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, struct timeval *ret_ctime);
+void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key,
+                               struct timeval *ret_ctime);
 
 /** Remove a querier for the specified key on all interfaces that mach */
 void avahi_querier_remove_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key);

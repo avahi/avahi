@@ -29,10 +29,10 @@
 AVAHI_C_DECL_BEGIN
 
 /** Make an address structture of a sockaddr structure */
-AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddress *ret_addr);
+AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr *sa, AvahiAddress *ret_addr);
 
 /** Return the port number of a sockaddr structure (either IPv4 or IPv6) */
-uint16_t avahi_port_from_sockaddr(const struct sockaddr* sa);
+uint16_t avahi_port_from_sockaddr(const struct sockaddr *sa);
 
 /** Check whether the specified IPv6 address is in fact an
  * encapsulated IPv4 address, returns 1 if yes, 0 otherwise */

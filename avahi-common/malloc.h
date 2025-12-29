@@ -45,22 +45,22 @@ void avahi_free(void *p);
 void *avahi_realloc(void *p, size_t size) AVAHI_GCC_ALLOC_SIZE(2);
 
 /** Internal helper for avahi_new() */
-static inline void* AVAHI_GCC_ALLOC_SIZE2(1,2) avahi_new_internal(unsigned n, size_t k) {
-    assert(n < INT_MAX/k);
-    return avahi_malloc(n*k);
+static inline void *AVAHI_GCC_ALLOC_SIZE2(1, 2) avahi_new_internal(unsigned n, size_t k) {
+    assert(n < INT_MAX / k);
+    return avahi_malloc(n * k);
 }
 
 /** Allocate n new structures of the specified type. */
-#define avahi_new(type, n) ((type*) avahi_new_internal((n), sizeof(type)))
+#define avahi_new(type, n) ((type *)avahi_new_internal((n), sizeof(type)))
 
 /** Internal helper for avahi_new0() */
-static inline void* AVAHI_GCC_ALLOC_SIZE2(1,2) avahi_new0_internal(unsigned n, size_t k) {
-    assert(n < INT_MAX/k);
-    return avahi_malloc0(n*k);
+static inline void *AVAHI_GCC_ALLOC_SIZE2(1, 2) avahi_new0_internal(unsigned n, size_t k) {
+    assert(n < INT_MAX / k);
+    return avahi_malloc0(n * k);
 }
 
 /** Same as avahi_new() but set the memory to zero */
-#define avahi_new0(type, n) ((type*) avahi_new0_internal((n), sizeof(type)))
+#define avahi_new0(type, n) ((type *)avahi_new0_internal((n), sizeof(type)))
 
 /** Just like libc's strdup() */
 char *avahi_strdup(const char *s);
@@ -73,10 +73,10 @@ void *avahi_memdup(const void *s, size_t l) AVAHI_GCC_ALLOC_SIZE(2);
 
 /** Wraps allocator functions */
 typedef struct AvahiAllocator {
-    void* (*malloc)(size_t size) AVAHI_GCC_ALLOC_SIZE(1);
+    void *(*malloc)(size_t size)AVAHI_GCC_ALLOC_SIZE(1);
     void (*free)(void *p);
-    void* (*realloc)(void *p, size_t size) AVAHI_GCC_ALLOC_SIZE(2);
-    void* (*calloc)(size_t nmemb, size_t size) AVAHI_GCC_ALLOC_SIZE2(1,2);   /**< May be NULL */
+    void *(*realloc)(void *p, size_t size)AVAHI_GCC_ALLOC_SIZE(2);
+    void *(*calloc)(size_t nmemb, size_t size)AVAHI_GCC_ALLOC_SIZE2(1, 2); /**< May be NULL */
 } AvahiAllocator;
 
 /** Change the allocator. May be NULL to return to default (libc)
@@ -84,7 +84,7 @@ typedef struct AvahiAllocator {
 void avahi_set_allocator(const AvahiAllocator *a);
 
 /** Like sprintf() but store the result in a freshly allocated buffer. Free this with avahi_free() */
-char *avahi_strdup_printf(const char *fmt, ... ) AVAHI_GCC_PRINTF_ATTR12;
+char *avahi_strdup_printf(const char *fmt, ...) AVAHI_GCC_PRINTF_ATTR12;
 
 /** \cond fulldocs */
 /** Same as avahi_strdup_printf() but take a va_list instead of varargs */

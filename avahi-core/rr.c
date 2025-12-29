@@ -109,14 +109,14 @@ AvahiRecord *avahi_record_new(AvahiKey *k, uint32_t ttl) {
 
     memset(&r->data, 0, sizeof(r->data));
 
-    r->ttl = ttl != (uint32_t) -1 ? ttl : AVAHI_DEFAULT_TTL;
+    r->ttl = ttl != (uint32_t)-1 ? ttl : AVAHI_DEFAULT_TTL;
 
     return r;
 }
 
 AvahiRecord *avahi_record_new_full(const char *name, uint16_t class, uint16_t type, uint32_t ttl) {
     AvahiRecord *r;
-    AvahiKey *k;
+    AvahiKey    *k;
 
     assert(name);
 
@@ -151,31 +151,31 @@ void avahi_record_unref(AvahiRecord *r) {
     if ((--r->ref) <= 0) {
         switch (r->key->type) {
 
-            case AVAHI_DNS_TYPE_SRV:
-                avahi_free(r->data.srv.name);
-                break;
+        case AVAHI_DNS_TYPE_SRV:
+            avahi_free(r->data.srv.name);
+            break;
 
-            case AVAHI_DNS_TYPE_PTR:
-            case AVAHI_DNS_TYPE_CNAME:
-            case AVAHI_DNS_TYPE_NS:
-                avahi_free(r->data.ptr.name);
-                break;
+        case AVAHI_DNS_TYPE_PTR:
+        case AVAHI_DNS_TYPE_CNAME:
+        case AVAHI_DNS_TYPE_NS:
+            avahi_free(r->data.ptr.name);
+            break;
 
-            case AVAHI_DNS_TYPE_HINFO:
-                avahi_free(r->data.hinfo.cpu);
-                avahi_free(r->data.hinfo.os);
-                break;
+        case AVAHI_DNS_TYPE_HINFO:
+            avahi_free(r->data.hinfo.cpu);
+            avahi_free(r->data.hinfo.os);
+            break;
 
-            case AVAHI_DNS_TYPE_TXT:
-                avahi_string_list_free(r->data.txt.string_list);
-                break;
+        case AVAHI_DNS_TYPE_TXT:
+            avahi_string_list_free(r->data.txt.string_list);
+            break;
 
-            case AVAHI_DNS_TYPE_A:
-            case AVAHI_DNS_TYPE_AAAA:
-                break;
+        case AVAHI_DNS_TYPE_A:
+        case AVAHI_DNS_TYPE_AAAA:
+            break;
 
-            default:
-                avahi_free(r->data.generic.data);
+        default:
+            avahi_free(r->data.generic.data);
         }
 
         avahi_key_unref(r->key);
@@ -188,39 +188,39 @@ const char *avahi_dns_class_to_string(uint16_t class) {
         return "FLUSH";
 
     switch (class) {
-        case AVAHI_DNS_CLASS_IN:
-            return "IN";
-        case AVAHI_DNS_CLASS_ANY:
-            return "ANY";
-        default:
-            return NULL;
+    case AVAHI_DNS_CLASS_IN:
+        return "IN";
+    case AVAHI_DNS_CLASS_ANY:
+        return "ANY";
+    default:
+        return NULL;
     }
 }
 
 const char *avahi_dns_type_to_string(uint16_t type) {
     switch (type) {
-        case AVAHI_DNS_TYPE_CNAME:
-            return "CNAME";
-        case AVAHI_DNS_TYPE_A:
-            return "A";
-        case AVAHI_DNS_TYPE_AAAA:
-            return "AAAA";
-        case AVAHI_DNS_TYPE_PTR:
-            return "PTR";
-        case AVAHI_DNS_TYPE_HINFO:
-            return "HINFO";
-        case AVAHI_DNS_TYPE_TXT:
-            return "TXT";
-        case AVAHI_DNS_TYPE_SRV:
-            return "SRV";
-        case AVAHI_DNS_TYPE_ANY:
-            return "ANY";
-        case AVAHI_DNS_TYPE_SOA:
-            return "SOA";
-        case AVAHI_DNS_TYPE_NS:
-            return "NS";
-        default:
-            return NULL;
+    case AVAHI_DNS_TYPE_CNAME:
+        return "CNAME";
+    case AVAHI_DNS_TYPE_A:
+        return "A";
+    case AVAHI_DNS_TYPE_AAAA:
+        return "AAAA";
+    case AVAHI_DNS_TYPE_PTR:
+        return "PTR";
+    case AVAHI_DNS_TYPE_HINFO:
+        return "HINFO";
+    case AVAHI_DNS_TYPE_TXT:
+        return "TXT";
+    case AVAHI_DNS_TYPE_SRV:
+        return "SRV";
+    case AVAHI_DNS_TYPE_ANY:
+        return "ANY";
+    case AVAHI_DNS_TYPE_SOA:
+        return "SOA";
+    case AVAHI_DNS_TYPE_NS:
+        return "NS";
+    default:
+        return NULL;
     }
 }
 
@@ -248,69 +248,64 @@ char *avahi_key_to_string(const AvahiKey *k) {
 
 char *avahi_record_to_string(const AvahiRecord *r) {
     char *p, *s;
-    char buf[1024], *t = NULL, *d = NULL;
+    char  buf[1024], *t = NULL, *d = NULL;
 
     assert(r);
     assert(r->ref >= 1);
 
     switch (r->key->type) {
-        case AVAHI_DNS_TYPE_A:
-            inet_ntop(AF_INET, &r->data.a.address.address, t = buf, sizeof(buf));
-            break;
+    case AVAHI_DNS_TYPE_A:
+        inet_ntop(AF_INET, &r->data.a.address.address, t = buf, sizeof(buf));
+        break;
 
-        case AVAHI_DNS_TYPE_AAAA:
-            inet_ntop(AF_INET6, &r->data.aaaa.address.address, t = buf, sizeof(buf));
-            break;
+    case AVAHI_DNS_TYPE_AAAA:
+        inet_ntop(AF_INET6, &r->data.aaaa.address.address, t = buf, sizeof(buf));
+        break;
 
-        case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME:
-        case AVAHI_DNS_TYPE_NS:
+    case AVAHI_DNS_TYPE_PTR:
+    case AVAHI_DNS_TYPE_CNAME:
+    case AVAHI_DNS_TYPE_NS:
 
-            t = r->data.ptr.name;
-            break;
+        t = r->data.ptr.name;
+        break;
 
-        case AVAHI_DNS_TYPE_TXT:
-            t = d = avahi_string_list_to_string(r->data.txt.string_list);
-            break;
+    case AVAHI_DNS_TYPE_TXT:
+        t = d = avahi_string_list_to_string(r->data.txt.string_list);
+        break;
 
-        case AVAHI_DNS_TYPE_HINFO:
+    case AVAHI_DNS_TYPE_HINFO:
 
-            snprintf(t = buf, sizeof(buf), "\"%s\" \"%s\"", r->data.hinfo.cpu, r->data.hinfo.os);
-            break;
+        snprintf(t = buf, sizeof(buf), "\"%s\" \"%s\"", r->data.hinfo.cpu, r->data.hinfo.os);
+        break;
 
-        case AVAHI_DNS_TYPE_SRV:
+    case AVAHI_DNS_TYPE_SRV:
 
-            snprintf(t = buf, sizeof(buf), "%u %u %u %s",
-                     r->data.srv.priority,
-                     r->data.srv.weight,
-                     r->data.srv.port,
-                     r->data.srv.name);
+        snprintf(
+            t = buf, sizeof(buf), "%u %u %u %s", r->data.srv.priority, r->data.srv.weight, r->data.srv.port, r->data.srv.name);
 
-            break;
+        break;
 
-        default: {
+    default: {
 
-            uint8_t *c;
-            uint16_t n;
-            int i;
-            char *e;
+        uint8_t *c;
+        uint16_t n;
+        int      i;
+        char    *e;
 
-            /* According to RFC3597 */
+        /* According to RFC3597 */
 
-            snprintf(t = buf, sizeof(buf), "\\# %u", r->data.generic.size);
+        snprintf(t = buf, sizeof(buf), "\\# %u", r->data.generic.size);
 
-            e = strchr(t, 0);
+        e = strchr(t, 0);
 
-            for (c = r->data.generic.data, n = r->data.generic.size, i = 0;
-                 n > 0 && i < 20;
-                 c ++, n --, i++) {
+        for (c = r->data.generic.data, n = r->data.generic.size, i = 0; n > 0 && i < 20; c++, n--, i++) {
 
-                sprintf(e, " %02X", *c);
-                e = strchr(e, 0);
-            }
-
-            break;
+            sprintf(e, " %02X", *c);
+            e = strchr(e, 0);
         }
+
+        break;
+    }
     }
 
     p = avahi_key_to_string(r->key);
@@ -328,9 +323,7 @@ int avahi_key_equal(const AvahiKey *a, const AvahiKey *b) {
     if (a == b)
         return 1;
 
-    return avahi_domain_equal(a->name, b->name) &&
-        a->type == b->type &&
-        a->clazz == b->clazz;
+    return avahi_domain_equal(a->name, b->name) && a->type == b->type && a->clazz == b->clazz;
 }
 
 int avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
@@ -342,26 +335,20 @@ int avahi_key_pattern_match(const AvahiKey *pattern, const AvahiKey *k) {
     if (pattern == k)
         return 1;
 
-    return avahi_domain_equal(pattern->name, k->name) &&
-        (pattern->type == k->type || pattern->type == AVAHI_DNS_TYPE_ANY) &&
-        (pattern->clazz == k->clazz || pattern->clazz == AVAHI_DNS_CLASS_ANY);
+    return avahi_domain_equal(pattern->name, k->name) && (pattern->type == k->type || pattern->type == AVAHI_DNS_TYPE_ANY) &&
+           (pattern->clazz == k->clazz || pattern->clazz == AVAHI_DNS_CLASS_ANY);
 }
 
 int avahi_key_is_pattern(const AvahiKey *k) {
     assert(k);
 
-    return
-        k->type == AVAHI_DNS_TYPE_ANY ||
-        k->clazz == AVAHI_DNS_CLASS_ANY;
+    return k->type == AVAHI_DNS_TYPE_ANY || k->clazz == AVAHI_DNS_CLASS_ANY;
 }
 
 unsigned avahi_key_hash(const AvahiKey *k) {
     assert(k);
 
-    return
-        avahi_domain_hash(k->name) +
-        k->type +
-        k->clazz;
+    return avahi_domain_hash(k->name) + k->type + k->clazz;
 }
 
 static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
@@ -370,37 +357,31 @@ static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
     assert(a->key->type == b->key->type);
 
     switch (a->key->type) {
-        case AVAHI_DNS_TYPE_SRV:
-            return
-                a->data.srv.priority == b->data.srv.priority &&
-                a->data.srv.weight == b->data.srv.weight &&
-                a->data.srv.port == b->data.srv.port &&
-                avahi_domain_equal(a->data.srv.name, b->data.srv.name);
+    case AVAHI_DNS_TYPE_SRV:
+        return a->data.srv.priority == b->data.srv.priority && a->data.srv.weight == b->data.srv.weight &&
+               a->data.srv.port == b->data.srv.port && avahi_domain_equal(a->data.srv.name, b->data.srv.name);
 
-        case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME:
-        case AVAHI_DNS_TYPE_NS:
-            return avahi_domain_equal(a->data.ptr.name, b->data.ptr.name);
+    case AVAHI_DNS_TYPE_PTR:
+    case AVAHI_DNS_TYPE_CNAME:
+    case AVAHI_DNS_TYPE_NS:
+        return avahi_domain_equal(a->data.ptr.name, b->data.ptr.name);
 
-        case AVAHI_DNS_TYPE_HINFO:
-            return
-                !strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu) &&
-                !strcmp(a->data.hinfo.os, b->data.hinfo.os);
+    case AVAHI_DNS_TYPE_HINFO:
+        return !strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu) && !strcmp(a->data.hinfo.os, b->data.hinfo.os);
 
-        case AVAHI_DNS_TYPE_TXT:
-            return avahi_string_list_equal(a->data.txt.string_list, b->data.txt.string_list);
+    case AVAHI_DNS_TYPE_TXT:
+        return avahi_string_list_equal(a->data.txt.string_list, b->data.txt.string_list);
 
-        case AVAHI_DNS_TYPE_A:
-            return memcmp(&a->data.a.address, &b->data.a.address, sizeof(AvahiIPv4Address)) == 0;
+    case AVAHI_DNS_TYPE_A:
+        return memcmp(&a->data.a.address, &b->data.a.address, sizeof(AvahiIPv4Address)) == 0;
 
-        case AVAHI_DNS_TYPE_AAAA:
-            return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address)) == 0;
+    case AVAHI_DNS_TYPE_AAAA:
+        return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address)) == 0;
 
-        default:
-            return a->data.generic.size == b->data.generic.size &&
-                (a->data.generic.size == 0 || memcmp(a->data.generic.data, b->data.generic.data, a->data.generic.size) == 0);
+    default:
+        return a->data.generic.size == b->data.generic.size &&
+               (a->data.generic.size == 0 || memcmp(a->data.generic.data, b->data.generic.data, a->data.generic.size) == 0);
     }
-
 }
 
 int avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
@@ -410,11 +391,8 @@ int avahi_record_equal_no_ttl(const AvahiRecord *a, const AvahiRecord *b) {
     if (a == b)
         return 1;
 
-    return
-        avahi_key_equal(a->key, b->key) &&
-        rdata_equal(a, b);
+    return avahi_key_equal(a->key, b->key) && rdata_equal(a, b);
 }
-
 
 AvahiRecord *avahi_record_copy(AvahiRecord *r) {
     AvahiRecord *copy;
@@ -430,49 +408,48 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
     memset(&copy->data, 0, sizeof(copy->data));
 
     switch (r->key->type) {
-        case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME:
-        case AVAHI_DNS_TYPE_NS:
-            if (!(copy->data.ptr.name = avahi_strdup(r->data.ptr.name)))
-                goto fail;
-            break;
+    case AVAHI_DNS_TYPE_PTR:
+    case AVAHI_DNS_TYPE_CNAME:
+    case AVAHI_DNS_TYPE_NS:
+        if (!(copy->data.ptr.name = avahi_strdup(r->data.ptr.name)))
+            goto fail;
+        break;
 
-        case AVAHI_DNS_TYPE_SRV:
-            copy->data.srv.priority = r->data.srv.priority;
-            copy->data.srv.weight = r->data.srv.weight;
-            copy->data.srv.port = r->data.srv.port;
-            if (!(copy->data.srv.name = avahi_strdup(r->data.srv.name)))
-                goto fail;
-            break;
+    case AVAHI_DNS_TYPE_SRV:
+        copy->data.srv.priority = r->data.srv.priority;
+        copy->data.srv.weight = r->data.srv.weight;
+        copy->data.srv.port = r->data.srv.port;
+        if (!(copy->data.srv.name = avahi_strdup(r->data.srv.name)))
+            goto fail;
+        break;
 
-        case AVAHI_DNS_TYPE_HINFO:
-            if (!(copy->data.hinfo.os = avahi_strdup(r->data.hinfo.os)))
-                goto fail;
+    case AVAHI_DNS_TYPE_HINFO:
+        if (!(copy->data.hinfo.os = avahi_strdup(r->data.hinfo.os)))
+            goto fail;
 
-            if (!(copy->data.hinfo.cpu = avahi_strdup(r->data.hinfo.cpu))) {
-                avahi_free(r->data.hinfo.os);
-                goto fail;
-            }
-            break;
+        if (!(copy->data.hinfo.cpu = avahi_strdup(r->data.hinfo.cpu))) {
+            avahi_free(r->data.hinfo.os);
+            goto fail;
+        }
+        break;
 
-        case AVAHI_DNS_TYPE_TXT:
-            copy->data.txt.string_list = avahi_string_list_copy(r->data.txt.string_list);
-            break;
+    case AVAHI_DNS_TYPE_TXT:
+        copy->data.txt.string_list = avahi_string_list_copy(r->data.txt.string_list);
+        break;
 
-        case AVAHI_DNS_TYPE_A:
-            copy->data.a.address = r->data.a.address;
-            break;
+    case AVAHI_DNS_TYPE_A:
+        copy->data.a.address = r->data.a.address;
+        break;
 
-        case AVAHI_DNS_TYPE_AAAA:
-            copy->data.aaaa.address = r->data.aaaa.address;
-            break;
+    case AVAHI_DNS_TYPE_AAAA:
+        copy->data.aaaa.address = r->data.aaaa.address;
+        break;
 
-        default:
-            if (r->data.generic.size && !(copy->data.generic.data = avahi_memdup(r->data.generic.data, r->data.generic.size)))
-                goto fail;
-            copy->data.generic.size = r->data.generic.size;
-            break;
-
+    default:
+        if (r->data.generic.size && !(copy->data.generic.data = avahi_memdup(r->data.generic.data, r->data.generic.size)))
+            goto fail;
+        copy->data.generic.size = r->data.generic.size;
+        break;
     }
 
     return copy;
@@ -486,11 +463,10 @@ fail:
     return NULL;
 }
 
-
 size_t avahi_key_get_estimate_size(AvahiKey *k) {
     assert(k);
 
-    return strlen(k->name)+1+4;
+    return strlen(k->name) + 1 + 4;
 }
 
 size_t avahi_record_get_estimate_size(AvahiRecord *r) {
@@ -500,42 +476,42 @@ size_t avahi_record_get_estimate_size(AvahiRecord *r) {
     n = avahi_key_get_estimate_size(r->key) + 4 + 2;
 
     switch (r->key->type) {
-        case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME:
-        case AVAHI_DNS_TYPE_NS:
-            n += strlen(r->data.ptr.name) + 1;
-            break;
+    case AVAHI_DNS_TYPE_PTR:
+    case AVAHI_DNS_TYPE_CNAME:
+    case AVAHI_DNS_TYPE_NS:
+        n += strlen(r->data.ptr.name) + 1;
+        break;
 
-        case AVAHI_DNS_TYPE_SRV:
-            n += 6 + strlen(r->data.srv.name) + 1;
-            break;
+    case AVAHI_DNS_TYPE_SRV:
+        n += 6 + strlen(r->data.srv.name) + 1;
+        break;
 
-        case AVAHI_DNS_TYPE_HINFO:
-            n += strlen(r->data.hinfo.os) + 1 + strlen(r->data.hinfo.cpu) + 1;
-            break;
+    case AVAHI_DNS_TYPE_HINFO:
+        n += strlen(r->data.hinfo.os) + 1 + strlen(r->data.hinfo.cpu) + 1;
+        break;
 
-        case AVAHI_DNS_TYPE_TXT:
-            n += avahi_string_list_serialize(r->data.txt.string_list, NULL, 0);
-            break;
+    case AVAHI_DNS_TYPE_TXT:
+        n += avahi_string_list_serialize(r->data.txt.string_list, NULL, 0);
+        break;
 
-        case AVAHI_DNS_TYPE_A:
-            n += sizeof(AvahiIPv4Address);
-            break;
+    case AVAHI_DNS_TYPE_A:
+        n += sizeof(AvahiIPv4Address);
+        break;
 
-        case AVAHI_DNS_TYPE_AAAA:
-            n += sizeof(AvahiIPv6Address);
-            break;
+    case AVAHI_DNS_TYPE_AAAA:
+        n += sizeof(AvahiIPv6Address);
+        break;
 
-        default:
-            n += r->data.generic.size;
+    default:
+        n += r->data.generic.size;
     }
 
     return n;
 }
 
-static int lexicographical_memcmp(const void* a, size_t al, const void* b, size_t bl) {
+static int lexicographical_memcmp(const void *a, size_t al, const void *b, size_t bl) {
     size_t c;
-    int ret;
+    int    ret;
 
     assert(a);
     assert(b);
@@ -550,118 +526,112 @@ static int lexicographical_memcmp(const void* a, size_t al, const void* b, size_
         return al == c ? -1 : 1;
 }
 
-static int uint16_cmp(uint16_t a, uint16_t b) {
-    return a == b ? 0 : (a < b ? -1 : 1);
-}
+static int uint16_cmp(uint16_t a, uint16_t b) { return a == b ? 0 : (a < b ? -1 : 1); }
 
 int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
     int r;
-/*      char *t1, *t2; */
+    /*      char *t1, *t2; */
 
     assert(a);
     assert(b);
 
-/*     t1 = avahi_record_to_string(a); */
-/*     t2 = avahi_record_to_string(b); */
-/*     g_message("lexicocmp: %s %s", t1, t2); */
-/*     avahi_free(t1); */
-/*     avahi_free(t2); */
+    /*     t1 = avahi_record_to_string(a); */
+    /*     t2 = avahi_record_to_string(b); */
+    /*     g_message("lexicocmp: %s %s", t1, t2); */
+    /*     avahi_free(t1); */
+    /*     avahi_free(t2); */
 
     if (a == b)
         return 0;
 
-    if ((r = uint16_cmp(a->key->clazz, b->key->clazz)) ||
-        (r = uint16_cmp(a->key->type, b->key->type)))
+    if ((r = uint16_cmp(a->key->clazz, b->key->clazz)) || (r = uint16_cmp(a->key->type, b->key->type)))
         return r;
 
     switch (a->key->type) {
 
-        case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME:
-        case AVAHI_DNS_TYPE_NS:
-            return avahi_binary_domain_cmp(a->data.ptr.name, b->data.ptr.name);
+    case AVAHI_DNS_TYPE_PTR:
+    case AVAHI_DNS_TYPE_CNAME:
+    case AVAHI_DNS_TYPE_NS:
+        return avahi_binary_domain_cmp(a->data.ptr.name, b->data.ptr.name);
 
-        case AVAHI_DNS_TYPE_SRV: {
-            if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) == 0 &&
-                (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) == 0 &&
-                (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) == 0)
-                r = avahi_binary_domain_cmp(a->data.srv.name, b->data.srv.name);
+    case AVAHI_DNS_TYPE_SRV: {
+        if ((r = uint16_cmp(a->data.srv.priority, b->data.srv.priority)) == 0 &&
+            (r = uint16_cmp(a->data.srv.weight, b->data.srv.weight)) == 0 &&
+            (r = uint16_cmp(a->data.srv.port, b->data.srv.port)) == 0)
+            r = avahi_binary_domain_cmp(a->data.srv.name, b->data.srv.name);
 
-            return r;
-        }
-
-        case AVAHI_DNS_TYPE_HINFO: {
-
-            if ((r = strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu)) ||
-                (r = strcmp(a->data.hinfo.os, b->data.hinfo.os)))
-                return r;
-
-            return 0;
-
-        }
-
-        case AVAHI_DNS_TYPE_TXT: {
-
-            uint8_t *ma = NULL, *mb = NULL;
-            size_t asize, bsize;
-
-            asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0);
-            bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0);
-
-            if (asize > 0 && !(ma = avahi_new(uint8_t, asize)))
-                goto fail;
-
-            if (bsize > 0 && !(mb = avahi_new(uint8_t, bsize))) {
-                avahi_free(ma);
-                goto fail;
-            }
-
-            avahi_string_list_serialize(a->data.txt.string_list, ma, asize);
-            avahi_string_list_serialize(b->data.txt.string_list, mb, bsize);
-
-            if (asize && bsize)
-                r = lexicographical_memcmp(ma, asize, mb, bsize);
-            else if (asize && !bsize)
-                r = 1;
-            else if (!asize && bsize)
-                r = -1;
-            else
-                r = 0;
-
-            avahi_free(ma);
-            avahi_free(mb);
-
-            return r;
-        }
-
-        case AVAHI_DNS_TYPE_A:
-            return memcmp(&a->data.a.address, &b->data.a.address, sizeof(AvahiIPv4Address));
-
-        case AVAHI_DNS_TYPE_AAAA:
-            return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address));
-
-        default: {
-            size_t asize, bsize;
-
-            asize = a->data.generic.size;
-            bsize = b->data.generic.size;
-
-            if (asize && bsize)
-                r = lexicographical_memcmp(a->data.generic.data, asize, b->data.generic.data, bsize);
-            else if (asize && !bsize)
-                r = 1;
-            else if (!asize && bsize)
-                r = -1;
-            else
-                r = 0;
-
-            return r;
-        }
+        return r;
     }
 
+    case AVAHI_DNS_TYPE_HINFO: {
+
+        if ((r = strcmp(a->data.hinfo.cpu, b->data.hinfo.cpu)) || (r = strcmp(a->data.hinfo.os, b->data.hinfo.os)))
+            return r;
+
+        return 0;
+    }
+
+    case AVAHI_DNS_TYPE_TXT: {
+
+        uint8_t *ma = NULL, *mb = NULL;
+        size_t   asize, bsize;
+
+        asize = avahi_string_list_serialize(a->data.txt.string_list, NULL, 0);
+        bsize = avahi_string_list_serialize(b->data.txt.string_list, NULL, 0);
+
+        if (asize > 0 && !(ma = avahi_new(uint8_t, asize)))
+            goto fail;
+
+        if (bsize > 0 && !(mb = avahi_new(uint8_t, bsize))) {
+            avahi_free(ma);
+            goto fail;
+        }
+
+        avahi_string_list_serialize(a->data.txt.string_list, ma, asize);
+        avahi_string_list_serialize(b->data.txt.string_list, mb, bsize);
+
+        if (asize && bsize)
+            r = lexicographical_memcmp(ma, asize, mb, bsize);
+        else if (asize && !bsize)
+            r = 1;
+        else if (!asize && bsize)
+            r = -1;
+        else
+            r = 0;
+
+        avahi_free(ma);
+        avahi_free(mb);
+
+        return r;
+    }
+
+    case AVAHI_DNS_TYPE_A:
+        return memcmp(&a->data.a.address, &b->data.a.address, sizeof(AvahiIPv4Address));
+
+    case AVAHI_DNS_TYPE_AAAA:
+        return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address));
+
+    default: {
+        size_t asize, bsize;
+
+        asize = a->data.generic.size;
+        bsize = b->data.generic.size;
+
+        if (asize && bsize)
+            r = lexicographical_memcmp(a->data.generic.data, asize, b->data.generic.data, bsize);
+        else if (asize && !bsize)
+            r = 1;
+        else if (!asize && bsize)
+            r = -1;
+        else
+            r = 0;
+
+        return r;
+    }
+    }
 
 fail:
-    avahi_log_error(__FILE__": Out of memory");
+    avahi_log_error(__FILE__ ": Out of memory");
     return -1; /* or whatever ... */
 }
 
@@ -688,35 +658,33 @@ int avahi_record_is_valid(AvahiRecord *r) {
 
     switch (r->key->type) {
 
-        case AVAHI_DNS_TYPE_PTR:
-        case AVAHI_DNS_TYPE_CNAME:
-        case AVAHI_DNS_TYPE_NS:
-            return avahi_is_valid_domain_name(r->data.ptr.name);
+    case AVAHI_DNS_TYPE_PTR:
+    case AVAHI_DNS_TYPE_CNAME:
+    case AVAHI_DNS_TYPE_NS:
+        return avahi_is_valid_domain_name(r->data.ptr.name);
 
-        case AVAHI_DNS_TYPE_SRV:
-            return avahi_is_valid_domain_name(r->data.srv.name);
+    case AVAHI_DNS_TYPE_SRV:
+        return avahi_is_valid_domain_name(r->data.srv.name);
 
-        case AVAHI_DNS_TYPE_HINFO:
-            return
-                strlen(r->data.hinfo.os) <= 255 &&
-                strlen(r->data.hinfo.cpu) <= 255;
+    case AVAHI_DNS_TYPE_HINFO:
+        return strlen(r->data.hinfo.os) <= 255 && strlen(r->data.hinfo.cpu) <= 255;
 
-        case AVAHI_DNS_TYPE_TXT: {
+    case AVAHI_DNS_TYPE_TXT: {
 
-            AvahiStringList *strlst;
-            size_t used = 0;
+        AvahiStringList *strlst;
+        size_t           used = 0;
 
-            for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next) {
-                if (strlst->size > 255 || strlst->size <= 0)
-                    return 0;
+        for (strlst = r->data.txt.string_list; strlst; strlst = strlst->next) {
+            if (strlst->size > 255 || strlst->size <= 0)
+                return 0;
 
-                used += 1+strlst->size;
-                if (used > AVAHI_DNS_RDATA_MAX)
-                    return 0;
-            }
-
-            return 1;
+            used += 1 + strlst->size;
+            if (used > AVAHI_DNS_RDATA_MAX)
+                return 0;
         }
+
+        return 1;
+    }
     }
 
     return 1;
@@ -726,18 +694,18 @@ static AvahiAddress *get_address(const AvahiRecord *r, AvahiAddress *a) {
     assert(r);
 
     switch (r->key->type) {
-        case AVAHI_DNS_TYPE_A:
-            a->proto = AVAHI_PROTO_INET;
-            a->data.ipv4 = r->data.a.address;
-            break;
+    case AVAHI_DNS_TYPE_A:
+        a->proto = AVAHI_PROTO_INET;
+        a->data.ipv4 = r->data.a.address;
+        break;
 
-        case AVAHI_DNS_TYPE_AAAA:
-            a->proto = AVAHI_PROTO_INET6;
-            a->data.ipv6 = r->data.aaaa.address;
-            break;
+    case AVAHI_DNS_TYPE_AAAA:
+        a->proto = AVAHI_PROTO_INET6;
+        a->data.ipv6 = r->data.aaaa.address;
+        break;
 
-        default:
-            return NULL;
+    default:
+        return NULL;
     }
 
     return a;

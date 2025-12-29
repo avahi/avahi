@@ -30,9 +30,9 @@
 #include "util.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    unsigned n;
+    unsigned      n;
     AvahiHashmap *m;
-    const char *t;
+    const char   *t;
 
     m = avahi_hashmap_new(avahi_string_hash, avahi_string_equal, avahi_free, avahi_free);
 
@@ -42,18 +42,18 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_hashmap_insert(m, avahi_strdup("blubb"), avahi_strdup("sadfsd"));
     avahi_hashmap_insert(m, avahi_strdup("bla"), avahi_strdup("#2"));
 
-    for (n = 0; n < 1000; n ++)
+    for (n = 0; n < 1000; n++)
         avahi_hashmap_insert(m, avahi_strdup_printf("key %u", n), avahi_strdup_printf("value %u", n));
 
-    printf("%s\n", (const char*) avahi_hashmap_lookup(m, "bla"));
+    printf("%s\n", (const char *)avahi_hashmap_lookup(m, "bla"));
 
     avahi_hashmap_replace(m, avahi_strdup("bla"), avahi_strdup("#3"));
 
-    printf("%s\n", (const char*) avahi_hashmap_lookup(m, "bla"));
+    printf("%s\n", (const char *)avahi_hashmap_lookup(m, "bla"));
 
     avahi_hashmap_remove(m, "bla");
 
-    t = (const char*) avahi_hashmap_lookup(m, "bla");
+    t = (const char *)avahi_hashmap_lookup(m, "bla");
     printf("%s\n", t ? t : "(null)");
 
     avahi_hashmap_free(m);

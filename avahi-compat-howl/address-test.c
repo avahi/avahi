@@ -28,13 +28,23 @@
 
 #include "howl.h"
 
-#define ASSERT_SW_OKAY(t) { sw_result r; r = (t); assert(r == SW_OKAY); }
-#define ASSERT_NOT_NULL(t) { const void* r; r = (t); assert(r); }
+#define ASSERT_SW_OKAY(t)                                                                                                      \
+    {                                                                                                                          \
+        sw_result r;                                                                                                           \
+        r = (t);                                                                                                               \
+        assert(r == SW_OKAY);                                                                                                  \
+    }
+#define ASSERT_NOT_NULL(t)                                                                                                     \
+    {                                                                                                                          \
+        const void *r;                                                                                                         \
+        r = (t);                                                                                                               \
+        assert(r);                                                                                                             \
+    }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     sw_ipv4_address a;
-    char t[256];
-    uint8_t a1, a2, a3, a4;
+    char            t[256];
+    uint8_t         a1, a2, a3, a4;
 
     ASSERT_SW_OKAY(sw_ipv4_address_init_from_name(&a, "heise.de"));
     ASSERT_NOT_NULL(sw_ipv4_address_name(a, t, sizeof(t)));

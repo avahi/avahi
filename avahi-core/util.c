@@ -30,11 +30,11 @@
 #include <avahi-common/malloc.h>
 #include "util.h"
 
-void avahi_hexdump(const void* p, size_t size) {
+void avahi_hexdump(const void *p, size_t size) {
     const uint8_t *c = p;
     assert(p);
 
-    printf("Dumping %lu bytes from %p:\n", (unsigned long) size, p);
+    printf("Dumping %lu bytes from %p:\n", (unsigned long)size, p);
 
     while (size > 0) {
         unsigned i;
@@ -64,9 +64,9 @@ void avahi_hexdump(const void* p, size_t size) {
     }
 }
 
-char *avahi_format_mac_address(char *r, size_t l, const uint8_t* mac, size_t size) {
-    char *t = r;
-    unsigned i;
+char *avahi_format_mac_address(char *r, size_t l, const uint8_t *mac, size_t size) {
+    char             *t = r;
+    unsigned          i;
     static const char hex[] = "0123456789abcdef";
 
     assert(r);
@@ -92,7 +92,7 @@ char *avahi_format_mac_address(char *r, size_t l, const uint8_t* mac, size_t siz
     }
 
     if (t > r)
-        *(t-1) = 0;
+        *(t - 1) = 0;
     else
         *r = 0;
 
@@ -104,7 +104,7 @@ char *avahi_strup(char *s) {
     assert(s);
 
     for (c = s; *c; c++)
-        *c = (char) toupper(*c);
+        *c = (char)toupper(*c);
 
     return s;
 }
@@ -114,7 +114,7 @@ char *avahi_strdown(char *s) {
     assert(s);
 
     for (c = s; *c; c++)
-        *c = (char) tolower(*c);
+        *c = (char)tolower(*c);
 
     return s;
 }

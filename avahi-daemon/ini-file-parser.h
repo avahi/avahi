@@ -22,8 +22,8 @@
 
 #include <avahi-common/llist.h>
 
-typedef struct AvahiIniFile AvahiIniFile;
-typedef struct AvahiIniFilePair AvahiIniFilePair;
+typedef struct AvahiIniFile      AvahiIniFile;
+typedef struct AvahiIniFilePair  AvahiIniFilePair;
 typedef struct AvahiIniFileGroup AvahiIniFileGroup;
 
 struct AvahiIniFilePair {
@@ -44,11 +44,10 @@ struct AvahiIniFile {
     unsigned n_groups;
 };
 
+AvahiIniFile *avahi_ini_file_load(const char *fname);
+void          avahi_ini_file_free(AvahiIniFile *f);
 
-AvahiIniFile* avahi_ini_file_load(const char *fname);
-void avahi_ini_file_free(AvahiIniFile *f);
-
-char** avahi_split_csv(const char *t);
+char **avahi_split_csv(const char *t);
 
 void avahi_strfreev(char **);
 

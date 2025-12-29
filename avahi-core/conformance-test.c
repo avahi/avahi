@@ -41,17 +41,15 @@
 #include <avahi-core/lookup.h>
 #include <avahi-core/publish.h>
 
-static char *name = NULL;
+static char             *name = NULL;
 static AvahiSEntryGroup *group = NULL;
-static int try = 0;
-static AvahiServer *avahi = NULL;
-static const AvahiPoll *poll_api;
+static int               try = 0;
+static AvahiServer      *avahi = NULL;
+static const AvahiPoll  *poll_api;
 
-static void dump_line(const char *text, AVAHI_GCC_UNUSED void* userdata) {
-    printf("%s\n", text);
-}
+static void dump_line(const char *text, AVAHI_GCC_UNUSED void *userdata) { printf("%s\n", text); }
 
-static void dump_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* userdata) {
+static void dump_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
     struct timeval tv;
 
     avahi_server_dump(avahi, dump_line, NULL);
@@ -60,7 +58,7 @@ static void dump_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* 
     poll_api->timeout_update(timeout, &tv);
 }
 
-static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void* userdata);
+static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntryGroupState state, void *userdata);
 
 static void create_service(const char *t) {
     char *n;
@@ -76,7 +74,8 @@ static void create_service(const char *t) {
     else
         group = avahi_s_entry_group_new(avahi, entry_group_callback, NULL);
 
-    avahi_server_add_service(avahi, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);
+    avahi_server_add_service(
+        avahi, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_http._tcp", NULL, NULL, 80, "foo", NULL);
     avahi_s_entry_group_commit(group);
 
     try++;
@@ -94,7 +93,8 @@ static void rename_timeout_callback(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void
     poll_api->timeout_update(timeout, &tv);
 }
 
-static void entry_group_callback(AVAHI_GCC_UNUSED AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *g, AvahiEntryGroupState state, AVAHI_GCC_UNUSED void* userdata) {
+static void entry_group_callback(AVAHI_GCC_UNUSED AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *g,
+                                 AvahiEntryGroupState state, AVAHI_GCC_UNUSED void *userdata) {
     if (state == AVAHI_ENTRY_GROUP_COLLISION)
         create_service(NULL);
     else if (state == AVAHI_ENTRY_GROUP_ESTABLISHED) {
@@ -103,7 +103,7 @@ static void entry_group_callback(AVAHI_GCC_UNUSED AvahiServer *s, AVAHI_GCC_UNUS
     }
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void* userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void *userdata) {
     avahi_log_debug("server state: %i", state);
 
     if (state == AVAHI_SERVER_RUNNING) {
@@ -115,14 +115,13 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         avahi_log_warn("Host name conflict, retrying with <%s>", n);
         avahi_server_set_host_name(s, n);
         avahi_free(n);
-
     }
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    int error;
-    AvahiSimplePoll *simple_poll;
-    struct timeval tv;
+    int                      error;
+    AvahiSimplePoll         *simple_poll;
+    struct timeval           tv;
     struct AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();
@@ -144,7 +143,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     /* Evil, but the conformace test requires that*/
     create_service("gurke");
-
 
     avahi_simple_poll_loop(simple_poll);
 

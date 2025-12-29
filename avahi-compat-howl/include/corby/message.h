@@ -31,30 +31,19 @@
 
 #include <corby/corby.h>
 
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
+struct _sw_corby_message;
+typedef struct _sw_corby_message *sw_corby_message;
 
-struct 										_sw_corby_message;
-typedef struct _sw_corby_message	*	sw_corby_message;
+sw_result HOWL_API sw_corby_message_init(sw_corby_message *self);
 
-
-sw_result HOWL_API
-sw_corby_message_init(
-					sw_corby_message	*	self);
-
-
-sw_result HOWL_API
-sw_corby_message_fina(
-					sw_corby_message	self);
-
+sw_result HOWL_API sw_corby_message_fina(sw_corby_message self);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

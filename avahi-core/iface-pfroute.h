@@ -23,9 +23,9 @@
 
 typedef struct AvahiPfRoute AvahiPfRoute;
 struct AvahiPfRoute {
-  int fd;
-  AvahiWatch *watch;
-  AvahiInterfaceMonitor *m;
+    int                    fd;
+    AvahiWatch            *watch;
+    AvahiInterfaceMonitor *m;
 };
 
 typedef struct AvahiInterfaceMonitorOSDep AvahiInterfaceMonitorOSDep;

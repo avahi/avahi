@@ -28,7 +28,7 @@
 
 #include "prioq.h"
 
-AvahiPrioQueue* avahi_prio_queue_new(AvahiPQCompareFunc compare) {
+AvahiPrioQueue *avahi_prio_queue_new(AvahiPQCompareFunc compare) {
     AvahiPrioQueue *q;
     assert(compare);
 
@@ -52,8 +52,8 @@ void avahi_prio_queue_free(AvahiPrioQueue *q) {
     avahi_free(q);
 }
 
-static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, unsigned x, unsigned y) {
-    unsigned r;
+static AvahiPrioQueueNode *get_node_at_xy(AvahiPrioQueue *q, unsigned x, unsigned y) {
+    unsigned            r;
     AvahiPrioQueueNode *n;
     assert(q);
 
@@ -63,7 +63,7 @@ static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, unsigned x, unsigne
     for (r = 0; r < y; r++) {
         assert(n);
 
-        if ((x >> (y-r-1)) & 1)
+        if ((x >> (y - r - 1)) & 1)
             n = n->right;
         else
             n = n->left;
@@ -77,15 +77,19 @@ static AvahiPrioQueueNode* get_node_at_xy(AvahiPrioQueue *q, unsigned x, unsigne
 
 static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQueueNode *b) {
     AvahiPrioQueueNode *l, *r, *p, *ap, *an, *bp, *bn;
-    unsigned t;
+    unsigned            t;
     assert(q);
     assert(a);
     assert(b);
     assert(a != b);
 
     /* Swap positions */
-    t = a->x; a->x = b->x; b->x = t;
-    t = a->y; a->y = b->y; b->y = t;
+    t = a->x;
+    a->x = b->x;
+    b->x = t;
+    t = a->y;
+    a->y = b->y;
+    b->y = t;
 
     if (a->parent == b) {
         /* B is parent of A */
@@ -204,8 +208,10 @@ static void exchange_nodes(AvahiPrioQueue *q, AvahiPrioQueueNode *a, AvahiPrioQu
     }
 
     /* Swap siblings */
-    ap = a->prev; an = a->next;
-    bp = b->prev; bn = b->next;
+    ap = a->prev;
+    an = a->next;
+    bp = b->prev;
+    bn = b->next;
 
     if (a->next == b) {
         /* A is predecessor of B */
@@ -287,7 +293,7 @@ void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     }
 }
 
-AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
+AvahiPrioQueueNode *avahi_prio_queue_put(AvahiPrioQueue *q, void *data) {
     AvahiPrioQueueNode *n;
     assert(q);
 
@@ -302,9 +308,9 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
         assert(q->n_nodes);
 
         n->y = q->last->y;
-        n->x = q->last->x+1;
+        n->x = q->last->x + 1;
 
-        if (n->x >= ((unsigned) 1 << n->y)) {
+        if (n->x >= ((unsigned)1 << n->y)) {
             n->x = 0;
             n->y++;
         }
@@ -313,7 +319,7 @@ AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data) {
         n->prev = q->last;
 
         assert(n->y > 0);
-        n->parent = get_node_at_xy(q, n->x/2, n->y-1);
+        n->parent = get_node_at_xy(q, n->x / 2, n->y - 1);
 
         if (n->x & 1)
             n->parent->right = n;
@@ -385,4 +391,3 @@ void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n) {
     assert(q->n_nodes > 0);
     q->n_nodes--;
 }
-

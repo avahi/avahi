@@ -37,13 +37,13 @@
 #include "util.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    char t[AVAHI_DOMAIN_NAME_MAX], *m;
-    const char *a, *b, *c, *d;
+    char            t[AVAHI_DOMAIN_NAME_MAX], *m;
+    const char     *a, *b, *c, *d;
     AvahiDnsPacket *p;
-    AvahiRecord *r, *r2;
-    uint8_t rdata[AVAHI_DNS_RDATA_MAX];
-    size_t l;
-    int res;
+    AvahiRecord    *r, *r2;
+    uint8_t         rdata[AVAHI_DNS_RDATA_MAX];
+    size_t          l;
+    int             res;
 
     p = avahi_dns_packet_new(0);
 
@@ -81,7 +81,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     r->data.hinfo.os = avahi_strdup("BAR");
 
     /* Serialize it into a blob */
-    assert((l = avahi_rdata_serialize(r, rdata, sizeof(rdata))) != (size_t) -1);
+    assert((l = avahi_rdata_serialize(r, rdata, sizeof(rdata))) != (size_t)-1);
 
     /* Print it */
     avahi_hexdump(rdata, l);

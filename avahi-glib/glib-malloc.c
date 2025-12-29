@@ -26,22 +26,16 @@
 
 #include "glib-malloc.h"
 
-static void* malloc_glue(size_t l) {
-    return g_malloc(l);
-}
+static void *malloc_glue(size_t l) { return g_malloc(l); }
 
-static void* realloc_glue(void *p, size_t l) {
-    return g_realloc(p, l);
-}
+static void *realloc_glue(void *p, size_t l) { return g_realloc(p, l); }
 
-static void* calloc_glue(size_t nmemb, size_t size) {
-    return g_malloc0(nmemb * size);
-}
+static void *calloc_glue(size_t nmemb, size_t size) { return g_malloc0(nmemb * size); }
 
 const AvahiAllocator *avahi_glib_allocator(void) {
 
     static AvahiAllocator allocator;
-    static int allocator_initialized = 0;
+    static int            allocator_initialized = 0;
 
     if (!allocator_initialized) {
         allocator.malloc = malloc_glue;

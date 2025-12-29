@@ -30,15 +30,15 @@ G_BEGIN_DECLS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#define AUI_TYPE_SERVICE_DIALOG            (aui_service_dialog_get_type())
-#define AUI_SERVICE_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), AUI_TYPE_SERVICE_DIALOG, AuiServiceDialog))
-#define AUI_SERVICE_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), AUI_TYPE_SERVICE_DIALOG, AuiServiceDialogClass))
-#define AUI_IS_SERVICE_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), AUI_TYPE_SERVICE_DIALOG))
+#define AUI_TYPE_SERVICE_DIALOG (aui_service_dialog_get_type())
+#define AUI_SERVICE_DIALOG(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), AUI_TYPE_SERVICE_DIALOG, AuiServiceDialog))
+#define AUI_SERVICE_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), AUI_TYPE_SERVICE_DIALOG, AuiServiceDialogClass))
+#define AUI_IS_SERVICE_DIALOG(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), AUI_TYPE_SERVICE_DIALOG))
 #define AUI_IS_SERVICE_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), AUI_TYPE_SERVICE_DIALOG))
-#define AUI_SERVICE_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), AUI_TYPE_SERVICE_DIALOG, AuiServiceDialogClass))
+#define AUI_SERVICE_DIALOG_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), AUI_TYPE_SERVICE_DIALOG, AuiServiceDialogClass))
 
 typedef struct _AuiServiceDialogPrivate AuiServiceDialogPrivate;
-typedef struct _AuiServiceDialogClass  AuiServiceDialogClass;
+typedef struct _AuiServiceDialogClass   AuiServiceDialogClass;
 
 struct _AuiServiceDialogClass {
     GtkDialogClass parent_class;
@@ -51,7 +51,7 @@ struct _AuiServiceDialogClass {
 };
 
 struct _AuiServiceDialog {
-    GtkDialog parent_instance;
+    GtkDialog                parent_instance;
     AuiServiceDialogPrivate *priv;
 };
 
@@ -69,17 +69,12 @@ typedef struct _AuiServiceDialog AuiServiceDialog;
  * parent window and the speicified buttons. The buttons are specified
  * in a similar way to GtkFileChooserDialog. Please note that at least
  * one button has to respond GTK_RESPONSE_ACCEPT. */
-GtkWidget* aui_service_dialog_new(
-        const gchar *title,
-        GtkWindow *parent,
-        const gchar *first_button_text, ...) G_GNUC_NULL_TERMINATED;
+GtkWidget *aui_service_dialog_new(const gchar *title, GtkWindow *parent, const gchar *first_button_text,
+                                  ...) G_GNUC_NULL_TERMINATED;
 
 /** \cond fulldocs */
-GtkWidget *aui_service_dialog_new_valist(
-        const gchar *title,
-        GtkWindow *parent,
-        const gchar *first_button_text,
-        va_list varargs);
+GtkWidget *aui_service_dialog_new_valist(const gchar *title, GtkWindow *parent, const gchar *first_button_text,
+                                         va_list varargs);
 /** \endcond */
 
 /** @} */
@@ -89,9 +84,9 @@ GtkWidget *aui_service_dialog_new_valist(
 /** Select the service types to browse for. Takes a NULL terminated list of DNS-SD service types. i.e. _http._tcp */
 void aui_service_dialog_set_browse_service_types(AuiServiceDialog *d, const gchar *type, ...) G_GNUC_NULL_TERMINATED;
 /** Same as aui_service_dialog_set_browse_service_types() but take a NULL terminated array */
-void aui_service_dialog_set_browse_service_typesv(AuiServiceDialog *d, const gchar *const*type);
+void aui_service_dialog_set_browse_service_typesv(AuiServiceDialog *d, const gchar *const *type);
 /** Return the service types currently browsed for. i.e. what was previously set with aui_service_dialog_set_browse_service_types() */
-const gchar*const* aui_service_dialog_get_browse_service_types(AuiServiceDialog *d);
+const gchar *const *aui_service_dialog_get_browse_service_types(AuiServiceDialog *d);
 /** Overwrite the pretty name shown in the service type column. \since 0.6.22 */
 void aui_service_dialog_set_service_type_name(AuiServiceDialog *d, const gchar *type, const gchar *name);
 
@@ -102,7 +97,7 @@ void aui_service_dialog_set_service_type_name(AuiServiceDialog *d, const gchar *
 /** Set the domain to browse in */
 void aui_service_dialog_set_domain(AuiServiceDialog *d, const gchar *domain);
 /** Query the domain that is browsed in */
-const gchar* aui_service_dialog_get_domain(AuiServiceDialog *d);
+const gchar *aui_service_dialog_get_domain(AuiServiceDialog *d);
 
 /** @} */
 
@@ -112,26 +107,26 @@ const gchar* aui_service_dialog_get_domain(AuiServiceDialog *d);
 void aui_service_dialog_set_service_type(AuiServiceDialog *d, const gchar *name);
 
 /** Query the service type of the currently selected service */
-const gchar* aui_service_dialog_get_service_type(AuiServiceDialog *d);
+const gchar *aui_service_dialog_get_service_type(AuiServiceDialog *d);
 
 /** Set the service name for the service to select */
 void aui_service_dialog_set_service_name(AuiServiceDialog *d, const gchar *name);
 
 /** Query the service name of the currently select service */
-const gchar* aui_service_dialog_get_service_name(AuiServiceDialog *d);
+const gchar *aui_service_dialog_get_service_name(AuiServiceDialog *d);
 
 /** @} */
 
 /** @{ \name Resolved service information */
 
 /** Return the IP address of the selected service. (Only valid if host name resolving has not been disabled via aui_service_dialog_set_resolve_host_name()) */
-const AvahiAddress* aui_service_dialog_get_address(AuiServiceDialog *d);
+const AvahiAddress *aui_service_dialog_get_address(AuiServiceDialog *d);
 
 /** Return the IP port number of the selected service */
 guint16 aui_service_dialog_get_port(AuiServiceDialog *d);
 
 /** Return the host name of the selected service */
-const gchar* aui_service_dialog_get_host_name(AuiServiceDialog *d);
+const gchar *aui_service_dialog_get_host_name(AuiServiceDialog *d);
 
 /** Return the TXT metadata of the selected service */
 const AvahiStringList *aui_service_dialog_get_txt_data(AuiServiceDialog *d);

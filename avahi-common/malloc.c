@@ -31,9 +31,9 @@
 
 #ifndef va_copy
 #ifdef __va_copy
-#define va_copy(DEST,SRC) __va_copy((DEST),(SRC))
+#define va_copy(DEST, SRC) __va_copy((DEST), (SRC))
 #else
-#define va_copy(DEST,SRC) memcpy(&(DEST), &(SRC), sizeof(va_list))
+#define va_copy(DEST, SRC) memcpy(&(DEST), &(SRC), sizeof(va_list))
 #endif
 #endif
 
@@ -44,7 +44,7 @@ static void oom(void) AVAHI_GCC_NORETURN;
 static void oom(void) {
 
     static const char msg[] = "Out of memory, aborting ...\n";
-    const char *n = msg;
+    const char       *n = msg;
 
     while (strlen(n) > 0) {
         ssize_t r;
@@ -59,7 +59,7 @@ static void oom(void) {
 }
 
 /* Default implementation for avahi_malloc() */
-static void* xmalloc(size_t size) {
+static void *xmalloc(size_t size) {
     void *p;
 
     if (size == 0)
@@ -158,33 +158,32 @@ void *avahi_realloc(void *p, size_t size) {
 }
 
 char *avahi_strdup(const char *s) {
-    char *r;
+    char  *r;
     size_t size;
 
     if (!s)
         return NULL;
 
     size = strlen(s);
-    if (!(r = avahi_malloc(size+1)))
+    if (!(r = avahi_malloc(size + 1)))
         return NULL;
 
-    memcpy(r, s, size+1);
+    memcpy(r, s, size + 1);
     return r;
 }
 
 char *avahi_strndup(const char *s, size_t max) {
-    char *r;
-    size_t size;
+    char       *r;
+    size_t      size;
     const char *p;
 
     if (!s)
         return NULL;
 
-    for (p = s, size = 0;
-         size < max && *p;
-         p++, size++);
+    for (p = s, size = 0; size < max && *p; p++, size++)
+        ;
 
-    if (!(r = avahi_new(char, size+1)))
+    if (!(r = avahi_new(char, size + 1)))
         return NULL;
 
     memcpy(r, s, size);
@@ -193,13 +192,11 @@ char *avahi_strndup(const char *s, size_t max) {
 }
 
 /* Change the allocator */
-void avahi_set_allocator(const AvahiAllocator *a) {
-    allocator = a;
-}
+void avahi_set_allocator(const AvahiAllocator *a) { allocator = a; }
 
 char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
     size_t len = 80;
-    char *buf;
+    char  *buf;
 
     assert(fmt);
 
@@ -207,19 +204,19 @@ char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
         return NULL;
 
     for (;;) {
-        int n;
-        char *nbuf;
+        int     n;
+        char   *nbuf;
         va_list ap2;
 
-        va_copy (ap2, ap);
+        va_copy(ap2, ap);
         n = vsnprintf(buf, len, fmt, ap2);
-        va_end (ap2);
+        va_end(ap2);
 
-        if (n >= 0 && n < (int) len)
+        if (n >= 0 && n < (int)len)
             return buf;
 
         if (n >= 0)
-            len = n+1;
+            len = n + 1;
         else
             len *= 2;
 
@@ -232,8 +229,8 @@ char *avahi_strdup_vprintf(const char *fmt, va_list ap) {
     }
 }
 
-char *avahi_strdup_printf(const char *fmt, ... ) {
-    char *s;
+char *avahi_strdup_printf(const char *fmt, ...) {
+    char   *s;
     va_list ap;
 
     assert(fmt);

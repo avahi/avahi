@@ -60,18 +60,21 @@ void avahi_dbus_async_host_name_resolver_free(AsyncHostNameResolverInfo *i) {
 void avahi_dbus_async_host_name_resolver_start(AsyncHostNameResolverInfo *i) {
     assert(i);
 
-    if(i->host_name_resolver)
+    if (i->host_name_resolver)
         avahi_s_host_name_resolver_start(i->host_name_resolver);
 }
 
-void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata) {
+void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                  AvahiResolverEvent event, const char *host_name, const AvahiAddress *a,
+                                                  AvahiLookupResultFlags flags, void *userdata) {
     AsyncHostNameResolverInfo *i = userdata;
-    DBusMessage *reply;
+    DBusMessage               *reply;
 
     assert(r);
     assert(i);
 
-    reply = dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, avahi_dbus_map_resolve_signal_name(event));
+    reply =
+        dbus_message_new_signal(i->path, AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER, avahi_dbus_map_resolve_signal_name(event));
 
     if (!reply) {
         avahi_log_error("Failed allocate message");
@@ -79,29 +82,34 @@ void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, Ava
     }
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
+        char     t[AVAHI_ADDRESS_STR_MAX], *pt = t;
+        int32_t  i_interface, i_protocol, i_aprotocol;
         uint32_t u_flags;
 
         assert(a);
         assert(host_name);
         avahi_address_snprint(t, sizeof(t), a);
 
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->proto;
-        u_flags = (uint32_t) flags;
+        i_interface = (int32_t)interface;
+        i_protocol = (int32_t)protocol;
+        i_aprotocol = (int32_t)a->proto;
+        u_flags = (uint32_t)flags;
 
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
-    }  else {
+        dbus_message_append_args(reply,
+                                 DBUS_TYPE_INT32,
+                                 &i_interface,
+                                 DBUS_TYPE_INT32,
+                                 &i_protocol,
+                                 DBUS_TYPE_STRING,
+                                 &host_name,
+                                 DBUS_TYPE_INT32,
+                                 &i_aprotocol,
+                                 DBUS_TYPE_STRING,
+                                 &pt,
+                                 DBUS_TYPE_UINT32,
+                                 &u_flags,
+                                 DBUS_TYPE_INVALID);
+    } else {
         assert(event == AVAHI_RESOLVER_FAILURE);
         avahi_dbus_append_server_error(reply);
     }
@@ -112,7 +120,7 @@ void avahi_dbus_async_host_name_resolver_callback(AvahiSHostNameResolver *r, Ava
 }
 
 DBusHandlerResult avahi_dbus_msg_async_host_name_resolver_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
+    DBusError                  error;
     AsyncHostNameResolverInfo *i = userdata;
 
     assert(c);
@@ -121,7 +129,7 @@ DBusHandlerResult avahi_dbus_msg_async_host_name_resolver_impl(DBusConnection *c
 
     dbus_error_init(&error);
 
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__ ": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -155,7 +163,6 @@ DBusHandlerResult avahi_dbus_msg_async_host_name_resolver_impl(DBusConnection *c
         avahi_dbus_async_host_name_resolver_start(i);
         return avahi_dbus_respond_ok(c, m);
     }
-
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
 

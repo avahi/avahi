@@ -32,18 +32,18 @@ typedef struct AvahiSRBLookup AvahiSRBLookup;
 
 struct AvahiSRecordBrowser {
     AVAHI_LLIST_FIELDS(AvahiSRecordBrowser, browser);
-    int dead;
+    int          dead;
     AvahiServer *server;
 
-    AvahiKey *key;
-    AvahiIfIndex interface;
-    AvahiProtocol protocol;
+    AvahiKey        *key;
+    AvahiIfIndex     interface;
+    AvahiProtocol    protocol;
     AvahiLookupFlags flags;
 
     AvahiTimeEvent *defer_time_event;
 
     AvahiSRecordBrowserCallback callback;
-    void* userdata;
+    void                       *userdata;
 
     /* Lookup data */
     AVAHI_LLIST_HEAD(AvahiSRBLookup, lookups);

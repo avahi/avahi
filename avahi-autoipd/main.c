@@ -98,8 +98,8 @@
 #define IPV4LL_BROADCAST 0xA9FEFFFFL
 
 #define ETHER_ADDRLEN 6
-#define ETHER_HDR_SIZE (2+2*ETHER_ADDRLEN)
-#define ARP_PACKET_SIZE (8+4+4+2*ETHER_ADDRLEN)
+#define ETHER_HDR_SIZE (2 + 2 * ETHER_ADDRLEN)
+#define ARP_PACKET_SIZE (8 + 4 + 4 + 2 * ETHER_ADDRLEN)
 
 typedef enum ArpOperation {
     ARP_REQUEST = 1,
@@ -110,7 +110,7 @@ typedef struct ArpPacketInfo {
     ArpOperation operation;
 
     uint32_t sender_ip_address, target_ip_address;
-    uint8_t sender_hw_address[ETHER_ADDRLEN], target_hw_address[ETHER_ADDRLEN];
+    uint8_t  sender_hw_address[ETHER_ADDRLEN], target_hw_address[ETHER_ADDRLEN];
 } ArpPacketInfo;
 
 typedef struct ArpPacket {
@@ -119,24 +119,24 @@ typedef struct ArpPacket {
 } ArpPacket;
 
 static State state = STATE_START;
-static int n_iteration = 0;
-static int n_conflict = 0;
+static int   n_iteration = 0;
+static int   n_conflict = 0;
 
-static char *interface_name = NULL;
-static char *pid_file_name = NULL;
+static char    *interface_name = NULL;
+static char    *pid_file_name = NULL;
 static uint32_t start_address = 0;
-static char *argv0 = NULL;
-static int daemonize = 0;
-static int wait_for_address = 0;
-static int use_syslog = 0;
-static int debug = 0;
-static int modify_proc_title = 1;
-static int force_bind = 0;
+static char    *argv0 = NULL;
+static int      daemonize = 0;
+static int      wait_for_address = 0;
+static int      use_syslog = 0;
+static int      debug = 0;
+static int      modify_proc_title = 1;
+static int      force_bind = 0;
 #ifdef HAVE_CHROOT
 static int no_chroot = 0;
 #endif
-static int no_drop_root = 0;
-static int wrote_pid_file = 0;
+static int   no_drop_root = 0;
+static int   wrote_pid_file = 0;
 static char *action_script = NULL;
 
 static enum {
@@ -156,30 +156,26 @@ typedef enum CalloutEvent {
     CALLOUT_MAX
 } CalloutEvent;
 
-static const char * const callout_event_table[CALLOUT_MAX] = {
-    [CALLOUT_BIND] = "BIND",
-    [CALLOUT_CONFLICT] = "CONFLICT",
-    [CALLOUT_UNBIND] = "UNBIND",
-    [CALLOUT_STOP] = "STOP"
-};
+static const char *const callout_event_table[CALLOUT_MAX] = {
+    [CALLOUT_BIND] = "BIND", [CALLOUT_CONFLICT] = "CONFLICT", [CALLOUT_UNBIND] = "UNBIND", [CALLOUT_STOP] = "STOP"};
 
 typedef struct CalloutEventInfo {
     CalloutEvent event;
-    uint32_t address;
-    int ifindex;
+    uint32_t     address;
+    int          ifindex;
 } CalloutEventInfo;
 
 #define RANDOM_DEVICE "/dev/urandom"
 
-#define DEBUG(x)                                \
-    do {                                        \
-        if (debug) {                            \
-            x;                                  \
-        }                                       \
+#define DEBUG(x)                                                                                                               \
+    do {                                                                                                                       \
+        if (debug) {                                                                                                           \
+            x;                                                                                                                 \
+        }                                                                                                                      \
     } while (0)
 
 static void init_rand_seed(void) {
-    int fd;
+    int      fd;
     unsigned seed = 0;
 
     /* Try to initialize seed from /dev/urandom, to make it a little
@@ -191,7 +187,7 @@ static void init_rand_seed(void) {
     }
 
     /* If the initialization failed by some reason, we add the time to the seed */
-    seed ^= (unsigned) time(NULL);
+    seed ^= (unsigned)time(NULL);
 
     srand(seed);
 }
@@ -200,13 +196,13 @@ static uint32_t pick_addr(uint32_t old_addr) {
     uint32_t addr;
 
     do {
-        unsigned r = (unsigned) rand();
+        unsigned r = (unsigned)rand();
 
         /* Reduce to 16 bits */
         while (r > 0xFFFF)
             r = (r >> 16) ^ (r & 0xFFFF);
 
-        addr = htonl(IPV4LL_NETWORK | (uint32_t) r);
+        addr = htonl(IPV4LL_NETWORK | (uint32_t)r);
 
     } while (addr == old_addr || !is_ll_address(addr));
 
@@ -214,7 +210,7 @@ static uint32_t pick_addr(uint32_t old_addr) {
 }
 
 static int load_address(const char *fn, uint32_t *addr) {
-    FILE *f;
+    FILE    *f;
     unsigned a, b, c, d;
 
     assert(fn);
@@ -249,8 +245,8 @@ fail:
 }
 
 static int save_address(const char *fn, uint32_t addr) {
-    FILE *f;
-    char buf[32];
+    FILE  *f;
+    char   buf[32];
     mode_t u;
 
     assert(fn);
@@ -262,7 +258,7 @@ static int save_address(const char *fn, uint32_t addr) {
     }
     umask(u);
 
-    fprintf(f, "%s\n", inet_ntop(AF_INET, &addr, buf, sizeof (buf)));
+    fprintf(f, "%s\n", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
     fclose(f);
 
     return 0;
@@ -280,21 +276,21 @@ fail:
  * Allocate a buffer with two pointers in front, one of which is
  * guaranteed to point ETHER_HDR_SIZE bytes into it.
  */
-static ArpPacket* packet_new(size_t packet_len) {
+static ArpPacket *packet_new(size_t packet_len) {
     ArpPacket *p;
-    uint8_t *b;
+    uint8_t   *b;
 
     assert(packet_len > 0);
 
 #ifdef __linux__
     b = avahi_new0(uint8_t, sizeof(struct ArpPacket) + packet_len);
-    p = (ArpPacket*) b;
+    p = (ArpPacket *)b;
     p->ether_header = NULL;
     p->ether_payload = b + sizeof(struct ArpPacket);
 
 #else
     b = avahi_new0(uint8_t, sizeof(struct ArpPacket) + ETHER_HDR_SIZE + packet_len);
-    p = (ArpPacket*) b;
+    p = (ArpPacket *)b;
     p->ether_header = b + sizeof(struct ArpPacket);
     p->ether_payload = b + sizeof(struct ArpPacket) + ETHER_HDR_SIZE;
 #endif
@@ -302,9 +298,9 @@ static ArpPacket* packet_new(size_t packet_len) {
     return p;
 }
 
-static ArpPacket* packet_new_with_info(const ArpPacketInfo *info, size_t *packet_len) {
+static ArpPacket *packet_new_with_info(const ArpPacketInfo *info, size_t *packet_len) {
     ArpPacket *p = NULL;
-    uint8_t *r;
+    uint8_t   *r;
 
     assert(info);
     assert(info->operation == ARP_REQUEST || info->operation == ARP_RESPONSE);
@@ -314,21 +310,21 @@ static ArpPacket* packet_new_with_info(const ArpPacketInfo *info, size_t *packet
     p = packet_new(*packet_len);
     r = p->ether_payload;
 
-    r[1] = 1; /* HTYPE */
-    r[2] = 8; /* PTYPE */
+    r[1] = 1;             /* HTYPE */
+    r[2] = 8;             /* PTYPE */
     r[4] = ETHER_ADDRLEN; /* HLEN */
-    r[5] = 4; /* PLEN */
-    r[7] = (uint8_t) info->operation;
+    r[5] = 4;             /* PLEN */
+    r[7] = (uint8_t)info->operation;
 
-    memcpy(r+8, info->sender_hw_address, ETHER_ADDRLEN);
-    memcpy(r+14, &info->sender_ip_address, 4);
-    memcpy(r+18, info->target_hw_address, ETHER_ADDRLEN);
-    memcpy(r+24, &info->target_ip_address, 4);
+    memcpy(r + 8, info->sender_hw_address, ETHER_ADDRLEN);
+    memcpy(r + 14, &info->sender_ip_address, 4);
+    memcpy(r + 18, info->target_hw_address, ETHER_ADDRLEN);
+    memcpy(r + 24, &info->target_ip_address, 4);
 
     return p;
 }
 
-static ArpPacket *packet_new_probe(uint32_t ip_address, const uint8_t*hw_address, size_t *packet_len) {
+static ArpPacket *packet_new_probe(uint32_t ip_address, const uint8_t *hw_address, size_t *packet_len) {
     ArpPacketInfo info;
 
     memset(&info, 0, sizeof(info));
@@ -339,7 +335,7 @@ static ArpPacket *packet_new_probe(uint32_t ip_address, const uint8_t*hw_address
     return packet_new_with_info(&info, packet_len);
 }
 
-static ArpPacket *packet_new_announcement(uint32_t ip_address, const uint8_t* hw_address, size_t *packet_len) {
+static ArpPacket *packet_new_announcement(uint32_t ip_address, const uint8_t *hw_address, size_t *packet_len) {
     ArpPacketInfo info;
 
     memset(&info, 0, sizeof(info));
@@ -370,25 +366,23 @@ static int packet_parse(const ArpPacket *packet, size_t packet_len, ArpPacketInf
         return -1;
 
     info->operation = p[7];
-    memcpy(info->sender_hw_address, p+8, ETHER_ADDRLEN);
-    memcpy(&info->sender_ip_address, p+14, 4);
-    memcpy(info->target_hw_address, p+18, ETHER_ADDRLEN);
-    memcpy(&info->target_ip_address, p+24, 4);
+    memcpy(info->sender_hw_address, p + 8, ETHER_ADDRLEN);
+    memcpy(&info->sender_ip_address, p + 14, 4);
+    memcpy(info->target_hw_address, p + 18, ETHER_ADDRLEN);
+    memcpy(&info->target_ip_address, p + 24, 4);
 
     return 0;
 }
 
 static void set_state(State st, int reset_counter, uint32_t address) {
-    static const char* const state_table[] = {
-        [STATE_START] = "START",
-        [STATE_WAITING_PROBE] = "WAITING_PROBE",
-        [STATE_PROBING] = "PROBING",
-        [STATE_WAITING_ANNOUNCE] = "WAITING_ANNOUNCE",
-        [STATE_ANNOUNCING] = "ANNOUNCING",
-        [STATE_RUNNING] = "RUNNING",
-        [STATE_SLEEPING] = "SLEEPING"
-    };
-    char buf[64];
+    static const char *const state_table[] = {[STATE_START] = "START",
+                                              [STATE_WAITING_PROBE] = "WAITING_PROBE",
+                                              [STATE_PROBING] = "PROBING",
+                                              [STATE_WAITING_ANNOUNCE] = "WAITING_ANNOUNCE",
+                                              [STATE_ANNOUNCING] = "ANNOUNCING",
+                                              [STATE_RUNNING] = "RUNNING",
+                                              [STATE_SLEEPING] = "SLEEPING"};
+    char                     buf[64];
 
     assert(st < STATE_MAX);
 
@@ -404,15 +398,17 @@ static void set_state(State st, int reset_counter, uint32_t address) {
     if (state == STATE_SLEEPING)
         avahi_set_proc_title(argv0, "%s: [%s] sleeping", argv0, interface_name);
     else if (state == STATE_ANNOUNCING)
-        avahi_set_proc_title(argv0, "%s: [%s] announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+        avahi_set_proc_title(
+            argv0, "%s: [%s] announcing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
     else if (state == STATE_RUNNING)
         avahi_set_proc_title(argv0, "%s: [%s] bound %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
     else
-        avahi_set_proc_title(argv0, "%s: [%s] probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
+        avahi_set_proc_title(
+            argv0, "%s: [%s] probing %s", argv0, interface_name, inet_ntop(AF_INET, &address, buf, sizeof(buf)));
 }
 
 static int interface_up(int iface) {
-    int fd = -1;
+    int          fd = -1;
     struct ifreq ifreq;
 
     if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -454,9 +450,9 @@ fail:
 /* Linux 'packet socket' specific implementation */
 
 static int open_socket(int iface, uint8_t *hw_address) {
-    int fd = -1;
+    int                fd = -1;
     struct sockaddr_ll sa;
-    socklen_t sa_len;
+    socklen_t          sa_len;
 
     if (interface_up(iface) < 0)
         goto fail;
@@ -471,13 +467,13 @@ static int open_socket(int iface, uint8_t *hw_address) {
     sa.sll_protocol = htons(ETH_P_ARP);
     sa.sll_ifindex = iface;
 
-    if (bind(fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
+    if (bind(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "bind() failed: %s", strerror(errno));
         goto fail;
     }
 
     sa_len = sizeof(sa);
-    if (getsockname(fd, (struct sockaddr*) &sa, &sa_len) < 0) {
+    if (getsockname(fd, (struct sockaddr *)&sa, &sa_len) < 0) {
         daemon_log(LOG_ERR, "getsockname() failed: %s", strerror(errno));
         goto fail;
     }
@@ -512,7 +508,7 @@ static int send_packet(int fd, int iface, ArpPacket *packet, size_t packet_len) 
     sa.sll_halen = ETHER_ADDRLEN;
     memset(sa.sll_addr, 0xFF, ETHER_ADDRLEN);
 
-    if (sendto(fd, packet->ether_payload, packet_len, 0, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
+    if (sendto(fd, packet->ether_payload, packet_len, 0, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
         daemon_log(LOG_ERR, "sendto() failed: %s", strerror(errno));
         return -1;
     }
@@ -521,10 +517,10 @@ static int send_packet(int fd, int iface, ArpPacket *packet, size_t packet_len) 
 }
 
 static int recv_packet(int fd, ArpPacket **packet, size_t *packet_len) {
-    int s;
+    int                s;
     struct sockaddr_ll sa;
-    socklen_t sa_len;
-    ssize_t r;
+    socklen_t          sa_len;
+    ssize_t            r;
 
     assert(fd >= 0);
     assert(packet);
@@ -543,12 +539,12 @@ static int recv_packet(int fd, ArpPacket **packet, size_t *packet_len) {
     *packet = packet_new(s);
 
     sa_len = sizeof(sa);
-    if ((r = recvfrom(fd, (*packet)->ether_payload, s, 0, (struct sockaddr*) &sa, &sa_len)) < 0) {
+    if ((r = recvfrom(fd, (*packet)->ether_payload, s, 0, (struct sockaddr *)&sa, &sa_len)) < 0) {
         daemon_log(LOG_ERR, "recvfrom() failed: %s", strerror(errno));
         goto fail;
     }
 
-    *packet_len = (size_t) r;
+    *packet_len = (size_t)r;
 
     return 0;
 
@@ -561,29 +557,27 @@ fail:
     return -1;
 }
 
-static void close_socket(int fd) {
-    close(fd);
-}
+static void close_socket(int fd) { close(fd); }
 
 #else /* !__linux__ */
 /* PCAP-based implementation */
 
 static pcap_t *__pp;
-static char __pcap_errbuf[PCAP_ERRBUF_SIZE];
+static char    __pcap_errbuf[PCAP_ERRBUF_SIZE];
 static uint8_t __lladdr[ETHER_ADDRLEN];
 
 #ifndef elementsof
-#define elementsof(array)       (sizeof(array)/sizeof(array[0]))
+#define elementsof(array) (sizeof(array) / sizeof(array[0]))
 #endif
 
 static int __get_ether_addr(int ifindex, u_char *lladdr) {
-    int mib[6];
-    char *buf;
-    struct if_msghdr *ifm;
-    char *lim;
-    char *next;
+    int                 mib[6];
+    char               *buf;
+    struct if_msghdr   *ifm;
+    char               *lim;
+    char               *next;
     struct sockaddr_dl *sdl;
-    size_t len;
+    size_t              len;
 
     mib[0] = CTL_NET;
     mib[1] = PF_ROUTE;
@@ -593,15 +587,13 @@ static int __get_ether_addr(int ifindex, u_char *lladdr) {
     mib[5] = ifindex;
 
     if (sysctl(mib, elementsof(mib), NULL, &len, NULL, 0) != 0) {
-        daemon_log(LOG_ERR, "sysctl(NET_RT_IFLIST): %s",
-                   strerror(errno));
+        daemon_log(LOG_ERR, "sysctl(NET_RT_IFLIST): %s", strerror(errno));
         return -1;
     }
 
     buf = avahi_malloc(len);
     if (sysctl(mib, elementsof(mib), buf, &len, NULL, 0) != 0) {
-        daemon_log(LOG_ERR, "sysctl(NET_RT_IFLIST): %s",
-                   strerror(errno));
+        daemon_log(LOG_ERR, "sysctl(NET_RT_IFLIST): %s", strerror(errno));
         free(buf);
         return -1;
     }
@@ -623,11 +615,11 @@ static int __get_ether_addr(int ifindex, u_char *lladdr) {
 
 static int open_socket(int iface, uint8_t *hw_address) {
     struct bpf_program bpf;
-    char *filter;
-    char ifname[IFNAMSIZ];
-    pcap_t *pp;
-    int err;
-    int fd;
+    char              *filter;
+    char               ifname[IFNAMSIZ];
+    pcap_t            *pp;
+    int                err;
+    int                fd;
 
     assert(__pp == NULL);
 
@@ -685,9 +677,12 @@ static int open_socket(int iface, uint8_t *hw_address) {
 
     filter = avahi_strdup_printf("arp and (ether dst ff:ff:ff:ff:ff:ff or "
                                  "%02x:%02x:%02x:%02x:%02x:%02x)",
-                                 __lladdr[0], __lladdr[1],
-                                 __lladdr[2], __lladdr[3],
-                                 __lladdr[4], __lladdr[5]);
+                                 __lladdr[0],
+                                 __lladdr[1],
+                                 __lladdr[2],
+                                 __lladdr[3],
+                                 __lladdr[4],
+                                 __lladdr[5]);
     DEBUG(daemon_log(LOG_DEBUG, "Using pcap filter '%s'", filter));
 
     err = pcap_compile(pp, &bpf, filter, 1, 0);
@@ -738,10 +733,10 @@ static int send_packet(int fd AVAHI_GCC_UNUSED, int iface AVAHI_GCC_UNUSED, ArpP
 
 static int recv_packet(int fd AVAHI_GCC_UNUSED, ArpPacket **packet, size_t *packet_len) {
     struct pcap_pkthdr *ph;
-    u_char *pd;
-    ArpPacket *ap;
-    int err;
-    int retval;
+    u_char             *pd;
+    ArpPacket          *ap;
+    int                 err;
+    int                 retval;
 
     assert(__pp != NULL);
     assert(packet != NULL);
@@ -768,18 +763,15 @@ static int recv_packet(int fd AVAHI_GCC_UNUSED, ArpPacket **packet, size_t *pack
          */
         retval = 0;
     } else
-        daemon_log(LOG_ERR, "pcap_next_ex(%d): %s",
-                   err, pcap_geterr(__pp));
+        daemon_log(LOG_ERR, "pcap_next_ex(%d): %s", err, pcap_geterr(__pp));
 
     return (retval);
 }
-#endif /* __linux__ */
+#endif                   /* __linux__ */
 
 int is_ll_address(uint32_t addr) {
-    return
-        ((ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK) &&
-        ((ntohl(addr) & 0x0000FF00) != 0x0000) &&
-        ((ntohl(addr) & 0x0000FF00) != 0xFF00);
+    return ((ntohl(addr) & IPV4LL_NETMASK) == IPV4LL_NETWORK) && ((ntohl(addr) & 0x0000FF00) != 0x0000) &&
+           ((ntohl(addr) & 0x0000FF00) != 0xFF00);
 }
 
 static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
@@ -788,17 +780,17 @@ static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned j
     gettimeofday(tv, NULL);
 
     if (msec)
-        avahi_timeval_add(tv, (AvahiUsec) msec*1000);
+        avahi_timeval_add(tv, (AvahiUsec)msec * 1000);
 
     if (jitter)
-        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*rand()/(RAND_MAX+1.0)));
+        avahi_timeval_add(tv, (AvahiUsec)(jitter * 1000.0 * rand() / (RAND_MAX + 1.0)));
 
     return tv;
 }
 
-static FILE* fork_dispatcher(void) {
+static FILE *fork_dispatcher(void) {
     FILE *ret;
-    int fds[2];
+    int   fds[2];
     pid_t pid;
 
     if (pipe(fds) < 0) {
@@ -810,7 +802,7 @@ static FILE* fork_dispatcher(void) {
         goto fail;
     else if (pid == 0) {
         FILE *f = NULL;
-        int r = 1;
+        int   r = 1;
 
         /* Please note that the signal pipe is not closed at this
          * point, signals will thus be dispatched in the main
@@ -829,8 +821,8 @@ static FILE* fork_dispatcher(void) {
 
         for (;;) {
             CalloutEventInfo info;
-            char name[IFNAMSIZ], buf[64];
-            int k;
+            char             name[IFNAMSIZ], buf[64];
+            int              k;
 
             if (fread(&info, sizeof(info), 1, f) != 1) {
                 if (feof(f))
@@ -847,11 +839,14 @@ static FILE* fork_dispatcher(void) {
                 continue;
             }
 
-            if (daemon_exec("/", &k,
-                            action_script, action_script,
+            if (daemon_exec("/",
+                            &k,
+                            action_script,
+                            action_script,
                             callout_event_table[info.event],
                             name,
-                            inet_ntop(AF_INET, &info.address, buf, sizeof(buf)), NULL) < 0) {
+                            inet_ntop(AF_INET, &info.address, buf, sizeof(buf)),
+                            NULL) < 0) {
 
                 daemon_log(LOG_ERR, "Failed to run script: %s", strerror(errno));
                 continue;
@@ -902,9 +897,10 @@ fail:
 
 static int do_callout(FILE *f, CalloutEvent event, int iface, uint32_t addr) {
     CalloutEventInfo info;
-    char buf[64], ifname[IFNAMSIZ];
+    char             buf[64], ifname[IFNAMSIZ];
 
-    daemon_log(LOG_INFO, "Callout %s, address %s on interface %s",
+    daemon_log(LOG_INFO,
+               "Callout %s, address %s on interface %s",
                callout_event_table[event],
                inet_ntop(AF_INET, &addr, buf, sizeof(buf)),
                if_indextoname(iface, ifname));
@@ -925,9 +921,9 @@ static int do_callout(FILE *f, CalloutEvent event, int iface, uint32_t addr) {
 
 static int drop_privs(void) {
     struct passwd *pw;
-    struct group * gr;
-    int r;
-    mode_t u;
+    struct group  *gr;
+    int            r;
+    mode_t         u;
 
     pw = NULL;
     gr = NULL;
@@ -937,16 +933,19 @@ static int drop_privs(void) {
     if (!no_drop_root) {
 
         if (!(pw = getpwnam(AVAHI_AUTOIPD_USER))) {
-            daemon_log(LOG_ERR, "Failed to find user '"AVAHI_AUTOIPD_USER"'.");
+            daemon_log(LOG_ERR, "Failed to find user '" AVAHI_AUTOIPD_USER "'.");
             return -1;
         }
 
         if (!(gr = getgrnam(AVAHI_AUTOIPD_GROUP))) {
-            daemon_log(LOG_ERR, "Failed to find group '"AVAHI_AUTOIPD_GROUP"'.");
+            daemon_log(LOG_ERR, "Failed to find group '" AVAHI_AUTOIPD_GROUP "'.");
             return -1;
         }
 
-        daemon_log(LOG_INFO, "Found user '"AVAHI_AUTOIPD_USER"' (UID %lu) and group '"AVAHI_AUTOIPD_GROUP"' (GID %lu).", (unsigned long) pw->pw_uid, (unsigned long) gr->gr_gid);
+        daemon_log(LOG_INFO,
+                   "Found user '" AVAHI_AUTOIPD_USER "' (UID %lu) and group '" AVAHI_AUTOIPD_GROUP "' (GID %lu).",
+                   (unsigned long)pw->pw_uid,
+                   (unsigned long)gr->gr_gid);
     }
 
     /* Create directory */
@@ -955,7 +954,7 @@ static int drop_privs(void) {
     umask(u);
 
     if (r < 0 && errno != EEXIST) {
-        daemon_log(LOG_ERR, "mkdir(\""AVAHI_IPDATA_DIR"\"): %s", strerror(errno));
+        daemon_log(LOG_ERR, "mkdir(\"" AVAHI_IPDATA_DIR "\"): %s", strerror(errno));
         return -1;
     }
 
@@ -972,7 +971,7 @@ static int drop_privs(void) {
         }
 
         if (!S_ISDIR(st.st_mode) || st.st_uid != pw->pw_uid || st.st_gid != gr->gr_gid) {
-            daemon_log(LOG_ERR, "Failed to create runtime directory "AVAHI_IPDATA_DIR".");
+            daemon_log(LOG_ERR, "Failed to create runtime directory " AVAHI_IPDATA_DIR ".");
             return -1;
         }
     }
@@ -1052,23 +1051,23 @@ static int loop(int iface, uint32_t addr) {
         FD_MAX
     };
 
-    int fd = -1, ret = -1;
+    int            fd = -1, ret = -1;
     struct timeval next_wakeup;
-    int next_wakeup_valid = 0;
-    char buf[64];
-    ArpPacket *in_packet = NULL;
-    size_t in_packet_len = 0;
-    ArpPacket *out_packet = NULL;
-    size_t out_packet_len;
-    uint8_t hw_address[ETHER_ADDRLEN];
-    struct pollfd pollfds[FD_MAX];
-    int iface_fd = -1;
-    Event event = EVENT_NULL;
-    int retval_sent = !daemonize;
-    State st;
-    FILE *dispatcher = NULL;
-    char *address_fn = NULL;
-    const char *p;
+    int            next_wakeup_valid = 0;
+    char           buf[64];
+    ArpPacket     *in_packet = NULL;
+    size_t         in_packet_len = 0;
+    ArpPacket     *out_packet = NULL;
+    size_t         out_packet_len;
+    uint8_t        hw_address[ETHER_ADDRLEN];
+    struct pollfd  pollfds[FD_MAX];
+    int            iface_fd = -1;
+    Event          event = EVENT_NULL;
+    int            retval_sent = !daemonize;
+    State          st;
+    FILE          *dispatcher = NULL;
+    char          *address_fn = NULL;
+    const char    *p;
 
     daemon_signal_init(SIGINT, SIGTERM, SIGCHLD, SIGHUP, 0);
 
@@ -1096,30 +1095,35 @@ static int loop(int iface, uint32_t addr) {
 #endif
         p = AVAHI_IPDATA_DIR;
 
-    address_fn = avahi_strdup_printf(
-            "%s/%02x:%02x:%02x:%02x:%02x:%02x", p,
-            hw_address[0], hw_address[1],
-            hw_address[2], hw_address[3],
-            hw_address[4], hw_address[5]);
+    address_fn = avahi_strdup_printf("%s/%02x:%02x:%02x:%02x:%02x:%02x",
+                                     p,
+                                     hw_address[0],
+                                     hw_address[1],
+                                     hw_address[2],
+                                     hw_address[3],
+                                     hw_address[4],
+                                     hw_address[5]);
 
     if (!addr)
         load_address(address_fn, &addr);
 
     if (addr && !is_ll_address(addr)) {
-        daemon_log(LOG_WARNING, "Requested address %s is not from IPv4LL range 169.254/16 or a reserved address, ignoring.", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
+        daemon_log(LOG_WARNING,
+                   "Requested address %s is not from IPv4LL range 169.254/16 or a reserved address, ignoring.",
+                   inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
         addr = 0;
     }
 
     if (!addr) {
-        int i;
+        int      i;
         uint32_t a = 1;
 
         for (i = 0; i < ETHER_ADDRLEN; i++)
-            a += hw_address[i]*(i+1);
+            a += hw_address[i] * (i + 1);
 
         a = (a % 0xFE00) + 0x0100;
 
-        addr = htonl(IPV4LL_NETWORK | (uint32_t) a);
+        addr = htonl(IPV4LL_NETWORK | (uint32_t)a);
     }
 
     assert(is_ll_address(addr));
@@ -1145,7 +1149,7 @@ static int loop(int iface, uint32_t addr) {
     pollfds[FD_SIGNAL].events = POLLIN;
 
     for (;;) {
-        int r, timeout;
+        int       r, timeout;
         AvahiUsec usec;
 
         if (state == STATE_START) {
@@ -1153,36 +1157,36 @@ static int loop(int iface, uint32_t addr) {
             /* First, wait a random time */
             set_state(STATE_WAITING_PROBE, 1, addr);
 
-            elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
+            elapse_time(&next_wakeup, 0, PROBE_WAIT * 1000);
             next_wakeup_valid = 1;
 
         } else if ((state == STATE_WAITING_PROBE && event == EVENT_TIMEOUT) ||
-                   (state == STATE_PROBING && event == EVENT_TIMEOUT && n_iteration < PROBE_NUM-2)) {
+                   (state == STATE_PROBING && event == EVENT_TIMEOUT && n_iteration < PROBE_NUM - 2)) {
 
             /* Send a probe */
             out_packet = packet_new_probe(addr, hw_address, &out_packet_len);
             set_state(STATE_PROBING, 0, addr);
 
-            elapse_time(&next_wakeup, PROBE_MIN*1000, (PROBE_MAX-PROBE_MIN)*1000);
+            elapse_time(&next_wakeup, PROBE_MIN * 1000, (PROBE_MAX - PROBE_MIN) * 1000);
             next_wakeup_valid = 1;
 
-        } else if (state == STATE_PROBING && event == EVENT_TIMEOUT && n_iteration >= PROBE_NUM-2) {
+        } else if (state == STATE_PROBING && event == EVENT_TIMEOUT && n_iteration >= PROBE_NUM - 2) {
 
             /* Send the last probe */
             out_packet = packet_new_probe(addr, hw_address, &out_packet_len);
             set_state(STATE_WAITING_ANNOUNCE, 1, addr);
 
-            elapse_time(&next_wakeup, ANNOUNCE_WAIT*1000, 0);
+            elapse_time(&next_wakeup, ANNOUNCE_WAIT * 1000, 0);
             next_wakeup_valid = 1;
 
         } else if ((state == STATE_WAITING_ANNOUNCE && event == EVENT_TIMEOUT) ||
-                   (state == STATE_ANNOUNCING && event == EVENT_TIMEOUT && n_iteration < ANNOUNCE_NUM-1)) {
+                   (state == STATE_ANNOUNCING && event == EVENT_TIMEOUT && n_iteration < ANNOUNCE_NUM - 1)) {
 
             /* Send announcement packet */
             out_packet = packet_new_announcement(addr, hw_address, &out_packet_len);
             set_state(STATE_ANNOUNCING, 0, addr);
 
-            elapse_time(&next_wakeup, ANNOUNCE_INTERVAL*1000, 0);
+            elapse_time(&next_wakeup, ANNOUNCE_INTERVAL * 1000, 0);
             next_wakeup_valid = 1;
 
             if (n_iteration == 0) {
@@ -1192,7 +1196,7 @@ static int loop(int iface, uint32_t addr) {
                 n_conflict = 0;
             }
 
-        } else if ((state == STATE_ANNOUNCING && event == EVENT_TIMEOUT && n_iteration >= ANNOUNCE_NUM-1)) {
+        } else if ((state == STATE_ANNOUNCING && event == EVENT_TIMEOUT && n_iteration >= ANNOUNCE_NUM - 1)) {
 
             daemon_log(LOG_INFO, "Successfully claimed IP address %s", inet_ntop(AF_INET, &addr, buf, sizeof(buf)));
             set_state(STATE_RUNNING, 0, addr);
@@ -1227,8 +1231,7 @@ static int loop(int iface, uint32_t addr) {
 
                 } else if (state == STATE_WAITING_PROBE || state == STATE_PROBING || state == STATE_WAITING_ANNOUNCE) {
                     /* Probe conflict */
-                    conflict = info.target_ip_address == addr &&
-                               info.sender_ip_address == 0 &&
+                    conflict = info.target_ip_address == addr && info.sender_ip_address == 0 &&
                                memcmp(hw_address, info.sender_hw_address, ETHER_ADDRLEN);
 
                     if (conflict)
@@ -1252,9 +1255,9 @@ static int loop(int iface, uint32_t addr) {
 
                     if (n_conflict >= MAX_CONFLICTS) {
                         daemon_log(LOG_WARNING, "Got too many conflicts, rate limiting new probes.");
-                        elapse_time(&next_wakeup, RATE_LIMIT_INTERVAL*1000, PROBE_WAIT*1000);
+                        elapse_time(&next_wakeup, RATE_LIMIT_INTERVAL * 1000, PROBE_WAIT * 1000);
                     } else
-                        elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
+                        elapse_time(&next_wakeup, 0, PROBE_WAIT * 1000);
 
                     next_wakeup_valid = 1;
                 } else
@@ -1283,7 +1286,7 @@ static int loop(int iface, uint32_t addr) {
 
             set_state(STATE_WAITING_PROBE, 1, addr);
 
-            elapse_time(&next_wakeup, 0, PROBE_WAIT*1000);
+            elapse_time(&next_wakeup, 0, PROBE_WAIT * 1000);
             next_wakeup_valid = 1;
 
         } else if (event == EVENT_REFRESH_REQUEST && state == STATE_RUNNING) {
@@ -1295,7 +1298,7 @@ static int loop(int iface, uint32_t addr) {
             out_packet = packet_new_announcement(addr, hw_address, &out_packet_len);
             set_state(STATE_ANNOUNCING, 1, addr);
 
-            elapse_time(&next_wakeup, ANNOUNCE_INTERVAL*1000, 0);
+            elapse_time(&next_wakeup, ANNOUNCE_INTERVAL * 1000, 0);
             next_wakeup_valid = 1;
         }
 
@@ -1319,7 +1322,7 @@ static int loop(int iface, uint32_t addr) {
 
         if (next_wakeup_valid) {
             usec = avahi_age(&next_wakeup);
-            timeout = usec < 0 ? (int) (-usec/1000) : 0;
+            timeout = usec < 0 ? (int)(-usec / 1000) : 0;
         }
 
         DEBUG(daemon_log(LOG_DEBUG, "sleeping %ims", timeout));
@@ -1334,7 +1337,6 @@ static int loop(int iface, uint32_t addr) {
             event = EVENT_TIMEOUT;
             next_wakeup_valid = 0;
         } else {
-
 
             if (pollfds[FD_ARP].revents) {
 
@@ -1360,8 +1362,7 @@ static int loop(int iface, uint32_t addr) {
                 }
             }
 
-            if (event == EVENT_NULL &&
-                pollfds[FD_IFACE].revents) {
+            if (event == EVENT_NULL && pollfds[FD_IFACE].revents) {
 
                 assert(pollfds[FD_IFACE].revents == POLLIN);
 
@@ -1369,8 +1370,7 @@ static int loop(int iface, uint32_t addr) {
                     goto fail;
             }
 
-            if (event == EVENT_NULL &&
-                pollfds[FD_SIGNAL].revents) {
+            if (event == EVENT_NULL && pollfds[FD_SIGNAL].revents) {
 
                 int sig;
                 assert(pollfds[FD_SIGNAL].revents == POLLIN);
@@ -1380,22 +1380,21 @@ static int loop(int iface, uint32_t addr) {
                     goto fail;
                 }
 
-                switch(sig) {
-                    case SIGINT:
-                    case SIGTERM:
-                        daemon_log(LOG_INFO, "Got %s, quitting.", sig == SIGINT ? "SIGINT" : "SIGTERM");
-                        ret = 0;
-                        goto fail;
+                switch (sig) {
+                case SIGINT:
+                case SIGTERM:
+                    daemon_log(LOG_INFO, "Got %s, quitting.", sig == SIGINT ? "SIGINT" : "SIGTERM");
+                    ret = 0;
+                    goto fail;
 
-                    case SIGCHLD:
-                        waitpid(-1, NULL, WNOHANG);
-                        break;
+                case SIGCHLD:
+                    waitpid(-1, NULL, WNOHANG);
+                    break;
 
-                    case SIGHUP:
-                        event = EVENT_REFRESH_REQUEST;
-                        break;
+                case SIGHUP:
+                    event = EVENT_REFRESH_REQUEST;
+                    break;
                 }
-
             }
         }
     }
@@ -1428,7 +1427,6 @@ fail:
     return ret;
 }
 
-
 static void help(FILE *f, const char *a0) {
     fprintf(f,
             "%s [options] INTERFACE\n"
@@ -1442,7 +1440,7 @@ static void help(FILE *f, const char *a0) {
             "    -S --start=ADDRESS  Start with this address from the IPv4LL range\n"
             "                        169.254.0.0/16\n"
             "    -t --script=script  Action script to run (defaults to\n"
-            "                        "AVAHI_IPCONF_SCRIPT")\n"
+            "                        " AVAHI_IPCONF_SCRIPT ")\n"
             "    -w --wait           Wait until an address has been acquired before\n"
             "                        daemonizing\n"
             "       --force-bind     Assign an IPv4LL address even if a routable address\n"
@@ -1470,99 +1468,96 @@ static int parse_command_line(int argc, char *argv[]) {
     };
 
     static const struct option long_options[] = {
-        { "help",          no_argument,       NULL, 'h' },
-        { "daemonize",     no_argument,       NULL, 'D' },
-        { "syslog",        no_argument,       NULL, 's' },
-        { "kill",          no_argument,       NULL, 'k' },
-        { "refresh",       no_argument,       NULL, 'r' },
-        { "check",         no_argument,       NULL, 'c' },
-        { "version",       no_argument,       NULL, 'V' },
-        { "start",         required_argument, NULL, 'S' },
-        { "script",        required_argument, NULL, 't' },
-        { "wait",          no_argument,       NULL, 'w' },
-        { "force-bind",    no_argument,       NULL, OPTION_FORCE_BIND },
-        { "no-drop-root",  no_argument,       NULL, OPTION_NO_DROP_ROOT },
+        {"help",          no_argument,       NULL, 'h'                 },
+        {"daemonize",     no_argument,       NULL, 'D'                 },
+        {"syslog",        no_argument,       NULL, 's'                 },
+        {"kill",          no_argument,       NULL, 'k'                 },
+        {"refresh",       no_argument,       NULL, 'r'                 },
+        {"check",         no_argument,       NULL, 'c'                 },
+        {"version",       no_argument,       NULL, 'V'                 },
+        {"start",         required_argument, NULL, 'S'                 },
+        {"script",        required_argument, NULL, 't'                 },
+        {"wait",          no_argument,       NULL, 'w'                 },
+        {"force-bind",    no_argument,       NULL, OPTION_FORCE_BIND   },
+        {"no-drop-root",  no_argument,       NULL, OPTION_NO_DROP_ROOT },
 #ifdef HAVE_CHROOT
-        { "no-chroot",     no_argument,       NULL, OPTION_NO_CHROOT },
+        {"no-chroot",     no_argument,       NULL, OPTION_NO_CHROOT    },
 #endif
-        { "no-proc-title", no_argument,       NULL, OPTION_NO_PROC_TITLE },
-        { "debug",         no_argument,       NULL, OPTION_DEBUG },
-        { NULL, 0, NULL, 0 }
+        {"no-proc-title", no_argument,       NULL, OPTION_NO_PROC_TITLE},
+        {"debug",         no_argument,       NULL, OPTION_DEBUG        },
+        {NULL,            0,                 NULL, 0                   }
     };
 
     while ((c = getopt_long(argc, argv, "hDskrcVS:t:w", long_options, NULL)) >= 0) {
 
-        switch(c) {
-            case 's':
-                use_syslog = 1;
-                break;
-            case 'h':
-                command = DAEMON_HELP;
-                break;
-            case 'D':
-                daemonize = 1;
-                break;
-            case 'k':
-                command = DAEMON_KILL;
-                break;
-            case 'V':
-                command = DAEMON_VERSION;
-                break;
-            case 'r':
-                command = DAEMON_REFRESH;
-                break;
-            case 'c':
-                command = DAEMON_CHECK;
-                break;
-            case 'S':
+        switch (c) {
+        case 's':
+            use_syslog = 1;
+            break;
+        case 'h':
+            command = DAEMON_HELP;
+            break;
+        case 'D':
+            daemonize = 1;
+            break;
+        case 'k':
+            command = DAEMON_KILL;
+            break;
+        case 'V':
+            command = DAEMON_VERSION;
+            break;
+        case 'r':
+            command = DAEMON_REFRESH;
+            break;
+        case 'c':
+            command = DAEMON_CHECK;
+            break;
+        case 'S':
 
-                if ((start_address = inet_addr(optarg)) == (uint32_t) -1) {
-                    fprintf(stderr, "Failed to parse IP address '%s'.", optarg);
-                    return -1;
-                }
-                break;
-            case 't':
-                avahi_free(action_script);
-                action_script = avahi_strdup(optarg);
-                break;
-            case 'w':
-                wait_for_address = 1;
-                break;
+            if ((start_address = inet_addr(optarg)) == (uint32_t)-1) {
+                fprintf(stderr, "Failed to parse IP address '%s'.", optarg);
+                return -1;
+            }
+            break;
+        case 't':
+            avahi_free(action_script);
+            action_script = avahi_strdup(optarg);
+            break;
+        case 'w':
+            wait_for_address = 1;
+            break;
 
-            case OPTION_NO_PROC_TITLE:
-                modify_proc_title = 0;
-                break;
+        case OPTION_NO_PROC_TITLE:
+            modify_proc_title = 0;
+            break;
 
-            case OPTION_DEBUG:
-                debug = 1;
+        case OPTION_DEBUG:
+            debug = 1;
 #ifdef DAEMON_SET_VERBOSITY_AVAILABLE
-                daemon_set_verbosity(LOG_DEBUG);
+            daemon_set_verbosity(LOG_DEBUG);
 #endif
-                break;
+            break;
 
-            case OPTION_FORCE_BIND:
-                force_bind = 1;
-                break;
+        case OPTION_FORCE_BIND:
+            force_bind = 1;
+            break;
 
-            case OPTION_NO_DROP_ROOT:
-                no_drop_root = 1;
-                break;
+        case OPTION_NO_DROP_ROOT:
+            no_drop_root = 1;
+            break;
 
 #ifdef HAVE_CHROOT
-            case OPTION_NO_CHROOT:
-                no_chroot = 1;
-                break;
+        case OPTION_NO_CHROOT:
+            no_chroot = 1;
+            break;
 #endif
 
-            default:
-                return -1;
+        default:
+            return -1;
         }
     }
 
-    if (command == DAEMON_RUN ||
-        command == DAEMON_KILL ||
-        command == DAEMON_REFRESH ||
-        command == DAEMON_CHECK) {
+    if (command == DAEMON_RUN || command == DAEMON_KILL || command == DAEMON_REFRESH || command == DAEMON_CHECK) {
 
         if (optind >= argc) {
             fprintf(stderr, "Missing interface name.\n");
@@ -1583,12 +1578,10 @@ static int parse_command_line(int argc, char *argv[]) {
     return 0;
 }
 
-static const char* pid_file_proc(void) {
-    return pid_file_name;
-}
+static const char *pid_file_proc(void) { return pid_file_name; }
 
-int main(int argc, char*argv[]) {
-    int r = 1;
+int main(int argc, char *argv[]) {
+    int   r = 1;
     char *log_ident = NULL;
 
     signal(SIGPIPE, SIG_IGN);
@@ -1608,11 +1601,11 @@ int main(int argc, char*argv[]) {
 
     daemon_log_ident = log_ident = avahi_strdup_printf("%s(%s)", argv0, interface_name);
     daemon_pid_file_proc = pid_file_proc;
-    pid_file_name = avahi_strdup_printf(AVAHI_RUNTIME_DIR"/avahi-autoipd.%s.pid", interface_name);
+    pid_file_name = avahi_strdup_printf(AVAHI_RUNTIME_DIR "/avahi-autoipd.%s.pid", interface_name);
 
     if (command == DAEMON_RUN) {
         pid_t pid;
-        int ifindex;
+        int   ifindex;
 
         init_rand_seed();
 
@@ -1677,7 +1670,7 @@ int main(int argc, char*argv[]) {
 
         r = 0;
     } else if (command == DAEMON_VERSION) {
-        printf("%s "PACKAGE_VERSION"\n", argv0);
+        printf("%s " PACKAGE_VERSION "\n", argv0);
 
         r = 0;
     } else if (command == DAEMON_KILL) {
@@ -1696,7 +1689,6 @@ int main(int argc, char*argv[]) {
         r = 0;
     } else if (command == DAEMON_CHECK)
         r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
-
 
 finish:
 

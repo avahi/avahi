@@ -40,5 +40,4 @@
 #include <discovery/discovery.h>
 #include <discovery/text_record.h>
 
-
 #endif

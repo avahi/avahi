@@ -30,69 +30,51 @@
 #include <salt/debug.h>
 #include <stdio.h>
 
+static sw_result HOWL_API query_record_reply(sw_discovery session, sw_discovery_oid oid,
+                                             sw_discovery_query_record_status status, sw_uint32 interface_index,
+                                             sw_const_string fullname, sw_uint16 rrtype, sw_uint16 rrclass, sw_uint16 rrdatalen,
+                                             sw_const_octets rrdata, sw_uint32 ttl, sw_opaque extra) {
+    sw_ipv4_address address;
 
-static sw_result HOWL_API
-query_record_reply(
-				sw_discovery								session,
-				sw_discovery_oid							oid,
-				sw_discovery_query_record_status		status,
-				sw_uint32									interface_index,
-				sw_const_string							fullname,
-				sw_uint16									rrtype,
-				sw_uint16									rrclass,
-				sw_uint16									rrdatalen,
-				sw_const_octets							rrdata,
-				sw_uint32									ttl,
-				sw_opaque									extra)
-{
-	sw_ipv4_address address;
+    fprintf(stderr, "interface index = 0x%x, fullname is %s\n", interface_index, fullname);
 
-	fprintf(stderr, "interface index = 0x%x, fullname is %s\n", interface_index, fullname);
+    if ((rrtype == 1) && (rrclass == 1)) {
+        sw_ipv4_address address;
+        sw_char         name[16];
 
-	if ((rrtype == 1) && (rrclass == 1))
-	{
-		sw_ipv4_address	address;
-		sw_char				name[16];
+        sw_ipv4_address_init_from_saddr(&address, *(sw_saddr *)rrdata);
 
-		sw_ipv4_address_init_from_saddr(&address, *(sw_saddr*) rrdata);
+        fprintf(stderr, "address is %s\n", sw_ipv4_address_name(address, name, sizeof(name)));
+    }
 
-		fprintf(stderr, "address is %s\n", sw_ipv4_address_name(address, name, sizeof(name)));
-	}
-
-	return SW_OKAY;
+    return SW_OKAY;
 }
-
-
 
 #if defined(WIN32)
 int __cdecl
 #else
 int
 #endif
-main(
-	int		argc,
-	char	**	argv)
-{
-	sw_discovery		discovery;
-	sw_discovery_oid	oid;
-	sw_result			err;
+    main(int argc, char **argv) {
+    sw_discovery     discovery;
+    sw_discovery_oid oid;
+    sw_result        err;
 
-	err = sw_discovery_init(&discovery);
-	sw_check_okay(err, exit);
+    err = sw_discovery_init(&discovery);
+    sw_check_okay(err, exit);
 
-	if (argc != 4)
-	{
-		fprintf(stderr, "usage: mDNSBrowse <name> <rrtype> <rrclass>\n");
-		return -1;
-	}
+    if (argc != 4) {
+        fprintf(stderr, "usage: mDNSBrowse <name> <rrtype> <rrclass>\n");
+        return -1;
+    }
 
-	err = sw_discovery_query_record(discovery, 0, 0, argv[1], atoi(argv[2]), atoi(argv[3]), query_record_reply, NULL, &oid);
-	sw_check_okay(err, exit);
+    err = sw_discovery_query_record(discovery, 0, 0, argv[1], atoi(argv[2]), atoi(argv[3]), query_record_reply, NULL, &oid);
+    sw_check_okay(err, exit);
 
-	err = sw_discovery_run(discovery);
-	sw_check_okay(err, exit);
+    err = sw_discovery_run(discovery);
+    sw_check_okay(err, exit);
 
 exit:
 
-	return err;
+    return err;
 }

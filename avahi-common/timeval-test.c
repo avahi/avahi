@@ -28,7 +28,7 @@
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
-    struct timeval a = { 5, 5 }, b;
+    struct timeval a = {5, 5}, b;
 
     b = a;
 
@@ -37,7 +37,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     printf("%li.%li\n", a.tv_sec, a.tv_usec);
 
-    printf("%lli\n", (long long) avahi_timeval_diff(&a, &b));
+    printf("%lli\n", (long long)avahi_timeval_diff(&a, &b));
 
     return 0;
 }

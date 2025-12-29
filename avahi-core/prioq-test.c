@@ -30,18 +30,16 @@
 
 #include "prioq.h"
 
-#define POINTER_TO_INT(p) ((int) (long) (p))
-#define INT_TO_POINTER(i) ((void*) (long) (i))
+#define POINTER_TO_INT(p) ((int)(long)(p))
+#define INT_TO_POINTER(i) ((void *)(long)(i))
 
-static int compare_int(const void* a, const void* b) {
+static int compare_int(const void *a, const void *b) {
     int i = POINTER_TO_INT(a), j = POINTER_TO_INT(b);
 
     return i < j ? -1 : (i > j ? 1 : 0);
 }
 
-static int compare_ptr(const void* a, const void* b) {
-    return a < b ? -1 : (a > b ? 1 : 0);
-}
+static int compare_ptr(const void *a, const void *b) { return a < b ? -1 : (a > b ? 1 : 0); }
 
 static void rec(AvahiPrioQueueNode *n) {
     if (!n)
@@ -67,7 +65,6 @@ static void rec(AvahiPrioQueueNode *n) {
             assert(n->parent->right == NULL);
     }
 
-
     if (n->parent) {
         int a = POINTER_TO_INT(n->parent->data), b = POINTER_TO_INT(n->data);
         if (a > b) {
@@ -82,7 +79,7 @@ static void rec(AvahiPrioQueueNode *n) {
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiPrioQueue *q, *q2;
-    int i;
+    int             i;
 
     q = avahi_prio_queue_new(compare_int);
     q2 = avahi_prio_queue_new(compare_ptr);
@@ -98,22 +95,21 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
         assert(q->n_nodes == q2->n_nodes);
 
-        printf("%i\n", POINTER_TO_INT(((AvahiPrioQueueNode*)q2->root->data)->data));
+        printf("%i\n", POINTER_TO_INT(((AvahiPrioQueueNode *)q2->root->data)->data));
 
         avahi_prio_queue_remove(q, q2->root->data);
         avahi_prio_queue_remove(q2, q2->root);
     }
 
-
-/*     prev = 0; */
-/*     while (q->root) { */
-/*         int v = GPOINTER_TO_INT(q->root->data); */
-/*         rec(q->root); */
-/*         printf("%i\n", v); */
-/*         avahi_prio_queue_remove(q, q->root); */
-/*         assert(v >= prev); */
-/*         prev = v; */
-/*     } */
+    /*     prev = 0; */
+    /*     while (q->root) { */
+    /*         int v = GPOINTER_TO_INT(q->root->data); */
+    /*         rec(q->root); */
+    /*         printf("%i\n", v); */
+    /*         avahi_prio_queue_remove(q, q->root); */
+    /*         assert(v >= prev); */
+    /*         prev = v; */
+    /*     } */
 
     avahi_prio_queue_free(q);
     return 0;

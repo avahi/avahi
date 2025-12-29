@@ -22,7 +22,7 @@
 
 #include <avahi-common/simple-watch.h>
 
-int sigint_install(AvahiSimplePoll *spoll);
+int  sigint_install(AvahiSimplePoll *spoll);
 void sigint_uninstall(void);
 
 #endif

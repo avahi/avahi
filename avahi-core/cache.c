@@ -38,7 +38,7 @@ static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     assert(c);
     assert(e);
 
-/*     avahi_log_debug("removing from cache: %p %p", c, e); */
+    /*     avahi_log_debug("removing from cache: %p %p", c, e); */
 
     /* Remove from hash table */
     t = avahi_hashmap_lookup(c->hashmap, e->record->key);
@@ -69,15 +69,15 @@ AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *iface) {
     assert(server);
 
     if (!(c = avahi_new(AvahiCache, 1))) {
-        avahi_log_error(__FILE__": Out of memory.");
+        avahi_log_error(__FILE__ ": Out of memory.");
         return NULL; /* OOM */
     }
 
     c->server = server;
     c->interface = iface;
 
-    if (!(c->hashmap = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, NULL, NULL))) {
-        avahi_log_error(__FILE__": Out of memory.");
+    if (!(c->hashmap = avahi_hashmap_new((AvahiHashFunc)avahi_key_hash, (AvahiEqualFunc)avahi_key_equal, NULL, NULL))) {
+        avahi_log_error(__FILE__ ": Out of memory.");
         avahi_free(c);
         return NULL; /* OOM */
     }
@@ -111,8 +111,8 @@ static AvahiCacheEntry *lookup_key(AvahiCache *c, AvahiKey *k) {
     return avahi_hashmap_lookup(c->hashmap, k);
 }
 
-void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void* userdata) {
-    void* ret;
+void *avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void *userdata) {
+    void *ret;
 
     assert(c);
     assert(pattern);
@@ -143,7 +143,7 @@ void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback 
     return NULL;
 }
 
-static void* lookup_record_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
+static void *lookup_record_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
     assert(c);
     assert(pattern);
     assert(e);
@@ -165,46 +165,46 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent);
 
 static void elapse_func(AvahiTimeEvent *t, void *userdata) {
     AvahiCacheEntry *e = userdata;
-/*     char *txt; */
+    /*     char *txt; */
     unsigned percent = 0;
 
     assert(t);
     assert(e);
 
-/*     txt = avahi_record_to_string(e->record); */
+    /*     txt = avahi_record_to_string(e->record); */
 
     switch (e->state) {
 
-        case AVAHI_CACHE_EXPIRY_FINAL:
-        case AVAHI_CACHE_POOF_FINAL:
-        case AVAHI_CACHE_GOODBYE_FINAL:
-        case AVAHI_CACHE_REPLACE_FINAL:
+    case AVAHI_CACHE_EXPIRY_FINAL:
+    case AVAHI_CACHE_POOF_FINAL:
+    case AVAHI_CACHE_GOODBYE_FINAL:
+    case AVAHI_CACHE_REPLACE_FINAL:
 
-            remove_entry(e->cache, e);
+        remove_entry(e->cache, e);
 
-            e = NULL;
-/*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
-            break;
+        e = NULL;
+        /*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
+        break;
 
-        case AVAHI_CACHE_VALID:
-        case AVAHI_CACHE_POOF:
-            e->state = AVAHI_CACHE_EXPIRY1;
-            percent = 85;
-            break;
+    case AVAHI_CACHE_VALID:
+    case AVAHI_CACHE_POOF:
+        e->state = AVAHI_CACHE_EXPIRY1;
+        percent = 85;
+        break;
 
-        case AVAHI_CACHE_EXPIRY1:
-            e->state = AVAHI_CACHE_EXPIRY2;
-            percent = 90;
-            break;
-        case AVAHI_CACHE_EXPIRY2:
-            e->state = AVAHI_CACHE_EXPIRY3;
-            percent = 95;
-            break;
+    case AVAHI_CACHE_EXPIRY1:
+        e->state = AVAHI_CACHE_EXPIRY2;
+        percent = 90;
+        break;
+    case AVAHI_CACHE_EXPIRY2:
+        e->state = AVAHI_CACHE_EXPIRY3;
+        percent = 95;
+        break;
 
-        case AVAHI_CACHE_EXPIRY3:
-            e->state = AVAHI_CACHE_EXPIRY_FINAL;
-            percent = 100;
-            break;
+    case AVAHI_CACHE_EXPIRY3:
+        e->state = AVAHI_CACHE_EXPIRY_FINAL;
+        percent = 100;
+        break;
     }
 
     if (e) {
@@ -217,10 +217,9 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
 
         /* Check again later */
         next_expiry(e->cache, e, percent);
-
     }
 
-/*     avahi_free(txt); */
+    /*     avahi_free(txt); */
 }
 
 static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
@@ -235,16 +234,16 @@ static void update_time_event(AvahiCache *c, AvahiCacheEntry *e) {
 
 static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
     AvahiUsec usec, left, right;
-    time_t now;
+    time_t    now;
 
     assert(c);
     assert(e);
     assert(percent > 0 && percent <= 100);
 
-    usec = (AvahiUsec) e->record->ttl * 10000;
+    usec = (AvahiUsec)e->record->ttl * 10000;
 
     left = usec * percent;
-    right = usec * (percent+2); /* 2% jitter */
+    right = usec * (percent + 2); /* 2% jitter */
 
     now = time(NULL);
 
@@ -253,12 +252,12 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
         c->last_rand_timestamp = now;
     }
 
-    usec = left + (AvahiUsec) ((double) (right-left) * c->last_rand / (RAND_MAX+1.0));
+    usec = left + (AvahiUsec)((double)(right - left) * c->last_rand / (RAND_MAX + 1.0));
 
     e->expiry = e->timestamp;
     avahi_timeval_add(&e->expiry, usec);
 
-/*     g_message("wake up in +%lu seconds", e->expiry.tv_sec - e->timestamp.tv_sec); */
+    /*     g_message("wake up in +%lu seconds", e->expiry.tv_sec - e->timestamp.tv_sec); */
 
     update_time_event(c, e);
 }
@@ -274,12 +273,12 @@ static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEn
 }
 
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const AvahiAddress *a) {
-/*     char *txt; */
+    /*     char *txt; */
 
     assert(c);
     assert(r && r->ref >= 1);
 
-/*     txt = avahi_record_to_string(r); */
+    /*     txt = avahi_record_to_string(r); */
 
     if (r->ttl == 0) {
         /* This is a goodbye request */
@@ -291,7 +290,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
     } else {
         AvahiCacheEntry *e = NULL, *first;
-        struct timeval now;
+        struct timeval   now;
 
         gettimeofday(&now, NULL);
 
@@ -320,7 +319,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
         if (e) {
 
-/*             avahi_log_debug("found matching cache entry");  */
+            /*             avahi_log_debug("found matching cache entry");  */
 
             /* We need to update the hash table key if we replace the
              * record */
@@ -331,18 +330,18 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
             avahi_record_unref(e->record);
             e->record = avahi_record_ref(r);
 
-/*             avahi_log_debug("cache: updating %s", txt);   */
+            /*             avahi_log_debug("cache: updating %s", txt);   */
 
         } else {
             /* No entry found, therefore we create a new one */
 
-/*             avahi_log_debug("cache: couldn't find matching cache entry for %s", txt);   */
+            /*             avahi_log_debug("cache: couldn't find matching cache entry for %s", txt);   */
 
             if (c->n_entries >= c->server->config.n_cache_entries_max)
                 return;
 
             if (!(e = avahi_new(AvahiCacheEntry, 1))) {
-                avahi_log_error(__FILE__": Out of memory");
+                avahi_log_error(__FILE__ ": Out of memory");
                 return;
             }
 
@@ -360,7 +359,8 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
             c->n_entries++;
 
             /* Notify subscribers */
-            avahi_multicast_lookup_engine_notify(c->server->multicast_lookup_engine, c->interface, e->record, AVAHI_BROWSER_NEW);
+            avahi_multicast_lookup_engine_notify(
+                c->server->multicast_lookup_engine, c->interface, e->record, AVAHI_BROWSER_NEW);
         }
 
         e->origin = *a;
@@ -370,17 +370,17 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
         e->cache_flush = cache_flush;
     }
 
-/*     avahi_free(txt);  */
+    /*     avahi_free(txt);  */
 }
 
 struct dump_data {
     AvahiDumpCallback callback;
-    void* userdata;
+    void             *userdata;
 };
 
-static void dump_callback(void* key, void* data, void* userdata) {
-    AvahiCacheEntry *e = data;
-    AvahiKey *k = key;
+static void dump_callback(void *key, void *data, void *userdata) {
+    AvahiCacheEntry  *e = data;
+    AvahiKey         *k = key;
     struct dump_data *dump_data = userdata;
 
     assert(k);
@@ -398,7 +398,7 @@ static void dump_callback(void* key, void* data, void* userdata) {
     }
 }
 
-int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void* userdata) {
+int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void *userdata) {
     struct dump_data data;
 
     assert(c);
@@ -416,18 +416,18 @@ int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void* userdata) 
 
 int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
     struct timeval now;
-    unsigned age;
+    unsigned       age;
 
     assert(c);
     assert(e);
 
     gettimeofday(&now, NULL);
 
-    age = (unsigned) (avahi_timeval_diff(&now, &e->timestamp)/1000000);
+    age = (unsigned)(avahi_timeval_diff(&now, &e->timestamp) / 1000000);
 
-/*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
+    /*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
 
-    return age >= e->record->ttl/2;
+    return age >= e->record->ttl / 2;
 }
 
 void avahi_cache_flush(AvahiCache *c) {
@@ -439,8 +439,8 @@ void avahi_cache_flush(AvahiCache *c) {
 
 /*** Passive observation of failure ***/
 
-static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
-    AvahiAddress *a = userdata;
+static void *start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
+    AvahiAddress  *a = userdata;
     struct timeval now;
 
     assert(c);
@@ -451,34 +451,33 @@ static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
     gettimeofday(&now, NULL);
 
     switch (e->state) {
-        case AVAHI_CACHE_VALID:
+    case AVAHI_CACHE_VALID:
 
-            /* The entry was perfectly valid till, now, so let's enter
+        /* The entry was perfectly valid till, now, so let's enter
              * POOF mode */
 
-            e->state = AVAHI_CACHE_POOF;
-            e->poof_address = *a;
-            e->poof_timestamp = now;
-            e->poof_num = 0;
+        e->state = AVAHI_CACHE_POOF;
+        e->poof_address = *a;
+        e->poof_timestamp = now;
+        e->poof_num = 0;
 
+        break;
+
+    case AVAHI_CACHE_POOF:
+        if (avahi_timeval_diff(&now, &e->poof_timestamp) < 1000000)
             break;
 
-        case AVAHI_CACHE_POOF:
-            if (avahi_timeval_diff(&now, &e->poof_timestamp) < 1000000)
-              break;
+        e->poof_timestamp = now;
+        e->poof_address = *a;
+        e->poof_num++;
 
-            e->poof_timestamp = now;
-            e->poof_address = *a;
-            e->poof_num ++;
-
-            /* This is the 4th time we got no response, so let's
+        /* This is the 4th time we got no response, so let's
              * fucking remove this entry. */
-            if (e->poof_num > 3)
-              expire_in_one_second(c, e, AVAHI_CACHE_POOF_FINAL);
-            break;
+        if (e->poof_num > 3)
+            expire_in_one_second(c, e, AVAHI_CACHE_POOF_FINAL);
+        break;
 
-        default:
-            ;
+    default:;
     }
 
     return NULL;
@@ -488,7 +487,7 @@ void avahi_cache_start_poof(AvahiCache *c, AvahiKey *key, const AvahiAddress *a)
     assert(c);
     assert(key);
 
-    avahi_cache_walk(c, key, start_poof_callback, (void*) a);
+    avahi_cache_walk(c, key, start_poof_callback, (void *)a);
 }
 
 void avahi_cache_stop_poof(AvahiCache *c, AvahiRecord *record, const AvahiAddress *a) {

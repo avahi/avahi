@@ -24,28 +24,24 @@
 #include "browse.h"
 
 typedef struct AvahiMulticastLookupEngine AvahiMulticastLookupEngine;
-typedef struct AvahiMulticastLookup AvahiMulticastLookup;
+typedef struct AvahiMulticastLookup       AvahiMulticastLookup;
 
-typedef void (*AvahiMulticastLookupCallback)(
-    AvahiMulticastLookupEngine *e,
-    AvahiIfIndex idx,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    AvahiLookupResultFlags flags,
-    AvahiRecord *r,
-    void *userdata);
+typedef void (*AvahiMulticastLookupCallback)(AvahiMulticastLookupEngine *e, AvahiIfIndex idx, AvahiProtocol protocol,
+                                             AvahiBrowserEvent event, AvahiLookupResultFlags flags, AvahiRecord *r,
+                                             void *userdata);
 
 AvahiMulticastLookupEngine *avahi_multicast_lookup_engine_new(AvahiServer *s);
-void avahi_multicast_lookup_engine_free(AvahiMulticastLookupEngine *e);
+void                        avahi_multicast_lookup_engine_free(AvahiMulticastLookupEngine *e);
 
-unsigned avahi_multicast_lookup_engine_scan_cache(AvahiMulticastLookupEngine *e, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, AvahiMulticastLookupCallback callback, void *userdata);
-void avahi_multicast_lookup_engine_new_interface(AvahiMulticastLookupEngine *e, AvahiInterface *i);
-void avahi_multicast_lookup_engine_cleanup(AvahiMulticastLookupEngine *e);
-void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event);
+unsigned avahi_multicast_lookup_engine_scan_cache(AvahiMulticastLookupEngine *e, AvahiIfIndex idx, AvahiProtocol protocol,
+                                                  AvahiKey *key, AvahiMulticastLookupCallback callback, void *userdata);
+void     avahi_multicast_lookup_engine_new_interface(AvahiMulticastLookupEngine *e, AvahiInterface *i);
+void     avahi_multicast_lookup_engine_cleanup(AvahiMulticastLookupEngine *e);
+void     avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiInterface *i, AvahiRecord *record,
+                                              AvahiBrowserEvent event);
 
-AvahiMulticastLookup *avahi_multicast_lookup_new(AvahiMulticastLookupEngine *e, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, AvahiMulticastLookupCallback callback, void *userdata);
-void avahi_multicast_lookup_free(AvahiMulticastLookup *q);
-
+AvahiMulticastLookup *avahi_multicast_lookup_new(AvahiMulticastLookupEngine *e, AvahiIfIndex idx, AvahiProtocol protocol,
+                                                 AvahiKey *key, AvahiMulticastLookupCallback callback, void *userdata);
+void                  avahi_multicast_lookup_free(AvahiMulticastLookup *q);
 
 #endif
-

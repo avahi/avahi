@@ -32,25 +32,25 @@
 #include "log.h"
 
 struct AvahiNetlink {
-    int fd;
-    unsigned seq;
+    int                  fd;
+    unsigned             seq;
     AvahiNetlinkCallback callback;
-    void* userdata;
-    uint8_t* buffer;
-    size_t buffer_length;
+    void                *userdata;
+    uint8_t             *buffer;
+    size_t               buffer_length;
 
     const AvahiPoll *poll_api;
-    AvahiWatch *watch;
+    AvahiWatch      *watch;
 };
 
 int avahi_netlink_work(AvahiNetlink *nl, int block) {
-    ssize_t bytes;
-    struct msghdr smsg;
-    struct cmsghdr *cmsg;
-    struct ucred *cred;
-    struct iovec iov;
+    ssize_t          bytes;
+    struct msghdr    smsg;
+    struct cmsghdr  *cmsg;
+    struct ucred    *cred;
+    struct iovec     iov;
     struct nlmsghdr *p;
-    char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
+    char             cred_msg[CMSG_SPACE(sizeof(struct ucred))];
 
     assert(nl);
 
@@ -69,7 +69,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
         if (errno == EAGAIN || errno == EINTR)
             return 0;
 
-        avahi_log_error(__FILE__": recvmsg() failed: %s", strerror(errno));
+        avahi_log_error(__FILE__ ": recvmsg() failed: %s", strerror(errno));
         return -1;
     }
 
@@ -80,18 +80,18 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
         return -1;
     }
 
-    cred = (struct ucred*) CMSG_DATA(cmsg);
+    cred = (struct ucred *)CMSG_DATA(cmsg);
 
     if (cred->pid != 0)
         return -1;
 
-    p = (struct nlmsghdr *) nl->buffer;
+    p = (struct nlmsghdr *)nl->buffer;
 
     assert(nl->callback);
 
     for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
-        if (!NLMSG_OK(p, (size_t) bytes)) {
-            avahi_log_warn(__FILE__": packet truncated");
+        if (!NLMSG_OK(p, (size_t)bytes)) {
+            avahi_log_warn(__FILE__ ": packet truncated");
             return -1;
         }
 
@@ -111,17 +111,18 @@ static void socket_event(AvahiWatch *w, int fd, AVAHI_GCC_UNUSED AvahiWatchEvent
     avahi_netlink_work(nl, 0);
 }
 
-AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void (*cb) (AvahiNetlink *nl, struct nlmsghdr *n, void* userdata), void* userdata) {
-    int fd = -1;
-    const int on = 1;
+AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t                                     groups,
+                                void (*cb)(AvahiNetlink *nl, struct nlmsghdr *n, void *userdata), void *userdata) {
+    int                fd = -1;
+    const int          on = 1;
     struct sockaddr_nl addr;
-    AvahiNetlink *nl = NULL;
+    AvahiNetlink      *nl = NULL;
 
     assert(poll_api);
     assert(cb);
 
     if ((fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
-        avahi_log_error(__FILE__": socket(PF_NETLINK): %s", strerror(errno));
+        avahi_log_error(__FILE__ ": socket(PF_NETLINK): %s", strerror(errno));
         return NULL;
     }
 
@@ -130,18 +131,18 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
     addr.nl_groups = groups;
     addr.nl_pid = 0;
 
-    if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-        avahi_log_error(__FILE__": bind(): %s", strerror(errno));
+    if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        avahi_log_error(__FILE__ ": bind(): %s", strerror(errno));
         goto fail;
     }
 
     if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) < 0) {
-        avahi_log_error(__FILE__": SO_PASSCRED: %s", strerror(errno));
+        avahi_log_error(__FILE__ ": SO_PASSCRED: %s", strerror(errno));
         goto fail;
     }
 
     if (!(nl = avahi_new(AvahiNetlink, 1))) {
-        avahi_log_error(__FILE__": avahi_new() failed.");
+        avahi_log_error(__FILE__ ": avahi_new() failed.");
         goto fail;
     }
 
@@ -151,13 +152,13 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
     nl->callback = cb;
     nl->userdata = userdata;
 
-    if (!(nl->buffer = avahi_new(uint8_t, nl->buffer_length = 64*1024))) {
-        avahi_log_error(__FILE__": avahi_new() failed.");
+    if (!(nl->buffer = avahi_new(uint8_t, nl->buffer_length = 64 * 1024))) {
+        avahi_log_error(__FILE__ ": avahi_new() failed.");
         goto fail;
     }
 
     if (!(nl->watch = poll_api->watch_new(poll_api, fd, AVAHI_WATCH_IN, socket_event, nl))) {
-        avahi_log_error(__FILE__": Failed to create watch.");
+        avahi_log_error(__FILE__ ": Failed to create watch.");
         goto fail;
     }
 
@@ -197,7 +198,7 @@ int avahi_netlink_send(AvahiNetlink *nl, struct nlmsghdr *m, unsigned *ret_seq) 
     m->nlmsg_flags |= NLM_F_ACK;
 
     if (send(nl->fd, m, m->nlmsg_len, 0) < 0) {
-        avahi_log_error(__FILE__": send(): %s", strerror(errno));
+        avahi_log_error(__FILE__ ": send(): %s", strerror(errno));
         return -1;
     }
 

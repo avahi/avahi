@@ -30,23 +30,24 @@ typedef unsigned (*AvahiHashFunc)(const void *data);
 typedef int (*AvahiEqualFunc)(const void *a, const void *b);
 typedef void (*AvahiFreeFunc)(void *p);
 
-AvahiHashmap* avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_func, AvahiFreeFunc key_free_func, AvahiFreeFunc value_free_func);
+AvahiHashmap *avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_func, AvahiFreeFunc key_free_func,
+                                AvahiFreeFunc value_free_func);
 
-void avahi_hashmap_free(AvahiHashmap *m);
-void* avahi_hashmap_lookup(AvahiHashmap *m, const void *key);
-int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value);
-int avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value);
-void avahi_hashmap_remove(AvahiHashmap *m, const void *key);
+void  avahi_hashmap_free(AvahiHashmap *m);
+void *avahi_hashmap_lookup(AvahiHashmap *m, const void *key);
+int   avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value);
+int   avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value);
+void  avahi_hashmap_remove(AvahiHashmap *m, const void *key);
 
 typedef void (*AvahiHashmapForeachCallback)(void *key, void *value, void *userdata);
 
 void avahi_hashmap_foreach(AvahiHashmap *m, AvahiHashmapForeachCallback callback, void *userdata);
 
 unsigned avahi_string_hash(const void *data);
-int avahi_string_equal(const void *a, const void *b);
+int      avahi_string_equal(const void *a, const void *b);
 
 unsigned avahi_int_hash(const void *data);
-int avahi_int_equal(const void *a, const void *b);
+int      avahi_int_equal(const void *a, const void *b);
 
 AVAHI_C_DECL_END
 

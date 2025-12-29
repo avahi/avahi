@@ -25,13 +25,12 @@
 #include "avahi-common/strlst.h"
 #include "avahi-common/utf8.h"
 
-
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     AvahiStringList *a = NULL, *b = NULL;
-    uint8_t *rdata = NULL;
-    char *t = NULL;
-    size_t s, n;
-    int ret;
+    uint8_t         *rdata = NULL;
+    char            *t = NULL;
+    size_t           s, n;
+    int              ret;
 
     if (avahi_string_list_parse(data, size, &a) < 0)
         goto finish;

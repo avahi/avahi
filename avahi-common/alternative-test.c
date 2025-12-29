@@ -28,43 +28,41 @@
 #include "domain.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    const char* const test_strings[] = {
-        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXüüüüüüü",
-        ").",
-        "\\.",
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\\\",
-        "gurke",
-        "-",
-        " #",
-        "1",
-        "#0",
-        " #0",
-        " #1",
-        "#-1",
-        " #-1",
-        "-0",
-        "--0",
-        "-1",
-        "--1",
-        "-2",
-        "gurke1",
-        "gurke0",
-        "gurke-2",
-        "gurke #0",
-        "gurke #1",
-        "gurke #",
-        "gurke#1",
-        "gurke-",
-        "gurke---",
-        "gurke #",
-        "gurke ###",
-        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[",
-        NULL
-    };
+    const char *const test_strings[] = {"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                                        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXüüüüüüü",
+                                        ").",
+                                        "\\.",
+                                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\\\",
+                                        "gurke",
+                                        "-",
+                                        " #",
+                                        "1",
+                                        "#0",
+                                        " #0",
+                                        " #1",
+                                        "#-1",
+                                        " #-1",
+                                        "-0",
+                                        "--0",
+                                        "-1",
+                                        "--1",
+                                        "-2",
+                                        "gurke1",
+                                        "gurke0",
+                                        "gurke-2",
+                                        "gurke #0",
+                                        "gurke #1",
+                                        "gurke #",
+                                        "gurke#1",
+                                        "gurke-",
+                                        "gurke---",
+                                        "gurke #",
+                                        "gurke ###",
+                                        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[",
+                                        NULL};
 
     char *r = NULL;
-    int i, j, k;
+    int   i, j, k;
 
     for (k = 0; test_strings[k]; k++) {
 
@@ -75,7 +73,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
             for (i = 0; i <= 100; i++) {
                 char *n;
 
-                n = i == 0 ? avahi_strdup(test_strings[k]) : (j ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
+                n = i == 0 ? avahi_strdup(test_strings[k])
+                           : (j ? avahi_alternative_service_name(r) : avahi_alternative_host_name(r));
                 avahi_free(r);
                 r = n;
 

@@ -34,26 +34,26 @@
 
 #ifndef IFLA_RTA
 #include <linux/if_addr.h>
-#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
+#define IFLA_RTA(r) ((struct rtattr *)(((char *)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
 #endif
 
 #ifndef IFA_RTA
 #include <linux/if_addr.h>
-#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
+#define IFA_RTA(r) ((struct rtattr *)(((char *)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
 #endif
 
 static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq) {
     struct nlmsghdr *n;
     struct rtgenmsg *gen;
-    uint8_t req[1024];
+    uint8_t          req[1024];
 
     /* Issue a wild dump NETLINK request */
 
     memset(&req, 0, sizeof(req));
-    n = (struct nlmsghdr*) req;
+    n = (struct nlmsghdr *)req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtgenmsg));
     n->nlmsg_type = type;
-    n->nlmsg_flags = NLM_F_REQUEST|NLM_F_DUMP;
+    n->nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
     n->nlmsg_pid = 0;
 
     gen = NLMSG_DATA(n);
@@ -63,7 +63,7 @@ static int netlink_list_items(AvahiNetlink *nl, uint16_t type, unsigned *ret_seq
     return avahi_netlink_send(nl, n, ret_seq);
 }
 
-static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdata) {
+static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void *userdata) {
     AvahiInterfaceMonitor *m = userdata;
 
     /* This routine is called for every RTNETLINK response packet */
@@ -78,8 +78,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
         struct ifinfomsg *ifinfomsg = NLMSG_DATA(n);
         AvahiHwInterface *hw;
-        struct rtattr *a = NULL;
-        size_t l;
+        struct rtattr    *a = NULL;
+        size_t            l;
 
         /* A (superfluous?) sanity check */
         if (ifinfomsg->ifi_family != AF_UNSPEC)
@@ -97,49 +97,46 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
              * avahi_interface_new() internally twice for IPv4 and
              * IPv6, so there is no need for us to do that
              * ourselves */
-            if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex) ifinfomsg->ifi_index)))
+            if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex)ifinfomsg->ifi_index)))
                 return; /* OOM */
 
         /* Check whether the flags of this interface are OK for us */
-        hw->flags_ok =
-            (ifinfomsg->ifi_flags & IFF_UP) &&
-            (!m->server->config.use_iff_running || (ifinfomsg->ifi_flags & IFF_RUNNING)) &&
-            ((ifinfomsg->ifi_flags & IFF_LOOPBACK) ||
-             (ifinfomsg->ifi_flags & IFF_MULTICAST) ||
-             ((ifinfomsg->ifi_flags & IFF_POINTOPOINT) && m->server->config.allow_point_to_point));
+        hw->flags_ok = (ifinfomsg->ifi_flags & IFF_UP) &&
+                       (!m->server->config.use_iff_running || (ifinfomsg->ifi_flags & IFF_RUNNING)) &&
+                       ((ifinfomsg->ifi_flags & IFF_LOOPBACK) || (ifinfomsg->ifi_flags & IFF_MULTICAST) ||
+                        ((ifinfomsg->ifi_flags & IFF_POINTOPOINT) && m->server->config.allow_point_to_point));
 
         /* Handle interface attributes */
         l = NLMSG_PAYLOAD(n, sizeof(struct ifinfomsg));
         a = IFLA_RTA(ifinfomsg);
 
         while (RTA_OK(a, l)) {
-            switch(a->rta_type) {
-                case IFLA_IFNAME:
+            switch (a->rta_type) {
+            case IFLA_IFNAME:
 
-                    /* Fill in interface name */
-                    avahi_free(hw->name);
-                    hw->name = avahi_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
-                    break;
+                /* Fill in interface name */
+                avahi_free(hw->name);
+                hw->name = avahi_strndup(RTA_DATA(a), RTA_PAYLOAD(a));
+                break;
 
-                case IFLA_MTU:
+            case IFLA_MTU:
 
-                    /* Fill in MTU */
-                    assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
-                    hw->mtu = *((unsigned int*) RTA_DATA(a));
-                    break;
+                /* Fill in MTU */
+                assert(RTA_PAYLOAD(a) == sizeof(unsigned int));
+                hw->mtu = *((unsigned int *)RTA_DATA(a));
+                break;
 
-                case IFLA_ADDRESS:
+            case IFLA_ADDRESS:
 
-                    /* Fill in hardware (MAC) address */
-                    hw->mac_address_size = RTA_PAYLOAD(a);
-                    if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)
-                        hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
+                /* Fill in hardware (MAC) address */
+                hw->mac_address_size = RTA_PAYLOAD(a);
+                if (hw->mac_address_size > AVAHI_MAC_ADDRESS_MAX)
+                    hw->mac_address_size = AVAHI_MAC_ADDRESS_MAX;
 
-                    memcpy(hw->mac_address, RTA_DATA(a), hw->mac_address_size);
-                    break;
+                memcpy(hw->mac_address, RTA_DATA(a), hw->mac_address_size);
+                break;
 
-                default:
-                    ;
+            default:;
             }
 
             a = RTA_NEXT(a, l);
@@ -167,7 +164,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             return;
 
         /* Get a reference to our AvahiHwInterface object of this interface */
-        if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) ifinfomsg->ifi_index)))
+        if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex)ifinfomsg->ifi_index)))
             return;
 
         /* Free our object */
@@ -178,12 +175,12 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         /* An address has been added, modified or removed */
 
         struct ifaddrmsg *ifaddrmsg = NLMSG_DATA(n);
-        AvahiInterface *i;
-        struct rtattr *a = NULL;
-        size_t l;
-        AvahiAddress raddr, rlocal, *r;
-        int raddr_valid = 0, rlocal_valid = 0;
-        uint32_t flags = ifaddrmsg->ifa_flags;  /* may be overridden by IFA_FLAGS */
+        AvahiInterface   *i;
+        struct rtattr    *a = NULL;
+        size_t            l;
+        AvahiAddress      raddr, rlocal, *r;
+        int               raddr_valid = 0, rlocal_valid = 0;
+        uint32_t          flags = ifaddrmsg->ifa_flags; /* may be overridden by IFA_FLAGS */
 
         /* We are only interested in IPv4 and IPv6 */
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
@@ -192,7 +189,8 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         /* Try to get a reference to our AvahiInterface object for the
          * interface this address is assigned to. If there is no object
          * for this interface, we ignore this address. */
-        if (!(i = avahi_interface_monitor_get_interface(m, (AvahiIfIndex) ifaddrmsg->ifa_index, avahi_af_to_proto(ifaddrmsg->ifa_family))))
+        if (!(i = avahi_interface_monitor_get_interface(
+                  m, (AvahiIfIndex)ifaddrmsg->ifa_index, avahi_af_to_proto(ifaddrmsg->ifa_family))))
             return;
 
         /* Fill in address family for our new address */
@@ -203,46 +201,45 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
         while (RTA_OK(a, l)) {
 
-            switch(a->rta_type) {
+            switch (a->rta_type) {
 
-                case IFA_LOCAL:
+            case IFA_LOCAL:
 
-                    if ((rlocal.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
-                        (rlocal.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
-                        return;
+                if ((rlocal.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
+                    (rlocal.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
+                    return;
 
-                    memcpy(rlocal.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
-                    rlocal_valid = 1;
+                memcpy(rlocal.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
+                rlocal_valid = 1;
 
-                    break;
+                break;
 
-                case IFA_ADDRESS:
+            case IFA_ADDRESS:
 
-                    /* Fill in local address data. Usually this is
+                /* Fill in local address data. Usually this is
                      * preferable over IFA_ADDRESS if both are set,
                      * since this refers to the local address of a PPP
                      * link while IFA_ADDRESS refers to the other
                      * end. */
 
-                    if ((raddr.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
-                        (raddr.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
-                        return;
+                if ((raddr.proto == AVAHI_PROTO_INET6 && RTA_PAYLOAD(a) != 16) ||
+                    (raddr.proto == AVAHI_PROTO_INET && RTA_PAYLOAD(a) != 4))
+                    return;
 
-                    memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
-                    raddr_valid = 1;
+                memcpy(raddr.data.data, RTA_DATA(a), RTA_PAYLOAD(a));
+                raddr_valid = 1;
 
-                    break;
+                break;
 
-                case IFA_FLAGS:
-                    if (RTA_PAYLOAD(a) != sizeof(flags))
-                        return;
+            case IFA_FLAGS:
+                if (RTA_PAYLOAD(a) != sizeof(flags))
+                    return;
 
-                    memcpy(&flags, RTA_DATA(a), RTA_PAYLOAD(a));
+                memcpy(&flags, RTA_DATA(a), RTA_PAYLOAD(a));
 
-                    break;
+                break;
 
-                default:
-                    ;
+            default:;
             }
 
             a = RTA_NEXT(a, l);
@@ -335,7 +332,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
     } else if (n->nlmsg_type == NLMSG_ERROR &&
                (n->nlmsg_seq == m->osdep.query_link_seq || n->nlmsg_seq == m->osdep.query_addr_seq)) {
-        struct nlmsgerr *e = NLMSG_DATA (n);
+        struct nlmsgerr *e = NLMSG_DATA(n);
 
         /* Some kind of error happened. Let's just tell the user and
          * ignore it otherwise */
@@ -357,7 +354,8 @@ int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
      * makes netlink easier to use. It will attach to the main loop
      * for us and call netlink_callback() whenever an event
      * happens. */
-    if (!(m->osdep.netlink = avahi_netlink_new(m->server->poll_api, RTMGRP_LINK|RTMGRP_IPV4_IFADDR|RTMGRP_IPV6_IFADDR, netlink_callback, m)))
+    if (!(m->osdep.netlink = avahi_netlink_new(
+              m->server->poll_api, RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR, netlink_callback, m)))
         goto fail;
 
     /* Set the initial state. */

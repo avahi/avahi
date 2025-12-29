@@ -34,35 +34,32 @@
 /*
  * corby limits
  */
-#define SW_CORBY_OID_LEN		32
-
+#define SW_CORBY_OID_LEN 32
 
 /*
  * protocol tags.  the only standard one is TAG_INTERNET_IIOP.
  * the others are proprietary pandora corby protocols.
  */
-#define SW_TAG_INTERNET_IOP	0
-#define SW_TAG_UIOP				250
-#define SW_TAG_MIOP				251
-#define SW_MIOP_ADDR				"231.255.255.250"
-typedef sw_uint32				sw_corby_protocol_tag;
-
+#define SW_TAG_INTERNET_IOP 0
+#define SW_TAG_UIOP 250
+#define SW_TAG_MIOP 251
+#define SW_MIOP_ADDR "231.255.255.250"
+typedef sw_uint32 sw_corby_protocol_tag;
 
 /*
  * error codes
  */
-#define SW_E_CORBY_BASE					0x80000500
-#define SW_E_CORBY_UNKNOWN				(SW_E_CORBY_BASE + 0)
-#define SW_E_CORBY_BAD_CONFIG			(SW_E_CORBY_BASE + 1)
-#define SW_E_CORBY_NO_INTERFACE		(SW_E_CORBY_BASE + 2)
-#define SW_E_CORBY_BAD_URL				(SW_E_CORBY_BASE + 3)
-#define SW_E_CORBY_BAD_NAME			(SW_E_CORBY_BASE + 4)
-#define SW_E_CORBY_BAD_MESSAGE		(SW_E_CORBY_BASE + 5)
-#define SW_E_CORBY_BAD_VERSION		(SW_E_CORBY_BASE + 6)
-#define SW_E_CORBY_BAD_OID				(SW_E_CORBY_BASE + 7)
-#define SW_E_CORBY_BAD_OPERATION		(SW_E_CORBY_BASE + 8)
-#define SW_E_CORBY_MARSHAL				(SW_E_CORBY_BASE + 10)
-#define SW_E_CORBY_OBJECT_NOT_EXIST	(SW_E_CORBY_BASE + 11)
-
+#define SW_E_CORBY_BASE 0x80000500
+#define SW_E_CORBY_UNKNOWN (SW_E_CORBY_BASE + 0)
+#define SW_E_CORBY_BAD_CONFIG (SW_E_CORBY_BASE + 1)
+#define SW_E_CORBY_NO_INTERFACE (SW_E_CORBY_BASE + 2)
+#define SW_E_CORBY_BAD_URL (SW_E_CORBY_BASE + 3)
+#define SW_E_CORBY_BAD_NAME (SW_E_CORBY_BASE + 4)
+#define SW_E_CORBY_BAD_MESSAGE (SW_E_CORBY_BASE + 5)
+#define SW_E_CORBY_BAD_VERSION (SW_E_CORBY_BASE + 6)
+#define SW_E_CORBY_BAD_OID (SW_E_CORBY_BASE + 7)
+#define SW_E_CORBY_BAD_OPERATION (SW_E_CORBY_BASE + 8)
+#define SW_E_CORBY_MARSHAL (SW_E_CORBY_BASE + 10)
+#define SW_E_CORBY_OBJECT_NOT_EXIST (SW_E_CORBY_BASE + 11)
 
 #endif

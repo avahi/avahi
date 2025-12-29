@@ -36,60 +36,40 @@ AVAHI_C_DECL_BEGIN
 
 /** The type of DNS server */
 typedef enum {
-    AVAHI_DNS_SERVER_RESOLVE,         /**< Unicast DNS servers for normal resolves (_domain._udp)*/
-    AVAHI_DNS_SERVER_UPDATE,           /**< Unicast DNS servers for updates (_dns-update._udp)*/
+    AVAHI_DNS_SERVER_RESOLVE, /**< Unicast DNS servers for normal resolves (_domain._udp)*/
+    AVAHI_DNS_SERVER_UPDATE,  /**< Unicast DNS servers for updates (_dns-update._udp)*/
     AVAHI_DNS_SERVER_MAX
 } AvahiDNSServerType;
 
 /** Publish the specified unicast DNS server address via mDNS. You may
  * browse for records created this way with
  * avahi_s_dns_server_browser_new(). */
-int avahi_server_add_dns_server_address(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *domain,
-    AvahiDNSServerType type,
-    const AvahiAddress *address,
-    uint16_t port /** should be 53 */);
+int avahi_server_add_dns_server_address(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                        AvahiPublishFlags flags, const char *domain, AvahiDNSServerType type,
+                                        const AvahiAddress *address, uint16_t port /** should be 53 */);
 
 /** Callback prototype for AvahiSDNSServerBrowser events */
-typedef void (*AvahiSDNSServerBrowserCallback)(
-    AvahiSDNSServerBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *host_name,       /**< Host name of the DNS server, probably useless */
-    const AvahiAddress *a,        /**< Address of the DNS server */
-    uint16_t port,                 /**< Port number of the DNS servers, probably 53 */
-    AvahiLookupResultFlags flags,  /**< Lookup flags */
-    void* userdata);
+typedef void (*AvahiSDNSServerBrowserCallback)(AvahiSDNSServerBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                               AvahiBrowserEvent event,
+                                               const char *host_name,    /**< Host name of the DNS server, probably useless */
+                                               const AvahiAddress    *a, /**< Address of the DNS server */
+                                               uint16_t               port,  /**< Port number of the DNS servers, probably 53 */
+                                               AvahiLookupResultFlags flags, /**< Lookup flags */
+                                               void                  *userdata);
 
 /** Create a new AvahiSDNSServerBrowser object */
-AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *domain,
-    AvahiDNSServerType type,
-    AvahiProtocol aprotocol,  /**< Address protocol for the DNS server */
-    AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSDNSServerBrowserCallback callback,
-    void* userdata);
+AvahiSDNSServerBrowser *avahi_s_dns_server_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                       const char *domain, AvahiDNSServerType type,
+                                                       AvahiProtocol    aprotocol, /**< Address protocol for the DNS server */
+                                                       AvahiLookupFlags flags,     /**< Lookup flags. */
+                                                       AvahiSDNSServerBrowserCallback callback, void *userdata);
 
 /** Prepare a new AvahiSDNSServerBrowser object */
-AvahiSDNSServerBrowser *avahi_s_dns_server_browser_prepare(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *domain,
-    AvahiDNSServerType type,
-    AvahiProtocol aprotocol,  /**< Address protocol for the DNS server */
-    AvahiLookupFlags flags,                 /**< Lookup flags. */
-    AvahiSDNSServerBrowserCallback callback,
-    void* userdata);
+AvahiSDNSServerBrowser *avahi_s_dns_server_browser_prepare(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                           const char *domain, AvahiDNSServerType type,
+                                                           AvahiProtocol aprotocol, /**< Address protocol for the DNS server */
+                                                           AvahiLookupFlags               flags, /**< Lookup flags. */
+                                                           AvahiSDNSServerBrowserCallback callback, void *userdata);
 
 /** Start querying on an AvahiSDNSBrowser object */
 void avahi_s_dns_server_browser_start(AvahiSDNSServerBrowser *b);

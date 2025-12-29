@@ -29,10 +29,10 @@ void log_function(AvahiLogLevel level, const char *txt) {}
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     AvahiDnsPacket *p = NULL;
-    AvahiRecord *r = NULL, *rs = NULL, *c = NULL;
-    uint8_t rdata[AVAHI_DNS_RDATA_MAX];
-    size_t rdata_size;
-    int ret;
+    AvahiRecord    *r = NULL, *rs = NULL, *c = NULL;
+    uint8_t         rdata[AVAHI_DNS_RDATA_MAX];
+    size_t          rdata_size;
+    int             ret;
 
     avahi_set_log_function(log_function);
 
@@ -57,7 +57,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     avahi_free(avahi_record_to_string(r));
 
     rdata_size = avahi_rdata_serialize(r, rdata, sizeof(rdata));
-    assert(rdata_size != (size_t) -1);
+    assert(rdata_size != (size_t)-1);
 
     if (!(rs = avahi_record_new_full(r->key->name, r->key->clazz, r->key->type, r->ttl)))
         goto finish;

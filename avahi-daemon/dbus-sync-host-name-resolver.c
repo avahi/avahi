@@ -46,7 +46,9 @@ void avahi_dbus_sync_host_name_resolver_free(SyncHostNameResolverInfo *i) {
     avahi_free(i);
 }
 
-void avahi_dbus_sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol, AvahiResolverEvent event, const char *host_name, const AvahiAddress *a, AvahiLookupResultFlags flags, void* userdata) {
+void avahi_dbus_sync_host_name_resolver_callback(AvahiSHostNameResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                 AvahiResolverEvent event, const char *host_name, const AvahiAddress *a,
+                                                 AvahiLookupResultFlags flags, void *userdata) {
     SyncHostNameResolverInfo *i = userdata;
 
     assert(r);
@@ -54,18 +56,18 @@ void avahi_dbus_sync_host_name_resolver_callback(AvahiSHostNameResolver *r, Avah
     assert(i);
 
     if (event == AVAHI_RESOLVER_FOUND) {
-        char t[AVAHI_ADDRESS_STR_MAX], *pt = t;
-        int32_t i_interface, i_protocol, i_aprotocol;
-        uint32_t u_flags;
+        char         t[AVAHI_ADDRESS_STR_MAX], *pt = t;
+        int32_t      i_interface, i_protocol, i_aprotocol;
+        uint32_t     u_flags;
         DBusMessage *reply;
 
         assert(a);
         avahi_address_snprint(t, sizeof(t), a);
 
-        i_interface = (int32_t) interface;
-        i_protocol = (int32_t) protocol;
-        i_aprotocol = (int32_t) a->proto;
-        u_flags = (uint32_t) flags;
+        i_interface = (int32_t)interface;
+        i_protocol = (int32_t)protocol;
+        i_aprotocol = (int32_t)a->proto;
+        u_flags = (uint32_t)flags;
 
         reply = dbus_message_new_method_return(i->message);
 
@@ -74,15 +76,20 @@ void avahi_dbus_sync_host_name_resolver_callback(AvahiSHostNameResolver *r, Avah
             goto finish;
         }
 
-        dbus_message_append_args(
-            reply,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &host_name,
-            DBUS_TYPE_INT32, &i_aprotocol,
-            DBUS_TYPE_STRING, &pt,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
+        dbus_message_append_args(reply,
+                                 DBUS_TYPE_INT32,
+                                 &i_interface,
+                                 DBUS_TYPE_INT32,
+                                 &i_protocol,
+                                 DBUS_TYPE_STRING,
+                                 &host_name,
+                                 DBUS_TYPE_INT32,
+                                 &i_aprotocol,
+                                 DBUS_TYPE_STRING,
+                                 &pt,
+                                 DBUS_TYPE_UINT32,
+                                 &u_flags,
+                                 DBUS_TYPE_INVALID);
 
         dbus_connection_send(server->bus, reply, NULL);
         dbus_message_unref(reply);

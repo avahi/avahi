@@ -39,15 +39,15 @@
 
 struct AvahiThreadedPoll {
     AvahiSimplePoll *simple_poll;
-    pthread_t thread_id;
-    pthread_mutex_t mutex;
-    int thread_running;
-    int retval;
+    pthread_t        thread_id;
+    pthread_mutex_t  mutex;
+    int              thread_running;
+    int              retval;
 };
 
 static int poll_func(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata) {
     pthread_mutex_t *mutex = userdata;
-    int r;
+    int              r;
 
     /* Before entering poll() we unlock the mutex, so that
      * avahi_simple_poll_quit() can succeed from another thread. */
@@ -59,9 +59,9 @@ static int poll_func(struct pollfd *ufds, unsigned int nfds, int timeout, void *
     return r;
 }
 
-static void* thread(void *userdata){
+static void *thread(void *userdata) {
     AvahiThreadedPoll *p = userdata;
-    sigset_t mask;
+    sigset_t           mask;
 
     /* Make sure that signals are delivered to the main thread */
     sigfillset(&mask);
@@ -120,7 +120,7 @@ void avahi_threaded_poll_free(AvahiThreadedPoll *p) {
     avahi_free(p);
 }
 
-const AvahiPoll* avahi_threaded_poll_get(AvahiThreadedPoll *p) {
+const AvahiPoll *avahi_threaded_poll_get(AvahiThreadedPoll *p) {
     assert(p);
 
     return avahi_simple_poll_get(p->simple_poll);

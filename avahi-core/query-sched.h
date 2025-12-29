@@ -26,11 +26,11 @@ typedef struct AvahiQueryScheduler AvahiQueryScheduler;
 #include "iface.h"
 
 AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i);
-void avahi_query_scheduler_free(AvahiQueryScheduler *s);
-void avahi_query_scheduler_clear(AvahiQueryScheduler *s);
+void                 avahi_query_scheduler_free(AvahiQueryScheduler *s);
+void                 avahi_query_scheduler_clear(AvahiQueryScheduler *s);
 
-int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately, unsigned *ret_id);
-int avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id);
+int  avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immediately, unsigned *ret_id);
+int  avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id);
 void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key);
 
 #endif

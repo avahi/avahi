@@ -45,9 +45,9 @@ static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_entry, a->entry->announcers, a);
 
     if (a->state == AVAHI_PROBING && a->entry->group) {
-	assert(a->entry->group->n_probing);
-	a->entry->group->n_probing--;
-	avahi_s_entry_group_check_probed(a->entry->group, 1);
+        assert(a->entry->group->n_probing);
+        a->entry->group->n_probing--;
+        avahi_s_entry_group_check_probed(a->entry->group, 1);
     }
 
     avahi_free(a);
@@ -171,7 +171,7 @@ static void next_state(AvahiAnnouncer *a) {
             set_timeout(a, NULL);
         } else {
             struct timeval tv;
-            avahi_elapse_time(&tv, a->sec_delay*1000, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
+            avahi_elapse_time(&tv, a->sec_delay * 1000, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
 
             if (a->n_iteration < 10)
                 a->sec_delay *= 2;
@@ -202,7 +202,7 @@ static AvahiAnnouncer *get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterfa
 }
 
 static void go_to_initial_state(AvahiAnnouncer *a) {
-    AvahiEntry *e;
+    AvahiEntry    *e;
     struct timeval tv;
 
     assert(a);
@@ -250,7 +250,7 @@ static void new_announcer(AvahiServer *s, AvahiInterface *i, AvahiEntry *e) {
         return;
 
     if ((!(a = avahi_new(AvahiAnnouncer, 1)))) {
-        avahi_log_error(__FILE__": Out of memory.");
+        avahi_log_error(__FILE__ ": Out of memory.");
         return;
     }
 
@@ -279,7 +279,7 @@ void avahi_announce_interface(AvahiServer *s, AvahiInterface *i) {
             new_announcer(s, i, e);
 }
 
-static void announce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
+static void announce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void *userdata) {
     AvahiEntry *e = userdata;
 
     assert(m);
@@ -320,10 +320,8 @@ int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) 
     if (!(a = get_announcer(s, e, i)))
         return 0;
 
-    return
-        a->state == AVAHI_ANNOUNCING ||
-        a->state == AVAHI_ESTABLISHED ||
-        (a->state == AVAHI_WAITING && !(e->flags & AVAHI_PUBLISH_UNIQUE));
+    return a->state == AVAHI_ANNOUNCING || a->state == AVAHI_ESTABLISHED ||
+           (a->state == AVAHI_WAITING && !(e->flags & AVAHI_PUBLISH_UNIQUE));
 }
 
 int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
@@ -337,9 +335,7 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     if (!(a = get_announcer(s, e, i)))
         return 0;
 
-    return
-        a->state == AVAHI_PROBING ||
-        (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
+    return a->state == AVAHI_PROBING || (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
 }
 
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
@@ -392,8 +388,8 @@ static int is_duplicate_entry(AvahiServer *s, AvahiEntry *e) {
     return 0;
 }
 
-static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
-    AvahiEntry *e = userdata;
+static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void *userdata) {
+    AvahiEntry  *e = userdata;
     AvahiRecord *g;
 
     assert(m);
@@ -421,7 +417,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
 }
 
 static void reannounce(AvahiAnnouncer *a) {
-    AvahiEntry *e;
+    AvahiEntry    *e;
     struct timeval tv;
 
     assert(a);
@@ -472,9 +468,8 @@ static void reannounce(AvahiAnnouncer *a) {
         set_timeout(a, NULL);
 }
 
-
-static void reannounce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
-    AvahiEntry *e = userdata;
+static void reannounce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void *userdata) {
+    AvahiEntry     *e = userdata;
     AvahiAnnouncer *a;
 
     assert(m);
@@ -527,4 +522,3 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int re
         while (e->announcers)
             remove_announcer(s, e->announcers);
 }
-

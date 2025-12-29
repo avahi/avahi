@@ -33,8 +33,8 @@ AVAHI_C_DECL_BEGIN
 
 /** DNS record types, see RFC 1035, in addition to those defined in defs.h */
 enum {
-    AVAHI_DNS_TYPE_ANY = 0xFF,   /**< Special query type for requesting all records */
-    AVAHI_DNS_TYPE_OPT = 41,     /**< EDNS0 option */
+    AVAHI_DNS_TYPE_ANY = 0xFF, /**< Special query type for requesting all records */
+    AVAHI_DNS_TYPE_OPT = 41,   /**< EDNS0 option */
     AVAHI_DNS_TYPE_TKEY = 249,
     AVAHI_DNS_TYPE_TSIG = 250,
     AVAHI_DNS_TYPE_IXFR = 251,
@@ -43,9 +43,11 @@ enum {
 
 /** DNS record classes, see RFC 1035, in addition to those defined in defs.h */
 enum {
-    AVAHI_DNS_CLASS_ANY = 0xFF,         /**< Special query type for requesting all records */
-    AVAHI_DNS_CACHE_FLUSH = 0x8000,     /**< Not really a class but a bit which may be set in response packets, see mDNS spec for more information */
-    AVAHI_DNS_UNICAST_RESPONSE = 0x8000 /**< Not really a class but a bit which may be set in query packets, see mDNS spec for more information */
+    AVAHI_DNS_CLASS_ANY = 0xFF, /**< Special query type for requesting all records */
+    AVAHI_DNS_CACHE_FLUSH =
+        0x8000, /**< Not really a class but a bit which may be set in response packets, see mDNS spec for more information */
+    AVAHI_DNS_UNICAST_RESPONSE =
+        0x8000 /**< Not really a class but a bit which may be set in query packets, see mDNS spec for more information */
 };
 
 /** Encapsulates a DNS query key consisting of class, type and
@@ -53,25 +55,25 @@ enum {
     reference counter. The structure is intended to be treated as "immutable", no
     changes should be imposed after creation */
 typedef struct AvahiKey {
-    int ref;           /**< Reference counter */
-    char *name;        /**< Record name */
-    uint16_t clazz;    /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
-    uint16_t type;     /**< Record type, one of the AVAHI_DNS_TYPE_xxx constants */
+    int      ref;   /**< Reference counter */
+    char    *name;  /**< Record name */
+    uint16_t clazz; /**< Record class, one of the AVAHI_DNS_CLASS_xxx constants */
+    uint16_t type;  /**< Record type, one of the AVAHI_DNS_TYPE_xxx constants */
 } AvahiKey;
 
 /** Encapsulates a DNS resource record. The structure is intended to
  * be treated as "immutable", no changes should be imposed after
  * creation. */
 typedef struct AvahiRecord {
-    int ref;         /**< Reference counter */
-    AvahiKey *key;   /**< Reference to the query key of this record */
+    int       ref; /**< Reference counter */
+    AvahiKey *key; /**< Reference to the query key of this record */
 
-    uint32_t ttl;     /**< DNS TTL of this record */
+    uint32_t ttl; /**< DNS TTL of this record */
 
     union {
 
         struct {
-            void* data;
+            void    *data;
             uint16_t size;
         } generic; /**< Generic record data for unknown types */
 
@@ -79,7 +81,7 @@ typedef struct AvahiRecord {
             uint16_t priority;
             uint16_t weight;
             uint16_t port;
-            char *name;
+            char    *name;
         } srv; /**< Data for SRV records */
 
         struct {
@@ -162,7 +164,7 @@ int avahi_key_is_valid(AvahiKey *k);
 int avahi_record_is_valid(AvahiRecord *r);
 
 /** Parse a binary rdata object and fill it into *record. This function is actually implemented in dns.c */
-int avahi_rdata_parse(AvahiRecord *record, const void* rdata, size_t size);
+int avahi_rdata_parse(AvahiRecord *record, const void *rdata, size_t size);
 
 /** Serialize an AvahiRecord object into binary rdata. This function is actually implemented in dns.c */
 size_t avahi_rdata_serialize(AvahiRecord *record, void *rdata, size_t max_size);

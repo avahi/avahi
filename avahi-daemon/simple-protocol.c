@@ -59,7 +59,7 @@
 #define PF_LOCAL PF_UNIX
 #endif
 
-#define BUFFER_SIZE (20*1024)
+#define BUFFER_SIZE (20 * 1024)
 
 #define CLIENTS_MAX 50
 
@@ -79,14 +79,14 @@ struct Client {
 
     ClientState state;
 
-    int fd;
+    int         fd;
     AvahiWatch *watch;
 
-    char inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
+    char   inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     size_t inbuf_length, outbuf_length;
 
     AvahiSHostNameResolver *host_name_resolver;
-    AvahiSAddressResolver *address_resolver;
+    AvahiSAddressResolver  *address_resolver;
     AvahiSDNSServerBrowser *dns_server_browser;
 
     AvahiProtocol afquery;
@@ -96,12 +96,12 @@ struct Client {
 
 struct Server {
     const AvahiPoll *poll_api;
-    int fd;
-    AvahiWatch *watch;
+    int              fd;
+    AvahiWatch      *watch;
     AVAHI_LLIST_HEAD(Client, clients);
 
     unsigned n_clients;
-    int remove_socket;
+    int      remove_socket;
 };
 
 static Server *server = NULL;
@@ -152,7 +152,7 @@ static void client_new(Server *s, int fd) {
     s->n_clients++;
 }
 
-static void client_output(Client *c, const uint8_t*data, size_t size) {
+static void client_output(Client *c, const uint8_t *data, size_t size) {
     size_t k, m;
 
     assert(c);
@@ -171,26 +171,20 @@ static void client_output(Client *c, const uint8_t*data, size_t size) {
 }
 
 static void client_output_printf(Client *c, const char *format, ...) {
-    char *t;
+    char   *t;
     va_list ap;
 
     va_start(ap, format);
     t = avahi_strdup_vprintf(format, ap);
     va_end(ap);
 
-    client_output(c, (uint8_t*) t, strlen(t));
+    client_output(c, (uint8_t *)t, strlen(t));
     avahi_free(t);
 }
 
-static void host_name_resolver_callback(
-    AVAHI_GCC_UNUSED AvahiSHostNameResolver *r,
-    AvahiIfIndex iface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *hostname,
-    const AvahiAddress *a,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    void* userdata) {
+static void host_name_resolver_callback(AVAHI_GCC_UNUSED AvahiSHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol,
+                                        AvahiResolverEvent event, const char *hostname, const AvahiAddress *a,
+                                        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, void *userdata) {
 
     Client *c = userdata;
 
@@ -207,15 +201,9 @@ static void host_name_resolver_callback(
     c->state = CLIENT_DEAD;
 }
 
-static void address_resolver_callback(
-    AVAHI_GCC_UNUSED AvahiSAddressResolver *r,
-    AvahiIfIndex iface,
-    AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    AVAHI_GCC_UNUSED const AvahiAddress *a,
-    const char *hostname,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    void* userdata) {
+static void address_resolver_callback(AVAHI_GCC_UNUSED AvahiSAddressResolver *r, AvahiIfIndex iface, AvahiProtocol protocol,
+                                      AvahiResolverEvent event, AVAHI_GCC_UNUSED const AvahiAddress *a, const char *hostname,
+                                      AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, void *userdata) {
 
     Client *c = userdata;
 
@@ -229,19 +217,13 @@ static void address_resolver_callback(
     c->state = CLIENT_DEAD;
 }
 
-static void dns_server_browser_callback(
-    AVAHI_GCC_UNUSED AvahiSDNSServerBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    AVAHI_GCC_UNUSED const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    void* userdata) {
+static void dns_server_browser_callback(AVAHI_GCC_UNUSED AvahiSDNSServerBrowser *b, AvahiIfIndex interface,
+                                        AvahiProtocol protocol, AvahiBrowserEvent event, AVAHI_GCC_UNUSED const char *host_name,
+                                        const AvahiAddress *a, uint16_t port, AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+                                        void *userdata) {
 
     Client *c = userdata;
-    char t[AVAHI_ADDRESS_STR_MAX];
+    char    t[AVAHI_ADDRESS_STR_MAX];
 
     assert(c);
 
@@ -249,27 +231,27 @@ static void dns_server_browser_callback(
         return;
 
     switch (event) {
-        case AVAHI_BROWSER_FAILURE:
-            client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
-            c->state = CLIENT_DEAD;
-            break;
+    case AVAHI_BROWSER_FAILURE:
+        client_output_printf(c, "%+i %s\n", avahi_server_errno(avahi_server), avahi_strerror(avahi_server_errno(avahi_server)));
+        c->state = CLIENT_DEAD;
+        break;
 
-        case AVAHI_BROWSER_ALL_FOR_NOW:
-        case AVAHI_BROWSER_CACHE_EXHAUSTED:
-            break;
+    case AVAHI_BROWSER_ALL_FOR_NOW:
+    case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        break;
 
-        case AVAHI_BROWSER_NEW:
-        case AVAHI_BROWSER_REMOVE:
+    case AVAHI_BROWSER_NEW:
+    case AVAHI_BROWSER_REMOVE:
 
-            avahi_address_snprint(t, sizeof(t), a);
-            client_output_printf(c, "%c %i %u %s %u\n", event == AVAHI_BROWSER_NEW ? '>' : '<',  interface, protocol, t, port);
-            break;
+        avahi_address_snprint(t, sizeof(t), a);
+        client_output_printf(c, "%c %i %u %s %u\n", event == AVAHI_BROWSER_NEW ? '>' : '<', interface, protocol, t, port);
+        break;
     }
 }
 
 static void handle_line(Client *c, const char *s) {
     char cmd[64], arg[AVAHI_DOMAIN_NAME_MAX];
-    int n_args;
+    int  n_args;
 
     assert(c);
     assert(s);
@@ -277,7 +259,7 @@ static void handle_line(Client *c, const char *s) {
     if (c->state != CLIENT_IDLE)
         return;
 
-    if ((n_args = sscanf(s, "%63s %1013s", cmd, arg)) < 1 ) {
+    if ((n_args = sscanf(s, "%63s %1013s", cmd, arg)) < 1) {
         client_output_printf(c, "%+i Failed to parse command, try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION);
         c->state = CLIENT_DEAD;
         return;
@@ -293,28 +275,49 @@ static void handle_line(Client *c, const char *s) {
                              "+      BROWSE-DNS-SERVERS\n"
                              "+      BROWSE-DNS-SERVERS-IPV4\n"
                              "+      BROWSE-DNS-SERVERS-IPV6\n");
-        c->state = CLIENT_DEAD; }
-    else if (strcmp(cmd, "FUCK") == 0 && n_args == 1) {
+        c->state = CLIENT_DEAD;
+    } else if (strcmp(cmd, "FUCK") == 0 && n_args == 1) {
         client_output_printf(c, "+ FUCK: Go fuck yourself!\n");
         c->state = CLIENT_DEAD;
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV4") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
+        if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     arg,
+                                                                     c->afquery = AVAHI_PROTO_INET,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     host_name_resolver_callback,
+                                                                     c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__ ": Got %s request for '%s'.", cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
+        if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     arg,
+                                                                     c->afquery = AVAHI_PROTO_INET6,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     host_name_resolver_callback,
+                                                                     c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__ ": Got %s request for '%s'.", cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
-        if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
+        if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     arg,
+                                                                     c->afquery = AVAHI_PROTO_UNSPEC,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     host_name_resolver_callback,
+                                                                     c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__ ": Got %s request for '%s'.", cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
 
@@ -323,41 +326,71 @@ static void handle_line(Client *c, const char *s) {
             c->state = CLIENT_DEAD;
         } else {
             c->state = CLIENT_RESOLVE_ADDRESS;
-            if (!(c->address_resolver = avahi_s_address_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, &addr, AVAHI_LOOKUP_USE_MULTICAST, address_resolver_callback, c)))
+            if (!(c->address_resolver = avahi_s_address_resolver_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     &addr,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     address_resolver_callback,
+                                                                     c)))
                 goto fail;
         }
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        avahi_log_debug(__FILE__ ": Got %s request for '%s'.", cmd, arg);
 
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
+        if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     NULL,
+                                                                     AVAHI_DNS_SERVER_RESOLVE,
+                                                                     c->afquery = AVAHI_PROTO_INET,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     dns_server_browser_callback,
+                                                                     c)))
             goto fail;
         client_output_printf(c, "+ Browsing ...\n");
 
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
+        avahi_log_debug(__FILE__ ": Got %s request.", cmd);
 
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
+        if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     NULL,
+                                                                     AVAHI_DNS_SERVER_RESOLVE,
+                                                                     c->afquery = AVAHI_PROTO_INET6,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     dns_server_browser_callback,
+                                                                     c)))
             goto fail;
         client_output_printf(c, "+ Browsing ...\n");
 
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
+        avahi_log_debug(__FILE__ ": Got %s request.", cmd);
 
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
-        if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
+        if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server,
+                                                                     AVAHI_IF_UNSPEC,
+                                                                     AVAHI_PROTO_UNSPEC,
+                                                                     NULL,
+                                                                     AVAHI_DNS_SERVER_RESOLVE,
+                                                                     c->afquery = AVAHI_PROTO_UNSPEC,
+                                                                     AVAHI_LOOKUP_USE_MULTICAST,
+                                                                     dns_server_browser_callback,
+                                                                     c)))
             goto fail;
         client_output_printf(c, "+ Browsing ...\n");
 
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
+        avahi_log_debug(__FILE__ ": Got %s request.", cmd);
 
     } else {
         client_output_printf(c, "%+i Invalid command \"%s\", try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION, cmd);
         c->state = CLIENT_DEAD;
 
-        avahi_log_debug(__FILE__": Got invalid request '%s'.", cmd);
+        avahi_log_debug(__FILE__ ": Got invalid request '%s'.", cmd);
     }
 
     return;
@@ -371,18 +404,18 @@ static void handle_input(Client *c) {
     assert(c);
 
     for (;;) {
-        char *e;
+        char  *e;
         size_t k;
 
         if (!(e = memchr(c->inbuf, '\n', c->inbuf_length)))
             break;
 
-        k = e - (char*) c->inbuf;
+        k = e - (char *)c->inbuf;
         *e = 0;
 
         handle_line(c, c->inbuf);
         c->inbuf_length -= k + 1;
-        memmove(c->inbuf, e+1, c->inbuf_length);
+        memmove(c->inbuf, e + 1, c->inbuf_length);
     }
 }
 
@@ -416,7 +449,7 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
             return;
         }
 
-        assert((size_t) r <= c->outbuf_length);
+        assert((size_t)r <= c->outbuf_length);
         c->outbuf_length -= r;
 
         memmove(c->outbuf, c->outbuf + r, c->outbuf_length);
@@ -433,9 +466,7 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
     }
 
     c->server->poll_api->watch_update(
-        watch,
-        (c->outbuf_length > 0 ? AVAHI_WATCH_OUT : 0) |
-        (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
+        watch, (c->outbuf_length > 0 ? AVAHI_WATCH_OUT : 0) | (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
 
 static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
@@ -455,7 +486,7 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
 
 int simple_protocol_setup(const AvahiPoll *poll_api) {
     struct sockaddr_un sa;
-    mode_t u;
+    mode_t             u;
 #ifdef HAVE_LIBSYSTEMD
     int n;
 #endif
@@ -504,7 +535,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
 
         memset(&sa, 0, sizeof(sa));
         sa.sun_family = AF_LOCAL;
-        strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path)-1);
+        strncpy(sa.sun_path, AVAHI_SOCKET, sizeof(sa.sun_path) - 1);
 
         /* We simply remove existing UNIX sockets under this name. The
            Avahi daemon makes sure that it runs only once on a host,
@@ -513,7 +544,7 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
 
         unlink(AVAHI_SOCKET);
 
-        if (bind(server->fd, (struct sockaddr*) &sa, sizeof(sa)) < 0) {
+        if (bind(server->fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
             avahi_log_warn("bind(): %s", strerror(errno));
             goto fail;
         }
@@ -576,6 +607,14 @@ void simple_protocol_restart_queries(void) {
     for (c = server->clients; c; c = c->clients_next)
         if (c->state == CLIENT_BROWSE_DNS_SERVERS && c->dns_server_browser) {
             avahi_s_dns_server_browser_free(c->dns_server_browser);
-            c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c);
+            c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server,
+                                                                   AVAHI_IF_UNSPEC,
+                                                                   AVAHI_PROTO_UNSPEC,
+                                                                   NULL,
+                                                                   AVAHI_DNS_SERVER_RESOLVE,
+                                                                   c->afquery,
+                                                                   AVAHI_LOOKUP_USE_MULTICAST,
+                                                                   dns_server_browser_callback,
+                                                                   c);
         }
 }

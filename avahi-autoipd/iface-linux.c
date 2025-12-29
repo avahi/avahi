@@ -40,12 +40,12 @@
 
 #ifndef IFLA_RTA
 #include <linux/if_addr.h>
-#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
+#define IFLA_RTA(r) ((struct rtattr *)(((char *)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
 #endif
 
 #ifndef IFA_RTA
 #include <linux/if_addr.h>
-#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
+#define IFA_RTA(r) ((struct rtattr *)(((char *)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
 #endif
 
 #include "iface.h"
@@ -64,7 +64,7 @@ AVAHI_LLIST_HEAD(Address, addresses) = NULL;
 
 int iface_init(int i) {
     struct sockaddr_nl addr;
-    int on = 1;
+    int                on = 1;
 
     if ((fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
         daemon_log(LOG_ERR, "socket(PF_NETLINK): %s", strerror(errno));
@@ -73,10 +73,10 @@ int iface_init(int i) {
 
     memset(&addr, 0, sizeof(addr));
     addr.nl_family = AF_NETLINK;
-    addr.nl_groups =  RTMGRP_LINK|RTMGRP_IPV4_IFADDR;
+    addr.nl_groups = RTMGRP_LINK | RTMGRP_IPV4_IFADDR;
     addr.nl_pid = getpid();
 
-    if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+    if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         daemon_log(LOG_ERR, "bind(): %s", strerror(errno));
         goto fail;
     }
@@ -108,7 +108,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
         struct ifinfomsg *ifi;
         ifi = NLMSG_DATA(n);
 
-        if (ifi->ifi_family != AF_UNSPEC || (int) ifi->ifi_index != ifindex)
+        if (ifi->ifi_family != AF_UNSPEC || (int)ifi->ifi_index != ifindex)
             return 0;
 
         if (n->nlmsg_type == RTM_DELLINK) {
@@ -118,9 +118,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
 
         assert(n->nlmsg_type == RTM_NEWLINK);
 
-        if ((ifi->ifi_flags & IFF_LOOPBACK) ||
-            (ifi->ifi_flags & IFF_NOARP) ||
-            ifi->ifi_type != ARPHRD_ETHER) {
+        if ((ifi->ifi_flags & IFF_LOOPBACK) || (ifi->ifi_flags & IFF_NOARP) || ifi->ifi_type != ARPHRD_ETHER) {
             daemon_log(LOG_ERR, "Interface not suitable.");
             return -1;
         }
@@ -129,28 +127,28 @@ static int process_nlmsg(struct nlmsghdr *n) {
 
         /* An address was added or removed */
 
-        struct rtattr *a = NULL;
+        struct rtattr    *a = NULL;
         struct ifaddrmsg *ifa;
-        int l;
-        uint32_t address = 0;
-        Address *i;
+        int               l;
+        uint32_t          address = 0;
+        Address          *i;
 
         ifa = NLMSG_DATA(n);
 
-        if (ifa->ifa_family != AF_INET || (int) ifa->ifa_index != ifindex)
+        if (ifa->ifa_family != AF_INET || (int)ifa->ifa_index != ifindex)
             return 0;
 
         l = NLMSG_PAYLOAD(n, sizeof(*ifa));
         a = IFA_RTA(ifa);
 
-        while(RTA_OK(a, l)) {
+        while (RTA_OK(a, l)) {
 
-            switch(a->rta_type) {
-                case IFA_LOCAL:
-                case IFA_ADDRESS:
-                    assert(RTA_PAYLOAD(a) == 4);
-                    memcpy(&address, RTA_DATA(a), sizeof(uint32_t));
-                    break;
+            switch (a->rta_type) {
+            case IFA_LOCAL:
+            case IFA_ADDRESS:
+                assert(RTA_PAYLOAD(a) == 4);
+                memcpy(&address, RTA_DATA(a), sizeof(uint32_t));
+                break;
             }
 
             a = RTA_NEXT(a, l);
@@ -166,7 +164,8 @@ static int process_nlmsg(struct nlmsghdr *n) {
         if (n->nlmsg_type == RTM_DELADDR && i) {
             AVAHI_LLIST_REMOVE(Address, addresses, addresses, i);
             avahi_free(i);
-        } if (n->nlmsg_type == RTM_NEWADDR && !i) {
+        }
+        if (n->nlmsg_type == RTM_NEWADDR && !i) {
             i = avahi_new(Address, 1);
             i->address = address;
             AVAHI_LLIST_PREPEND(Address, addresses, addresses, i);
@@ -180,28 +179,28 @@ static int process_response(int wait_for_done, unsigned seq) {
     assert(fd >= 0);
 
     do {
-        size_t bytes;
-        ssize_t r;
-        char replybuf[8*1024];
-        char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
-        struct msghdr msghdr;
-        struct cmsghdr *cmsghdr;
-        struct ucred *ucred;
-        struct iovec iov;
-        struct nlmsghdr *p = (struct nlmsghdr *) replybuf;
+        size_t           bytes;
+        ssize_t          r;
+        char             replybuf[8 * 1024];
+        char             cred_msg[CMSG_SPACE(sizeof(struct ucred))];
+        struct msghdr    msghdr;
+        struct cmsghdr  *cmsghdr;
+        struct ucred    *ucred;
+        struct iovec     iov;
+        struct nlmsghdr *p = (struct nlmsghdr *)replybuf;
 
         memset(&iov, 0, sizeof(iov));
         iov.iov_base = replybuf;
- 	iov.iov_len = sizeof(replybuf);
+        iov.iov_len = sizeof(replybuf);
 
         memset(&msghdr, 0, sizeof(msghdr));
-        msghdr.msg_name = (void*) NULL;
+        msghdr.msg_name = (void *)NULL;
         msghdr.msg_namelen = 0;
         msghdr.msg_iov = &iov;
         msghdr.msg_iovlen = 1;
         msghdr.msg_control = cred_msg;
         msghdr.msg_controllen = sizeof(cred_msg);
- 	msghdr.msg_flags = 0;
+        msghdr.msg_flags = 0;
 
         if ((r = recvmsg(fd, &msghdr, 0)) < 0) {
             daemon_log(LOG_ERR, "recvmsg() failed: %s", strerror(errno));
@@ -213,12 +212,12 @@ static int process_response(int wait_for_done, unsigned seq) {
             return -1;
         }
 
-        ucred = (struct ucred*) CMSG_DATA(cmsghdr);
+        ucred = (struct ucred *)CMSG_DATA(cmsghdr);
 
         if (ucred->pid != 0)
             return -1;
 
-        bytes = (size_t) r;
+        bytes = (size_t)r;
 
         for (; bytes > 0; p = NLMSG_NEXT(p, bytes)) {
 
@@ -227,11 +226,11 @@ static int process_response(int wait_for_done, unsigned seq) {
                 return -1;
             }
 
-            if (p->nlmsg_type == NLMSG_DONE && wait_for_done && p->nlmsg_seq == seq && (pid_t) p->nlmsg_pid == getpid())
+            if (p->nlmsg_type == NLMSG_DONE && wait_for_done && p->nlmsg_seq == seq && (pid_t)p->nlmsg_pid == getpid())
                 return 0;
 
             if (p->nlmsg_type == NLMSG_ERROR) {
-                struct nlmsgerr *e = (struct nlmsgerr *) NLMSG_DATA (p);
+                struct nlmsgerr *e = (struct nlmsgerr *)NLMSG_DATA(p);
 
                 if (e->error) {
                     daemon_log(LOG_ERR, "Netlink error: %s", strerror(-e->error));
@@ -248,21 +247,21 @@ static int process_response(int wait_for_done, unsigned seq) {
 }
 
 int iface_get_initial_state(State *state) {
-    struct nlmsghdr *n;
+    struct nlmsghdr  *n;
     struct ifinfomsg *ifi;
     struct ifaddrmsg *ifa;
-    uint8_t req[1024];
-    int seq = 0;
+    uint8_t           req[1024];
+    int               seq = 0;
 
     assert(fd >= 0);
     assert(state);
 
     memset(&req, 0, sizeof(req));
-    n = (struct nlmsghdr*) req;
+    n = (struct nlmsghdr *)req;
     n->nlmsg_len = NLMSG_LENGTH(sizeof(*ifi));
     n->nlmsg_type = RTM_GETLINK;
     n->nlmsg_seq = seq;
-    n->nlmsg_flags = NLM_F_REQUEST|NLM_F_DUMP;
+    n->nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
     n->nlmsg_pid = 0;
 
     ifi = NLMSG_DATA(n);
@@ -328,5 +327,3 @@ void iface_done(void) {
         avahi_free(a);
     }
 }
-
-

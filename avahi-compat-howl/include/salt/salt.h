@@ -32,184 +32,92 @@
 #include <salt/platform.h>
 #include <salt/time.h>
 
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-
-typedef enum _sw_socket_event
-{
-	SW_SOCKET_READ		=	(1 << 0),
-	SW_SOCKET_WRITE	=	(1 << 1),
-	SW_SOCKET_OOB		=	(1 << 2)
+typedef enum _sw_socket_event {
+    SW_SOCKET_READ = (1 << 0),
+    SW_SOCKET_WRITE = (1 << 1),
+    SW_SOCKET_OOB = (1 << 2)
 } sw_socket_event;
 
+struct _sw_salt;
+typedef struct _sw_salt *sw_salt;
+struct _sw_socket;
+struct _sw_timer;
+struct _sw_network_interface;
+struct _sw_signal;
 
-struct							_sw_salt;
-typedef struct _sw_salt	*	sw_salt;
-struct							_sw_socket;
-struct							_sw_timer;
-struct							_sw_network_interface;
-struct							_sw_signal;
+typedef sw_opaque sw_socket_handler;
+typedef sw_result(HOWL_API *sw_socket_handler_func)(sw_socket_handler handler, sw_salt salt, struct _sw_socket *socket,
+                                                    sw_socket_event events, sw_opaque extra);
 
-typedef sw_opaque				sw_socket_handler;
-typedef sw_result
-(HOWL_API *sw_socket_handler_func)(
-									sw_socket_handler		handler,
-									sw_salt					salt,
-									struct _sw_socket	*	socket,
-									sw_socket_event		events,
-									sw_opaque				extra);
+typedef sw_opaque sw_timer_handler;
+typedef sw_result(HOWL_API *sw_timer_handler_func)(sw_timer_handler handler, sw_salt salt, struct _sw_timer *timer,
+                                                   sw_time timeout, sw_opaque extra);
 
+typedef sw_opaque sw_network_interface_handler;
+typedef sw_result(HOWL_API *sw_network_interface_handler_func)(sw_network_interface_handler handler, sw_salt salt,
+                                                               struct _sw_network_interface *netif, sw_opaque extra);
 
-typedef sw_opaque				sw_timer_handler;
-typedef sw_result
-(HOWL_API *sw_timer_handler_func)(
-									sw_timer_handler		handler,
-									sw_salt					salt,
-									struct _sw_timer	*	timer,
-									sw_time					timeout,
-									sw_opaque				extra);
+typedef sw_opaque sw_signal_handler;
+typedef sw_result(HOWL_API *sw_signal_handler_func)(sw_signal_handler handler, sw_salt salt, struct _sw_signal *signal,
+                                                    sw_opaque extra);
 
-typedef sw_opaque				sw_network_interface_handler;
-typedef sw_result
-(HOWL_API *sw_network_interface_handler_func)(
-									sw_network_interface_handler		handler,
-									sw_salt									salt,
-									struct _sw_network_interface	*	netif,
-									sw_opaque								extra);
+sw_result HOWL_API sw_salt_init(sw_salt *self, int argc, char **argv);
 
-typedef sw_opaque				sw_signal_handler;
-typedef sw_result
-(HOWL_API *sw_signal_handler_func)(
-									sw_signal_handler		handler,
-									sw_salt					salt,
-									struct _sw_signal	*	signal,
-									sw_opaque				extra);
+sw_result HOWL_API sw_salt_fina(sw_salt self);
 
+sw_result HOWL_API sw_salt_register_socket(sw_salt self, struct _sw_socket *socket, sw_socket_event events,
+                                           sw_socket_handler handler, sw_socket_handler_func func, sw_opaque extra);
 
-sw_result HOWL_API
-sw_salt_init(
-				sw_salt		*	self,
-				int				argc,
-				char			**	argv);
+sw_result HOWL_API sw_salt_unregister_socket(sw_salt self, struct _sw_socket *socket);
 
+sw_result HOWL_API sw_salt_register_timer(sw_salt self, struct _sw_timer *timer, sw_time timeout, sw_timer_handler handler,
+                                          sw_timer_handler_func func, sw_opaque extra);
 
-sw_result HOWL_API
-sw_salt_fina(
-				sw_salt	self);
+sw_result HOWL_API sw_salt_unregister_timer(sw_salt self, struct _sw_timer *timer);
 
+sw_result HOWL_API sw_salt_register_network_interface(sw_salt self, struct _sw_network_interface *netif,
+                                                      sw_network_interface_handler      handler,
+                                                      sw_network_interface_handler_func func, sw_opaque extra);
 
-sw_result HOWL_API
-sw_salt_register_socket(
-				sw_salt						self,
-				struct _sw_socket		*	socket,
-				sw_socket_event			events,
-				sw_socket_handler			handler,
-				sw_socket_handler_func	func,
-				sw_opaque					extra);
+sw_result HOWL_API sw_salt_unregister_network_interface_handler(sw_salt self);
 
+sw_result HOWL_API sw_salt_register_signal(sw_salt self, struct _sw_signal *signal, sw_signal_handler handler,
+                                           sw_signal_handler_func func, sw_opaque extra);
 
-sw_result HOWL_API
-sw_salt_unregister_socket(
-				sw_salt						self,
-				struct _sw_socket		*	socket);
+sw_result HOWL_API sw_salt_unregister_signal(sw_salt self, struct _sw_signal *signal);
 
+sw_result HOWL_API sw_salt_lock(sw_salt self);
 
-sw_result HOWL_API
-sw_salt_register_timer(
-				sw_salt						self,
-				struct _sw_timer		*	timer,
-				sw_time						timeout,
-				sw_timer_handler			handler,
-				sw_timer_handler_func	func,
-				sw_opaque					extra);
+sw_result HOWL_API sw_salt_unlock(sw_salt self);
 
+sw_result HOWL_API sw_salt_step(sw_salt self, sw_uint32 *msec);
 
-sw_result HOWL_API
-sw_salt_unregister_timer(
-				sw_salt						self,
-				struct _sw_timer		*	timer);
+sw_result HOWL_API sw_salt_run(sw_salt self);
 
+sw_result HOWL_API sw_salt_stop_run(sw_salt self);
 
-sw_result HOWL_API
-sw_salt_register_network_interface(
-				sw_salt										self,
-				struct _sw_network_interface		*	netif,
-				sw_network_interface_handler			handler,
-				sw_network_interface_handler_func	func,
-				sw_opaque									extra);
-
-
-sw_result HOWL_API
-sw_salt_unregister_network_interface_handler(
-				sw_salt						self);
-
-
-sw_result HOWL_API
-sw_salt_register_signal(
-				sw_salt						self,
-				struct _sw_signal	*		signal,
-				sw_signal_handler			handler,
-				sw_signal_handler_func	func,
-				sw_opaque					extra);
-
-
-sw_result HOWL_API
-sw_salt_unregister_signal(
-				sw_salt						self,
-				struct _sw_signal	*		signal);
-
-
-sw_result HOWL_API
-sw_salt_lock(
-				sw_salt	self);
-
-
-sw_result HOWL_API
-sw_salt_unlock(
-				sw_salt	self);
-
-
-sw_result HOWL_API
-sw_salt_step(
-				sw_salt		self,
-				sw_uint32	*	msec);
-
-
-sw_result HOWL_API
-sw_salt_run(
-				sw_salt	self);
-
-
-sw_result HOWL_API
-sw_salt_stop_run(
-				sw_salt	self);
-
-
-#define SW_FALSE		0
-#define SW_TRUE		1
-#define SW_OKAY		0
-
+#define SW_FALSE 0
+#define SW_TRUE 1
+#define SW_OKAY 0
 
 /*
  * error codes
  */
-#define	SW_E_CORE_BASE					0x80000000
-#define	SW_E_UNKNOWN					(SW_E_CORE_BASE) + 1
-#define	SW_E_INIT						(SW_E_CORE_BASE) + 2
-#define	SW_E_MEM							(SW_E_CORE_BASE) + 3
-#define	SW_E_EOF							(SW_E_CORE_BASE) + 4
-#define	SW_E_NO_IMPL					(SW_E_CORE_BASE) + 5
-#define	SW_E_FILE_LOCKED				(SW_E_CORE_BASE) + 6
-#define	SW_E_PROTOCOL_NOT_FOUND		(SW_E_CORE_BASE) + 7
-
+#define SW_E_CORE_BASE 0x80000000
+#define SW_E_UNKNOWN (SW_E_CORE_BASE) + 1
+#define SW_E_INIT (SW_E_CORE_BASE) + 2
+#define SW_E_MEM (SW_E_CORE_BASE) + 3
+#define SW_E_EOF (SW_E_CORE_BASE) + 4
+#define SW_E_NO_IMPL (SW_E_CORE_BASE) + 5
+#define SW_E_FILE_LOCKED (SW_E_CORE_BASE) + 6
+#define SW_E_PROTOCOL_NOT_FOUND (SW_E_CORE_BASE) + 7
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

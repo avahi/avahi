@@ -34,7 +34,7 @@ typedef enum {
     AVAHI_CACHE_EXPIRY2,
     AVAHI_CACHE_EXPIRY3,
     AVAHI_CACHE_EXPIRY_FINAL,
-    AVAHI_CACHE_POOF,       /* Passive observation of failure */
+    AVAHI_CACHE_POOF, /* Passive observation of failure */
     AVAHI_CACHE_POOF_FINAL,
     AVAHI_CACHE_GOODBYE_FINAL,
     AVAHI_CACHE_REPLACE_FINAL
@@ -43,18 +43,18 @@ typedef enum {
 typedef struct AvahiCacheEntry AvahiCacheEntry;
 
 struct AvahiCacheEntry {
-    AvahiCache *cache;
-    AvahiRecord *record;
+    AvahiCache    *cache;
+    AvahiRecord   *record;
     struct timeval timestamp;
     struct timeval poof_timestamp;
     struct timeval expiry;
-    int cache_flush;
-    int poof_num;
+    int            cache_flush;
+    int            poof_num;
 
     AvahiAddress origin;
 
     AvahiCacheEntryState state;
-    AvahiTimeEvent *time_event;
+    AvahiTimeEvent      *time_event;
 
     AvahiAddress poof_address;
 
@@ -73,19 +73,19 @@ struct AvahiCache {
 
     unsigned n_entries;
 
-    int last_rand;
+    int    last_rand;
     time_t last_rand_timestamp;
 };
 
 AvahiCache *avahi_cache_new(AvahiServer *server, AvahiInterface *interface);
-void avahi_cache_free(AvahiCache *c);
+void        avahi_cache_free(AvahiCache *c);
 
 void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const AvahiAddress *a);
 
-int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void* userdata);
+int avahi_cache_dump(AvahiCache *c, AvahiDumpCallback callback, void *userdata);
 
-typedef void* AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void* userdata);
-void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void* userdata);
+typedef void *AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata);
+void         *avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void *userdata);
 
 int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
 

@@ -61,7 +61,7 @@ DBusHandlerResult avahi_dbus_respond_error(DBusConnection *c, DBusMessage *m, in
     dbus_connection_send(c, reply, NULL);
     dbus_message_unref(reply);
 
-    avahi_log_debug(__FILE__": Responding error '%s' (%i)", text, error);
+    avahi_log_debug(__FILE__ ": Responding error '%s' (%i)", text, error);
 
     return DBUS_HANDLER_RESULT_HANDLED;
 }
@@ -138,7 +138,7 @@ DBusHandlerResult avahi_dbus_respond_ok(DBusConnection *c, DBusMessage *m) {
     DBusMessage *reply;
 
     if (dbus_message_get_no_reply(m))
-            return DBUS_HANDLER_RESULT_HANDLED;
+        return DBUS_HANDLER_RESULT_HANDLED;
 
     reply = dbus_message_new_method_return(m);
 
@@ -175,19 +175,21 @@ void avahi_dbus_append_server_error(DBusMessage *reply) {
 
     t = avahi_error_number_to_dbus(avahi_server_errno(avahi_server));
 
-    dbus_message_append_args(
-        reply,
-        DBUS_TYPE_STRING, &t,
-        DBUS_TYPE_INVALID);
+    dbus_message_append_args(reply, DBUS_TYPE_STRING, &t, DBUS_TYPE_INVALID);
 }
 
 const char *avahi_dbus_map_browse_signal_name(AvahiBrowserEvent e) {
     switch (e) {
-        case AVAHI_BROWSER_NEW : return "ItemNew";
-        case AVAHI_BROWSER_REMOVE : return "ItemRemove";
-        case AVAHI_BROWSER_FAILURE : return "Failure";
-        case AVAHI_BROWSER_CACHE_EXHAUSTED : return "CacheExhausted";
-        case AVAHI_BROWSER_ALL_FOR_NOW : return "AllForNow";
+    case AVAHI_BROWSER_NEW:
+        return "ItemNew";
+    case AVAHI_BROWSER_REMOVE:
+        return "ItemRemove";
+    case AVAHI_BROWSER_FAILURE:
+        return "Failure";
+    case AVAHI_BROWSER_CACHE_EXHAUSTED:
+        return "CacheExhausted";
+    case AVAHI_BROWSER_ALL_FOR_NOW:
+        return "AllForNow";
     }
 
     abort();
@@ -195,18 +197,20 @@ const char *avahi_dbus_map_browse_signal_name(AvahiBrowserEvent e) {
 
 const char *avahi_dbus_map_resolve_signal_name(AvahiResolverEvent e) {
     switch (e) {
-        case AVAHI_RESOLVER_FOUND : return "Found";
-        case AVAHI_RESOLVER_FAILURE : return "Failure";
+    case AVAHI_RESOLVER_FOUND:
+        return "Found";
+    case AVAHI_RESOLVER_FAILURE:
+        return "Failure";
     }
 
     abort();
 }
 
 static char *file_get_contents(const char *fname) {
-    int fd = -1;
+    int         fd = -1;
     struct stat st;
-    ssize_t size;
-    char *buf = NULL;
+    ssize_t     size;
+    char       *buf = NULL;
 
     assert(fname);
 
@@ -231,12 +235,12 @@ static char *file_get_contents(const char *fname) {
         goto fail;
     }
 
-    if (st.st_size > 1024*1024) { /** 1MB */
+    if (st.st_size > 1024 * 1024) { /** 1MB */
         avahi_log_error("File too large %s", fname);
         goto fail;
     }
 
-    buf = avahi_new(char, st.st_size+1);
+    buf = avahi_new(char, st.st_size + 1);
 
     if ((size = read(fd, buf, st.st_size)) < 0) {
         avahi_log_error("read() failed: %s\n", strerror(errno));
@@ -257,11 +261,10 @@ fail:
         avahi_free(buf);
 
     return NULL;
-
 }
 
 DBusHandlerResult avahi_dbus_handle_introspect(DBusConnection *c, DBusMessage *m, const char *fname) {
-    char *contents, *path;
+    char     *contents, *path;
     DBusError error;
 
     assert(c);
@@ -294,12 +297,11 @@ fail:
         dbus_error_free(&error);
 
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
 }
 
 void avahi_dbus_append_string_list(DBusMessage *reply, AvahiStringList *txt) {
     AvahiStringList *p;
-    DBusMessageIter iter, sub;
+    DBusMessageIter  iter, sub;
 
     assert(reply);
 
@@ -308,30 +310,28 @@ void avahi_dbus_append_string_list(DBusMessage *reply, AvahiStringList *txt) {
 
     for (p = txt; p; p = p->next) {
         DBusMessageIter sub2;
-        const uint8_t *data = p->text;
+        const uint8_t  *data = p->text;
 
         dbus_message_iter_open_container(&sub, DBUS_TYPE_ARRAY, "y", &sub2);
         dbus_message_iter_append_fixed_array(&sub2, DBUS_TYPE_BYTE, &data, p->size);
         dbus_message_iter_close_container(&sub, &sub2);
-
     }
     dbus_message_iter_close_container(&iter, &sub);
 }
 
 int avahi_dbus_read_rdata(DBusMessage *m, int idx, void **rdata, uint32_t *size) {
     DBusMessageIter iter, sub;
-    int n, j;
-    uint8_t *k;
+    int             n, j;
+    uint8_t        *k;
 
     assert(m);
 
     dbus_message_iter_init(m, &iter);
 
     for (j = 0; j < idx; j++)
-       dbus_message_iter_next(&iter);
+        dbus_message_iter_next(&iter);
 
-    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY ||
-        dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_BYTE)
+    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY || dbus_message_iter_get_element_type(&iter) != DBUS_TYPE_BYTE)
         goto fail;
 
     dbus_message_iter_recurse(&iter, &sub);
@@ -351,8 +351,8 @@ fail:
 }
 
 int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
-    DBusMessageIter iter, sub;
-    int j;
+    DBusMessageIter  iter, sub;
+    int              j;
     AvahiStringList *strlst = NULL;
 
     assert(m);
@@ -370,8 +370,8 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
     dbus_message_iter_recurse(&iter, &sub);
 
     for (;;) {
-        int at, n;
-        const uint8_t *k;
+        int             at, n;
+        const uint8_t  *k;
         DBusMessageIter sub2;
 
         if ((at = dbus_message_iter_get_arg_type(&sub)) == DBUS_TYPE_INVALID)
@@ -384,12 +384,12 @@ int avahi_dbus_read_strlst(DBusMessage *m, int idx, AvahiStringList **l) {
 
         dbus_message_iter_recurse(&sub, &sub2);
 
-        k = (const uint8_t*) "";
+        k = (const uint8_t *)"";
         n = 0;
         dbus_message_iter_get_fixed_array(&sub2, &k, &n);
 
         if (!k)
-            k = (const uint8_t*) "";
+            k = (const uint8_t *)"";
 
         strlst = avahi_string_list_add_arbitrary(strlst, k, n);
 
@@ -408,7 +408,8 @@ fail:
     return -1;
 }
 
-int avahi_dbus_is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain) {
+int avahi_dbus_is_our_own_service(Client *c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type,
+                                  const char *domain) {
     AvahiSEntryGroup *g;
 
     if (avahi_server_get_group_of_service(avahi_server, interface, protocol, name, type, domain, &g) == AVAHI_OK) {

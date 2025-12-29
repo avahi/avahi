@@ -27,11 +27,11 @@
 AVAHI_C_DECL_BEGIN
 
 /** Setup abstract poll structure for integration with Qt main loop  */
-const AvahiPoll* avahi_qt_poll_get(void)
+const AvahiPoll *avahi_qt_poll_get(void)
 #ifdef HAVE_VISIBILITY_HIDDEN
-__attribute__ ((visibility("default")))
+    __attribute__((visibility("default")))
 #endif
-;
+    ;
 
 AVAHI_C_DECL_END
 

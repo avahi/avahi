@@ -61,12 +61,12 @@ void avahi_dbus_service_browser_free(ServiceBrowserInfo *i) {
 void avahi_dbus_service_browser_start(ServiceBrowserInfo *i) {
     assert(i);
 
-    if(i->service_browser)
+    if (i->service_browser)
         avahi_s_service_browser_start(i->service_browser);
 }
 
 DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMessage *m, void *userdata) {
-    DBusError error;
+    DBusError           error;
     ServiceBrowserInfo *i = userdata;
 
     assert(c);
@@ -75,7 +75,7 @@ DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMes
 
     dbus_error_init(&error);
 
-    avahi_log_debug(__FILE__": interface=%s, path=%s, member=%s",
+    avahi_log_debug(__FILE__ ": interface=%s, path=%s, member=%s",
                     dbus_message_get_interface(m),
                     dbus_message_get_path(m),
                     dbus_message_get_member(m));
@@ -97,7 +97,6 @@ DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMes
 
         avahi_dbus_service_browser_free(i);
         return avahi_dbus_respond_ok(c, m);
-
     }
 
     if (dbus_message_is_method_call(m, AVAHI_DBUS_INTERFACE_SERVICE_BROWSER, "Start")) {
@@ -109,7 +108,6 @@ DBusHandlerResult avahi_dbus_msg_service_browser_impl(DBusConnection *c, DBusMes
 
         avahi_dbus_service_browser_start(i);
         return avahi_dbus_respond_ok(c, m);
-
     }
 
     avahi_log_warn("Missed message %s::%s()", dbus_message_get_interface(m), dbus_message_get_member(m));
@@ -121,11 +119,13 @@ fail:
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void* userdata) {
+void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                         AvahiBrowserEvent event, const char *name, const char *type, const char *domain,
+                                         AvahiLookupResultFlags flags, void *userdata) {
     ServiceBrowserInfo *i = userdata;
-    DBusMessage *m;
-    int32_t i_interface, i_protocol;
-    uint32_t u_flags;
+    DBusMessage        *m;
+    int32_t             i_interface, i_protocol;
+    uint32_t            u_flags;
 
     assert(b);
     assert(i);
@@ -144,24 +144,29 @@ void avahi_dbus_service_browser_callback(AvahiSServiceBrowser *b, AvahiIfIndex i
             flags |= AVAHI_LOOKUP_RESULT_OUR_OWN;
     }
 
-    i_interface = (int32_t) interface;
-    i_protocol = (int32_t) protocol;
-    u_flags = (uint32_t) flags;
+    i_interface = (int32_t)interface;
+    i_protocol = (int32_t)protocol;
+    u_flags = (uint32_t)flags;
 
     if (event == AVAHI_BROWSER_NEW || event == AVAHI_BROWSER_REMOVE) {
         assert(name);
         assert(type);
         assert(domain);
 
-        dbus_message_append_args(
-            m,
-            DBUS_TYPE_INT32, &i_interface,
-            DBUS_TYPE_INT32, &i_protocol,
-            DBUS_TYPE_STRING, &name,
-            DBUS_TYPE_STRING, &type,
-            DBUS_TYPE_STRING, &domain,
-            DBUS_TYPE_UINT32, &u_flags,
-            DBUS_TYPE_INVALID);
+        dbus_message_append_args(m,
+                                 DBUS_TYPE_INT32,
+                                 &i_interface,
+                                 DBUS_TYPE_INT32,
+                                 &i_protocol,
+                                 DBUS_TYPE_STRING,
+                                 &name,
+                                 DBUS_TYPE_STRING,
+                                 &type,
+                                 DBUS_TYPE_STRING,
+                                 &domain,
+                                 DBUS_TYPE_UINT32,
+                                 &u_flags,
+                                 DBUS_TYPE_INVALID);
     } else if (event == AVAHI_BROWSER_FAILURE)
         avahi_dbus_append_server_error(m);
 

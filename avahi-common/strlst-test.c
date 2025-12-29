@@ -29,12 +29,12 @@
 #include "malloc.h"
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    char *t, *v;
-    uint8_t *u;
-    uint8_t data[1024];
+    char            *t, *v;
+    uint8_t         *u;
+    uint8_t          data[1024];
     AvahiStringList *a = NULL, *b, *p;
-    size_t size, n;
-    int r;
+    size_t           size, n;
+    int              r;
 
     a = avahi_string_list_new("prefix", "a", "b", NULL);
 
@@ -45,11 +45,11 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     a = avahi_string_list_add(a, "");
     a = avahi_string_list_add(a, "quux");
     a = avahi_string_list_add(a, "");
-    a = avahi_string_list_add_arbitrary(a, (const uint8_t*) "null\0null", 9);
+    a = avahi_string_list_add_arbitrary(a, (const uint8_t *)"null\0null", 9);
     a = avahi_string_list_add_printf(a, "seven=%i %c", 7, 'x');
     a = avahi_string_list_add_pair(a, "blubb", "blaa");
     a = avahi_string_list_add_pair(a, "uxknurz", NULL);
-    a = avahi_string_list_add_pair_arbitrary(a, "uxknurz2", (const uint8_t*) "blafasel\0oerks", 14);
+    a = avahi_string_list_add_pair_arbitrary(a, "uxknurz2", (const uint8_t *)"blafasel\0oerks", 14);
     a = avahi_string_list_add(a, "i am a \"string\" with embedded double-quotes (\\\")\nand newlines (\\n).");
     a = avahi_string_list_add(a, "gh_issue_169=\x1f\x20\x7e\x7f\xff");
 

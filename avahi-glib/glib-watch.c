@@ -29,33 +29,33 @@
 
 struct AvahiWatch {
     AvahiGLibPoll *glib_poll;
-    int dead;
+    int            dead;
 
     GPollFD pollfd;
-    int pollfd_added;
+    int     pollfd_added;
 
     AvahiWatchCallback callback;
-    void *userdata;
+    void              *userdata;
 
     AVAHI_LLIST_FIELDS(AvahiWatch, watches);
 };
 
 struct AvahiTimeout {
     AvahiGLibPoll *glib_poll;
-    gboolean dead;
+    gboolean       dead;
 
-    gboolean enabled;
+    gboolean       enabled;
     struct timeval expiry;
 
     AvahiTimeoutCallback callback;
-    void  *userdata;
+    void                *userdata;
 
     AVAHI_LLIST_FIELDS(AvahiTimeout, timeouts);
 };
 
 struct AvahiGLibPoll {
-    GSource source;
-    AvahiPoll api;
+    GSource       source;
+    AvahiPoll     api;
     GMainContext *context;
 
     gboolean timeout_req_cleanup;
@@ -91,23 +91,18 @@ static void cleanup_watches(AvahiGLibPoll *g, int all) {
 }
 
 static gushort map_events_to_glib(AvahiWatchEvent events) {
-    return
-        (events & AVAHI_WATCH_IN ? G_IO_IN : 0) |
-        (events & AVAHI_WATCH_OUT ? G_IO_OUT : 0) |
-        (events & AVAHI_WATCH_ERR ? G_IO_ERR : 0) |
-        (events & AVAHI_WATCH_HUP ? G_IO_HUP : 0);
+    return (events & AVAHI_WATCH_IN ? G_IO_IN : 0) | (events & AVAHI_WATCH_OUT ? G_IO_OUT : 0) |
+           (events & AVAHI_WATCH_ERR ? G_IO_ERR : 0) | (events & AVAHI_WATCH_HUP ? G_IO_HUP : 0);
 }
 
 static AvahiWatchEvent map_events_from_glib(gushort events) {
-    return
-        (events & G_IO_IN ? AVAHI_WATCH_IN : 0) |
-        (events & G_IO_OUT ? AVAHI_WATCH_OUT : 0) |
-        (events & G_IO_ERR ? AVAHI_WATCH_ERR : 0) |
-        (events & G_IO_HUP ? AVAHI_WATCH_HUP : 0);
+    return (events & G_IO_IN ? AVAHI_WATCH_IN : 0) | (events & G_IO_OUT ? AVAHI_WATCH_OUT : 0) |
+           (events & G_IO_ERR ? AVAHI_WATCH_ERR : 0) | (events & G_IO_HUP ? AVAHI_WATCH_HUP : 0);
 }
 
-static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent events, AvahiWatchCallback callback, void *userdata) {
-    AvahiWatch *w;
+static AvahiWatch *watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent events, AvahiWatchCallback callback,
+                             void *userdata) {
+    AvahiWatch    *w;
     AvahiGLibPoll *g;
 
     assert(api);
@@ -163,8 +158,9 @@ static void watch_free(AvahiWatch *w) {
     w->glib_poll->watch_req_cleanup = TRUE;
 }
 
-static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata) {
-    AvahiTimeout *t;
+static AvahiTimeout *timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback,
+                                 void *userdata) {
+    AvahiTimeout  *t;
     AvahiGLibPoll *g;
 
     assert(api);
@@ -227,7 +223,7 @@ static void cleanup_timeouts(AvahiGLibPoll *g, int all) {
     g->timeout_req_cleanup = FALSE;
 }
 
-static AvahiTimeout* find_next_timeout(AvahiGLibPoll *g) {
+static AvahiTimeout *find_next_timeout(AvahiGLibPoll *g) {
     AvahiTimeout *t, *n = NULL;
     assert(g);
 
@@ -253,8 +249,8 @@ static void start_timeout_callback(AvahiTimeout *t) {
 }
 
 static gboolean prepare_func(GSource *source, gint *timeout) {
-    AvahiGLibPoll *g = (AvahiGLibPoll*) source;
-    AvahiTimeout *next_timeout;
+    AvahiGLibPoll *g = (AvahiGLibPoll *)source;
+    AvahiTimeout  *next_timeout;
 
     g_assert(g);
     g_assert(timeout);
@@ -266,9 +262,9 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
         cleanup_timeouts(g, 0);
 
     if ((next_timeout = find_next_timeout(g))) {
-        GTimeVal now;
+        GTimeVal       now;
         struct timeval tvnow;
-        AvahiUsec usec;
+        AvahiUsec      usec;
 
         g_source_get_current_time(source, &now);
         tvnow.tv_sec = now.tv_sec;
@@ -277,11 +273,11 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
         usec = avahi_timeval_diff(&next_timeout->expiry, &tvnow);
 
         if (usec <= 0) {
-	   *timeout = 0;
+            *timeout = 0;
             return TRUE;
-	}
+        }
 
-        *timeout = (gint) (usec / 1000);
+        *timeout = (gint)(usec / 1000);
     } else
         *timeout = -1;
 
@@ -289,14 +285,14 @@ static gboolean prepare_func(GSource *source, gint *timeout) {
 }
 
 static gboolean check_func(GSource *source) {
-    AvahiGLibPoll *g = (AvahiGLibPoll*) source;
-    AvahiWatch *w;
-    AvahiTimeout *next_timeout;
+    AvahiGLibPoll *g = (AvahiGLibPoll *)source;
+    AvahiWatch    *w;
+    AvahiTimeout  *next_timeout;
 
     g_assert(g);
 
     if ((next_timeout = find_next_timeout(g))) {
-        GTimeVal now;
+        GTimeVal       now;
         struct timeval tvnow;
         g_source_get_current_time(source, &now);
         tvnow.tv_sec = now.tv_sec;
@@ -314,14 +310,14 @@ static gboolean check_func(GSource *source) {
 }
 
 static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc callback, AVAHI_GCC_UNUSED gpointer userdata) {
-    AvahiGLibPoll* g = (AvahiGLibPoll*) source;
-    AvahiWatch *w;
-    AvahiTimeout *next_timeout;
+    AvahiGLibPoll *g = (AvahiGLibPoll *)source;
+    AvahiWatch    *w;
+    AvahiTimeout  *next_timeout;
 
     g_assert(g);
 
     if ((next_timeout = find_next_timeout(g))) {
-        GTimeVal now;
+        GTimeVal       now;
         struct timeval tvnow;
         g_source_get_current_time(source, &now);
         tvnow.tv_sec = now.tv_sec;
@@ -347,16 +343,9 @@ static gboolean dispatch_func(GSource *source, AVAHI_GCC_UNUSED GSourceFunc call
 AvahiGLibPoll *avahi_glib_poll_new(GMainContext *context, gint priority) {
     AvahiGLibPoll *g;
 
-    static GSourceFuncs source_funcs = {
-        prepare_func,
-        check_func,
-        dispatch_func,
-        NULL,
-        NULL,
-        NULL
-    };
+    static GSourceFuncs source_funcs = {prepare_func, check_func, dispatch_func, NULL, NULL, NULL};
 
-    g = (AvahiGLibPoll*) g_source_new(&source_funcs, sizeof(AvahiGLibPoll));
+    g = (AvahiGLibPoll *)g_source_new(&source_funcs, sizeof(AvahiGLibPoll));
     g_main_context_ref(g->context = context ? context : g_main_context_default());
 
     g->api.userdata = g;
@@ -395,7 +384,7 @@ void avahi_glib_poll_free(AvahiGLibPoll *g) {
     g_source_unref(s);
 }
 
-const AvahiPoll* avahi_glib_poll_get(AvahiGLibPoll *g) {
+const AvahiPoll *avahi_glib_poll_get(AvahiGLibPoll *g) {
     assert(g);
 
     return &g->api;

@@ -32,25 +32,20 @@
 
 struct AvahiSServiceBrowser {
     AvahiServer *server;
-    char *domain_name;
-    char *service_type;
+    char        *domain_name;
+    char        *service_type;
 
     AvahiSRecordBrowser *record_browser;
 
     AvahiSServiceBrowserCallback callback;
-    void* userdata;
+    void                        *userdata;
 
     AVAHI_LLIST_FIELDS(AvahiSServiceBrowser, browser);
 };
 
-static void record_browser_callback(
-    AvahiSRecordBrowser*rr,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    AvahiRecord *record,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+static void record_browser_callback(AvahiSRecordBrowser *rr, AvahiIfIndex interface, AvahiProtocol protocol,
+                                    AvahiBrowserEvent event, AvahiRecord *record, AvahiLookupResultFlags flags,
+                                    void *userdata) {
 
     AvahiSServiceBrowser *b = userdata;
 
@@ -68,7 +63,8 @@ static void record_browser_callback(
         if (event == AVAHI_BROWSER_NEW && avahi_server_is_service_local(b->server, interface, protocol, record->data.ptr.name))
             flags |= AVAHI_LOOKUP_RESULT_LOCAL;
 
-        if (avahi_service_name_split(record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) < 0) {
+        if (avahi_service_name_split(
+                record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) < 0) {
             avahi_log_debug("Failed to split service name '%s'", record->data.ptr.name);
             return;
         }
@@ -82,23 +78,16 @@ static void record_browser_callback(
 
     } else
         b->callback(b, interface, protocol, event, NULL, b->service_type, b->domain_name, flags, b->userdata);
-
 }
 
-AvahiSServiceBrowser *avahi_s_service_browser_prepare(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *service_type,
-    const char *domain,
-    AvahiLookupFlags flags,
-    AvahiSServiceBrowserCallback callback,
-    void* userdata) {
+AvahiSServiceBrowser *avahi_s_service_browser_prepare(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                      const char *service_type, const char *domain, AvahiLookupFlags flags,
+                                                      AvahiSServiceBrowserCallback callback, void *userdata) {
 
     AvahiSServiceBrowser *b;
-    AvahiKey *k = NULL;
-    char n[AVAHI_DOMAIN_NAME_MAX];
-    int r;
+    AvahiKey             *k = NULL;
+    char                  n[AVAHI_DOMAIN_NAME_MAX];
+    int                   r;
 
     assert(server);
     assert(callback);
@@ -107,7 +96,8 @@ AvahiSServiceBrowser *avahi_s_service_browser_prepare(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(
+        server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA | AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_is_valid_service_type_generic(service_type), AVAHI_ERR_INVALID_SERVICE_TYPE);
 
     if (!domain)
@@ -142,7 +132,8 @@ AvahiSServiceBrowser *avahi_s_service_browser_prepare(
         goto fail;
     }
 
-    if (!(b->record_browser = avahi_s_record_browser_prepare(server, interface, protocol, k, flags, record_browser_callback, b)))
+    if (!(b->record_browser =
+              avahi_s_record_browser_prepare(server, interface, protocol, k, flags, record_browser_callback, b)))
         goto fail;
 
     avahi_key_unref(k);
@@ -177,22 +168,16 @@ void avahi_s_service_browser_start(AvahiSServiceBrowser *b) {
     avahi_s_record_browser_start_query(b->record_browser);
 }
 
-AvahiSServiceBrowser *avahi_s_service_browser_new(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *service_type,
-    const char *domain,
-    AvahiLookupFlags flags,
-    AvahiSServiceBrowserCallback callback,
-    void* userdata) {
-        AvahiSServiceBrowser *b;
+AvahiSServiceBrowser *avahi_s_service_browser_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                  const char *service_type, const char *domain, AvahiLookupFlags flags,
+                                                  AvahiSServiceBrowserCallback callback, void *userdata) {
+    AvahiSServiceBrowser *b;
 
-        b = avahi_s_service_browser_prepare(server, interface, protocol, service_type, domain, flags, callback, userdata);
-        if (!b)
-            return NULL;
+    b = avahi_s_service_browser_prepare(server, interface, protocol, service_type, domain, flags, callback, userdata);
+    if (!b)
+        return NULL;
 
-        avahi_s_service_browser_start(b);
+    avahi_s_service_browser_start(b);
 
-        return b;
+    return b;
 }

@@ -36,14 +36,14 @@
 
 struct AvahiMulticastLookup {
     AvahiMulticastLookupEngine *engine;
-    int dead;
+    int                         dead;
 
     AvahiKey *key, *cname_key;
 
     AvahiMulticastLookupCallback callback;
-    void *userdata;
+    void                        *userdata;
 
-    AvahiIfIndex interface;
+    AvahiIfIndex  interface;
     AvahiProtocol protocol;
 
     int queriers_added;
@@ -64,7 +64,7 @@ struct AvahiMulticastLookupEngine {
     int cleanup_dead;
 };
 
-static void all_for_now_callback(AvahiTimeEvent *e, void* userdata) {
+static void all_for_now_callback(AvahiTimeEvent *e, void *userdata) {
     AvahiMulticastLookup *l = userdata;
 
     assert(e);
@@ -73,19 +73,15 @@ static void all_for_now_callback(AvahiTimeEvent *e, void* userdata) {
     avahi_time_event_free(l->all_for_now_event);
     l->all_for_now_event = NULL;
 
-    l->callback(l->engine, l->interface, l->protocol, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_RESULT_MULTICAST, NULL, l->userdata);
+    l->callback(
+        l->engine, l->interface, l->protocol, AVAHI_BROWSER_ALL_FOR_NOW, AVAHI_LOOKUP_RESULT_MULTICAST, NULL, l->userdata);
 }
 
-AvahiMulticastLookup *avahi_multicast_lookup_new(
-    AvahiMulticastLookupEngine *e,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiKey *key,
-    AvahiMulticastLookupCallback callback,
-    void *userdata) {
+AvahiMulticastLookup *avahi_multicast_lookup_new(AvahiMulticastLookupEngine *e, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                 AvahiKey *key, AvahiMulticastLookupCallback callback, void *userdata) {
 
     AvahiMulticastLookup *l, *t;
-    struct timeval tv;
+    struct timeval        tv;
 
     assert(e);
     assert(AVAHI_IF_VALID(interface));
@@ -191,15 +187,15 @@ void avahi_multicast_lookup_engine_cleanup(AvahiMulticastLookupEngine *e) {
 }
 
 struct cbdata {
-    AvahiMulticastLookupEngine *engine;
+    AvahiMulticastLookupEngine  *engine;
     AvahiMulticastLookupCallback callback;
-    void *userdata;
-    AvahiKey *key, *cname_key;
-    AvahiInterface *interface;
-    unsigned n_found;
+    void                        *userdata;
+    AvahiKey                    *key, *cname_key;
+    AvahiInterface              *interface;
+    unsigned                     n_found;
 };
 
-static void* scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void* userdata) {
+static void *scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEntry *e, void *userdata) {
     struct cbdata *cbdata = userdata;
 
     assert(c);
@@ -207,21 +203,20 @@ static void* scan_cache_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
     assert(e);
     assert(cbdata);
 
-    cbdata->callback(
-        cbdata->engine,
-        cbdata->interface->hardware->index,
-        cbdata->interface->protocol,
-        AVAHI_BROWSER_NEW,
-        AVAHI_LOOKUP_RESULT_CACHED|AVAHI_LOOKUP_RESULT_MULTICAST,
-        e->record,
-        cbdata->userdata);
+    cbdata->callback(cbdata->engine,
+                     cbdata->interface->hardware->index,
+                     cbdata->interface->protocol,
+                     AVAHI_BROWSER_NEW,
+                     AVAHI_LOOKUP_RESULT_CACHED | AVAHI_LOOKUP_RESULT_MULTICAST,
+                     e->record,
+                     cbdata->userdata);
 
-    cbdata->n_found ++;
+    cbdata->n_found++;
 
     return NULL;
 }
 
-static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
+static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void *userdata) {
     struct cbdata *cbdata = userdata;
 
     assert(m);
@@ -238,13 +233,8 @@ static void scan_interface_callback(AvahiInterfaceMonitor *m, AvahiInterface *i,
     cbdata->interface = NULL;
 }
 
-unsigned avahi_multicast_lookup_engine_scan_cache(
-    AvahiMulticastLookupEngine *e,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiKey *key,
-    AvahiMulticastLookupCallback callback,
-    void *userdata) {
+unsigned avahi_multicast_lookup_engine_scan_cache(AvahiMulticastLookupEngine *e, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                  AvahiKey *key, AvahiMulticastLookupCallback callback, void *userdata) {
 
     struct cbdata cbdata;
 
@@ -287,7 +277,8 @@ void avahi_multicast_lookup_engine_new_interface(AvahiMulticastLookupEngine *e, 
     }
 }
 
-void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiInterface *i, AvahiRecord *record, AvahiBrowserEvent event) {
+void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiInterface *i, AvahiRecord *record,
+                                          AvahiBrowserEvent event) {
     AvahiMulticastLookup *l;
 
     assert(e);
@@ -301,7 +292,6 @@ void avahi_multicast_lookup_engine_notify(AvahiMulticastLookupEngine *e, AvahiIn
         if (avahi_interface_match(i, l->interface, l->protocol))
             l->callback(e, i->hardware->index, i->protocol, event, AVAHI_LOOKUP_RESULT_MULTICAST, record, l->userdata);
     }
-
 
     if (record->key->clazz == AVAHI_DNS_CLASS_IN && record->key->type == AVAHI_DNS_TYPE_CNAME) {
         /* It's a CNAME record, so we have to scan the all lookups to see if one matches */
@@ -332,7 +322,8 @@ AvahiMulticastLookupEngine *avahi_multicast_lookup_engine_new(AvahiServer *s) {
     e->cleanup_dead = 0;
 
     /* Initialize lookup list */
-    e->lookups_by_key = avahi_hashmap_new((AvahiHashFunc) avahi_key_hash, (AvahiEqualFunc) avahi_key_equal, (AvahiFreeFunc) avahi_key_unref, NULL);
+    e->lookups_by_key =
+        avahi_hashmap_new((AvahiHashFunc)avahi_key_hash, (AvahiEqualFunc)avahi_key_equal, (AvahiFreeFunc)avahi_key_unref, NULL);
     AVAHI_LLIST_HEAD_INIT(AvahiWideAreaLookup, e->lookups);
 
     return e;
@@ -347,4 +338,3 @@ void avahi_multicast_lookup_engine_free(AvahiMulticastLookupEngine *e) {
     avahi_hashmap_free(e->lookups_by_key);
     avahi_free(e);
 }
-

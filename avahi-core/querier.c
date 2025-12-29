@@ -35,7 +35,7 @@ struct AvahiQuerier {
     AvahiInterface *interface;
 
     AvahiKey *key;
-    int n_used;
+    int       n_used;
 
     unsigned sec_delay;
 
@@ -44,7 +44,7 @@ struct AvahiQuerier {
     struct timeval creation_time;
 
     unsigned post_id;
-    int post_id_valid;
+    int      post_id_valid;
 
     AVAHI_LLIST_FIELDS(AvahiQuerier, queriers);
 };
@@ -62,7 +62,7 @@ void avahi_querier_free(AvahiQuerier *q) {
 }
 
 static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
-    AvahiQuerier *q = userdata;
+    AvahiQuerier  *q = userdata;
     struct timeval tv;
 
     assert(q);
@@ -88,15 +88,15 @@ static void querier_elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *us
 
     q->sec_delay *= 2;
 
-    if (q->sec_delay >= 60*60)  /* 1h */
-        q->sec_delay = 60*60;
+    if (q->sec_delay >= 60 * 60) /* 1h */
+        q->sec_delay = 60 * 60;
 
-    avahi_elapse_time(&tv, q->sec_delay*1000, 0);
+    avahi_elapse_time(&tv, q->sec_delay * 1000, 0);
     avahi_time_event_update(q->time_event, &tv);
 }
 
 void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_ctime) {
-    AvahiQuerier *q;
+    AvahiQuerier  *q;
     struct timeval tv;
 
     assert(i);
@@ -131,7 +131,8 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
         q->post_id_valid = 1;
 
     /* Schedule next queries */
-    q->time_event = avahi_time_event_new(i->monitor->server->time_event_queue, avahi_elapse_time(&tv, q->sec_delay*1000, 0), querier_elapse_callback, q);
+    q->time_event = avahi_time_event_new(
+        i->monitor->server->time_event_queue, avahi_elapse_time(&tv, q->sec_delay * 1000, 0), querier_elapse_callback, q);
 
     AVAHI_LLIST_PREPEND(AvahiQuerier, queriers, i->queriers, q);
     avahi_hashmap_insert(i->queriers_by_key, q->key, q);
@@ -170,13 +171,13 @@ void avahi_querier_remove(AvahiInterface *i, AvahiKey *key) {
     }
 }
 
-static void remove_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
+static void remove_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void *userdata) {
     assert(m);
     assert(i);
     assert(userdata);
 
     if (i->announcing)
-        avahi_querier_remove(i, (AvahiKey*) userdata);
+        avahi_querier_remove(i, (AvahiKey *)userdata);
 }
 
 void avahi_querier_remove_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key) {
@@ -187,11 +188,11 @@ void avahi_querier_remove_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtoco
 }
 
 struct cbdata {
-    AvahiKey *key;
+    AvahiKey       *key;
     struct timeval *ret_ctime;
 };
 
-static void add_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void* userdata) {
+static void add_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, void *userdata) {
     struct cbdata *cbdata = userdata;
 
     assert(m);
@@ -207,7 +208,8 @@ static void add_querier_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, vo
     }
 }
 
-void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key, struct timeval *ret_ctime) {
+void avahi_querier_add_for_all(AvahiServer *s, AvahiIfIndex idx, AvahiProtocol protocol, AvahiKey *key,
+                               struct timeval *ret_ctime) {
     struct cbdata cbdata;
 
     assert(s);
@@ -252,7 +254,7 @@ int avahi_querier_shall_refresh_cache(AvahiInterface *i, AvahiKey *key) {
 
         /* We can defer our query a little, since the cache will now
          * issue a refresh query anyway. */
-        avahi_elapse_time(&tv, q->sec_delay*1000, 0);
+        avahi_elapse_time(&tv, q->sec_delay * 1000, 0);
         avahi_time_event_update(q->time_event, &tv);
 
         /* Tell the cache that a refresh should be issued */

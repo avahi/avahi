@@ -35,17 +35,17 @@
 
 struct AvahiSHostNameResolver {
     AvahiServer *server;
-    char *host_name;
+    char        *host_name;
 
     AvahiSRecordBrowser *record_browser_a;
     AvahiSRecordBrowser *record_browser_aaaa;
 
     AvahiSHostNameResolverCallback callback;
-    void* userdata;
+    void                          *userdata;
 
-    AvahiRecord *address_record;
-    AvahiIfIndex interface;
-    AvahiProtocol protocol;
+    AvahiRecord           *address_record;
+    AvahiIfIndex           interface;
+    AvahiProtocol          protocol;
     AvahiLookupResultFlags flags;
 
     AvahiTimeEvent *time_event;
@@ -62,35 +62,35 @@ static void finish(AvahiSHostNameResolver *r, AvahiResolverEvent event) {
     }
 
     switch (event) {
-        case AVAHI_RESOLVER_FOUND: {
-            AvahiAddress a;
+    case AVAHI_RESOLVER_FOUND: {
+        AvahiAddress a;
 
-            assert(r->address_record);
+        assert(r->address_record);
 
-            switch (r->address_record->key->type) {
-                case AVAHI_DNS_TYPE_A:
-                    a.proto = AVAHI_PROTO_INET;
-                    a.data.ipv4 = r->address_record->data.a.address;
-                    break;
-
-                case AVAHI_DNS_TYPE_AAAA:
-                    a.proto = AVAHI_PROTO_INET6;
-                    a.data.ipv6 = r->address_record->data.aaaa.address;
-                    break;
-
-                default:
-                    abort();
-            }
-
-            r->callback(r, r->interface, r->protocol, AVAHI_RESOLVER_FOUND, r->address_record->key->name, &a, r->flags, r->userdata);
+        switch (r->address_record->key->type) {
+        case AVAHI_DNS_TYPE_A:
+            a.proto = AVAHI_PROTO_INET;
+            a.data.ipv4 = r->address_record->data.a.address;
             break;
 
+        case AVAHI_DNS_TYPE_AAAA:
+            a.proto = AVAHI_PROTO_INET6;
+            a.data.ipv6 = r->address_record->data.aaaa.address;
+            break;
+
+        default:
+            abort();
         }
 
-        case AVAHI_RESOLVER_FAILURE:
+        r->callback(
+            r, r->interface, r->protocol, AVAHI_RESOLVER_FOUND, r->address_record->key->name, &a, r->flags, r->userdata);
+        break;
+    }
 
-            r->callback(r, r->interface, r->protocol, event, r->host_name, NULL, r->flags, r->userdata);
-            break;
+    case AVAHI_RESOLVER_FAILURE:
+
+        r->callback(r, r->interface, r->protocol, event, r->host_name, NULL, r->flags, r->userdata);
+        break;
     }
 }
 
@@ -116,103 +116,91 @@ static void start_timeout(AvahiSHostNameResolver *r) {
     r->time_event = avahi_time_event_new(r->server->time_event_queue, &tv, time_event_callback, r);
 }
 
-static void record_browser_callback(
-    AvahiSRecordBrowser*rr,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    AvahiRecord *record,
-    AvahiLookupResultFlags flags,
-    void* userdata) {
+static void record_browser_callback(AvahiSRecordBrowser *rr, AvahiIfIndex interface, AvahiProtocol protocol,
+                                    AvahiBrowserEvent event, AvahiRecord *record, AvahiLookupResultFlags flags,
+                                    void *userdata) {
 
     AvahiSHostNameResolver *r = userdata;
 
     assert(rr);
     assert(r);
 
-
     switch (event) {
-        case AVAHI_BROWSER_NEW:
-            assert(record);
-            assert(record->key->type == AVAHI_DNS_TYPE_A || record->key->type == AVAHI_DNS_TYPE_AAAA);
+    case AVAHI_BROWSER_NEW:
+        assert(record);
+        assert(record->key->type == AVAHI_DNS_TYPE_A || record->key->type == AVAHI_DNS_TYPE_AAAA);
 
-            if (r->interface > 0 && interface != r->interface)
-                return;
+        if (r->interface > 0 && interface != r->interface)
+            return;
 
-            if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
-                return;
+        if (r->protocol != AVAHI_PROTO_UNSPEC && protocol != r->protocol)
+            return;
 
-            if (r->interface <= 0)
-                r->interface = interface;
+        if (r->interface <= 0)
+            r->interface = interface;
 
-            if (r->protocol == AVAHI_PROTO_UNSPEC)
-                r->protocol = protocol;
+        if (r->protocol == AVAHI_PROTO_UNSPEC)
+            r->protocol = protocol;
 
-            if (!r->address_record) {
-                r->address_record = avahi_record_ref(record);
-                r->flags = flags;
-
-                finish(r, AVAHI_RESOLVER_FOUND);
-            }
-
-            break;
-
-        case AVAHI_BROWSER_REMOVE:
-            assert(record);
-            assert(record->key->type == AVAHI_DNS_TYPE_A || record->key->type == AVAHI_DNS_TYPE_AAAA);
-
-            if (r->address_record && avahi_record_equal_no_ttl(record, r->address_record)) {
-                avahi_record_unref(r->address_record);
-                r->address_record = NULL;
-
-                r->flags = flags;
-
-
-                /** Look for a replacement */
-                if (r->record_browser_aaaa)
-                    avahi_s_record_browser_restart(r->record_browser_aaaa);
-                if (r->record_browser_a)
-                    avahi_s_record_browser_restart(r->record_browser_a);
-
-                start_timeout(r);
-            }
-
-            break;
-
-        case AVAHI_BROWSER_CACHE_EXHAUSTED:
-        case AVAHI_BROWSER_ALL_FOR_NOW:
-            /* Ignore */
-            break;
-
-        case AVAHI_BROWSER_FAILURE:
-
-            /* Stop browsers */
-
-            if (r->record_browser_aaaa)
-                avahi_s_record_browser_free(r->record_browser_aaaa);
-            if (r->record_browser_a)
-                avahi_s_record_browser_free(r->record_browser_a);
-
-            r->record_browser_a = r->record_browser_aaaa = NULL;
+        if (!r->address_record) {
+            r->address_record = avahi_record_ref(record);
             r->flags = flags;
 
-            finish(r, AVAHI_RESOLVER_FAILURE);
-            break;
+            finish(r, AVAHI_RESOLVER_FOUND);
+        }
+
+        break;
+
+    case AVAHI_BROWSER_REMOVE:
+        assert(record);
+        assert(record->key->type == AVAHI_DNS_TYPE_A || record->key->type == AVAHI_DNS_TYPE_AAAA);
+
+        if (r->address_record && avahi_record_equal_no_ttl(record, r->address_record)) {
+            avahi_record_unref(r->address_record);
+            r->address_record = NULL;
+
+            r->flags = flags;
+
+            /** Look for a replacement */
+            if (r->record_browser_aaaa)
+                avahi_s_record_browser_restart(r->record_browser_aaaa);
+            if (r->record_browser_a)
+                avahi_s_record_browser_restart(r->record_browser_a);
+
+            start_timeout(r);
+        }
+
+        break;
+
+    case AVAHI_BROWSER_CACHE_EXHAUSTED:
+    case AVAHI_BROWSER_ALL_FOR_NOW:
+        /* Ignore */
+        break;
+
+    case AVAHI_BROWSER_FAILURE:
+
+        /* Stop browsers */
+
+        if (r->record_browser_aaaa)
+            avahi_s_record_browser_free(r->record_browser_aaaa);
+        if (r->record_browser_a)
+            avahi_s_record_browser_free(r->record_browser_a);
+
+        r->record_browser_a = r->record_browser_aaaa = NULL;
+        r->flags = flags;
+
+        finish(r, AVAHI_RESOLVER_FAILURE);
+        break;
     }
 }
 
-AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *host_name,
-    AvahiProtocol aprotocol,
-    AvahiLookupFlags flags,
-    AvahiSHostNameResolverCallback callback,
-    void* userdata) {
+AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                           const char *host_name, AvahiProtocol aprotocol,
+                                                           AvahiLookupFlags flags, AvahiSHostNameResolverCallback callback,
+                                                           void *userdata) {
 
     AvahiSHostNameResolver *r;
-    AvahiKey *k;
+    AvahiKey               *k;
 
     assert(server);
     assert(host_name);
@@ -222,7 +210,8 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, avahi_is_valid_fqdn(host_name), AVAHI_ERR_INVALID_HOST_NAME);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_PROTO_VALID(aprotocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA|AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(
+        server, AVAHI_FLAGS_VALID(flags, AVAHI_LOOKUP_USE_WIDE_AREA | AVAHI_LOOKUP_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
 
     if (!(r = avahi_new(AvahiSHostNameResolver, 1))) {
         avahi_server_set_errno(server, AVAHI_ERR_NO_MEMORY);
@@ -257,7 +246,8 @@ AvahiSHostNameResolver *avahi_s_host_name_resolver_prepare(
 
     if (aprotocol == AVAHI_PROTO_INET6 || aprotocol == AVAHI_PROTO_UNSPEC) {
         k = avahi_key_new(host_name, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA);
-        r->record_browser_aaaa = avahi_s_record_browser_prepare(server, interface, protocol, k, flags, record_browser_callback, r);
+        r->record_browser_aaaa =
+            avahi_s_record_browser_prepare(server, interface, protocol, k, flags, record_browser_callback, r);
         avahi_key_unref(k);
 
         if (!r->record_browser_aaaa)
@@ -278,10 +268,10 @@ fail:
 void avahi_s_host_name_resolver_start(AvahiSHostNameResolver *r) {
     assert(r);
 
-    if(r->record_browser_a)
+    if (r->record_browser_a)
         avahi_s_record_browser_start_query(r->record_browser_a);
 
-    if(r->record_browser_aaaa)
+    if (r->record_browser_aaaa)
         avahi_s_record_browser_start_query(r->record_browser_aaaa);
 }
 
@@ -306,22 +296,16 @@ void avahi_s_host_name_resolver_free(AvahiSHostNameResolver *r) {
     avahi_free(r);
 }
 
-AvahiSHostNameResolver *avahi_s_host_name_resolver_new(
-    AvahiServer *server,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    const char *host_name,
-    AvahiProtocol aprotocol,
-    AvahiLookupFlags flags,
-    AvahiSHostNameResolverCallback callback,
-    void* userdata) {
-        AvahiSHostNameResolver *b;
+AvahiSHostNameResolver *avahi_s_host_name_resolver_new(AvahiServer *server, AvahiIfIndex interface, AvahiProtocol protocol,
+                                                       const char *host_name, AvahiProtocol aprotocol, AvahiLookupFlags flags,
+                                                       AvahiSHostNameResolverCallback callback, void *userdata) {
+    AvahiSHostNameResolver *b;
 
-        b = avahi_s_host_name_resolver_prepare(server, interface, protocol, host_name, aprotocol, flags, callback, userdata);
-        if (!b)
-            return NULL;
+    b = avahi_s_host_name_resolver_prepare(server, interface, protocol, host_name, aprotocol, flags, callback, userdata);
+    if (!b)
+        return NULL;
 
-        avahi_s_host_name_resolver_start(b);
+    avahi_s_host_name_resolver_start(b);
 
-        return b;
+    return b;
 }

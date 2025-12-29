@@ -36,13 +36,13 @@ struct AvahiRList {
 };
 
 /** Prepend a new item to the beginning of the list and return the new beginning */
-AvahiRList* avahi_rlist_prepend(AvahiRList *r, void *data);
+AvahiRList *avahi_rlist_prepend(AvahiRList *r, void *data);
 
 /** Remove the first occurrence of the specified item from the list and return the new beginning */
-AvahiRList* avahi_rlist_remove(AvahiRList *r, void *data);
+AvahiRList *avahi_rlist_remove(AvahiRList *r, void *data);
 
 /** Remove the specified item from the list and return the new beginning */
-AvahiRList* avahi_rlist_remove_by_link(AvahiRList *r, AvahiRList *n);
+AvahiRList *avahi_rlist_remove_by_link(AvahiRList *r, AvahiRList *n);
 
 AVAHI_C_DECL_END
 

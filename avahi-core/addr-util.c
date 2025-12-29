@@ -30,7 +30,7 @@
 
 #include "addr-util.h"
 
-AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddress *ret_addr) {
+AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr *sa, AvahiAddress *ret_addr) {
     assert(sa);
     assert(ret_addr);
 
@@ -39,31 +39,27 @@ AvahiAddress *avahi_address_from_sockaddr(const struct sockaddr* sa, AvahiAddres
     ret_addr->proto = avahi_af_to_proto(sa->sa_family);
 
     if (sa->sa_family == AF_INET)
-        memcpy(&ret_addr->data.ipv4, &((const struct sockaddr_in*) sa)->sin_addr, sizeof(ret_addr->data.ipv4));
+        memcpy(&ret_addr->data.ipv4, &((const struct sockaddr_in *)sa)->sin_addr, sizeof(ret_addr->data.ipv4));
     else
-        memcpy(&ret_addr->data.ipv6, &((const struct sockaddr_in6*) sa)->sin6_addr, sizeof(ret_addr->data.ipv6));
+        memcpy(&ret_addr->data.ipv6, &((const struct sockaddr_in6 *)sa)->sin6_addr, sizeof(ret_addr->data.ipv6));
 
     return ret_addr;
 }
 
-uint16_t avahi_port_from_sockaddr(const struct sockaddr* sa) {
+uint16_t avahi_port_from_sockaddr(const struct sockaddr *sa) {
     assert(sa);
 
     assert(sa->sa_family == AF_INET || sa->sa_family == AF_INET6);
 
     if (sa->sa_family == AF_INET)
-        return ntohs(((const struct sockaddr_in*) sa)->sin_port);
+        return ntohs(((const struct sockaddr_in *)sa)->sin_port);
     else
-        return ntohs(((const struct sockaddr_in6*) sa)->sin6_port);
+        return ntohs(((const struct sockaddr_in6 *)sa)->sin6_port);
 }
 
 int avahi_address_is_ipv4_in_ipv6(const AvahiAddress *a) {
 
-    static const uint8_t ipv4_in_ipv6[] = {
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0xFF, 0xFF, 0xFF, 0xFF
-    };
+    static const uint8_t ipv4_in_ipv6[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF};
 
     assert(a);
 
@@ -84,8 +80,7 @@ int avahi_address_is_link_local(const AvahiAddress *a) {
     if (a->proto == AVAHI_PROTO_INET) {
         uint32_t n = ntohl(a->data.ipv4.address);
         return (n & IPV4LL_NETMASK) == IPV4LL_NETWORK;
-    }
-    else if (a->proto == AVAHI_PROTO_INET6) {
+    } else if (a->proto == AVAHI_PROTO_INET6) {
         unsigned n = (a->data.ipv6.address[0] << 8) | (a->data.ipv6.address[1] << 0);
         return (n & IPV6LL_NETMASK) == IPV6LL_NETWORK;
     }

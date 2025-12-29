@@ -59,53 +59,50 @@ enum {
     AVAHI_CHROOT_MAX
 };
 
-static const char* const get_file_name_table[AVAHI_CHROOT_MAX] = {
+static const char *const get_file_name_table[AVAHI_CHROOT_MAX] = {
     NULL,
     NULL,
     "/etc/resolv.conf",
 #ifdef HAVE_DBUS
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.Server.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.EntryGroup.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.AddressResolver.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.DomainBrowser.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.HostNameResolver.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.ServiceBrowser.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.ServiceResolver.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.ServiceTypeBrowser.xml",
-    AVAHI_DBUS_INTROSPECTION_DIR"/org.freedesktop.Avahi.RecordBrowser.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.Server.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.EntryGroup.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.AddressResolver.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.DomainBrowser.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.HostNameResolver.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.ServiceBrowser.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.ServiceResolver.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.ServiceTypeBrowser.xml",
+    AVAHI_DBUS_INTROSPECTION_DIR "/org.freedesktop.Avahi.RecordBrowser.xml",
 #endif
     NULL,
-    NULL
-};
+    NULL};
 
-static const char *const unlink_file_name_table[AVAHI_CHROOT_MAX] = {
-    NULL,
-    NULL,
-    NULL,
+static const char *const unlink_file_name_table[AVAHI_CHROOT_MAX] = {NULL,
+                                                                     NULL,
+                                                                     NULL,
 #ifdef HAVE_DBUS
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
 #endif
-    AVAHI_DAEMON_RUNTIME_DIR"/pid",
-    AVAHI_SOCKET
-};
+                                                                     AVAHI_DAEMON_RUNTIME_DIR "/pid",
+                                                                     AVAHI_SOCKET};
 
 static int helper_fd = -1;
 
 static int send_fd(int fd, int payload_fd) {
-    uint8_t dummy = AVAHI_CHROOT_SUCCESS;
-    struct iovec iov;
+    uint8_t       dummy = AVAHI_CHROOT_SUCCESS;
+    struct iovec  iov;
     struct msghdr msg;
     union {
         struct cmsghdr hdr;
-        char buf[CMSG_SPACE(sizeof(int))];
+        char           buf[CMSG_SPACE(sizeof(int))];
     } cmsg;
 
     /* Send a file descriptor over the socket */
@@ -129,7 +126,7 @@ static int send_fd(int fd, int payload_fd) {
     cmsg.hdr.cmsg_len = CMSG_LEN(sizeof(int));
     cmsg.hdr.cmsg_level = SOL_SOCKET;
     cmsg.hdr.cmsg_type = SCM_RIGHTS;
-    *((int*) CMSG_DATA(&cmsg.hdr)) = payload_fd;
+    *((int *)CMSG_DATA(&cmsg.hdr)) = payload_fd;
 
     if (sendmsg(fd, &msg, 0) < 0) {
         avahi_log_error("sendmsg() failed: %s", strerror(errno));
@@ -140,12 +137,12 @@ static int send_fd(int fd, int payload_fd) {
 }
 
 static int recv_fd(int fd) {
-    uint8_t dummy;
-    struct iovec iov;
+    uint8_t       dummy;
+    struct iovec  iov;
     struct msghdr msg;
     union {
         struct cmsghdr hdr;
-        char buf[CMSG_SPACE(sizeof(int))];
+        char           buf[CMSG_SPACE(sizeof(int))];
     } cmsg;
 
     /* Receive a file descriptor from a socket */
@@ -169,13 +166,13 @@ static int recv_fd(int fd) {
     cmsg.hdr.cmsg_len = CMSG_LEN(sizeof(int));
     cmsg.hdr.cmsg_level = SOL_SOCKET;
     cmsg.hdr.cmsg_type = SCM_RIGHTS;
-    *((int*) CMSG_DATA(&cmsg.hdr)) = -1;
+    *((int *)CMSG_DATA(&cmsg.hdr)) = -1;
 
     if (recvmsg(fd, &msg, 0) <= 0) {
         avahi_log_error("recvmsg() failed: %s", strerror(errno));
         return -1;
     } else {
-        struct cmsghdr* h;
+        struct cmsghdr *h;
 
         if (dummy != AVAHI_CHROOT_SUCCESS) {
             errno = EINVAL;
@@ -192,7 +189,7 @@ static int recv_fd(int fd) {
         assert(h->cmsg_level == SOL_SOCKET);
         assert(h->cmsg_type == SCM_RIGHTS);
 
-        return *((int*)CMSG_DATA(h));
+        return *((int *)CMSG_DATA(h));
     }
 }
 
@@ -204,7 +201,7 @@ static int helper_main(int fd) {
      * off to access files outside the chroot environment. Keep in
      * mind that this code is security sensitive! */
 
-    avahi_log_debug(__FILE__": chroot() helper started");
+    avahi_log_debug(__FILE__ ": chroot() helper started");
 
     for (;;) {
         uint8_t command;
@@ -216,67 +213,67 @@ static int helper_main(int fd) {
             if (r == 0)
                 break;
 
-            avahi_log_error(__FILE__": read() failed: %s", strerror(errno));
+            avahi_log_error(__FILE__ ": read() failed: %s", strerror(errno));
             goto fail;
         }
 
         assert(r == sizeof(command));
 
-        avahi_log_debug(__FILE__": chroot() helper got command %02x", command);
+        avahi_log_debug(__FILE__ ": chroot() helper got command %02x", command);
 
         switch (command) {
 #ifdef HAVE_DBUS
-            case AVAHI_CHROOT_GET_SERVER_INTROSPECT:
-            case AVAHI_CHROOT_GET_ENTRY_GROUP_INTROSPECT:
-            case AVAHI_CHROOT_GET_ADDRESS_RESOLVER_INTROSPECT:
-            case AVAHI_CHROOT_GET_DOMAIN_BROWSER_INTROSPECT:
-            case AVAHI_CHROOT_GET_HOST_NAME_RESOLVER_INTROSPECT:
-            case AVAHI_CHROOT_GET_SERVICE_BROWSER_INTROSPECT:
-            case AVAHI_CHROOT_GET_SERVICE_RESOLVER_INTROSPECT:
-            case AVAHI_CHROOT_GET_SERVICE_TYPE_BROWSER_INTROSPECT:
-            case AVAHI_CHROOT_GET_RECORD_BROWSER_INTROSPECT:
+        case AVAHI_CHROOT_GET_SERVER_INTROSPECT:
+        case AVAHI_CHROOT_GET_ENTRY_GROUP_INTROSPECT:
+        case AVAHI_CHROOT_GET_ADDRESS_RESOLVER_INTROSPECT:
+        case AVAHI_CHROOT_GET_DOMAIN_BROWSER_INTROSPECT:
+        case AVAHI_CHROOT_GET_HOST_NAME_RESOLVER_INTROSPECT:
+        case AVAHI_CHROOT_GET_SERVICE_BROWSER_INTROSPECT:
+        case AVAHI_CHROOT_GET_SERVICE_RESOLVER_INTROSPECT:
+        case AVAHI_CHROOT_GET_SERVICE_TYPE_BROWSER_INTROSPECT:
+        case AVAHI_CHROOT_GET_RECORD_BROWSER_INTROSPECT:
 #endif
-            case AVAHI_CHROOT_GET_RESOLV_CONF: {
-                int payload;
+        case AVAHI_CHROOT_GET_RESOLV_CONF: {
+            int payload;
 
-                if ((payload = open(get_file_name_table[(int) command], O_RDONLY)) < 0) {
-                    uint8_t c = AVAHI_CHROOT_FAILURE;
+            if ((payload = open(get_file_name_table[(int)command], O_RDONLY)) < 0) {
+                uint8_t c = AVAHI_CHROOT_FAILURE;
 
-                    avahi_log_error(__FILE__": open() failed: %s", strerror(errno));
-
-                    if (write(fd, &c, sizeof(c)) != sizeof(c)) {
-                        avahi_log_error(__FILE__": write() failed: %s\n", strerror(errno));
-                        goto fail;
-                    }
-
-                    break;
-                }
-
-                if (send_fd(fd, payload) < 0)
-                    goto fail;
-
-                close(payload);
-
-                break;
-            }
-
-            case AVAHI_CHROOT_UNLINK_SOCKET:
-            case AVAHI_CHROOT_UNLINK_PID: {
-                uint8_t c = AVAHI_CHROOT_SUCCESS;
-
-                unlink(unlink_file_name_table[(int) command]);
+                avahi_log_error(__FILE__ ": open() failed: %s", strerror(errno));
 
                 if (write(fd, &c, sizeof(c)) != sizeof(c)) {
-                    avahi_log_error(__FILE__": write() failed: %s\n", strerror(errno));
+                    avahi_log_error(__FILE__ ": write() failed: %s\n", strerror(errno));
                     goto fail;
                 }
 
                 break;
             }
 
-            default:
-                avahi_log_error(__FILE__": Unknown command %02x.", command);
-                break;
+            if (send_fd(fd, payload) < 0)
+                goto fail;
+
+            close(payload);
+
+            break;
+        }
+
+        case AVAHI_CHROOT_UNLINK_SOCKET:
+        case AVAHI_CHROOT_UNLINK_PID: {
+            uint8_t c = AVAHI_CHROOT_SUCCESS;
+
+            unlink(unlink_file_name_table[(int)command]);
+
+            if (write(fd, &c, sizeof(c)) != sizeof(c)) {
+                avahi_log_error(__FILE__ ": write() failed: %s\n", strerror(errno));
+                goto fail;
+            }
+
+            break;
+        }
+
+        default:
+            avahi_log_error(__FILE__ ": Unknown command %02x.", command);
+            break;
         }
     }
 
@@ -284,13 +281,13 @@ static int helper_main(int fd) {
 
 fail:
 
-    avahi_log_debug(__FILE__": chroot() helper exiting with return value %i", ret);
+    avahi_log_debug(__FILE__ ": chroot() helper exiting with return value %i", ret);
 
     return ret;
 }
 
 int avahi_chroot_helper_start(const char *argv0) {
-    int sock[2];
+    int   sock[2];
     pid_t pid;
 
     assert(helper_fd < 0);
@@ -303,7 +300,7 @@ int avahi_chroot_helper_start(const char *argv0) {
     if ((pid = fork()) < 0) {
         close(sock[0]);
         close(sock[1]);
-        avahi_log_error(__FILE__": fork() failed: %s", strerror(errno));
+        avahi_log_error(__FILE__ ": fork() failed: %s", strerror(errno));
         return -1;
     } else if (pid == 0) {
 
@@ -340,8 +337,7 @@ int avahi_chroot_helper_get_fd(const char *fname) {
         uint8_t command;
 
         for (command = 2; command < AVAHI_CHROOT_MAX; command++)
-            if (get_file_name_table[(int) command] &&
-                strcmp(fname, get_file_name_table[(int) command]) == 0)
+            if (get_file_name_table[(int)command] && strcmp(fname, get_file_name_table[(int)command]) == 0)
                 break;
 
         if (command >= AVAHI_CHROOT_MAX) {
@@ -350,7 +346,7 @@ int avahi_chroot_helper_get_fd(const char *fname) {
             return -1;
         }
 
-        assert(get_file_name_table[(int) command]);
+        assert(get_file_name_table[(int)command]);
 
         if (write(helper_fd, &command, sizeof(command)) < 0) {
             avahi_log_error("write() failed: %s\n", strerror(errno));
@@ -363,10 +359,9 @@ int avahi_chroot_helper_get_fd(const char *fname) {
         return open(fname, O_RDONLY);
 }
 
-
 FILE *avahi_chroot_helper_get_file(const char *fname) {
     FILE *f;
-    int fd;
+    int   fd;
 
     if ((fd = avahi_chroot_helper_get_fd(fname)) < 0)
         return NULL;
@@ -384,8 +379,7 @@ int avahi_chroot_helper_unlink(const char *fname) {
         ssize_t r;
 
         for (command = 2; command < AVAHI_CHROOT_MAX; command++)
-            if (unlink_file_name_table[(int) command] &&
-                strcmp(fname, unlink_file_name_table[(int) command]) == 0)
+            if (unlink_file_name_table[(int)command] && strcmp(fname, unlink_file_name_table[(int)command]) == 0)
                 break;
 
         if (command >= AVAHI_CHROOT_MAX) {
@@ -394,14 +388,12 @@ int avahi_chroot_helper_unlink(const char *fname) {
             return -1;
         }
 
-        if (write(helper_fd, &command, sizeof(command)) < 0 &&
-            (errno != EPIPE && errno != ECONNRESET)) {
+        if (write(helper_fd, &command, sizeof(command)) < 0 && (errno != EPIPE && errno != ECONNRESET)) {
             avahi_log_error("write() failed: %s\n", strerror(errno));
             return -1;
         }
 
-        if ((r = read(helper_fd, &c, sizeof(c))) < 0 &&
-            (errno != EPIPE && errno != ECONNRESET)) {
+        if ((r = read(helper_fd, &c, sizeof(c))) < 0 && (errno != EPIPE && errno != ECONNRESET)) {
             avahi_log_error("read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
             return -1;
         }
@@ -411,5 +403,4 @@ int avahi_chroot_helper_unlink(const char *fname) {
     } else
 
         return unlink(fname);
-
 }

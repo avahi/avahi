@@ -26,11 +26,12 @@ typedef struct AvahiResponseScheduler AvahiResponseScheduler;
 #include "iface.h"
 
 AvahiResponseScheduler *avahi_response_scheduler_new(AvahiInterface *i);
-void avahi_response_scheduler_free(AvahiResponseScheduler *s);
-void avahi_response_scheduler_clear(AvahiResponseScheduler *s);
-void avahi_response_scheduler_force(AvahiResponseScheduler *s);
+void                    avahi_response_scheduler_free(AvahiResponseScheduler *s);
+void                    avahi_response_scheduler_clear(AvahiResponseScheduler *s);
+void                    avahi_response_scheduler_force(AvahiResponseScheduler *s);
 
-int avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache, const AvahiAddress *querier, int immediately);
+int  avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache, const AvahiAddress *querier,
+                                   int immediately);
 void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *record, int flush_cache);
 void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *record, const AvahiAddress *querier);
 

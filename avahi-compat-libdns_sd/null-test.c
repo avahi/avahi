@@ -30,18 +30,12 @@
 #include <avahi-common/gccmacro.h>
 #include <dns_sd.h>
 
-static void reply(
-        AVAHI_GCC_UNUSED DNSServiceRef sdRef,
-        AVAHI_GCC_UNUSED DNSServiceFlags flags,
-        AVAHI_GCC_UNUSED uint32_t interfaceIndex,
-        AVAHI_GCC_UNUSED DNSServiceErrorType errorCode,
-        AVAHI_GCC_UNUSED const char *serviceName,
-        AVAHI_GCC_UNUSED const char *regtype,
-        AVAHI_GCC_UNUSED const char *replyDomain,
-        AVAHI_GCC_UNUSED void *context) {
-}
+static void reply(AVAHI_GCC_UNUSED DNSServiceRef sdRef, AVAHI_GCC_UNUSED DNSServiceFlags flags,
+                  AVAHI_GCC_UNUSED uint32_t interfaceIndex, AVAHI_GCC_UNUSED DNSServiceErrorType errorCode,
+                  AVAHI_GCC_UNUSED const char *serviceName, AVAHI_GCC_UNUSED const char *regtype,
+                  AVAHI_GCC_UNUSED const char *replyDomain, AVAHI_GCC_UNUSED void *context) {}
 
-int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     DNSServiceRef ref1, ref2, ref3, ref4 = NULL;
 

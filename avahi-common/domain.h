@@ -73,7 +73,7 @@ unsigned avahi_domain_hash(const char *name);
 char *avahi_unescape_label(const char **name, char *dest, size_t size);
 
 /** Escape the domain name in *src and write it to *ret_name */
-char *avahi_escape_label(const char* src, size_t src_length, char **ret_name, size_t *ret_size);
+char *avahi_escape_label(const char *src, size_t src_length, char **ret_name, size_t *ret_size);
 
 /** @} */
 
@@ -113,7 +113,8 @@ int avahi_is_valid_fqdn(const char *t);
 int avahi_service_name_join(char *p, size_t size, const char *name, const char *type, const char *domain);
 
 /** Split a full service name into name, type and domain */
-int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain, size_t domain_size);
+int avahi_service_name_split(const char *p, char *name, size_t name_size, char *type, size_t type_size, char *domain,
+                             size_t domain_size);
 
 /** @} */
 

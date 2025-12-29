@@ -36,37 +36,37 @@
 
 struct AvahiWatch {
     AvahiSimplePoll *simple_poll;
-    int dead;
+    int              dead;
 
-    int idx;
+    int           idx;
     struct pollfd pollfd;
 
     AvahiWatchCallback callback;
-    void *userdata;
+    void              *userdata;
 
     AVAHI_LLIST_FIELDS(AvahiWatch, watches);
 };
 
 struct AvahiTimeout {
     AvahiSimplePoll *simple_poll;
-    int dead;
+    int              dead;
 
-    int enabled;
+    int            enabled;
     struct timeval expiry;
 
     AvahiTimeoutCallback callback;
-    void  *userdata;
+    void                *userdata;
 
     AVAHI_LLIST_FIELDS(AvahiTimeout, timeouts);
 };
 
 struct AvahiSimplePoll {
-    AvahiPoll api;
+    AvahiPoll     api;
     AvahiPollFunc poll_func;
-    void *poll_func_userdata;
+    void         *poll_func_userdata;
 
-    struct pollfd* pollfds;
-    int n_pollfds, max_pollfds, rebuild_pollfds;
+    struct pollfd *pollfds;
+    int            n_pollfds, max_pollfds, rebuild_pollfds;
 
     int watch_req_cleanup, timeout_req_cleanup;
     int quit;
@@ -110,7 +110,7 @@ static void clear_wakeup(AvahiSimplePoll *s) {
 
     s->wakeup_issued = 0;
 
-    for(;;)
+    for (;;)
         if (read(s->wakeup_pipe[0], &c, sizeof(c)) != sizeof(c))
             break;
 }
@@ -126,11 +126,11 @@ static int set_nonblock(int fd) {
     if (n & O_NONBLOCK)
         return 0;
 
-    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
+    return fcntl(fd, F_SETFL, n | O_NONBLOCK);
 }
 
-static AvahiWatch* watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata) {
-    AvahiWatch *w;
+static AvahiWatch *watch_new(const AvahiPoll *api, int fd, AvahiWatchEvent event, AvahiWatchCallback callback, void *userdata) {
+    AvahiWatch      *w;
     AvahiSimplePoll *s;
 
     assert(api);
@@ -211,7 +211,7 @@ static void watch_free(AvahiWatch *w) {
     remove_pollfd(w);
 
     w->dead = 1;
-    w->simple_poll->n_watches --;
+    w->simple_poll->n_watches--;
     w->simple_poll->watch_req_cleanup = 1;
 }
 
@@ -222,7 +222,7 @@ static void destroy_watch(AvahiWatch *w) {
     AVAHI_LLIST_REMOVE(AvahiWatch, watches, w->simple_poll->watches, w);
 
     if (!w->dead)
-        w->simple_poll->n_watches --;
+        w->simple_poll->n_watches--;
 
     avahi_free(w);
 }
@@ -241,8 +241,9 @@ static void cleanup_watches(AvahiSimplePoll *s, int all) {
     s->watch_req_cleanup = 0;
 }
 
-static AvahiTimeout* timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback, void *userdata) {
-    AvahiTimeout *t;
+static AvahiTimeout *timeout_new(const AvahiPoll *api, const struct timeval *tv, AvahiTimeoutCallback callback,
+                                 void *userdata) {
+    AvahiTimeout    *t;
     AvahiSimplePoll *s;
 
     assert(api);
@@ -291,7 +292,6 @@ static void timeout_free(AvahiTimeout *t) {
     t->dead = 1;
     t->simple_poll->timeout_req_cleanup = 1;
 }
-
 
 static void destroy_timeout(AvahiTimeout *t) {
     assert(t);
@@ -384,11 +384,11 @@ void avahi_simple_poll_free(AvahiSimplePoll *s) {
 
 static int rebuild(AvahiSimplePoll *s) {
     AvahiWatch *w;
-    int idx;
+    int         idx;
 
     assert(s);
 
-    if (s->n_watches+1 > s->max_pollfds) {
+    if (s->n_watches + 1 > s->max_pollfds) {
         struct pollfd *n;
 
         s->max_pollfds = s->n_watches + 10;
@@ -399,7 +399,6 @@ static int rebuild(AvahiSimplePoll *s) {
         s->pollfds = n;
     }
 
-
     s->pollfds[0].fd = s->wakeup_pipe[0];
     s->pollfds[0].events = POLLIN;
     s->pollfds[0].revents = 0;
@@ -408,7 +407,7 @@ static int rebuild(AvahiSimplePoll *s) {
 
     for (w = s->watches; w; w = w->watches_next) {
 
-        if(w->dead)
+        if (w->dead)
             continue;
 
         assert(w->idx < s->max_pollfds);
@@ -422,7 +421,7 @@ static int rebuild(AvahiSimplePoll *s) {
     return 0;
 }
 
-static AvahiTimeout* find_next_timeout(AvahiSimplePoll *s) {
+static AvahiTimeout *find_next_timeout(AvahiSimplePoll *s) {
     AvahiTimeout *t, *n = NULL;
     assert(s);
 
@@ -480,11 +479,10 @@ int avahi_simple_poll_prepare(AvahiSimplePoll *s, int timeout) {
     /* Calculate the wakeup time */
     if ((next_timeout = find_next_timeout(s))) {
         struct timeval now;
-        int t;
-        AvahiUsec usec;
+        int            t;
+        AvahiUsec      usec;
 
-        if (next_timeout->expiry.tv_sec == 0 &&
-            next_timeout->expiry.tv_usec == 0) {
+        if (next_timeout->expiry.tv_sec == 0 && next_timeout->expiry.tv_usec == 0) {
 
             /* Just a shortcut so that we don't need to call gettimeofday() */
             timeout = 0;
@@ -503,7 +501,7 @@ int avahi_simple_poll_prepare(AvahiSimplePoll *s, int timeout) {
 
         /* Calculate sleep time. We add 1ms because otherwise we'd
          * wake up too early most of the time */
-        t = (int) (usec / 1000) + 1;
+        t = (int)(usec / 1000) + 1;
 
         if (timeout < 0 || timeout > t)
             timeout = t;
@@ -546,7 +544,7 @@ int avahi_simple_poll_run(AvahiSimplePoll *s) {
 
 int avahi_simple_poll_dispatch(AvahiSimplePoll *s) {
     AvahiTimeout *next_timeout;
-    AvahiWatch *w;
+    AvahiWatch   *w;
 
     assert(s);
     assert(s->state == STATE_RAN);
@@ -617,7 +615,7 @@ void avahi_simple_poll_quit(AvahiSimplePoll *s) {
     avahi_simple_poll_wakeup(s);
 }
 
-const AvahiPoll* avahi_simple_poll_get(AvahiSimplePoll *s) {
+const AvahiPoll *avahi_simple_poll_get(AvahiSimplePoll *s) {
     assert(s);
 
     return &s->api;

@@ -19,12 +19,8 @@
 
 #include "iface.h"
 
-int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) {
-    return 0;
-}
+int avahi_interface_monitor_init_osdep(AvahiInterfaceMonitor *m) { return 0; }
 
-void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
-}
+void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {}
 
-void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
-}
+void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {}

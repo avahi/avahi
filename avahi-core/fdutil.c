@@ -39,7 +39,7 @@ int avahi_set_cloexec(int fd) {
     if (n & FD_CLOEXEC)
         return 0;
 
-    return fcntl(fd, F_SETFD, n|FD_CLOEXEC);
+    return fcntl(fd, F_SETFD, n | FD_CLOEXEC);
 }
 
 int avahi_set_nonblock(int fd) {
@@ -53,17 +53,17 @@ int avahi_set_nonblock(int fd) {
     if (n & O_NONBLOCK)
         return 0;
 
-    return fcntl(fd, F_SETFL, n|O_NONBLOCK);
+    return fcntl(fd, F_SETFL, n | O_NONBLOCK);
 }
 
 int avahi_wait_for_write(int fd) {
     fd_set fds;
-    int r;
+    int    r;
 
     FD_ZERO(&fds);
     FD_SET(fd, &fds);
 
-    if ((r = select(fd+1, NULL, &fds, NULL, NULL)) < 0)
+    if ((r = select(fd + 1, NULL, &fds, NULL, NULL)) < 0)
         return -1;
 
     assert(r > 0);

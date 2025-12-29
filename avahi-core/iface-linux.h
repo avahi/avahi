@@ -36,5 +36,4 @@ struct AvahiInterfaceMonitorOSDep {
     } list;
 };
 
-
 #endif

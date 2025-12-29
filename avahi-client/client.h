@@ -38,33 +38,36 @@ typedef struct AvahiClient AvahiClient;
 
 /** States of a client object, a superset of AvahiServerState */
 typedef enum {
-    AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,  /**< Server state: REGISTERING */
-    AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,          /**< Server state: RUNNING */
-    AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,      /**< Server state: COLLISION */
-    AVAHI_CLIENT_FAILURE = 100,                             /**< Some kind of error happened on the client side */
-    AVAHI_CLIENT_CONNECTING = 101                           /**< We're still connecting. This state is only entered when AVAHI_CLIENT_NO_FAIL has been passed to avahi_client_new() and the daemon is not yet available. */
+    AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING, /**< Server state: REGISTERING */
+    AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,         /**< Server state: RUNNING */
+    AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,     /**< Server state: COLLISION */
+    AVAHI_CLIENT_FAILURE = 100,                            /**< Some kind of error happened on the client side */
+    AVAHI_CLIENT_CONNECTING =
+        101 /**< We're still connecting. This state is only entered when AVAHI_CLIENT_NO_FAIL has been passed to avahi_client_new() and the daemon is not yet available. */
 } AvahiClientState;
 
 typedef enum {
     AVAHI_CLIENT_IGNORE_USER_CONFIG = 1, /**< Don't read user configuration */
-    AVAHI_CLIENT_NO_FAIL = 2        /**< Don't fail if the daemon is not available when avahi_client_new() is called, instead enter AVAHI_CLIENT_CONNECTING state and wait for the daemon to appear */
+    AVAHI_CLIENT_NO_FAIL =
+        2 /**< Don't fail if the daemon is not available when avahi_client_new() is called, instead enter AVAHI_CLIENT_CONNECTING state and wait for the daemon to appear */
 } AvahiClientFlags;
 
 /** The function prototype for the callback of an AvahiClient */
-typedef void (*AvahiClientCallback) (
-    AvahiClient *s,
-    AvahiClientState state /**< The new state of the client */,
-    void* userdata /**< The user data that was passed to avahi_client_new() */);
+typedef void (*AvahiClientCallback)(AvahiClient *s, AvahiClientState state /**< The new state of the client */,
+                                    void *userdata /**< The user data that was passed to avahi_client_new() */);
 
 /** @{ \name Construction and destruction */
 
 /** Creates a new client instance */
-AvahiClient* avahi_client_new (
+AvahiClient *avahi_client_new(
     const AvahiPoll *poll_api /**< The abstract event loop API to use */,
     AvahiClientFlags flags /**< Some flags to modify the behaviour of  the client library */,
-    AvahiClientCallback callback /**< A callback that is called whenever the state of the client changes. This may be NULL. Please note that this function is called for the first time from within the avahi_client_new() context! Thus, in the callback you should not make use of global variables that are initialized only after your call to avahi_client_new(). A common mistake is to store the AvahiClient pointer returned by avahi_client_new() in a global variable and assume that this global variable already contains the valid pointer when the callback is called for the first time. A work-around for this is to always use the AvahiClient pointer passed to the callback function instead of the global pointer.  */,
+    AvahiClientCallback
+        callback /**< A callback that is called whenever the state of the client changes. This may be NULL. Please note that this function is called for the first time from within the avahi_client_new() context! Thus, in the callback you should not make use of global variables that are initialized only after your call to avahi_client_new(). A common mistake is to store the AvahiClient pointer returned by avahi_client_new() in a global variable and assume that this global variable already contains the valid pointer when the callback is called for the first time. A work-around for this is to always use the AvahiClient pointer passed to the callback function instead of the global pointer.  */
+    ,
     void *userdata /**< Some arbitrary user data pointer that will be passed to the callback function */,
-    int *error /**< If creation of the client fails, this integer will contain the error cause. May be NULL if you aren't interested in the reason why avahi_client_new() failed. */);
+    int *
+        error /**< If creation of the client fails, this integer will contain the error cause. May be NULL if you aren't interested in the reason why avahi_client_new() failed. */);
 
 /** Free a client instance. This will automatically free all
  * associated browser, resolve and entry group objects. All pointers
@@ -76,19 +79,19 @@ void avahi_client_free(AvahiClient *client);
 /** @{ \name Properties */
 
 /** Get the version of the server */
-const char* avahi_client_get_version_string (AvahiClient*);
+const char *avahi_client_get_version_string(AvahiClient *);
 
 /** Get host name */
-const char* avahi_client_get_host_name (AvahiClient*);
+const char *avahi_client_get_host_name(AvahiClient *);
 
 /** Set host name. \since 0.6.13 */
-int avahi_client_set_host_name(AvahiClient*, const char *name);
+int avahi_client_set_host_name(AvahiClient *, const char *name);
 
 /** Get domain name */
-const char* avahi_client_get_domain_name (AvahiClient*);
+const char *avahi_client_get_domain_name(AvahiClient *);
 
 /** Get FQDN domain name */
-const char* avahi_client_get_host_name_fqdn (AvahiClient*);
+const char *avahi_client_get_host_name_fqdn(AvahiClient *);
 
 /** Get state */
 AvahiClientState avahi_client_get_state(AvahiClient *client);
@@ -96,7 +99,7 @@ AvahiClientState avahi_client_get_state(AvahiClient *client);
 /** @{ \name Error Handling */
 
 /** Get the last error number. See avahi_strerror() for converting this error code into a human readable string. */
-int avahi_client_errno (AvahiClient*);
+int avahi_client_errno(AvahiClient *);
 
 /** @} */
 

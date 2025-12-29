@@ -23,22 +23,19 @@
 #include <sys/types.h>
 
 typedef struct AvahiTimeEventQueue AvahiTimeEventQueue;
-typedef struct AvahiTimeEvent AvahiTimeEvent;
+typedef struct AvahiTimeEvent      AvahiTimeEvent;
 
 #include <avahi-common/watch.h>
 
 #include "prioq.h"
 
-typedef void (*AvahiTimeEventCallback)(AvahiTimeEvent *e, void* userdata);
+typedef void (*AvahiTimeEventCallback)(AvahiTimeEvent *e, void *userdata);
 
-AvahiTimeEventQueue* avahi_time_event_queue_new(const AvahiPoll *poll_api);
-void avahi_time_event_queue_free(AvahiTimeEventQueue *q);
+AvahiTimeEventQueue *avahi_time_event_queue_new(const AvahiPoll *poll_api);
+void                 avahi_time_event_queue_free(AvahiTimeEventQueue *q);
 
-AvahiTimeEvent* avahi_time_event_new(
-    AvahiTimeEventQueue *q,
-    const struct timeval *timeval,
-    AvahiTimeEventCallback callback,
-    void* userdata);
+AvahiTimeEvent *avahi_time_event_new(AvahiTimeEventQueue *q, const struct timeval *timeval, AvahiTimeEventCallback callback,
+                                     void *userdata);
 
 void avahi_time_event_free(AvahiTimeEvent *e);
 void avahi_time_event_update(AvahiTimeEvent *e, const struct timeval *timeval);

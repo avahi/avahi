@@ -24,7 +24,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#include <config.h>
 #endif
 
 #include <string.h>
@@ -76,25 +76,26 @@ void fail(const char *fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-void handle(AVAHI_GCC_UNUSED int sig) {
-    fail("Interrupted after %d second of CPU time", MAX_CPU_SECONDS);
-}
+void handle(AVAHI_GCC_UNUSED int sig) { fail("Interrupted after %d second of CPU time", MAX_CPU_SECONDS); }
 
-#define TRY_EXCEPT(cmd, badresult) \
-    do { \
-        if ((cmd) == (badresult)) \
-            unresolved("%s returned %s", #cmd, #badresult); \
+#define TRY_EXCEPT(cmd, badresult)                                                                                             \
+    do {                                                                                                                       \
+        if ((cmd) == (badresult))                                                                                              \
+            unresolved("%s returned %s", #cmd, #badresult);                                                                    \
     } while (0)
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct itimerval itval;
-    AvahiDnsPacket *packet;
-    char name[512];
-    int ret;
-    uint8_t badrr[] = {
-        0xC0, AVAHI_DNS_PACKET_HEADER_SIZE, /* self-referential QNAME pointer */
-        0, 1, /* QTYPE A (host addr) */
-        0, 1, /* QCLASS IN (internet/ipv4) */
+    AvahiDnsPacket  *packet;
+    char             name[512];
+    int              ret;
+    uint8_t          badrr[] = {
+        0xC0,
+        AVAHI_DNS_PACKET_HEADER_SIZE, /* self-referential QNAME pointer */
+        0,
+        1, /* QTYPE A (host addr) */
+        0,
+        1, /* QCLASS IN (internet/ipv4) */
     };
 
     if (signal(SIGVTALRM, handle) == SIG_ERR)

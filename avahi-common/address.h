@@ -37,14 +37,14 @@ typedef int AvahiIfIndex;
 
 /** Values for AvahiProtocol */
 enum {
-    AVAHI_PROTO_INET = 0,     /**< IPv4 */
-    AVAHI_PROTO_INET6 = 1,   /**< IPv6 */
-    AVAHI_PROTO_UNSPEC = -1  /**< Unspecified/all protocol(s) */
+    AVAHI_PROTO_INET = 0,   /**< IPv4 */
+    AVAHI_PROTO_INET6 = 1,  /**< IPv6 */
+    AVAHI_PROTO_UNSPEC = -1 /**< Unspecified/all protocol(s) */
 };
 
 /** Special values for AvahiIfIndex */
 enum {
-    AVAHI_IF_UNSPEC = -1       /**< Unspecified/all interface(s) */
+    AVAHI_IF_UNSPEC = -1 /**< Unspecified/all interface(s) */
 };
 
 /** Maximum size of an address in string form */
@@ -54,7 +54,8 @@ enum {
 #define AVAHI_IF_VALID(ifindex) (((ifindex) >= 0) || ((ifindex) == AVAHI_IF_UNSPEC))
 
 /** Return TRUE if the specified protocol is valid */
-#define AVAHI_PROTO_VALID(protocol) (((protocol) == AVAHI_PROTO_INET) || ((protocol) == AVAHI_PROTO_INET6) || ((protocol) == AVAHI_PROTO_UNSPEC))
+#define AVAHI_PROTO_VALID(protocol)                                                                                            \
+    (((protocol) == AVAHI_PROTO_INET) || ((protocol) == AVAHI_PROTO_INET6) || ((protocol) == AVAHI_PROTO_UNSPEC))
 
 /** An IPv4 address */
 typedef struct AvahiIPv4Address {
@@ -71,9 +72,9 @@ typedef struct AvahiAddress {
     AvahiProtocol proto; /**< Address family */
 
     union {
-        AvahiIPv6Address ipv6;                   /**< Address when IPv6 */
-        AvahiIPv4Address ipv4;                   /**< Address when IPv4 */
-        uint8_t data[sizeof(AvahiIPv6Address)];  /**< Type-independent data field */
+        AvahiIPv6Address ipv6;                           /**< Address when IPv6 */
+        AvahiIPv4Address ipv4;                           /**< Address when IPv4 */
+        uint8_t          data[sizeof(AvahiIPv6Address)]; /**< Type-independent data field */
     } data;
 } AvahiAddress;
 
@@ -98,7 +99,7 @@ AvahiAddress *avahi_address_parse(const char *s, AvahiProtocol af, AvahiAddress 
 
 /** \cond fulldocs */
 /** Generate the DNS reverse lookup name for an IPv4 or IPv6 address. */
-char* avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length);
+char *avahi_reverse_lookup_name(const AvahiAddress *a, char *ret_s, size_t length);
 /** \endcond */
 
 /** @{ \name Protocol/address family handling */
@@ -110,7 +111,7 @@ int avahi_proto_to_af(AvahiProtocol proto);
 AvahiProtocol avahi_af_to_proto(int af);
 
 /** Return a textual representation of the specified protocol number. i.e. "IPv4", "IPv6" or "UNSPEC" */
-const char* avahi_proto_to_string(AvahiProtocol proto);
+const char *avahi_proto_to_string(AvahiProtocol proto);
 
 /** @} */
 

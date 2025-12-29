@@ -36,25 +36,25 @@
 typedef struct Entry Entry;
 struct Entry {
     AvahiHashmap *hashmap;
-    void *key;
-    void *value;
+    void         *key;
+    void         *value;
 
     AVAHI_LLIST_FIELDS(Entry, bucket);
     AVAHI_LLIST_FIELDS(Entry, entries);
 };
 
 struct AvahiHashmap {
-    AvahiHashFunc hash_func;
+    AvahiHashFunc  hash_func;
     AvahiEqualFunc equal_func;
-    AvahiFreeFunc key_free_func, value_free_func;
+    AvahiFreeFunc  key_free_func, value_free_func;
 
     Entry *entries[HASH_MAP_SIZE];
     AVAHI_LLIST_HEAD(Entry, entries_list);
 };
 
-static Entry* entry_get(AvahiHashmap *m, const void *key) {
+static Entry *entry_get(AvahiHashmap *m, const void *key) {
     unsigned idx;
-    Entry *e;
+    Entry   *e;
 
     idx = m->hash_func(key) % HASH_MAP_SIZE;
 
@@ -83,7 +83,8 @@ static void entry_free(AvahiHashmap *m, Entry *e, int stolen) {
     avahi_free(e);
 }
 
-AvahiHashmap* avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_func, AvahiFreeFunc key_free_func, AvahiFreeFunc value_free_func) {
+AvahiHashmap *avahi_hashmap_new(AvahiHashFunc hash_func, AvahiEqualFunc equal_func, AvahiFreeFunc key_free_func,
+                                AvahiFreeFunc value_free_func) {
     AvahiHashmap *m;
 
     assert(hash_func);
@@ -111,7 +112,7 @@ void avahi_hashmap_free(AvahiHashmap *m) {
     avahi_free(m);
 }
 
-void* avahi_hashmap_lookup(AvahiHashmap *m, const void *key) {
+void *avahi_hashmap_lookup(AvahiHashmap *m, const void *key) {
     Entry *e;
 
     assert(m);
@@ -124,7 +125,7 @@ void* avahi_hashmap_lookup(AvahiHashmap *m, const void *key) {
 
 int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value) {
     unsigned idx;
-    Entry *e;
+    Entry   *e;
 
     assert(m);
 
@@ -152,10 +153,9 @@ int avahi_hashmap_insert(AvahiHashmap *m, void *key, void *value) {
     return 0;
 }
 
-
 int avahi_hashmap_replace(AvahiHashmap *m, void *key, void *value) {
     unsigned idx;
-    Entry *e;
+    Entry   *e;
 
     assert(m);
 
@@ -211,7 +211,7 @@ void avahi_hashmap_foreach(AvahiHashmap *m, AvahiHashmapForeachCallback callback
 
 unsigned avahi_string_hash(const void *data) {
     const char *p = data;
-    unsigned hash = 0;
+    unsigned    hash = 0;
 
     assert(p);
 
@@ -235,7 +235,7 @@ unsigned avahi_int_hash(const void *data) {
 
     assert(i);
 
-    return (unsigned) *i;
+    return (unsigned)*i;
 }
 
 int avahi_int_equal(const void *a, const void *b) {

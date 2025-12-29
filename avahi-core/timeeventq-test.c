@@ -30,12 +30,12 @@
 #include "timeeventq.h"
 #include "log.h"
 
-#define POINTER_TO_INT(p) ((int) (long) (p))
-#define INT_TO_POINTER(i) ((void*) (long) (i))
+#define POINTER_TO_INT(p) ((int)(long)(p))
+#define INT_TO_POINTER(i) ((void *)(long)(i))
 
 static AvahiTimeEventQueue *q = NULL;
 
-static void callback(AvahiTimeEvent*e, void* userdata) {
+static void callback(AvahiTimeEvent *e, void *userdata) {
     struct timeval tv = {0, 0};
     assert(e);
     avahi_log_info("callback(%i)", POINTER_TO_INT(userdata));
@@ -44,7 +44,7 @@ static void callback(AvahiTimeEvent*e, void* userdata) {
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    struct timeval tv;
+    struct timeval   tv;
     AvahiSimplePoll *s;
 
     s = avahi_simple_poll_new();

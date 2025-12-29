@@ -28,17 +28,17 @@
 AVAHI_C_DECL_BEGIN
 
 #define AVAHI_DBUS_NAME "org.freedesktop.Avahi"
-#define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME".Server"
-#define AVAHI_DBUS_INTERFACE_SERVER2 AVAHI_DBUS_NAME".Server2"
+#define AVAHI_DBUS_INTERFACE_SERVER AVAHI_DBUS_NAME ".Server"
+#define AVAHI_DBUS_INTERFACE_SERVER2 AVAHI_DBUS_NAME ".Server2"
 #define AVAHI_DBUS_PATH_SERVER "/"
-#define AVAHI_DBUS_INTERFACE_ENTRY_GROUP AVAHI_DBUS_NAME".EntryGroup"
-#define AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER AVAHI_DBUS_NAME".DomainBrowser"
-#define AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER AVAHI_DBUS_NAME".ServiceTypeBrowser"
-#define AVAHI_DBUS_INTERFACE_SERVICE_BROWSER AVAHI_DBUS_NAME".ServiceBrowser"
-#define AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER AVAHI_DBUS_NAME".AddressResolver"
-#define AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER AVAHI_DBUS_NAME".HostNameResolver"
-#define AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER AVAHI_DBUS_NAME".ServiceResolver"
-#define AVAHI_DBUS_INTERFACE_RECORD_BROWSER AVAHI_DBUS_NAME".RecordBrowser"
+#define AVAHI_DBUS_INTERFACE_ENTRY_GROUP AVAHI_DBUS_NAME ".EntryGroup"
+#define AVAHI_DBUS_INTERFACE_DOMAIN_BROWSER AVAHI_DBUS_NAME ".DomainBrowser"
+#define AVAHI_DBUS_INTERFACE_SERVICE_TYPE_BROWSER AVAHI_DBUS_NAME ".ServiceTypeBrowser"
+#define AVAHI_DBUS_INTERFACE_SERVICE_BROWSER AVAHI_DBUS_NAME ".ServiceBrowser"
+#define AVAHI_DBUS_INTERFACE_ADDRESS_RESOLVER AVAHI_DBUS_NAME ".AddressResolver"
+#define AVAHI_DBUS_INTERFACE_HOST_NAME_RESOLVER AVAHI_DBUS_NAME ".HostNameResolver"
+#define AVAHI_DBUS_INTERFACE_SERVICE_RESOLVER AVAHI_DBUS_NAME ".ServiceResolver"
+#define AVAHI_DBUS_INTERFACE_RECORD_BROWSER AVAHI_DBUS_NAME ".RecordBrowser"
 
 /** The D-Bus API version identifier. The first byte specifies the API
 release, the second byte specifies the revision. If the revision
@@ -48,7 +48,7 @@ compatible. If the release changes compatibility is lost.
 Avahi 0.6 implements API version 0x0201;
 Avahi 0.6.1 implements API version 0x0202
 Avahi 0.7 implements API version 0x0203 */
-#define AVAHI_DBUS_API_VERSION ((uint32_t) 0x0204)
+#define AVAHI_DBUS_API_VERSION ((uint32_t)0x0204)
 
 #define AVAHI_DBUS_ERR_OK "org.freedesktop.Avahi.Success"
 #define AVAHI_DBUS_ERR_FAILURE "org.freedesktop.Avahi.Failure"
@@ -114,7 +114,7 @@ Avahi 0.7 implements API version 0x0203 */
 int avahi_error_dbus_to_number(const char *s);
 
 /** Convert an Avahi error number into a DBus error string.  Result should not be freed */
-const char * avahi_error_number_to_dbus(int error);
+const char *avahi_error_number_to_dbus(int error);
 
 AVAHI_C_DECL_END
 

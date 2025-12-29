@@ -33,11 +33,11 @@
 typedef struct AvahiRecordListItem AvahiRecordListItem;
 
 struct AvahiRecordListItem {
-    int read;
+    int          read;
     AvahiRecord *record;
-    int unicast_response;
-    int flush_cache;
-    int auxiliary;
+    int          unicast_response;
+    int          flush_cache;
+    int          auxiliary;
     AVAHI_LLIST_FIELDS(AvahiRecordListItem, items);
 };
 
@@ -94,8 +94,8 @@ void avahi_record_list_flush(AvahiRecordList *l) {
     l->all_flush_cache = 1;
 }
 
-AvahiRecord* avahi_record_list_next(AvahiRecordList *l, int *ret_flush_cache, int *ret_unicast_response, int *ret_auxiliary) {
-    AvahiRecord *r;
+AvahiRecord *avahi_record_list_next(AvahiRecordList *l, int *ret_flush_cache, int *ret_unicast_response, int *ret_auxiliary) {
+    AvahiRecord         *r;
     AvahiRecordListItem *i;
 
     if (!(i = l->unread))

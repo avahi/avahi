@@ -28,12 +28,11 @@
  * interested in are when routable addresses are removed/added to the
  * monitored interface and when our monitored interface disappears. */
 
-
 /* Return a valid fd that we listen on for events */
 int iface_init(int ifindex);
 
 /* Process events */
-int iface_process(Event *event);
+int  iface_process(Event *event);
 void iface_done(void);
 
 /* Deduce the initial state of our state machine. If a routable

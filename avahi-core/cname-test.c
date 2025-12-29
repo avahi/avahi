@@ -36,8 +36,8 @@
 #include <avahi-core/lookup.h>
 #include <avahi-core/cache.h>
 
-static AvahiCache *cache = NULL;
-static AvahiServer *server = NULL;
+static AvahiCache      *cache = NULL;
+static AvahiServer     *server = NULL;
 static const AvahiPoll *poll_api;
 
 static void (*avahi_test_case_function)(void) = NULL;
@@ -81,9 +81,7 @@ static void avahi_test_add_cname(const char *src, const char *dst) {
     avahi_log_debug("Added CNAME record to cache: %s -> %s", src, dst);
 }
 
-static void self_loop(void) {
-    avahi_test_add_cname("X.local", "X.local");
-}
+static void self_loop(void) { avahi_test_add_cname("X.local", "X.local"); }
 
 static void retransmit_cname(void) {
     avahi_test_add_cname("X.local", "Y.local");
@@ -91,9 +89,7 @@ static void retransmit_cname(void) {
     avahi_test_add_cname("X.local", "Y.local");
 }
 
-static void one_normal(void) {
-    avahi_test_add_cname("X.local", "Y.local");
-}
+static void one_normal(void) { avahi_test_add_cname("X.local", "Y.local"); }
 
 static void one_loop(void) {
     avahi_test_add_cname("X.local", "Y.local");
@@ -161,7 +157,8 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 
     if (state == AVAHI_SERVER_RUNNING) {
         avahi_log_debug("Server startup complete. Host name is <%s>. Service cookie is %u",
-                        avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
+                        avahi_server_get_host_name_fqdn(s),
+                        avahi_server_get_local_service_cookie(s));
 
         server = s;
         assert(avahi_test_case_function);
@@ -172,34 +169,27 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 
 static const char *resolver_event_to_string(AvahiResolverEvent event) {
     switch (event) {
-        case AVAHI_RESOLVER_FOUND:
-            return "FOUND";
-        case AVAHI_RESOLVER_FAILURE:
-            return "FAILURE";
+    case AVAHI_RESOLVER_FOUND:
+        return "FOUND";
+    case AVAHI_RESOLVER_FAILURE:
+        return "FAILURE";
     }
     abort();
 }
 
-static void hnr_callback(
-        AVAHI_GCC_UNUSED AvahiSHostNameResolver *r,
-        AvahiIfIndex iface,
-        AvahiProtocol protocol,
-        AvahiResolverEvent event,
-        const char *hostname,
-        const AvahiAddress *a,
-        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-        AVAHI_GCC_UNUSED void *userdata) {
+static void hnr_callback(AVAHI_GCC_UNUSED AvahiSHostNameResolver *r, AvahiIfIndex iface, AvahiProtocol protocol,
+                         AvahiResolverEvent event, const char *hostname, const AvahiAddress *a,
+                         AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, AVAHI_GCC_UNUSED void *userdata) {
     char t[AVAHI_ADDRESS_STR_MAX];
 
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
-    avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a",
-                    resolver_event_to_string(event));
+    avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a", resolver_event_to_string(event));
 }
 
-#define CHECK_TEST_CASE(test_name, function) \
-    if (!strcmp(test_case, test_name)) \
+#define CHECK_TEST_CASE(test_name, function)                                                                                   \
+    if (!strcmp(test_case, test_name))                                                                                         \
         avahi_test_case_function = &function;
 
 static void avahi_test_initialize(char *test_case) {
@@ -223,12 +213,12 @@ static void avahi_test_initialize(char *test_case) {
 }
 
 int main(int argc, char *argv[]) {
-    int error;
+    int            error;
     struct timeval tv;
 
     AvahiSHostNameResolver *hnr;
-    AvahiServerConfig config;
-    AvahiSimplePoll *simple_poll;
+    AvahiServerConfig       config;
+    AvahiSimplePoll        *simple_poll;
 
     if (argc < 2) {
         printf("Usage: %s test_name", argv[0]);
@@ -247,8 +237,14 @@ int main(int argc, char *argv[]) {
     cache = server->monitor->interfaces->cache;
     avahi_cache_flush(cache);
 
-    hnr = avahi_s_host_name_resolver_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "X.local", AVAHI_PROTO_UNSPEC,
-                                             AVAHI_LOOKUP_USE_MULTICAST, hnr_callback, NULL);
+    hnr = avahi_s_host_name_resolver_prepare(server,
+                                             AVAHI_IF_UNSPEC,
+                                             AVAHI_PROTO_UNSPEC,
+                                             "X.local",
+                                             AVAHI_PROTO_UNSPEC,
+                                             AVAHI_LOOKUP_USE_MULTICAST,
+                                             hnr_callback,
+                                             NULL);
     avahi_s_host_name_resolver_start(hnr);
 
     avahi_elapse_time(&tv, 1000 * 5, 0);

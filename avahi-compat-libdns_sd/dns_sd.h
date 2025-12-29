@@ -29,8 +29,8 @@
 #ifndef _DNS_SD_H
 #define _DNS_SD_H
 
-#ifdef  __cplusplus
-    extern "C" {
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /* standard calling convention under Win32 is __stdcall */
@@ -52,12 +52,12 @@
 
 /* EFI does not have stdint.h, or anything else equivalent */
 #elif defined(EFI32) || defined(EFI64)
-typedef UINT8       uint8_t;
-typedef INT8        int8_t;
-typedef UINT16      uint16_t;
-typedef INT16       int16_t;
-typedef UINT32      uint32_t;
-typedef INT32       int32_t;
+typedef UINT8  uint8_t;
+typedef INT8   int8_t;
+typedef UINT16 uint16_t;
+typedef INT16  int16_t;
+typedef UINT32 uint32_t;
+typedef INT32  int32_t;
 
 /* Windows has its own differences */
 #elif defined(_WIN32)
@@ -65,12 +65,12 @@ typedef INT32       int32_t;
 #define _UNUSED
 #define bzero(a, b) memset(a, 0, b)
 #ifndef _MSL_STDINT_H
-typedef UINT8       uint8_t;
-typedef INT8        int8_t;
-typedef UINT16      uint16_t;
-typedef INT16       int16_t;
-typedef UINT32      uint32_t;
-typedef INT32       int32_t;
+typedef UINT8  uint8_t;
+typedef INT8   int8_t;
+typedef UINT16 uint16_t;
+typedef INT16  int16_t;
+typedef UINT32 uint32_t;
+typedef INT32  int32_t;
 #endif
 
 /* All other Posix platforms use stdint.h */
@@ -86,12 +86,11 @@ typedef INT32       int32_t;
  */
 
 typedef struct _DNSServiceRef_t *DNSServiceRef;
-typedef struct _DNSRecordRef_t *DNSRecordRef;
+typedef struct _DNSRecordRef_t  *DNSRecordRef;
 
 /* General flags used in functions defined below */
-enum
-    {
-    kDNSServiceFlagsMoreComing          = 0x1,
+enum {
+    kDNSServiceFlagsMoreComing = 0x1,
     /* MoreComing indicates to a callback that at least one more result is
      * queued and will be delivered following immediately after this one.
      * Applications should not update their UI to display browse
@@ -105,8 +104,8 @@ enum
      * in the future they will be delivered as usual.
      */
 
-    kDNSServiceFlagsAdd                 = 0x2,
-    kDNSServiceFlagsDefault             = 0x4,
+    kDNSServiceFlagsAdd = 0x2,
+    kDNSServiceFlagsDefault = 0x4,
     /* Flags for domain enumeration and browse/query reply callbacks.
      * "Default" applies only to enumeration and is only valid in
      * conjunction with "Add".  An enumeration callback with the "Add"
@@ -114,7 +113,7 @@ enum
      * valid.
      */
 
-    kDNSServiceFlagsNoAutoRename        = 0x8,
+    kDNSServiceFlagsNoAutoRename = 0x8,
     /* Flag for specifying renaming behavior on name conflict when registering
      * non-shared records. By default, name conflicts are automatically handled
      * by renaming the service.  NoAutoRename overrides this behavior - with this
@@ -123,39 +122,39 @@ enum
      * (i.e. the default name is not used.)
      */
 
-    kDNSServiceFlagsShared              = 0x10,
-    kDNSServiceFlagsUnique              = 0x20,
+    kDNSServiceFlagsShared = 0x10,
+    kDNSServiceFlagsUnique = 0x20,
     /* Flag for registering individual records on a connected
      * DNSServiceRef.  Shared indicates that there may be multiple records
      * with this name on the network (e.g. PTR records).  Unique indicates that the
      * record's name is to be unique on the network (e.g. SRV records).
      */
 
-    kDNSServiceFlagsBrowseDomains       = 0x40,
+    kDNSServiceFlagsBrowseDomains = 0x40,
     kDNSServiceFlagsRegistrationDomains = 0x80,
     /* Flags for specifying domain enumeration type in DNSServiceEnumerateDomains.
      * BrowseDomains enumerates domains recommended for browsing, RegistrationDomains
      * enumerates domains recommended for registration.
      */
 
-    kDNSServiceFlagsLongLivedQuery      = 0x100,
+    kDNSServiceFlagsLongLivedQuery = 0x100,
     /* Flag for creating a long-lived unicast query for the DNSServiceQueryRecord call. */
 
-    kDNSServiceFlagsAllowRemoteQuery    = 0x200,
+    kDNSServiceFlagsAllowRemoteQuery = 0x200,
     /* Flag for creating a record for which we will answer remote queries
      * (queries from hosts more than one hop away; hosts not directly connected to the local link).
      */
 
-    kDNSServiceFlagsForceMulticast      = 0x400,
+    kDNSServiceFlagsForceMulticast = 0x400,
     /* Flag for signifying that a query or registration should be performed exclusively via multicast DNS,
      * even for a name in a domain (e.g. foo.apple.com.) that would normally imply unicast DNS.
      */
 
-    kDNSServiceFlagsReturnCNAME         = 0x800
+    kDNSServiceFlagsReturnCNAME = 0x800
     /* Flag for returning CNAME records in the DNSServiceQueryRecord call. CNAME records are
      * normally followed without indicating to the client that there was a CNAME record.
      */
-    };
+};
 
 /*
  * The values for DNS Classes and Types are listed in RFC 1035, and are available
@@ -168,94 +167,89 @@ enum
  * can compile on all our supported platforms.
  */
 
-enum
-    {
-    kDNSServiceClass_IN       = 1       /* Internet */
-    };
+enum {
+    kDNSServiceClass_IN = 1 /* Internet */
+};
 
-enum
-    {
-    kDNSServiceType_A         = 1,      /* Host address. */
-    kDNSServiceType_NS        = 2,      /* Authoritative server. */
-    kDNSServiceType_MD        = 3,      /* Mail destination. */
-    kDNSServiceType_MF        = 4,      /* Mail forwarder. */
-    kDNSServiceType_CNAME     = 5,      /* Canonical name. */
-    kDNSServiceType_SOA       = 6,      /* Start of authority zone. */
-    kDNSServiceType_MB        = 7,      /* Mailbox domain name. */
-    kDNSServiceType_MG        = 8,      /* Mail group member. */
-    kDNSServiceType_MR        = 9,      /* Mail rename name. */
-    kDNSServiceType_NULL      = 10,     /* Null resource record. */
-    kDNSServiceType_WKS       = 11,     /* Well known service. */
-    kDNSServiceType_PTR       = 12,     /* Domain name pointer. */
-    kDNSServiceType_HINFO     = 13,     /* Host information. */
-    kDNSServiceType_MINFO     = 14,     /* Mailbox information. */
-    kDNSServiceType_MX        = 15,     /* Mail routing information. */
-    kDNSServiceType_TXT       = 16,     /* One or more text strings. */
-    kDNSServiceType_RP        = 17,     /* Responsible person. */
-    kDNSServiceType_AFSDB     = 18,     /* AFS cell database. */
-    kDNSServiceType_X25       = 19,     /* X_25 calling address. */
-    kDNSServiceType_ISDN      = 20,     /* ISDN calling address. */
-    kDNSServiceType_RT        = 21,     /* Router. */
-    kDNSServiceType_NSAP      = 22,     /* NSAP address. */
-    kDNSServiceType_NSAP_PTR  = 23,     /* Reverse NSAP lookup (deprecated). */
-    kDNSServiceType_SIG       = 24,     /* Security signature. */
-    kDNSServiceType_KEY       = 25,     /* Security key. */
-    kDNSServiceType_PX        = 26,     /* X.400 mail mapping. */
-    kDNSServiceType_GPOS      = 27,     /* Geographical position (withdrawn). */
-    kDNSServiceType_AAAA      = 28,     /* IPv6 Address. */
-    kDNSServiceType_LOC       = 29,     /* Location Information. */
-    kDNSServiceType_NXT       = 30,     /* Next domain (security). */
-    kDNSServiceType_EID       = 31,     /* Endpoint identifier. */
-    kDNSServiceType_NIMLOC    = 32,     /* Nimrod Locator. */
-    kDNSServiceType_SRV       = 33,     /* Server Selection. */
-    kDNSServiceType_ATMA      = 34,     /* ATM Address */
-    kDNSServiceType_NAPTR     = 35,     /* Naming Authority PoinTeR */
-    kDNSServiceType_KX        = 36,     /* Key Exchange */
-    kDNSServiceType_CERT      = 37,     /* Certification record */
-    kDNSServiceType_A6        = 38,     /* IPv6 Address (deprecated) */
-    kDNSServiceType_DNAME     = 39,     /* Non-terminal DNAME (for IPv6) */
-    kDNSServiceType_SINK      = 40,     /* Kitchen sink (experimentatl) */
-    kDNSServiceType_OPT       = 41,     /* EDNS0 option (meta-RR) */
-    kDNSServiceType_TKEY      = 249,    /* Transaction key */
-    kDNSServiceType_TSIG      = 250,    /* Transaction signature. */
-    kDNSServiceType_IXFR      = 251,    /* Incremental zone transfer. */
-    kDNSServiceType_AXFR      = 252,    /* Transfer zone of authority. */
-    kDNSServiceType_MAILB     = 253,    /* Transfer mailbox records. */
-    kDNSServiceType_MAILA     = 254,    /* Transfer mail agent records. */
-    kDNSServiceType_ANY       = 255     /* Wildcard match. */
-    };
-
+enum {
+    kDNSServiceType_A = 1,         /* Host address. */
+    kDNSServiceType_NS = 2,        /* Authoritative server. */
+    kDNSServiceType_MD = 3,        /* Mail destination. */
+    kDNSServiceType_MF = 4,        /* Mail forwarder. */
+    kDNSServiceType_CNAME = 5,     /* Canonical name. */
+    kDNSServiceType_SOA = 6,       /* Start of authority zone. */
+    kDNSServiceType_MB = 7,        /* Mailbox domain name. */
+    kDNSServiceType_MG = 8,        /* Mail group member. */
+    kDNSServiceType_MR = 9,        /* Mail rename name. */
+    kDNSServiceType_NULL = 10,     /* Null resource record. */
+    kDNSServiceType_WKS = 11,      /* Well known service. */
+    kDNSServiceType_PTR = 12,      /* Domain name pointer. */
+    kDNSServiceType_HINFO = 13,    /* Host information. */
+    kDNSServiceType_MINFO = 14,    /* Mailbox information. */
+    kDNSServiceType_MX = 15,       /* Mail routing information. */
+    kDNSServiceType_TXT = 16,      /* One or more text strings. */
+    kDNSServiceType_RP = 17,       /* Responsible person. */
+    kDNSServiceType_AFSDB = 18,    /* AFS cell database. */
+    kDNSServiceType_X25 = 19,      /* X_25 calling address. */
+    kDNSServiceType_ISDN = 20,     /* ISDN calling address. */
+    kDNSServiceType_RT = 21,       /* Router. */
+    kDNSServiceType_NSAP = 22,     /* NSAP address. */
+    kDNSServiceType_NSAP_PTR = 23, /* Reverse NSAP lookup (deprecated). */
+    kDNSServiceType_SIG = 24,      /* Security signature. */
+    kDNSServiceType_KEY = 25,      /* Security key. */
+    kDNSServiceType_PX = 26,       /* X.400 mail mapping. */
+    kDNSServiceType_GPOS = 27,     /* Geographical position (withdrawn). */
+    kDNSServiceType_AAAA = 28,     /* IPv6 Address. */
+    kDNSServiceType_LOC = 29,      /* Location Information. */
+    kDNSServiceType_NXT = 30,      /* Next domain (security). */
+    kDNSServiceType_EID = 31,      /* Endpoint identifier. */
+    kDNSServiceType_NIMLOC = 32,   /* Nimrod Locator. */
+    kDNSServiceType_SRV = 33,      /* Server Selection. */
+    kDNSServiceType_ATMA = 34,     /* ATM Address */
+    kDNSServiceType_NAPTR = 35,    /* Naming Authority PoinTeR */
+    kDNSServiceType_KX = 36,       /* Key Exchange */
+    kDNSServiceType_CERT = 37,     /* Certification record */
+    kDNSServiceType_A6 = 38,       /* IPv6 Address (deprecated) */
+    kDNSServiceType_DNAME = 39,    /* Non-terminal DNAME (for IPv6) */
+    kDNSServiceType_SINK = 40,     /* Kitchen sink (experimentatl) */
+    kDNSServiceType_OPT = 41,      /* EDNS0 option (meta-RR) */
+    kDNSServiceType_TKEY = 249,    /* Transaction key */
+    kDNSServiceType_TSIG = 250,    /* Transaction signature. */
+    kDNSServiceType_IXFR = 251,    /* Incremental zone transfer. */
+    kDNSServiceType_AXFR = 252,    /* Transfer zone of authority. */
+    kDNSServiceType_MAILB = 253,   /* Transfer mailbox records. */
+    kDNSServiceType_MAILA = 254,   /* Transfer mail agent records. */
+    kDNSServiceType_ANY = 255      /* Wildcard match. */
+};
 
 /* possible error code values */
-enum
-    {
-    kDNSServiceErr_NoError             = 0,
-    kDNSServiceErr_Unknown             = -65537,       /* 0xFFFE FFFF */
-    kDNSServiceErr_NoSuchName          = -65538,
-    kDNSServiceErr_NoMemory            = -65539,
-    kDNSServiceErr_BadParam            = -65540,
-    kDNSServiceErr_BadReference        = -65541,
-    kDNSServiceErr_BadState            = -65542,
-    kDNSServiceErr_BadFlags            = -65543,
-    kDNSServiceErr_Unsupported         = -65544,
-    kDNSServiceErr_NotInitialized      = -65545,
-    kDNSServiceErr_AlreadyRegistered   = -65547,
-    kDNSServiceErr_NameConflict        = -65548,
-    kDNSServiceErr_Invalid             = -65549,
-    kDNSServiceErr_Firewall            = -65550,
-    kDNSServiceErr_Incompatible        = -65551,        /* client library incompatible with daemon */
-    kDNSServiceErr_BadInterfaceIndex   = -65552,
-    kDNSServiceErr_Refused             = -65553,
-    kDNSServiceErr_NoSuchRecord        = -65554,
-    kDNSServiceErr_NoAuth              = -65555,
-    kDNSServiceErr_NoSuchKey           = -65556,
-    kDNSServiceErr_NATTraversal        = -65557,
-    kDNSServiceErr_DoubleNAT           = -65558,
-    kDNSServiceErr_BadTime             = -65559
+enum {
+    kDNSServiceErr_NoError = 0,
+    kDNSServiceErr_Unknown = -65537, /* 0xFFFE FFFF */
+    kDNSServiceErr_NoSuchName = -65538,
+    kDNSServiceErr_NoMemory = -65539,
+    kDNSServiceErr_BadParam = -65540,
+    kDNSServiceErr_BadReference = -65541,
+    kDNSServiceErr_BadState = -65542,
+    kDNSServiceErr_BadFlags = -65543,
+    kDNSServiceErr_Unsupported = -65544,
+    kDNSServiceErr_NotInitialized = -65545,
+    kDNSServiceErr_AlreadyRegistered = -65547,
+    kDNSServiceErr_NameConflict = -65548,
+    kDNSServiceErr_Invalid = -65549,
+    kDNSServiceErr_Firewall = -65550,
+    kDNSServiceErr_Incompatible = -65551, /* client library incompatible with daemon */
+    kDNSServiceErr_BadInterfaceIndex = -65552,
+    kDNSServiceErr_Refused = -65553,
+    kDNSServiceErr_NoSuchRecord = -65554,
+    kDNSServiceErr_NoAuth = -65555,
+    kDNSServiceErr_NoSuchKey = -65556,
+    kDNSServiceErr_NATTraversal = -65557,
+    kDNSServiceErr_DoubleNAT = -65558,
+    kDNSServiceErr_BadTime = -65559
     /* mDNS Error codes are in the range
      * FFFE FF00 (-65792) to FFFE FFFF (-65537) */
-    };
-
+};
 
 /* Maximum length, in bytes, of a service name represented as a */
 /* literal C-String, including the terminating NULL at the end. */
@@ -315,7 +309,6 @@ enum
  * Dr\.\032Smith\\Dr\.\032Johnson._ftp._tcp.4th\.\032Floor.Building\0322.apple.com.
  */
 
-
 /*
  * Constants for specifying an interface index
  *
@@ -351,19 +344,16 @@ enum
  */
 
 #define kDNSServiceInterfaceIndexAny 0
-#define kDNSServiceInterfaceIndexLocalOnly ( (uint32_t) -1 )
-
+#define kDNSServiceInterfaceIndexLocalOnly ((uint32_t) - 1)
 
 typedef uint32_t DNSServiceFlags;
-typedef int32_t DNSServiceErrorType;
-
+typedef int32_t  DNSServiceErrorType;
 
 /*********************************************************************************************
  *
  * Unix Domain Socket access, DNSServiceRef deallocation, and data processing functions
  *
  *********************************************************************************************/
-
 
 /* DNSServiceRefSockFD()
  *
@@ -388,7 +378,6 @@ typedef int32_t DNSServiceErrorType;
 
 int DNSSD_API DNSServiceRefSockFD(DNSServiceRef sdRef);
 
-
 /* DNSServiceProcessResult()
  *
  * Read a reply from the daemon, calling the appropriate application callback.  This call will
@@ -408,7 +397,6 @@ int DNSSD_API DNSServiceRefSockFD(DNSServiceRef sdRef);
  */
 
 DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdRef);
-
 
 /* DNSServiceRefDeallocate()
  *
@@ -437,7 +425,6 @@ DNSServiceErrorType DNSSD_API DNSServiceProcessResult(DNSServiceRef sdRef);
  */
 
 void DNSSD_API DNSServiceRefDeallocate(DNSServiceRef sdRef);
-
 
 /*********************************************************************************************
  *
@@ -480,16 +467,8 @@ void DNSSD_API DNSServiceRefDeallocate(DNSServiceRef sdRef);
  *
  */
 
-typedef void (DNSSD_API *DNSServiceDomainEnumReply)
-    (
-    DNSServiceRef                       sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    DNSServiceErrorType                 errorCode,
-    const char                          *replyDomain,
-    void                                *context
-    );
-
+typedef void(DNSSD_API *DNSServiceDomainEnumReply)(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                   DNSServiceErrorType errorCode, const char *replyDomain, void *context);
 
 /* DNSServiceEnumerateDomains() Parameters:
  *
@@ -521,15 +500,9 @@ typedef void (DNSSD_API *DNSServiceDomainEnumReply)
  *                  is not initialized.)
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains
-    (
-    DNSServiceRef                       *sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    DNSServiceDomainEnumReply           callBack,
-    void                                *context  /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                         DNSServiceDomainEnumReply callBack, void *context /* may be NULL */
+);
 
 /*********************************************************************************************
  *
@@ -564,17 +537,8 @@ DNSServiceErrorType DNSSD_API DNSServiceEnumerateDomains
  *
  */
 
-typedef void (DNSSD_API *DNSServiceRegisterReply)
-    (
-    DNSServiceRef                       sdRef,
-    DNSServiceFlags                     flags,
-    DNSServiceErrorType                 errorCode,
-    const char                          *name,
-    const char                          *regtype,
-    const char                          *domain,
-    void                                *context
-    );
-
+typedef void(DNSSD_API *DNSServiceRegisterReply)(DNSServiceRef sdRef, DNSServiceFlags flags, DNSServiceErrorType errorCode,
+                                                 const char *name, const char *regtype, const char *domain, void *context);
 
 /* DNSServiceRegister()  Parameters:
  *
@@ -649,22 +613,14 @@ typedef void (DNSSD_API *DNSServiceRegisterReply)
  *                  is not initialized.)
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceRegister
-    (
-    DNSServiceRef                       *sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    const char                          *name,         /* may be NULL */
-    const char                          *regtype,
-    const char                          *domain,       /* may be NULL */
-    const char                          *host,         /* may be NULL */
-    uint16_t                            port,
-    uint16_t                            txtLen,
-    const void                          *txtRecord,    /* may be NULL */
-    DNSServiceRegisterReply             callBack,      /* may be NULL */
-    void                                *context       /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceRegister(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                 const char *name,                                      /* may be NULL */
+                                                 const char *regtype, const char *domain,               /* may be NULL */
+                                                 const char *host,                                      /* may be NULL */
+                                                 uint16_t port, uint16_t txtLen, const void *txtRecord, /* may be NULL */
+                                                 DNSServiceRegisterReply callBack,                      /* may be NULL */
+                                                 void                   *context                        /* may be NULL */
+);
 
 /* DNSServiceAddRecord()
  *
@@ -703,17 +659,8 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister
  *                  error code indicating the error that occurred (the RecordRef is not initialized).
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceAddRecord
-    (
-    DNSServiceRef                       sdRef,
-    DNSRecordRef                        *RecordRef,
-    DNSServiceFlags                     flags,
-    uint16_t                            rrtype,
-    uint16_t                            rdlen,
-    const void                          *rdata,
-    uint32_t                            ttl
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceAddRecord(DNSServiceRef sdRef, DNSRecordRef *RecordRef, DNSServiceFlags flags,
+                                                  uint16_t rrtype, uint16_t rdlen, const void *rdata, uint32_t ttl);
 
 /* DNSServiceUpdateRecord
  *
@@ -743,16 +690,8 @@ DNSServiceErrorType DNSSD_API DNSServiceAddRecord
  *                  error code indicating the error that occurred.
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord
-    (
-    DNSServiceRef                       sdRef,
-    DNSRecordRef                        RecordRef,     /* may be NULL */
-    DNSServiceFlags                     flags,
-    uint16_t                            rdlen,
-    const void                          *rdata,
-    uint32_t                            ttl
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord(DNSServiceRef sdRef, DNSRecordRef RecordRef, /* may be NULL */
+                                                     DNSServiceFlags flags, uint16_t rdlen, const void *rdata, uint32_t ttl);
 
 /* DNSServiceRemoveRecord
  *
@@ -775,13 +714,7 @@ DNSServiceErrorType DNSSD_API DNSServiceUpdateRecord
  *                  error code indicating the error that occurred.
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord
-    (
-    DNSServiceRef                 sdRef,
-    DNSRecordRef                  RecordRef,
-    DNSServiceFlags               flags
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord(DNSServiceRef sdRef, DNSRecordRef RecordRef, DNSServiceFlags flags);
 
 /*********************************************************************************************
  *
@@ -828,18 +761,9 @@ DNSServiceErrorType DNSSD_API DNSServiceRemoveRecord
  *
  */
 
-typedef void (DNSSD_API *DNSServiceBrowseReply)
-    (
-    DNSServiceRef                       sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    DNSServiceErrorType                 errorCode,
-    const char                          *serviceName,
-    const char                          *regtype,
-    const char                          *replyDomain,
-    void                                *context
-    );
-
+typedef void(DNSSD_API *DNSServiceBrowseReply)(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                               DNSServiceErrorType errorCode, const char *serviceName, const char *regtype,
+                                               const char *replyDomain, void *context);
 
 /* DNSServiceBrowse() Parameters:
  *
@@ -874,17 +798,10 @@ typedef void (DNSSD_API *DNSServiceBrowseReply)
  *                  is not initialized.)
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceBrowse
-    (
-    DNSServiceRef                       *sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    const char                          *regtype,
-    const char                          *domain,    /* may be NULL */
-    DNSServiceBrowseReply               callBack,
-    void                                *context    /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceBrowse(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                               const char *regtype, const char *domain,      /* may be NULL */
+                                               DNSServiceBrowseReply callBack, void *context /* may be NULL */
+);
 
 /* DNSServiceResolve()
  *
@@ -947,20 +864,9 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse
  *
  */
 
-typedef void (DNSSD_API *DNSServiceResolveReply)
-    (
-    DNSServiceRef                       sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    DNSServiceErrorType                 errorCode,
-    const char                          *fullname,
-    const char                          *hosttarget,
-    uint16_t                            port,
-    uint16_t                            txtLen,
-    const unsigned char                 *txtRecord,
-    void                                *context
-    );
-
+typedef void(DNSSD_API *DNSServiceResolveReply)(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                DNSServiceErrorType errorCode, const char *fullname, const char *hosttarget,
+                                                uint16_t port, uint16_t txtLen, const unsigned char *txtRecord, void *context);
 
 /* DNSServiceResolve() Parameters
  *
@@ -1000,18 +906,10 @@ typedef void (DNSSD_API *DNSServiceResolveReply)
  *                  is not initialized.)
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceResolve
-    (
-    DNSServiceRef                       *sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    const char                          *name,
-    const char                          *regtype,
-    const char                          *domain,
-    DNSServiceResolveReply              callBack,
-    void                                *context  /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceResolve(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                const char *name, const char *regtype, const char *domain,
+                                                DNSServiceResolveReply callBack, void *context /* may be NULL */
+);
 
 /*********************************************************************************************
  *
@@ -1037,7 +935,6 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve
  */
 
 DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(DNSServiceRef *sdRef);
-
 
 /* DNSServiceRegisterRecord
  *
@@ -1066,15 +963,8 @@ DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(DNSServiceRef *sdRef);
  *
  */
 
- typedef void (DNSSD_API *DNSServiceRegisterRecordReply)
-    (
-    DNSServiceRef                       sdRef,
-    DNSRecordRef                        RecordRef,
-    DNSServiceFlags                     flags,
-    DNSServiceErrorType                 errorCode,
-    void                                *context
-    );
-
+typedef void(DNSSD_API *DNSServiceRegisterRecordReply)(DNSServiceRef sdRef, DNSRecordRef RecordRef, DNSServiceFlags flags,
+                                                       DNSServiceErrorType errorCode, void *context);
 
 /* DNSServiceRegisterRecord() Parameters:
  *
@@ -1118,22 +1008,11 @@ DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(DNSServiceRef *sdRef);
  *                  not initialized.)
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord
-    (
-    DNSServiceRef                       sdRef,
-    DNSRecordRef                        *RecordRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    const char                          *fullname,
-    uint16_t                            rrtype,
-    uint16_t                            rrclass,
-    uint16_t                            rdlen,
-    const void                          *rdata,
-    uint32_t                            ttl,
-    DNSServiceRegisterRecordReply       callBack,
-    void                                *context    /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord(DNSServiceRef sdRef, DNSRecordRef *RecordRef, DNSServiceFlags flags,
+                                                       uint32_t interfaceIndex, const char *fullname, uint16_t rrtype,
+                                                       uint16_t rrclass, uint16_t rdlen, const void *rdata, uint32_t ttl,
+                                                       DNSServiceRegisterRecordReply callBack, void *context /* may be NULL */
+);
 
 /* DNSServiceQueryRecord
  *
@@ -1172,21 +1051,10 @@ DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord
  *
  */
 
-typedef void (DNSSD_API *DNSServiceQueryRecordReply)
-    (
-    DNSServiceRef                       DNSServiceRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    DNSServiceErrorType                 errorCode,
-    const char                          *fullname,
-    uint16_t                            rrtype,
-    uint16_t                            rrclass,
-    uint16_t                            rdlen,
-    const void                          *rdata,
-    uint32_t                            ttl,
-    void                                *context
-    );
-
+typedef void(DNSSD_API *DNSServiceQueryRecordReply)(DNSServiceRef DNSServiceRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                    DNSServiceErrorType errorCode, const char *fullname, uint16_t rrtype,
+                                                    uint16_t rrclass, uint16_t rdlen, const void *rdata, uint32_t ttl,
+                                                    void *context);
 
 /* DNSServiceQueryRecord() Parameters:
  *
@@ -1226,18 +1094,10 @@ typedef void (DNSSD_API *DNSServiceQueryRecordReply)
  *                  is not initialized.)
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceQueryRecord
-    (
-    DNSServiceRef                       *sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    const char                          *fullname,
-    uint16_t                            rrtype,
-    uint16_t                            rrclass,
-    DNSServiceQueryRecordReply          callBack,
-    void                                *context  /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceQueryRecord(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                                    const char *fullname, uint16_t rrtype, uint16_t rrclass,
+                                                    DNSServiceQueryRecordReply callBack, void *context /* may be NULL */
+);
 
 /* DNSServiceReconfirmRecord
  *
@@ -1265,17 +1125,8 @@ DNSServiceErrorType DNSSD_API DNSServiceQueryRecord
  *
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord
-    (
-    DNSServiceFlags                    flags,
-    uint32_t                           interfaceIndex,
-    const char                         *fullname,
-    uint16_t                           rrtype,
-    uint16_t                           rrclass,
-    uint16_t                           rdlen,
-    const void                         *rdata
-    );
-
+DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord(DNSServiceFlags flags, uint32_t interfaceIndex, const char *fullname,
+                                                        uint16_t rrtype, uint16_t rrclass, uint16_t rdlen, const void *rdata);
 
 /*********************************************************************************************
  *
@@ -1309,14 +1160,8 @@ DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord
  *
  */
 
-int DNSSD_API DNSServiceConstructFullName
-    (
-    char                            *fullName,
-    const char                      *service,      /* may be NULL */
-    const char                      *regtype,
-    const char                      *domain
-    );
-
+int DNSSD_API DNSServiceConstructFullName(char *fullName, const char *service, /* may be NULL */
+                                          const char *regtype, const char *domain);
 
 /*********************************************************************************************
  *
@@ -1338,15 +1183,16 @@ int DNSSD_API DNSServiceConstructFullName
  * Explicitly deallocate storage for TXTRecord data (if not allocated on the stack)
  */
 
-
 /* TXTRecordRef
  *
  * Opaque internal data type.
  * Note: Represents a DNS-SD TXT record.
  */
 
-typedef union _TXTRecordRef_t { char PrivateData[16]; char *ForceNaturalAlignment; } TXTRecordRef;
-
+typedef union _TXTRecordRef_t {
+    char  PrivateData[16];
+    char *ForceNaturalAlignment;
+} TXTRecordRef;
 
 /* TXTRecordCreate()
  *
@@ -1389,13 +1235,7 @@ typedef union _TXTRecordRef_t { char PrivateData[16]; char *ForceNaturalAlignmen
  *                  the TXTRecordRef.
  */
 
-void DNSSD_API TXTRecordCreate
-    (
-    TXTRecordRef     *txtRecord,
-    uint16_t         bufferLen,
-    void             *buffer
-    );
-
+void DNSSD_API TXTRecordCreate(TXTRecordRef *txtRecord, uint16_t bufferLen, void *buffer);
 
 /* TXTRecordDeallocate()
  *
@@ -1407,11 +1247,7 @@ void DNSSD_API TXTRecordCreate
  *
  */
 
-void DNSSD_API TXTRecordDeallocate
-    (
-    TXTRecordRef     *txtRecord
-    );
-
+void DNSSD_API TXTRecordDeallocate(TXTRecordRef *txtRecord);
 
 /* TXTRecordSetValue()
  *
@@ -1450,14 +1286,9 @@ void DNSSD_API TXTRecordDeallocate
  *                  exceed the available storage.
  */
 
-DNSServiceErrorType DNSSD_API TXTRecordSetValue
-    (
-    TXTRecordRef     *txtRecord,
-    const char       *key,
-    uint8_t          valueSize,        /* may be zero */
-    const void       *value            /* may be NULL */
-    );
-
+DNSServiceErrorType DNSSD_API TXTRecordSetValue(TXTRecordRef *txtRecord, const char *key, uint8_t valueSize, /* may be zero */
+                                                const void *value                                            /* may be NULL */
+);
 
 /* TXTRecordRemoveValue()
  *
@@ -1473,12 +1304,7 @@ DNSServiceErrorType DNSSD_API TXTRecordSetValue
  *                  exist in the TXTRecordRef.
  */
 
-DNSServiceErrorType DNSSD_API TXTRecordRemoveValue
-    (
-    TXTRecordRef     *txtRecord,
-    const char       *key
-    );
-
+DNSServiceErrorType DNSSD_API TXTRecordRemoveValue(TXTRecordRef *txtRecord, const char *key);
 
 /* TXTRecordGetLength()
  *
@@ -1492,11 +1318,7 @@ DNSServiceErrorType DNSSD_API TXTRecordRemoveValue
  *                  Returns 0 if the TXTRecordRef is empty.
  */
 
-uint16_t DNSSD_API TXTRecordGetLength
-    (
-    const TXTRecordRef *txtRecord
-    );
-
+uint16_t DNSSD_API TXTRecordGetLength(const TXTRecordRef *txtRecord);
 
 /* TXTRecordGetBytesPtr()
  *
@@ -1509,11 +1331,7 @@ uint16_t DNSSD_API TXTRecordGetLength
  *                  to DNSServiceUpdateRecord().
  */
 
-const void * DNSSD_API TXTRecordGetBytesPtr
-    (
-    const TXTRecordRef *txtRecord
-    );
-
+const void *DNSSD_API TXTRecordGetBytesPtr(const TXTRecordRef *txtRecord);
 
 /*********************************************************************************************
  *
@@ -1563,13 +1381,7 @@ const void * DNSSD_API TXTRecordGetBytesPtr
  *                  Otherwise, it returns 0.
  */
 
-int DNSSD_API TXTRecordContainsKey
-    (
-    uint16_t         txtLen,
-    const void       *txtRecord,
-    const char       *key
-    );
-
+int DNSSD_API TXTRecordContainsKey(uint16_t txtLen, const void *txtRecord, const char *key);
 
 /* TXTRecordGetValuePtr()
  *
@@ -1592,14 +1404,7 @@ int DNSSD_API TXTRecordContainsKey
  *                  For non-empty value, valueLen will be length of value data.
  */
 
-const void * DNSSD_API TXTRecordGetValuePtr
-    (
-    uint16_t         txtLen,
-    const void       *txtRecord,
-    const char       *key,
-    uint8_t          *valueLen
-    );
-
+const void *DNSSD_API TXTRecordGetValuePtr(uint16_t txtLen, const void *txtRecord, const char *key, uint8_t *valueLen);
 
 /* TXTRecordGetCount()
  *
@@ -1614,12 +1419,7 @@ const void * DNSSD_API TXTRecordGetValuePtr
  *
  */
 
-uint16_t DNSSD_API TXTRecordGetCount
-    (
-    uint16_t         txtLen,
-    const void       *txtRecord
-    );
-
+uint16_t DNSSD_API TXTRecordGetCount(uint16_t txtLen, const void *txtRecord);
 
 /* TXTRecordGetItemAtIndex()
  *
@@ -1659,16 +1459,8 @@ uint16_t DNSSD_API TXTRecordGetCount
  *                  TXTRecordGetCount()-1.
  */
 
-DNSServiceErrorType DNSSD_API TXTRecordGetItemAtIndex
-    (
-    uint16_t         txtLen,
-    const void       *txtRecord,
-    uint16_t         index,
-    uint16_t         keyBufLen,
-    char             *key,
-    uint8_t          *valueLen,
-    const void       **value
-    );
+DNSServiceErrorType DNSSD_API TXTRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord, uint16_t index,
+                                                      uint16_t keyBufLen, char *key, uint8_t *valueLen, const void **value);
 
 #ifdef __APPLE_API_PRIVATE
 
@@ -1696,11 +1488,7 @@ DNSServiceErrorType DNSSD_API TXTRecordGetItemAtIndex
  *                  an error code indicating the error that occurred
  */
 
-DNSServiceErrorType DNSSD_API DNSServiceSetDefaultDomainForUser
-    (
-    DNSServiceFlags                    flags,
-    const char                         *domain
-    );
+DNSServiceErrorType DNSSD_API DNSServiceSetDefaultDomainForUser(DNSServiceFlags flags, const char *domain);
 
 #endif //__APPLE_API_PRIVATE
 
@@ -1710,13 +1498,12 @@ DNSServiceErrorType DNSSD_API DNSServiceSetDefaultDomainForUser
 // then you don't find out what's wrong until you run the software. This way, if the assertion
 // condition is false, the array size is negative, and the compiler complains immediately.
 
-struct DNS_SD_CompileTimeAssertionChecks
-	{
-	char assert0[(sizeof(union _TXTRecordRef_t) == 16) ? 1 : -1];
-	};
+struct DNS_SD_CompileTimeAssertionChecks {
+    char assert0[(sizeof(union _TXTRecordRef_t) == 16) ? 1 : -1];
+};
 
-#ifdef  __cplusplus
-    }
+#ifdef __cplusplus
+}
 #endif
 
-#endif  /* _DNS_SD_H */
+#endif /* _DNS_SD_H */

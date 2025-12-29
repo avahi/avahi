@@ -30,29 +30,20 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 
-static void callback(
-    AVAHI_GCC_UNUSED AvahiServiceResolver *r,
-    AVAHI_GCC_UNUSED AvahiIfIndex interface,
-    AVAHI_GCC_UNUSED AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host_name,
-    AVAHI_GCC_UNUSED const AvahiAddress *a,
-    AVAHI_GCC_UNUSED uint16_t port,
-    AVAHI_GCC_UNUSED AvahiStringList *txt,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    AVAHI_GCC_UNUSED void *userdata) {
+static void callback(AVAHI_GCC_UNUSED AvahiServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interface,
+                     AVAHI_GCC_UNUSED AvahiProtocol protocol, AvahiResolverEvent event, const char *name, const char *type,
+                     const char *domain, const char *host_name, AVAHI_GCC_UNUSED const AvahiAddress *a,
+                     AVAHI_GCC_UNUSED uint16_t port, AVAHI_GCC_UNUSED AvahiStringList *txt,
+                     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, AVAHI_GCC_UNUSED void *userdata) {
 
     fprintf(stderr, "%i name=%s type=%s domain=%s host=%s\n", event, name, type, domain, host_name);
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
-    AvahiSimplePoll *simple_poll;
-    const AvahiPoll *poll_api;
-    AvahiClient *client;
+    AvahiSimplePoll      *simple_poll;
+    const AvahiPoll      *poll_api;
+    AvahiClient          *client;
     AvahiServiceResolver *r;
 
     simple_poll = avahi_simple_poll_new();
@@ -64,7 +55,16 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     client = avahi_client_new(poll_api, 0, NULL, NULL, NULL);
     assert(client);
 
-    r = avahi_service_resolver_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, "_domain._udp", "0pointer.de", AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_NO_TXT, callback, simple_poll);
+    r = avahi_service_resolver_new(client,
+                                   AVAHI_IF_UNSPEC,
+                                   AVAHI_PROTO_UNSPEC,
+                                   NULL,
+                                   "_domain._udp",
+                                   "0pointer.de",
+                                   AVAHI_PROTO_UNSPEC,
+                                   AVAHI_LOOKUP_NO_TXT,
+                                   callback,
+                                   simple_poll);
     assert(r);
 
     avahi_simple_poll_loop(simple_poll);

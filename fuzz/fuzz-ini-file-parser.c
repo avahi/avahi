@@ -30,17 +30,17 @@
 void log_function(AvahiLogLevel level, const char *txt) {}
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    char name[] = "/tmp/fuzz-ini-file-parser.XXXXXX";
-    int fd = -1;
-    ssize_t n;
-    AvahiIniFile *f;
+    char               name[] = "/tmp/fuzz-ini-file-parser.XXXXXX";
+    int                fd = -1;
+    ssize_t            n;
+    AvahiIniFile      *f;
     AvahiIniFileGroup *g;
 
     fd = mkstemp(name);
     assert(fd >= 0);
 
     n = write(fd, data, size);
-    assert(n == (ssize_t) size);
+    assert(n == (ssize_t)size);
 
     close(fd);
 

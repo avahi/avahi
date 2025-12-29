@@ -20,29 +20,29 @@
   USA.
 ***/
 
-typedef struct AvahiPrioQueue AvahiPrioQueue;
+typedef struct AvahiPrioQueue     AvahiPrioQueue;
 typedef struct AvahiPrioQueueNode AvahiPrioQueueNode;
 
-typedef int (*AvahiPQCompareFunc)(const void* a, const void* b);
+typedef int (*AvahiPQCompareFunc)(const void *a, const void *b);
 
 struct AvahiPrioQueue {
     AvahiPrioQueueNode *root, *last;
-    unsigned n_nodes;
-    AvahiPQCompareFunc compare;
+    unsigned            n_nodes;
+    AvahiPQCompareFunc  compare;
 };
 
 struct AvahiPrioQueueNode {
-    AvahiPrioQueue *queue;
-    void* data;
-    unsigned x, y;
+    AvahiPrioQueue     *queue;
+    void               *data;
+    unsigned            x, y;
     AvahiPrioQueueNode *left, *right, *parent, *next, *prev;
 };
 
-AvahiPrioQueue* avahi_prio_queue_new(AvahiPQCompareFunc compare);
-void avahi_prio_queue_free(AvahiPrioQueue *q);
+AvahiPrioQueue *avahi_prio_queue_new(AvahiPQCompareFunc compare);
+void            avahi_prio_queue_free(AvahiPrioQueue *q);
 
-AvahiPrioQueueNode* avahi_prio_queue_put(AvahiPrioQueue *q, void* data);
-void avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n);
+AvahiPrioQueueNode *avahi_prio_queue_put(AvahiPrioQueue *q, void *data);
+void                avahi_prio_queue_remove(AvahiPrioQueue *q, AvahiPrioQueueNode *n);
 
 void avahi_prio_queue_shuffle(AvahiPrioQueue *q, AvahiPrioQueueNode *n);
 

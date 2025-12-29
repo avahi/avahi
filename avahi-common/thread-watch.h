@@ -42,7 +42,7 @@ void avahi_threaded_poll_free(AvahiThreadedPoll *p);
 /** Return the abstracted poll API object for this event loop
  * object. The will return the same pointer each time it is
  * called. \since 0.6.4 */
-const AvahiPoll* avahi_threaded_poll_get(AvahiThreadedPoll *p);
+const AvahiPoll *avahi_threaded_poll_get(AvahiThreadedPoll *p);
 
 /** Start the event loop helper thread. After the thread has started
  * you must make sure to access the event loop object

@@ -38,7 +38,7 @@
 
 static AvahiSEntryGroup *group = NULL;
 
-static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void* userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void *userdata) {
 
     avahi_log_debug("server state: %i", state);
 
@@ -48,7 +48,8 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         group = avahi_s_entry_group_new(s, NULL, NULL);
         assert(group);
 
-        ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, NULL, 80, "test1", NULL);
+        ret = avahi_server_add_service(
+            s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, NULL, 80, "test1", NULL);
         assert(ret == AVAHI_OK);
 
         avahi_s_entry_group_commit(group);
@@ -56,20 +57,21 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 }
 
 static void modify_txt_callback(AVAHI_GCC_UNUSED AvahiTimeout *e, void *userdata) {
-    int ret;
+    int          ret;
     AvahiServer *s = userdata;
 
     avahi_log_debug("modifying");
 
-    ret = avahi_server_update_service_txt(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, "test2", NULL);
+    ret = avahi_server_update_service_txt(
+        s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, "test2", NULL);
     assert(ret == AVAHI_OK);
 }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    AvahiSimplePoll *simple_poll;
-    const AvahiPoll *poll_api;
-    AvahiServer *server;
-    struct timeval tv;
+    AvahiSimplePoll  *simple_poll;
+    const AvahiPoll  *poll_api;
+    AvahiServer      *server;
+    struct timeval    tv;
     AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();
@@ -84,7 +86,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(server);
     avahi_server_config_free(&config);
 
-    poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 1000*10, 0), modify_txt_callback, server);
+    poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 1000 * 10, 0), modify_txt_callback, server);
 
     avahi_simple_poll_loop(simple_poll);
     return 0;

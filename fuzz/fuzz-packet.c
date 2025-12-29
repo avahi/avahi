@@ -39,8 +39,8 @@ void domain_ends_with_mdns_suffix(const char *domain) {
 bool copy_rrs(AvahiDnsPacket *from, AvahiDnsPacket *to, unsigned idx) {
     for (uint16_t n = avahi_dns_packet_get_field(from, idx); n > 0; n--) {
         AvahiRecord *record;
-        int cache_flush = 0;
-        uint8_t *res;
+        int          cache_flush = 0;
+        uint8_t     *res;
 
         if (!(record = avahi_dns_packet_consume_record(from, &cache_flush)))
             return false;
@@ -53,9 +53,10 @@ bool copy_rrs(AvahiDnsPacket *from, AvahiDnsPacket *to, unsigned idx) {
         if (record->key->type == AVAHI_DNS_TYPE_PTR) {
             char service[AVAHI_LABEL_MAX], type[AVAHI_DOMAIN_NAME_MAX], domain[AVAHI_DOMAIN_NAME_MAX];
             char name[AVAHI_DOMAIN_NAME_MAX];
-            int res;
+            int  res;
 
-            if (avahi_service_name_split(record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) >= 0) {
+            if (avahi_service_name_split(
+                    record->data.ptr.name, service, sizeof(service), type, sizeof(type), domain, sizeof(domain)) >= 0) {
                 res = avahi_service_name_join(name, sizeof(name), service, type, domain);
                 assert(res >= 0);
             }
@@ -99,8 +100,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     for (uint16_t n = avahi_dns_packet_get_field(p1, AVAHI_DNS_FIELD_QDCOUNT); n > 0; n--) {
         AvahiKey *key;
-        int unicast_response = 0;
-        uint8_t *res;
+        int       unicast_response = 0;
+        uint8_t  *res;
 
         if (!(key = avahi_dns_packet_consume_key(p1, &unicast_response)))
             goto finish;

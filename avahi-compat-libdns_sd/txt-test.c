@@ -28,7 +28,7 @@
 #include <avahi-common/gccmacro.h>
 #include <dns_sd.h>
 
-static void hexdump(const void* p, size_t size) {
+static void hexdump(const void *p, size_t size) {
     const uint8_t *c = p;
     assert(p);
 
@@ -62,13 +62,12 @@ static void hexdump(const void* p, size_t size) {
     }
 }
 
-
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    const char *r;
+    const char  *r;
     TXTRecordRef ref;
-    uint8_t l;
-    const void *p;
-    char k[256];
+    uint8_t      l;
+    const void  *p;
+    char         k[256];
 
     TXTRecordCreate(&ref, 0, NULL);
 
@@ -122,7 +121,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     hexdump(p, l);
 
-    assert(TXTRecordGetItemAtIndex(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), 20, sizeof(k), k, &l, &p) == kDNSServiceErr_Invalid);
+    assert(TXTRecordGetItemAtIndex(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), 20, sizeof(k), k, &l, &p) ==
+           kDNSServiceErr_Invalid);
 
     TXTRecordDeallocate(&ref);
 }

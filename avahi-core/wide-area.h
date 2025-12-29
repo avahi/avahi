@@ -24,14 +24,10 @@
 #include "browse.h"
 
 typedef struct AvahiWideAreaLookupEngine AvahiWideAreaLookupEngine;
-typedef struct AvahiWideAreaLookup AvahiWideAreaLookup;
+typedef struct AvahiWideAreaLookup       AvahiWideAreaLookup;
 
-typedef void (*AvahiWideAreaLookupCallback)(
-    AvahiWideAreaLookupEngine *e,
-    AvahiBrowserEvent event,
-    AvahiLookupResultFlags flags,
-    AvahiRecord *r,
-    void *userdata);
+typedef void (*AvahiWideAreaLookupCallback)(AvahiWideAreaLookupEngine *e, AvahiBrowserEvent event, AvahiLookupResultFlags flags,
+                                            AvahiRecord *r, void *userdata);
 
 /** Create new wide area engine.
  *
@@ -42,7 +38,8 @@ AvahiWideAreaLookupEngine *avahi_wide_area_engine_new(AvahiServer *s);
 /** Release wide area engine resources. */
 void avahi_wide_area_engine_free(AvahiWideAreaLookupEngine *e);
 
-unsigned avahi_wide_area_scan_cache(AvahiWideAreaLookupEngine *e, AvahiKey *key, AvahiWideAreaLookupCallback callback, void *userdata);
+unsigned avahi_wide_area_scan_cache(AvahiWideAreaLookupEngine *e, AvahiKey *key, AvahiWideAreaLookupCallback callback,
+                                    void *userdata);
 /** Start wire area cache dump
  *
  * @param e Wide area lookup engine.
@@ -50,7 +47,7 @@ unsigned avahi_wide_area_scan_cache(AvahiWideAreaLookupEngine *e, AvahiKey *key,
  * @param callback Callback function receiving every scan.
  * @param userdata Optional userdata pointer passed into callback function.
  */
-void avahi_wide_area_cache_dump(AvahiWideAreaLookupEngine *e, AvahiDumpCallback callback, void* userdata);
+void avahi_wide_area_cache_dump(AvahiWideAreaLookupEngine *e, AvahiDumpCallback callback, void *userdata);
 /** Configure used DNS servers for wide area lookups.
  *
  * @param a pointer to array containing n addresses.
@@ -71,7 +68,8 @@ int avahi_wide_area_has_servers(AvahiWideAreaLookupEngine *e);
  * @param callback Callback function to receive lookup results.
  * @param userdata Optional pointer passed to callback function.
  */
-AvahiWideAreaLookup *avahi_wide_area_lookup_new(AvahiWideAreaLookupEngine *e, AvahiKey *key, AvahiWideAreaLookupCallback callback, void *userdata);
+AvahiWideAreaLookup *avahi_wide_area_lookup_new(AvahiWideAreaLookupEngine *e, AvahiKey *key,
+                                                AvahiWideAreaLookupCallback callback, void *userdata);
 
 /** Release wide area lookup resources.
  *
@@ -79,7 +77,4 @@ AvahiWideAreaLookup *avahi_wide_area_lookup_new(AvahiWideAreaLookupEngine *e, Av
  */
 void avahi_wide_area_lookup_free(AvahiWideAreaLookup *q);
 
-
-
 #endif
-

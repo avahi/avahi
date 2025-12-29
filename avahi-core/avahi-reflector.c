@@ -31,11 +31,11 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-core/core.h>
 
-int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
-    AvahiServer *server;
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
+    AvahiServer      *server;
     AvahiServerConfig config;
-    int error;
-    AvahiSimplePoll *simple_poll;
+    int               error;
+    AvahiSimplePoll  *simple_poll;
 
     simple_poll = avahi_simple_poll_new();
 

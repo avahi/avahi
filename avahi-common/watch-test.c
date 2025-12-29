@@ -45,7 +45,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNU
 
     if (event & AVAHI_WATCH_IN) {
         ssize_t r;
-        char c;
+        char    c;
 
         if ((r = read(fd, &c, 1)) <= 0) {
             fprintf(stderr, "read() failed: %s\n", r < 0 ? strerror(errno) : "EOF");
@@ -58,7 +58,7 @@ static void callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_GCC_UNU
 }
 
 static void wakeup(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
-    static int i = 0;
+    static int     i = 0;
     struct timeval tv;
 
     printf("Wakeup #%i\n", i++);

@@ -44,36 +44,37 @@ struct ServiceType;
 
 struct Service {
     struct ServiceType *service_type;
-    gchar *service_name;
-    gchar *domain_name;
+    gchar              *service_name;
+    gchar              *domain_name;
 
-    AvahiIfIndex interface;
+    AvahiIfIndex  interface;
     AvahiProtocol protocol;
 
     GtkTreeRowReference *tree_ref;
 };
 
 struct ServiceType {
-    gchar *service_type;
+    gchar                *service_type;
     AvahiSServiceBrowser *browser;
 
-    GList *services;
+    GList               *services;
     GtkTreeRowReference *tree_ref;
 };
 
-static GtkWidget *main_window = NULL;
-static GtkTreeView *tree_view = NULL;
-static GtkTreeStore *tree_store = NULL;
-static GtkLabel *info_label = NULL;
-static AvahiServer *server = NULL;
+static GtkWidget                *main_window = NULL;
+static GtkTreeView              *tree_view = NULL;
+static GtkTreeStore             *tree_store = NULL;
+static GtkLabel                 *info_label = NULL;
+static AvahiServer              *server = NULL;
 static AvahiSServiceTypeBrowser *service_type_browser = NULL;
-static GHashTable *service_type_hash_table = NULL;
-static AvahiSServiceResolver *service_resolver = NULL;
-static struct Service *current_service = NULL;
+static GHashTable               *service_type_hash_table = NULL;
+static AvahiSServiceResolver    *service_resolver = NULL;
+static struct Service           *current_service = NULL;
 
-static struct Service *get_service(const gchar *service_type, const gchar *service_name, const gchar*domain_name, AvahiIfIndex interface, AvahiProtocol protocol) {
+static struct Service *get_service(const gchar *service_type, const gchar *service_name, const gchar *domain_name,
+                                   AvahiIfIndex interface, AvahiProtocol protocol) {
     struct ServiceType *st;
-    GList *l;
+    GList              *l;
 
     if (!(st = g_hash_table_lookup(service_type_hash_table, service_type)))
         return NULL;
@@ -81,9 +82,7 @@ static struct Service *get_service(const gchar *service_type, const gchar *servi
     for (l = st->services; l; l = l->next) {
         struct Service *s = l->data;
 
-        if (s->interface == interface &&
-            s->protocol == protocol &&
-            avahi_domain_equal(s->service_name, service_name) &&
+        if (s->interface == interface && s->protocol == protocol && avahi_domain_equal(s->service_name, service_name) &&
             avahi_domain_equal(s->domain_name, domain_name))
             return s;
     }
@@ -92,7 +91,7 @@ static struct Service *get_service(const gchar *service_type, const gchar *servi
 }
 
 static void free_service(struct Service *s) {
-    GtkTreeIter iter;
+    GtkTreeIter  iter;
     GtkTreePath *path;
 
     if (current_service == s) {
@@ -122,23 +121,17 @@ static void free_service(struct Service *s) {
     g_free(s);
 }
 
-static void service_browser_callback(
-    AVAHI_GCC_UNUSED AvahiSServiceBrowser *b,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *service_name,
-    const char *service_type,
-    const char *domain_name,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    AVAHI_GCC_UNUSED void* userdata) {
+static void service_browser_callback(AVAHI_GCC_UNUSED AvahiSServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+                                     AvahiBrowserEvent event, const char *service_name, const char *service_type,
+                                     const char *domain_name, AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+                                     AVAHI_GCC_UNUSED void *userdata) {
 
     if (event == AVAHI_BROWSER_NEW) {
         struct Service *s;
-        GtkTreeIter iter, piter;
-        GtkTreePath *path, *ppath;
-        gchar iface[256];
-	char name[IF_NAMESIZE];
+        GtkTreeIter     iter, piter;
+        GtkTreePath    *path, *ppath;
+        gchar           iface[256];
+        char            name[IF_NAMESIZE];
 
         s = g_new(struct Service, 1);
         s->service_name = g_strdup(service_name);
@@ -165,28 +158,22 @@ static void service_browser_callback(
         gtk_tree_view_expand_row(tree_view, ppath, FALSE);
         gtk_tree_path_free(ppath);
 
-
     } else if (event == AVAHI_BROWSER_REMOVE) {
-        struct Service* s;
+        struct Service *s;
 
         if ((s = get_service(service_type, service_name, domain_name, interface, protocol)))
             free_service(s);
     }
 }
 
-static void service_type_browser_callback(
-    AVAHI_GCC_UNUSED AvahiSServiceTypeBrowser *b,
-    AVAHI_GCC_UNUSED AvahiIfIndex interface,
-    AVAHI_GCC_UNUSED AvahiProtocol protocol,
-    AvahiBrowserEvent event,
-    const char *service_type,
-    const char *domain,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    AVAHI_GCC_UNUSED void * userdata) {
+static void service_type_browser_callback(AVAHI_GCC_UNUSED AvahiSServiceTypeBrowser *b, AVAHI_GCC_UNUSED AvahiIfIndex interface,
+                                          AVAHI_GCC_UNUSED AvahiProtocol protocol, AvahiBrowserEvent event,
+                                          const char *service_type, const char *domain,
+                                          AVAHI_GCC_UNUSED AvahiLookupResultFlags flags, AVAHI_GCC_UNUSED void *userdata) {
 
     struct ServiceType *st;
-    GtkTreePath *path;
-    GtkTreeIter iter;
+    GtkTreePath        *path;
+    GtkTreeIter         iter;
 
     if (event != AVAHI_BROWSER_NEW)
         return;
@@ -207,12 +194,13 @@ static void service_type_browser_callback(
 
     g_hash_table_insert(service_type_hash_table, st->service_type, st);
 
-    st->browser = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, st->service_type, domain, 0, service_browser_callback, NULL);
+    st->browser = avahi_s_service_browser_new(
+        server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, st->service_type, domain, 0, service_browser_callback, NULL);
 }
 
 static void update_label(struct Service *s, const gchar *hostname, const AvahiAddress *a, guint16 port, AvahiStringList *txt) {
     gchar t[512], address[64], *txt_s;
-    char name[IF_NAMESIZE];
+    char  name[IF_NAMESIZE];
 
     if (a && hostname) {
         char na[AVAHI_ADDRESS_STR_MAX];
@@ -228,7 +216,8 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
         txt_s = g_strdup("<i>n/a</i>");
     }
 
-    snprintf(t, sizeof(t),
+    snprintf(t,
+             sizeof(t),
              "<b>Service Type:</b> %s\n"
              "<b>Service Name:</b> %s\n"
              "<b>Domain Name:</b> %s\n"
@@ -238,7 +227,8 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
              s->service_type->service_type,
              s->service_name,
              s->domain_name,
-             if_indextoname(s->interface,name), avahi_proto_to_string(s->protocol),
+             if_indextoname(s->interface, name),
+             avahi_proto_to_string(s->protocol),
              address,
              txt_s);
 
@@ -248,9 +238,9 @@ static void update_label(struct Service *s, const gchar *hostname, const AvahiAd
 }
 
 static struct Service *get_service_on_cursor(void) {
-    GtkTreePath *path;
+    GtkTreePath    *path;
     struct Service *s;
-    GtkTreeIter iter;
+    GtkTreeIter     iter;
 
     gtk_tree_view_get_cursor(tree_view, &path, NULL);
 
@@ -264,20 +254,12 @@ static struct Service *get_service_on_cursor(void) {
     return s;
 }
 
-static void service_resolver_callback(
-    AvahiSServiceResolver *r,
-    AVAHI_GCC_UNUSED AvahiIfIndex interface,
-    AVAHI_GCC_UNUSED AvahiProtocol protocol,
-    AvahiResolverEvent event,
-    AVAHI_GCC_UNUSED const char *name,
-    AVAHI_GCC_UNUSED const char *type,
-    AVAHI_GCC_UNUSED const char *domain,
-    const char *host_name,
-    const AvahiAddress *a,
-    uint16_t port,
-    AvahiStringList *txt,
-    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
-    void* userdata) {
+static void service_resolver_callback(AvahiSServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interface,
+                                      AVAHI_GCC_UNUSED AvahiProtocol protocol, AvahiResolverEvent event,
+                                      AVAHI_GCC_UNUSED const char *name, AVAHI_GCC_UNUSED const char *type,
+                                      AVAHI_GCC_UNUSED const char *domain, const char *host_name, const AvahiAddress *a,
+                                      uint16_t port, AvahiStringList *txt, AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+                                      void *userdata) {
 
     struct Service *s;
     g_assert(r);
@@ -308,21 +290,31 @@ static void tree_view_on_cursor_changed(AVAHI_GCC_UNUSED GtkTreeView *tv, AVAHI_
 
     update_label(s, NULL, NULL, 0, NULL);
 
-    service_resolver = avahi_s_service_resolver_new(server, s->interface, s->protocol, s->service_name, s->service_type->service_type, s->domain_name, AVAHI_PROTO_UNSPEC, 0, service_resolver_callback, s);
+    service_resolver = avahi_s_service_resolver_new(server,
+                                                    s->interface,
+                                                    s->protocol,
+                                                    s->service_name,
+                                                    s->service_type->service_type,
+                                                    s->domain_name,
+                                                    AVAHI_PROTO_UNSPEC,
+                                                    0,
+                                                    service_resolver_callback,
+                                                    s);
 }
 
-static gboolean main_window_on_delete_event(AVAHI_GCC_UNUSED GtkWidget *widget, AVAHI_GCC_UNUSED GdkEvent *event, AVAHI_GCC_UNUSED gpointer user_data) {
+static gboolean main_window_on_delete_event(AVAHI_GCC_UNUSED GtkWidget *widget, AVAHI_GCC_UNUSED GdkEvent *event,
+                                            AVAHI_GCC_UNUSED gpointer user_data) {
     gtk_main_quit();
     return FALSE;
 }
 
 int main(int argc, char *argv[]) {
-    GtkBuilder *ui;
-    AvahiServerConfig config;
+    GtkBuilder        *ui;
+    AvahiServerConfig  config;
     GtkTreeViewColumn *c;
-    gint error;
-    AvahiGLibPoll *poll_api;
-    GError *gerror = NULL;
+    gint               error;
+    AvahiGLibPoll     *poll_api;
+    GError            *gerror = NULL;
 
     gtk_init(&argc, &argv);
 
@@ -332,17 +324,17 @@ int main(int argc, char *argv[]) {
 
     ui = gtk_builder_new();
     gtk_builder_set_translation_domain(ui, "avahi");
-    if (!gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover.ui", &gerror)) {
+    if (!gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR "avahi-discover.ui", &gerror)) {
         fprintf(stderr, "Failed to load UI interface: %s\n", gerror->message);
         g_error_free(gerror);
         g_object_unref(G_OBJECT(ui));
         return 1;
     }
     main_window = GTK_WIDGET(gtk_builder_get_object(ui, "main_window"));
-    g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);
+    g_signal_connect(main_window, "delete-event", (GCallback)main_window_on_delete_event, NULL);
 
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object(ui, "tree_view"));
-    g_signal_connect(GTK_WIDGET(tree_view), "cursor-changed", (GCallback) tree_view_on_cursor_changed, NULL);
+    g_signal_connect(GTK_WIDGET(tree_view), "cursor-changed", (GCallback)tree_view_on_cursor_changed, NULL);
 
     info_label = GTK_LABEL(gtk_builder_get_object(ui, "info_label"));
 
@@ -355,7 +347,7 @@ int main(int argc, char *argv[]) {
     gtk_tree_view_column_set_sizing(c, GTK_TREE_VIEW_COLUMN_GROW_ONLY);
     gtk_tree_view_column_set_expand(c, TRUE);
 
-    service_type_hash_table = g_hash_table_new((GHashFunc) avahi_domain_hash, (GEqualFunc) avahi_domain_equal);
+    service_type_hash_table = g_hash_table_new((GHashFunc)avahi_domain_hash, (GEqualFunc)avahi_domain_equal);
 
     avahi_server_config_init(&config);
     config.publish_hinfo = config.publish_addresses = config.publish_domain = config.publish_workstation = FALSE;
@@ -364,7 +356,8 @@ int main(int argc, char *argv[]) {
 
     g_assert(server);
 
-    service_type_browser = avahi_s_service_type_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, argc >= 2 ? argv[1] : NULL, 0, service_type_browser_callback, NULL);
+    service_type_browser = avahi_s_service_type_browser_new(
+        server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, argc >= 2 ? argv[1] : NULL, 0, service_type_browser_callback, NULL);
 
     gtk_main();
 

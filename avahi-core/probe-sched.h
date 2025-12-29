@@ -26,8 +26,8 @@ typedef struct AvahiProbeScheduler AvahiProbeScheduler;
 #include "iface.h"
 
 AvahiProbeScheduler *avahi_probe_scheduler_new(AvahiInterface *i);
-void avahi_probe_scheduler_free(AvahiProbeScheduler *s);
-void avahi_probe_scheduler_clear(AvahiProbeScheduler *s);
+void                 avahi_probe_scheduler_free(AvahiProbeScheduler *s);
+void                 avahi_probe_scheduler_clear(AvahiProbeScheduler *s);
 
 int avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record, int immediately);
 

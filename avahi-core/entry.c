@@ -56,11 +56,10 @@ static void transport_flags_from_domain(AvahiServer *s, AvahiPublishFlags *flags
 
     assert(!((*flags & AVAHI_PUBLISH_USE_MULTICAST) && (*flags & AVAHI_PUBLISH_USE_WIDE_AREA)));
 
-    if (*flags & (AVAHI_PUBLISH_USE_MULTICAST|AVAHI_PUBLISH_USE_WIDE_AREA))
+    if (*flags & (AVAHI_PUBLISH_USE_MULTICAST | AVAHI_PUBLISH_USE_WIDE_AREA))
         return;
 
-    if (!s->wide_area_lookup_engine ||
-        !avahi_wide_area_has_servers(s->wide_area_lookup_engine) ||
+    if (!s->wide_area_lookup_engine || !avahi_wide_area_has_servers(s->wide_area_lookup_engine) ||
         avahi_domain_ends_with(domain, AVAHI_MDNS_SUFFIX_LOCAL) ||
         avahi_domain_ends_with(domain, AVAHI_MDNS_SUFFIX_ADDR_IPV4) ||
         avahi_domain_ends_with(domain, AVAHI_MDNS_SUFFIX_ADDR_IPV6))
@@ -69,7 +68,7 @@ static void transport_flags_from_domain(AvahiServer *s, AvahiPublishFlags *flags
         *flags |= AVAHI_PUBLISH_USE_WIDE_AREA;
 }
 
-void avahi_entry_free(AvahiServer*s, AvahiEntry *e) {
+void avahi_entry_free(AvahiServer *s, AvahiEntry *e) {
     AvahiEntry *t;
 
     assert(s);
@@ -148,7 +147,8 @@ void avahi_cleanup_dead_entries(AvahiServer *s) {
     }
 }
 
-static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r, AvahiPublishFlags flags) {
+static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiProtocol protocol, AvahiRecord *r,
+                                 AvahiPublishFlags flags) {
     AvahiEntry *e;
 
     assert(s);
@@ -161,7 +161,7 @@ static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiPr
         if (!(flags & AVAHI_PUBLISH_UNIQUE) && !(e->flags & AVAHI_PUBLISH_UNIQUE))
             continue;
 
-        if ((flags & AVAHI_PUBLISH_ALLOW_MULTIPLE) && (e->flags & AVAHI_PUBLISH_ALLOW_MULTIPLE) )
+        if ((flags & AVAHI_PUBLISH_ALLOW_MULTIPLE) && (e->flags & AVAHI_PUBLISH_ALLOW_MULTIPLE))
             continue;
 
         if (avahi_record_equal_no_ttl(r, e->record)) {
@@ -169,12 +169,8 @@ static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiPr
             continue;
         }
 
-        if ((interface <= 0 ||
-             e->interface <= 0 ||
-             e->interface == interface) &&
-            (protocol == AVAHI_PROTO_UNSPEC ||
-             e->protocol == AVAHI_PROTO_UNSPEC ||
-             e->protocol == protocol))
+        if ((interface <= 0 || e->interface <= 0 || e->interface == interface) &&
+            (protocol == AVAHI_PROTO_UNSPEC || e->protocol == AVAHI_PROTO_UNSPEC || e->protocol == protocol))
 
             return -1;
     }
@@ -182,56 +178,49 @@ static int check_record_conflict(AvahiServer *s, AvahiIfIndex interface, AvahiPr
     return 0;
 }
 
-static AvahiEntry * server_add_internal(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    AvahiRecord *r) {
+static AvahiEntry *server_add_internal(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                       AvahiPublishFlags flags, AvahiRecord *r) {
 
     AvahiEntry *e;
 
     assert(s);
     assert(r);
 
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, s->state != AVAHI_SERVER_FAILURE && s->state != AVAHI_SERVER_INVALID, AVAHI_ERR_BAD_STATE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(
+        s, s->state != AVAHI_SERVER_FAILURE && s->state != AVAHI_SERVER_INVALID, AVAHI_ERR_BAD_STATE);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_FLAGS_VALID(
-                                         flags,
-                                         AVAHI_PUBLISH_NO_ANNOUNCE|
-                                         AVAHI_PUBLISH_NO_PROBE|
-                                         AVAHI_PUBLISH_UNIQUE|
-                                         AVAHI_PUBLISH_ALLOW_MULTIPLE|
-                                         AVAHI_PUBLISH_UPDATE|
-                                         AVAHI_PUBLISH_USE_WIDE_AREA|
-                                         AVAHI_PUBLISH_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(s,
+                                     AVAHI_FLAGS_VALID(flags,
+                                                       AVAHI_PUBLISH_NO_ANNOUNCE | AVAHI_PUBLISH_NO_PROBE |
+                                                           AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_ALLOW_MULTIPLE |
+                                                           AVAHI_PUBLISH_UPDATE | AVAHI_PUBLISH_USE_WIDE_AREA |
+                                                           AVAHI_PUBLISH_USE_MULTICAST),
+                                     AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, avahi_is_valid_domain_name(r->key->name), AVAHI_ERR_INVALID_HOST_NAME);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, r->ttl != 0, AVAHI_ERR_INVALID_TTL);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !avahi_key_is_pattern(r->key), AVAHI_ERR_IS_PATTERN);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, avahi_record_is_valid(r), AVAHI_ERR_INVALID_RECORD);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, r->key->clazz == AVAHI_DNS_CLASS_IN, AVAHI_ERR_INVALID_DNS_CLASS);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s,
-                                     (r->key->type != 0) &&
-                                     (r->key->type != AVAHI_DNS_TYPE_ANY) &&
-                                     (r->key->type != AVAHI_DNS_TYPE_OPT) &&
-                                     (r->key->type != AVAHI_DNS_TYPE_TKEY) &&
-                                     (r->key->type != AVAHI_DNS_TYPE_TSIG) &&
-                                     (r->key->type != AVAHI_DNS_TYPE_IXFR) &&
-                                     (r->key->type != AVAHI_DNS_TYPE_AXFR), AVAHI_ERR_INVALID_DNS_TYPE);
+                                     (r->key->type != 0) && (r->key->type != AVAHI_DNS_TYPE_ANY) &&
+                                         (r->key->type != AVAHI_DNS_TYPE_OPT) && (r->key->type != AVAHI_DNS_TYPE_TKEY) &&
+                                         (r->key->type != AVAHI_DNS_TYPE_TSIG) && (r->key->type != AVAHI_DNS_TYPE_IXFR) &&
+                                         (r->key->type != AVAHI_DNS_TYPE_AXFR),
+                                     AVAHI_ERR_INVALID_DNS_TYPE);
 
     transport_flags_from_domain(s, &flags, r->key->name);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, flags & AVAHI_PUBLISH_USE_MULTICAST, AVAHI_ERR_NOT_SUPPORTED);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !s->config.disable_publishing, AVAHI_ERR_NOT_PERMITTED);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(s,
-                                     !g ||
-                                     (g->state != AVAHI_ENTRY_GROUP_ESTABLISHED && g->state != AVAHI_ENTRY_GROUP_REGISTERING) ||
-                                     (flags & AVAHI_PUBLISH_UPDATE), AVAHI_ERR_BAD_STATE);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(
+        s,
+        !g || (g->state != AVAHI_ENTRY_GROUP_ESTABLISHED && g->state != AVAHI_ENTRY_GROUP_REGISTERING) ||
+            (flags & AVAHI_PUBLISH_UPDATE),
+        AVAHI_ERR_BAD_STATE);
 
     if (flags & AVAHI_PUBLISH_UPDATE) {
         AvahiRecord *old_record;
-        int is_first = 1;
+        int          is_first = 1;
 
         /* Update and existing record */
 
@@ -313,13 +302,8 @@ static AvahiEntry * server_add_internal(
     return e;
 }
 
-int avahi_server_add(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    AvahiRecord *r) {
+int avahi_server_add(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                     AvahiPublishFlags flags, AvahiRecord *r) {
 
     if (!server_add_internal(s, g, interface, protocol, flags, r))
         return avahi_server_errno(s);
@@ -328,7 +312,7 @@ int avahi_server_add(
 }
 
 const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiSEntryGroup *g, void **state) {
-    AvahiEntry **e = (AvahiEntry**) state;
+    AvahiEntry **e = (AvahiEntry **)state;
     assert(s);
     assert(e);
 
@@ -344,7 +328,7 @@ const AvahiRecord *avahi_server_iterate(AvahiServer *s, AvahiSEntryGroup *g, voi
     return avahi_record_ref((*e)->record);
 }
 
-int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata) {
+int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void *userdata) {
     AvahiEntry *e;
 
     assert(s);
@@ -354,7 +338,7 @@ int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata
 
     for (e = s->entries; e; e = e->entries_next) {
         char *t;
-        char ln[256];
+        char  ln[256];
 
         if (e->dead)
             continue;
@@ -375,18 +359,11 @@ int avahi_server_dump(AvahiServer *s, AvahiDumpCallback callback, void* userdata
     return AVAHI_OK;
 }
 
-static AvahiEntry *server_add_ptr_internal(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    const char *dest) {
+static AvahiEntry *server_add_ptr_internal(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                           AvahiPublishFlags flags, uint32_t ttl, const char *name, const char *dest) {
 
     AvahiRecord *r;
-    AvahiEntry *e;
+    AvahiEntry  *e;
 
     assert(s);
     assert(dest);
@@ -408,15 +385,8 @@ static AvahiEntry *server_add_ptr_internal(
     return e;
 }
 
-int avahi_server_add_ptr(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    const char *dest) {
+int avahi_server_add_ptr(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                         AvahiPublishFlags flags, uint32_t ttl, const char *name, const char *dest) {
 
     AvahiEntry *e;
 
@@ -428,32 +398,25 @@ int avahi_server_add_ptr(
     return AVAHI_OK;
 }
 
-int avahi_server_add_address(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    AvahiAddress *a) {
+int avahi_server_add_address(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                             AvahiPublishFlags flags, const char *name, AvahiAddress *a) {
 
-    char n[AVAHI_DOMAIN_NAME_MAX];
-    int ret = AVAHI_OK;
-    AvahiEntry *entry = NULL, *reverse = NULL;
-    AvahiRecord  *r;
+    char         n[AVAHI_DOMAIN_NAME_MAX];
+    int          ret = AVAHI_OK;
+    AvahiEntry  *entry = NULL, *reverse = NULL;
+    AvahiRecord *r;
 
     assert(s);
     assert(a);
 
     AVAHI_CHECK_VALIDITY(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY(s, AVAHI_PROTO_VALID(protocol) && AVAHI_PROTO_VALID(a->proto), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY(s, AVAHI_FLAGS_VALID(flags,
-                                              AVAHI_PUBLISH_NO_REVERSE|
-                                              AVAHI_PUBLISH_NO_ANNOUNCE|
-                                              AVAHI_PUBLISH_NO_PROBE|
-                                              AVAHI_PUBLISH_UPDATE|
-                                              AVAHI_PUBLISH_USE_WIDE_AREA|
-                                              AVAHI_PUBLISH_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY(s,
+                         AVAHI_FLAGS_VALID(flags,
+                                           AVAHI_PUBLISH_NO_REVERSE | AVAHI_PUBLISH_NO_ANNOUNCE | AVAHI_PUBLISH_NO_PROBE |
+                                               AVAHI_PUBLISH_UPDATE | AVAHI_PUBLISH_USE_WIDE_AREA |
+                                               AVAHI_PUBLISH_USE_MULTICAST),
+                         AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY(s, !name || avahi_is_valid_fqdn(name), AVAHI_ERR_INVALID_HOST_NAME);
 
     /* Prepare the host naem */
@@ -490,7 +453,12 @@ int avahi_server_add_address(
         r->data.aaaa.address = a->data.ipv6;
     }
 
-    entry = server_add_internal(s, g, interface, protocol, (flags & ~ AVAHI_PUBLISH_NO_REVERSE) | AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_ALLOW_MULTIPLE, r);
+    entry = server_add_internal(s,
+                                g,
+                                interface,
+                                protocol,
+                                (flags & ~AVAHI_PUBLISH_NO_REVERSE) | AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_ALLOW_MULTIPLE,
+                                r);
     avahi_record_unref(r);
 
     if (!entry) {
@@ -504,7 +472,8 @@ int avahi_server_add_address(
         char reverse_n[AVAHI_DOMAIN_NAME_MAX];
         avahi_reverse_lookup_name(a, reverse_n, sizeof(reverse_n));
 
-        if (!(reverse = server_add_ptr_internal(s, g, interface, protocol, flags | AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse_n, name))) {
+        if (!(reverse = server_add_ptr_internal(
+                  s, g, interface, protocol, flags | AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL_HOST_NAME, reverse_n, name))) {
             ret = avahi_server_errno(s);
             goto finish;
         }
@@ -522,18 +491,12 @@ finish:
     return ret;
 }
 
-static AvahiEntry *server_add_txt_strlst_nocopy(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    uint32_t ttl,
-    const char *name,
-    AvahiStringList *strlst) {
+static AvahiEntry *server_add_txt_strlst_nocopy(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface,
+                                                AvahiProtocol protocol, AvahiPublishFlags flags, uint32_t ttl, const char *name,
+                                                AvahiStringList *strlst) {
 
     AvahiRecord *r;
-    AvahiEntry *e;
+    AvahiEntry  *e;
 
     assert(s);
 
@@ -550,9 +513,7 @@ static AvahiEntry *server_add_txt_strlst_nocopy(
     return e;
 }
 
-static AvahiStringList *add_magic_cookie(
-    AvahiServer *s,
-    AvahiStringList *strlst) {
+static AvahiStringList *add_magic_cookie(AvahiServer *s, AvahiStringList *strlst) {
 
     assert(s);
 
@@ -563,26 +524,17 @@ static AvahiStringList *add_magic_cookie(
         /* This string list already contains a magic cookie */
         return strlst;
 
-    return avahi_string_list_add_printf(strlst, AVAHI_SERVICE_COOKIE"=%u", s->local_service_cookie);
+    return avahi_string_list_add_printf(strlst, AVAHI_SERVICE_COOKIE "=%u", s->local_service_cookie);
 }
 
-static int server_add_service_strlst_nocopy(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    AvahiStringList *strlst) {
+static int server_add_service_strlst_nocopy(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                            AvahiPublishFlags flags, const char *name, const char *type, const char *domain,
+                                            const char *host, uint16_t port, AvahiStringList *strlst) {
 
-    char ptr_name[AVAHI_DOMAIN_NAME_MAX], svc_name[AVAHI_DOMAIN_NAME_MAX], enum_ptr[AVAHI_DOMAIN_NAME_MAX], *h = NULL;
+    char         ptr_name[AVAHI_DOMAIN_NAME_MAX], svc_name[AVAHI_DOMAIN_NAME_MAX], enum_ptr[AVAHI_DOMAIN_NAME_MAX], *h = NULL;
     AvahiRecord *r = NULL;
-    int ret = AVAHI_OK;
-    AvahiEntry *srv_entry = NULL, *txt_entry = NULL, *ptr_entry = NULL, *enum_entry = NULL;
+    int          ret = AVAHI_OK;
+    AvahiEntry  *srv_entry = NULL, *txt_entry = NULL, *ptr_entry = NULL, *enum_entry = NULL;
 
     assert(s);
     assert(type);
@@ -590,11 +542,11 @@ static int server_add_service_strlst_nocopy(
 
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags,
-                                                                AVAHI_PUBLISH_NO_COOKIE|
-                                                                AVAHI_PUBLISH_UPDATE|
-                                                                AVAHI_PUBLISH_USE_WIDE_AREA|
-                                                                AVAHI_PUBLISH_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s,
+                                           AVAHI_FLAGS_VALID(flags,
+                                                             AVAHI_PUBLISH_NO_COOKIE | AVAHI_PUBLISH_UPDATE |
+                                                                 AVAHI_PUBLISH_USE_WIDE_AREA | AVAHI_PUBLISH_USE_MULTICAST),
+                                           AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -653,7 +605,8 @@ static int server_add_service_strlst_nocopy(
     if (!(flags & AVAHI_PUBLISH_NO_COOKIE))
         strlst = add_magic_cookie(s, strlst);
 
-    txt_entry = server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    txt_entry =
+        server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE, AVAHI_DEFAULT_TTL, svc_name, strlst);
     strlst = NULL;
 
     if (!txt_entry) {
@@ -686,62 +639,39 @@ fail:
     return ret;
 }
 
-int avahi_server_add_service_strlst(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    AvahiStringList *strlst) {
+int avahi_server_add_service_strlst(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                    AvahiPublishFlags flags, const char *name, const char *type, const char *domain,
+                                    const char *host, uint16_t port, AvahiStringList *strlst) {
 
     assert(s);
     assert(type);
     assert(name);
 
-    return server_add_service_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_copy(strlst));
+    return server_add_service_strlst_nocopy(
+        s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_copy(strlst));
 }
 
-int avahi_server_add_service(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *host,
-    uint16_t port,
-    ... ){
+int avahi_server_add_service(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                             AvahiPublishFlags flags, const char *name, const char *type, const char *domain, const char *host,
+                             uint16_t port, ...) {
 
     va_list va;
-    int ret;
+    int     ret;
 
     va_start(va, port);
-    ret = server_add_service_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_new_va(va));
+    ret = server_add_service_strlst_nocopy(
+        s, g, interface, protocol, flags, name, type, domain, host, port, avahi_string_list_new_va(va));
     va_end(va);
 
     return ret;
 }
 
-static int server_update_service_txt_strlst_nocopy(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    AvahiStringList *strlst) {
+static int server_update_service_txt_strlst_nocopy(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface,
+                                                   AvahiProtocol protocol, AvahiPublishFlags flags, const char *name,
+                                                   const char *type, const char *domain, AvahiStringList *strlst) {
 
-    char svc_name[AVAHI_DOMAIN_NAME_MAX];
-    int ret = AVAHI_OK;
+    char        svc_name[AVAHI_DOMAIN_NAME_MAX];
+    int         ret = AVAHI_OK;
     AvahiEntry *e;
 
     assert(s);
@@ -750,10 +680,10 @@ static int server_update_service_txt_strlst_nocopy(
 
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags,
-                                                                AVAHI_PUBLISH_NO_COOKIE|
-                                                                AVAHI_PUBLISH_USE_WIDE_AREA|
-                                                                AVAHI_PUBLISH_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(
+        s,
+        AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_NO_COOKIE | AVAHI_PUBLISH_USE_WIDE_AREA | AVAHI_PUBLISH_USE_MULTICAST),
+        AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -773,7 +703,8 @@ static int server_update_service_txt_strlst_nocopy(
     if (!(flags & AVAHI_PUBLISH_NO_COOKIE))
         strlst = add_magic_cookie(s, strlst);
 
-    e = server_add_txt_strlst_nocopy(s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_UPDATE, AVAHI_DEFAULT_TTL, svc_name, strlst);
+    e = server_add_txt_strlst_nocopy(
+        s, g, interface, protocol, AVAHI_PUBLISH_UNIQUE | AVAHI_PUBLISH_UPDATE, AVAHI_DEFAULT_TTL, svc_name, strlst);
     strlst = NULL;
 
     if (!e)
@@ -786,54 +717,34 @@ fail:
     return ret;
 }
 
-int avahi_server_update_service_txt_strlst(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    AvahiStringList *strlst) {
+int avahi_server_update_service_txt_strlst(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                           AvahiPublishFlags flags, const char *name, const char *type, const char *domain,
+                                           AvahiStringList *strlst) {
 
-    return server_update_service_txt_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, avahi_string_list_copy(strlst));
+    return server_update_service_txt_strlst_nocopy(
+        s, g, interface, protocol, flags, name, type, domain, avahi_string_list_copy(strlst));
 }
 
 /** Update the TXT record for a service with the NULL termonate list of strings */
-int avahi_server_update_service_txt(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    ...) {
+int avahi_server_update_service_txt(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                    AvahiPublishFlags flags, const char *name, const char *type, const char *domain, ...) {
 
     va_list va;
-    int ret;
+    int     ret;
 
     va_start(va, domain);
-    ret = server_update_service_txt_strlst_nocopy(s, g, interface, protocol, flags, name, type, domain, avahi_string_list_new_va(va));
+    ret = server_update_service_txt_strlst_nocopy(
+        s, g, interface, protocol, flags, name, type, domain, avahi_string_list_new_va(va));
     va_end(va);
 
     return ret;
 }
 
-int avahi_server_add_service_subtype(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *name,
-    const char *type,
-    const char *domain,
-    const char *subtype) {
+int avahi_server_add_service_subtype(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                     AvahiPublishFlags flags, const char *name, const char *type, const char *domain,
+                                     const char *subtype) {
 
-    int ret = AVAHI_OK;
+    int  ret = AVAHI_OK;
     char svc_name[AVAHI_DOMAIN_NAME_MAX], ptr_name[AVAHI_DOMAIN_NAME_MAX];
 
     assert(name);
@@ -842,7 +753,8 @@ int avahi_server_add_service_subtype(
 
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_PROTO_VALID(protocol), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_USE_MULTICAST|AVAHI_PUBLISH_USE_WIDE_AREA), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(
+        s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_USE_MULTICAST | AVAHI_PUBLISH_USE_WIDE_AREA), AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_name(name), AVAHI_ERR_INVALID_SERVICE_NAME);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, avahi_is_valid_service_type_strict(type), AVAHI_ERR_INVALID_SERVICE_TYPE);
     AVAHI_CHECK_VALIDITY_SET_RET_GOTO_FAIL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -870,8 +782,8 @@ fail:
 
 static void hexstring(char *s, size_t sl, const void *p, size_t pl) {
     static const char hex[] = "0123456789abcdef";
-    int b = 0;
-    const uint8_t *k = p;
+    int               b = 0;
+    const uint8_t    *k = p;
 
     while (sl > 1 && pl > 0) {
         *(s++) = hex[(b ? *k : *k >> 4) & 0xF];
@@ -890,27 +802,22 @@ static void hexstring(char *s, size_t sl, const void *p, size_t pl) {
         *s = 0;
 }
 
-static AvahiEntry *server_add_dns_server_name(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *domain,
-    AvahiDNSServerType type,
-    const char *name,
-    uint16_t port /** should be 53 */) {
+static AvahiEntry *server_add_dns_server_name(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface,
+                                              AvahiProtocol protocol, AvahiPublishFlags flags, const char *domain,
+                                              AvahiDNSServerType type, const char *name, uint16_t port /** should be 53 */) {
 
     AvahiEntry *e;
-    char t[AVAHI_DOMAIN_NAME_MAX], normalized_d[AVAHI_DOMAIN_NAME_MAX], *n;
+    char        t[AVAHI_DOMAIN_NAME_MAX], normalized_d[AVAHI_DOMAIN_NAME_MAX], *n;
 
     AvahiRecord *r;
 
     assert(s);
     assert(name);
 
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_USE_WIDE_AREA|AVAHI_PUBLISH_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
-    AVAHI_CHECK_VALIDITY_RETURN_NULL(s, type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE, AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(
+        s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_USE_WIDE_AREA | AVAHI_PUBLISH_USE_MULTICAST), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY_RETURN_NULL(
+        s, type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE, AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, port != 0, AVAHI_ERR_INVALID_PORT);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, avahi_is_valid_fqdn(name), AVAHI_ERR_INVALID_HOST_NAME);
     AVAHI_CHECK_VALIDITY_RETURN_NULL(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -946,27 +853,21 @@ static AvahiEntry *server_add_dns_server_name(
     return e;
 }
 
-int avahi_server_add_dns_server_address(
-    AvahiServer *s,
-    AvahiSEntryGroup *g,
-    AvahiIfIndex interface,
-    AvahiProtocol protocol,
-    AvahiPublishFlags flags,
-    const char *domain,
-    AvahiDNSServerType type,
-    const AvahiAddress *address,
-    uint16_t port /** should be 53 */) {
+int avahi_server_add_dns_server_address(AvahiServer *s, AvahiSEntryGroup *g, AvahiIfIndex interface, AvahiProtocol protocol,
+                                        AvahiPublishFlags flags, const char *domain, AvahiDNSServerType type,
+                                        const AvahiAddress *address, uint16_t port /** should be 53 */) {
 
     AvahiRecord *r;
-    char n[64], h[64];
-    AvahiEntry *a_entry, *s_entry;
+    char         n[64], h[64];
+    AvahiEntry  *a_entry, *s_entry;
 
     assert(s);
     assert(address);
 
     AVAHI_CHECK_VALIDITY(s, AVAHI_IF_VALID(interface), AVAHI_ERR_INVALID_INTERFACE);
     AVAHI_CHECK_VALIDITY(s, AVAHI_PROTO_VALID(protocol) && AVAHI_PROTO_VALID(address->proto), AVAHI_ERR_INVALID_PROTOCOL);
-    AVAHI_CHECK_VALIDITY(s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_USE_MULTICAST|AVAHI_PUBLISH_USE_WIDE_AREA), AVAHI_ERR_INVALID_FLAGS);
+    AVAHI_CHECK_VALIDITY(
+        s, AVAHI_FLAGS_VALID(flags, AVAHI_PUBLISH_USE_MULTICAST | AVAHI_PUBLISH_USE_WIDE_AREA), AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY(s, type == AVAHI_DNS_SERVER_UPDATE || type == AVAHI_DNS_SERVER_RESOLVE, AVAHI_ERR_INVALID_FLAGS);
     AVAHI_CHECK_VALIDITY(s, port != 0, AVAHI_ERR_INVALID_PORT);
     AVAHI_CHECK_VALIDITY(s, !domain || avahi_is_valid_domain_name(domain), AVAHI_ERR_INVALID_DOMAIN_NAME);
@@ -1042,7 +943,7 @@ void avahi_s_entry_group_change_state(AvahiSEntryGroup *g, AvahiEntryGroupState 
         g->callback(g->server, g, state, g->userdata);
 }
 
-AvahiSEntryGroup *avahi_s_entry_group_new(AvahiServer *s, AvahiSEntryGroupCallback callback, void* userdata) {
+AvahiSEntryGroup *avahi_s_entry_group_new(AvahiServer *s, AvahiSEntryGroupCallback callback, void *userdata) {
     AvahiSEntryGroup *g;
 
     assert(s);
@@ -1068,7 +969,7 @@ AvahiSEntryGroup *avahi_s_entry_group_new(AvahiServer *s, AvahiSEntryGroupCallba
     return g;
 }
 
-static void cleanup_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* userdata) {
+static void cleanup_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
     AvahiServer *s = userdata;
 
     assert(s);
@@ -1082,7 +983,8 @@ static void schedule_cleanup(AvahiServer *s) {
     assert(s);
 
     if (!s->cleanup_time_event)
-        s->cleanup_time_event = avahi_time_event_new(s->time_event_queue, avahi_elapse_time(&tv, 1000, 0), &cleanup_time_event_callback, s);
+        s->cleanup_time_event =
+            avahi_time_event_new(s->time_event_queue, avahi_elapse_time(&tv, 1000, 0), &cleanup_time_event_callback, s);
 }
 
 void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
@@ -1125,7 +1027,7 @@ static void entry_group_commit_real(AvahiSEntryGroup *g) {
     avahi_s_entry_group_check_probed(g, 0);
 }
 
-static void entry_group_register_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* userdata) {
+static void entry_group_register_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void *userdata) {
     AvahiSEntryGroup *g = userdata;
     assert(g);
 
@@ -1150,10 +1052,9 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
 
     g->n_register_try++;
 
-    avahi_timeval_add(&g->register_time,
-                      1000*(g->n_register_try >= AVAHI_RR_RATE_LIMIT_COUNT ?
-                            AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT :
-                            AVAHI_RR_HOLDOFF_MSEC));
+    avahi_timeval_add(
+        &g->register_time,
+        1000 * (g->n_register_try >= AVAHI_RR_RATE_LIMIT_COUNT ? AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT : AVAHI_RR_HOLDOFF_MSEC));
 
     gettimeofday(&now, NULL);
 
@@ -1163,9 +1064,10 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
         entry_group_commit_real(g);
     } else {
 
-         /* Holdoff time has not yet passed, so let's wait */
+        /* Holdoff time has not yet passed, so let's wait */
         assert(!g->register_time_event);
-        g->register_time_event = avahi_time_event_new(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);
+        g->register_time_event =
+            avahi_time_event_new(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);
 
         avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
     }
@@ -1196,9 +1098,7 @@ int avahi_entry_is_commited(AvahiEntry *e) {
     assert(e);
     assert(!e->dead);
 
-    return !e->group ||
-        e->group->state == AVAHI_ENTRY_GROUP_REGISTERING ||
-        e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED;
+    return !e->group || e->group->state == AVAHI_ENTRY_GROUP_REGISTERING || e->group->state == AVAHI_ENTRY_GROUP_ESTABLISHED;
 }
 
 AvahiEntryGroupState avahi_s_entry_group_get_state(AvahiSEntryGroup *g) {
@@ -1208,13 +1108,13 @@ AvahiEntryGroupState avahi_s_entry_group_get_state(AvahiSEntryGroup *g) {
     return g->state;
 }
 
-void avahi_s_entry_group_set_data(AvahiSEntryGroup *g, void* userdata) {
+void avahi_s_entry_group_set_data(AvahiSEntryGroup *g, void *userdata) {
     assert(g);
 
     g->userdata = userdata;
 }
 
-void* avahi_s_entry_group_get_data(AvahiSEntryGroup *g) {
+void *avahi_s_entry_group_get_data(AvahiSEntryGroup *g) {
     assert(g);
 
     return g->userdata;

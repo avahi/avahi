@@ -39,7 +39,7 @@ int avahi_timeval_compare(const struct timeval *a, const struct timeval *b);
 AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b);
 
 /** Add a number of microseconds to the specified timeval structure and return it. *a is modified. */
-struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec);
+struct timeval *avahi_timeval_add(struct timeval *a, AvahiUsec usec);
 
 /** Return the difference between the current time and *a. Positive if *a was earlier */
 AvahiUsec avahi_age(const struct timeval *a);

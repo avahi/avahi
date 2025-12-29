@@ -49,17 +49,17 @@
 #include "main.h"
 #include "static-services.h"
 
-typedef struct StaticService StaticService;
+typedef struct StaticService      StaticService;
 typedef struct StaticServiceGroup StaticServiceGroup;
 
 struct StaticService {
     StaticServiceGroup *group;
 
-    char *type;
-    char *domain_name;
-    char *host_name;
+    char    *type;
+    char    *domain_name;
+    char    *host_name;
     uint16_t port;
-    int protocol;
+    int      protocol;
 
     AvahiStringList *subtypes;
 
@@ -69,11 +69,11 @@ struct StaticService {
 };
 
 struct StaticServiceGroup {
-    char *filename;
+    char  *filename;
     time_t mtime;
 
     char *name, *chosen_name;
-    int replace_wildcards;
+    int   replace_wildcards;
 
     AvahiSEntryGroup *entry_group;
     AVAHI_LLIST_HEAD(StaticService, services);
@@ -181,7 +181,8 @@ static void static_service_group_free(StaticServiceGroup *g) {
     avahi_free(g);
 }
 
-static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *eg, AvahiEntryGroupState state, void* userdata) {
+static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGroup *eg, AvahiEntryGroupState state,
+                                 void *userdata) {
     StaticServiceGroup *g = userdata;
 
     assert(s);
@@ -189,33 +190,33 @@ static void entry_group_callback(AvahiServer *s, AVAHI_GCC_UNUSED AvahiSEntryGro
 
     switch (state) {
 
-        case AVAHI_ENTRY_GROUP_COLLISION: {
-            char *n;
+    case AVAHI_ENTRY_GROUP_COLLISION: {
+        char *n;
 
-            remove_static_service_group_from_server(g);
+        remove_static_service_group_from_server(g);
 
-            n = avahi_alternative_service_name(g->chosen_name);
-            avahi_free(g->chosen_name);
-            g->chosen_name = n;
+        n = avahi_alternative_service_name(g->chosen_name);
+        avahi_free(g->chosen_name);
+        g->chosen_name = n;
 
-            avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
+        avahi_log_notice("Service name conflict for \"%s\" (%s), retrying with \"%s\".", g->name, g->filename, g->chosen_name);
 
-            add_static_service_group_to_server(g);
-            break;
-        }
+        add_static_service_group_to_server(g);
+        break;
+    }
 
-        case AVAHI_ENTRY_GROUP_ESTABLISHED:
-            avahi_log_info("Service \"%s\" (%s) successfully established.", g->chosen_name, g->filename);
-            break;
+    case AVAHI_ENTRY_GROUP_ESTABLISHED:
+        avahi_log_info("Service \"%s\" (%s) successfully established.", g->chosen_name, g->filename);
+        break;
 
-        case AVAHI_ENTRY_GROUP_FAILURE:
-            avahi_log_warn("Failed to publish service \"%s\" (%s): %s", g->chosen_name, g->filename, avahi_strerror(avahi_server_errno(s)));
-            remove_static_service_group_from_server(g);
-            break;
+    case AVAHI_ENTRY_GROUP_FAILURE:
+        avahi_log_warn(
+            "Failed to publish service \"%s\" (%s): %s", g->chosen_name, g->filename, avahi_strerror(avahi_server_errno(s)));
+        remove_static_service_group_from_server(g);
+        break;
 
-        case AVAHI_ENTRY_GROUP_UNCOMMITED:
-        case AVAHI_ENTRY_GROUP_REGISTERING:
-            ;
+    case AVAHI_ENTRY_GROUP_UNCOMMITED:
+    case AVAHI_ENTRY_GROUP_REGISTERING:;
     }
 }
 
@@ -233,7 +234,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
         avahi_free(g->chosen_name);
 
         if (g->replace_wildcards) {
-            char label[AVAHI_LABEL_MAX];
+            char        label[AVAHI_LABEL_MAX];
             const char *p;
 
             p = avahi_server_get_host_name(avahi_server);
@@ -242,7 +243,6 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
             g->chosen_name = replacestr(g->name, "%h", label);
         } else
             g->chosen_name = avahi_strdup(g->name);
-
     }
 
     if (!g->entry_group)
@@ -253,16 +253,21 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
     for (s = g->services; s; s = s->services_next) {
         AvahiStringList *i;
 
-        if (avahi_server_add_service_strlst(
-                avahi_server,
-                g->entry_group,
-                AVAHI_IF_UNSPEC, s->protocol,
-                0,
-                g->chosen_name, s->type, s->domain_name,
-                s->host_name, s->port,
-                s->txt_records) < 0) {
+        if (avahi_server_add_service_strlst(avahi_server,
+                                            g->entry_group,
+                                            AVAHI_IF_UNSPEC,
+                                            s->protocol,
+                                            0,
+                                            g->chosen_name,
+                                            s->type,
+                                            s->domain_name,
+                                            s->host_name,
+                                            s->port,
+                                            s->txt_records) < 0) {
             avahi_log_error("Failed to add service '%s' of type '%s', ignoring service group (%s): %s",
-                            g->chosen_name, s->type, g->filename,
+                            g->chosen_name,
+                            s->type,
+                            g->filename,
                             avahi_strerror(avahi_server_errno(avahi_server)));
             remove_static_service_group_from_server(g);
             return;
@@ -270,16 +275,21 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
 
         for (i = s->subtypes; i; i = i->next) {
 
-            if (avahi_server_add_service_subtype(
-                    avahi_server,
-                    g->entry_group,
-                    AVAHI_IF_UNSPEC, s->protocol,
-                    0,
-                    g->chosen_name, s->type, s->domain_name,
-                    (char*) i->text) < 0) {
+            if (avahi_server_add_service_subtype(avahi_server,
+                                                 g->entry_group,
+                                                 AVAHI_IF_UNSPEC,
+                                                 s->protocol,
+                                                 0,
+                                                 g->chosen_name,
+                                                 s->type,
+                                                 s->domain_name,
+                                                 (char *)i->text) < 0) {
 
                 avahi_log_error("Failed to add subtype '%s' for service '%s' of type '%s', ignoring subtype (%s): %s",
-                                i->text, g->chosen_name, s->type, g->filename,
+                                i->text,
+                                g->chosen_name,
+                                s->type,
+                                g->filename,
                                 avahi_strerror(avahi_server_errno(avahi_server)));
             }
         }
@@ -315,13 +325,13 @@ typedef enum {
 } txt_record_value_type;
 
 struct xml_userdata {
-    StaticServiceGroup *group;
-    StaticService *service;
-    xml_tag_name current_tag;
-    int failed;
-    char *buf;
+    StaticServiceGroup   *group;
+    StaticService        *service;
+    xml_tag_name          current_tag;
+    int                   failed;
+    char                 *buf;
     txt_record_value_type txt_type;
-    char *txt_key;
+    char                 *txt_key;
 };
 
 #ifndef XMLCALL
@@ -422,7 +432,9 @@ static void XMLCALL xml_start(void *data, const char *el, const char *attr[]) {
                 } else if (strcmp(attr[1], "binary-base64") == 0) {
                     value_type = TXT_RECORD_VALUE_BINARY_BASE64;
                 } else {
-                    avahi_log_error("%s: parse failure: invalid txt record value format specification \"%s\".", u->group->filename, attr[1]);
+                    avahi_log_error("%s: parse failure: invalid txt record value format specification \"%s\".",
+                                    u->group->filename,
+                                    attr[1]);
                     u->failed = 1;
                     return;
                 }
@@ -450,21 +462,21 @@ invalid_attr:
 }
 
 static uint8_t hex(char c) {
-  if ((c >= '0') && (c <= '9'))
-    return c - '0';
-  if ((c >= 'A') && (c <= 'F'))
-    return c - 'A' + 10;
-  if ((c >= 'a') && (c <= 'f'))
-    return c - 'a' + 10;
-  return 0xFF;
+    if ((c >= '0') && (c <= '9'))
+        return c - '0';
+    if ((c >= 'A') && (c <= 'F'))
+        return c - 'A' + 10;
+    if ((c >= 'a') && (c <= 'f'))
+        return c - 'a' + 10;
+    return 0xFF;
 }
 
 static int decode_hex_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out_buf_len) {
     const char *buf = (u->buf != NULL) ? u->buf : "";
-    size_t buf_len = strlen(buf);
-    uint8_t *raw_buf;
-    size_t iter;
-    size_t raw_buf_len;
+    size_t      buf_len = strlen(buf);
+    uint8_t    *raw_buf;
+    size_t      iter;
+    size_t      raw_buf_len;
 
     if (buf_len % 2) {
         avahi_log_error("%s: parse failure: hex value of the txt record should have an even length", u->group->filename);
@@ -491,17 +503,17 @@ static int decode_hex_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out
 }
 
 static uint8_t base64(char c) {
-  if (c >= 'A' && c <= 'Z')
-    return c - 'A';
-  if (c >= 'a' && c <= 'z')
-    return c - 'a' + 26;
-  if (c >= '0' && c <= '9')
-    return c - '0' + 52;
-  if (c == '+')
-    return 62;
-  if (c == '/')
-    return 63;
-  return 255;
+    if (c >= 'A' && c <= 'Z')
+        return c - 'A';
+    if (c >= 'a' && c <= 'z')
+        return c - 'a' + 26;
+    if (c >= '0' && c <= '9')
+        return c - '0' + 52;
+    if (c == '+')
+        return 62;
+    if (c == '/')
+        return 63;
+    return 255;
 }
 
 static int base64_error(struct xml_userdata *u, uint8_t *raw_buf) {
@@ -513,14 +525,15 @@ static int base64_error(struct xml_userdata *u, uint8_t *raw_buf) {
 
 static int decode_base64_buf(struct xml_userdata *u, uint8_t **out_buf, size_t *out_buf_len) {
     const char *buf = (u->buf != NULL) ? u->buf : "";
-    size_t buf_len = strlen(buf);
-    uint8_t *raw_buf;
-    size_t iter, raw_iter;
-    size_t raw_buf_len;
-    size_t buf_len_no_equals = buf_len;
+    size_t      buf_len = strlen(buf);
+    uint8_t    *raw_buf;
+    size_t      iter, raw_iter;
+    size_t      raw_buf_len;
+    size_t      buf_len_no_equals = buf_len;
 
     if (buf_len % 4) {
-        avahi_log_error("%s: parse failure: length of the base64 value of the txt record should be a multiple of 4", u->group->filename);
+        avahi_log_error("%s: parse failure: length of the base64 value of the txt record should be a multiple of 4",
+                        u->group->filename);
         u->failed = 1;
         return -1;
     }
@@ -572,117 +585,116 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
         return;
 
     switch (u->current_tag) {
-        case XML_TAG_SERVICE_GROUP:
+    case XML_TAG_SERVICE_GROUP:
 
-            if (!u->group->name || !u->group->services) {
-                avahi_log_error("%s: parse failure: service group incomplete.", u->group->filename);
-                u->failed = 1;
-                return;
-            }
-
-            u->current_tag = XML_TAG_INVALID;
-            break;
-
-        case XML_TAG_SERVICE:
-
-            if (!u->service->type) {
-                avahi_log_error("%s: parse failure: service incomplete.", u->group->filename);
-                u->failed = 1;
-                return;
-            }
-
-            u->service = NULL;
-            u->current_tag = XML_TAG_SERVICE_GROUP;
-            break;
-
-        case XML_TAG_NAME:
-            u->current_tag = XML_TAG_SERVICE_GROUP;
-            break;
-
-        case XML_TAG_PORT: {
-            int p;
-            assert(u->service);
-
-            p = u->buf ? atoi(u->buf) : 0;
-
-            if (p < 0 || p > 0xFFFF) {
-                avahi_log_error("%s: parse failure: invalid port specification \"%s\".", u->group->filename, u->buf);
-                u->failed = 1;
-                return;
-            }
-
-            u->service->port = (uint16_t) p;
-
-            u->current_tag = XML_TAG_SERVICE;
-            break;
+        if (!u->group->name || !u->group->services) {
+            avahi_log_error("%s: parse failure: service group incomplete.", u->group->filename);
+            u->failed = 1;
+            return;
         }
 
-        case XML_TAG_TXT_RECORD: {
-            assert(u->service);
-            if (u->txt_key != NULL) {
-                size_t key_len = strlen(u->txt_key);
-                uint8_t *value_buf;
-                uint8_t *free_value_buf = NULL;
-                size_t value_buf_len = 0;
+        u->current_tag = XML_TAG_INVALID;
+        break;
 
-                switch (u->txt_type) {
-                    case TXT_RECORD_VALUE_TEXT:
-                        if (u->buf != NULL) {
-                            value_buf_len = strlen(u->buf);
-                            value_buf = (uint8_t*)u->buf;
-                        } else {
-                            value_buf_len = 0;
-                            value_buf = (uint8_t*)"";
-                        }
-                        break;
+    case XML_TAG_SERVICE:
 
-                    case TXT_RECORD_VALUE_BINARY_HEX:
-                        if (decode_hex_buf(u, &value_buf, &value_buf_len) < 0)
-                            return;
-                        free_value_buf = value_buf;
-                        break;
+        if (!u->service->type) {
+            avahi_log_error("%s: parse failure: service incomplete.", u->group->filename);
+            u->failed = 1;
+            return;
+        }
 
-                    case TXT_RECORD_VALUE_BINARY_BASE64:
-                        if (decode_base64_buf(u, &value_buf, &value_buf_len) < 0)
-                            return;
-                        free_value_buf = value_buf;
-                        break;
+        u->service = NULL;
+        u->current_tag = XML_TAG_SERVICE_GROUP;
+        break;
 
-                    default:
-                        assert(0);
+    case XML_TAG_NAME:
+        u->current_tag = XML_TAG_SERVICE_GROUP;
+        break;
+
+    case XML_TAG_PORT: {
+        int p;
+        assert(u->service);
+
+        p = u->buf ? atoi(u->buf) : 0;
+
+        if (p < 0 || p > 0xFFFF) {
+            avahi_log_error("%s: parse failure: invalid port specification \"%s\".", u->group->filename, u->buf);
+            u->failed = 1;
+            return;
+        }
+
+        u->service->port = (uint16_t)p;
+
+        u->current_tag = XML_TAG_SERVICE;
+        break;
+    }
+
+    case XML_TAG_TXT_RECORD: {
+        assert(u->service);
+        if (u->txt_key != NULL) {
+            size_t   key_len = strlen(u->txt_key);
+            uint8_t *value_buf;
+            uint8_t *free_value_buf = NULL;
+            size_t   value_buf_len = 0;
+
+            switch (u->txt_type) {
+            case TXT_RECORD_VALUE_TEXT:
+                if (u->buf != NULL) {
+                    value_buf_len = strlen(u->buf);
+                    value_buf = (uint8_t *)u->buf;
+                } else {
+                    value_buf_len = 0;
+                    value_buf = (uint8_t *)"";
                 }
+                break;
 
-                u->service->txt_records = avahi_string_list_add_anonymous(u->service->txt_records, key_len + 1 + value_buf_len);
-                memcpy(u->service->txt_records->text, u->txt_key, key_len);
-                u->service->txt_records->text[key_len] = '=';
-                memcpy(u->service->txt_records->text + key_len + 1, value_buf, value_buf_len);
-                avahi_free(u->txt_key);
-                u->txt_key = NULL;
-                avahi_free(free_value_buf);
-            } else
-                u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
+            case TXT_RECORD_VALUE_BINARY_HEX:
+                if (decode_hex_buf(u, &value_buf, &value_buf_len) < 0)
+                    return;
+                free_value_buf = value_buf;
+                break;
 
-            u->current_tag = XML_TAG_SERVICE;
-            u->txt_type = TXT_RECORD_VALUE_TEXT;
-            break;
-        }
+            case TXT_RECORD_VALUE_BINARY_BASE64:
+                if (decode_base64_buf(u, &value_buf, &value_buf_len) < 0)
+                    return;
+                free_value_buf = value_buf;
+                break;
 
-        case XML_TAG_SUBTYPE: {
-            assert(u->service);
+            default:
+                assert(0);
+            }
 
-            u->service->subtypes = avahi_string_list_add(u->service->subtypes, u->buf ? u->buf : "");
-            u->current_tag = XML_TAG_SERVICE;
-            break;
-        }
+            u->service->txt_records = avahi_string_list_add_anonymous(u->service->txt_records, key_len + 1 + value_buf_len);
+            memcpy(u->service->txt_records->text, u->txt_key, key_len);
+            u->service->txt_records->text[key_len] = '=';
+            memcpy(u->service->txt_records->text + key_len + 1, value_buf, value_buf_len);
+            avahi_free(u->txt_key);
+            u->txt_key = NULL;
+            avahi_free(free_value_buf);
+        } else
+            u->service->txt_records = avahi_string_list_add(u->service->txt_records, u->buf ? u->buf : "");
 
-        case XML_TAG_TYPE:
-        case XML_TAG_DOMAIN_NAME:
-        case XML_TAG_HOST_NAME:
-            u->current_tag = XML_TAG_SERVICE;
-            break;
+        u->current_tag = XML_TAG_SERVICE;
+        u->txt_type = TXT_RECORD_VALUE_TEXT;
+        break;
+    }
 
-        case XML_TAG_INVALID:
-            ;
+    case XML_TAG_SUBTYPE: {
+        assert(u->service);
+
+        u->service->subtypes = avahi_string_list_add(u->service->subtypes, u->buf ? u->buf : "");
+        u->current_tag = XML_TAG_SERVICE;
+        break;
+    }
+
+    case XML_TAG_TYPE:
+    case XML_TAG_DOMAIN_NAME:
+    case XML_TAG_HOST_NAME:
+        u->current_tag = XML_TAG_SERVICE;
+        break;
+
+    case XML_TAG_INVALID:;
     }
 
     avahi_free(u->buf);
@@ -694,7 +706,6 @@ static char *append_cdata(char *t, const char *n, int length) {
 
     if (!length)
         return t;
-
 
     k = avahi_strndup(n, length);
 
@@ -716,62 +727,61 @@ static void XMLCALL xml_cdata(void *data, const XML_Char *s, int len) {
         return;
 
     switch (u->current_tag) {
-        case XML_TAG_NAME:
-            u->group->name = append_cdata(u->group->name, s, len);
-            break;
+    case XML_TAG_NAME:
+        u->group->name = append_cdata(u->group->name, s, len);
+        break;
 
-        case XML_TAG_TYPE:
-            assert(u->service);
-            u->service->type = append_cdata(u->service->type, s, len);
-            break;
+    case XML_TAG_TYPE:
+        assert(u->service);
+        u->service->type = append_cdata(u->service->type, s, len);
+        break;
 
-        case XML_TAG_DOMAIN_NAME:
-            assert(u->service);
-            u->service->domain_name = append_cdata(u->service->domain_name, s, len);
-            break;
+    case XML_TAG_DOMAIN_NAME:
+        assert(u->service);
+        u->service->domain_name = append_cdata(u->service->domain_name, s, len);
+        break;
 
-        case XML_TAG_HOST_NAME:
-            assert(u->service);
-            u->service->host_name = append_cdata(u->service->host_name, s, len);
-            break;
+    case XML_TAG_HOST_NAME:
+        assert(u->service);
+        u->service->host_name = append_cdata(u->service->host_name, s, len);
+        break;
 
-        case XML_TAG_PORT:
-        case XML_TAG_SUBTYPE:
-            assert(u->service);
-            u->buf = append_cdata(u->buf, s, len);
-            break;
+    case XML_TAG_PORT:
+    case XML_TAG_SUBTYPE:
+        assert(u->service);
+        u->buf = append_cdata(u->buf, s, len);
+        break;
 
-        case XML_TAG_TXT_RECORD:
-            assert(u->service);
-            if (u->txt_key == NULL) {
-              char *equals = memchr(s, '=', len);
+    case XML_TAG_TXT_RECORD:
+        assert(u->service);
+        if (u->txt_key == NULL) {
+            char *equals = memchr(s, '=', len);
 
-              if (equals != NULL) {
+            if (equals != NULL) {
                 u->txt_key = append_cdata(u->buf, s, equals - s);
                 u->buf = NULL;
                 /* len is now length of the rest of the string past the equals sign */
                 len -= equals - s + 1;
                 s = equals + 1;
-              }
             }
-            if (len > 0)
-                u->buf = append_cdata(u->buf, s, len);
-            break;
+        }
+        if (len > 0)
+            u->buf = append_cdata(u->buf, s, len);
+        break;
 
-        case XML_TAG_SERVICE_GROUP:
-        case XML_TAG_SERVICE:
-        case XML_TAG_INVALID:
-            ;
+    case XML_TAG_SERVICE_GROUP:
+    case XML_TAG_SERVICE:
+    case XML_TAG_INVALID:;
     }
 }
 
 static int static_service_group_load(StaticServiceGroup *g) {
-    XML_Parser parser = NULL;
-    int fd = -1;
+    XML_Parser          parser = NULL;
+    int                 fd = -1;
     struct xml_userdata u;
-    int r = -1;
-    struct stat st;
-    ssize_t n;
+    int                 r = -1;
+    struct stat         st;
+    ssize_t             n;
 
     assert(g);
 
@@ -818,7 +828,7 @@ static int static_service_group_load(StaticServiceGroup *g) {
     do {
         void *buffer;
 
-#define BUFSIZE (10*1024)
+#define BUFSIZE (10 * 1024)
 
         if (!(buffer = XML_GetBuffer(parser, BUFSIZE))) {
             avahi_log_error("XML_GetBuffer() failed.");
@@ -831,7 +841,9 @@ static int static_service_group_load(StaticServiceGroup *g) {
         }
 
         if (!XML_ParseBuffer(parser, n, n == 0)) {
-            avahi_log_error("XML_ParseBuffer() failed at line %d: %s.\n", (int) XML_GetCurrentLineNumber(parser), XML_ErrorString(XML_GetErrorCode(parser)));
+            avahi_log_error("XML_ParseBuffer() failed at line %d: %s.\n",
+                            (int)XML_GetCurrentLineNumber(parser),
+                            XML_ErrorString(XML_GetErrorCode(parser)));
             goto finish;
         }
 
@@ -872,9 +884,9 @@ static void load_file(char *n) {
 
 void static_service_load(int in_chroot) {
     StaticServiceGroup *g, *n;
-    glob_t globbuf;
-    int globret;
-    char **p;
+    glob_t              globbuf;
+    int                 globret;
+    char              **p;
 
     for (g = groups; g; g = n) {
         struct stat st;
@@ -905,18 +917,18 @@ void static_service_load(int in_chroot) {
 
         switch (globret) {
 #ifdef GLOB_NOSPACE
-	    case GLOB_NOSPACE:
-	        avahi_log_error("Not enough memory to read service directory "AVAHI_SERVICE_DIR".");
-	        break;
+        case GLOB_NOSPACE:
+            avahi_log_error("Not enough memory to read service directory " AVAHI_SERVICE_DIR ".");
+            break;
 #endif
 #ifdef GLOB_NOMATCH
-            case GLOB_NOMATCH:
-	        avahi_log_info("No service file found in "AVAHI_SERVICE_DIR".");
-	        break;
+        case GLOB_NOMATCH:
+            avahi_log_info("No service file found in " AVAHI_SERVICE_DIR ".");
+            break;
 #endif
-            default:
-	        avahi_log_error("Failed to read "AVAHI_SERVICE_DIR".");
-	        break;
+        default:
+            avahi_log_error("Failed to read " AVAHI_SERVICE_DIR ".");
+            break;
         }
 
     else {

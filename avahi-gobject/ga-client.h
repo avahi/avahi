@@ -40,7 +40,7 @@ typedef enum {
     GA_CLIENT_FLAG_NO_FAIL = AVAHI_CLIENT_NO_FAIL
 } GaClientFlags;
 
-typedef struct _GaClient GaClient;
+typedef struct _GaClient      GaClient;
 typedef struct _GaClientClass GaClientClass;
 
 struct _GaClientClass {
@@ -56,24 +56,18 @@ struct _GaClient {
 GType ga_client_get_type(void);
 
 /* TYPE MACROS */
-#define GA_TYPE_CLIENT \
-    (ga_client_get_type())
-#define GA_CLIENT(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), GA_TYPE_CLIENT, GaClient))
-#define GA_CLIENT_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), GA_TYPE_CLIENT, GaClientClass))
-#define IS_GA_CLIENT(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), GA_TYPE_CLIENT))
-#define IS_GA_CLIENT_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass), GA_TYPE_CLIENT))
-#define GA_CLIENT_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), GA_TYPE_CLIENT, GaClientClass))
+#define GA_TYPE_CLIENT (ga_client_get_type())
+#define GA_CLIENT(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), GA_TYPE_CLIENT, GaClient))
+#define GA_CLIENT_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), GA_TYPE_CLIENT, GaClientClass))
+#define IS_GA_CLIENT(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), GA_TYPE_CLIENT))
+#define IS_GA_CLIENT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GA_TYPE_CLIENT))
+#define GA_CLIENT_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), GA_TYPE_CLIENT, GaClientClass))
 
 GaClient *ga_client_new(GaClientFlags flags);
 
-gboolean ga_client_start(GaClient * client, GError ** error);
+gboolean ga_client_start(GaClient *client, GError **error);
 
-gboolean ga_client_start_in_context(GaClient * client, GMainContext * context, GError ** error);
+gboolean ga_client_start_in_context(GaClient *client, GMainContext *context, GError **error);
 
 G_END_DECLS
 

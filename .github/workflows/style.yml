@@ -1,0 +1,24 @@
+---
+name: Style adherence test
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - run: sudo apt -y install clang-format
+      - run: find -type f -name '*.h' -or -name '*.c' -print0 | xargs -0 clang-format -Werror --dry-run

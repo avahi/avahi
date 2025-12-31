@@ -1216,7 +1216,10 @@ static int run_server(DaemonConfig *c) {
         }
 
         avahi_log_info("Successfully called chroot().");
-        chdir("/");
+
+        if (chdir("/") < 0) {
+            avahi_log_error("Failed to change directory.");
+        }
 
         if (avahi_caps_drop_all() < 0) {
             avahi_log_error("Failed to drop capabilities.");
@@ -1442,7 +1445,9 @@ static int make_runtime_dir(void) {
         goto fail;
     }
 
-    chown(AVAHI_DAEMON_RUNTIME_DIR, pw->pw_uid, gr->gr_gid);
+    if (chown(AVAHI_DAEMON_RUNTIME_DIR, pw->pw_uid, gr->gr_gid) < 0) {
+        avahi_log_error("chown(): %s\n", strerror(errno));
+    }
 
     if (stat(AVAHI_DAEMON_RUNTIME_DIR, &st) < 0) {
         avahi_log_error("stat(): %s\n", strerror(errno));
@@ -1507,7 +1512,9 @@ static void init_rand_seed(void) {
      * less predictable, and to make sure that multiple machines
      * booted at the same time choose different random seeds.  */
     if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
-        read(fd, &seed, sizeof(seed));
+        if (read(fd, &seed, sizeof(seed)) <= 0) {
+            daemon_log(LOG_ERR, "read() failed: %s", strerror(errno));
+        }
         close(fd);
     }
 
@@ -1690,7 +1697,9 @@ int main(int argc, char *argv[]) {
         if (config.set_rlimits)
             enforce_rlimits();
 
-        chdir("/");
+        if (chdir("/") < 0) {
+            avahi_log_error("Failed to change directory: %s", strerror(errno));
+        }
 
 #ifdef ENABLE_CHROOT
         if (config.drop_root && config.use_chroot)

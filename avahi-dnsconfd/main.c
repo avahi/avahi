@@ -615,7 +615,9 @@ int main(int argc, char *argv[]) {
         if (use_syslog || daemonize)
             daemon_log_use = DAEMON_LOG_SYSLOG;
 
-        chdir("/");
+        if (chdir("/") < 0) {
+            daemon_log(LOG_ERR, "Failed to change directory: %s", strerror(errno));
+        }
 
         if (daemon_pid_file_create() < 0) {
             daemon_log(LOG_ERR, "Failed to create PID file: %s", strerror(errno));

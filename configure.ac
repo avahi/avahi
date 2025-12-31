@@ -451,6 +451,7 @@ AC_ARG_ENABLE(glib,
         [HAVE_GLIB=yes])
 
 if test "x$HAVE_GLIB" = "xyes" ; then
+        CFLAGS="$CFLAGS -DGLIB_DISABLE_DEPRECATION_WARNINGS"
         PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
         AC_SUBST(GLIB20_CFLAGS)
         AC_SUBST(GLIB20_LIBS)
@@ -470,6 +471,7 @@ AC_ARG_ENABLE(gobject,
         [HAVE_GOBJECT=yes])
 
 if test "x$HAVE_GOBJECT" = "xyes" ; then
+        CFLAGS="$CFLAGS -Wno-pedantic"
         PKG_CHECK_MODULES(GOBJECT, [ glib-2.0 >= 2.4.0 gobject-2.0 ])
         AC_SUBST(GOBJECT_CFLAGS)
         AC_SUBST(GOBJECT_LIBS)
@@ -610,6 +612,7 @@ AC_ARG_ENABLE(gtk3,
 
 if test "x$HAVE_GTK3" = "xyes" ; then
         # Check for GTK 3.0
+        CFLAGS="$CFLAGS -DGDK_DISABLE_DEPRECATION_WARNINGS"
         PKG_CHECK_MODULES(GTK30, [ gtk+-3.0 ])
         AC_SUBST(GTK30_CFLAGS)
         AC_SUBST(GTK30_LIBS)

@@ -98,8 +98,7 @@ void avahi_simple_poll_wakeup(AvahiSimplePoll *s) {
     char c = 'W';
     assert(s);
 
-    write(s->wakeup_pipe[1], &c, sizeof(c));
-    s->wakeup_issued = 1;
+    s->wakeup_issued = write(s->wakeup_pipe[1], &c, sizeof(c)) > 0;
 }
 
 static void clear_wakeup(AvahiSimplePoll *s) {

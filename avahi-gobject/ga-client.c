@@ -103,6 +103,7 @@ static void ga_client_get_property(GObject * object,
             break;
         case PROP_FLAGS:
             g_value_set_enum(value, priv->flags);
+            break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
             break;
@@ -223,7 +224,7 @@ static void _avahi_client_cb(AvahiClient * c, AvahiClientState state, void *data
         self->avahi_client = c;
 
     g_assert(c == self->avahi_client);
-    priv->state = state;
+    priv->state = (GaClientState) state;
     g_signal_emit(self, signals[STATE_CHANGED],
                   detail_for_state(state), state);
 }
@@ -245,7 +246,7 @@ gboolean ga_client_start_in_context(GaClient * client, GMainContext * context, G
     priv->poll = avahi_glib_poll_new(context, G_PRIORITY_DEFAULT);
 
     aclient = avahi_client_new(avahi_glib_poll_get(priv->poll),
-                               priv->flags,
+                               (AvahiClientFlags) priv->flags,
                                _avahi_client_cb, client, &aerror);
     if (aclient == NULL) {
         if (error != NULL) {

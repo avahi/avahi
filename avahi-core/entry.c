@@ -928,7 +928,11 @@ static AvahiEntry *server_add_dns_server_name(
 
     AVAHI_ASSERT_TRUE(avahi_normalize_name(domain, normalized_d, sizeof(normalized_d)));
 
-    snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", normalized_d);
+    if (snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", normalized_d) >= (int) sizeof(t)) {
+        avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
+        avahi_free(n);
+        return NULL;
+    }
 
     if (!(r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME))) {
         avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
@@ -979,12 +983,14 @@ int avahi_server_add_dns_server_address(
 
     if (address->proto == AVAHI_PROTO_INET) {
         hexstring(h, sizeof(h), &address->data, sizeof(AvahiIPv4Address));
-        snprintf(n, sizeof(n), "ip-%s.%s", h, domain);
+        if (snprintf(n, sizeof(n), "ip-%s.%s", h, domain) >= (int) sizeof(n))
+            return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_A, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.a.address = address->data.ipv4;
     } else {
         hexstring(h, sizeof(h), &address->data, sizeof(AvahiIPv6Address));
-        snprintf(n, sizeof(n), "ip6-%s.%s", h, domain);
+        if (snprintf(n, sizeof(n), "ip6-%s.%s", h, domain) >= (int) sizeof(n))
+            return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.aaaa.address = address->data.ipv6;
     }

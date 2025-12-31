@@ -219,7 +219,7 @@ static void _avahi_entry_group_cb(AvahiEntryGroup * g,
         priv->group = g;
 
     g_assert(g == priv->group);
-    priv->state = state;
+    priv->state = (GaEntryGroupState) state;
     g_signal_emit(self, signals[STATE_CHANGED],
                   detail_for_state(state), state);
 }

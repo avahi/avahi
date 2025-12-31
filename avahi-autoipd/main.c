@@ -186,7 +186,9 @@ static void init_rand_seed(void) {
      * less predictable, and to make sure that multiple machines
      * booted at the same time choose different random seeds.  */
     if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
-        read(fd, &seed, sizeof(seed));
+        if (read(fd, &seed, sizeof(seed)) <= 0) {
+            daemon_log(LOG_ERR, "read() failed: %s", strerror(errno));
+        }
         close(fd);
     }
 
@@ -964,7 +966,9 @@ static int drop_privs(void) {
     if (!no_drop_root) {
         struct stat st;
 
-        chown(AVAHI_IPDATA_DIR, pw->pw_uid, gr->gr_gid);
+        if (chown(AVAHI_IPDATA_DIR, pw->pw_uid, gr->gr_gid) < 0) {
+            daemon_log(LOG_ERR, "chown(): %s\n", strerror(errno));
+        }
 
         if (stat(AVAHI_IPDATA_DIR, &st) < 0) {
             daemon_log(LOG_ERR, "stat(): %s\n", strerror(errno));
@@ -986,7 +990,10 @@ static int drop_privs(void) {
         }
 
         daemon_log(LOG_INFO, "Successfully called chroot().");
-        chdir("/");
+
+        if (chdir("/") < 0) {
+            daemon_log(LOG_ERR, "Failed to chdir(): %s", strerror(errno));
+        }
 
         /* Since we are now trapped inside a chroot we cannot remove
          * the pid file anymore, the helper process will do that for us. */
@@ -1655,7 +1662,9 @@ int main(int argc, char*argv[]) {
         if (use_syslog || daemonize)
             daemon_log_use = DAEMON_LOG_SYSLOG;
 
-        chdir("/");
+        if (chdir("/") < 0) {
+            daemon_log(LOG_ERR, "Failed to change directory: %s", strerror(errno));
+        }
 
         if (daemon_pid_file_create() < 0) {
             daemon_log(LOG_ERR, "Failed to create PID file: %s", strerror(errno));

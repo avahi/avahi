@@ -52,7 +52,9 @@ static int set_nonblock(int fd) {
 }
 
 static void handler(int s) {
-    write(pipe_fds[1], &s, sizeof(s));
+    if (write(pipe_fds[1], &s, sizeof(s)) <= 0) {
+        fprintf(stderr, "handler(%x) failed: %s\n", s, strerror(errno));
+    }
 }
 
 static void close_pipe_fds(void) {

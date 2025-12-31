@@ -451,6 +451,7 @@ AC_ARG_ENABLE(glib,
         [HAVE_GLIB=yes])
 
 if test "x$HAVE_GLIB" = "xyes" ; then
+        CFLAGS="$CFLAGS -DGLIB_DISABLE_DEPRECATION_WARNINGS"
         PKG_CHECK_MODULES(GLIB20, [ glib-2.0 >= 2.4.0 ])
         AC_SUBST(GLIB20_CFLAGS)
         AC_SUBST(GLIB20_LIBS)

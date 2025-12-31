@@ -611,6 +611,7 @@ AC_ARG_ENABLE(gtk3,
 
 if test "x$HAVE_GTK3" = "xyes" ; then
         # Check for GTK 3.0
+        CFLAGS="$CFLAGS -DGDK_DISABLE_DEPRECATION_WARNINGS"
         PKG_CHECK_MODULES(GTK30, [ gtk+-3.0 ])
         AC_SUBST(GTK30_CFLAGS)
         AC_SUBST(GTK30_LIBS)

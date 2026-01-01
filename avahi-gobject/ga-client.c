@@ -103,6 +103,7 @@ static void ga_client_get_property(GObject * object,
             break;
         case PROP_FLAGS:
             g_value_set_enum(value, priv->flags);
+            break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
             break;

@@ -928,7 +928,11 @@ static AvahiEntry *server_add_dns_server_name(
 
     AVAHI_ASSERT_TRUE(avahi_normalize_name(domain, normalized_d, sizeof(normalized_d)));
 
-    snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", normalized_d);
+    if (snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", normalized_d) >= (int) sizeof(t)) {
+        avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
+        avahi_free(n);
+        return NULL;
+    }
 
     if (!(r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME))) {
         avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);

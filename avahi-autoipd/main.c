@@ -186,7 +186,8 @@ static void init_rand_seed(void) {
      * less predictable, and to make sure that multiple machines
      * booted at the same time choose different random seeds.  */
     if ((fd = open(RANDOM_DEVICE, O_RDONLY)) >= 0) {
-        read(fd, &seed, sizeof(seed));
+        if (read(fd, &seed, sizeof(seed)) <= 0)
+            daemon_log(LOG_WARNING, "read() from \"%s\" failed: %s", RANDOM_DEVICE, strerror(errno));
         close(fd);
     }
 

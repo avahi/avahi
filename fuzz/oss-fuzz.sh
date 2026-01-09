@@ -102,7 +102,7 @@ for f in fuzz/fuzz-*.c; do
 
     # CXXFLAGS have to be split
     # shellcheck disable=SC2086
-    $CXX $CXXFLAGS \
+    "${LINK_WITH:-$CXX}" $CXXFLAGS \
         "$fuzz_target.o" \
         -o "$OUT/$fuzz_target" \
         $LIB_FUZZING_ENGINE \

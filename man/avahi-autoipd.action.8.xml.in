@@ -23,9 +23,9 @@
 
   <manpage name="avahi-autoipd.action" section="8" desc="avahi-autoipd action script">
 
-	<synopsis>
+    <synopsis>
       <cmd>@pkgsysconfdir@/avahi-autoipd.action</cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p><file>avahi-autoipd.action</file> is the action script that
@@ -33,9 +33,9 @@
       avahi-autoipd or when it detected an IP address conflict. The
       script should add or remove the specified address from the
       specified network interface.</p>
-	</description>
+    </description>
 
-	<section name="Parameters">
+    <section name="Parameters">
 
       <option>
         <p><opt>argv[1]</opt> An event string: one of BIND, CONFLICT,
@@ -62,22 +62,22 @@
         <p><opt>argv[3]</opt> An IP address from the IPv4LL range.</p>
       </option>
 
-	</section>
+    </section>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-autoipd" section="8"/>, <manref name="dhclient-script" section="8"/>, <manref name="ip" section="8"/>, <manref name="ifconfig" section="8"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

@@ -23,12 +23,12 @@
 
   <manpage name="avahi-dnsconfd" section="8" desc="Unicast DNS server from mDNS/DNS-SD configuration daemon">
 
-	<synopsis>
+    <synopsis>
       <cmd>avahi-dnsconfd [<arg>options</arg>]</cmd>
       <cmd>avahi-dnsconfd <opt>--kill</opt></cmd>
       <cmd>avahi-dnsconfd <opt>--refresh</opt></cmd>
       <cmd>avahi-dnsconfd <opt>--check</opt></cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p>avahi-dnsconfd connects to a running avahi-daemon and runs
@@ -36,46 +36,46 @@
       server that is announced on the local LAN. This is useful for
       configuring unicast DNS servers in a DHCP-like fashion with
       mDNS.</p>
-	</description>
+    </description>
 
-	<options>
+    <options>
 
-	  <option>
-		<p><opt>-D | --daemonize</opt></p>
-		<optdesc><p>Daemonize after startup and redirect log messages to syslog.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-D | --daemonize</opt></p>
+        <optdesc><p>Daemonize after startup and redirect log messages to syslog.</p></optdesc>
+      </option>
 
       <option>
         <p><opt>-s | --syslog</opt></p>
         <optdesc><p>Log to syslog instead of STDERR. Implied by <opt>--daemonize</opt>.</p></optdesc>
       </option>
 
-	  <option>
-		<p><opt>-k | --kill</opt></p>
-		<optdesc><p>Kill an already running avahi-dnsconfd. (equivalent to sending a SIGTERM)</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-k | --kill</opt></p>
+        <optdesc><p>Kill an already running avahi-dnsconfd. (equivalent to sending a SIGTERM)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-r | --refresh</opt></p>
-		<optdesc><p>Tell an already running avahi-dnsconfd to refresh the DNS server data. (equivalent to sending a SIGHUP)</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-r | --refresh</opt></p>
+        <optdesc><p>Tell an already running avahi-dnsconfd to refresh the DNS server data. (equivalent to sending a SIGHUP)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-c | --check</opt></p>
-		<optdesc><p>Return 0 as return code when avahi-dnsconfd is already running.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-c | --check</opt></p>
+        <optdesc><p>Return 0 as return code when avahi-dnsconfd is already running.</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-h | --help</opt></p>
+        <optdesc><p>Show help</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-v | --version</opt></p>
-		<optdesc><p>Show version information </p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-v | --version</opt></p>
+        <optdesc><p>Show version information </p></optdesc>
+      </option>
 
-	</options>
+    </options>
 
     <section name="Files">
 
@@ -88,20 +88,20 @@
       <p><arg>SIGHUP</arg>: avahi-dnsconfd will refresh the DNS server data.</p>
     </section>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-daemon" section="8"/>, <manref name="avahi-dnsconfd.action" section="8"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

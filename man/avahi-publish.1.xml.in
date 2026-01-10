@@ -23,18 +23,18 @@
 
   <manpage name="avahi-publish-service" section="1" desc="Register an mDNS/DNS-SD service or host name or address mapping using the Avahi daemon">
 
-	<synopsis>
+  <synopsis>
       <cmd>avahi-publish -s [<arg>options</arg>] <arg>name</arg> <arg>service-type</arg> <arg>port</arg> [<arg>TXT data</arg> ...]</cmd>
       <cmd>avahi-publish-service [<arg>options</arg>] <arg>name</arg> <arg>service-type</arg> <arg>port</arg> [<arg>TXT data</arg> ...]</cmd>
       <cmd>avahi-publish -a [<arg>options</arg>] <arg>host name</arg> <arg>address</arg></cmd>
       <cmd>avahi-publish-address [<arg>options</arg>] <arg>host name</arg> <arg>address</arg></cmd>
-	</synopsis>
+  </synopsis>
 
     <description>
       <p>Register an mDNS/DNS-SD service or host name/address mapping using the Avahi daemon.</p>
-	</description>
+  </description>
 
-	<options>
+  <options>
 
       <p>When calling in service registration mode, specify a DNS-SD
       service name (e.g. "Lennart's Files"), a service type
@@ -44,12 +44,12 @@
       mode specify a fully qualified host name and an address (IPv4 or
       IPv6).</p>
 
-	  <option>
+    <option>
         <p><opt>-s | --service</opt></p>
         <optdesc><p>Register a service. avahi-publish-service is equivalent to avahi-publish -s.</p></optdesc>
       </option>
 
-	  <option>
+    <option>
         <p><opt>-a | --address</opt></p>
         <optdesc><p>Register an address/host name mapping. avahi-publish-address is equivalent to avahi-publish -a.</p></optdesc>
       </option>
@@ -60,19 +60,19 @@
       </option>
 
       <option>
-		<p><opt>-H | --host=</opt> <arg>HOSTNAME</arg></p>
-		<optdesc><p>Specify a host name for this service, in case it
-		doesn't reside on the local host. This host name needs to be
-		fully qualified and resolvable using mDNS or unicast
-		DNS.</p></optdesc>
-	  </option>
+    <p><opt>-H | --host=</opt> <arg>HOSTNAME</arg></p>
+    <optdesc><p>Specify a host name for this service, in case it
+    doesn't reside on the local host. This host name needs to be
+    fully qualified and resolvable using mDNS or unicast
+    DNS.</p></optdesc>
+    </option>
 
-	  <option>
-		<p><opt>-d | --domain=</opt> <arg>DOMAIN</arg></p>
+    <option>
+    <p><opt>-d | --domain=</opt> <arg>DOMAIN</arg></p>
         <optdesc><p>Publish the service in the specified domain. If
         omitted the Avahi daemon will publish it in its default domain
         (usually .local).</p></optdesc>
-	  </option>
+    </option>
 
       <option>
         <p><opt>--subtype=</opt> <arg>SUBTYPE</arg></p>
@@ -89,39 +89,39 @@
         <optdesc><p>Do not publish reverse entry with address.</p></optdesc>
       </option>
 
-	  <option>
-		<p><opt>-f | --no-fail</opt></p>
-		<optdesc><p>Don't fail if the daemon is not found running. Instead, wait until it appears. If it disconnects, try to reconnect.</p></optdesc>
-	  </option>
+    <option>
+    <p><opt>-f | --no-fail</opt></p>
+    <optdesc><p>Don't fail if the daemon is not found running. Instead, wait until it appears. If it disconnects, try to reconnect.</p></optdesc>
+    </option>
 
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help</p></optdesc>
-	  </option>
+    <option>
+    <p><opt>-h | --help</opt></p>
+    <optdesc><p>Show help</p></optdesc>
+    </option>
 
-	  <option>
-		<p><opt>-V | --version</opt></p>
-		<optdesc><p>Show version information.</p></optdesc>
-	  </option>
+    <option>
+    <p><opt>-V | --version</opt></p>
+    <optdesc><p>Show version information.</p></optdesc>
+    </option>
 
-	</options>
+  </options>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+  <section name="Authors">
+    <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+    available from <url href="@PACKAGE_URL@"/></p>
+  </section>
 
-	<section name="See also">
-	  <p>
+  <section name="See also">
+    <p>
         <manref name="avahi-resolve" section="1"/>, <manref
         name="avahi-browse" section="1"/>, <manref
         name="avahi-daemon" section="8"/>
-	  </p>
-	</section>
+    </p>
+  </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+  <section name="Comments">
+    <p>This man page was written using <manref name="xml2man" section="1"
+      href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+  </section>
 
   </manpage>

@@ -23,12 +23,12 @@
 
   <manpage name="avahi-daemon" section="8" desc="The Avahi mDNS/DNS-SD daemon">
 
-	<synopsis>
+    <synopsis>
       <cmd>avahi-daemon [<arg>options</arg>]</cmd>
       <cmd>avahi-daemon <opt>--kill</opt></cmd>
       <cmd>avahi-daemon <opt>--reload</opt></cmd>
       <cmd>avahi-daemon <opt>--check</opt></cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p>The Avahi mDNS/DNS-SD daemon implements Apple's Zeroconf
@@ -50,19 +50,19 @@
       <opt>publish-resolv-conf-dns-servers</opt> in
       <file>avahi-daemon.conf</file> the file
       <file>/etc/resolv.conf</file> will be read, too.</p>
-	</description>
+    </description>
 
-	<options>
+    <options>
 
-	  <option>
-		<p><opt>-f | --file=</opt> <arg>FILE</arg></p>
-		<optdesc><p>Specify the configuration file to read. (default: @pkgsysconfdir@/avahi-daemon.conf)</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-f | --file=</opt> <arg>FILE</arg></p>
+        <optdesc><p>Specify the configuration file to read. (default: @pkgsysconfdir@/avahi-daemon.conf)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-D | --daemonize</opt></p>
-		<optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt>.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-D | --daemonize</opt></p>
+        <optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt>.</p></optdesc>
+      </option>
 
       <option>
         <p><opt>-s | --syslog</opt></p>
@@ -97,39 +97,39 @@
         title.</p></optdesc>
       </option>
 
-	  <option>
-		<p><opt>-k | --kill</opt></p>
-		<optdesc><p>Kill an already running avahi-daemon. (equivalent to sending a SIGTERM)</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-k | --kill</opt></p>
+        <optdesc><p>Kill an already running avahi-daemon. (equivalent to sending a SIGTERM)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-r | --reload</opt></p>
-		<optdesc><p>Tell an already running avahi-daemon to reread
-		<file>/etc/resolv.conf</file> (in case you enabled
+      <option>
+        <p><opt>-r | --reload</opt></p>
+        <optdesc><p>Tell an already running avahi-daemon to reread
+        <file>/etc/resolv.conf</file> (in case you enabled
         <opt>publish-resolv-conf-dns-servers</opt> in
-		<file>avahi-daemon.conf</file>) and the files from
-		<file>@servicedir@/</file>. Please note that this will not
-		reload the
-		<file>@pkgsysconfdir@/avahi-daemon.conf</file>. (equivalent to
-		sending a SIGHUP)</p></optdesc>
-	  </option>
+        <file>avahi-daemon.conf</file>) and the files from
+        <file>@servicedir@/</file>. Please note that this will not
+        reload the
+        <file>@pkgsysconfdir@/avahi-daemon.conf</file>. (equivalent to
+        sending a SIGHUP)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-c | --check</opt></p>
-		<optdesc><p>Return 0 as return code when avahi-daemon is already running.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-c | --check</opt></p>
+        <optdesc><p>Return 0 as return code when avahi-daemon is already running.</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-h | --help</opt></p>
+        <optdesc><p>Show help</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-v | --version</opt></p>
-		<optdesc><p>Show version information </p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-v | --version</opt></p>
+        <optdesc><p>Show version information </p></optdesc>
+      </option>
 
-	</options>
+    </options>
 
     <section name="Files">
 
@@ -149,22 +149,22 @@
       <p><arg>SIGUSR1</arg>: avahi-daemon will dump local and remote cached resource record data to syslog.</p>
     </section>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-daemon.conf" section="5"/>, <manref name="avahi.hosts" section="5"/>, <manref name="avahi.service" section="5"/>, <manref name="avahi-dnsconfd" section="8"/>, <manref name="avahi-set-host-name" section="1"/>
-	  </p>
+      </p>
 
       <p>http://avahi.org/wiki/AvahiAndUnicastDotLocal documents the problems when using Avahi in a unicast DNS zone .local.</p>
-	</section>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

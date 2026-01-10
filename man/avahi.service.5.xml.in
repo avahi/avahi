@@ -23,9 +23,9 @@
 
   <manpage name="avahi.service" section="5" desc="avahi-daemon static service file">
 
-	<synopsis>
+    <synopsis>
       <cmd>@servicedir@/*.service</cmd>
-	</synopsis>
+    </synopsis>
 
     <description> <p><file>@servicedir@/*.service</file> are XML
       fragments containing static DNS-SD service data. Every service
@@ -34,7 +34,7 @@
       services which implement multiple protocols. (i.e. a printer
       implementing _ipp._tcp and _printer._tcp)</p> </description>
 
-	<section name="XML Tags">
+    <section name="XML Tags">
 
       <option>
         <p><opt>&lt;service-group&gt;</opt> The document tag of avahi
@@ -121,23 +121,23 @@
       </option>
 
 
-	</section>
+    </section>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-daemon" section="8"/>, <manref name="avahi.hosts" section="5"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man"
-	  section="1" href="http://masqmail.cx/xml2man/"/> by Oliver
-	  Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man"
+      section="1" href="http://masqmail.cx/xml2man/"/> by Oliver
+      Kurth.</p>
+    </section>
 
   </manpage>

@@ -23,18 +23,18 @@
 
   <manpage name="avahi-resolve" section="1" desc="Resolve one or more mDNS/DNS host name(s) to IP address(es) (and vice versa) using the Avahi daemon">
 
-	<synopsis>
+    <synopsis>
       <cmd>avahi-resolve --name <arg>host-name ...</arg></cmd>
       <cmd>avahi-resolve-host-name <arg>host-name ...</arg></cmd>
       <cmd>avahi-resolve --address <arg>address ...</arg></cmd>
       <cmd>avahi-resolve-address <arg>address ...</arg></cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p>Resolve one or more mDNS/DNS host name(s) to IP address(es) (and vice versa) using the Avahi daemon.</p>
-	</description>
+    </description>
 
-	<options>
+    <options>
 
       <p>When passing -n, specify one or more fully qualified mDNS/DNS host name(s)
       (e.g. "foo.local") to resolve into IP addresses on the command line.</p>
@@ -48,15 +48,15 @@
 
       <p>avahi-resolve-address is equivalent to avahi-resolve --address.</p>
 
-	  <option>
-		<p><opt>-n | --name</opt></p>
-		<optdesc><p>Translate one or more fully qualified host names into addresses.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-n | --name</opt></p>
+        <optdesc><p>Translate one or more fully qualified host names into addresses.</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-a | --address</opt></p>
-		<optdesc><p>Translate one or more addresses into fully qualified host names.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-a | --address</opt></p>
+        <optdesc><p>Translate one or more addresses into fully qualified host names.</p></optdesc>
+      </option>
 
       <option>
         <p><opt>-v | --verbose</opt></p>
@@ -73,36 +73,36 @@
         <optdesc><p>When resolving a host name, look for IPv4 addresses exclusively.</p></optdesc>
       </option>
 
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-h | --help</opt></p>
+        <optdesc><p>Show help.</p></optdesc>
+      </option>
 
 
-	  <option>
-		<p><opt>-V | --version</opt></p>
-		<optdesc><p>Show version information.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-V | --version</opt></p>
+        <optdesc><p>Show version information.</p></optdesc>
+      </option>
 
 
-	</options>
+    </options>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-publish-address" section="1"/>,
         <manref
         name="avahi-daemon" section="8"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

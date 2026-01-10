@@ -23,12 +23,12 @@
 
   <manpage name="avahi-autoipd" section="8" desc="IPv4LL network address configuration daemon">
 
-	<synopsis>
+    <synopsis>
       <cmd>avahi-autoipd [<arg>options</arg>] <arg>interface</arg></cmd>
       <cmd>avahi-autoipd <opt>--kill</opt> <arg>interface</arg></cmd>
       <cmd>avahi-autoipd <opt>--refresh</opt> <arg>interface</arg></cmd>
       <cmd>avahi-autoipd <opt>--check</opt> <arg>interface</arg></cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p>avahi-autoipd implements IPv4LL, "Dynamic Configuration of
@@ -53,29 +53,29 @@
       <p><opt>route add default dev eth0 metric 99</opt></p>
 
       <p>See http://developer.apple.com/qa/qa2004/qa1357.html for more information.</p>
-	</description>
+    </description>
 
-	<options>
+    <options>
 
-	  <option>
-		<p><opt>-D | --daemonize</opt></p>
-		<optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt>.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-D | --daemonize</opt></p>
+        <optdesc><p>Daemonize after startup. Implies <opt>--syslog</opt>.</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-k | --kill</opt></p>
-		<optdesc><p>Kill an already running avahi-autoipd on the specified network interface. (Equivalent to sending a SIGTERM)</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-k | --kill</opt></p>
+        <optdesc><p>Kill an already running avahi-autoipd on the specified network interface. (Equivalent to sending a SIGTERM)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-r | --refresh</opt></p>
-		<optdesc><p>Tell an already running avahi-autoipd to re-announce the acquired IP address on the specified network interface. (Equivalent to sending a SIGHUP)</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-r | --refresh</opt></p>
+        <optdesc><p>Tell an already running avahi-autoipd to re-announce the acquired IP address on the specified network interface. (Equivalent to sending a SIGHUP)</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-c | --check</opt></p>
-		<optdesc><p>Return 0 as return code if avahi-autoipd is already running for the specified network interface.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-c | --check</opt></p>
+        <optdesc><p>Return 0 as return code if avahi-autoipd is already running for the specified network interface.</p></optdesc>
+      </option>
 
       <option>
         <p><opt>-s | --syslog</opt></p>
@@ -120,17 +120,17 @@
         title.</p></optdesc>
       </option>
 
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-h | --help</opt></p>
+        <optdesc><p>Show help.</p></optdesc>
+      </option>
 
-	  <option>
-		<p><opt>-v | --version</opt></p>
-		<optdesc><p>Show version information.</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-v | --version</opt></p>
+        <optdesc><p>Show version information.</p></optdesc>
+      </option>
 
-	</options>
+    </options>
 
     <section name="Files">
 
@@ -143,22 +143,22 @@
       <p><arg>SIGHUP</arg>: avahi-autoipd will re-announce the acquired IP address. (Same as <opt>--refresh</opt>)</p>
     </section>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-autoipd.action" section="8"/>, <manref name="dhclient" section="8"/>
-	  </p>
+      </p>
 
       <p>http://avahi.org/wiki/AvahiAutoipd documents how avahi-autoipd is best packaged and integrated into distributions.</p>
-	</section>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

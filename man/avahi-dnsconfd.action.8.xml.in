@@ -23,9 +23,9 @@
 
   <manpage name="avahi-dnsconfd.action" section="8" desc="avahi-dnsconfd action script">
 
-	<synopsis>
+    <synopsis>
       <cmd>@pkgsysconfdir@/avahi-dnsconfd.action</cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p><file>avahi-dnsconfd.action</file> is the action script that
@@ -33,9 +33,9 @@
        removed by avahi-dnsconfd. The default script as shipped
       with avahi patches <file>/etc/resolv.conf</file> to reflect the
       changed unicast DNS server configuration.</p>
-	</description>
+    </description>
 
-	<section name="Parameters">
+    <section name="Parameters">
 
       <option>
         <p><opt>argv[1]</opt> Contains the character "+" if the DNS server is new, "-" when it shall be removed from the DNS server list.</p>
@@ -53,9 +53,9 @@
         <p><opt>argv[4]</opt> Numerical protocol number this DNS server was found on. (usually 2 for IPv4 and 10 for IPv6) </p>
       </option>
 
-	</section>
+    </section>
 
-	<section name="Environment">
+    <section name="Environment">
       <option>
         <p><opt>AVAHI_INTERFACE</opt> Contains the textual interface name the corresponds with argv[3]. (e.g. "eth0")</p>
       </option>
@@ -71,20 +71,20 @@
 
     </section>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-dnsconfd" section="8"/>, <manref name="avahi-daemon" section="8"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

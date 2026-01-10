@@ -23,9 +23,9 @@
 
   <manpage name="avahi.hosts" section="5" desc="avahi-daemon static host name file">
 
-	<synopsis>
+    <synopsis>
       <cmd>@pkgsysconfdir@/hosts</cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p><file>@pkgsysconfdir@/hosts</file> is a file which may be used
@@ -40,21 +40,21 @@
       i.e. with appended .local suffix.</p>
     </description>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-daemon" section="8"/>, <manref name="avahi.service" section="5"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man"
-	  section="1" href="http://masqmail.cx/xml2man/"/> by Oliver
-	  Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man"
+      section="1" href="http://masqmail.cx/xml2man/"/> by Oliver
+      Kurth.</p>
+    </section>
 
   </manpage>

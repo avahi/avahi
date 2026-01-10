@@ -41,30 +41,30 @@
     <options>
 
       <option>
-	<p><opt>-s | --ssh</opt></p>
-	<optdesc><p>Browse for SSH servers (and only SSH servers)  regardless under which name the binary is called.</p></optdesc>
+    <p><opt>-s | --ssh</opt></p>
+    <optdesc><p>Browse for SSH servers (and only SSH servers)  regardless under which name the binary is called.</p></optdesc>
       </option>
 
       <option>
-	<p><opt>-v | --vnc</opt></p>
-	<optdesc><p>Browse for VNC servers (and only VNC servers) regardless under which name the binary is called.</p></optdesc>
+    <p><opt>-v | --vnc</opt></p>
+    <optdesc><p>Browse for VNC servers (and only VNC servers) regardless under which name the binary is called.</p></optdesc>
       </option>
 
       <option>
-	<p><opt>-S | --shell</opt></p>
-	<optdesc><p>Browse for both VNC and SSH servers regardless under which name the binary is called.</p></optdesc>
+    <p><opt>-S | --shell</opt></p>
+    <optdesc><p>Browse for both VNC and SSH servers regardless under which name the binary is called.</p></optdesc>
       </option>
 
       <option>
-	<p><opt>-d | --domain=</opt> <arg>DOMAIN</arg></p>
+    <p><opt>-d | --domain=</opt> <arg>DOMAIN</arg></p>
         <optdesc><p>Browse in the specified domain. If omitted
             bssh/bvnc/bshell will browse in the default browsing domain
             (usually .local)</p></optdesc>
       </option>
 
       <option>
-	<p><opt>-h | --help</opt></p>
-	<optdesc><p>Show help.</p></optdesc>
+    <p><opt>-h | --help</opt></p>
+    <optdesc><p>Show help.</p></optdesc>
       </option>
 
     </options>

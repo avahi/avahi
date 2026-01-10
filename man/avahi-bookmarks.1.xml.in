@@ -23,9 +23,9 @@
 
   <manpage name="avahi-bookmarks" section="1" desc="Web service showing mDNS/DNS-SD announced HTTP services using the Avahi daemon">
 
-	<synopsis>
+    <synopsis>
       <cmd>avahi-bookmarks</cmd>
-	</synopsis>
+    </synopsis>
 
     <description>
       <p>A web service for listing HTTP services that are announced
@@ -35,7 +35,7 @@
       type _http._tcp on the LAN. Point your browser to
       http://localhost:8080/ to make use of avahi-bookmarks.</p>
 
-	</description>
+    </description>
 
     <options>
       <option>
@@ -73,27 +73,27 @@
         <optdesc><p>The domain to browse for services in.</p></optdesc>
       </option>
 
-	  <option>
-		<p><opt>-h | --help</opt></p>
-		<optdesc><p>Show help</p></optdesc>
-	  </option>
+      <option>
+        <p><opt>-h | --help</opt></p>
+        <optdesc><p>Show help</p></optdesc>
+      </option>
 
     </options>
 
-	<section name="Authors">
-	  <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
-	  available from <url href="@PACKAGE_URL@"/></p>
-	</section>
+    <section name="Authors">
+      <p>The Avahi Developers &lt;@PACKAGE_BUGREPORT@&gt;; Avahi is
+      available from <url href="@PACKAGE_URL@"/></p>
+    </section>
 
-	<section name="See also">
-	  <p>
+    <section name="See also">
+      <p>
         <manref name="avahi-browse" section="1"/>, <manref name="avahi-daemon" section="8"/>
-	  </p>
-	</section>
+      </p>
+    </section>
 
-	<section name="Comments">
-	  <p>This man page was written using <manref name="xml2man" section="1"
-		  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
-	</section>
+    <section name="Comments">
+      <p>This man page was written using <manref name="xml2man" section="1"
+          href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
 
   </manpage>

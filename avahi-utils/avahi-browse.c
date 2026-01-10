@@ -65,8 +65,7 @@ typedef struct Config {
     char *domain;
     char *stype;
     int ignore_local;
-    int ipv4;
-    int ipv6;
+    AvahiProtocol protocol;
     Command command;
     int resolve;
     int no_fail;
@@ -154,7 +153,7 @@ static char *make_printable(const char *from, char *to) {
 }
 
 static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, int nl) {
-    if ((config->ipv4 && protocol==AVAHI_PROTO_INET) || (config->ipv6 && protocol==AVAHI_PROTO_INET6) || (!config->ipv4 && !config->ipv6)) {
+    if (config->protocol == AVAHI_PROTO_UNSPEC || config->protocol == protocol) {
         char ifname[IF_NAMESIZE];
 
 #if defined(HAVE_GDBM)
@@ -208,8 +207,7 @@ static void service_resolver_callback(
     assert(i);
     assert(i->config);
 
-    if ((i->config->ipv4 && protocol==AVAHI_PROTO_INET) || (i->config->ipv6 && protocol==AVAHI_PROTO_INET6) || (!i->config->ipv4 && !i->config->ipv6))
-    {
+    if (i->config->protocol == AVAHI_PROTO_UNSPEC || i->config->protocol == protocol) {
         switch (event) {
             case AVAHI_RESOLVER_FOUND: {
                 char address[AVAHI_ADDRESS_STR_MAX], *t;
@@ -375,7 +373,7 @@ static void browse_service_type(Config *c, const char *stype, const char *domain
     if (!(b = avahi_service_browser_new(
               client,
               AVAHI_IF_UNSPEC,
-              AVAHI_PROTO_UNSPEC,
+              c->protocol,
               stype,
               domain,
               0,
@@ -442,7 +440,7 @@ static void browse_all(Config *c) {
     if (!(b = avahi_service_type_browser_new(
               client,
               AVAHI_IF_UNSPEC,
-              AVAHI_PROTO_UNSPEC,
+              c->protocol,
               c->domain,
               0,
               service_type_browser_callback,
@@ -516,7 +514,7 @@ static void browse_domains(Config *c) {
     if (!(b = avahi_domain_browser_new(
               client,
               AVAHI_IF_UNSPEC,
-              AVAHI_PROTO_UNSPEC,
+              c->protocol,
               c->domain,
               AVAHI_DOMAIN_BROWSER_BROWSE,
               0,
@@ -660,8 +658,8 @@ static void help(FILE *f, const char *argv0) {
               "    -t --terminate       Terminate after dumping a more or less complete list\n"
               "    -c --cache           Terminate after dumping all entries from the cache\n"
               "    -l --ignore-local    Ignore local services\n"
-              "    -4 --ipv4            Show only IPv4 services\n"
-              "    -6 --ipv6            Show only IPv6 services\n"
+              "    -4 --ipv4            Browse and show only IPv4 services\n"
+              "    -6 --ipv6            Browse and show only IPv6 services\n"
               "    -r --resolve         Resolve services found\n"
               "    -f --no-fail         Don't fail if the daemon is not available\n"
               "    -p --parsable        Output in parsable format\n"),
@@ -675,7 +673,7 @@ static void help(FILE *f, const char *argv0) {
 }
 
 static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {
-    int o;
+    int ipv4, ipv6, o;
 
     static const struct option long_options[] = {
         { "help",           no_argument,       NULL, 'h' },
@@ -711,8 +709,9 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         c->parsable = 0;
     c->domain = c->stype = NULL;
 
-    c->ipv4 = 0;
-    c->ipv6 = 0;
+    ipv4 = 0;
+    ipv6 = 0;
+    c->protocol = AVAHI_PROTO_UNSPEC;  /* IPv4 and IPv6 */
 
 #if defined(HAVE_GDBM)
     c->no_db_lookup = 0;
@@ -754,10 +753,10 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 c->ignore_local = 1;
                 break;
             case '4':
-                c->ipv4 = 1;
+                ipv4 = 1;
                 break;
             case '6':
-                c->ipv6 = 1;
+                ipv6 = 1;
                 break;
             case 'r':
                 c->resolve = 1;
@@ -794,6 +793,15 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     if (optind < argc) {
         fprintf(stderr, _("Too many arguments\n"));
         return -1;
+    }
+
+    /* IPv4 only? */
+    if (ipv4 && !ipv6) {
+        c->protocol = AVAHI_PROTO_INET;
+    }
+    /* IPv6 only? */
+    else if (!ipv4 && ipv6) {
+        c->protocol = AVAHI_PROTO_INET6;
     }
 
     return 0;

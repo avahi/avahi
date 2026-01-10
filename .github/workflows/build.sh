@@ -369,10 +369,11 @@ EOL
         fi
 
         if [[ "$COVERAGE" == true ]]; then
-            lcov --ignore-errors source --directory . --capture --initial --output-file coverage.info.initial
-            lcov --directory . --capture --output-file coverage.info.run --no-checksum --rc lcov_branch_coverage=1
-            lcov -a coverage.info.initial -a coverage.info.run --rc lcov_branch_coverage=1 -o coverage.info.raw
-            lcov --extract coverage.info.raw "$(pwd)/*" --rc lcov_branch_coverage=1 --output-file coverage.info
+            lcov --capture --directory . --initial --branch-coverage --ignore-errors source --output-file coverage.info.initial
+            lcov --capture --directory . --branch-coverage --ignore-errors inconsistent --output-file coverage.info.run
+            lcov --add-tracefile coverage.info.initial --add-tracefile coverage.info.run --branch-coverage --ignore-errors inconsistent --output-file coverage.info.raw
+            lcov --extract coverage.info.raw "$(pwd)/*" --branch-coverage --ignore-errors inconsistent --output-file coverage.info
+            lcov --summary coverage.info --fail-under-lines 50 --branch-coverage --ignore-errors inconsistent
             exit 0
         fi
         ;;

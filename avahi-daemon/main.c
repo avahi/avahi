@@ -90,6 +90,9 @@
 #include "dbus-protocol.h"
 #endif
 
+/* Maximal number of concurrent simple protocol clients. */
+#define MAX_NOFILE_LIMIT 4096
+
 AvahiServer *avahi_server = NULL;
 AvahiSimplePoll *simple_poll_api = NULL;
 static char *argv0 = NULL;
@@ -1151,6 +1154,7 @@ static int run_server(DaemonConfig *c) {
     const AvahiPoll *poll_api = NULL;
     AvahiWatch *sig_watch = NULL;
     int retval_is_sent = 0;
+    unsigned nofiles;
 #ifdef HAVE_INOTIFY
     AvahiWatch *inotify_watch = NULL;
 #endif
@@ -1185,7 +1189,10 @@ static int run_server(DaemonConfig *c) {
 
     /* We accept clients only of 3/4 file descriptors allowed
      * in this process. Keep extra for UDP sockets. */
-    if (simple_protocol_setup(poll_api, config.rlimit_nofile*3/4) < 0)
+    nofiles = config.rlimit_nofile * 3/4;
+    if (nofiles > MAX_NOFILE_LIMIT)
+        nofiles = MAX_NOFILE_LIMIT;
+    if (simple_protocol_setup(poll_api, nofiles) < 0)
         goto finish;
 
 #ifdef HAVE_DBUS

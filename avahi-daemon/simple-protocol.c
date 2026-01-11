@@ -178,7 +178,6 @@ struct Server {
     unsigned max_clients;     /*< Maximal number of all simple clients. */
     unsigned max_uid_clients; /*< Maximal number of clients of one UID. */
     int remove_socket;
-    unsigned refused_clients;
 };
 
 static Server *server = NULL;
@@ -578,7 +577,6 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
         int cfd;
 
         if ((cfd = accept(fd, NULL, NULL)) < 0) {
-            s->refused_clients++;
             if (errno != EMFILE && errno != ENFILE)
                 avahi_log_error(__FILE__" accept(): %s", strerror(errno));
             else // Avoid client ability to flood log with too many requests
@@ -589,7 +587,6 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
                 client_new(s, cfd, &cred);
             else {
                 close(cfd);
-                s->refused_clients++;
             }
         }
     }
@@ -611,7 +608,6 @@ int simple_protocol_setup2(const AvahiPoll *poll_api, unsigned max_clients) {
     server->n_clients = 0;
     server->max_clients = max_clients;
     server->max_uid_clients = max_clients / 2;
-    server->refused_clients = 0;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
 

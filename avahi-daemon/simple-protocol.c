@@ -35,6 +35,9 @@
 #ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
+#ifdef HAVE_STRUCT_XUCRED
+#include <sys/ucred.h>
+#endif
 
 #include <avahi-common/domain.h>
 #include <avahi-common/llist.h>
@@ -61,8 +64,87 @@
 
 #define BUFFER_SIZE (20*1024)
 
-#define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
-#define CRED_VALS(ucred) (long)(ucred).uid, (long)(ucred).gid, (long)(ucred).pid
+#if __linux__
+/* Linux specific support, man 7 unix */
+typedef struct ucred AvahiCred;
+
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+	return cred->uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+	return cred->gid;
+}
+
+static pid_t credentials_getpid(const AvahiCred *cred) {
+	return cred->pid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    memset(cred, 0, sizeof(*cred));
+    return getsockopt(fd, SOL_SOCKET, SO_PEERCRED, cred, len);
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
+#  define CRED_VALS(ucred) (long)credentials_getuid(ucred), (long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+
+#elif defined(HAVE_STRUCT_XUCRED) && defined(XUCRED_VERSION)
+/* FreeBSD support, man 4 unix */
+typedef struct xucred AvahiCred;
+
+static int credentials_version_check(const AvahiCred *cred) {
+	if (cred->cr_version != XUCRED_VERSION) {
+		avahi_log_debug("credentials_version_check: unsupported version %d",
+				cred->cr_version);
+		return 0;
+	}
+	return 1;
+}
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+	if (!credentials_version_check(cred))
+		return 0;
+	return cred->cr_uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+	if (!credentials_version_check(cred) || cred->cr_ngroups <= 0)
+		return 0;
+	return cred->cr_groups[0];
+}
+
+static pid_t credentials_getpid(const AvahiCred *cred) {
+	if (!credentials_version_check(cred))
+		return 0;
+	return cred->cr_pid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    memset(cred, 0, sizeof(*cred));
+    return getsockopt(fd, SOL_LOCAL, LOCAL_PEERCRED, cred, len);
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
+#  define CRED_VALS(ucred) (long)credentials_getuid(ucred), (long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+
+#else
+/* No support */
+#  define CRED_FMT     "%s"
+#  define CRED_VALS(ucred) ucred
+typedef unsigned char AvahiCred; /* need known type size. */
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+	(void)cred; return 0; /* no support for getting remote user. */
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+	(void)fd; *len = sizeof(*cred); *cred = 0;
+	return 0;
+}
+#endif
 
 typedef struct Client Client;
 typedef struct Server Server;
@@ -74,8 +156,6 @@ typedef enum {
     CLIENT_BROWSE_DNS_SERVERS,
     CLIENT_DEAD
 } ClientState;
-
-typedef struct ucred AvahiCred;
 
 struct Client {
     Server *server;
@@ -132,7 +212,7 @@ static void client_free(Client *c) {
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
     avahi_log_debug("simple client %d finished: " CRED_FMT,
-                    c->fd, CRED_VALS(c->credentials));
+                    c->fd, CRED_VALS(&c->credentials));
 
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
     avahi_free(c);
@@ -279,10 +359,10 @@ static void dns_server_browser_callback(
 static void log_request(const Client *c, const char *cmd, const char *arg) {
     if (arg != NULL)
         avahi_log_debug(__FILE__": Got %s request for '%s'. " CRED_FMT,
-                        cmd, arg, CRED_VALS(c->credentials));
+                        cmd, arg, CRED_VALS(&c->credentials));
     else
         avahi_log_debug(__FILE__": Got %s request. " CRED_FMT,
-                        cmd, CRED_VALS(c->credentials));
+                        cmd, CRED_VALS(&c->credentials));
 }
 
 static void handle_line(Client *c, const char *s) {
@@ -455,38 +535,42 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
 static int is_client_allowed(Server *s, int cfd, AvahiCred *cred) {
     socklen_t len = sizeof(*cred);
     unsigned n_clients;
+    uid_t uid;
 
     assert(s != NULL);
 
     n_clients = s->n_clients + 1;
-    if (getsockopt(cfd, SOL_SOCKET, SO_PEERCRED, cred, &len)!= 0) {
-        avahi_log_error("getsockopt(%d): SO_PEERCRED: %s", cfd, strerror(errno));
+    if (credentials_getsockopt(cfd, cred, &len) != 0) {
+        avahi_log_error("credentials_getsockopt(%d): %s", cfd, strerror(errno));
         return 0;
     }
+
     if (n_clients > s->max_clients) {
         avahi_log_debug("simple client %d refused: "CRED_FMT" too many clients",
-                        cfd, CRED_VALS(*cred));
+                        cfd, CRED_VALS(cred));
         return 0;
     }
-    if (n_clients > s->max_uid_clients) {
+
+    uid = credentials_getuid(cred);
+    if (uid != 0 && n_clients > s->max_uid_clients) {
         // There is enough clients to reach limit for one UID.
         // Check this UID does not have too many requests already.
         Client *c;
         unsigned present = 0;
 
         for (c = s->clients; c; c = c->clients_next) {
-            if (c->credentials.uid == cred->uid) {
+            if (credentials_getuid(&c->credentials) == uid) {
                 present++;
                 if (present > s->max_uid_clients) {
                     avahi_log_debug("simple client %d refused: "CRED_FMT" too many uid clients: %u",
-                                    cfd, CRED_VALS(*cred), present);
+                                    cfd, CRED_VALS(cred), present);
                     return 0;
                 }
             }
         }
     }
     avahi_log_debug("simple client %d/%u accepted: "CRED_FMT,
-                    cfd, n_clients, CRED_VALS(*cred));
+                    cfd, n_clients, CRED_VALS(cred));
     return 1;
 }
 

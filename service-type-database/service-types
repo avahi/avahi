@@ -222,6 +222,8 @@ _amzn-wplay._tcp:Amazon Fire TV
 
 _qdiscover._tcp:QNAP NAS
 
+_aioenet._tcp:ACCES I/O Products eNET- Server
+
 
 # Other
 

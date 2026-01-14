@@ -520,9 +520,9 @@ static void browse_callback(
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);
+        }
 
             /* Fall through */
-        }
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
             if (d->priv->service_pulse_timeout > 0) {
@@ -650,9 +650,9 @@ static void domain_browse_callback(
                                                   avahi_strerror(avahi_client_errno(d->priv->client)));
             gtk_dialog_run(GTK_DIALOG(m));
             gtk_widget_destroy(m);
+        }
 
             /* Fall through */
-        }
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
             if (d->priv->domain_pulse_timeout > 0) {

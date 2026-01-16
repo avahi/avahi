@@ -69,6 +69,19 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_GCC_UNUSED
 #endif
 
+#if defined(__clang__)
+#  if __has_attribute(flag_enum)
+#    define AVAHI_FLAG_ENUM __attribute__((flag_enum))
+#  else /* old clang */
+#    define AVAHI_FLAG_ENUM
+#  endif
+#elif defined(__GNUC__) && (__GNUC__ >= 15)
+#  define AVAHI_FLAG_ENUM __attribute__((flag_enum))
+#else /* unknown compiler */
+#  define AVAHI_FLAG_ENUM
+#endif
+
+
 AVAHI_C_DECL_END
 
 #endif

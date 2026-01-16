@@ -38,6 +38,7 @@ typedef struct AvahiClient AvahiClient;
 
 /** States of a client object, a superset of AvahiServerState */
 typedef enum {
+    AVAHI_CLIENT_S_INVALID = AVAHI_SERVER_INVALID,          /**< Server state: INVALID (0) */
     AVAHI_CLIENT_S_REGISTERING = AVAHI_SERVER_REGISTERING,  /**< Server state: REGISTERING */
     AVAHI_CLIENT_S_RUNNING = AVAHI_SERVER_RUNNING,          /**< Server state: RUNNING */
     AVAHI_CLIENT_S_COLLISION = AVAHI_SERVER_COLLISION,      /**< Server state: COLLISION */
@@ -46,6 +47,7 @@ typedef enum {
 } AvahiClientState;
 
 typedef enum {
+    AVAHI_CLIENT_ZERO = 0,               /**< No flags set / default behavior */
     AVAHI_CLIENT_IGNORE_USER_CONFIG = 1, /**< Don't read user configuration */
     AVAHI_CLIENT_NO_FAIL = 2        /**< Don't fail if the daemon is not available when avahi_client_new() is called, instead enter AVAHI_CLIENT_CONNECTING state and wait for the daemon to appear */
 } AvahiClientFlags;

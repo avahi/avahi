@@ -22,6 +22,7 @@
 #endif
 
 #include <time.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -204,7 +205,11 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
             break;
 
         case AVAHI_CLIENT_CONNECTING:
-            ;
+            break;
+
+        case AVAHI_CLIENT_S_INVALID:
+            assert(false);
+            break;
     }
 }
 

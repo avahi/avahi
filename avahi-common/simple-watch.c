@@ -188,7 +188,7 @@ static AvahiWatchEvent watch_get_events(AvahiWatch *w) {
     if (w->idx != -1 && w->simple_poll->events_valid)
         return w->simple_poll->pollfds[w->idx].revents;
 
-    return 0;
+    return AVAHI_WATCH_NONE;
 }
 
 static void remove_pollfd(AvahiWatch *w) {

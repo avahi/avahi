@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -594,6 +595,10 @@ static void generic_client_callback(AvahiClient *s, AvahiClientState state, void
         case AVAHI_CLIENT_S_REGISTERING:
         case AVAHI_CLIENT_CONNECTING:
             break;
+
+        case AVAHI_CLIENT_S_INVALID:
+            assert(false);
+            break;
     }
 }
 
@@ -1023,6 +1028,10 @@ static void reg_client_callback(AvahiClient *s, AvahiClientState state, void* us
 
         case AVAHI_CLIENT_CONNECTING:
             /* Ignore */
+            break;
+
+        case AVAHI_CLIENT_S_INVALID:
+            assert(false);
             break;
     }
 

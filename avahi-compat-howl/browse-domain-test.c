@@ -53,6 +53,11 @@ static sw_result reply(
             fprintf(stderr, "some kind of failure happened: %s\n", domain);
             break;
 
+        case SW_DISCOVERY_BROWSE_RELEASE:
+        case SW_DISCOVERY_BROWSE_ADD_DEFAULT_DOMAIN:
+        case SW_DISCOVERY_BROWSE_ADD_SERVICE:
+        case SW_DISCOVERY_BROWSE_REMOVE_SERVICE:
+        case SW_DISCOVERY_BROWSE_RESOLVED:
         default:
             abort();
     }

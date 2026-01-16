@@ -92,6 +92,7 @@ static void client_set_state(AvahiClient *client, AvahiClientState state) {
 
         case AVAHI_CLIENT_S_RUNNING:
         case AVAHI_CLIENT_CONNECTING:
+        case AVAHI_CLIENT_S_INVALID:
             break;
 
     }
@@ -494,7 +495,7 @@ AvahiClient *avahi_client_new(const AvahiPoll *poll_api, AvahiClientFlags flags,
     client->error = AVAHI_OK;
     client->callback = callback;
     client->userdata = userdata;
-    client->state = (AvahiClientState) -1;
+    client->state = AVAHI_CLIENT_S_INVALID;
     client->flags = flags;
 
     client->host_name = NULL;

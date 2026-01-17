@@ -38,13 +38,26 @@ typedef struct AvahiTimeout AvahiTimeout;
 /** An event polling abstraction object */
 typedef struct AvahiPoll AvahiPoll;
 
-/** Type of watch events */
+#if defined(__clang__)
+#  if __has_attribute(flag_enum)
+#    define AVAHI_FLAG_ENUM __attribute__((flag_enum))
+#  else
+#    define AVAHI_FLAG_ENUM
+#  endif
+#elif defined(__GNUC__) && (__GNUC__ >= 15)
+#  define AVAHI_FLAG_ENUM __attribute__((flag_enum))
+#else
+#  define AVAHI_FLAG_ENUM
+#endif
+
+/** Type of watch events (bitmasks) */
 typedef enum {
+    AVAHI_WATCH_NONE = 0,         /**< No event */
     AVAHI_WATCH_IN = POLLIN,      /**< Input event */
     AVAHI_WATCH_OUT = POLLOUT,    /**< Output event */
     AVAHI_WATCH_ERR = POLLERR,    /**< Error event */
     AVAHI_WATCH_HUP = POLLHUP     /**< Hangup event */
-} AvahiWatchEvent;
+} AVAHI_FLAG_ENUM AvahiWatchEvent;
 
 /** Called whenever an I/O event happens  on an I/O watch */
 typedef void (*AvahiWatchCallback)(AvahiWatch *w, int fd, AvahiWatchEvent event, void *userdata);

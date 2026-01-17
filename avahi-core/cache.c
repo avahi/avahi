@@ -477,6 +477,13 @@ static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
               expire_in_one_second(c, e, AVAHI_CACHE_POOF_FINAL);
             break;
 
+        case AVAHI_CACHE_EXPIRY_FINAL:
+        case AVAHI_CACHE_POOF_FINAL:
+        case AVAHI_CACHE_GOODBYE_FINAL:
+        case AVAHI_CACHE_REPLACE_FINAL:
+        case AVAHI_CACHE_EXPIRY1:
+        case AVAHI_CACHE_EXPIRY2:
+        case AVAHI_CACHE_EXPIRY3:
         default:
             ;
     }

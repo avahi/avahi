@@ -200,6 +200,23 @@ run_nss_tests() {
     ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"
 }
 
+check_rlimit_nofile() {
+    local _pid _rlimit_nofile _rlimit_nofile_conf
+
+    _rlimit_nofile_conf=$(perl -lne 'print $1 if /^rlimit-nofile=(\d+)/' "$avahi_daemon_conf")
+    if [[ -z "$_rlimit_nofile_conf" ]]; then
+        return 0
+    fi
+
+    _pid=$(cat "$avahi_daemon_pid_file")
+    if [[ "$OS" == freebsd ]]; then
+        _rlimit_nofile=$(perl -lne 'print $1 if /^nofile +(\d+)/' "/proc/$_pid/rlimit")
+    else
+        _rlimit_nofile=$(perl -lne 'print $1 if /^Max open files +(\d+)/' "/proc/$_pid/limits")
+    fi
+    [[ "$_rlimit_nofile" == "$_rlimit_nofile_conf" ]]
+}
+
 install_nss_mdns
 
 for p in avahi-{browse,daemon,publish,resolve,set-host-name}; do
@@ -267,6 +284,8 @@ cat <<'EOL' >"$sysconfdir/avahi/services/test-notifications.service"
 </service-group>
 EOL
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
+
+check_rlimit_nofile
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
     run avahi-dnsconfd --kill

@@ -308,6 +308,19 @@ EOL
             s/^\(publish-hinfo=\).*/\1yes/;
         ' avahi-daemon/avahi-daemon.conf
 
+        # Valgrind jobs are skipped here because Valgrind emulates limits for
+        # file descriptors and prevents setrlimit from working
+        # https://sourceware.org/git/?p=valgrind.git;a=blob;f=NEWS.older;h=6de0e84dacaa14f97a100a614c1bb2a9f242161c;hb=HEAD#l2590
+        # The setrlimit system call now simply updates the emulated limits as best
+        # as possible - the hard limit is not allowed to move at all and just
+        # returns EPERM if you try and change it.
+        # Ubuntu jobs are skipped here to test the default config there.
+        if [[ "$OS" =~ (alpine|freebsd) && "$VALGRIND" != true ]]; then
+            sed -i.bak '
+                s/^#\(rlimit-nofile=\)/\1/;
+            ' avahi-daemon/avahi-daemon.conf
+        fi
+
         label=[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
         cat <<EOL >>avahi-daemon/hosts
 192.0.2.1 ipv4.local
@@ -344,6 +357,7 @@ EOL
             mkdir /run/dbus
             dbus-daemon --system --fork
         elif [[ "$OS" == freebsd ]]; then
+            mount -t procfs proc /proc
             hostname freebsd
             service dbus onerestart
         else

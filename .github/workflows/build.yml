@@ -62,19 +62,24 @@ jobs:
           file: ./coverage.info
           format: lcov
 
-  freebsd:
+  bsd:
     runs-on: ubuntu-24.04
     concurrency:
-      group: ${{ github.workflow }}-${{ matrix.version }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-freebsd
+      group: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.version }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-bsd
       cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
+        os: ['freebsd']
         version: ['14.3', '15.0']
         env:
           - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
           - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
           - { CC: "clang", ASAN_UBSAN: "false", VALGRIND: "true" }
+        include:
+          - os: 'netbsd'
+            version: '10.1'
+            env: { CC: "gcc" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
@@ -83,12 +88,12 @@ jobs:
           persist-credentials: false
       - uses: cross-platform-actions/action@3fbf2723ff48aac8defe0070706f36088999fd47 # v0.31.0
         with:
-          operating_system: 'freebsd'
+          operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}
           architecture: 'x86_64'
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
           run: |
-            sudo -E .github/workflows/build.sh install-build-deps-FreeBSD
+            sudo -E .github/workflows/build.sh install-build-deps-${{ matrix.os }}
             sudo -E .github/workflows/build.sh build
 
   alpine:

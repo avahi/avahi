@@ -14,13 +14,17 @@ export NSS_MDNS=true
 export WITH_SYSTEMD=false
 export OS=
 
-OS=$(source /etc/os-release && printf "%s" "$ID")
+if source /etc/os-release; then
+    OS="$ID"
+else
+    OS=$(uname -s | tr "[:upper:]" "[:lower:]")
+fi
 
-if [[ "$OS" == alpine ]]; then
+if [[ "$OS" =~ (alpine|netbsd) ]]; then
     NSS_MDNS=false
 fi
 
-if [[ "$OS" == freebsd ]]; then
+if [[ "$OS" =~ (free|net)bsd ]]; then
     MAKE=gmake
 fi
 
@@ -115,7 +119,7 @@ case "$1" in
         install_dfuzzer
         install_radamsa
         ;;
-    install-build-deps-FreeBSD)
+    install-build-deps-freebsd)
         # Use latest package set
         mkdir -p /usr/local/etc/pkg/repos/
         cp /etc/pkg/FreeBSD.conf /usr/local/etc/pkg/repos/FreeBSD.conf
@@ -136,6 +140,14 @@ case "$1" in
             py3-dbus py3-gobject3-dev py3-setuptools python3-dev python3-gdbm \
             qt5-qtbase-dev socat tar valgrind xmltoman
 
+        install_dfuzzer
+        install_radamsa
+        ;;
+    install-build-deps-netbsd)
+        PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r)/All/" \
+        PKG_RCD_SCRIPTS=yes \
+            pkg_add -u autoconf automake dbus drill expat gettext git glib gmake intltool libdaemon libtool \
+            meson pkgconf socat
         install_dfuzzer
         install_radamsa
         ;;
@@ -207,6 +219,26 @@ case "$1" in
                 "--disable-compat-howl"
                 "--with-distro=none"
             )
+        elif [[ "$OS" == netbsd ]]; then
+            autogen_args+=(
+                "--prefix=/usr/pkg"
+                "--runstatedir=/var/run"
+                "--with-distro=none"
+                "--enable-tests"
+                "--disable-autoipd"
+                "--disable-gdbm"
+                "--disable-gobject"
+                "--disable-gtk"
+                "--disable-gtk3"
+                "--disable-libevent"
+                "--disable-libsystemd"
+                "--disable-manpages"
+                "--disable-mono"
+                "--disable-python"
+                "--disable-qt3"
+                "--disable-qt4"
+                "--disable-qt5"
+            )
         else
             autogen_args+=(
                 "--prefix=/usr"
@@ -216,7 +248,16 @@ case "$1" in
             )
         fi
 
-        if ! ./autogen.sh "${autogen_args[@]}"; then
+        if [[ "$OS" == netbsd ]]; then
+            # On NetBSD autogen.sh fails with
+            # config.status: error: cannot find input file: 'po/Makefile.in.in'
+            # so autoreconf/configure is used until it's fixed one way or another
+            autoreconf -ivf
+            if ! ./configure "${autogen_args[@]}"; then
+                cat config.log
+                exit 1
+            fi
+        elif ! ./autogen.sh "${autogen_args[@]}"; then
             cat config.log
             exit 1
         fi
@@ -331,11 +372,15 @@ EOL
 EOL
 
         $MAKE install
-        ldconfig
+        if [[ "$OS" != netbsd ]]; then
+            ldconfig
+        fi
 
         sysconfdir=/etc
         if [[ "$OS" == freebsd ]]; then
             sysconfdir=/usr/local/etc
+        elif [[ "$OS" == netbsd ]]; then
+            sysconfdir=/usr/pkg/etc
         fi
 
         cat <<EOL >"$sysconfdir/avahi/services/long-label.service"
@@ -359,6 +404,10 @@ EOL
         elif [[ "$OS" == freebsd ]]; then
             mount -t procfs proc /proc
             hostname freebsd
+            service dbus onerestart
+        elif [[ "$OS" == netbsd ]]; then
+            groupadd avahi
+            useradd -m -g avahi avahi
             service dbus onerestart
         else
             adduser --system --group avahi

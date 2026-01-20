@@ -10,12 +10,14 @@ export NSS_MDNS_BUILD_DIR=
 export ASAN_RT_PATH=
 
 runstatedir=/run
-if [[ "$OS" == freebsd ]]; then
+if [[ "$OS" =~ (free|net)bsd ]]; then
     runstatedir=/var/run
 fi
 sysconfdir=/etc
 if [[ "$OS" == freebsd ]]; then
     sysconfdir=/usr/local/etc
+elif [[ "$OS" == netbsd ]]; then
+    sysconfdir=/usr/pkg/etc
 fi
 avahi_daemon_conf="$sysconfdir/avahi/avahi-daemon.conf"
 avahi_daemon_runtime_dir="$runstatedir/avahi-daemon"
@@ -267,7 +269,7 @@ done
 
 run ./examples/glib-integration
 
-if [[ "$OS" != freebsd ]]; then
+if [[ "$OS" != freebsd && "$OS" != netbsd ]]; then
     run ./tests/c-plus-plus-test
 fi
 

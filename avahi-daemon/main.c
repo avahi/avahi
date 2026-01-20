@@ -617,14 +617,15 @@ static char *get_machine_id(void) {
     return avahi_strndup(buf, sizeof buf);
 }
 
-static int load_config_file(DaemonConfig *c) {
+static int load_config_file(DaemonConfig *c, const char* config_file) {
     int r = -1;
     AvahiIniFile *f;
     AvahiIniFileGroup *g;
 
     assert(c);
+    assert(config_file);
 
-    if (!(f = avahi_ini_file_load(c->config_file ? c->config_file : AVAHI_CONFIG_FILE)))
+    if (!(f = avahi_ini_file_load(config_file)))
         goto finish;
 
     for (g = f->groups; g; g = g->groups_next) {
@@ -1604,6 +1605,14 @@ int main(int argc, char *argv[]) {
         r = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
     else if (config.command == DAEMON_RUN) {
         pid_t pid;
+        const char* main_config_file = NULL;
+        /* divided by 4 because PATH_MAX=4096, conf dirs will typically be <100
+         * in the real world, and if using PATH_MAX here the compiler complains
+         * with snprintf(confd_file, ...) unless we use buffers>PATH_MAX there,
+         * which seems overkill */
+        char confd_path[PATH_MAX/4];
+        char **confd_files = NULL;
+        int confd_files_count = 0;
 
         if (getuid() != 0 && config.drop_root) {
             avahi_log_error("This program is intended to be run as root.");
@@ -1615,8 +1624,29 @@ int main(int argc, char *argv[]) {
             goto finish;
         }
 
-        if (load_config_file(&config) < 0)
+        main_config_file = config.config_file ? config.config_file : AVAHI_CONFIG_FILE;
+        avahi_log_debug("Loading main conf: '%s'", main_config_file);
+        if (load_config_file(&config, main_config_file) < 0)
             goto finish;
+
+        snprintf(confd_path, sizeof(confd_path), "%s.d", main_config_file);
+        confd_files = avahi_ini_list_confd_files_sorted(confd_path, &confd_files_count);
+        if (confd_files && confd_files_count > 0) {
+            avahi_log_debug("Loading conf.d files in: '%s'", confd_path);
+            for (int i = 0; i < confd_files_count; i++) {
+                char confd_file[PATH_MAX];
+                snprintf(confd_file, sizeof(confd_file), "%s/%s", confd_path, confd_files[i]);
+                avahi_log_debug("- %s", confd_file);
+                if (load_config_file(&config, confd_file) < 0) {
+                    avahi_log_error("Could not load conf.d file: '%s'", confd_file);
+                    avahi_strfreev(confd_files);
+                    goto finish;
+                }
+            }
+            avahi_strfreev(confd_files);
+        } else {
+            avahi_log_debug("No valid conf.d files in '%s' found", confd_path);
+        }
 
         if (config.daemonize) {
             daemon_retval_init();

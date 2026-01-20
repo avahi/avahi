@@ -24,11 +24,77 @@
 <manpage name="avahi-daemon.conf" section="5" desc="avahi-daemon configuration file">
 
   <synopsis>
-    <cmd>@pkgsysconfdir@/avahi-daemon.conf</cmd>
+    <p><file>@pkgsysconfdir@/avahi-daemon.conf</file></p>
+
+    <p><file>@pkgsysconfdir@/avahi-daemon.conf.d</file></p>
   </synopsis>
 
   <description>
     <p><file>avahi-daemon.conf</file> is the configuration file for avahi-daemon.</p>
+
+    <p>
+      <file>avahi-daemon.conf.d</file> is the configuration directory for
+      avahi-daemon, where configuration files named "config fragments" can be
+      placed. They will be processed in predefined order, and they will override
+      previous configuration.
+    </p>
+
+    <p>
+      The format of the config-fragment\'s filenames is simple: it should not
+      start with <file>.</file>, and should end with <file>.conf</file>.  Files
+      named differently, such as <file>README</file> or
+      <file>.placeholder</file>, or in particular those ending with "~"
+      typically representing a back-up after editing a file
+      (e.g. <file>01-rlimits.conf~</file>), will not be considered.  It is
+      recommended, but not enforced, to use simple alphanumeric characters plus
+      dashes and underscores, and start the names with "00-" to "99-", to not
+      have any surprises about the order in which the files are processed --
+      because the content of files processed later override previously set
+      values.  For example, prefer simple names like:
+      <file>10-rlimits.conf</file>, <file>65-disable-ipv6.conf</file>.
+    </p>
+
+    <p>
+      The candidate files within the given directory are sorted (with
+      <file>strcmp()</file>).  The configuration in the files being processed
+      later will override previous configuration, in particular the one read
+      initially from the main configuration file, but also the one from previous
+      files processed, if the Group and Key coincide.
+    </p>
+
+    <p>
+      For example, consider <file>avahi-daemon.conf</file> (coming from
+      upstream/distribution) that contains (merged in a single line for brevity)
+      the defaults: <opt>[server] use-ipv4=yes use-ipv6=yes</opt> and
+      <opt>[wide-area] enable-wide-area=yes</opt>.
+    </p>
+
+    <p>
+      Then there is a file
+      <file>avahi-daemon.conf.d/10-disable-ipv6-and-wide-area.conf</file>
+      containing more specific settings for a given organization: <opt>[server]
+      use-ipv6=no</opt> and <opt>[wide-area] enable-wide-area=no</opt>.
+    </p>
+
+    <p>
+      Finally, there is another
+      <file>avahi-daemon.conf.d/90-enable-wide-area-local.conf</file> only
+      applied to specific hosts: <opt>[wide-area] enable-wide-area=yes</opt>.
+    </p>
+
+    <p>
+      The files will be processed in that order: first the main
+      <file>avahi-daemon.conf</file>, then
+      <file>avahi-daemon.conf.d/10-disable-ipv6-and-wide_area.conf</file>
+      (overriding the values from the main config file), and finally
+      <file>avahi-daemon.conf.d/90-enable-wide_area-local.conf</file>
+      (overriding once again but only <opt>wide-area</opt>).
+    </p>
+
+    <p>
+      The final, effective values are: <opt>[server] use-ipv4=yes
+      use-ipv6=no</opt> and <opt>[wide-area] enable-wide-area=yes</opt>.
+    </p>
   </description>
 
   <section name="Section [Server]">

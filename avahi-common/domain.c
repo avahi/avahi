@@ -555,7 +555,8 @@ int avahi_service_name_split(const char *p, char *name, size_t name_size, char *
                 }
 
                 state = DOMAIN;
-                /* fall through */
+
+                AVAHI_GCC_FALLTHROUGH;
 
             case DOMAIN:
 

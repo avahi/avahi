@@ -164,7 +164,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 
         }
 
-            /* Fall through */
+            AVAHI_GCC_FALLTHROUGH;
 
         case AVAHI_SERVER_REGISTERING:
 

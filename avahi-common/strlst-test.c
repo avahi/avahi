@@ -28,13 +28,18 @@
 #include "strlst.h"
 #include "malloc.h"
 
-int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    char *t, *v;
-    uint8_t *u;
-    uint8_t data[1024];
-    AvahiStringList *a = NULL, *b, *p;
-    size_t size, n;
-    int r;
+/*
+ * Build a representative AvahiStringList containing:
+ *  - plain strings
+ *  - empty strings
+ *  - key/value pairs
+ *  - arbitrary binary data
+ *  - escaped / non-printable characters
+ *
+ * This list is reused across most tests.
+ */
+static AvahiStringList* build_test_string_list(void) {
+    AvahiStringList *a = NULL;
 
     a = avahi_string_list_new("prefix", "a", "b", NULL);
 
@@ -49,23 +54,48 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     a = avahi_string_list_add_printf(a, "seven=%i %c", 7, 'x');
     a = avahi_string_list_add_pair(a, "blubb", "blaa");
     a = avahi_string_list_add_pair(a, "uxknurz", NULL);
-    a = avahi_string_list_add_pair_arbitrary(a, "uxknurz2", (const uint8_t*) "blafasel\0oerks", 14);
-    a = avahi_string_list_add(a, "i am a \"string\" with embedded double-quotes (\\\")\nand newlines (\\n).");
+    a = avahi_string_list_add_pair_arbitrary(
+            a, "uxknurz2", (const uint8_t*) "blafasel\0oerks", 14);
+    a = avahi_string_list_add(
+            a,
+            "i am a \"string\" with embedded double-quotes (\\\")\n"
+            "and newlines (\\n).");
     a = avahi_string_list_add(a, "gh_issue_169=\x1f\x20\x7e\x7f\xff");
-
     a = avahi_string_list_add(a, "end");
+
+    return a;
+}
+
+/*
+ * Verify human-readable string rendering and escaping behavior.
+ */
+static void test_string_rendering(AvahiStringList *a) {
+    char *t;
 
     t = avahi_string_list_to_string(a);
     printf("--%s--\n", t);
     avahi_free(t);
 
-    n = avahi_string_list_serialize(a, NULL, 0);
-    size = avahi_string_list_serialize(a, data, sizeof(data));
-    assert(size == n);
-
+    /* Ensure non-printable bytes are escaped as expected */
     t = avahi_string_list_to_string(a);
     assert(strstr(t, "gh_issue_169=\\031 ~\\127\\255"));
     avahi_free(t);
+}
+
+/*
+ * Serialize the list to wire format, dump it for debugging,
+ * and parse it back. Ensures round-trip correctness.
+ */
+static void test_serialize_and_parse(AvahiStringList *a) {
+    uint8_t data[1024];
+    uint8_t *u;
+    size_t size, n;
+    AvahiStringList *b;
+    char *t;
+
+    n = avahi_string_list_serialize(a, NULL, 0);
+    size = avahi_string_list_serialize(a, data, sizeof(data));
+    assert(size == n);
 
     printf("%zu\n", size);
 
@@ -75,7 +105,6 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         else
             printf("%c", *u);
     }
-
     printf("\n");
 
     assert(avahi_string_list_parse(data, size, &b) == 0);
@@ -87,15 +116,34 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_free(t);
 
     avahi_string_list_free(b);
+}
+
+/*
+ * Verify copy semantics and equality checks.
+ */
+static void test_copy_and_equality(AvahiStringList *a) {
+    AvahiStringList *b;
+    char *t;
 
     b = avahi_string_list_copy(a);
-
     assert(avahi_string_list_equal(a, b));
 
     t = avahi_string_list_to_string(b);
     printf("--%s--\n", t);
     avahi_free(t);
 
+    avahi_string_list_free(b);
+}
+
+/*
+ * Validate lookup and key/value extraction behavior.
+ */
+static void test_find_and_get_pair(AvahiStringList *a) {
+    AvahiStringList *p;
+    char *t, *v;
+    int r;
+
+    /* Key with value */
     p = avahi_string_list_find(a, "seven");
     assert(p);
 
@@ -108,6 +156,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_free(t);
     avahi_free(v);
 
+    /* Key without value */
     p = avahi_string_list_find(a, "quux");
     assert(p);
 
@@ -119,9 +168,15 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     printf("<%s>=<%s>\n", t, v);
     avahi_free(t);
     avahi_free(v);
+}
 
-    avahi_string_list_free(a);
-    avahi_string_list_free(b);
+/*
+ * Edge case: serializing and parsing a NULL list.
+ */
+static void test_null_list_serialization(void) {
+    uint8_t data[1024];
+    size_t size, n;
+    AvahiStringList *a;
 
     n = avahi_string_list_serialize(NULL, NULL, 0);
     size = avahi_string_list_serialize(NULL, data, sizeof(data));
@@ -130,6 +185,21 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     assert(avahi_string_list_parse(data, size, &a) == 0);
     assert(!a);
+}
+
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
+    AvahiStringList *a;
+
+    a = build_test_string_list();
+
+    test_string_rendering(a);
+    test_serialize_and_parse(a);
+    test_copy_and_equality(a);
+    test_find_and_get_pair(a);
+    test_null_list_serialization();
+
+    avahi_string_list_free(a);
 
     return 0;
 }
+

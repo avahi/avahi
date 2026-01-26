@@ -21,6 +21,8 @@
 #include <config.h>
 #endif
 
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -545,7 +547,7 @@ size_t avahi_string_list_get_size(AvahiStringList *l) {
 uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
     AvahiStringList *f;
     char *value = NULL, *end = NULL;
-    uint32_t ret;
+    long long ret;
 
     if (!(f = avahi_string_list_find(l, AVAHI_SERVICE_COOKIE)))
         return AVAHI_SERVICE_COOKIE_INVALID;
@@ -553,14 +555,20 @@ uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
     if (avahi_string_list_get_pair(f, NULL, &value, NULL) < 0 || !value)
         return AVAHI_SERVICE_COOKIE_INVALID;
 
-    ret = (uint32_t) strtoll(value, &end, 0);
+    errno = 0;
+    ret = strtoll(value, &end, 0);
 
-    if (*value && end && *end != 0) {
+    /* unreachable on POSIX */
+    assert(end);
+
+    /* Reject on conversion errors, trailing junk, negative values,
+     * or values outside the uint32_t range. */
+    if (errno != 0 || end == value || *end != '\0' || ret < 0 || ret > UINT_MAX) {
         avahi_free(value);
         return AVAHI_SERVICE_COOKIE_INVALID;
     }
 
     avahi_free(value);
 
-    return ret;
+    return (uint32_t)ret;
 }

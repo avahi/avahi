@@ -520,7 +520,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
             avahi_log_error("malloc failed in avahi_interface_monitor_sync");
             goto end;
     }
-    lifc.lifc_family = NULL;
+    lifc.lifc_family = AF_UNSPEC;
     lifc.lifc_flags = 0;
     if(ioctl(sockfd, SIOCGLIFCONF, &lifc) < 0) {
         avahi_log_error(__FILE__": ioctl(SIOCGLIFCONF): %s", strerror(errno));

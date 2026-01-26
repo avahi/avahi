@@ -10,7 +10,7 @@ export NSS_MDNS_BUILD_DIR=
 export ASAN_RT_PATH=
 
 runstatedir=/run
-if [[ "$OS" =~ (free|net)bsd ]]; then
+if [[ "$OS" =~ (freebsd|netbsd|omnios) ]]; then
     runstatedir=/var/run
 fi
 sysconfdir=/etc
@@ -252,7 +252,7 @@ fi
 run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
 
-if [[ "$OS" != alpine ]]; then
+if [[ ! "$OS" =~ (alpine|omnios) ]]; then
     run ./avahi-compat-howl/address-test
 fi
 
@@ -269,7 +269,7 @@ done
 
 run ./examples/glib-integration
 
-if [[ "$OS" != freebsd && "$OS" != netbsd ]]; then
+if [[ ! "$OS" =~ (freebsd|netbsd|omnios) ]]; then
     run ./tests/c-plus-plus-test
 fi
 

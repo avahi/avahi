@@ -80,13 +80,16 @@ jobs:
           - os: 'netbsd'
             version: '10.1'
             env: { CC: "gcc" }
+          - os: 'omnios'
+            version: 'r151056'
+            env: { CC: "gcc" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: cross-platform-actions/action@3fbf2723ff48aac8defe0070706f36088999fd47 # v0.31.0
+      - uses: cross-platform-actions/action@492b0c80085400348c599edace11141a4ee73524 # v0.32.0
         with:
           operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}

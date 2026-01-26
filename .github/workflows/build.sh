@@ -20,12 +20,16 @@ else
     OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 fi
 
-if [[ "$OS" =~ (alpine|netbsd) ]]; then
+if [[ "$OS" =~ (alpine|netbsd|omnios) ]]; then
     NSS_MDNS=false
 fi
 
-if [[ "$OS" =~ (free|net)bsd ]]; then
+if [[ "$OS" =~ (freebsd|netbsd|omnios) ]]; then
     MAKE=gmake
+fi
+
+if [[ "$OS" == omnios ]]; then
+    PATH="/opt/local/sbin:/opt/local/bin:$PATH"
 fi
 
 asan_ubsan_reports_detected() {
@@ -151,6 +155,20 @@ case "$1" in
         install_dfuzzer
         install_radamsa
         ;;
+    install-build-deps-omnios)
+        # https://pkgsrc.smartos.org/install-on-illumos/
+        BOOTSTRAP_TAR="bootstrap-trunk-x86_64-20240116.tar.gz"
+        BOOTSTRAP_SHA="4d92a333587d9dcc669ff64264451ca65da701b7"
+
+        curl -O "https://pkgsrc.smartos.org/packages/SmartOS/bootstrap/${BOOTSTRAP_TAR}"
+        [[ "${BOOTSTRAP_SHA}" == "$(/bin/digest -a sha1 ${BOOTSTRAP_TAR})" ]]
+        tar -zxpf "${BOOTSTRAP_TAR}" -C /
+
+        pkg_add -u autoconf automake drill expat gettext git glib2 gmake intltool libdaemon libtool \
+            meson pkgconf socat
+        pkg install gcc14
+        install_dfuzzer
+        ;;
     build)
         if [[ "$OS" == freebsd ]]; then
             # Do what USES="localbase:ldflags" do in FreeBSD Ports, namely:
@@ -159,6 +177,10 @@ case "$1" in
             export CFLAGS+=" -I/usr/local/include"
             export CPPFLAGS+=" -I/usr/local/include"
             export LDFLAGS+=" -L/usr/local/lib"
+        elif [[ "$OS" == omnios ]]; then
+            export CFLAGS+=" -I/opt/local/include"
+            export CPPFLAGS+=" -I/opt/local/include"
+            export LDFLAGS+=" -L/opt/local/lib"
         fi
 
         if [[ "$ASAN_UBSAN" == true ]]; then
@@ -239,6 +261,29 @@ case "$1" in
                 "--disable-qt4"
                 "--disable-qt5"
             )
+        elif [[ "$OS" == omnios ]]; then
+            autogen_args+=(
+                "--libdir=/usr/lib/64"
+                "--prefix=/usr"
+                "--runstatedir=/var/run"
+                "--sysconfdir=/etc"
+                "--with-distro=none"
+                "--enable-tests"
+                "--disable-autoipd"
+                "--disable-compat-howl"
+                "--disable-gdbm"
+                "--disable-gobject"
+                "--disable-gtk"
+                "--disable-gtk3"
+                "--disable-libevent"
+                "--disable-libsystemd"
+                "--disable-manpages"
+                "--disable-mono"
+                "--disable-python"
+                "--disable-qt3"
+                "--disable-qt4"
+                "--disable-qt5"
+            )
         else
             autogen_args+=(
                 "--prefix=/usr"
@@ -248,8 +293,8 @@ case "$1" in
             )
         fi
 
-        if [[ "$OS" == netbsd ]]; then
-            # On NetBSD autogen.sh fails with
+        if [[ "$OS" =~ (netbsd|omnios) ]]; then
+            # On NetBSD and OmniOS autogen.sh fails with
             # config.status: error: cannot find input file: 'po/Makefile.in.in'
             # so autoreconf/configure is used until it's fixed one way or another
             autoreconf -ivf
@@ -372,7 +417,7 @@ EOL
 EOL
 
         $MAKE install
-        if [[ "$OS" != netbsd ]]; then
+        if [[ ! "$OS" =~ (netbsd|omnios) ]]; then
             ldconfig
         fi
 
@@ -409,6 +454,10 @@ EOL
             groupadd avahi
             useradd -m -g avahi avahi
             service dbus onerestart
+        elif [[ "$OS" == omnios ]]; then
+            groupadd avahi
+            useradd -m -g avahi avahi
+            svcadm restart dbus
         else
             adduser --system --group avahi
             systemctl reload dbus

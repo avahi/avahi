@@ -326,10 +326,17 @@ AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) {
 }
 
 AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va) {
+    AvahiStringList *n;
     const char *txt;
 
-    while ((txt = va_arg(va, const char*)))
-        r = avahi_string_list_add(r, txt);
+    while ((txt = va_arg(va, const char*))) {
+        n = avahi_string_list_add(r, txt);
+        if (!n) {
+            avahi_string_list_free(r);
+            return NULL;
+        }
+        r = n;
+    }
 
     return r;
 }
@@ -354,13 +361,15 @@ AvahiStringList *avahi_string_list_new_va(va_list va) {
 }
 
 AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
-    AvahiStringList *r = NULL;
+    AvahiStringList *r = NULL, *n;
 
-    for (; l; l = l->next)
-        if (!(r = avahi_string_list_add_arbitrary(r, l->text, l->size))) {
+    for (; l; l = l->next) {
+        if (!(n = avahi_string_list_add_arbitrary(r, l->text, l->size))) {
             avahi_string_list_free(r);
             return NULL;
         }
+        r = n;
+    }
 
     return avahi_string_list_reverse(r);
 }

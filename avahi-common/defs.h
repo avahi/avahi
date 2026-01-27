@@ -239,42 +239,57 @@ typedef enum {
 
 /** @{ \name Flags */
 
-/** Some flags for publishing functions */
-typedef enum {
-    AVAHI_PUBLISH_UNIQUE = 1,           /**< For raw records: The RRset is intended to be unique */
-    AVAHI_PUBLISH_NO_PROBE = 2,         /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
-    AVAHI_PUBLISH_NO_ANNOUNCE = 4,      /**< For raw records: Do not announce this RR to other hosts */
-    AVAHI_PUBLISH_ALLOW_MULTIPLE = 8,   /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
-/** \cond fulldocs */
-    AVAHI_PUBLISH_NO_REVERSE = 16,      /**< For address records: don't create a reverse (PTR) entry */
-    AVAHI_PUBLISH_NO_COOKIE = 32,       /**< For service records: do not implicitly add the local service cookie to TXT data */
-/** \endcond */
-    AVAHI_PUBLISH_UPDATE = 64,          /**< Update existing records instead of adding new ones */
-/** \cond fulldocs */
-    AVAHI_PUBLISH_USE_WIDE_AREA = 128,  /**< Register the record using wide area DNS (i.e. unicast DNS update) */
-    AVAHI_PUBLISH_USE_MULTICAST = 256   /**< Register the record using multicast DNS */
-/** \endcond */
-} AvahiPublishFlags;
+#if defined(__clang__)
+#  if __has_attribute(flag_enum)
+#    define AVAHI_FLAG_ENUM __attribute__((flag_enum))
+#  else
+#    define AVAHI_FLAG_ENUM
+#  endif
+#elif defined(__GNUC__) && (__GNUC__ >= 15)
+#  define AVAHI_FLAG_ENUM __attribute__((flag_enum))
+#else
+#  define AVAHI_FLAG_ENUM
+#endif
 
-/** Some flags for lookup functions */
+/** Bitmask flags for publishing functions */
 typedef enum {
+    AVAHI_PUBLISH_ZERO = 0,                   /**< No flags set / default behavior */
+    AVAHI_PUBLISH_UNIQUE = (1 << 0),          /**< For raw records: The RRset is intended to be unique */
+    AVAHI_PUBLISH_NO_PROBE = (1 << 1),        /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
+    AVAHI_PUBLISH_NO_ANNOUNCE = (1 << 2),     /**< For raw records: Do not announce this RR to other hosts */
+    AVAHI_PUBLISH_ALLOW_MULTIPLE = (1 << 3),  /**< For raw records: Allow multiple local records of this type, even if they are intended to be unique */
 /** \cond fulldocs */
-    AVAHI_LOOKUP_USE_WIDE_AREA = 1,    /**< Force lookup via wide area DNS */
-    AVAHI_LOOKUP_USE_MULTICAST = 2,    /**< Force lookup via multicast DNS */
+    AVAHI_PUBLISH_NO_REVERSE = (1 << 4),      /**< For address records: don't create a reverse (PTR) entry */
+    AVAHI_PUBLISH_NO_COOKIE = (1 << 5),       /**< For service records: do not implicitly add the local service cookie to TXT data */
 /** \endcond */
-    AVAHI_LOOKUP_NO_TXT = 4,           /**< When doing service resolving, don't lookup TXT record */
-    AVAHI_LOOKUP_NO_ADDRESS = 8        /**< When doing service resolving, don't lookup A/AAAA record */
-} AvahiLookupFlags;
+    AVAHI_PUBLISH_UPDATE = (1 << 6),          /**< Update existing records instead of adding new ones */
+/** \cond fulldocs */
+    AVAHI_PUBLISH_USE_WIDE_AREA = (1 << 7),   /**< Register the record using wide area DNS (i.e. unicast DNS update) */
+    AVAHI_PUBLISH_USE_MULTICAST = (1 << 8),   /**< Register the record using multicast DNS */
+/** \endcond */
+} AVAHI_FLAG_ENUM AvahiPublishFlags;
 
-/** Some flags for lookup callback functions */
+/** Some bitmasks flags for lookup functions */
 typedef enum {
-    AVAHI_LOOKUP_RESULT_CACHED = 1,         /**< This response originates from the cache */
-    AVAHI_LOOKUP_RESULT_WIDE_AREA = 2,      /**< This response originates from wide area DNS */
-    AVAHI_LOOKUP_RESULT_MULTICAST = 4,      /**< This response originates from multicast DNS */
-    AVAHI_LOOKUP_RESULT_LOCAL = 8,          /**< This record/service resides on and was announced by the local host. Only available in service and record browsers and only on AVAHI_BROWSER_NEW. */
-    AVAHI_LOOKUP_RESULT_OUR_OWN = 16,       /**< This service belongs to the same local client as the browser object. Only available in avahi-client, and only for service browsers and only on AVAHI_BROWSER_NEW. */
-    AVAHI_LOOKUP_RESULT_STATIC = 32         /**< The returned data has been defined statically by some configuration option */
-} AvahiLookupResultFlags;
+    AVAHI_LOOKUP_NONE = 0,                    /**< No flags set / default behavior */
+/** \cond fulldocs */
+    AVAHI_LOOKUP_USE_WIDE_AREA = (1 << 0),    /**< Force lookup via wide area DNS */
+    AVAHI_LOOKUP_USE_MULTICAST = (1 << 1),    /**< Force lookup via multicast DNS */
+/** \endcond */
+    AVAHI_LOOKUP_NO_TXT = (1 << 2),           /**< When doing service resolving, don't lookup TXT record */
+    AVAHI_LOOKUP_NO_ADDRESS = (1 << 3),       /**< When doing service resolving, don't lookup A/AAAA record */
+} AVAHI_FLAG_ENUM AvahiLookupFlags;
+
+/** Bitmask flags for lookup callback functions */
+typedef enum {
+    AVAHI_LOOKUP_RESULT_ZERO = 0,               /**< No flags set / default value */
+    AVAHI_LOOKUP_RESULT_CACHED = (1 << 0),      /**< This response originates from the cache */
+    AVAHI_LOOKUP_RESULT_WIDE_AREA = (1 << 1),   /**< This response originates from wide area DNS */
+    AVAHI_LOOKUP_RESULT_MULTICAST = (1 << 2),   /**< This response originates from multicast DNS */
+    AVAHI_LOOKUP_RESULT_LOCAL = (1 << 3),       /**< This record/service resides on and was announced by the local host. Only available in service and record browsers and only on AVAHI_BROWSER_NEW. */
+    AVAHI_LOOKUP_RESULT_OUR_OWN = (1 << 4),     /**< This service belongs to the same local client as the browser object. Only available in avahi-client, and only for service browsers and only on AVAHI_BROWSER_NEW. */
+    AVAHI_LOOKUP_RESULT_STATIC = (1 << 5)       /**< The returned data has been defined statically by some configuration option */
+} AVAHI_FLAG_ENUM AvahiLookupResultFlags;
 
 /** @} */
 

@@ -21,6 +21,7 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
 #include <assert.h>
 
 #include <pthread.h>
@@ -718,6 +719,10 @@ static void reg_client_callback(oid_data *data, AvahiClientState state) {
         case AVAHI_CLIENT_CONNECTING:
             /* Ignore */
             break;
+
+	case AVAHI_CLIENT_S_INVALID:
+	    assert(false);
+	    break;
     }
 
 }

@@ -1,3 +1,46 @@
+Avahi 0.9, the 'Dobrý den' release
+===============================
+
+The avahi 0.9 release is mostly bug fix release, including a set of vulnerabilities.
+No changes to API happened, which would be incompatible.
+
+New Features:
+- Temporary files are stored in runstatedir, ${localstatedir}/run by default #137
+
+Notable Changes:
+- Wide-area support using unicast DNS were disabled in default installation #577
+- Qt3 and Qt4 bindings are deprecated, only Qt5 remains supported (avahi-qt)
+- GTK 2.0 bindings are deprecated (avahi-ui)
+- Mono bindings are deprecated (avahi-sharp, avahi-ui-sharp)
+- HOWL compatibility layer is deprecated (avahi-compat-howl)
+- Deprecated bindings will be removed from avahi sources in following releases,
+  direct usage of DBus interface is recommended instead.
+- Changed path where DBus files are installed to $datadir #376
+- libsystemd is used by default instead of internal copy of sd-daemon #287, #296
+
+Security Fixes:
+- CVE-2023-38473: Reachable assertion in avahi_alternative_host_name #451
+- CVE-2023-38472: Reachable assertion in avahi_rdata_parse #452
+- CVE-2023-38471: Reachable assertion in dbus_set_host_name #453
+- CVE-2023-38470: Reachable assertion in avahi_escape_label #454
+- CVE-2023-38469: Reachable assertion in avahi_dns_packet_append_record #455
+- CVE-2023-1981: avahi-daemon can be crashed via DBus #375
+- CVE-2021-3502: reachable assertion in avahi_s_host_name_resolver_start when
+  trying to resolve badly-formatted hostnames (CVE-2021-3502, CVE-2021-36217) #338
+- CVE-2021-3468: Avoid infinite-loop in avahi-daemon by handling HUP event in client_work #330
+- CVE-2024-52616: Avahi Wide-Area DNS Predictable Transaction IDs #659
+
+Bug fixes:
+- Corrections of accepting invalid mdns names from network #581
+
+Big thank-you to Trent Lloyd for moving avahi to separate organization,
+allowing more people with commit rights and for maintaining avahi all previous years.
+Warm thank-you to Evgeny Vereshchagin for significant continuous integration improvements
+and general work on the project. We thank also Michal Sekletar, Michael Biebl, leeceeksdee,
+Simon McVittie, Seth and Jan Tojnar for their multiple contributions.
+Thank-you to everyone else contributing to the project through issues & pull
+requests.
+
 Avahi 0.8, the 'Dobro Jutro' release
 ====================================
 

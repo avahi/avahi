@@ -523,6 +523,7 @@ static void browse_callback(
 
             /* Fall through */
         }
+            AVAHI_GCC_FALLTHROUGH;
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
             if (d->priv->service_pulse_timeout > 0) {
@@ -653,6 +654,7 @@ static void domain_browse_callback(
 
             /* Fall through */
         }
+            AVAHI_GCC_FALLTHROUGH;
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
             if (d->priv->domain_pulse_timeout > 0) {

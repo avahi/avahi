@@ -191,6 +191,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
                 fprintf(stderr, _("Host name conflict\n"));
 
             /* Fall through */
+            AVAHI_GCC_FALLTHROUGH;
 
         case AVAHI_CLIENT_S_REGISTERING:
 

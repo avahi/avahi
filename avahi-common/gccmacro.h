@@ -69,6 +69,13 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_GCC_UNUSED
 #endif
 
+#if (defined(__GNUC__) && (__GNUC__ >= 7)) || defined(__clang__)
+#define AVAHI_GCC_FALLTHROUGH __attribute__ ((fallthrough))
+#else
+/** Macro for explicit switch fallthrough */
+#define AVAHI_GCC_FALLTHROUGH
+#endif
+
 AVAHI_C_DECL_END
 
 #endif

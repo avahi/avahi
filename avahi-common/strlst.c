@@ -203,6 +203,7 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
               case '\\':
                   *(e++) = '\\';
                   /* FALL THROUGH */
+                  AVAHI_GCC_FALLTHROUGH;
               default:
                   if (*p < 32 || *p >= 127) {
                       *(e++) = '\\';

@@ -404,14 +404,16 @@ AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *f
         n = vsnprintf((char*) r->text, len, format, va2);
         va_end(va2);
 
-        if (n >= 0 && n < (int) len)
+        if (n <= 0) {
+            /* negative value is returned for errors in format strings, give up */
+            avahi_free(r);
+            return NULL;
+        }
+
+        if (n < (int) len)
             break;
 
-        if (n >= 0)
-            len = n+1;
-        else
-            len *= 2;
-
+        len = n+1;
         if (!(nr = avahi_realloc(r, sizeof(AvahiStringList) + len))) {
             avahi_free(r);
             return NULL;

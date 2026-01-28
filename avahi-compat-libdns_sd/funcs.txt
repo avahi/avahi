@@ -8,6 +8,8 @@ DNSServiceRegister
 DNSServiceBrowse
 DNSServiceResolve
 DNSServiceConstructFullName
+DNSServiceQueryRecord
+DNSServiceReconfirmRecord
 
 TXTRecordCreate
 TXTRecordDeallocate
@@ -23,8 +25,6 @@ TXTRecordGetItemAtIndex
 -- Unsupported but Relevant --
 
 DNSServiceRegisterRecord
-DNSServiceQueryRecord
-DNSServiceReconfirmRecord
 DNSServiceCreateConnection
 DNSServiceAddRecord
 DNSServiceUpdateRecord

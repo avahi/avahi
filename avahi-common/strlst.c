@@ -221,7 +221,8 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
         assert(e);
     }
 
-    l = avahi_string_list_reverse(l);
+    /* restore the order */
+    avahi_string_list_reverse(l);
 
     *e = 0;
 
@@ -261,7 +262,8 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
             size -= 1 + k;
         }
 
-        l = avahi_string_list_reverse(l);
+        /* restore the order */
+        avahi_string_list_reverse(l);
 
         if (used == 0 && size > 0) {
 

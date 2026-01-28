@@ -24,11 +24,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include <avahi-core/internal.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/simple-watch.h>
@@ -324,7 +327,7 @@ static void dsb_callback(
     avahi_log_debug("DSB: (%i.%i): %s/%s:%i [%s]", iface, protocol, hostname ? hostname : "NULL", t, port, browser_event_to_string(event));
 }
 
-int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
+static int test_resolvers(void) {
     AvahiSRecordBrowser *r;
     AvahiSHostNameResolver *hnr;
     AvahiSAddressResolver *ar;
@@ -407,4 +410,94 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_free(service_name);
 
     return 0;
+}
+
+static int test_server_api(void) {
+    AvahiServerConfig config;
+    AvahiAddress a;
+    AvahiSimplePoll *simple_poll;
+    AvahiEntry *entry;
+    int error;
+    char *s, t[2048];
+
+    simple_poll = avahi_simple_poll_new();
+    poll_api = avahi_simple_poll_get(simple_poll);
+
+    avahi_server_config_init(&config);
+    config.enable_wide_area = 0;
+    server = avahi_server_new(poll_api, &config, NULL, NULL, &error);
+    avahi_server_config_free(&config);
+
+    error = -1;
+
+    entry = server->entries;
+
+    /* test for record name truncation */
+    s = avahi_strdup("this-is-a-short.domain.local");
+    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, s, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a), 53) != 0) {
+        avahi_log_error("Failed adding DNS server address");
+        goto finished;
+    }
+
+    avahi_log_info("DNS server address %s was added", s);
+
+    if (server->entries == entry) {
+        avahi_log_error("Success returned from avahi_server_add_dns_server_address but no entries were created");
+        goto finished;
+    }
+
+    assert(snprintf(t, sizeof(t), "_domain._udp.%s", s) < (int) sizeof(t));
+    if (strcmp(server->entries->record->key->name, t) != 0) {
+        avahi_log_error("Record name created by avahi_server_add_dns_server_address is invalid (was %s, expected %s)", server->entries->record->key->name, t);
+        goto finished;
+    }
+
+    assert(snprintf(t, sizeof(t), "ip-c0a83201.%s", s) < (int) sizeof(t));
+    if (strcmp(server->entries->entries_next->record->key->name, t) != 0) {
+        avahi_log_error("Record name created by avahi_server_add_dns_server_address is invalid (was %s, expected %s)", server->entries->entries_next->record->key->name, t);
+        goto finished;
+    }
+
+    avahi_free(s);
+    s = NULL;
+
+    /* test for regressions of https://github.com/avahi/avahi/pull/827 */
+    s = avahi_strdup("this-is-a-very-very-very-long.domain-name-that-shouldnt-be-truncated.local");
+    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, s, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.2", AVAHI_PROTO_UNSPEC, &a), 53) >= 0) {
+        avahi_log_error("Should have failed to added a long DNS server address");
+        goto finished;
+    }
+
+    avahi_free(s);
+    s = NULL;
+
+    error = 0;
+
+finished:
+    if (s)
+        avahi_free(s);
+
+    if (group)
+        avahi_s_entry_group_free(group);
+
+    if (server)
+        avahi_server_free(server);
+
+    if (simple_poll)
+        avahi_simple_poll_free(simple_poll);
+
+    return error;
+}
+
+int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
+    int error = 0;
+
+    if ((error = test_server_api()) != 0)
+        goto exit;
+
+    if ((error = test_resolvers()) != 0)
+        goto exit;
+
+exit:
+    return error;
 }

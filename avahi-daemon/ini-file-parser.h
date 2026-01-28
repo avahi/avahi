@@ -48,6 +48,23 @@ struct AvahiIniFile {
 AvahiIniFile* avahi_ini_file_load(const char *fname);
 void avahi_ini_file_free(AvahiIniFile *f);
 
+/**
+ * Get a list of files from conf.d-style dir (config fragments), sorted, to be
+ * loaded over the base configuration file.
+ *
+ * @confd_path: directory to load files from.  It should be typically named
+ * after the config file used as base, for example if the main config file is in
+ * '/etc/avahi/avahi-daemon.conf' this variale should be
+ * '/etc/avahi/avahi-daemon.conf.d'.
+ *
+ * @confd_file_count: variable that will be set to the number of valid files
+ * being read from that directory, the same as the elements of the array
+ * returned
+ *
+ * @return array of filenames within the given @confd_path
+ */
+char** avahi_ini_list_confd_files_sorted(const char* confd_path, int* confd_file_count);
+
 char** avahi_split_csv(const char *t);
 
 void avahi_strfreev(char **);

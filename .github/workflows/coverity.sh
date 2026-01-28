@@ -48,7 +48,7 @@ function run_coverity {
     results_archive="analysis-results.tgz"
     sha=$(git rev-parse --short HEAD)
 
-    ./bootstrap.sh --enable-compat-howl --enable-compat-libdns_sd --enable-tests \
+    ./bootstrap.sh --enable-compat-libdns_sd --enable-tests \
         --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
     COVERITY_UNSUPPORTED=1 "$tool_dir/bin/cov-build" --dir "$results_dir" make V=1
     "$tool_dir/bin/cov-import-scm" --dir "$results_dir" --scm git --log "$results_dir/scm_log.txt"

@@ -38,10 +38,8 @@ AC_SUBST(LIBAVAHI_QT4_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_QT5_VERSION_INFO, [1:2:0])
 AC_SUBST(LIBAVAHI_UI_VERSION_INFO, [1:4:1])
 
-# Do not touch these, since they we took this version-info from upstream HOWL/Bonjour
+# Do not touch these, since they we took this version-info from upstream Bonjour
 AC_SUBST(LIBAVAHI_COMPAT_LIBDNS_SD_VERSION_INFO, [1:0:0])
-AC_SUBST(LIBAVAHI_COMPAT_HOWL_VERSION_INFO, [0:0:0])
-AC_SUBST(HOWL_COMPAT_VERSION, [0.9.8])
 
 AC_CANONICAL_HOST
 
@@ -1118,20 +1116,6 @@ AC_ARG_ENABLE(compat-libdns_sd,
 AM_CONDITIONAL([ENABLE_COMPAT_LIBDNS_SD], [test "x$ENABLE_COMPAT_LIBDNS_SD" = "xyes"])
 
 #
-# Optionally enable HOWL compatibility support
-#
-AC_ARG_ENABLE(compat-howl,
-        AS_HELP_STRING([--enable-compat-howl],[Enable compatibility layer for HOWL]),
-        [case "${enableval}" in
-                yes) ENABLE_COMPAT_HOWL=yes ;;
-                no)  ENABLE_COMPAT_HOWL=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-compat-howl) ;;
-        esac],
-        [ENABLE_COMPAT_HOWL=no])
-
-AM_CONDITIONAL([ENABLE_COMPAT_HOWL], [test "x$ENABLE_COMPAT_HOWL" = "xyes"])
-
-#
 # systemd
 #
 AC_ARG_WITH([systemdsystemunitdir],
@@ -1173,8 +1157,6 @@ service-type-database/Makefile
 avahi-sharp/Makefile
 avahi-ui-sharp/Makefile
 avahi-compat-libdns_sd/Makefile
-avahi-compat-howl/Makefile
-avahi-compat-howl/samples/Makefile
 avahi-autoipd/Makefile
 avahi-ui/Makefile
 avahi-libevent/Makefile
@@ -1246,9 +1228,6 @@ fi
 if test "x$ENABLE_COMPAT_LIBDNS_SD" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
    ENABLE_COMPAT_LIBDNS_SD="no   (You need libavahi-client!)"
 fi
-if test "x$ENABLE_COMPAT_HOWL" = "xyes" -a "x$BUILD_CLIENT" != "xyes" ; then
-   ENABLE_COMPAT_HOWL="no   (You need libavahi-client!)"
-fi
 if test "x$ENABLE_AUTOIPD" = "xyes" -a "x$HAVE_LIBDAEMON" != "xyes" ; then
    ENABLE_AUTOIPD="no   (You need libdaemon!)"
 fi
@@ -1283,7 +1262,6 @@ echo "\
     Building libavahi-qt5:              ${HAVE_QT5}
     Building avahi-sharp:               ${HAVE_MONO}
     Building avahi-compat-libdns_sd:    ${ENABLE_COMPAT_LIBDNS_SD}
-    Building avahi-compat-howl:         ${ENABLE_COMPAT_HOWL}
     Building tests:                     ${ENABLE_TESTS}
     Building avahi-core documentation:  ${ENABLE_CORE_DOCS}
     Building avahi-autoipd:             ${ENABLE_AUTOIPD}

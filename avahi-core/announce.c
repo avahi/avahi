@@ -107,7 +107,7 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
             } else {
                 struct timeval tv;
                 a->n_iteration = 0;
-                avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
+                avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC * 1000);
                 set_timeout(a, &tv);
             }
         }
@@ -147,7 +147,7 @@ static void next_state(AvahiAnnouncer *a) {
 
             avahi_interface_post_probe(a->interface, a->entry->record, 0);
 
-            avahi_elapse_time(&tv, AVAHI_PROBE_INTERVAL_MSEC, 0);
+            avahi_elapse_time(&tv, AVAHI_PROBE_INTERVAL_MSEC * 1000, 0);
             set_timeout(a, &tv);
 
             a->n_iteration++;
@@ -171,7 +171,7 @@ static void next_state(AvahiAnnouncer *a) {
             set_timeout(a, NULL);
         } else {
             struct timeval tv;
-            avahi_elapse_time(&tv, a->sec_delay*1000, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
+            avahi_elapse_time(&tv, a->sec_delay*1000*1000, AVAHI_ANNOUNCEMENT_JITTER_MSEC * 1000);
 
             if (a->n_iteration < 10)
                 a->sec_delay *= 2;
@@ -227,9 +227,9 @@ static void go_to_initial_state(AvahiAnnouncer *a) {
         e->group->n_probing++;
 
     if (a->state == AVAHI_PROBING)
-        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC));
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC * 1000));
     else if (a->state == AVAHI_ANNOUNCING)
-        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC));
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC * 1000));
     else
         set_timeout(a, NULL);
 }
@@ -465,9 +465,9 @@ static void reannounce(AvahiAnnouncer *a) {
     a->sec_delay = 1;
 
     if (a->state == AVAHI_PROBING)
-        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC));
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC * 1000));
     else if (a->state == AVAHI_ANNOUNCING)
-        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC));
+        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC * 1000));
     else
         set_timeout(a, NULL);
 }

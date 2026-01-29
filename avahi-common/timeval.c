@@ -83,15 +83,15 @@ AvahiUsec avahi_age(const struct timeval *a) {
     return avahi_timeval_diff(&now, a);
 }
 
-struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
+struct timeval *avahi_elapse_time(struct timeval *tv, AvahiUsec usec, AvahiUsec j) {
     assert(tv);
 
     gettimeofday(tv, NULL);
 
-    if (msec)
-        avahi_timeval_add(tv, (AvahiUsec) msec*1000);
+    if (usec)
+        avahi_timeval_add(tv, usec);
 
-    if (jitter) {
+    if (j) {
         static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
         static int last_rand;
         static time_t timestamp = 0;
@@ -115,7 +115,7 @@ struct timeval *avahi_elapse_time(struct timeval *tv, unsigned msec, unsigned ji
          * time events elapse in bursts which has the advantage that
          * packet data can be aggregated better */
 
-        avahi_timeval_add(tv, (AvahiUsec) (jitter*1000.0*r/(RAND_MAX+1.0)));
+        avahi_timeval_add(tv, (AvahiUsec) (j * 1.0 * r / (RAND_MAX + 1.0)));
     }
 
     return tv;

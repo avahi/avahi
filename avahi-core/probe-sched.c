@@ -98,13 +98,13 @@ static void job_free(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
 
 static void elapse_callback(AvahiTimeEvent *e, void* data);
 
-static void job_set_elapse_time(AvahiProbeScheduler *s, AvahiProbeJob *pj, unsigned msec, unsigned jitter) {
+static void job_set_elapse_time(AvahiProbeScheduler *s, AvahiProbeJob *pj, AvahiUsec usec, AvahiUsec jitter) {
     struct timeval tv;
 
     assert(s);
     assert(pj);
 
-    avahi_elapse_time(&tv, msec, jitter);
+    avahi_elapse_time(&tv, usec, jitter);
 
     if (pj->time_event)
         avahi_time_event_update(pj->time_event, &tv);
@@ -123,7 +123,7 @@ static void job_mark_done(AvahiProbeScheduler *s, AvahiProbeJob *pj) {
 
     pj->done = 1;
 
-    job_set_elapse_time(s, pj, AVAHI_PROBE_HISTORY_MSEC, 0);
+    job_set_elapse_time(s, pj, AVAHI_PROBE_HISTORY_MSEC * 1000, 0);
     gettimeofday(&pj->delivery, NULL);
 }
 
@@ -352,7 +352,7 @@ static AvahiProbeJob* find_history_job(AvahiProbeScheduler *s, AvahiRecord *reco
         if (avahi_record_equal_no_ttl(pj->record, record)) {
             /* Check whether this entry is outdated */
 
-            if (avahi_age(&pj->delivery) > AVAHI_PROBE_HISTORY_MSEC*1000) {
+            if (avahi_age(&pj->delivery) > AVAHI_PROBE_HISTORY_MSEC * 1000) {
                 /* it is outdated, so let's remove it */
                 job_free(s, pj);
                 return NULL;
@@ -376,7 +376,7 @@ int avahi_probe_scheduler_post(AvahiProbeScheduler *s, AvahiRecord *record, int 
     if ((pj = find_history_job(s, record)))
         return 0;
 
-    avahi_elapse_time(&tv, immediately ? 0 : AVAHI_PROBE_DEFER_MSEC, 0);
+    avahi_elapse_time(&tv, immediately ? 0 : AVAHI_PROBE_DEFER_MSEC * 1000, 0);
 
     if ((pj = find_scheduled_job(s, record))) {
 

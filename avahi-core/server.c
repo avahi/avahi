@@ -853,7 +853,7 @@ static void reflect_legacy_unicast_query_packet(AvahiServer *s, AvahiDnsPacket *
     slot->port = port;
     slot->interface = i->hardware->index;
 
-    avahi_elapse_time(&slot->elapse_time, 2000, 0);
+    avahi_elapse_time(&slot->elapse_time, 2000 * 1000, 0);
     slot->time_event = avahi_time_event_new(s->time_event_queue, &slot->elapse_time, legacy_unicast_reflect_slot_timeout, slot);
 
     /* Patch the packet with our new locally generatet id */

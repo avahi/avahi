@@ -121,13 +121,13 @@ static void job_free(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 
 static void elapse_callback(AvahiTimeEvent *e, void* data);
 
-static void job_set_elapse_time(AvahiResponseScheduler *s, AvahiResponseJob *rj, unsigned msec, unsigned jitter) {
+static void job_set_elapse_time(AvahiResponseScheduler *s, AvahiResponseJob *rj, AvahiUsec usec, AvahiUsec jitter) {
     struct timeval tv;
 
     assert(s);
     assert(rj);
 
-    avahi_elapse_time(&tv, msec, jitter);
+    avahi_elapse_time(&tv, usec, jitter);
 
     if (rj->time_event)
         avahi_time_event_update(rj->time_event, &tv);
@@ -146,7 +146,7 @@ static void job_mark_done(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 
     rj->state = AVAHI_DONE;
 
-    job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
+    job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC * 1000, 0);
 
     gettimeofday(&rj->delivery, NULL);
 }
@@ -331,7 +331,7 @@ static AvahiResponseJob* find_suppressed_job(AvahiResponseScheduler *s, AvahiRec
             avahi_address_cmp(&rj->querier, querier) == 0) {
             /* Check whether this entry is outdated */
 
-            if (avahi_age(&rj->delivery) > AVAHI_RESPONSE_SUPPRESS_MSEC*1000) {
+            if (avahi_age(&rj->delivery) > AVAHI_RESPONSE_SUPPRESS_MSEC * 1000) {
                 /* it is outdated, so let's remove it */
                 job_free(s, rj);
                 return NULL;
@@ -382,7 +382,7 @@ int avahi_response_scheduler_post(AvahiResponseScheduler *s, AvahiRecord *record
         job_free(s, rj);
     }
 
-    avahi_elapse_time(&tv, immediately ? 0 : AVAHI_RESPONSE_DEFER_MSEC, immediately ? 0 : AVAHI_RESPONSE_JITTER_MSEC);
+    avahi_elapse_time(&tv, immediately ? 0 : AVAHI_RESPONSE_DEFER_MSEC * 1000, immediately ? 0 : AVAHI_RESPONSE_JITTER_MSEC * 1000);
 
     if ((rj = find_scheduled_job(s, record))) {
 /*          avahi_log_debug("Response suppressed by local duplicate suppression (scheduled)"); */
@@ -461,7 +461,7 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
     rj->querier_valid = 0;
 
     gettimeofday(&rj->delivery, NULL);
-    job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
+    job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC * 1000, 0);
 }
 
 void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *record, const AvahiAddress *querier) {
@@ -499,7 +499,7 @@ void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *r
     }
 
     gettimeofday(&rj->delivery, NULL);
-    job_set_elapse_time(s, rj, AVAHI_RESPONSE_SUPPRESS_MSEC, 0);
+    job_set_elapse_time(s, rj, AVAHI_RESPONSE_SUPPRESS_MSEC * 1000, 0);
 }
 
 void avahi_response_scheduler_force(AvahiResponseScheduler *s) {

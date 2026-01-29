@@ -44,10 +44,10 @@ struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec);
 /** Return the difference between the current time and *a. Positive if *a was earlier */
 AvahiUsec avahi_age(const struct timeval *a);
 
-/** Fill *tv with the current time plus "ms" milliseconds plus an
- * extra jitter of "j" milliseconds. Pass 0 for j if you don't want
+/** Fill *tv with the current time plus "usec" microseconds plus an
+ * extra jitter of "j" microseconds. Pass 0 for j if you don't want
  * the jitter */
-struct timeval *avahi_elapse_time(struct timeval *tv, unsigned ms, unsigned j);
+struct timeval *avahi_elapse_time(struct timeval *tv, AvahiUsec usec, AvahiUsec j);
 
 AVAHI_C_DECL_END
 

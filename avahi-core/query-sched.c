@@ -119,13 +119,13 @@ static void job_free(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
 
 static void elapse_callback(AvahiTimeEvent *e, void* data);
 
-static void job_set_elapse_time(AvahiQueryScheduler *s, AvahiQueryJob *qj, unsigned msec, unsigned jitter) {
+static void job_set_elapse_time(AvahiQueryScheduler *s, AvahiQueryJob *qj, AvahiUsec usec, AvahiUsec jitter) {
     struct timeval tv;
 
     assert(s);
     assert(qj);
 
-    avahi_elapse_time(&tv, msec, jitter);
+    avahi_elapse_time(&tv, usec, jitter);
 
     if (qj->time_event)
         avahi_time_event_update(qj->time_event, &tv);
@@ -144,7 +144,7 @@ static void job_mark_done(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
 
     qj->done = 1;
 
-    job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
+    job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC * 1000, 0);
     gettimeofday(&qj->delivery, NULL);
 }
 
@@ -338,7 +338,7 @@ static AvahiQueryJob* find_history_job(AvahiQueryScheduler *s, AvahiKey *key) {
         if (avahi_key_equal(qj->key, key)) {
             /* Check whether this entry is outdated */
 
-            if (avahi_age(&qj->delivery) > AVAHI_QUERY_HISTORY_MSEC*1000) {
+            if (avahi_age(&qj->delivery) > AVAHI_QUERY_HISTORY_MSEC * 1000) {
                 /* it is outdated, so let's remove it */
                 job_free(s, qj);
                 return NULL;
@@ -361,7 +361,7 @@ int avahi_query_scheduler_post(AvahiQueryScheduler *s, AvahiKey *key, int immedi
     if ((qj = find_history_job(s, key)))
         return 0;
 
-    avahi_elapse_time(&tv, immediately ? 0 : AVAHI_QUERY_DEFER_MSEC, 0);
+    avahi_elapse_time(&tv, immediately ? 0 : AVAHI_QUERY_DEFER_MSEC * 1000, 0);
 
     if ((qj = find_scheduled_job(s, key))) {
         /* Duplicate questions suppression */
@@ -412,7 +412,7 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
             return; /* OOM */
 
     gettimeofday(&qj->delivery, NULL);
-    job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
+    job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC * 1000, 0);
 }
 
 int avahi_query_scheduler_withdraw_by_id(AvahiQueryScheduler *s, unsigned id) {

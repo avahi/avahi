@@ -1102,6 +1102,9 @@ AC_ARG_ENABLE(tests,
         [ENABLE_TESTS=no])
 
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$ENABLE_TESTS" = "xyes"])
+if test "x$ENABLE_TESTS" = "xyes"; then
+    AC_DEFINE([ENABLE_TESTS], [1], [Build test programs])
+fi
 
 #
 # Optionally enable libdns_sd compatibility support

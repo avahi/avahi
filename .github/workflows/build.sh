@@ -333,7 +333,11 @@ case "$1" in
             fi
         fi
 
-        $MAKE check VERBOSE=1
+        if [[ "$VALGRIND" == true ]]; then
+            $MAKE check VERBOSE=1 LOG_COMPILER="valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1"
+        else
+            $MAKE check VERBOSE=1
+        fi
 
         # It's just a kludge using the existing valgrind target
         # to run at least something under Valgrind on FreeBSD. It was

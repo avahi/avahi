@@ -88,7 +88,9 @@ static void entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
                 n = avahi_alternative_service_name(config->name);
             else {
                 assert(config->command == COMMAND_PUBLISH_ADDRESS);
-                n = avahi_alternative_host_name(config->name);
+                fprintf(stderr, _("Name collision detected, '%s' was already published by another network member.\n"), config->name);
+                avahi_simple_poll_quit(simple_poll);
+                break;
             }
 
             fprintf(stderr, _("Name collision, picking new name '%s'.\n"), n);

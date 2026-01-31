@@ -69,6 +69,51 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_GCC_UNUSED
 #endif
 
+#if defined(ENABLE_TESTS)
+/*
+ * Test-only diagnostic control macros.
+ *
+ * These macros exist solely to suppress specific compiler diagnostics in
+ * *test code* where we intentionally trigger undefined, invalid, or
+ * ill-formed constructs in order to verify error handling paths.
+ *
+ * They MUST NOT be used in production or library code.
+ *
+ * Rationale:
+ *  - Modern compilers increasingly detect these patterns at compile time
+ *    and warn or error before runtime.
+ *  - Tests sometimes need to force such cases to ensure failures are
+ *    handled correctly.
+ *  - Suppressing diagnostics globally or in non-test code would mask
+ *    real bugs and weaken safety guarantees.
+ *
+ * If you think you need these macros outside of tests, the code is wrong.
+ */
+
+#if defined(__GNUC__)
+#define DIAG_STR(s) #s
+#define DIAG_XSTR(s) DIAG_STR(s)
+#endif
+
+#if !defined(__clang__)
+#define DIAG_PUSH       _Pragma("GCC diagnostic push")
+#define DIAG_POP        _Pragma("GCC diagnostic pop")
+#define GCC_DIAG_IGNORE(w) _Pragma(DIAG_XSTR(GCC diagnostic ignored w))
+#define CLANG_DIAG_IGNORE(w)
+#elif defined (__clang__)
+#define DIAG_PUSH       _Pragma("clang diagnostic push")
+#define DIAG_POP        _Pragma("clang diagnostic pop")
+#define CLANG_DIAG_IGNORE(w)    _Pragma(DIAG_XSTR(clang diagnostic ignored w))
+#define GCC_DIAG_IGNORE(w)
+#else /* not gcc or clang */
+#define DIAG_PUSH
+#define DIAG_POP
+#define GCC_DIAG_IGNORE(w)
+#define CLANG_DIAG_IGNORE(w)
+#endif
+
+#endif /* defined(ENABLED_TESTS) */
+
 AVAHI_C_DECL_END
 
 #endif

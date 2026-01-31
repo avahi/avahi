@@ -21,6 +21,8 @@
 #include <config.h>
 #endif
 
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -219,7 +221,8 @@ char* avahi_string_list_to_string(AvahiStringList *l) {
         assert(e);
     }
 
-    l = avahi_string_list_reverse(l);
+    /* restore the order */
+    avahi_string_list_reverse(l);
 
     *e = 0;
 
@@ -259,7 +262,8 @@ size_t avahi_string_list_serialize(AvahiStringList *l, void *data, size_t size) 
             size -= 1 + k;
         }
 
-        l = avahi_string_list_reverse(l);
+        /* restore the order */
+        avahi_string_list_reverse(l);
 
         if (used == 0 && size > 0) {
 
@@ -324,10 +328,17 @@ AvahiStringList *avahi_string_list_add_many(AvahiStringList *r, ...) {
 }
 
 AvahiStringList *avahi_string_list_add_many_va(AvahiStringList *r, va_list va) {
+    AvahiStringList *n;
     const char *txt;
 
-    while ((txt = va_arg(va, const char*)))
-        r = avahi_string_list_add(r, txt);
+    while ((txt = va_arg(va, const char*))) {
+        n = avahi_string_list_add(r, txt);
+        if (!n) {
+            avahi_string_list_free(r);
+            return NULL;
+        }
+        r = n;
+    }
 
     return r;
 }
@@ -352,13 +363,15 @@ AvahiStringList *avahi_string_list_new_va(va_list va) {
 }
 
 AvahiStringList *avahi_string_list_copy(const AvahiStringList *l) {
-    AvahiStringList *r = NULL;
+    AvahiStringList *r = NULL, *n;
 
-    for (; l; l = l->next)
-        if (!(r = avahi_string_list_add_arbitrary(r, l->text, l->size))) {
+    for (; l; l = l->next) {
+        if (!(n = avahi_string_list_add_arbitrary(r, l->text, l->size))) {
             avahi_string_list_free(r);
             return NULL;
         }
+        r = n;
+    }
 
     return avahi_string_list_reverse(r);
 }
@@ -402,14 +415,16 @@ AvahiStringList *avahi_string_list_add_vprintf(AvahiStringList *l, const char *f
         n = vsnprintf((char*) r->text, len, format, va2);
         va_end(va2);
 
-        if (n >= 0 && n < (int) len)
+        if (n <= 0) {
+            /* negative value is returned for errors in format strings, give up */
+            avahi_free(r);
+            return NULL;
+        }
+
+        if (n < (int) len)
             break;
 
-        if (n >= 0)
-            len = n+1;
-        else
-            len *= 2;
-
+        len = n+1;
         if (!(nr = avahi_realloc(r, sizeof(AvahiStringList) + len))) {
             avahi_free(r);
             return NULL;
@@ -545,7 +560,7 @@ size_t avahi_string_list_get_size(AvahiStringList *l) {
 uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
     AvahiStringList *f;
     char *value = NULL, *end = NULL;
-    uint32_t ret;
+    long long ret;
 
     if (!(f = avahi_string_list_find(l, AVAHI_SERVICE_COOKIE)))
         return AVAHI_SERVICE_COOKIE_INVALID;
@@ -553,14 +568,20 @@ uint32_t avahi_string_list_get_service_cookie(AvahiStringList *l) {
     if (avahi_string_list_get_pair(f, NULL, &value, NULL) < 0 || !value)
         return AVAHI_SERVICE_COOKIE_INVALID;
 
-    ret = (uint32_t) strtoll(value, &end, 0);
+    errno = 0;
+    ret = strtoll(value, &end, 0);
 
-    if (*value && end && *end != 0) {
+    /* unreachable on POSIX */
+    assert(end);
+
+    /* Reject on conversion errors, trailing junk, negative values,
+     * or values outside the uint32_t range. */
+    if (errno != 0 || end == value || *end != '\0' || ret < 0 || ret > UINT_MAX) {
         avahi_free(value);
         return AVAHI_SERVICE_COOKIE_INVALID;
     }
 
     avahi_free(value);
 
-    return ret;
+    return (uint32_t)ret;
 }

@@ -25,11 +25,103 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <dirent.h>
+#include <regex.h>
+#include <stdlib.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-core/log.h>
 
 #include "ini-file-parser.h"
+
+#define AVAHI_INI_CONFD_MAX_FILES 1024
+#define AVAHI_INI_REGEX_MAX_ERRORLEN 256
+
+static int avahi_ini_filename_compare(const void *a, const void *b) {
+    return strcmp(*(const char **)a, *(const char **)b);
+}
+
+char** avahi_ini_list_confd_files_sorted(const char* confd_path, int* confd_file_count) {
+    const char *regex_pattern = "^([0-9][0-9])-([a-zA-Z0-9_-]+)\\.conf$";
+    regex_t regex;
+    int regex_ret = 0;
+
+    DIR *dir = NULL;
+    struct dirent *dentry = NULL;
+    int error_reading_dir = 0;
+    char** filelist = NULL;
+    int filelist_count = 0;
+
+    /* initialize for early returns before the count gets set */
+    *confd_file_count = 0;
+
+    regex_ret = regcomp(&regex, regex_pattern, REG_EXTENDED);
+    if (regex_ret) {
+        char regerr_str[AVAHI_INI_REGEX_MAX_ERRORLEN];
+        regerror(regex_ret, &regex, regerr_str, sizeof(regerr_str));
+        avahi_log_error("Could not compile regex for conf.d files, returned %d: %s",
+                        regex_ret, regerr_str);
+        regfree(&regex);
+        return NULL;
+    }
+
+    dir = opendir(confd_path);
+    if (!dir) {
+        if (errno == ENOENT) {
+            /* not having conf.d in a system is fine, and probably the norm */
+            avahi_log_debug("Could not find avahi-daemon.conf.d directory '%s'", confd_path);
+        } else {
+            avahi_log_warn("Could not open '%s': %s", confd_path, strerror(errno));
+        }
+
+        regfree(&regex);
+        return NULL;
+    }
+
+    filelist = avahi_malloc0(AVAHI_INI_CONFD_MAX_FILES * sizeof(char *));
+
+    while ((dentry = readdir(dir)) != NULL) {
+        regex_ret = regexec(&regex, dentry->d_name, 0, NULL, 0);
+        if (regex_ret == 0) {
+            if (filelist_count >= AVAHI_INI_CONFD_MAX_FILES) {
+                avahi_log_error("Max number of files %d reached when processing: %s",
+                                AVAHI_INI_CONFD_MAX_FILES, confd_path);
+                error_reading_dir = 1;
+                break;
+            }
+
+            filelist[filelist_count] = strdup(dentry->d_name);
+            if (!filelist[filelist_count]) {
+                avahi_log_error("strdup() error: %s", strerror(errno));
+                error_reading_dir = 1;
+                break;
+            }
+
+            avahi_log_debug("Considering file in conf.d '%s'", filelist[filelist_count]);
+
+            filelist_count++;
+        } else {
+            avahi_log_debug("Discarding file in conf.d '%s'", dentry->d_name);
+        }
+    }
+    closedir(dir);
+    regfree(&regex);
+
+    if (error_reading_dir) {
+        avahi_strfreev(filelist);
+        *confd_file_count = 0;
+        return NULL;
+    }
+
+    qsort(filelist, filelist_count, sizeof(char *), avahi_ini_filename_compare);
+    avahi_log_debug("Sorted list of conf.d files:");
+    for (int i = 0; i < filelist_count; i++)
+        avahi_log_debug("- %s", filelist[i]);
+
+    *confd_file_count = filelist_count;
+
+    return filelist;
+}
 
 AvahiIniFile* avahi_ini_file_load(const char *fname) {
     AvahiIniFile *f;

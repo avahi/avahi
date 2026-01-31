@@ -69,6 +69,19 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_GCC_UNUSED
 #endif
 
+/* defines it as an attribute or as a comment */
+#if defined(__clang__)
+#  if __has_attribute(fallthrough)
+#    define AVAHI_GCC_FALLTHROUGH __attribute__((fallthrough))
+#  else
+#    define AVAHI_GCC_FALLTHROUGH /* fallthrough */
+#  endif
+#elif defined(__GNUC__) && (__GNUC__ >= 7)
+#  define AVAHI_GCC_FALLTHROUGH __attribute__((fallthrough))
+#else
+#  define AVAHI_GCC_FALLTHROUGH /* fallthrough */
+#endif
+
 AVAHI_C_DECL_END
 
 #endif

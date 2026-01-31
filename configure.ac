@@ -311,6 +311,13 @@ if test "x$GCC" = "xyes" ; then
 
     DESIRED_FLAGS="-Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls -Wmissing-noreturn -Wshadow -Wendif-labels -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -fdiagnostics-show-option -Wno-cast-qual -fno-strict-aliasing"
 
+    extra_flag="-Wimplicit-fallthrough=5"
+    if $CC --version 2>/dev/null | grep -q clang; then
+        # clang doesn't take the "=5" that gcc does
+        extra_flag="-Wimplicit-fallthrough"
+    fi
+    DESIRED_FLAGS="$DESIRED_FLAGS $extra_flag"
+
     if test "x$HAVE_NETLINK" = "xyes" ; then
         # Test whether rtnetlink.h can be included when compiled with -std=c99
         # some distributions (e.g. archlinux) have broken headers that don't

@@ -672,6 +672,8 @@ static int load_config_file(DaemonConfig *c) {
                     c->server_config.use_iff_running = is_yes(p->value);
                 else if (strcasecmp(p->key, "disallow-other-stacks") == 0)
                     c->server_config.disallow_other_stacks = is_yes(p->value);
+                else if (strcasecmp(p->key, "always-publish-linklocal") == 0)
+                    c->server_config.always_publish_linklocal = is_yes(p->value);
                 else if (strcasecmp(p->key, "host-name-from-machine-id") == 0) {
                     if (*(p->value) == 'y' || *(p->value) == 'Y') {
                         char *machine_id = get_machine_id();

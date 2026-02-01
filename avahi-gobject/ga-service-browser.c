@@ -148,6 +148,7 @@ static void ga_service_browser_class_init(GaServiceBrowserClass *
                               ga_service_browser_class) {
     GObjectClass *object_class = G_OBJECT_CLASS(ga_service_browser_class);
     GParamSpec *param_spec;
+    GParamFlags flags;
 
     g_type_class_add_private(ga_service_browser_class,
                              sizeof (GaServiceBrowserPrivate));
@@ -211,13 +212,16 @@ static void ga_service_browser_class_init(GaServiceBrowserClass *
                          g_cclosure_marshal_VOID__POINTER,
                          G_TYPE_NONE, 1, G_TYPE_POINTER);
 
+    flags = (GParamFlags)(
+                (GParamFlags)G_PARAM_READWRITE |
+                (GParamFlags)G_PARAM_STATIC_NAME |
+                (GParamFlags)G_PARAM_STATIC_BLURB);
+
     param_spec = g_param_spec_enum("protocol", "Avahi protocol to browse",
                                    "Avahi protocol to browse",
                                    GA_TYPE_PROTOCOL,
                                    GA_PROTOCOL_UNSPEC,
-                                   G_PARAM_READWRITE |
-                                   G_PARAM_STATIC_NAME |
-                                   G_PARAM_STATIC_BLURB);
+                                   flags);
     g_object_class_install_property(object_class, PROP_PROTOCOL, param_spec);
 
     param_spec = g_param_spec_int("interface", "interface index",
@@ -225,33 +229,26 @@ static void ga_service_browser_class_init(GaServiceBrowserClass *
                                   AVAHI_IF_UNSPEC,
                                   G_MAXINT,
                                   AVAHI_IF_UNSPEC,
-                                  G_PARAM_READWRITE |
-                                  G_PARAM_STATIC_NAME | G_PARAM_STATIC_BLURB);
+                                  flags);
     g_object_class_install_property(object_class, PROP_IFINDEX, param_spec);
 
     param_spec = g_param_spec_string("type", "service type",
                                      "Service type to browse for",
                                      NULL,
-                                     G_PARAM_READWRITE |
-                                     G_PARAM_STATIC_NAME |
-                                     G_PARAM_STATIC_BLURB);
+                                     flags);
     g_object_class_install_property(object_class, PROP_TYPE, param_spec);
 
     param_spec = g_param_spec_string("domain", "service domain",
                                      "Domain to browse in",
                                      NULL,
-                                     G_PARAM_READWRITE |
-                                     G_PARAM_STATIC_NAME |
-                                     G_PARAM_STATIC_BLURB);
+                                     flags);
     g_object_class_install_property(object_class, PROP_DOMAIN, param_spec);
 
     param_spec = g_param_spec_enum("flags", "Lookup flags for the browser",
                                    "Browser lookup flags",
                                    GA_TYPE_LOOKUP_FLAGS,
                                    GA_LOOKUP_NO_FLAGS,
-                                   G_PARAM_READWRITE |
-                                   G_PARAM_STATIC_NAME |
-                                   G_PARAM_STATIC_BLURB);
+                                   flags);
     g_object_class_install_property(object_class, PROP_FLAGS, param_spec);
 }
 

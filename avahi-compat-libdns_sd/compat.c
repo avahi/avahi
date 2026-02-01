@@ -68,7 +68,6 @@ struct _DNSServiceRef_t {
     int thread_fd, main_fd;
 
     pthread_t thread;
-    int thread_running;
 
     pthread_mutex_t mutex;
 
@@ -310,7 +309,6 @@ static void * thread_func(void *data) {
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
     sdref->thread = pthread_self();
-    sdref->thread_running = 1;
 
     for (;;) {
         char command;
@@ -388,8 +386,6 @@ static DNSServiceRef sdref_new(void) {
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
     ASSERT_SUCCESS(pthread_mutex_init(&sdref->mutex, &mutex_attr));
 
-    sdref->thread_running = 0;
-
     if (!(sdref->simple_poll = avahi_simple_poll_new()))
         goto fail;
 
@@ -406,8 +402,6 @@ static DNSServiceRef sdref_new(void) {
     if (pthread_create(&sdref->thread, NULL, thread_func, sdref) != 0)
         goto fail;
 
-    sdref->thread_running = 1;
-
     return sdref;
 
 fail:
@@ -421,11 +415,9 @@ fail:
 static void sdref_free(DNSServiceRef sdref) {
     assert(sdref);
 
-    if (sdref->thread_running) {
-        ASSERT_SUCCESS(write_command(sdref->main_fd, COMMAND_QUIT));
-        avahi_simple_poll_wakeup(sdref->simple_poll);
-        ASSERT_SUCCESS(pthread_join(sdref->thread, NULL));
-    }
+    ASSERT_SUCCESS(write_command(sdref->main_fd, COMMAND_QUIT));
+    avahi_simple_poll_wakeup(sdref->simple_poll);
+    ASSERT_SUCCESS(pthread_join(sdref->thread, NULL));
 
     if (sdref->client)
         avahi_client_free(sdref->client);

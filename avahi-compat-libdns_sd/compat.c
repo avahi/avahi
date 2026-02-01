@@ -308,8 +308,6 @@ static void * thread_func(void *data) {
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    sdref->thread = pthread_self();
-
     for (;;) {
         char command;
 

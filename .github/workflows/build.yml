@@ -94,6 +94,7 @@ jobs:
           operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}
           architecture: 'x86_64'
+          sync_files: 'runner-to-vm'
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
           run: |
             sudo -E .github/workflows/build.sh install-build-deps-${{ matrix.os }}

@@ -256,9 +256,7 @@ if [[ ! "$OS" =~ (alpine|omnios) ]]; then
     run ./avahi-compat-howl/address-test
 fi
 
-if [[ "$OS" != freebsd || "$VALGRIND" != true ]]; then
-    run ./avahi-compat-libdns_sd/null-test
-fi
+run ./avahi-compat-libdns_sd/null-test
 
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test

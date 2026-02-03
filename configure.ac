@@ -1157,7 +1157,6 @@ avahi-discover-standalone/Makefile
 avahi-client/Makefile
 initscript/Makefile
 initscript/gentoo/Makefile
-initscript/lfs/Makefile
 initscript/darwin/Makefile
 initscript/slackware/Makefile
 avahi-dnsconfd/Makefile

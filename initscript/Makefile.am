@@ -17,10 +17,6 @@
 
 SUBDIRS =
 
-if TARGET_LFS
-SUBDIRS += lfs
-endif
-
 if TARGET_GENTOO
 SUBDIRS += gentoo
 endif

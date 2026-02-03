@@ -94,11 +94,6 @@ install_radamsa() {
     CFLAGS="" $MAKE -j"$(nproc)"
     $MAKE install
     popd
-    # At least radamsa.c is generated with the "-rw-------." permissions so
-    # cross-platform-actions/action trips on that with:
-    #  /usr/bin/rsync -auz runner@cross_platform_actions_host:/home/runner/work/ /home/runner/work
-    #   rsync: [sender] send_files failed to open "/home/runner/work/avahi/avahi/radamsa/radamsa.c": Permission denied (13)
-    chmod -R a+r radamsa
 }
 
 trim_sandbox() {

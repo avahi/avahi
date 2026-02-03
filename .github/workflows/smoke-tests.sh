@@ -154,7 +154,6 @@ install_nss_mdns() {
     $MAKE install
     popd
 
-    chmod -R a+r "$NSS_MDNS_BUILD_DIR"
     CFLAGS="$_cflags" CXXFLAGS="$_cxxflags" ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"
 
     run ./avahi-client/check-nss-test

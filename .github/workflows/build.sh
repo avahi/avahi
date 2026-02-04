@@ -32,6 +32,10 @@ if [[ "$OS" == omnios ]]; then
     PATH="/opt/local/sbin:/opt/local/bin:$PATH"
 fi
 
+if [[ "$VALGRIND" == true ]]; then
+    export LOG_COMPILER="valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1"
+fi
+
 asan_ubsan_reports_detected() {
     local _btraces
 
@@ -328,11 +332,7 @@ case "$1" in
             fi
         fi
 
-        if [[ "$VALGRIND" == true ]]; then
-            $MAKE check VERBOSE=1 LOG_COMPILER="valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1"
-        else
-            $MAKE check VERBOSE=1
-        fi
+        $MAKE check VERBOSE=1
 
         # It's just a kludge using the existing valgrind target
         # to run at least something under Valgrind on FreeBSD. It was

@@ -138,10 +138,7 @@ install_nss_mdns() {
 
     $MAKE -j"$(nproc)" V=1
 
-    if ! $MAKE check V=1; then
-        cat test-suite.log
-        exit 1
-    fi
+    $MAKE check VERBOSE=1 CK_FORK=no
 
     if [[ "$DISTCHECK" == true ]]; then
         $MAKE distcheck V=1

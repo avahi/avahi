@@ -288,6 +288,9 @@ drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 
 check_rlimit_nofile
 
+h="$(hostname | sed 's/\.local$//').local"
+run drill -p5353 @127.0.0.1 "$h" HINFO
+
 if [[ "$WITH_SYSTEMD" == false ]]; then
     run avahi-dnsconfd --kill
 
@@ -329,7 +332,6 @@ systemd-run -u avahi-test-publish-vsfh avahi-publish -vsf -H X.sub.local test-vs
 # shellcheck disable=SC2046
 run avahi-publish -s T _qotd._tcp 22 $(perl -le 'print "A " x 100000')
 
-h="$(hostname).local"
 ipv4addr=$(avahi-resolve -v -4 -n "$h" | perl -alpe '$_ = $F[1]')
 ipv6addr=$(avahi-resolve -v -6 -n "$h" | perl -alpe '$_ = $F[1]')
 

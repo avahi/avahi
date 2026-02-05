@@ -699,23 +699,52 @@ static int load_config_file(DaemonConfig *c, const char* config_file) {
                 else if (strcasecmp(p->key, "allow-interfaces") == 0) {
                     char **e, **t;
 
-                    avahi_string_list_free(c->server_config.allow_interfaces);
-                    c->server_config.allow_interfaces = NULL;
+                    avahi_log_debug("allow-interfaces: processing line: '%s'", p->value);
                     e = avahi_split_csv(p->value);
+                    if (!e || (e[0] && strcmp(e[0], "") == 0)) {
+                        /* reset if the string is null or empty */
+                        avahi_log_debug("allow-interfaces reset, content was: '%s'",
+                                        avahi_string_list_to_string(c->server_config.allow_interfaces));
 
-                    for (t = e; *t; t++)
-                        c->server_config.allow_interfaces = avahi_string_list_add(c->server_config.allow_interfaces, *t);
+                        avahi_string_list_free(c->server_config.allow_interfaces);
+                        c->server_config.allow_interfaces = NULL;
+                    } else {
+                        for (t = e; *t; t++) {
+                            if (t[0] && strcmp(t[0], "") != 0) {
+                                avahi_log_debug("allow-interfaces: adding '%s'", t[0]);
+                                c->server_config.allow_interfaces = avahi_string_list_add(c->server_config.allow_interfaces, *t);
+                            } else
+                                avahi_log_debug("allow-interfaces: skipping empty value '%s'", t[0]);
+                        }
+                    }
+
+                    avahi_log_debug("allow-interfaces: after processing complete line: '%s'",
+                                    avahi_string_list_to_string(c->server_config.allow_interfaces));
 
                     avahi_strfreev(e);
                 } else if (strcasecmp(p->key, "deny-interfaces") == 0) {
                     char **e, **t;
 
-                    avahi_string_list_free(c->server_config.deny_interfaces);
-                    c->server_config.deny_interfaces = NULL;
+                    avahi_log_debug("deny-interfaces: processing line: '%s'", p->value);
                     e = avahi_split_csv(p->value);
+                    if (!e || (e[0] && strcmp(e[0], "") == 0)) {
+                        /* reset if the string is null or empty */
+                        avahi_log_debug("deny-interfaces reset, content was: '%s'",
+                                        avahi_string_list_to_string(c->server_config.deny_interfaces));
 
-                    for (t = e; *t; t++)
-                        c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
+                        avahi_string_list_free(c->server_config.deny_interfaces);
+                        c->server_config.deny_interfaces = NULL;
+                    } else {
+                        for (t = e; *t; t++)
+                            if (t[0] && strcmp(t[0], "") != 0) {
+                                avahi_log_debug("deny-interfaces: adding '%s'", t[0]);
+                                c->server_config.deny_interfaces = avahi_string_list_add(c->server_config.deny_interfaces, *t);
+                            } else
+                                avahi_log_debug("deny-interfaces: skipping empty value '%s'", t[0]);
+                    }
+
+                    avahi_log_debug("deny-interfaces: after processing complete line: '%s'",
+                                    avahi_string_list_to_string(c->server_config.deny_interfaces));
 
                     avahi_strfreev(e);
                 } else if (strcasecmp(p->key, "ratelimit-interval-usec") == 0) {
@@ -804,8 +833,25 @@ static int load_config_file(DaemonConfig *c, const char* config_file) {
                 else if (strcasecmp(p->key, "add-service-cookie") == 0)
                     c->server_config.add_service_cookie = is_yes(p->value);
                 else if (strcasecmp(p->key, "publish-dns-servers") == 0) {
-                    avahi_strfreev(c->publish_dns_servers);
-                    c->publish_dns_servers = avahi_split_csv(p->value);
+                    char **e, **t;
+
+                    avahi_log_debug("publish-dns-servers: processing line: '%s'", p->value);
+                    e = avahi_split_csv(p->value);
+                    if (!e || (e[0] && strcmp(e[0], "") == 0)) {
+                        /* reset if the string is null or empty */
+                        avahi_log_debug("publish-dns-servers reset");
+
+                        avahi_strfreev(c->publish_dns_servers);
+                        c->publish_dns_servers = NULL;
+                    } else {
+                            c->publish_dns_servers = e;
+                            for (t = e; *t; t++) {
+                                if (t[0] && strcmp(t[0], "") != 0) {
+                                    avahi_log_warn("publish_dns_servers: adding '%s'", t[0]);
+                                } else
+                                    avahi_log_warn("publish_dns_servers: skipping empty value '%s'", t[0]);
+                            }
+                    }
                 } else if (strcasecmp(p->key, "publish-a-on-ipv6") == 0)
                     c->server_config.publish_a_on_ipv6 = is_yes(p->value);
                 else if (strcasecmp(p->key, "publish-aaaa-on-ipv4") == 0)

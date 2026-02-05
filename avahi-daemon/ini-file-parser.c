@@ -159,7 +159,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
             group->n_pairs = 0;
             AVAHI_LLIST_HEAD_INIT(AvahiIniFilePair, group->pairs);
 
-            AVAHI_LLIST_PREPEND(AvahiIniFileGroup, groups, f->groups, group);
+            AVAHI_LLIST_APPEND(AvahiIniFileGroup, groups, f->groups, group);
             f->n_groups++;
         } else {
 
@@ -181,7 +181,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
             pair->key = avahi_strdup(s);
             pair->value = avahi_strdup(e);
 
-            AVAHI_LLIST_PREPEND(AvahiIniFilePair, pairs, group->pairs, pair);
+            AVAHI_LLIST_APPEND(AvahiIniFilePair, pairs, group->pairs, pair);
             group->n_pairs++;
         }
     }

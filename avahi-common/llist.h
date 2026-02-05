@@ -55,6 +55,18 @@ AVAHI_C_DECL_BEGIN
                                         *_head = _item; \
                                         } while (0)
 
+/** Append an item to the list */
+#define AVAHI_LLIST_APPEND(t,name,head,item) do { \
+                                        t **_head = &(head), *_item = (item); \
+                                        t **iter; \
+                                        assert(_item); \
+                                        _item->name##_next = NULL; \
+                                        if (!head) { *_head = item; item->name##_prev = NULL; break; } \
+                                        for (iter = &(head); *iter && (*iter)->name##_next; iter = &((*iter)->name##_next)) { ; } \
+                                        (*iter)->name##_next = _item; \
+                                        _item->name##_prev = *iter; \
+                                        } while (0)
+
 /** Remove an item from the list */
 #define AVAHI_LLIST_REMOVE(t,name,head,item) do { \
                                     t **_head = &(head), *_item = (item); \

@@ -285,8 +285,11 @@ drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 
 check_rlimit_nofile
 
-h="$(hostname | sed 's/\.local$//').local"
+l=$(hostname | sed 's/\.local$//')
+h="$l.local"
 run drill -p5353 @127.0.0.1 "$h" HINFO
+run drill -p5353 @127.0.0.1 _domain._udp.local ANY
+drill -Q -p5353 @127.0.0.1 "$l._ssh._tcp.local" TXT | grep org.freedesktop.Avahi.cookie
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
     run avahi-dnsconfd --kill

@@ -128,8 +128,13 @@
       client side, either by setting $AVAHI_BROWSE_DOMAINS to a list
       of colon separated domains or by adding them to the XDG config
       file <file>~/.config/avahi/browse-domains</file> (separated by
-      newlines).</p>
+      newlines).
 
+      If there are multiple instances of this variable across the configuration
+      files being processed, all the values get appended to the list; unless it
+      gets assigned to an empty value, in which case it is reset at that
+      point. (Sill, further assignments found in configuration files processed
+      after the reset will be added again as elements of the list).</p>
     </option>
 
     <option>
@@ -149,7 +154,10 @@
       allowed network interfaces that should be used by the
       avahi-daemon. Traffic on other interfaces will be ignored. If
       set to an empty list all local interfaces except loopback and
-      point-to-point will be used.</p>
+      point-to-point will be used.
+
+      Same consideration as <opt>browse-domains=</opt> when multiple instances
+      are found.</p>
     </option>
 
     <option>
@@ -157,7 +165,10 @@
       network interfaces that should be ignored by avahi-daemon.
       Other not specified interfaces will be used, unless
       <opt>allow-interfaces=</opt> is set. This option takes
-      precedence over <opt>allow-interfaces=</opt>.</p>
+      precedence over <opt>allow-interfaces=</opt>.
+
+      Same consideration as <opt>browse-domains=</opt> when multiple instances
+      are found.</p>
     </option>
 
     <option>
@@ -348,7 +359,10 @@
       to announce unicast DNS servers via mDNS. When used in
       conjunction with avahi-dnsconfd on the client
       side this allows DHCP-like configuration of unicast DNS
-      servers.</p>
+      servers.
+
+      Same consideration as <opt>browse-domains=</opt> when multiple instances
+      are found.</p>
     </option>
 
     <option>
@@ -406,8 +420,10 @@
       seen must match an entry in this list to be reflected to other
       networks. This list can match the type of service or the name
       of the machine providing the service. Defaults to allowing all
-      services.</p>
+      services.
 
+      Same consideration as <opt>browse-domains=</opt> when multiple instances
+      are found.</p>
     </option>
   </section>
 

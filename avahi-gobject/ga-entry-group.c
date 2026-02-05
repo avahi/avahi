@@ -111,6 +111,7 @@ static void ga_entry_group_get_property(GObject * object,
 static void ga_entry_group_class_init(GaEntryGroupClass * ga_entry_group_class) {
     GObjectClass *object_class = G_OBJECT_CLASS(ga_entry_group_class);
     GParamSpec *param_spec;
+    GParamFlags flags;
 
     g_type_class_add_private(ga_entry_group_class,
                              sizeof (GaEntryGroupPrivate));
@@ -119,19 +120,23 @@ static void ga_entry_group_class_init(GaEntryGroupClass * ga_entry_group_class) 
     object_class->finalize = ga_entry_group_finalize;
     object_class->get_property = ga_entry_group_get_property;
 
+    flags = (GParamFlags)(
+                (GParamFlags)G_PARAM_READABLE |
+                (GParamFlags)G_PARAM_STATIC_NAME |
+                (GParamFlags)G_PARAM_STATIC_BLURB);
+
     param_spec = g_param_spec_enum("state", "Entry Group state",
                                    "The state of the avahi entry group",
                                    GA_TYPE_ENTRY_GROUP_STATE,
                                    GA_ENTRY_GROUP_STATE_UNCOMMITED,
-                                   G_PARAM_READABLE |
-                                   G_PARAM_STATIC_NAME |
-                                   G_PARAM_STATIC_BLURB);
+                                   flags);
     g_object_class_install_property(object_class, PROP_STATE, param_spec);
 
     signals[STATE_CHANGED] =
             g_signal_new("state-changed",
                          G_OBJECT_CLASS_TYPE(ga_entry_group_class),
-                         G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                         (GSignalFlags)((GSignalFlags)G_SIGNAL_RUN_LAST |
+                                        (GSignalFlags)G_SIGNAL_DETAILED),
                          0,
                          NULL, NULL,
                          g_cclosure_marshal_VOID__ENUM,

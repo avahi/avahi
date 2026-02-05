@@ -113,6 +113,7 @@ static void ga_client_get_property(GObject * object,
 static void ga_client_class_init(GaClientClass * ga_client_class) {
     GObjectClass *object_class = G_OBJECT_CLASS(ga_client_class);
     GParamSpec *param_spec;
+    GParamFlags flags;
 
     g_type_class_add_private(ga_client_class, sizeof (GaClientPrivate));
 
@@ -123,29 +124,34 @@ static void ga_client_class_init(GaClientClass * ga_client_class) {
     object_class->set_property = ga_client_set_property;
     object_class->get_property = ga_client_get_property;
 
+    flags = (GParamFlags)(
+                (GParamFlags)G_PARAM_READWRITE |
+                (GParamFlags)G_PARAM_STATIC_NAME |
+                (GParamFlags)G_PARAM_STATIC_BLURB);
+
     param_spec = g_param_spec_enum("state", "Client state",
                                    "The state of the Avahi client",
                                    GA_TYPE_CLIENT_STATE,
                                    GA_CLIENT_STATE_NOT_STARTED,
-                                   G_PARAM_READABLE |
-                                   G_PARAM_STATIC_NAME |
-                                   G_PARAM_STATIC_BLURB);
+                                   flags);
     g_object_class_install_property(object_class, PROP_STATE, param_spec);
+
+    flags = (GParamFlags)(
+                (GParamFlags)flags |
+                (GParamFlags)G_PARAM_CONSTRUCT_ONLY);
 
     param_spec = g_param_spec_enum("flags", "Client flags",
                                    "The flags the Avahi client is started with",
                                    GA_TYPE_CLIENT_FLAGS,
                                    GA_CLIENT_FLAG_NO_FLAGS,
-                                   G_PARAM_READWRITE |
-                                   G_PARAM_CONSTRUCT_ONLY |
-                                   G_PARAM_STATIC_NAME |
-                                   G_PARAM_STATIC_BLURB);
+                                   flags);
     g_object_class_install_property(object_class, PROP_FLAGS, param_spec);
 
     signals[STATE_CHANGED] =
             g_signal_new("state-changed",
                          G_OBJECT_CLASS_TYPE(ga_client_class),
-                         G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                         (GSignalFlags)((GSignalFlags)G_SIGNAL_RUN_LAST |
+                                      (GSignalFlags)G_SIGNAL_DETAILED),
                          0,
                          NULL, NULL,
                          g_cclosure_marshal_VOID__ENUM,

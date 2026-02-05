@@ -21,6 +21,7 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -207,7 +208,11 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 
             break;
 
-            ;
+        case AVAHI_CLIENT_S_INVALID:
+
+            assert(false);      /* this should never happen */
+            break;
+
     }
 }
 

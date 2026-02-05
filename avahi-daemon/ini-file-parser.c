@@ -35,6 +35,23 @@
 
 #define AVAHI_INI_CONFD_MAX_FILES 1024
 
+/** Append an item to the linked list
+ *
+ *  This is analogous (a couter-part) to AVAHI_LLIST_PREPEND in
+ *  'avahi-common/llist.h', but added here intentionally to not expose more
+ *  surface in the public header.
+ */
+#define AVAHI_LLIST_APPEND(t,name,head,item) do { \
+                                        t **_head = &(head), *_item = (item); \
+                                        t **iter; \
+                                        assert(_item); \
+                                        _item->name##_next = NULL; \
+                                        if (!head) { *_head = item; item->name##_prev = NULL; break; } \
+                                        for (iter = &(head); *iter && (*iter)->name##_next; iter = &((*iter)->name##_next)) { ; } \
+                                        (*iter)->name##_next = _item; \
+                                        _item->name##_prev = *iter; \
+                                        } while (0)
+
 static int avahi_ini_filename_compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);
 }
@@ -158,7 +175,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
             group->n_pairs = 0;
             AVAHI_LLIST_HEAD_INIT(AvahiIniFilePair, group->pairs);
 
-            AVAHI_LLIST_PREPEND(AvahiIniFileGroup, groups, f->groups, group);
+            AVAHI_LLIST_APPEND(AvahiIniFileGroup, groups, f->groups, group);
             f->n_groups++;
         } else {
 
@@ -180,7 +197,7 @@ AvahiIniFile* avahi_ini_file_load(const char *fname) {
             pair->key = avahi_strdup(s);
             pair->value = avahi_strdup(e);
 
-            AVAHI_LLIST_PREPEND(AvahiIniFilePair, pairs, group->pairs, pair);
+            AVAHI_LLIST_APPEND(AvahiIniFilePair, pairs, group->pairs, pair);
             group->n_pairs++;
         }
     }

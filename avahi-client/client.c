@@ -75,7 +75,7 @@ static void client_set_state(AvahiClient *client, AvahiClientState state) {
                 client->bus = NULL;
             }
 
-            /* Fall through */
+            AVAHI_GCC_FALLTHROUGH;
 
         case AVAHI_CLIENT_S_COLLISION:
         case AVAHI_CLIENT_S_REGISTERING:

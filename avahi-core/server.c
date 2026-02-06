@@ -206,6 +206,7 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
     for (e = avahi_hashmap_lookup(s->entries_by_key, record->key); e; e = n) {
         int cmp;
         n = e->by_key_next;
+        e->lost = 0;
 
         if (e->dead)
             continue;
@@ -219,7 +220,7 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
                 if (cmp > 0)
                     won = 1;
                 else /* cmp < 0 */
-                    lost = 1;
+                    lost = e->lost = 1;
             }
         }
     }
@@ -230,8 +231,13 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         if (won)
             avahi_log_debug("Received conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Withdrawing.", t);
-            withdraw_rrset(s, record->key);
+            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Reannouncing in one second.", t);
+
+            /* Begin probing for this record again after one second [RFC6762, sec. 8.2] */
+            for (e = avahi_hashmap_lookup(s->entries_by_key, record->key); e; e = e->by_key_next) {
+                if (e->lost)
+                    avahi_reannounce_entry_interface(s, e, i, 1000);
+            }
         }
 
         avahi_free(t);

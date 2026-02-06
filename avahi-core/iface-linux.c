@@ -184,6 +184,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
         AvahiAddress raddr, rlocal, *r;
         int raddr_valid = 0, rlocal_valid = 0;
         uint32_t flags = ifaddrmsg->ifa_flags;  /* may be overridden by IFA_FLAGS */
+        int addr_changed = 0, global_scope, deprecated;
 
         /* We are only interested in IPv4 and IPv6 */
         if (ifaddrmsg->ifa_family != AF_INET && ifaddrmsg->ifa_family != AF_INET6)
@@ -263,15 +264,22 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
                 return;
 
             /* This address is new or has been modified, so let's get an object for it */
-            if (!(addr = avahi_interface_monitor_get_address(m, i, r)))
-
+            if (!(addr = avahi_interface_monitor_get_address(m, i, r))) {
+                addr_changed = 1;
                 /* Mmm, no object existing yet, so let's create a new one */
                 if (!(addr = avahi_interface_address_new(m, i, r, ifaddrmsg->ifa_prefixlen)))
                     return; /* OOM */
+            }
 
-            /* Update the scope field for the address */
-            addr->global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE;
-            addr->deprecated = !!(ifaddrmsg->ifa_flags & IFA_F_DEPRECATED);
+            /* Update the scope and deprecated fields for the address */
+            global_scope = ifaddrmsg->ifa_scope == RT_SCOPE_UNIVERSE || ifaddrmsg->ifa_scope == RT_SCOPE_SITE;
+            deprecated = !!(ifaddrmsg->ifa_flags & IFA_F_DEPRECATED);
+
+            if (addr->global_scope != global_scope || addr->deprecated != deprecated)
+                addr_changed = 1;
+
+            addr->global_scope = global_scope;
+            addr->deprecated = deprecated;
         } else {
             AvahiInterfaceAddress *addr;
             assert(n->nlmsg_type == RTM_DELADDR);
@@ -282,16 +290,18 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
             /* And free it */
             avahi_interface_address_free(addr);
+            addr_changed = 1;
         }
 
         /* Avahi only considers interfaces with at least one address
-         * attached relevant. Since we migh have added or removed an
+         * attached relevant. Since we might have added or removed an
          * address, let's have it check again whether the interface is
          * now relevant */
         avahi_interface_check_relevant(i);
 
         /* Update any associated RRs, like A or AAAA for our new/removed address */
-        avahi_interface_update_rrs(i, 0);
+        if (addr_changed)
+            avahi_interface_update_rrs(i, 0);
 
     } else if (n->nlmsg_type == NLMSG_DONE) {
 

@@ -275,13 +275,22 @@ run_nss_tests
 cat <<'EOL' >"$sysconfdir/avahi/services/test-notifications.service"
 <service-group>
   <name>test-notifications</name>
-  <service>
+  <service protocol="any">
+    <domain-name>local</domain-name>
+    <host-name>ipv46.local</host-name>
+    <port>4321</port>
+    <subtype>_test._sub._qotd._tcp</subtype>
+    <txt-record>k1=v1</txt-record>
+    <txt-record value-format="binary-hex">k2=7632</txt-record>
+    <txt-record value-format="binary-base64">k3=djM=</txt-record>
     <type>_qotd._tcp</type>
-    <port>1</port>
   </service>
 </service-group>
 EOL
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
+drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local SRV | grep -F '4321 ipv46.local'
+drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local TXT | grep -F '"k1=v1" "k2=v2" "k3=v3"'
+drill -p5353 @127.0.0.1 _test._sub._qotd._tcp.local PTR | grep -F test-notifications._qotd._tcp.local
 
 check_rlimit_nofile
 

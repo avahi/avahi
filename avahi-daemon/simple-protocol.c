@@ -35,6 +35,9 @@
 #ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
+#ifdef HAVE_STRUCT_XUCRED
+#include <sys/ucred.h>
+#endif
 
 #include <avahi-common/domain.h>
 #include <avahi-common/llist.h>
@@ -61,7 +64,87 @@
 
 #define BUFFER_SIZE (20*1024)
 
-#define CLIENTS_MAX 50
+#if __linux__
+/* Linux specific support, man 7 unix */
+typedef struct ucred AvahiCred;
+
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+	return cred->uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+	return cred->gid;
+}
+
+static pid_t credentials_getpid(const AvahiCred *cred) {
+	return cred->pid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    memset(cred, 0, sizeof(*cred));
+    return getsockopt(fd, SOL_SOCKET, SO_PEERCRED, cred, len);
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
+#  define CRED_VALS(ucred) (long)credentials_getuid(ucred), (long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+
+#elif defined(HAVE_STRUCT_XUCRED) && defined(XUCRED_VERSION)
+/* FreeBSD support, man 4 unix */
+typedef struct xucred AvahiCred;
+
+static int credentials_version_check(const AvahiCred *cred) {
+	if (cred->cr_version != XUCRED_VERSION) {
+		avahi_log_debug("credentials_version_check: unsupported version %d",
+				cred->cr_version);
+		return 0;
+	}
+	return 1;
+}
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+	if (!credentials_version_check(cred))
+		return 0;
+	return cred->cr_uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+	if (!credentials_version_check(cred) || cred->cr_ngroups <= 0)
+		return 0;
+	return cred->cr_groups[0];
+}
+
+static pid_t credentials_getpid(const AvahiCred *cred) {
+	if (!credentials_version_check(cred))
+		return 0;
+	return cred->cr_pid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    memset(cred, 0, sizeof(*cred));
+    return getsockopt(fd, SOL_LOCAL, LOCAL_PEERCRED, cred, len);
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
+#  define CRED_VALS(ucred) (long)credentials_getuid(ucred), (long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+
+#else
+/* No support */
+#  define CRED_FMT     "%s"
+#  define CRED_VALS(ucred) ucred
+typedef unsigned char AvahiCred; /* need known type size. */
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+	(void)cred; return 0; /* no support for getting remote user. */
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+	(void)fd; *len = sizeof(*cred); *cred = 0;
+	return 0;
+}
+#endif
 
 typedef struct Client Client;
 typedef struct Server Server;
@@ -81,6 +164,7 @@ struct Client {
 
     int fd;
     AvahiWatch *watch;
+    AvahiCred credentials;
 
     char inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     size_t inbuf_length, outbuf_length;
@@ -101,6 +185,8 @@ struct Server {
     AVAHI_LLIST_HEAD(Client, clients);
 
     unsigned n_clients;
+    unsigned max_clients;     /*< Maximal number of all simple clients. */
+    unsigned max_uid_clients; /*< Maximal number of clients of one UID. */
     int remove_socket;
 };
 
@@ -125,12 +211,14 @@ static void client_free(Client *c) {
 
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
+    avahi_log_debug("simple client %d finished: " CRED_FMT,
+                    c->fd, CRED_VALS(&c->credentials));
 
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
     avahi_free(c);
 }
 
-static void client_new(Server *s, int fd) {
+static void client_new(Server *s, int fd, const AvahiCred *cred) {
     Client *c;
 
     assert(fd >= 0);
@@ -139,6 +227,7 @@ static void client_new(Server *s, int fd) {
     c->server = s;
     c->fd = fd;
     c->state = CLIENT_IDLE;
+    c->credentials = *cred;
 
     c->inbuf_length = c->outbuf_length = 0;
 
@@ -267,6 +356,15 @@ static void dns_server_browser_callback(
     }
 }
 
+static void log_request(const Client *c, const char *cmd, const char *arg) {
+    if (arg != NULL)
+        avahi_log_debug(__FILE__": Got %s request for '%s'. " CRED_FMT,
+                        cmd, arg, CRED_VALS(&c->credentials));
+    else
+        avahi_log_debug(__FILE__": Got %s request. " CRED_FMT,
+                        cmd, CRED_VALS(&c->credentials));
+}
+
 static void handle_line(Client *c, const char *s) {
     char cmd[64], arg[AVAHI_DOMAIN_NAME_MAX];
     int n_args;
@@ -302,19 +400,19 @@ static void handle_line(Client *c, const char *s) {
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
 
@@ -327,32 +425,28 @@ static void handle_line(Client *c, const char *s) {
                 goto fail;
         }
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
-
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else {
         client_output_printf(c, "%+i Invalid command \"%s\", try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION, cmd);
         c->state = CLIENT_DEAD;
@@ -438,6 +532,48 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
         (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
 
+static int is_client_allowed(Server *s, int cfd, AvahiCred *cred) {
+    socklen_t len = sizeof(*cred);
+    unsigned n_clients;
+    uid_t uid;
+
+    assert(s != NULL);
+
+    n_clients = s->n_clients + 1;
+    if (credentials_getsockopt(cfd, cred, &len) != 0) {
+        avahi_log_error("credentials_getsockopt(%d): %s", cfd, strerror(errno));
+        return 0;
+    }
+
+    if (n_clients > s->max_clients) {
+        avahi_log_debug("simple client %d refused: "CRED_FMT" too many clients",
+                        cfd, CRED_VALS(cred));
+        return 0;
+    }
+
+    uid = credentials_getuid(cred);
+    if (uid != 0 && n_clients > s->max_uid_clients) {
+        // There is enough clients to reach limit for one UID.
+        // Check this UID does not have too many requests already.
+        Client *c;
+        unsigned present = 0;
+
+        for (c = s->clients; c; c = c->clients_next) {
+            if (credentials_getuid(&c->credentials) == uid) {
+                present++;
+                if (present > s->max_uid_clients) {
+                    avahi_log_debug("simple client %d refused: "CRED_FMT" too many uid clients: %u",
+                                    cfd, CRED_VALS(cred), present);
+                    return 0;
+                }
+            }
+        }
+    }
+    avahi_log_debug("simple client %d/%u accepted: "CRED_FMT,
+                    cfd, n_clients, CRED_VALS(cred));
+    return 1;
+}
+
 static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
     Server *s = userdata;
 
@@ -446,14 +582,23 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
     if (events & AVAHI_WATCH_IN) {
         int cfd;
 
-        if ((cfd = accept(fd, NULL, NULL)) < 0)
-            avahi_log_error("accept(): %s", strerror(errno));
-        else
-            client_new(s, cfd);
+        if ((cfd = accept(fd, NULL, NULL)) < 0) {
+            if (errno != EMFILE && errno != ENFILE)
+                avahi_log_error(__FILE__" accept(): %s", strerror(errno));
+            else // Avoid client ability to flood log with too many requests
+                avahi_log_debug(__FILE__" accept(): %s", strerror(errno));
+        } else {
+            AvahiCred cred;
+            if (is_client_allowed(s, cfd, &cred))
+                client_new(s, cfd, &cred);
+            else {
+                close(cfd);
+            }
+        }
     }
 }
 
-int simple_protocol_setup(const AvahiPoll *poll_api) {
+int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients) {
     struct sockaddr_un sa;
     mode_t u;
 #ifdef HAVE_LIBSYSTEMD
@@ -467,6 +612,8 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     server->remove_socket = 0;
     server->fd = -1;
     server->n_clients = 0;
+    server->max_clients = max_clients;
+    server->max_uid_clients = max_clients / 2;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
 
@@ -529,6 +676,8 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     umask(u);
 
     server->watch = poll_api->watch_new(poll_api, server->fd, AVAHI_WATCH_IN, server_work, server);
+    avahi_log_info("Maximal simple clients: %u, per_uid: %u",
+                    max_clients, server->max_uid_clients);
 
     return 0;
 

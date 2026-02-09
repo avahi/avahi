@@ -259,8 +259,9 @@ fi
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test
 
-for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond cname_answer_diamond cname_answer; do
-    run ./avahi-core/cname-test $test_case
+for test_case in self_loop self_loop_answer retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond cname_answer_diamond cname_answer cname_answer_removed cname_max_reached cname_answer_triangle_removed; do
+    run ./avahi-core/cname-test $test_case any-transport
+    run ./avahi-core/cname-test $test_case multicast
 done
 
 run ./examples/glib-integration

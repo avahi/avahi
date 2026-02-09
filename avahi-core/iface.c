@@ -707,14 +707,20 @@ int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {
     if (a->global_scope && !a->deprecated)
         return 1;
 
-    /* Publish link-local and deprecated IP addresses only if they are
-     * the only ones on the link */
-    for (b = a->interface->addresses; b; b = b->address_next) {
-        if (b == a)
-            continue;
+    if (a->monitor->server->config.always_publish_linklocal) {
+        /* Publish link-local as long as it's not deprecated */
+        if (!a->deprecated)
+            return 1;
+    }else {
+        /* Publish link-local and deprecated IP addresses only if they are
+        * the only ones on the link */
+        for (b = a->interface->addresses; b; b = b->address_next) {
+            if (b == a)
+                continue;
 
-        if (b->global_scope && !b->deprecated)
-            return 0;
+            if (b->global_scope && !b->deprecated)
+                return 0;
+        }
     }
 
     return 1;

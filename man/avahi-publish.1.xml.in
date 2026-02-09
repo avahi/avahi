@@ -26,8 +26,8 @@
 	<synopsis>
       <cmd>avahi-publish -s [<arg>options</arg>] <arg>name</arg> <arg>service-type</arg> <arg>port</arg> [<arg>TXT data</arg> ...]</cmd>
       <cmd>avahi-publish-service [<arg>options</arg>] <arg>name</arg> <arg>service-type</arg> <arg>port</arg> [<arg>TXT data</arg> ...]</cmd>
-      <cmd>avahi-publish -a [<arg>options</arg>] <arg>host name</arg> <arg>address</arg></cmd>
-      <cmd>avahi-publish-address [<arg>options</arg>] <arg>host name</arg> <arg>address</arg></cmd>
+      <cmd>avahi-publish -a [<arg>options</arg>] <arg>host-name</arg> <arg>address</arg></cmd>
+      <cmd>avahi-publish-address [<arg>options</arg>] <arg>host-name</arg> <arg>address</arg></cmd>
 	</synopsis>
 
     <description>

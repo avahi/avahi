@@ -384,15 +384,6 @@ EOL
             sed -i.bak "/^\[Service\]/aEnvironment=UBSAN_OPTIONS=$UBSAN_OPTIONS" avahi-dnsconfd/avahi-dnsconfd.service
         fi
 
-        # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
-        # so it isn't set to yes here.
-        sed -i.bak '
-            s/^#\(add-service-cookie=\).*/\1yes/;
-            s/^#\(publish-dns-servers=\)/\1/;
-            s/^#\(publish-resolv-conf-dns-servers=\).*/\1yes/;
-            s/^\(publish-hinfo=\).*/\1yes/;
-        ' avahi-daemon/avahi-daemon.conf
-
         # Valgrind jobs are skipped here because Valgrind emulates limits for
         # file descriptors and prevents setrlimit from working
         # https://sourceware.org/git/?p=valgrind.git;a=blob;f=NEWS.older;h=6de0e84dacaa14f97a100a614c1bb2a9f242161c;hb=HEAD#l2590
@@ -435,6 +426,17 @@ EOL
     <port>1</port>
   </service>
 </service-group>
+EOL
+
+        # publish-workstation=yes triggers https://github.com/avahi/avahi/issues/485
+        # so it isn't set to yes here.
+        mkdir -p "$sysconfdir/avahi/avahi-daemon.conf.d"
+        cat <<'EOL' >"$sysconfdir/avahi/avahi-daemon.conf.d/50-publish.conf"
+[publish]
+add-service-cookie=yes
+publish-dns-servers=1.1.1.1, 2606:4700:4700::1111
+publish-resolv-conf-dns-servers=yes
+publish-hinfo=yes
 EOL
 
         # smoke tests require systemd, so don't run them on FreeBSD

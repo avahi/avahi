@@ -306,6 +306,7 @@ void avahi_dbus_append_string_list(DBusMessage *reply, AvahiStringList *txt) {
     dbus_message_iter_init_append(reply, &iter);
     dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY, "ay", &sub);
 
+    txt = avahi_string_list_reverse(txt);
     for (p = txt; p; p = p->next) {
         DBusMessageIter sub2;
         const uint8_t *data = p->text;
@@ -315,6 +316,7 @@ void avahi_dbus_append_string_list(DBusMessage *reply, AvahiStringList *txt) {
         dbus_message_iter_close_container(&sub, &sub2);
 
     }
+    avahi_string_list_reverse(txt);
     dbus_message_iter_close_container(&iter, &sub);
 }
 

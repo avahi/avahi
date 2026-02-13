@@ -291,6 +291,10 @@ drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local SRV | grep -F '4321 ipv46.local'
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local TXT | grep -F '"k1=v1" "k2=v2" "k3=v3"'
 drill -p5353 @127.0.0.1 _test._sub._qotd._tcp.local PTR | grep -F test-notifications._qotd._tcp.local
+avahi-browse -arpt | grep -F 'test-notifications;_qotd._tcp;local;ipv46.local;192.0.2.2;4321;"k1=v1" "k2=v2" "k3=v3"'
+gdbus call --system --dest org.freedesktop.Avahi --object-path / --method org.freedesktop.Avahi.Server2.ResolveService \
+	-- -1 0 test-notifications _qotd._tcp local -1 0 |
+	grep -F '[byte 0x6b, 0x31, 0x3d, 0x76, 0x31], [0x6b, 0x32, 0x3d, 0x76, 0x32], [0x6b, 0x33, 0x3d, 0x76, 0x33]'
 
 check_rlimit_nofile
 

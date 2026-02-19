@@ -19,6 +19,9 @@ AM_CFLAGS=-I$(top_srcdir)
 
 interfaces = \
         avahi-discover.ui
+if HAVE_GTK4
+interfaces += avahi-discover-gtk4.ui
+endif
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
@@ -73,4 +76,5 @@ endif
 endif
 
 EXTRA_DIST = \
-	$(interfaces)
+	avahi-discover.ui \
+	avahi-discover-gtk4.ui

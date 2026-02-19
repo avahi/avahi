@@ -347,7 +347,11 @@ int main(int argc, char *argv[]) {
 
     ui = gtk_builder_new();
     gtk_builder_set_translation_domain(ui, "avahi");
+#ifdef HAVE_GTK4
+    if (!gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover-gtk4.ui", &gerror)) {
+#else
     if (!gtk_builder_add_from_file(ui, AVAHI_INTERFACES_DIR"avahi-discover.ui", &gerror)) {
+#endif
         fprintf(stderr, "Failed to load UI interface: %s\n", gerror->message);
         g_error_free(gerror);
         g_object_unref(G_OBJECT(ui));
@@ -361,8 +365,34 @@ int main(int argc, char *argv[]) {
     g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);
 #endif
 
+    /* TODO (GTK4): GtkTreeView is deprecated in GTK4, but remains fully functional.
+     * It is kept here for the initial port to avoid a complex rewrite of the
+     * app's hierarchical data model. Future refactoring should migrate this to
+     * a GtkColumnView backed by a GtkTreeListModel. */
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object(ui, "tree_view"));
     g_signal_connect(GTK_WIDGET(tree_view), "cursor-changed", (GCallback) tree_view_on_cursor_changed, NULL);
+
+#ifdef HAVE_GTK4
+    {
+        /* CSS is embedded here (rather than a separate .css file) to avoid
+         * build-system complexity and extra install/package files. */
+        GtkCssProvider *provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_string(provider,
+            "treeview.view header button {\n"
+            "  border: none;\n"
+            "  border-bottom: 1px solid @borders;\n"
+            "  box-shadow: none;\n"
+            "}\n"
+            "treeview.view header button + button {\n"
+            "  border-left: 1px solid @borders;\n"
+            "}\n");
+        gtk_style_context_add_provider_for_display(
+            gtk_widget_get_display(main_window),
+            GTK_STYLE_PROVIDER(provider),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        g_object_unref(provider);
+    }
+#endif
 
     info_label = GTK_LABEL(gtk_builder_get_object(ui, "info_label"));
 

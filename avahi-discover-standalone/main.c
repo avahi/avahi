@@ -311,10 +311,18 @@ static void tree_view_on_cursor_changed(AVAHI_GCC_UNUSED GtkTreeView *tv, AVAHI_
     service_resolver = avahi_s_service_resolver_new(server, s->interface, s->protocol, s->service_name, s->service_type->service_type, s->domain_name, AVAHI_PROTO_UNSPEC, 0, service_resolver_callback, s);
 }
 
+#ifndef HAVE_GTK4
 static gboolean main_window_on_delete_event(AVAHI_GCC_UNUSED GtkWidget *widget, AVAHI_GCC_UNUSED GdkEvent *event, AVAHI_GCC_UNUSED gpointer user_data) {
     gtk_main_quit();
     return FALSE;
 }
+#endif
+
+#ifdef HAVE_GTK4
+static void main_window_on_close_request(AVAHI_GCC_UNUSED GtkWindow *window, gpointer user_data) {
+    g_main_loop_quit((GMainLoop *) user_data);
+}
+#endif
 
 int main(int argc, char *argv[]) {
     GtkBuilder *ui;
@@ -323,8 +331,15 @@ int main(int argc, char *argv[]) {
     gint error;
     AvahiGLibPoll *poll_api;
     GError *gerror = NULL;
+#ifdef HAVE_GTK4
+    GMainLoop *loop;
+#endif
 
+#ifdef HAVE_GTK4
+    gtk_init();
+#else
     gtk_init(&argc, &argv);
+#endif
 
     avahi_set_allocator(avahi_glib_allocator());
 
@@ -339,7 +354,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     main_window = GTK_WIDGET(gtk_builder_get_object(ui, "main_window"));
+#ifdef HAVE_GTK4
+    loop = g_main_loop_new(NULL, FALSE);
+    g_signal_connect(main_window, "close-request", G_CALLBACK(main_window_on_close_request), loop);
+#else
     g_signal_connect(main_window, "delete-event", (GCallback) main_window_on_delete_event, NULL);
+#endif
 
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object(ui, "tree_view"));
     g_signal_connect(GTK_WIDGET(tree_view), "cursor-changed", (GCallback) tree_view_on_cursor_changed, NULL);
@@ -366,7 +386,13 @@ int main(int argc, char *argv[]) {
 
     service_type_browser = avahi_s_service_type_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, argc >= 2 ? argv[1] : NULL, 0, service_type_browser_callback, NULL);
 
+#ifdef HAVE_GTK4
+    gtk_widget_set_visible(main_window, TRUE);
+    g_main_loop_run(loop);
+    g_main_loop_unref(loop);
+#else
     gtk_main();
+#endif
 
     avahi_server_free(server);
     avahi_glib_poll_free(poll_api);

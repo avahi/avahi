@@ -80,6 +80,7 @@ libavahi_ui_la_LIBADD += -lgdbm
 libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 libavahi_ui_gtk3_la_LIBADD += -lgdbm
 
+libavahi_ui_gtk4_la_SOURCES += ../avahi-utils/stdb.h ../avahi-utils/stdb.c
 libavahi_ui_gtk4_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdatadir)/service-types.db\"
 libavahi_ui_gtk4_la_LIBADD += -lgdbm
 endif

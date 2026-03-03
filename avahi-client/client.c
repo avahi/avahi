@@ -190,7 +190,11 @@ static DBusHandlerResult filter_func(DBusConnection *bus, DBusMessage *message, 
     } else if (dbus_message_is_signal (message, AVAHI_DBUS_INTERFACE_ENTRY_GROUP, "StateChanged")) {
         const char *path;
         AvahiEntryGroup *g;
-        path = dbus_message_get_path(message);
+
+        if (!(path = dbus_message_get_path(message))) {
+            avahi_client_set_errno(client, AVAHI_ERR_DBUS_ERROR);
+            goto fail;
+        }
 
         for (g = client->groups; g; g = g->groups_next)
             if (strcmp(g->path, path) == 0)

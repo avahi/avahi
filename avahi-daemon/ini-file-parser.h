@@ -21,6 +21,11 @@
 ***/
 
 #include <avahi-common/llist.h>
+#include <avahi-common/strlst.h>
+
+#include <avahi-core/core.h>
+
+#include <sys/resource.h>
 
 typedef struct AvahiIniFile AvahiIniFile;
 typedef struct AvahiIniFilePair AvahiIniFilePair;
@@ -44,6 +49,62 @@ struct AvahiIniFile {
     unsigned n_groups;
 };
 
+typedef enum {
+    DAEMON_RUN,
+    DAEMON_KILL,
+    DAEMON_VERSION,
+    DAEMON_HELP,
+    DAEMON_RELOAD,
+    DAEMON_CHECK
+} DaemonCommand;
+
+typedef struct {
+    AvahiServerConfig server_config;
+    DaemonCommand command;
+    int daemonize;
+    int use_syslog;
+    char *config_file;
+#ifdef HAVE_DBUS
+    int enable_dbus;
+    int fail_on_missing_dbus;
+    unsigned n_clients_max;
+    unsigned n_objects_per_client_max;
+    unsigned n_entries_per_entry_group_max;
+#endif
+    int drop_root;
+    int set_rlimits;
+#ifdef ENABLE_CHROOT
+    int use_chroot;
+#endif
+    int modify_proc_title;
+
+    int disable_user_service_publishing;
+    int publish_resolv_conf;
+    char ** publish_dns_servers;
+    int debug;
+
+    int rlimit_as_set, rlimit_core_set, rlimit_data_set, rlimit_fsize_set, rlimit_nofile_set, rlimit_stack_set;
+    rlim_t rlimit_as, rlimit_core, rlimit_data, rlimit_fsize, rlimit_nofile, rlimit_stack;
+
+#ifdef RLIMIT_NPROC
+    int rlimit_nproc_set;
+    rlim_t rlimit_nproc;
+#endif
+} DaemonConfig;
+
+/** Remove duplicate domains from the given list */
+AvahiStringList *avahi_ini_filter_duplicate_domains(AvahiStringList *l);
+
+/**
+ * Parse a config file and load daemon configuration.
+ *
+ * @c: store the config from the parsed config file.
+ *
+ * @config_file: load this config file.
+ *
+ * @return error if < 0
+ */
+int avahi_ini_file_parse(DaemonConfig *c, const char* config_file);
 
 AvahiIniFile* avahi_ini_file_load(const char *fname);
 void avahi_ini_file_free(AvahiIniFile *f);

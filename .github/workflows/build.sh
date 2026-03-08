@@ -215,7 +215,6 @@ case "$1" in
         export CXXFLAGS="$CFLAGS"
 
         autogen_args=(
-            "--enable-compat-howl"
             "--enable-compat-libdns_sd"
             "--enable-core-docs"
             "--enable-tests"
@@ -239,7 +238,6 @@ case "$1" in
                 "--runstatedir=/run"
                 "--sysconfdir=/etc"
                 "--disable-libsystemd"
-                "--disable-compat-howl"
                 "--with-distro=none"
             )
         elif [[ "$OS" == netbsd ]]; then
@@ -271,7 +269,6 @@ case "$1" in
                 "--with-distro=none"
                 "--enable-tests"
                 "--disable-autoipd"
-                "--disable-compat-howl"
                 "--disable-gdbm"
                 "--disable-gobject"
                 "--disable-gtk"

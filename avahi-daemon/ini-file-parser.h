@@ -104,7 +104,19 @@ AvahiStringList *avahi_ini_filter_duplicate_domains(AvahiStringList *l);
  *
  * @return error if < 0
  */
-int avahi_ini_file_parse(DaemonConfig *c, const char* config_file);
+int avahi_ini_file_parse(DaemonConfig *c, const char *config_file);
+
+/**
+ * Load all config files (main config plus associated conf.d) and into daemon configuration.
+ *
+ * @c: store the config from the parsed config file.
+ *
+ * @main_config_file: main config file, conf.d will be derived from it appending
+ * ".d" to the same path.
+ *
+ * @return error if < 0
+ */
+int avahi_ini_load_all_config(DaemonConfig *config, const char *main_config_file);
 
 AvahiIniFile* avahi_ini_file_load(const char *fname);
 void avahi_ini_file_free(AvahiIniFile *f);
@@ -124,7 +136,7 @@ void avahi_ini_file_free(AvahiIniFile *f);
  *
  * @return array of filenames within the given @confd_path
  */
-char** avahi_ini_list_confd_files_sorted(const char* confd_path, int* confd_file_count);
+char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file_count);
 
 char** avahi_split_csv(const char *t);
 

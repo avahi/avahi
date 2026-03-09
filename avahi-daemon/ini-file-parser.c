@@ -61,14 +61,14 @@ static int avahi_ini_filename_compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);
 }
 
-char** avahi_ini_list_confd_files_sorted(const char* confd_path, int* confd_file_count) {
+char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file_count) {
     int suffix_len = 0;
     const char *suffix = ".conf";
 
     DIR *dir = NULL;
     struct dirent *dentry = NULL;
     int error_reading_dir = 0;
-    char** filelist = NULL;
+    char **filelist = NULL;
     int filelist_count = 0;
 
     /* initialize for early returns before the count gets set */
@@ -384,7 +384,7 @@ AvahiStringList *avahi_ini_filter_duplicate_domains(AvahiStringList *l) {
     return l;
 }
 
-int avahi_ini_file_parse(DaemonConfig *c, const char* config_file) {
+int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
     int r = -1;
     AvahiIniFile *f;
     AvahiIniFileGroup *g;
@@ -392,8 +392,10 @@ int avahi_ini_file_parse(DaemonConfig *c, const char* config_file) {
     assert(c);
     assert(config_file);
 
-    if (!(f = avahi_ini_file_load(config_file)))
+    if (!(f = avahi_ini_file_load(config_file))) {
+        avahi_log_error("Could not load config file: '%s'", config_file);
         goto finish;
+    }
 
     for (g = f->groups; g; g = g->groups_next) {
 
@@ -759,4 +761,54 @@ finish:
         avahi_ini_file_free(f);
 
     return r;
+}
+
+int avahi_ini_load_all_config(DaemonConfig *config, const char *main_config_file) {
+    char confd_path[PATH_MAX];
+    char **confd_files = NULL;
+    int confd_files_count = 0;
+    long unsigned snprintf_count = 0;
+    int ret = 0;
+
+    avahi_log_debug("Loading main conf: '%s'", main_config_file);
+    ret = avahi_ini_file_parse(config, main_config_file);
+    if (ret != 0) {
+        avahi_log_error("Could not parse main file: '%s'", main_config_file);
+        return ret;
+    }
+
+    snprintf_count = snprintf(confd_path, sizeof(confd_path), "%s.d", main_config_file);
+    if (snprintf_count >= sizeof(confd_path)) {
+        avahi_log_error("File path of confd_path too long, truncated: '%s'", confd_path);
+        return 1;
+    }
+
+    confd_files = avahi_ini_list_confd_files_sorted(confd_path, &confd_files_count);
+    if (confd_files && confd_files_count > 0) {
+        avahi_log_debug("Loading conf.d files in: '%s'", confd_path);
+        for (int i = 0; i < confd_files_count; i++) {
+            char confd_file[PATH_MAX+2]; /* -Wformat-truncation */
+            snprintf_count = snprintf(confd_file, sizeof(confd_file), "%s/%s", confd_path, confd_files[i]);
+            if (snprintf_count >= sizeof(confd_file)) {
+                avahi_log_error("File path of confd_file too long, truncated: '%s'", confd_file);
+                avahi_strfreev(confd_files);
+                return 1;
+            }
+            avahi_log_debug("- %s", confd_file);
+            if (avahi_ini_file_parse(config, confd_file) < 0) {
+                avahi_log_error("Could not load conf.d file: '%s'", confd_file);
+
+                for (int i = 0; i < confd_files_count; i++) {
+                    avahi_free(confd_files[i]);
+                    confd_files[i] = NULL;
+                }
+                avahi_free(confd_files);
+                return 1;
+            }
+        }
+    } else
+        avahi_log_debug("No valid conf.d files in '%s' found", confd_path);
+    avahi_strfreev(confd_files);
+
+    return 0;
 }

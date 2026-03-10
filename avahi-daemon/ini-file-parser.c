@@ -117,7 +117,7 @@ char** avahi_ini_list_confd_files_sorted(const char* confd_path, int* confd_file
 
     if (error_reading_dir) {
         avahi_strfreev(filelist);
-        *confd_file_count = 0;
+        *confd_file_count = -1;
         return NULL;
     }
 
@@ -806,6 +806,9 @@ int avahi_ini_load_all_config(DaemonConfig *config, const char* main_config_file
                 return 1;
             }
         }
+    } else if (confd_files_count < 0) {
+        avahi_log_error("Error when processing conf.d files in '%s' (too many files?)", confd_path);
+        return 1;
     } else
         avahi_log_debug("No valid conf.d files in '%s' found", confd_path);
     avahi_strfreev(confd_files);

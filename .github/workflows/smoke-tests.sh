@@ -37,7 +37,7 @@ dump_journal() {
 run() {
     local cmd=()
 
-    if [[ "$VALGRIND" == true && "$1" =~ avahi ]]; then
+    if [[ "$VALGRIND" == true && "$1" =~ (avahi|ini-file-parser-test) ]]; then
         if [[ "$1" =~ ^\. ]]; then
             cmd+=("libtool" "--mode=execute")
         fi

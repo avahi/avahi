@@ -38,8 +38,6 @@
 
 #include "ini-file-parser.h"
 
-#define AVAHI_INI_CONFD_MAX_FILES 1024
-
 /** Append an item to the linked list
  *
  *  This is analogous (a counter-part) to AVAHI_LLIST_PREPEND in
@@ -85,41 +83,51 @@ char** avahi_ini_list_confd_files_sorted(const char* confd_path, int* confd_file
         return NULL;
     }
 
-    filelist = avahi_malloc0(AVAHI_INI_CONFD_MAX_FILES * sizeof(char *));
-
     suffix_len = strlen(suffix);
     while ((dentry = readdir(dir)) != NULL) {
         int filename_len = strlen(dentry->d_name);
         if ((dentry->d_name[0] != '.') &&
             (filename_len > suffix_len) &&
             (strcmp(dentry->d_name + (filename_len-suffix_len), suffix) == 0)) {
-            if (filelist_count >= AVAHI_INI_CONFD_MAX_FILES) {
-                avahi_log_error("Max number of files %d reached when processing: %s",
-                                AVAHI_INI_CONFD_MAX_FILES, confd_path);
+
+            char **new_filelist = NULL;
+            char *new_entry = avahi_strdup(dentry->d_name);
+            if (!new_entry) {
+                avahi_log_error("strdup() error: %s", errno ? strerror(errno) : "unknown");
+                error_reading_dir = 1;
+                break;
+            }
+            new_filelist = avahi_realloc(filelist, (filelist_count + 1) * sizeof(char *));
+            if (!new_filelist) {
+                avahi_log_error("realloc() error");
+                avahi_free(new_entry);
                 error_reading_dir = 1;
                 break;
             }
 
-            filelist[filelist_count] = strdup(dentry->d_name);
-            if (!filelist[filelist_count]) {
-                avahi_log_error("strdup() error: %s", strerror(errno));
-                error_reading_dir = 1;
-                break;
-            }
-
-            avahi_log_debug("Considering file in conf.d '%s'", filelist[filelist_count]);
-
+            filelist = new_filelist;
+            filelist[filelist_count] = new_entry;
             filelist_count++;
+            avahi_log_debug("Considering file in conf.d '%s'", dentry->d_name);
         } else
             avahi_log_debug("Discarding file in conf.d '%s'", dentry->d_name);
     }
     closedir(dir);
 
     if (error_reading_dir) {
-        avahi_strfreev(filelist);
+        for (int i = 0; i < filelist_count; i++) {
+            avahi_free(filelist[i]);
+            filelist[i] = NULL;
+        }
+        avahi_free(filelist);
         *confd_file_count = -1;
         return NULL;
     }
+
+    *confd_file_count = filelist_count;
+
+    if (filelist_count == 0)
+        return NULL;
 
     qsort(filelist, filelist_count, sizeof(char *), avahi_ini_filename_compare);
     avahi_log_debug("Sorted list of conf.d files:");
@@ -791,27 +799,25 @@ int avahi_ini_load_all_config(DaemonConfig *config, const char* main_config_file
             snprintf_count = snprintf(confd_file, sizeof(confd_file), "%s/%s", confd_path, confd_files[i]);
             if (snprintf_count >= sizeof(confd_file)) {
                 avahi_log_error("File path of confd_file too long, truncated: '%s'", confd_file);
-                avahi_strfreev(confd_files);
-                return 1;
+                ret = 1;
+                goto finish;
             }
             avahi_log_debug("- %s", confd_file);
             if (avahi_ini_file_parse(config, confd_file) < 0) {
                 avahi_log_error("Could not load conf.d file: '%s'", confd_file);
-
-                for (int i = 0; i < confd_files_count; i++) {
-                    avahi_free(confd_files[i]);
-                    confd_files[i] = NULL;
-                }
-                avahi_free(confd_files);
-                return 1;
+                ret = 1;
+                goto finish;
             }
         }
-    } else if (confd_files_count < 0) {
-        avahi_log_error("Error when processing conf.d files in '%s' (too many files?)", confd_path);
-        return 1;
     } else
         avahi_log_debug("No valid conf.d files in '%s' found", confd_path);
-    avahi_strfreev(confd_files);
 
-    return 0;
+finish:
+    for (int i = 0; i < confd_files_count; i++) {
+        avahi_free(confd_files[i]);
+        confd_files[i] = NULL;
+    }
+    avahi_free(confd_files);
+
+    return ret;
 }

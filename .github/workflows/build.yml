@@ -28,6 +28,9 @@ jobs:
           - { CC: "gcc", ASAN_UBSAN: "false", CFLAGS: "-g -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fno-omit-frame-pointer" }
           - { CC: "clang", ASAN_UBSAN: "false" }
           - { CC: "clang", ASAN_UBSAN: "true" }
+        include:
+          - runner: ubuntu-24.04
+            env: { CC: "gcc", BUILD_ONLY: "true", ADDITIONAL_AUTOGEN_ARGS: "--disable-dbus" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

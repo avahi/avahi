@@ -3,6 +3,7 @@
 set -eux
 set -o pipefail
 
+export ADDITIONAL_AUTOGEN_ARGS=${ADDITIONAL_AUTOGEN_ARGS:-}
 export ASAN_UBSAN=${ASAN_UBSAN:-false}
 export BUILD_ONLY=${BUILD_ONLY:-false}
 export CFLAGS=${CFLAGS:-"-g -O0"}
@@ -293,6 +294,9 @@ case "$1" in
                 "--sysconfdir=/etc"
             )
         fi
+
+        IFS=" " read -r -a additional_autogen_args <<<"$ADDITIONAL_AUTOGEN_ARGS"
+        autogen_args+=("${additional_autogen_args[@]}")
 
         if [[ "$OS" =~ (netbsd|omnios) ]]; then
             # On NetBSD and OmniOS autogen.sh fails with

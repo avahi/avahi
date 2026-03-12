@@ -30,7 +30,9 @@ jobs:
           - { CC: "clang", ASAN_UBSAN: "true" }
         include:
           - runner: ubuntu-24.04
-            env: { CC: "gcc", BUILD_ONLY: "true", ADDITIONAL_AUTOGEN_ARGS: "--disable-dbus" }
+            env: { CC: "clang", ASAN_UBSAN: "true", ADDITIONAL_AUTOGEN_ARGS: "--disable-dbus --disable-libsystemd --without-systemdsystemunitdir" }
+          - runner: ubuntu-24.04
+            env: { CC: "gcc", VALGRIND: "true", ADDITIONAL_AUTOGEN_ARGS: "--disable-dbus --disable-libsystemd --without-systemdsystemunitdir" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

@@ -88,7 +88,9 @@ skip_nss_mdns() {
 install_nss_mdns() {
     local _cflags="$CFLAGS" _cxxflags="$CXXFLAGS" _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
 
-    should_fail ./avahi-client/check-nss-test
+    if [[ "$WITH_DBUS" == true ]]; then
+        should_fail ./avahi-client/check-nss-test
+    fi
 
     if skip_nss_mdns; then
         return
@@ -153,13 +155,15 @@ install_nss_mdns() {
 
     CFLAGS="$_cflags" CXXFLAGS="$_cxxflags" ASAN_OPTIONS="$_asan_options" LD_PRELOAD="$_ld_preload"
 
-    run ./avahi-client/check-nss-test
+    if [[ "$WITH_DBUS" == true ]]; then
+        run ./avahi-client/check-nss-test
+    fi
 }
 
 run_nss_tests() {
     local _asan_options="$ASAN_OPTIONS" _ld_preload="$LD_PRELOAD"
 
-    if LD_PRELOAD="" avahi-daemon -c; then
+    if [[ "$WITH_DBUS" == true ]] && LD_PRELOAD="" avahi-daemon -c; then
         if skip_nss_mdns; then
             dbus_call IsNSSSupportAvailable | grep -F "(false,)"
         else
@@ -217,10 +221,15 @@ check_rlimit_nofile() {
 
 install_nss_mdns
 
-for p in avahi-{browse,daemon,publish,resolve,set-host-name}; do
-    run "$p" -h
-    run "$p" -V
-done
+run avahi-daemon -h
+run avahi-daemon -V
+
+if [[ "$WITH_DBUS" == true ]]; then
+    for p in avahi-{browse,publish,resolve,set-host-name}; do
+        run "$p" -h
+        run "$p" -V
+    done
+fi
 
 run_nss_tests
 
@@ -228,7 +237,7 @@ if [[ "$WITH_SYSTEMD" == false ]]; then
     if [[ "$VALGRIND" == true ]]; then
         valgrind --log-file="$valgrind_log_file" --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 --trace-children=yes \
             -s --suppressions=.github/workflows/avahi-daemon.supp \
-            avahi-daemon -D --debug --no-drop-root
+            avahi-daemon -D --debug --no-drop-root --no-proc-title
     elif [[ "$ASAN_UBSAN" == true ]]; then
         ASAN_OPTIONS="$ASAN_OPTIONS:log_path=/tmp/asan.avahi-daemon" \
         UBSAN_OPTIONS="$UBSAN_OPTIONS:log_path=/tmp/ubsan.avahi-daemon" \
@@ -245,15 +254,24 @@ else
     run systemctl start avahi-dnsconfd
 fi
 
-run ./avahi-client/client-test
 (cd avahi-daemon && run ./ini-file-parser-test)
 
-if [[ ! "$OS" =~ (alpine|omnios) ]]; then
-    run ./avahi-compat-howl/address-test
-fi
+if [[ "$WITH_DBUS" == true ]]; then
+    run ./avahi-client/client-test
 
-if [[ "$OS" != freebsd || "$VALGRIND" != true ]]; then
-    run ./avahi-compat-libdns_sd/null-test
+    if [[ ! "$OS" =~ (alpine|omnios) ]]; then
+        run ./avahi-compat-howl/address-test
+    fi
+
+    if [[ "$OS" != freebsd || "$VALGRIND" != true ]]; then
+        run ./avahi-compat-libdns_sd/null-test
+    fi
+
+    run ./examples/glib-integration
+
+    if [[ ! "$OS" =~ (freebsd|netbsd|omnios) ]]; then
+        run ./tests/c-plus-plus-test
+    fi
 fi
 
 run ./avahi-core/avahi-test
@@ -262,12 +280,6 @@ run ./avahi-core/querier-test
 for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond cname_answer_diamond cname_answer; do
     run ./avahi-core/cname-test $test_case
 done
-
-run ./examples/glib-integration
-
-if [[ ! "$OS" =~ (freebsd|netbsd|omnios) ]]; then
-    run ./tests/c-plus-plus-test
-fi
 
 run_nss_tests
 
@@ -291,10 +303,13 @@ drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local ANY
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local SRV | grep -F '4321 ipv46.local'
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local TXT | grep -F '"k1=v1" "k2=v2" "k3=v3"'
 drill -p5353 @127.0.0.1 _test._sub._qotd._tcp.local PTR | grep -F test-notifications._qotd._tcp.local
-avahi-browse -arpt | grep -F 'test-notifications;_qotd._tcp;local;ipv46.local;192.0.2.2;4321;"k1=v1" "k2=v2" "k3=v3"'
-gdbus call --system --dest org.freedesktop.Avahi --object-path / --method org.freedesktop.Avahi.Server2.ResolveService \
-	-- -1 0 test-notifications _qotd._tcp local -1 0 |
-	grep -F '[byte 0x6b, 0x31, 0x3d, 0x76, 0x31], [0x6b, 0x32, 0x3d, 0x76, 0x32], [0x6b, 0x33, 0x3d, 0x76, 0x33]'
+
+if [[ "$WITH_DBUS" == true ]]; then
+    avahi-browse -arpt | grep -F 'test-notifications;_qotd._tcp;local;ipv46.local;192.0.2.2;4321;"k1=v1" "k2=v2" "k3=v3"'
+    gdbus call --system --dest org.freedesktop.Avahi --object-path / --method org.freedesktop.Avahi.Server2.ResolveService \
+        -- -1 0 test-notifications _qotd._tcp local -1 0 |
+        grep -F '[byte 0x6b, 0x31, 0x3d, 0x76, 0x31], [0x6b, 0x32, 0x3d, 0x76, 0x32], [0x6b, 0x33, 0x3d, 0x76, 0x33]'
+fi
 
 check_rlimit_nofile
 

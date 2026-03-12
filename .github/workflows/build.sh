@@ -13,6 +13,7 @@ export VALGRIND=${VALGRIND:-false}
 export MAKE=make
 export NSS_MDNS=true
 export WITH_SYSTEMD=false
+export WITH_DBUS=false
 export OS=
 
 if source /etc/os-release; then
@@ -314,6 +315,10 @@ case "$1" in
 
         if grep -q "^HAVE_SYSTEMD_TRUE=''" config.log; then
             WITH_SYSTEMD=true
+        fi
+
+        if grep -q "^HAVE_DBUS_TRUE=''" config.log; then
+            WITH_DBUS=true
         fi
 
         $MAKE -j"$(nproc)" V=1

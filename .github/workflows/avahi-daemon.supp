@@ -10,6 +10,7 @@
 {
    libdaemon-syslog
    CoreError:FdNotClosed
+   ...
    fun:socket
    ...
    fun:daemon_log

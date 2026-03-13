@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+# parse config file for supported settings keys
+# shellcheck disable=SC1091 # SC1091 is irrelevant, ${SNAP} is defined withing snap context
+source "${SNAP}/usr/bin/config" &>/dev/null
+echo -e "avahi snap help"
+echo -e "avahi supports settings keys:"
+echo -e "values can be changed by calling\n$ snap set avahi avahi-daemon-conf.<key name>='<key value>'"
+echo -e "\te.g. $ snap set avahi avahi-daemon-conf.host-name=<host name>"
+
+echo -e "Curretly defined keys:"
+for index in ${!DEFINED_K[*]}; do
+   echo -e "\t${DEFINED_K[${index}]}=${DEFINED_V[${index}]}"
+done
+
+echo -e "Keys with no set value:"
+for index in ${!UNDEFINED_K[*]}; do
+    echo -e "\t${UNDEFINED_K[${index}]}, proposed value '${UNDEFINED_V[${index}]}'"
+done

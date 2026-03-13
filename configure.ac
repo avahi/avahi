@@ -14,9 +14,7 @@
 # License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with avahi; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA.
+# License along with avahi; if not, see <https://www.gnu.org/licenses/>.
 
 AC_PREREQ(2.63)
 AC_INIT([avahi],[0.9-rc3],[avahi (at) lists (dot) freedesktop (dot) org])

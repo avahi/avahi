@@ -118,7 +118,7 @@ case "$1" in
         apt-get install -y libtool-bin valgrind socat ldnsutils
         apt-get install -y gdb systemd-coredump
 
-        apt-get install -y libglib2.0-dev meson curl
+        apt-get install -y libglib2.0-dev libgtk-4-dev meson curl
 
         apt-get install -y check
         install_dfuzzer
@@ -133,15 +133,16 @@ case "$1" in
         pkg install -y gettext-runtime gettext-tools gmake intltool \
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
-            gtk3 py311-pygobject py311-dbus py311-gdbm mono git socat \
+            gtk3 gtk4 py311-pygobject py311-dbus py311-gdbm mono git socat \
             valgrind dfuzzer check radamsa
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         ;;
     install-build-deps-Alpine)
+        apk update
         apk add autoconf automake clang coreutils dbus dbus-dev drill expat-dev gcc g++ \
             gdbm-dev gettext-dev git glib-dev gobject-introspection-dev gtk+3.0-dev \
-            gzip libdaemon-dev libevent-dev libtool make meson mono-dev musl-dbg musl-dev \
+            gtk4.0-dev gzip libdaemon-dev libevent-dev libtool make meson mono-dev musl-dbg musl-dev \
             py3-dbus py3-gobject3-dev py3-setuptools python3-dev python3-gdbm \
             qt5-qtbase-dev socat tar valgrind xmltoman
 
@@ -255,6 +256,7 @@ case "$1" in
                 "--disable-gobject"
                 "--disable-gtk"
                 "--disable-gtk3"
+                "--disable-gtk4"
                 "--disable-libevent"
                 "--disable-libsystemd"
                 "--disable-manpages"
@@ -278,6 +280,7 @@ case "$1" in
                 "--disable-gobject"
                 "--disable-gtk"
                 "--disable-gtk3"
+                "--disable-gtk4"
                 "--disable-libevent"
                 "--disable-libsystemd"
                 "--disable-manpages"

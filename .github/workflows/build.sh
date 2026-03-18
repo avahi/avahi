@@ -334,7 +334,8 @@ case "$1" in
             # DISTCHECK_CONFIGURE_FLAGS isn't passed on Linux
             if [[ "$OS" == freebsd ]]; then
                 $MAKE distcheck \
-                    DISTCHECK_CONFIGURE_FLAGS="--disable-gtk --disable-gtk3 --disable-libsystemd --disable-manpages"
+                    DISTCHECK_CONFIGURE_FLAGS="--disable-gtk --disable-gtk3 --disable-libsystemd --disable-manpages --enable-tests" \
+                    VERBOSE=1
             elif [[ "$OS" == alpine ]]; then
                 $MAKE distcheck \
                     DISTCHECK_CONFIGURE_FLAGS="--disable-libsystemd --with-distro=none"

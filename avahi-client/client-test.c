@@ -173,6 +173,34 @@ ar = avahi_address_resolver_new(client, interface, protocol, a, 0, avahi_address
     avahi_address_snprint (addr, sizeof (addr), a);
     printf ("HOST-NAME-RESOLVER: Callback on HostNameResolver, interface (%d), protocol (%d), event (%d), name (%s), address (%s), data (%s)\n", interface, protocol, event, name, addr, (char*)userdata);
 }
+
+static void avahi_record_browser_callback (
+    AvahiRecordBrowser *b,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiBrowserEvent event,
+    const char *name,
+    uint16_t clazz,
+    uint16_t type,
+    const void *rdata,
+    size_t size,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void *userdata) {
+
+    AvahiClient *client;
+
+    printf ("RECORD-BROWSER: Callback on RecordBrowser, interface (%d), protocol (%d), event (%d), name (%s), clazz (%d), type (%d), size (%zu), flags (0x%x)\n", interface, protocol, event, name, clazz, type, size, flags);
+
+    if (event != AVAHI_BROWSER_NEW)
+        return;
+
+    client = avahi_record_browser_get_client(b);
+
+    printf ("Reconfirming record\n");
+
+    avahi_reconfirm_record(client, interface, protocol, name, clazz, type, rdata, size, 0);
+}
+
 static void test_free_domain_browser(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata)
 {
     AvahiServiceBrowser *b = userdata;
@@ -185,6 +213,13 @@ static void test_free_entry_group (AVAHI_GCC_UNUSED AvahiTimeout *timeout, void*
     AvahiEntryGroup *g = userdata;
     printf ("Freeing entry group\n");
     avahi_entry_group_free (g);
+}
+
+static void test_free_record_browser(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata)
+{
+    AvahiRecordBrowser *r = userdata;
+    printf ("Freeing record browser\n");
+    avahi_record_browser_free (r);
 }
 
 static void test_entry_group_reset (AVAHI_GCC_UNUSED AvahiTimeout *timeout, void* userdata)
@@ -219,6 +254,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiServiceBrowser *sb;
     AvahiServiceTypeBrowser *st;
     AvahiHostNameResolver *hnr;
+    AvahiRecordBrowser *rb;
     AvahiAddress *aar;
     const char *ret;
     int error;
@@ -302,6 +338,12 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     else
         printf ("Successfully created hostname resolver object\n");
 
+    rb = avahi_record_browser_new (avahi, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "Lathiat's Site._http._tcp.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, 0, avahi_record_browser_callback, NULL);
+    if (rb == NULL)
+        printf ("Failed to create record browser object\n");
+    else
+        printf ("Successfully created record browser object\n");
+
     aar = avahi_address_parse ("224.0.0.251", AVAHI_PROTO_UNSPEC, &a);
     if (aar == NULL) {
         printf ("failed to create address object\n");
@@ -325,6 +367,8 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     poll_api->timeout_new(poll_api, &tv, test_free_entry_group, group);
     avahi_elapse_time(&tv, 25000, 0);
     poll_api->timeout_new(poll_api, &tv, test_free_domain_browser, sb);
+    avahi_elapse_time(&tv, 28000, 0);
+    poll_api->timeout_new(poll_api, &tv, test_free_record_browser, rb);
 
     avahi_elapse_time(&tv, 30000, 0);
     poll_api->timeout_new(poll_api, &tv, terminate, NULL);

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--*- mode: xml -*-->
+<interface>
+  <object class="GtkWindow" id="main_window">
+    <property name="visible">True</property>
+    <property name="title" translatable="yes">Avahi Discovery</property>
+    <property name="default-width">520</property>
+    <property name="default-height">420</property>
+    <property name="resizable">True</property>
+    <property name="decorated">True</property>
+    <child>
+      <object class="GtkBox" id="vbox1">
+        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="margin-top">12</property>
+        <property name="margin-bottom">12</property>
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolledwindow1">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="has-frame">False</property>
+            <property name="hscrollbar-policy">automatic</property>
+            <property name="vscrollbar-policy">automatic</property>
+            <property name="vexpand">True</property>
+            <child>
+              <object class="GtkTreeView" id="tree_view">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="headers-visible">True</property>
+                <property name="enable-search">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="info_label">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="label" translatable="yes">&lt;i&gt;No service currently selected.&lt;/i&gt;</property>
+            <property name="use-markup">True</property>
+            <property name="justify">left</property>
+            <property name="selectable">True</property>
+            <property name="xalign">0</property>
+            <property name="yalign">0.5</property>
+            <property name="ellipsize">none</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

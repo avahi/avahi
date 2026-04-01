@@ -30,6 +30,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/alternative.h>
@@ -150,6 +151,7 @@ static void remove_entries(void) {
 static void create_entries(int new_name) {
     AvahiAddress a;
     AvahiRecord *r;
+    int error;
 
     remove_entries();
 
@@ -181,7 +183,15 @@ static void create_entries(int new_name) {
         goto fail;
     }
 
-    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a), 53) < 0) {
+    avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a);
+
+    error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_USE_WIDE_AREA, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53);
+    assert(error == AVAHI_ERR_NOT_SUPPORTED);
+
+    error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_USE_WIDE_AREA|AVAHI_PUBLISH_USE_MULTICAST, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53);
+    assert(error == AVAHI_ERR_INVALID_FLAGS);
+
+    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
         avahi_log_error("Failed to add new DNS Server address");
         goto fail;
     }

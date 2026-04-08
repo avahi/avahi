@@ -413,8 +413,26 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
             for (p = g->pairs; p; p = p->pairs_next) {
 
                 if (strcasecmp(p->key, "host-name") == 0) {
-                    avahi_free(c->server_config.host_name);
-                    c->server_config.host_name = avahi_strdup(p->value);
+                    /* limit len to 255 as per DNS protocol limits */
+                    size_t hostname_len = strlen(p->value) + 1;
+                    if (hostname_len > 255) {
+                        avahi_log_warn("host-name: given '%s' truncated to '%s', from %zu to %i",
+                                       p->value, c->host_name_given, hostname_len, 255);
+                        hostname_len = 255;
+                    }
+                    /* save given host-name, c->host_name will be set at the end */
+                    if (c->host_name_given)
+                        avahi_free(c->host_name_given);
+                    c->host_name_given = avahi_strndup(p->value, hostname_len);
+                    avahi_log_debug("host-name: given '%s'", c->host_name_given);
+                } else if (strcasecmp(p->key, "host-name-from-machine-id") == 0) {
+                    if (is_yes(p->value)) {
+                        avahi_log_debug("host-name-from-machine-id: set to 'TRUE'");
+                        c->host_name_from_machine_id = 1;
+                    } else {
+                        avahi_log_debug("host-name-from-machine-id: set to 'FALSE'");
+                        c->host_name_from_machine_id = 0;
+                    }
                 } else if (strcasecmp(p->key, "domain-name") == 0) {
                     avahi_free(c->server_config.domain_name);
                     c->server_config.domain_name = avahi_strdup(p->value);
@@ -464,15 +482,6 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                     c->server_config.use_iff_running = is_yes(p->value);
                 else if (strcasecmp(p->key, "disallow-other-stacks") == 0)
                     c->server_config.disallow_other_stacks = is_yes(p->value);
-                else if (strcasecmp(p->key, "host-name-from-machine-id") == 0) {
-                    if (*(p->value) == 'y' || *(p->value) == 'Y') {
-                        char *machine_id = get_machine_id();
-                        if (machine_id != NULL) {
-                            avahi_free(c->server_config.host_name);
-                            c->server_config.host_name = machine_id;
-                        }
-                    }
-                }
 #ifdef HAVE_DBUS
                 else if (strcasecmp(p->key, "enable-dbus") == 0) {
 
@@ -762,6 +771,33 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
     }
 
     r = 0;
+
+    /* set host-name based on config */
+    if (c->host_name_from_machine_id == 1) {
+        char *machine_id = NULL;
+
+        if (c->host_name_given) {
+            avahi_log_debug("host-name: host_name_from_machine_id=TRUE, ignoring config value host-name='%s'",
+                            c->host_name_given);
+        }
+
+        avahi_free(c->server_config.host_name);
+        machine_id = get_machine_id();
+        if (machine_id) {
+            c->server_config.host_name = machine_id;
+            avahi_log_debug("host-name-from-machine-id: TRUE, host-name='%s'", c->server_config.host_name);
+        } else {
+            avahi_log_error("host-name-from-machine-id: cannot get machine_id");
+            goto finish;
+        }
+    } else {
+        if (c->host_name_given) {
+            avahi_log_debug("host-name: setting given '%s'", c->host_name_given);
+            avahi_free(c->server_config.host_name);
+            c->server_config.host_name = avahi_strdup(c->host_name_given);
+        } else
+            avahi_log_debug("host-name: no host-name-from-machine-id and no explicit host-name set");
+    }
 
 finish:
 

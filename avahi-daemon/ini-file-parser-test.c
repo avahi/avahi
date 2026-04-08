@@ -70,17 +70,19 @@ static int test_confd_deny_interfaces(void);
 static int test_confd_publish_dns_servers(void);
 static int test_confd_reflect_filters(void);
 static int test_confd_get_machine_id(void);
+static int test_confd_host_name_from_machine_id_yes(void);
+static int test_confd_host_name_from_machine_id_no(void);
 static int test_confd_exercise_all_keys(void);
 
 /******************************************************************************/
 /* Helpers                                                                    */
 /******************************************************************************/
-void print_test_name(const char *name) {
+static void print_test_name(const char *name) {
     avahi_log_info("\n--------------------------------------------------------------------------------\n"
                    "Test: <%s>", name);
 }
 
-void print_ini_file(AvahiIniFile *f) {
+static void print_ini_file(AvahiIniFile *f) {
     AvahiIniFileGroup *g;
 
     printf("%u groups\n", f->n_groups);
@@ -105,7 +107,7 @@ void print_ini_file(AvahiIniFile *f) {
     }
 }
 
-int write_file(const char *filename, const char *content) {
+static int write_file(const char *filename, const char *content) {
     FILE *file = NULL;
     size_t written = 0;
 
@@ -126,7 +128,7 @@ int write_file(const char *filename, const char *content) {
     return 0;
 }
 
-int write_confd_file(const char *filename, const char *content) {
+static int write_confd_file(const char *filename, const char *content) {
     char dest_file[PATH_MAX*2];
 
     snprintf(dest_file, sizeof(dest_file), "%s/avahi-daemon.conf.d/%s", test_confd_temp_dir, filename);
@@ -134,12 +136,12 @@ int write_confd_file(const char *filename, const char *content) {
     return write_file(dest_file, content);
 }
 
-int remove_verbose(const char *path) {
+static int remove_verbose(const char *path) {
     avahi_log_debug("debug: remove_verbose(%s)", path);
     return remove(path);
 }
 
-int rmdir_force_recursive(const char *dirname) {
+static int rmdir_force_recursive(const char *dirname) {
     const struct dirent *entry;
 #if !defined(__linux__)
     struct stat statbuf;
@@ -189,7 +191,7 @@ int rmdir_force_recursive(const char *dirname) {
     return 0;
 }
 
-int test_confd_setup_create_temp_dir(void) {
+static int test_confd_setup_create_temp_dir(void) {
     char test_confd_temp_dir_templ[] = "/tmp/avahi-daemon-test.XXXXXX";
 
     if (mkdtemp(test_confd_temp_dir_templ) == NULL) {
@@ -207,7 +209,7 @@ int test_confd_setup_create_temp_dir(void) {
     return 0;
 }
 
-int test_confd_setup_write_main_conf_file(void) {
+static int test_confd_setup_write_main_conf_file(void) {
     char dest_file[PATH_MAX*2];
     const char *content =
         "# This file is part of avahi.\n"
@@ -286,7 +288,7 @@ int test_confd_setup_write_main_conf_file(void) {
     return write_file(dest_file, content);
 }
 
-int test_confd_setup_create_confd(void) {
+static int test_confd_setup_create_confd(void) {
     char confd_dir[PATH_MAX*2];
 
     /* create conf.d */
@@ -303,7 +305,7 @@ int test_confd_setup_create_confd(void) {
     return 0;
 }
 
-int test_confd_setup(void) {
+static int test_confd_setup(void) {
 
     if (test_confd_setup_create_temp_dir() != 0) {
         avahi_log_error("error: problem creating temporary directory '%s'", test_confd_temp_dir);
@@ -323,12 +325,12 @@ int test_confd_setup(void) {
     return 0;
 }
 
-int test_confd_teardown(void) {
+static int test_confd_teardown(void) {
     avahi_log_info("info: cleaning up temp directory recursively: '%s'", test_confd_temp_dir);
     return rmdir_force_recursive(test_confd_temp_dir);
 }
 
-int test_confd_helper_load_all_config(DaemonConfig *config) {
+static int test_confd_helper_load_all_config(DaemonConfig *config) {
     char main_config_file[PATH_MAX*2];
 
     snprintf(main_config_file, sizeof(main_config_file), "%s/avahi-daemon.conf", test_confd_temp_dir);
@@ -344,7 +346,7 @@ int test_confd_helper_load_all_config(DaemonConfig *config) {
 /******************************************************************************/
 /* Tests                                                                      */
 /******************************************************************************/
-int test_print_config(void) {
+static int test_print_config(void) {
     int result = 1;
     char dest_file[PATH_MAX*2];
     AvahiIniFile *f;
@@ -373,7 +375,7 @@ finish:
     return result;
 }
 
-int test_avahi_ini_file_load_non_existing(void) {
+static int test_avahi_ini_file_load_non_existing(void) {
     int result = 1;
     char dest_file[PATH_MAX*2];
     AvahiIniFile *f = NULL;
@@ -403,7 +405,7 @@ finish:
     return result;
 }
 
-int test_avahi_ini_file_parse_malformed(void) {
+static int test_avahi_ini_file_parse_malformed(void) {
     int result = 1;
     static DaemonConfig config;
     char dest_file[PATH_MAX*2];
@@ -439,7 +441,7 @@ finish:
     return result;
 }
 
-int test_confd_no_confd(void) {
+static int test_confd_no_confd(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -469,7 +471,7 @@ finish:
     return result;
 }
 
-int test_confd_empty(void) {
+static int test_confd_empty(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -502,7 +504,7 @@ finish:
     return result;
 }
 
-int test_confd_expect_files(void) {
+static int test_confd_expect_files(void) {
     int result = 1;
     char dest_file[PATH_MAX/4];
     char confd_path[PATH_MAX*2];
@@ -563,7 +565,7 @@ finish:
     return result;
 }
 
-int test_confd_invalid_conf_filenames(void) {
+static int test_confd_invalid_conf_filenames(void) {
     int result = 1;
     char confd_path[PATH_MAX*2];
     char **confd_files_sorted;
@@ -617,7 +619,7 @@ finish:
     return result;
 }
 
-int test_confd_invalid_contents(void) {
+static int test_confd_invalid_contents(void) {
     int result = 0;
     static DaemonConfig config;
 
@@ -780,7 +782,7 @@ finish:
     return result;
 }
 
-int test_confd_browse_domains(void) {
+static int test_confd_browse_domains(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -824,7 +826,7 @@ finish:
     return result;
 }
 
-int test_confd_browse_domains_duplicate(void) {
+static int test_confd_browse_domains_duplicate(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -868,7 +870,7 @@ finish:
     return result;
 }
 
-int test_confd_allow_interfaces(void) {
+static int test_confd_allow_interfaces(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -912,7 +914,7 @@ finish:
     return result;
 }
 
-int test_confd_deny_interfaces(void) {
+static int test_confd_deny_interfaces(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -956,7 +958,7 @@ finish:
     return result;
 }
 
-int test_confd_publish_dns_servers(void) {
+static int test_confd_publish_dns_servers(void) {
     int result = 1;
     static DaemonConfig config;
     const size_t actual_config_size = 1024;
@@ -1015,7 +1017,7 @@ finish:
     return result;
 }
 
-int test_confd_reflect_filters(void) {
+static int test_confd_reflect_filters(void) {
     int result = 1;
     static DaemonConfig config;
 
@@ -1059,7 +1061,7 @@ finish:
     return result;
 }
 
-int test_confd_get_machine_id(void) {
+static int test_confd_get_machine_id(void) {
     int result = 1;
     static DaemonConfig config;
     int found_non_hex = 0;
@@ -1106,7 +1108,97 @@ finish:
     return result;
 }
 
-int test_confd_exercise_all_keys(void) {
+static int test_confd_host_name_from_machine_id_yes(void) {
+    int result = 1;
+    static DaemonConfig config;
+    int found_non_hex = 0;
+
+    print_test_name(__func__);
+
+    if (test_confd_setup() != 0) {
+        avahi_log_error("error: cannot set-up conf.d tests");
+        goto finish;
+    }
+
+    /* write config fragment files */
+    if (write_confd_file("10-host-name-from-machine-id-yes.conf",
+                         "[server]\n"
+                         "host-name=avahi-daemon-test\n"
+                         "host-name-from-machine-id=yes\n") != 0)
+        goto finish;
+
+    if (test_confd_helper_load_all_config(&config) != 0)
+        goto finish;
+
+    /* check the expected values */
+    if ((config.server_config.host_name != NULL) && strlen(config.server_config.host_name) == 32) {
+        for (int i = 0; i < 32; i++) {
+            char c = config.server_config.host_name[i];
+            if (! ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
+                found_non_hex++;
+        }
+    }
+
+    if (found_non_hex == 0) {
+        avahi_log_info("info: [server] host-name-from-machine-id=yes seems to work, hostname='%s' does match the expectations",
+                       config.server_config.host_name);
+
+        result = 0;
+    } else
+        avahi_log_error("error: [server] host-name-from-machine-id=yes does not seem to work, hostname='%s' does not match the expectations",
+                        config.server_config.host_name);
+
+finish:
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
+
+    return result;
+}
+
+static int test_confd_host_name_from_machine_id_no(void) {
+    int result = 1;
+    static DaemonConfig config;
+
+    print_test_name(__func__);
+
+    if (test_confd_setup() != 0) {
+        avahi_log_error("error: cannot set-up conf.d tests");
+        goto finish;
+    }
+
+    /* write config fragment files */
+    if (write_confd_file("10-host-name-from-machine-id-yes.conf",
+                         "[server]\n"
+                         "host-name=avahi-daemon-test\n"
+                         "host-name-from-machine-id=yes\n") != 0)
+        goto finish;
+
+    if (write_confd_file("20-host-name-from-machine-id-no.conf",
+                         "[server]\n"
+                         "host-name-from-machine-id=no\n") != 0)
+        goto finish;
+
+    if (test_confd_helper_load_all_config(&config) != 0)
+        goto finish;
+
+    /* check the expected values */
+    if (config.server_config.host_name != NULL && strcmp(config.server_config.host_name, "avahi-daemon-test") == 0) {
+        avahi_log_info("info: [server] host-name-from-machine-id=no seems to work, hostname='%s' does match the expectations",
+                       config.server_config.host_name);
+
+        result = 0;
+    } else
+        avahi_log_error("error: [server] host-name-from-machine-id=yes does not seem to work, hostname='%s' does not match the expectations",
+                        config.server_config.host_name);
+
+finish:
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
+
+    return result;
+}
+
+static int test_confd_exercise_all_keys(void) {
     int result = 1;
     int failed_to_write_files = 0;
     static DaemonConfig config;
@@ -1425,47 +1517,46 @@ finish:
 /******************************************************************************/
 static void log_function(AvahiLogLevel level, const char *txt);
 
-void log_function(AvahiLogLevel level, const char *txt) {
+static void log_function(AvahiLogLevel level, const char *txt) {
     if (level <= MAX_LOG_LEVEL)
         fprintf(stderr, "%s\n", txt);
 }
 
 
-#define TEST_COUNT 15
-
 typedef int (*funcptr)(void);
 
 typedef struct {
-    int count;
-    funcptr funcs[TEST_COUNT];
+    funcptr *funcs;
 } func_struct;
 
+static funcptr func_array[] = {
+    test_print_config,
+    test_avahi_ini_file_load_non_existing,
+    test_avahi_ini_file_parse_malformed,
+    test_confd_no_confd,
+    test_confd_empty,
+    test_confd_expect_files,
+    test_confd_invalid_conf_filenames,
+    test_confd_invalid_contents,
+    test_confd_browse_domains,
+    test_confd_browse_domains_duplicate,
+    test_confd_allow_interfaces,
+    test_confd_deny_interfaces,
+    test_confd_publish_dns_servers,
+    test_confd_reflect_filters,
+    test_confd_get_machine_id,
+    test_confd_host_name_from_machine_id_yes,
+    test_confd_host_name_from_machine_id_no,
+    test_confd_exercise_all_keys,
+    NULL
+};
+
 func_struct tests = {
-    .count = TEST_COUNT,
-    .funcs = {
-        test_print_config,
-        test_avahi_ini_file_load_non_existing,
-        test_avahi_ini_file_parse_malformed,
-        test_confd_no_confd,
-        test_confd_empty,
-        test_confd_expect_files,
-        test_confd_invalid_conf_filenames,
-        test_confd_invalid_contents,
-        test_confd_browse_domains,
-        test_confd_browse_domains_duplicate,
-        test_confd_allow_interfaces,
-        test_confd_deny_interfaces,
-        test_confd_publish_dns_servers,
-        test_confd_reflect_filters,
-        /* disabled until https://github.com/avahi/avahi/issues/498 fixed
-        test_confd_get_machine_id,
-        */
-        test_confd_exercise_all_keys,
-    }
+    func_array
 };
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
-    int failed = 0;
+    int count = 0, failed = 0;
 
     const char *env_MAX_LOG_LEVEL = getenv("AVAHI_INI_FILE_PARSER_TEST_MAX_LOG_LEVEL");
     if (env_MAX_LOG_LEVEL) {
@@ -1481,18 +1572,15 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     avahi_set_log_function(log_function);
 
-    for (int i = 0; i < tests.count; i++) {
-        int status = tests.funcs[i]();
+    for (; tests.funcs[count] != NULL; count++) {
+        int status = tests.funcs[count]();
         if (status != 0) {
             failed++;
         }
-
-        fflush(stderr);
-        fflush(stdout);
     }
 
     avahi_log_info("\n--------------------------------------------------------------------------------\n"
-                   "Summary: %i total tests, %i FAILed and %i succeeded", tests.count, failed, (tests.count - failed));
+                   "Summary: %i total tests, %i FAILed and %i succeeded", count, failed, (count - failed));
 
     return (failed > 0);
 }

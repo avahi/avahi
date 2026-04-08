@@ -1135,6 +1135,9 @@ int main(int argc, char *argv[]) {
     config.rlimit_nproc_set = 0;
 #endif
 
+    config.host_name_from_machine_id = 0;
+    config.host_name_given = NULL;
+
     if ((argv0 = strrchr(argv[0], '/')))
         argv0 = avahi_strdup(argv0 + 1);
     else
@@ -1315,6 +1318,8 @@ finish:
 #ifdef ENABLE_CHROOT
     avahi_chroot_helper_shutdown();
 #endif
+
+    avahi_free(config.host_name_given);
 
     avahi_free(argv0);
 

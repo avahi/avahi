@@ -90,6 +90,9 @@ typedef struct {
     int rlimit_nproc_set;
     rlim_t rlimit_nproc;
 #endif
+
+    int host_name_from_machine_id;
+    char *host_name_given;
 } DaemonConfig;
 
 /** Remove duplicate domains from the given list */

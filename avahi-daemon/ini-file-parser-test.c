@@ -552,6 +552,7 @@ static int test_confd_invalid_conf_filenames(void) {
     char confd_path[PATH_MAX*2];
     char **confd_files_sorted;
     int confd_file_count;
+    char conf_file_as_dir[PATH_MAX*2];
 
     print_test_name(__func__);
 
@@ -574,6 +575,13 @@ static int test_confd_invalid_conf_filenames(void) {
         return 1;
     if (write_confd_file("test-66-invald.foo", "") != 0)
         return 1;
+
+    /* creating .conf as directory, should be ignored */
+    snprintf(conf_file_as_dir, sizeof(conf_file_as_dir), "%s/test-99-is-dir.conf", test_confd_temp_dir);
+    if (mkdir(conf_file_as_dir, 0755) != 0) {
+        avahi_log_error("error: creating dir '%s': %s", conf_file_as_dir, strerror(errno));
+        return 1;
+    }
 
     confd_file_count = 0;
     snprintf(confd_path, sizeof(confd_path), "%s/avahi-daemon.conf.d", test_confd_temp_dir);

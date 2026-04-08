@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include <avahi-common/domain.h>
 #include <avahi-common/malloc.h>
@@ -86,8 +87,23 @@ char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file
     suffix_len = strlen(suffix);
     while ((dentry = readdir(dir)) != NULL) {
         int filename_len = strlen(dentry->d_name);
+        int is_dir = 0;
+#if defined(__linux__)
+        if (dentry->d_type == DT_DIR)
+#else
+        struct stat statbuf;
+        int stat_ret = -1;
+        char full_path[PATH_MAX*2];
+        snprintf(full_path, sizeof(full_path), "%s/%s", confd_path, dentry->d_name);
+        /* if stat() returns non-zero, assume dir, meaning ignore file */
+        stat_ret = stat(full_path, &statbuf);
+        if ((stat_ret != 0) || (stat_ret == 0 && S_ISDIR(statbuf.st_mode)))
+#endif
+            is_dir = 1;
+
         if ((dentry->d_name[0] != '.') &&
             (filename_len > suffix_len) &&
+            !is_dir &&
             (strcmp(dentry->d_name + (filename_len-suffix_len), suffix) == 0)) {
 
             char **new_filelist = NULL;

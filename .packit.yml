@@ -29,8 +29,7 @@ jobs:
   - fedora-all-aarch64
   - fedora-all-i386
   - fedora-all-ppc64le
-# https://github.com/fedora-copr/copr/issues/4219
-# - fedora-all-s390x
+  - fedora-all-s390x
   - fedora-all-x86_64
 - job: copr_build
   trigger: commit
@@ -38,6 +37,5 @@ jobs:
   - fedora-all-aarch64
   - fedora-all-i386
   - fedora-all-ppc64le
-# https://github.com/fedora-copr/copr/issues/4219
-# - fedora-all-s390x
+  - fedora-all-s390x
   - fedora-all-x86_64

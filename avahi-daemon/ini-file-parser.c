@@ -305,7 +305,8 @@ void avahi_strfreev(char **p) {
 
 static char *get_machine_id(void) {
     int fd;
-    char buf[32];
+    const int machine_id_length = 32;
+    char buf[machine_id_length + 1];
 
     fd = open("/etc/machine-id", O_RDONLY|O_CLOEXEC|O_NOCTTY);
     if (fd == -1 && errno == ENOENT)
@@ -314,11 +315,14 @@ static char *get_machine_id(void) {
         return NULL;
 
     /* File is on a filesystem so we never get EINTR or partial reads */
-    if (read(fd, buf, sizeof buf) != sizeof buf) {
+    if (read(fd, buf, machine_id_length) != machine_id_length) {
         close(fd);
         return NULL;
     }
     close(fd);
+
+    /* end with NULL for future string use */
+    buf[32] = '\0';
 
     /* Contents can be lower, upper and even mixed case so normalize */
     avahi_strdown(buf);

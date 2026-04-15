@@ -1201,8 +1201,10 @@ static int run_server(DaemonConfig *c) {
 
         if (effective_nofile > MAX_NOFILE_LIMIT)
             nofiles = MAX_NOFILE_LIMIT;
-        else
+        else if (effective_nofile > 0)
             nofiles = (unsigned)(effective_nofile * 3 / 4);
+        else
+            nofiles = 1;
     }
     if (simple_protocol_setup(poll_api, nofiles) < 0)
         goto finish;

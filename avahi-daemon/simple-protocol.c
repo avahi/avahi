@@ -574,7 +574,7 @@ static int is_client_allowed(Server *s, int cfd, AvahiCred *cred) {
      * "unknown UID" bucket, which effectively limits them to max_uid_clients
      * instead of max_clients. This is an acceptable tradeoff: returning 0
      * (root) would silently skip per-UID enforcement entirely. */
-    if (uid != 0 && n_clients > s->max_uid_clients) {
+    if (uid != 0 && n_clients >= s->max_uid_clients) {
         /* There are enough clients to reach the limit for one UID.
          * Check this UID does not have too many connections already. */
         Client *c;

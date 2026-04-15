@@ -235,20 +235,27 @@ test_simple_protocol_limits() {
     _saved_rlimit=$(perl -lne 'print $1 if /^(#?rlimit-nofile=.*)/' "$avahi_daemon_conf")
     sed -i.bak 's|^#*rlimit-nofile=.*|rlimit-nofile=100|' "$avahi_daemon_conf"
 
-    # Ensure config is restored and flood connections are cleaned up
-    # on any exit, including set -e failures.
     trap '_simple_protocol_limits_cleanup' EXIT
 
     if [[ "$WITH_SYSTEMD" == true ]]; then
+        # systemd's LimitNOFILE overrides the daemon config
+        mkdir -p /run/systemd/system/avahi-daemon.service.d
+        printf '[Service]\nLimitNOFILE=100\n' \
+            > /run/systemd/system/avahi-daemon.service.d/test-rlimit.conf
+        systemctl daemon-reload
         run systemctl restart avahi-daemon
     elif [[ "$VALGRIND" == true ]]; then
         avahi-daemon --kill 2>/dev/null || true
         sleep 1
+        # Set RLIMIT_NOFILE before Valgrind starts; Valgrind
+        # intercepts setrlimit() so the daemon config alone
+        # is not enough.
+        (ulimit -n 100 && \
         valgrind --log-file="$valgrind_log_file" --leak-check=full \
             --track-origins=yes --track-fds=yes --error-exitcode=1 \
             --trace-children=yes \
             -s --suppressions=.github/workflows/avahi-daemon.supp \
-            avahi-daemon -D --debug --no-drop-root --no-proc-title
+            avahi-daemon -D --debug --no-drop-root --no-proc-title)
     elif [[ "$ASAN_UBSAN" == true ]]; then
         avahi-daemon --kill 2>/dev/null || true
         sleep 1
@@ -260,7 +267,9 @@ test_simple_protocol_limits() {
         sleep 1
         avahi-daemon -D --debug
     fi
-    # Allow daemon to finish startup and bind the socket
+    if [[ "$WITH_SYSTEMD" == false ]]; then
+        avahi-dnsconfd -D 2>/dev/null || true
+    fi
     sleep 2
 
     _pid=$(cat "$avahi_daemon_pid_file")
@@ -372,6 +381,9 @@ test_simple_protocol_limits() {
         sleep 1
         avahi-daemon -D --debug
     fi
+    if [[ "$WITH_SYSTEMD" == false ]]; then
+        avahi-dnsconfd -D 2>/dev/null || true
+    fi
     sleep 2
 }
 
@@ -390,6 +402,9 @@ _simple_protocol_limits_cleanup() {
         sed -i.bak '/^rlimit-nofile=100/d' "$avahi_daemon_conf"
     fi
     rm -f "${avahi_daemon_conf}.bak"
+
+    rm -f /run/systemd/system/avahi-daemon.service.d/test-rlimit.conf 2>/dev/null
+    systemctl daemon-reload 2>/dev/null || true
 }
 
 _simple_protocol_limits_count() {
@@ -515,7 +530,7 @@ run drill -p5353 @127.0.0.1 _domain._udp.local ANY
 drill -Q -p5353 @127.0.0.1 "$l._ssh._tcp.local" TXT | grep org.freedesktop.Avahi.cookie
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
-    run avahi-dnsconfd --kill
+    avahi-dnsconfd --kill 2>/dev/null || true
 
     pid=$(cat "$avahi_daemon_pid_file")
     run avahi-daemon --kill

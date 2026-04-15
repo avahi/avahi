@@ -64,85 +64,99 @@
 
 #define BUFFER_SIZE (20*1024)
 
-#if __linux__
+#ifdef __linux__
 /* Linux specific support, man 7 unix */
 typedef struct ucred AvahiCred;
 
-
 static uid_t credentials_getuid(const AvahiCred *cred) {
-	return cred->uid;
+    return cred->uid;
 }
 
 static gid_t credentials_getgid(const AvahiCred *cred) {
-	return cred->gid;
+    return cred->gid;
 }
 
 static pid_t credentials_getpid(const AvahiCred *cred) {
-	return cred->pid;
+    return cred->pid;
 }
 
 static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
     *len = sizeof(*cred);
-    memset(cred, 0, sizeof(*cred));
-    return getsockopt(fd, SOL_SOCKET, SO_PEERCRED, cred, len);
+    if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, cred, len) != 0)
+        return -1;
+    if (*len != sizeof(*cred)) {
+        avahi_log_error("credentials_getsockopt: unexpected credential size %u (expected %zu)",
+                        (unsigned)*len, sizeof(*cred));
+        return -1;
+    }
+    return 0;
 }
 
-#  define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
-#  define CRED_VALS(ucred) (long)credentials_getuid(ucred), (long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%ld"
+#  define CRED_ARGS(ucred) , (unsigned long)credentials_getuid(ucred), (unsigned long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
 
 #elif defined(HAVE_STRUCT_XUCRED) && defined(XUCRED_VERSION)
 /* FreeBSD support, man 4 unix */
 typedef struct xucred AvahiCred;
 
 static int credentials_version_check(const AvahiCred *cred) {
-	if (cred->cr_version != XUCRED_VERSION) {
-		avahi_log_debug("credentials_version_check: unsupported version %d",
-				cred->cr_version);
-		return 0;
-	}
-	return 1;
+    if (cred->cr_version != XUCRED_VERSION) {
+        avahi_log_debug("credentials_version_check: unsupported version %d",
+                        cred->cr_version);
+        return 0;
+    }
+    return 1;
 }
 
 static uid_t credentials_getuid(const AvahiCred *cred) {
-	if (!credentials_version_check(cred))
-		return 0;
-	return cred->cr_uid;
+    if (!credentials_version_check(cred))
+        return (uid_t)-1;
+    return cred->cr_uid;
 }
 
 static gid_t credentials_getgid(const AvahiCred *cred) {
-	if (!credentials_version_check(cred) || cred->cr_ngroups <= 0)
-		return 0;
-	return cred->cr_groups[0];
+    if (!credentials_version_check(cred) || cred->cr_ngroups <= 0)
+        return 0;
+    return cred->cr_groups[0];
 }
 
 static pid_t credentials_getpid(const AvahiCred *cred) {
-	if (!credentials_version_check(cred))
-		return 0;
-	return cred->cr_pid;
+    if (!credentials_version_check(cred))
+        return 0;
+    return cred->cr_pid;
 }
 
 static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
     *len = sizeof(*cred);
-    memset(cred, 0, sizeof(*cred));
-    return getsockopt(fd, SOL_LOCAL, LOCAL_PEERCRED, cred, len);
+    if (getsockopt(fd, SOL_LOCAL, LOCAL_PEERCRED, cred, len) != 0)
+        return -1;
+    if (*len != sizeof(*cred)) {
+        avahi_log_error("credentials_getsockopt: unexpected credential size %u (expected %zu)",
+                        (unsigned)*len, sizeof(*cred));
+        return -1;
+    }
+    return 0;
 }
 
-#  define CRED_FMT     "uid=%lu gid=%lu pid=%lu"
-#  define CRED_VALS(ucred) (long)credentials_getuid(ucred), (long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%ld"
+#  define CRED_ARGS(ucred) , (unsigned long)credentials_getuid(ucred), (unsigned long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
 
 #else
-/* No support */
-#  define CRED_FMT     "%s"
-#  define CRED_VALS(ucred) ucred
+/* No credential retrieval support on this platform */
+#  define CRED_FMT     ""
+#  define CRED_ARGS(ucred)
 typedef unsigned char AvahiCred; /* need known type size. */
 
-static uid_t credentials_getuid(const AvahiCred *cred) {
-	(void)cred; return 0; /* no support for getting remote user. */
+/* Returns (uid_t)-1 to indicate that the UID is unknown, preventing the
+ * unknown-UID from being silently treated as root (uid 0). */
+static uid_t credentials_getuid(AVAHI_GCC_UNUSED const AvahiCred *cred) {
+    return (uid_t)-1;
 }
 
-static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
-	(void)fd; *len = sizeof(*cred); *cred = 0;
-	return 0;
+static int credentials_getsockopt(AVAHI_GCC_UNUSED int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    *cred = 0;
+    return 0;
 }
 #endif
 
@@ -212,7 +226,7 @@ static void client_free(Client *c) {
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
     avahi_log_debug("simple client %d finished: " CRED_FMT,
-                    c->fd, CRED_VALS(&c->credentials));
+                    c->fd CRED_ARGS(&c->credentials));
 
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
     avahi_free(c);
@@ -359,10 +373,10 @@ static void dns_server_browser_callback(
 static void log_request(const Client *c, const char *cmd, const char *arg) {
     if (arg != NULL)
         avahi_log_debug(__FILE__": Got %s request for '%s'. " CRED_FMT,
-                        cmd, arg, CRED_VALS(&c->credentials));
+                        cmd, arg CRED_ARGS(&c->credentials));
     else
         avahi_log_debug(__FILE__": Got %s request. " CRED_FMT,
-                        cmd, CRED_VALS(&c->credentials));
+                        cmd CRED_ARGS(&c->credentials));
 }
 
 static void handle_line(Client *c, const char *s) {
@@ -541,36 +555,44 @@ static int is_client_allowed(Server *s, int cfd, AvahiCred *cred) {
 
     n_clients = s->n_clients + 1;
     if (credentials_getsockopt(cfd, cred, &len) != 0) {
-        avahi_log_error("credentials_getsockopt(%d): %s", cfd, strerror(errno));
+        avahi_log_error("Failed to get peer credentials for fd %d: %s", cfd, strerror(errno));
         return 0;
     }
 
     if (n_clients > s->max_clients) {
         avahi_log_debug("simple client %d refused: "CRED_FMT" too many clients",
-                        cfd, CRED_VALS(cred));
+                        cfd CRED_ARGS(cred));
         return 0;
     }
 
     uid = credentials_getuid(cred);
+    /* Per-UID limit applies to all non-root UIDs. (uid_t)-1 means the UID
+     * is unknown (no credential support on this platform); unknown UIDs are
+     * treated as non-root so they cannot bypass the per-UID limit.
+     *
+     * On platforms without credential support, all connections share one
+     * "unknown UID" bucket, which effectively limits them to max_uid_clients
+     * instead of max_clients. This is an acceptable tradeoff: returning 0
+     * (root) would silently skip per-UID enforcement entirely. */
     if (uid != 0 && n_clients > s->max_uid_clients) {
-        // There is enough clients to reach limit for one UID.
-        // Check this UID does not have too many requests already.
+        /* There are enough clients to reach the limit for one UID.
+         * Check this UID does not have too many connections already. */
         Client *c;
         unsigned present = 0;
 
         for (c = s->clients; c; c = c->clients_next) {
             if (credentials_getuid(&c->credentials) == uid) {
                 present++;
-                if (present > s->max_uid_clients) {
+                if (present >= s->max_uid_clients) {
                     avahi_log_debug("simple client %d refused: "CRED_FMT" too many uid clients: %u",
-                                    cfd, CRED_VALS(cred), present);
+                                    cfd CRED_ARGS(cred), present);
                     return 0;
                 }
             }
         }
     }
     avahi_log_debug("simple client %d/%u accepted: "CRED_FMT,
-                    cfd, n_clients, CRED_VALS(cred));
+                    cfd, n_clients CRED_ARGS(cred));
     return 1;
 }
 
@@ -585,7 +607,7 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
         if ((cfd = accept(fd, NULL, NULL)) < 0) {
             if (errno != EMFILE && errno != ENFILE)
                 avahi_log_error(__FILE__" accept(): %s", strerror(errno));
-            else // Avoid client ability to flood log with too many requests
+            else /* Avoid giving clients the ability to flood the log with too many requests */
                 avahi_log_debug(__FILE__" accept(): %s", strerror(errno));
         } else {
             AvahiCred cred;

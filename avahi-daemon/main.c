@@ -1187,11 +1187,23 @@ static int run_server(DaemonConfig *c) {
         goto finish;
     }
 
-    /* We accept clients only of 3/4 file descriptors allowed
-     * in this process. Keep extra for UDP sockets. */
-    nofiles = config.rlimit_nofile * 3/4;
-    if (nofiles > MAX_NOFILE_LIMIT)
-        nofiles = MAX_NOFILE_LIMIT;
+    /* Derive the simple protocol client limit from the actual effective
+     * RLIMIT_NOFILE, not the configured value, because setrlimit() may
+     * have failed (hard limit too low) or --no-rlimits may be in use.
+     * Reading the live limit ensures we never try to hold more fds than
+     * the process is actually allowed. */
+    {
+        struct rlimit rl;
+        rlim_t effective_nofile = config.rlimit_nofile;
+
+        if (getrlimit(RLIMIT_NOFILE, &rl) == 0)
+            effective_nofile = rl.rlim_cur;
+
+        if (effective_nofile > MAX_NOFILE_LIMIT)
+            nofiles = MAX_NOFILE_LIMIT;
+        else
+            nofiles = (unsigned)(effective_nofile * 3 / 4);
+    }
     if (simple_protocol_setup(poll_api, nofiles) < 0)
         goto finish;
 

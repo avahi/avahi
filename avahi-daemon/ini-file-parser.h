@@ -137,7 +137,9 @@ void avahi_ini_file_free(AvahiIniFile *f);
  * being read from that directory, the same as the elements of the array
  * returned
  *
- * @return array of filenames within the given @confd_path
+ * @return array of filenames within the given @confd_path, full pathname,
+ * containing the number of elements returned in the input parameter
+ * @confd_file_count, and terminated with NULL
  */
 char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file_count);
 

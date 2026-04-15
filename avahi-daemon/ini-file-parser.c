@@ -28,6 +28,7 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <glob.h>
 #include <unistd.h>
 #include <sys/stat.h>
 
@@ -56,19 +57,14 @@
                                         _item->name##_prev = *iter; \
                                         } while (0)
 
-static int avahi_ini_filename_compare(const void *a, const void *b) {
-    return strcmp(*(const char **)a, *(const char **)b);
-}
-
 char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file_count) {
-    int suffix_len = 0;
-    const char *suffix = ".conf";
-
     DIR *dir = NULL;
-    struct dirent *dentry = NULL;
-    int error_reading_dir = 0;
     char **filelist = NULL;
     int filelist_count = 0;
+    size_t glob_match_count = 0;
+    glob_t glob_buf;
+    int glob_ret = 0;
+    char glob_pattern[PATH_MAX*2];
 
     /* initialize for early returns before the count gets set */
     *confd_file_count = 0;
@@ -83,74 +79,75 @@ char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file
 
         return NULL;
     }
-
-    suffix_len = strlen(suffix);
-    while ((dentry = readdir(dir)) != NULL) {
-        int filename_len = strlen(dentry->d_name);
-        int is_dir = 0;
-#if defined(__linux__)
-        if (dentry->d_type == DT_DIR)
-#else
-        struct stat statbuf;
-        int stat_ret = -1;
-        char full_path[PATH_MAX*2];
-        snprintf(full_path, sizeof(full_path), "%s/%s", confd_path, dentry->d_name);
-        /* if stat() returns non-zero, assume dir, meaning ignore file */
-        stat_ret = stat(full_path, &statbuf);
-        if ((stat_ret != 0) || (stat_ret == 0 && S_ISDIR(statbuf.st_mode)))
-#endif
-            is_dir = 1;
-
-        if ((dentry->d_name[0] != '.') &&
-            (filename_len > suffix_len) &&
-            !is_dir &&
-            (strcmp(dentry->d_name + (filename_len-suffix_len), suffix) == 0)) {
-
-            char **new_filelist = NULL;
-            char *new_entry = avahi_strdup(dentry->d_name);
-            if (!new_entry) {
-                avahi_log_error("strdup() error: %s", errno ? strerror(errno) : "unknown");
-                error_reading_dir = 1;
-                break;
-            }
-            new_filelist = avahi_realloc(filelist, (filelist_count + 1) * sizeof(char *));
-            if (!new_filelist) {
-                avahi_log_error("realloc() error");
-                avahi_free(new_entry);
-                error_reading_dir = 1;
-                break;
-            }
-
-            filelist = new_filelist;
-            filelist[filelist_count] = new_entry;
-            filelist_count++;
-            avahi_log_debug("Considering file in conf.d '%s'", dentry->d_name);
-        } else
-            avahi_log_debug("Discarding file in conf.d '%s'", dentry->d_name);
-    }
     closedir(dir);
 
-    if (error_reading_dir) {
-        for (int i = 0; i < filelist_count; i++) {
+    snprintf(glob_pattern, sizeof(glob_pattern), "%s/*.conf", confd_path);
+    glob_ret = glob(glob_pattern, 0, NULL, &glob_buf);
+    if (glob_ret != 0) {
+        if (glob_ret == GLOB_NOMATCH)
+            avahi_log_debug("No files found in avahi-daemon.conf.d directory '%s'", confd_path);
+        else
+            avahi_log_error("Error during glob operation reading '%s', insufficient memory or reading error", glob_pattern);
+
+        globfree(&glob_buf);
+        return NULL;
+    }
+
+    /* allocate (elem+1) with zeros, for null pointers if any element is
+     * discarded and a final sentinel */
+    glob_match_count = glob_buf.gl_pathc;
+    avahi_log_debug("Found %zu files matching '%s'\n", glob_match_count, glob_pattern);
+    filelist = avahi_malloc0((glob_match_count + 1) * sizeof(char *));
+
+    for (size_t i = 0; i < glob_match_count; i++) {
+        struct stat stat_buf;
+        int stat_ret = stat(glob_buf.gl_pathv[i], &stat_buf);
+        if (stat_ret != 0) {
+            avahi_log_error("Error in stat() for file in conf.d '%s': %s", glob_buf.gl_pathv[i], strerror(errno));
+            continue;
+        }
+
+        if (stat_buf.st_size == 0) {
+            avahi_log_debug("Discarding file in conf.d '%s' (empty)", glob_buf.gl_pathv[i]);
+            continue;
+        }
+
+        switch (stat_buf.st_mode & S_IFMT) {
+           case S_IFLNK:
+           case S_IFREG:
+               avahi_log_debug("Considering file in conf.d '%s'", glob_buf.gl_pathv[i]);
+               filelist[filelist_count] = avahi_strdup(glob_buf.gl_pathv[i]);
+               filelist_count++;
+               break;
+           case S_IFDIR:
+               avahi_log_debug("Discarding file in conf.d '%s' (it is a directory)", glob_buf.gl_pathv[i]);
+               continue; /* 'break' not necessary */
+           case S_IFBLK:
+           case S_IFCHR:
+           case S_IFIFO:
+           case S_IFSOCK:
+           default:
+               avahi_log_debug("Discarding file in conf.d '%s' (block/char device, socket or others)", glob_buf.gl_pathv[i]);
+               continue; /* 'break' not necessary */
+        }
+    }
+
+    *confd_file_count = filelist_count;
+    globfree(&glob_buf);
+
+    if (filelist_count == 0) {
+        avahi_log_debug("No valid or matchig files found in avahi-daemon.conf.d directory '%s'", confd_path);
+        for (size_t i = 0; i < glob_match_count; i++) {
             avahi_free(filelist[i]);
             filelist[i] = NULL;
         }
         avahi_free(filelist);
-        *confd_file_count = -1;
         return NULL;
     }
 
-    *confd_file_count = filelist_count;
-
-    if (filelist_count == 0)
-        return NULL;
-
-    qsort(filelist, filelist_count, sizeof(char *), avahi_ini_filename_compare);
     avahi_log_debug("Sorted list of conf.d files:");
     for (int i = 0; i < filelist_count; i++)
         avahi_log_debug("- %s", filelist[i]);
-
-    *confd_file_count = filelist_count;
 
     return filelist;
 }
@@ -852,13 +849,7 @@ int avahi_ini_load_all_config(DaemonConfig *config, const char *main_config_file
     if (confd_files && confd_files_count > 0) {
         avahi_log_debug("Loading conf.d files in: '%s'", confd_path);
         for (int i = 0; i < confd_files_count; i++) {
-            char confd_file[PATH_MAX+2]; /* -Wformat-truncation */
-            snprintf_count = snprintf(confd_file, sizeof(confd_file), "%s/%s", confd_path, confd_files[i]);
-            if (snprintf_count >= sizeof(confd_file)) {
-                avahi_log_error("File path of confd_file too long, truncated: '%s'", confd_file);
-                ret = 1;
-                goto finish;
-            }
+            const char *confd_file = confd_files[i];
             avahi_log_debug("- %s", confd_file);
             if (avahi_ini_file_parse(config, confd_file) < 0) {
                 avahi_log_error("Could not load conf.d file: '%s'", confd_file);

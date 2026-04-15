@@ -23,6 +23,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -507,7 +508,7 @@ static int test_confd_expect_files(void) {
         /* create the files somewhat shuffled, not in ascending order based on i */
         snprintf(dest_file, sizeof(dest_file), "test-%02li.conf", ((i + current_time) % confd_fragments) + 1);
 
-        if (write_confd_file(dest_file, "") != 0)
+        if (write_confd_file(dest_file, "# test file") != 0)
             return 1;
     }
 
@@ -516,19 +517,19 @@ static int test_confd_expect_files(void) {
     confd_files_sorted = avahi_ini_list_confd_files_sorted(confd_path, &confd_file_count);
 
     if (confd_file_count == 13 &&
-        strcmp(confd_files_sorted[ 0], "test-01.conf") == 0 &&
-        strcmp(confd_files_sorted[ 1], "test-02.conf") == 0 &&
-        strcmp(confd_files_sorted[ 2], "test-03.conf") == 0 &&
-        strcmp(confd_files_sorted[ 3], "test-04.conf") == 0 &&
-        strcmp(confd_files_sorted[ 4], "test-05.conf") == 0 &&
-        strcmp(confd_files_sorted[ 5], "test-06.conf") == 0 &&
-        strcmp(confd_files_sorted[ 6], "test-07.conf") == 0 &&
-        strcmp(confd_files_sorted[ 7], "test-08.conf") == 0 &&
-        strcmp(confd_files_sorted[ 8], "test-09.conf") == 0 &&
-        strcmp(confd_files_sorted[ 9], "test-10.conf") == 0 &&
-        strcmp(confd_files_sorted[10], "test-11.conf") == 0 &&
-        strcmp(confd_files_sorted[11], "test-12.conf") == 0 &&
-        strcmp(confd_files_sorted[12], "test-13.conf") == 0) {
+        strcmp(basename(confd_files_sorted[ 0]), "test-01.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 1]), "test-02.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 2]), "test-03.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 3]), "test-04.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 4]), "test-05.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 5]), "test-06.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 6]), "test-07.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 7]), "test-08.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 8]), "test-09.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 9]), "test-10.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[10]), "test-11.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[11]), "test-12.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[12]), "test-13.conf") == 0) {
         avahi_log_info("info: conf.d files present and sorted as expected");
         result = 0;
     } else
@@ -561,19 +562,19 @@ static int test_confd_invalid_conf_filenames(void) {
         goto finish;
     }
 
-    if (write_confd_file("test-22-invald.conf~", "") != 0)
+    if (write_confd_file("test-22-invald.conf~", "# test file") != 0)
         return 1;
-    if (write_confd_file("test-55.conf", "") != 0)
+    if (write_confd_file("test-55.conf", "# test file") != 0)
         return 1;
-    if (write_confd_file("test-11.conf", "") != 0)
+    if (write_confd_file("test-11.conf", "# test file") != 0)
         return 1;
-    if (write_confd_file(".conf", "") != 0)
+    if (write_confd_file(".conf", "# test file") != 0)
         return 1;
-    if (write_confd_file("test-44-invald.conf.bak", "") != 0)
+    if (write_confd_file("test-44-invald.conf.bak", "# test file") != 0)
         return 1;
-    if (write_confd_file("test-33.conf", "") != 0)
+    if (write_confd_file("test-33.conf", "# test file") != 0)
         return 1;
-    if (write_confd_file("test-66-invald.foo", "") != 0)
+    if (write_confd_file("test-66-invald.foo", "# test file") != 0)
         return 1;
 
     /* creating .conf as directory, should be ignored */
@@ -588,9 +589,9 @@ static int test_confd_invalid_conf_filenames(void) {
     confd_files_sorted = avahi_ini_list_confd_files_sorted(confd_path, &confd_file_count);
 
     if (confd_file_count == 3 &&
-        strcmp(confd_files_sorted[ 0], "test-11.conf") == 0 &&
-        strcmp(confd_files_sorted[ 1], "test-33.conf") == 0 &&
-        strcmp(confd_files_sorted[ 2], "test-55.conf") == 0) {
+        strcmp(basename(confd_files_sorted[ 0]), "test-11.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 1]), "test-33.conf") == 0 &&
+        strcmp(basename(confd_files_sorted[ 2]), "test-55.conf") == 0) {
         avahi_log_info("info: conf.d files present and sorted as expected");
         result = 0;
     } else

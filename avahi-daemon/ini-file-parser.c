@@ -57,10 +57,6 @@
                                         _item->name##_prev = *iter; \
                                         } while (0)
 
-static int avahi_ini_filename_compare(const void *a, const void *b) {
-    return strcmp(*(const char **)a, *(const char **)b);
-}
-
 char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file_count) {
     DIR *dir = NULL;
     char **filelist = NULL;
@@ -86,7 +82,7 @@ char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file
     closedir(dir);
 
     snprintf(glob_pattern, sizeof(glob_pattern), "%s/*.conf", confd_path);
-    glob_ret = glob(glob_pattern, GLOB_NOSORT, NULL, &glob_buf);
+    glob_ret = glob(glob_pattern, 0, NULL, &glob_buf);
     if (glob_ret != 0) {
         if (glob_ret == GLOB_NOMATCH)
             avahi_log_debug("No files found in avahi-daemon.conf.d directory '%s'", confd_path);
@@ -149,7 +145,6 @@ char **avahi_ini_list_confd_files_sorted(const char *confd_path, int *confd_file
         return NULL;
     }
 
-    qsort(filelist, filelist_count, sizeof(char *), avahi_ini_filename_compare);
     avahi_log_debug("Sorted list of conf.d files:");
     for (int i = 0; i < filelist_count; i++)
         avahi_log_debug("- %s", filelist[i]);

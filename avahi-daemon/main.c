@@ -1301,9 +1301,8 @@ finish:
     if (config.daemonize)
         daemon_retval_done();
 
-    avahi_server_config_free(&config.server_config);
-    avahi_free(config.config_file);
-    avahi_strfreev(config.publish_dns_servers);
+    avahi_daemon_config_free(&config); /* includes cleaning config.server_config */
+
     avahi_strfreev(resolv_conf_name_servers);
     avahi_strfreev(resolv_conf_search_domains);
 
@@ -1318,8 +1317,6 @@ finish:
 #ifdef ENABLE_CHROOT
     avahi_chroot_helper_shutdown();
 #endif
-
-    avahi_free(config.host_name_given);
 
     avahi_free(argv0);
 

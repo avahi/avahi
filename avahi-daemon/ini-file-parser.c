@@ -863,3 +863,13 @@ finish:
 
     return ret;
 }
+
+void avahi_daemon_config_free(DaemonConfig *config) {
+    assert(config);
+
+    avahi_free(config->config_file);
+    avahi_free(config->host_name_given);
+    avahi_strfreev(config->publish_dns_servers);
+
+    avahi_server_config_free(&(config->server_config));
+}

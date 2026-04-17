@@ -41,40 +41,6 @@ unsigned int MAX_LOG_LEVEL = AVAHI_LOG_DEBUG;
 
 static char test_confd_temp_dir[PATH_MAX];
 
-static void print_test_name(const char *name);
-static void print_ini_file(AvahiIniFile *f);
-static int write_file(const char *filename, const char *content);
-static int write_confd_file(const char *filename, const char *content);
-static int remove_verbose(const char *path);
-static int rmdir_force_recursive(const char *dirname);
-
-static int test_confd_setup_create_temp_dir(void);
-static int test_confd_setup_write_main_conf_file(void);
-static int test_confd_setup_create_confd(void);
-static int test_confd_setup(void);
-static int test_confd_teardown(void);
-static int test_confd_helper_load_all_config(DaemonConfig *config);
-
-static int test_print_config(void);
-static int test_avahi_ini_file_load_non_existing(void);
-static int test_avahi_ini_file_parse_malformed(void);
-
-static int test_confd_no_confd(void);
-static int test_confd_empty(void);
-static int test_confd_expect_files(void);
-static int test_confd_invalid_conf_filenames(void);
-static int test_confd_invalid_contents(void);
-static int test_confd_browse_domains(void);
-static int test_confd_browse_domains_duplicate(void);
-static int test_confd_allow_interfaces(void);
-static int test_confd_deny_interfaces(void);
-static int test_confd_publish_dns_servers(void);
-static int test_confd_reflect_filters(void);
-static int test_confd_get_machine_id(void);
-static int test_confd_host_name_from_machine_id_yes(void);
-static int test_confd_host_name_from_machine_id_no(void);
-static int test_confd_exercise_all_keys(void);
-
 /******************************************************************************/
 /* Helpers                                                                    */
 /******************************************************************************/
@@ -1520,8 +1486,6 @@ finish:
 /******************************************************************************/
 /* main()                                                                     */
 /******************************************************************************/
-static void log_function(AvahiLogLevel level, const char *txt);
-
 static void log_function(AvahiLogLevel level, const char *txt) {
     if (level <= MAX_LOG_LEVEL)
         fprintf(stderr, "%s\n", txt);

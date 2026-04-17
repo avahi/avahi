@@ -95,6 +95,9 @@ typedef struct {
     char *host_name_given;
 } DaemonConfig;
 
+/** Clean-up DaemonConfig */
+void avahi_daemon_config_free(DaemonConfig *config);
+
 /** Remove duplicate domains from the given list */
 AvahiStringList *avahi_ini_filter_duplicate_domains(AvahiStringList *l);
 

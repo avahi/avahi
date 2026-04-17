@@ -390,7 +390,7 @@ finish:
 
 static int test_avahi_ini_file_parse_malformed(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
     char dest_file[PATH_MAX*2];
 
     print_test_name(__func__);
@@ -418,6 +418,7 @@ static int test_avahi_ini_file_parse_malformed(void) {
     result = 0;
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -426,7 +427,7 @@ finish:
 
 static int test_confd_no_confd(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -448,6 +449,7 @@ static int test_confd_no_confd(void) {
         avahi_log_error("error: non-empty browse_domains list does not match the expectations");
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -456,7 +458,7 @@ finish:
 
 static int test_confd_empty(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -481,6 +483,7 @@ static int test_confd_empty(void) {
         avahi_log_error("error: some config values do not match the expectations");
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -612,7 +615,7 @@ finish:
 
 static int test_confd_invalid_contents(void) {
     int result = 0;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -767,6 +770,7 @@ static int test_confd_invalid_contents(void) {
 #endif
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -775,7 +779,7 @@ finish:
 
 static int test_confd_browse_domains(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -811,6 +815,7 @@ static int test_confd_browse_domains(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -819,7 +824,7 @@ finish:
 
 static int test_confd_browse_domains_duplicate(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -855,6 +860,7 @@ static int test_confd_browse_domains_duplicate(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -863,7 +869,7 @@ finish:
 
 static int test_confd_allow_interfaces(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -899,6 +905,7 @@ static int test_confd_allow_interfaces(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -907,7 +914,7 @@ finish:
 
 static int test_confd_deny_interfaces(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -943,6 +950,7 @@ static int test_confd_deny_interfaces(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -951,7 +959,7 @@ finish:
 
 static int test_confd_publish_dns_servers(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
     const size_t actual_config_size = 1024;
     char actual_config[actual_config_size];
     size_t actual_config_len = 0;
@@ -1002,6 +1010,7 @@ static int test_confd_publish_dns_servers(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -1010,7 +1019,7 @@ finish:
 
 static int test_confd_reflect_filters(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -1046,6 +1055,7 @@ static int test_confd_reflect_filters(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -1054,7 +1064,7 @@ finish:
 
 static int test_confd_get_machine_id(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
     int found_non_hex = 0;
 
     print_test_name(__func__);
@@ -1093,6 +1103,7 @@ static int test_confd_get_machine_id(void) {
                         config.server_config.host_name);
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -1101,7 +1112,7 @@ finish:
 
 static int test_confd_host_name_from_machine_id_yes(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
     int found_non_hex = 0;
 
     print_test_name(__func__);
@@ -1140,6 +1151,7 @@ static int test_confd_host_name_from_machine_id_yes(void) {
                         config.server_config.host_name);
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -1148,7 +1160,7 @@ finish:
 
 static int test_confd_host_name_from_machine_id_no(void) {
     int result = 1;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
 
     print_test_name(__func__);
 
@@ -1183,6 +1195,7 @@ static int test_confd_host_name_from_machine_id_no(void) {
                         config.server_config.host_name);
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 
@@ -1192,7 +1205,7 @@ finish:
 static int test_confd_exercise_all_keys(void) {
     int result = 1;
     int failed_to_write_files = 0;
-    static DaemonConfig config;
+    DaemonConfig config = {0};
     int unexpected = 0;
 
     print_test_name(__func__);
@@ -1496,6 +1509,7 @@ static int test_confd_exercise_all_keys(void) {
     }
 
 finish:
+    avahi_daemon_config_free(&config);
     test_confd_teardown();
     avahi_log_info("Test finished: %s", (result == 0 ? "OK" : "FAIL"));
 

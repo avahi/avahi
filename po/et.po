@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2026-02-01 18:58+0000\n"
+"PO-Revision-Date: 2026-04-19 07:45+0000\n"
 "Last-Translator: Priit Jõerüüt "
 "<jrtkbfdr@users.noreply.translate.fedoraproject.org>\n"
 "Language-Team: Estonian <https://translate.fedoraproject.org/projects/avahi/"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 5.17\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -238,7 +238,7 @@ msgstr "On tühi"
 
 #: ../avahi-common/error.c:88
 msgid "The requested operation is invalid because redundant"
-msgstr ""
+msgstr "Soovitud toiming on vigane, kuna see on dubleeriv"
 
 #: ../avahi-common/error.c:94
 msgid "Invalid Error Code"
@@ -299,7 +299,7 @@ msgstr "Teenuse tüüpide sirvimine"
 
 #: ../avahi-ui/avahi-ui.c:185
 msgid "A NULL terminated list of service types to browse for"
-msgstr ""
+msgstr "NULLiga lõppev loend teenuste tüüpidest, mida sirvida"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "Domain"
@@ -385,17 +385,17 @@ msgstr "Hostinime lahendamise aadressiperekond"
 #: ../avahi-ui/avahi-ui.c:326
 #, c-format
 msgid "Avahi client failure: %s"
-msgstr ""
+msgstr "Avahi kliendi viga: %s"
 
 #: ../avahi-ui/avahi-ui.c:388
 #, c-format
 msgid "Avahi resolver failure: %s"
-msgstr ""
+msgstr "Avahi resolveri viga: %s"
 
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr ""
+msgstr "„%s“ tüüpi teenuse sirvimine „%s“ domeenis ei õnnestunud: %s"
 
 #: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178
@@ -406,12 +406,12 @@ msgstr "puudub"
 #: ../avahi-ui/avahi-ui.c:649
 #, c-format
 msgid "Avahi domain browser failure: %s"
-msgstr "Avahi domeeni sirvija tõrge: %s"
+msgstr "Avahi domeeni sirvija viga: %s"
 
 #: ../avahi-ui/avahi-ui.c:684
 #, c-format
 msgid "Failed to read Avahi domain: %s"
-msgstr "Tõrge Avahi domeeni lugemisel: %s"
+msgstr "Viga Avahi domeeni lugemisel: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
@@ -420,21 +420,21 @@ msgstr ""
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
 msgid "Failed to connect to Avahi server: %s"
-msgstr ""
+msgstr "Avahi serveriga ühendamine ei õnnestunud: %s"
 
 #: ../avahi-ui/avahi-ui.c:735
 msgid "Browsing for services on <b>local network</b>:"
-msgstr ""
+msgstr "Sirvin teenuseid <b>kohtvõrgus</b>:"
 
 #: ../avahi-ui/avahi-ui.c:737
 #, c-format
 msgid "Browsing for services in domain <b>%s</b>:"
-msgstr ""
+msgstr "Sirvin teenuseid domeenis <b>%s</b>:"
 
 #: ../avahi-ui/avahi-ui.c:773
 #, c-format
 msgid "Failed to create browser for %s: %s"
-msgstr ""
+msgstr "„%s“ objekti sirvija loomine ei õnnestunud: %s"
 
 #: ../avahi-ui/avahi-ui.c:907
 #, c-format
@@ -726,7 +726,7 @@ msgstr "Teenuse lisamine nurjus: %s\n"
 #: ../avahi-utils/avahi-publish.c:140
 #, c-format
 msgid "Failed to add subtype '%s': %s\n"
-msgstr ""
+msgstr "„%s“ alamtüübi lisamine ei õnnestunud: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:191
 #, c-format

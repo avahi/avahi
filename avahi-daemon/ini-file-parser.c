@@ -825,16 +825,14 @@ int avahi_ini_load_all_config(DaemonConfig *config, const char *main_config_file
     int r = -1;
 
     avahi_log_debug("Loading main conf: '%s'", main_config_file);
-    r = avahi_ini_file_parse(config, main_config_file);
-    if (r < 0) {
+    if (avahi_ini_file_parse(config, main_config_file) < 0) {
         avahi_log_error("Could not parse main file: '%s'", main_config_file);
-        return r;
+        goto finish;
     }
 
     snprintf_count = snprintf(confd_path, sizeof(confd_path), "%s.d", main_config_file);
     if (snprintf_count >= sizeof(confd_path)) {
         avahi_log_error("File path of confd_path too long, truncated: '%s'", confd_path);
-        r = -1;
         goto finish;
     }
 
@@ -846,7 +844,6 @@ int avahi_ini_load_all_config(DaemonConfig *config, const char *main_config_file
             avahi_log_debug("- %s", confd_file);
             if (avahi_ini_file_parse(config, confd_file) < 0) {
                 avahi_log_error("Could not load conf.d file: '%s'", confd_file);
-                r = -1;
                 goto finish;
             }
         }

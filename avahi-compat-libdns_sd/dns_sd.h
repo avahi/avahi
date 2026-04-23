@@ -1250,8 +1250,8 @@ DNSServiceErrorType DNSSD_API DNSServiceQueryRecord
  *
  * flags:           Currently unused, reserved for future use.
  *
- * interfaceIndex:  If non-zero, specifies the interface of the record in question.
- *                  Passing 0 causes all instances of this record to be reconfirmed.
+ * interfaceIndex:  Specifies the interface of the record in question.
+ *                  Must not be kDNSServiceInterfaceIndexAny.
  *
  * fullname:        The resource record's full domain name.
  *

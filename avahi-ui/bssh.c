@@ -38,6 +38,34 @@
 
 #include "avahi-ui.h"
 
+#ifdef HAVE_GTK4
+typedef struct {
+    GMainLoop *loop;
+    gint response;
+} DialogRunData;
+
+static void dialog_response_cb(GtkDialog *dialog G_GNUC_UNUSED, gint response_id, gpointer user_data)
+{
+    DialogRunData *data = user_data;
+    /* Ignore GTK_RESPONSE_NONE ("Domain..." button); only quit on real close responses */
+    if (response_id == GTK_RESPONSE_NONE)
+        return;
+    data->response = response_id;
+    g_main_loop_quit(data->loop);
+}
+
+static gint run_dialog_until_response(GtkDialog *dialog)
+{
+    DialogRunData data = { g_main_loop_new(NULL, FALSE), GTK_RESPONSE_NONE };
+
+    g_signal_connect(dialog, "response", G_CALLBACK(dialog_response_cb), &data);
+    gtk_window_present(GTK_WINDOW(dialog));
+    g_main_loop_run(data.loop);
+    g_main_loop_unref(data.loop);
+    return data.response;
+}
+#endif
+
 typedef enum {
     COMMAND_HELP,
     COMMAND_SSH,
@@ -137,7 +165,11 @@ int main(int argc, char*argv[]) {
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
 
+#ifdef HAVE_GTK4
+    gtk_init();
+#else
     gtk_init(&argc, &argv);
+#endif
 
     switch (config.command) {
         case COMMAND_HELP:
@@ -169,7 +201,11 @@ int main(int argc, char*argv[]) {
 
     gtk_window_present(GTK_WINDOW(d));
 
+#ifdef HAVE_GTK4
+    if (run_dialog_until_response(GTK_DIALOG(d)) == GTK_RESPONSE_ACCEPT) {
+#else
     if (gtk_dialog_run(GTK_DIALOG(d)) == GTK_RESPONSE_ACCEPT) {
+#endif
         char a[AVAHI_ADDRESS_STR_MAX], *u = NULL, *n = NULL;
         char *h = NULL, *t = NULL;
         const AvahiStringList *txt;
@@ -188,7 +224,11 @@ int main(int argc, char*argv[]) {
             char p[AVAHI_DOMAIN_NAME_MAX+16];
             snprintf(p, sizeof(p), "%s:%u", h, aui_service_dialog_get_port(AUI_SERVICE_DIALOG(d))-5900);
 
+#ifdef HAVE_GTK4
+            gtk_window_destroy(GTK_WINDOW(d));
+#else
             gtk_widget_destroy(d);
+#endif
 
             g_print("vncviewer %s\n", p);
             execlp("xvncviewer", "xvncviewer", p, NULL);
@@ -212,7 +252,11 @@ int main(int argc, char*argv[]) {
                 avahi_free(value);
             }
 
+#ifdef HAVE_GTK4
+            gtk_window_destroy(GTK_WINDOW(d));
+#else
             gtk_widget_destroy(d);
+#endif
 
             if (u) {
                 g_print("ssh -p %s -l %s %s\n", p, u, h);
@@ -245,7 +289,11 @@ int main(int argc, char*argv[]) {
         g_free(n);
 
     } else {
+#ifdef HAVE_GTK4
+        gtk_window_destroy(GTK_WINDOW(d));
+#else
         gtk_widget_destroy(d);
+#endif
 
         g_print(_("Canceled.\n"));
     }

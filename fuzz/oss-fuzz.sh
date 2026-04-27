@@ -74,9 +74,9 @@ sed -i 's/check_inconsistencies=yes/check_inconsistencies=no/' common/acx_pthrea
 
 if ! ./autogen.sh \
     --disable-stack-protector --disable-qt3 --disable-qt4 --disable-qt5 --disable-gtk \
-    --disable-gtk3 --disable-dbus --disable-gdbm --disable-libdaemon --disable-python \
-    --disable-manpages --disable-mono --disable-monodoc --disable-glib --disable-gobject \
-    --disable-libevent --disable-libsystemd; then
+    --disable-gtk3 --disable-gtk4 --disable-dbus --disable-gdbm --disable-libdaemon \
+    --disable-python --disable-manpages --disable-mono --disable-monodoc \
+    --disable-glib --disable-gobject --disable-libevent --disable-libsystemd; then
     cat config.log
     exit 1
 fi

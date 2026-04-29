@@ -380,10 +380,9 @@ struct dump_data {
 
 static void dump_callback(void* key, void* data, void* userdata) {
     AvahiCacheEntry *e = data;
-    AvahiKey *k = key;
     struct dump_data *dump_data = userdata;
 
-    assert(k);
+    assert(key);
     assert(e);
     assert(data);
 

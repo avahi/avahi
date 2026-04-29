@@ -785,6 +785,7 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
     }
 
     assert(found_addr);
+    (void)found_addr;
 
     return p;
 
@@ -908,6 +909,8 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
 
     assert(found_iface);
     assert(found_ttl);
+    (void)found_iface;
+    (void)found_ttl;
 
     return p;
 

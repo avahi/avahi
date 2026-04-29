@@ -176,8 +176,10 @@ int avahi_binary_domain_cmp(const char *a, const char *b) {
 
         p = avahi_unescape_label(&a, ca, sizeof(ca));
         assert(p);
+        (void)p;
         p = avahi_unescape_label(&b, cb, sizeof(cb));
         assert(p);
+        (void)p;
 
         if ((r = strcmp(ca, cb)))
             return r;
@@ -202,6 +204,7 @@ int avahi_domain_ends_with(const char *domain, const char *suffix) {
 
         r = avahi_unescape_label(&domain, dummy, sizeof(dummy));
         assert(r);
+        (void)r;
     }
 }
 

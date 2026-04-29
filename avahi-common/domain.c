@@ -239,8 +239,10 @@ int avahi_domain_equal(const char *a, const char *b) {
 
         r = avahi_unescape_label(&a, ca, sizeof(ca));
         assert(r);
+        (void)r;
         r = avahi_unescape_label(&b, cb, sizeof(cb));
         assert(r);
+        (void)r;
 
         if (strcasecmp(ca, cb))
             return 0;
@@ -430,6 +432,7 @@ unsigned avahi_domain_hash(const char *s) {
 
         r = avahi_unescape_label(&s, c, sizeof(c));
         assert(r);
+        (void)r;
 
         for (p = c; *p; p++)
             hash = 31 * hash + tolower(*p);
@@ -463,6 +466,7 @@ int avahi_service_name_join(char *p, size_t size, const char *name, const char *
         char *e = escaped_name, *r;
         r = avahi_escape_label(name, strlen(name), &e, &l);
         assert(r);
+        (void)r;
     }
 
     if (!(avahi_normalize_name(type, normalized_type, sizeof(normalized_type))))

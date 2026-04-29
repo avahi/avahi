@@ -36,7 +36,7 @@ jobs:
           - runner: ubuntu-24.04
             env: { CC: "gcc", VALGRIND: "true", CFLAGS: "-g -O0 -DNDEBUG" }
           - runner: ubuntu-24.04
-            env: { CC: "clang", ASAN_UBSAN: "true", CFLAGS: "-g -O0 -DNDEBUG" }
+            env: { CC: "clang", ASAN_UBSAN: "true", CFLAGS: "-g -O0 -DNDEBUG -ftrivial-auto-var-init=pattern" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

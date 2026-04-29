@@ -44,29 +44,38 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     uint8_t rdata[AVAHI_DNS_RDATA_MAX];
     size_t l;
     int res;
+    uint8_t *resp;
 
     p = avahi_dns_packet_new(0);
 
-    assert(avahi_dns_packet_append_name(p, a = "Ahello.hello.hello.de."));
-    assert(avahi_dns_packet_append_name(p, b = "Bthis is a test.hello.de."));
-    assert(avahi_dns_packet_append_name(p, c = "Cthis\\.is\\.a\\.test\\.with\\.dots.hello.de."));
-    assert(avahi_dns_packet_append_name(p, d = "Dthis\\\\is another test.hello.de."));
+    resp = avahi_dns_packet_append_name(p, a = "Ahello.hello.hello.de.");
+    assert(resp);
+    resp = avahi_dns_packet_append_name(p, b = "Bthis is a test.hello.de.");
+    assert(resp);
+    resp = avahi_dns_packet_append_name(p, c = "Cthis\\.is\\.a\\.test\\.with\\.dots.hello.de.");
+    assert(resp);
+    resp = avahi_dns_packet_append_name(p, d = "Dthis\\\\is another test.hello.de.");
+    assert(resp);
 
     avahi_hexdump(AVAHI_DNS_PACKET_DATA(p), p->size);
 
-    assert(avahi_dns_packet_consume_name(p, t, sizeof(t)) == 0);
+    res = avahi_dns_packet_consume_name(p, t, sizeof(t));
+    assert(res == 0);
     avahi_log_debug(">%s<", t);
     assert(avahi_domain_equal(a, t));
 
-    assert(avahi_dns_packet_consume_name(p, t, sizeof(t)) == 0);
+    res = avahi_dns_packet_consume_name(p, t, sizeof(t));
+    assert(res == 0);
     avahi_log_debug(">%s<", t);
     assert(avahi_domain_equal(b, t));
 
-    assert(avahi_dns_packet_consume_name(p, t, sizeof(t)) == 0);
+    res = avahi_dns_packet_consume_name(p, t, sizeof(t));
+    assert(res == 0);
     avahi_log_debug(">%s<", t);
     assert(avahi_domain_equal(c, t));
 
-    assert(avahi_dns_packet_consume_name(p, t, sizeof(t)) == 0);
+    res = avahi_dns_packet_consume_name(p, t, sizeof(t));
+    assert(res == 0);
     avahi_log_debug(">%s<", t);
     assert(avahi_domain_equal(d, t));
 
@@ -81,7 +90,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     r->data.hinfo.os = avahi_strdup("BAR");
 
     /* Serialize it into a blob */
-    assert((l = avahi_rdata_serialize(r, rdata, sizeof(rdata))) != (size_t) -1);
+    l = avahi_rdata_serialize(r, rdata, sizeof(rdata));
+    assert(l != (size_t) -1);
 
     /* Print it */
     avahi_hexdump(rdata, l);
@@ -89,7 +99,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     /* Create a new record and fill in the data from the blob */
     r2 = avahi_record_new(r->key, AVAHI_DEFAULT_TTL);
     assert(r2);
-    assert(avahi_rdata_parse(r2, rdata, l) >= 0);
+    res = avahi_rdata_parse(r2, rdata, l);
+    assert(res >= 0);
 
     /* Compare both versions */
     assert(avahi_record_equal_no_ttl(r, r2));
@@ -101,7 +112,8 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     r = avahi_record_new_full("foobar", 77, 77, AVAHI_DEFAULT_TTL);
     assert(r);
 
-    assert(r->data.generic.data = avahi_memdup("HALLO", r->data.generic.size = 5));
+    r->data.generic.data = avahi_memdup("HALLO", r->data.generic.size = 5);
+    assert(r->data.generic.data);
 
     m = avahi_record_to_string(r);
     assert(m);

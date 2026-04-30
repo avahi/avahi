@@ -35,7 +35,10 @@ if [[ "$OS" == omnios ]]; then
 fi
 
 if [[ "$VALGRIND" == true ]]; then
-    export LOG_COMPILER="valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1"
+    LOG_COMPILER="libtool --mode=execute \
+        valgrind -s --suppressions=$(pwd)/.github/workflows/unit-tests.supp \
+        --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1"
+    export LOG_COMPILER
 fi
 
 asan_ubsan_reports_detected() {

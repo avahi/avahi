@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2026-04-19 07:45+0000\n"
+"PO-Revision-Date: 2026-04-29 12:03+0000\n"
 "Last-Translator: Priit Jõerüüt "
 "<jrtkbfdr@users.noreply.translate.fedoraproject.org>\n"
 "Language-Team: Estonian <https://translate.fedoraproject.org/projects/avahi/"
@@ -415,7 +415,7 @@ msgstr "Viga Avahi domeeni lugemisel: %s"
 
 #: ../avahi-ui/avahi-ui.c:706
 msgid "Browse service type list is empty!"
-msgstr ""
+msgstr "Sirvitavate teenuste tüüpide loend on tühi!"
 
 #: ../avahi-ui/avahi-ui.c:717
 #, c-format
@@ -509,7 +509,7 @@ msgstr "Liiga palju argumente\n"
 
 #: ../avahi-ui/bssh.c:149
 msgid "Choose Shell Server"
-msgstr "Kesta serveri valimine"
+msgstr "Vali kesta server"
 
 #: ../avahi-ui/bssh.c:149 ../avahi-ui/bssh.c:156 ../avahi-ui/bssh.c:161
 msgid "C_onnect"
@@ -606,34 +606,34 @@ msgstr "avahi_domain_browser_new() ebaõnnestus: %s\n"
 #: ../avahi-utils/avahi-resolve.c:280 ../avahi-utils/avahi-set-host-name.c:168
 #, c-format
 msgid "Failed to query version string: %s\n"
-msgstr ""
+msgstr "Versioonisõne päringu tegemine ei õnnestunud: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:540 ../avahi-utils/avahi-publish.c:399
 #: ../avahi-utils/avahi-resolve.c:285 ../avahi-utils/avahi-set-host-name.c:173
 #: ../avahi-utils/avahi-set-host-name.c:189
 #, c-format
 msgid "Failed to query host name: %s\n"
-msgstr ""
+msgstr "Hostinime päringu tegemine ei õnnestunud: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:544 ../avahi-utils/avahi-publish.c:403
 #: ../avahi-utils/avahi-resolve.c:289 ../avahi-utils/avahi-set-host-name.c:177
 #, c-format
 msgid "Server version: %s; Host name: %s\n"
-msgstr ""
+msgstr "Serveri versioon: %s; hostinimi: %s\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:549
 #, c-format
 msgid "E Ifce Prot Domain\n"
-msgstr ""
+msgstr "Sndm Liides Prot Domeen\n"
 
 #. Translators: This is a column heading with abbreviations for
 #. *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain
 #: ../avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr ""
+msgstr "Sndm Liides Prot % - %-20s Domeen\n"
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163
@@ -646,13 +646,13 @@ msgstr "Ühendus on katkestatud, proovin uuesti...\n"
 #: ../avahi-utils/avahi-resolve.c:272 ../avahi-utils/avahi-set-host-name.c:160
 #, c-format
 msgid "Failed to create client object: %s\n"
-msgstr ""
+msgstr "Klientobjekti loomine ei õnnestunud: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:604 ../avahi-utils/avahi-publish.c:175
 #: ../avahi-utils/avahi-resolve.c:143 ../avahi-utils/avahi-set-host-name.c:59
 #, c-format
 msgid "Client failure, exiting: %s\n"
-msgstr ""
+msgstr "Kliendiviga, lõpetan töö: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:623 ../avahi-utils/avahi-publish.c:206
 #, c-format
@@ -691,7 +691,7 @@ msgstr "Liiga vähe argumente\n"
 #: ../avahi-utils/avahi-resolve.c:264 ../avahi-utils/avahi-set-host-name.c:152
 #, c-format
 msgid "Failed to create simple poll object.\n"
-msgstr ""
+msgstr "Lihtsa pollimisobjekti loomine ei õnnestunud.\n"
 
 #: ../avahi-utils/avahi-publish.c:76
 #, c-format
@@ -711,7 +711,7 @@ msgstr "Nimede kokkupõrge, valitakse uus nimi '%s'.\n"
 #: ../avahi-utils/avahi-publish.c:114
 #, c-format
 msgid "Failed to create entry group: %s\n"
-msgstr ""
+msgstr "Sisendgrupi loomine ei õnnestunud: %s\n"
 
 #: ../avahi-utils/avahi-publish.c:124
 #, c-format

@@ -22,16 +22,22 @@ else
     OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 fi
 
-if [[ "$OS" =~ (alpine|netbsd|omnios) ]]; then
+if [[ "$OS" =~ (alpine|netbsd|omnios|openbsd) ]]; then
     NSS_MDNS=false
 fi
 
-if [[ "$OS" =~ (freebsd|netbsd|omnios) ]]; then
+if [[ "$OS" =~ (freebsd|netbsd|omnios|openbsd) ]]; then
     MAKE=gmake
 fi
 
 if [[ "$OS" == omnios ]]; then
     PATH="/opt/local/sbin:/opt/local/bin:$PATH"
+fi
+
+if [[ "$OS" == openbsd ]]; then
+    export AUTOCONF_VERSION=2.72
+    export AUTOMAKE_VERSION=1.18
+    export MALLOC_OPTIONS=CFGJRSUX
 fi
 
 if [[ "$VALGRIND" == true ]]; then
@@ -173,6 +179,10 @@ case "$1" in
         pkg install gcc14
         install_dfuzzer
         ;;
+    install-build-deps-openbsd)
+        pkg_add -U "autoconf-${AUTOCONF_VERSION}p0" "automake-${AUTOMAKE_VERSION}" dbus drill git glib2 \
+            gmake intltool libdaemon libtool socat xmltoman
+        ;;
     build)
         if [[ "$OS" == freebsd ]]; then
             # Do what USES="localbase:ldflags" do in FreeBSD Ports, namely:
@@ -185,6 +195,10 @@ case "$1" in
             export CFLAGS+=" -I/opt/local/include"
             export CPPFLAGS+=" -I/opt/local/include"
             export LDFLAGS+=" -L/opt/local/lib"
+        elif [[ "$OS" == openbsd ]]; then
+            export CFLAGS+=" -I/usr/local/include"
+            export CPPFLAGS+=" -I/usr/local/include"
+            export LDFLAGS+=" -L/usr/local/lib"
         fi
 
         if [[ "$ASAN_UBSAN" == true ]]; then
@@ -284,6 +298,27 @@ case "$1" in
                 "--disable-libevent"
                 "--disable-libsystemd"
                 "--disable-manpages"
+                "--disable-mono"
+                "--disable-python"
+                "--disable-qt3"
+                "--disable-qt4"
+                "--disable-qt5"
+            )
+        elif [[ "$OS" == openbsd ]]; then
+            autogen_args+=(
+                "--prefix=/usr/local"
+                "--runstatedir=/var/run"
+                "--sysconfdir=/etc"
+                "--with-distro=none"
+                "--enable-tests"
+                "--disable-autoipd"
+                "--disable-compat-howl"
+                "--disable-gdbm"
+                "--disable-gobject"
+                "--disable-gtk"
+                "--disable-gtk3"
+                "--disable-libevent"
+                "--disable-libsystemd"
                 "--disable-mono"
                 "--disable-python"
                 "--disable-qt3"
@@ -431,7 +466,7 @@ EOL
 EOL
 
         $MAKE install
-        if [[ ! "$OS" =~ (netbsd|omnios) ]]; then
+        if [[ ! "$OS" =~ (netbsd|omnios|openbsd) ]]; then
             ldconfig
         fi
 
@@ -472,6 +507,10 @@ EOL
             groupadd avahi
             useradd -m -g avahi avahi
             svcadm restart dbus
+        elif [[ "$OS" == openbsd ]]; then
+            groupadd avahi
+            useradd -m -g avahi avahi
+            rcctl -d start messagebus
         else
             adduser --system --group avahi
             systemctl reload dbus

@@ -92,6 +92,9 @@ jobs:
           - os: 'omnios'
             version: 'r151056'
             env: { CC: "gcc" }
+          - os: 'openbsd'
+            version: '7.8'
+            env: { CC: "clang" }
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout

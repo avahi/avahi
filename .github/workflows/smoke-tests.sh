@@ -9,8 +9,22 @@ export LD_PRELOAD=${LD_PRELOAD:-}
 export NSS_MDNS_BUILD_DIR=
 export ASAN_RT_PATH=
 
+# On OpenBSD LD_PRELOAD= is handled differently so it
+# should be unset to prevent all the things from failing with
+#
+# LD_PRELOAD= avahi-daemon -c
+# ld.so: avahi-daemon: can't preload library ''
+# Killed                     LD_PRELOAD= avahi-daemon -c
+#
+# LD_PRELOAD is needed in the ASan/UBSan nss-mdns tests and
+# they are just skipped on OpenBSD but they should be reworked
+# to run the part where IsNSSSupportAvailable is tested.
+if [[ "$OS" == openbsd ]]; then
+    unset LD_PRELOAD
+fi
+
 runstatedir=/run
-if [[ "$OS" =~ (freebsd|netbsd|omnios) ]]; then
+if [[ "$OS" =~ (freebsd|netbsd|omnios|openbsd) ]]; then
     runstatedir=/var/run
 fi
 sysconfdir=/etc
@@ -219,7 +233,9 @@ check_rlimit_nofile() {
     [[ "$_rlimit_nofile" == "$_rlimit_nofile_conf" ]]
 }
 
-install_nss_mdns
+if [[ "$OS" != openbsd ]]; then
+    install_nss_mdns
+fi
 
 run avahi-daemon -h
 run avahi-daemon -V
@@ -231,7 +247,9 @@ if [[ "$WITH_DBUS" == true ]]; then
     done
 fi
 
-run_nss_tests
+if [[ "$OS" != openbsd ]]; then
+    run_nss_tests
+fi
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
     if [[ "$VALGRIND" == true ]]; then
@@ -259,7 +277,7 @@ fi
 if [[ "$WITH_DBUS" == true ]]; then
     run ./avahi-client/client-test
 
-    if [[ ! "$OS" =~ (alpine|omnios) ]]; then
+    if [[ ! "$OS" =~ (alpine|omnios|openbsd) ]]; then
         run ./avahi-compat-howl/address-test
     fi
 
@@ -269,7 +287,7 @@ if [[ "$WITH_DBUS" == true ]]; then
 
     run ./examples/glib-integration
 
-    if [[ ! "$OS" =~ (freebsd|netbsd|omnios) ]]; then
+    if [[ ! "$OS" =~ (freebsd|netbsd|omnios|openbsd) ]]; then
         run ./tests/c-plus-plus-test
     fi
 fi
@@ -281,7 +299,9 @@ for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_l
     run ./avahi-core/cname-test $test_case
 done
 
-run_nss_tests
+if [[ "$OS" != openbsd ]]; then
+    run_nss_tests
+fi
 
 # make sure avahi picks up services it's notified about
 cat <<'EOL' >"$sysconfdir/avahi/services/test-notifications.service"

@@ -7,14 +7,14 @@
 # Mattias Põldaru <mahfiaz@gmail.com>, 2011, 2012
 # Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2026.
 # Priit Jõerüüt <jrtkbfdr@users.noreply.translate.fedoraproject.org>, 2026.
+# Evgeny Vereshchagin <evvers@ya.ru>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2026-04-29 12:03+0000\n"
-"Last-Translator: Priit Jõerüüt "
-"<jrtkbfdr@users.noreply.translate.fedoraproject.org>\n"
+"PO-Revision-Date: 2026-05-05 11:32+0000\n"
+"Last-Translator: Evgeny Vereshchagin <evvers@ya.ru>\n"
 "Language-Team: Estonian <https://translate.fedoraproject.org/projects/avahi/"
 "master/et/>\n"
 "Language: et\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 5.17.1\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -633,7 +633,7 @@ msgstr "Sndm Liides Prot Domeen\n"
 #: ../avahi-utils/avahi-browse.c:553
 #, c-format
 msgid "E Ifce Prot %-*s %-20s Domain\n"
-msgstr "Sndm Liides Prot % - %-20s Domeen\n"
+msgstr ""
 
 #. We have been disconnected, so let reconnect
 #: ../avahi-utils/avahi-browse.c:585 ../avahi-utils/avahi-publish.c:163

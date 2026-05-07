@@ -584,7 +584,10 @@ int avahi_send_dns_packet_ipv6(
     struct msghdr msg;
     struct iovec io;
     struct cmsghdr *cmsg;
-    size_t cmsg_data[(CMSG_SPACE(sizeof(struct in6_pktinfo))/sizeof(size_t)) + 1];
+    union {
+        uint8_t cmsg_data[CMSG_SPACE(sizeof(struct in6_pktinfo))];
+        struct cmsghdr hdr;
+    } u;
 
     assert(fd >= 0);
     assert(p);
@@ -610,12 +613,12 @@ int avahi_send_dns_packet_ipv6(
     if (interface > 0 || src_address) {
         struct in6_pktinfo *pkti;
 
-        memset(cmsg_data, 0, sizeof(cmsg_data));
-        msg.msg_control = cmsg_data;
-        msg.msg_controllen = CMSG_LEN(sizeof(struct in6_pktinfo));
+        memset(u.cmsg_data, 0, sizeof(u.cmsg_data));
+        msg.msg_control = u.cmsg_data;
+        msg.msg_controllen = sizeof(u.cmsg_data);
 
         cmsg = CMSG_FIRSTHDR(&msg);
-        cmsg->cmsg_len = msg.msg_controllen;
+        cmsg->cmsg_len = CMSG_LEN(sizeof(struct in6_pktinfo));
         cmsg->cmsg_level = IPPROTO_IPV6;
         cmsg->cmsg_type = IPV6_PKTINFO;
 

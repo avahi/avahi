@@ -239,6 +239,19 @@ static int test_confd_setup_write_main_conf_file(void) {
     return write_file(dest_file, content);
 }
 
+static int test_confd_setup_write_main_conf_file_malformed(void) {
+    char dest_file[PATH_MAX*2];
+    const char *content =
+        "# This file is part of avahi.\n"
+        "\n"
+        "[server]\n"
+        "host-\n";
+
+    snprintf(dest_file, sizeof(dest_file), "%s/avahi-daemon.conf", test_confd_temp_dir);
+
+    return write_file(dest_file, content);
+}
+
 static int test_confd_setup_create_confd(void) {
     char confd_dir[PATH_MAX*2];
 
@@ -356,7 +369,49 @@ finish:
     return r;
 }
 
-static int test_avahi_ini_file_parse_malformed(void) {
+static int test_avahi_ini_file_load_longer_than_path_max(void) {
+    int r = -1;
+    char dest_file[PATH_MAX*2];
+    char longname[PATH_MAX];
+    int longname_len = -1;
+    DaemonConfig config = {0};
+
+    print_test_name(__func__);
+
+    if (test_confd_setup_create_temp_dir() < 0) {
+        avahi_log_error("error: problem creating temporary directory '%s'", test_confd_temp_dir);
+        goto finish;
+    }
+
+    /* Calculate how long longname needs to be: subtracting from PATH_MAX
+     * strlen(dir), and 2 for separator and null terminator */
+    longname_len = PATH_MAX - strlen(test_confd_temp_dir) - 2;
+
+    memset(longname, 'a', longname_len);
+    longname[longname_len-5] = '.';
+    longname[longname_len-4] = 'c';
+    longname[longname_len-3] = 'o';
+    longname[longname_len-2] = 'n';
+    longname[longname_len-1] = 'f';
+    longname[longname_len] = '\0';
+
+    snprintf(dest_file, sizeof(dest_file), "%s/%s", test_confd_temp_dir, longname);
+
+    if (avahi_ini_load_all_config(&config, dest_file) >= 0) {
+        avahi_log_error("error: trying to load file with too long a filename did not return error");
+        goto finish;
+    }
+
+    r = 0;
+
+finish:
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (r >= 0 ? "OK" : "FAIL"));
+
+    return r;
+}
+
+static int test_avahi_ini_file_parse_malformed_1(void) {
     int r = -1;
     DaemonConfig config = {0};
     char dest_file[PATH_MAX*2];
@@ -379,6 +434,37 @@ static int test_avahi_ini_file_parse_malformed(void) {
 
     snprintf(dest_file, sizeof(dest_file), "%s/malformed.conf", test_confd_temp_dir);
     if (avahi_ini_file_parse(&config, dest_file) >= 0) {
+        avahi_log_error("error: trying to parse malformed file did not return error");
+        goto finish;
+    }
+
+    r = 0;
+
+finish:
+    avahi_daemon_config_free(&config);
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (r >= 0 ? "OK" : "FAIL"));
+
+    return r;
+}
+
+static int test_avahi_ini_file_parse_malformed_2(void) {
+    int r = -1;
+    DaemonConfig config = {0};
+
+    print_test_name(__func__);
+
+    if (test_confd_setup_create_temp_dir() < 0) {
+        avahi_log_error("error: problem creating temporary directory '%s'", test_confd_temp_dir);
+        goto finish;
+    }
+
+    if (test_confd_setup_write_main_conf_file_malformed() < 0) {
+        avahi_log_error("error: problem writing main conf file to temporary directory '%s'", test_confd_temp_dir);
+        goto finish;
+    }
+
+    if (test_confd_helper_load_all_config(&config) >= 0) {
         avahi_log_error("error: trying to parse malformed file did not return error");
         goto finish;
     }
@@ -526,6 +612,7 @@ static int test_confd_invalid_conf_filenames(void) {
     int confd_file_count;
     char conf_file_as_dir[PATH_MAX*2];
     char conf_file_as_symlink[PATH_MAX*2];
+    char conf_file_as_fifo[PATH_MAX*2];
 
     print_test_name(__func__);
 
@@ -548,6 +635,8 @@ static int test_confd_invalid_conf_filenames(void) {
         return -1;
     if (write_confd_file("test-66-invald.foo", "# test file") < 0)
         return -1;
+    if (write_confd_file("test-77-empty.conf", "") < 0)
+        return -1;
 
     /* creating .conf as directory, should be ignored */
     snprintf(conf_file_as_dir, sizeof(conf_file_as_dir), "%s/avahi-daemon.conf.d/test-99-is-dir.conf", test_confd_temp_dir);
@@ -556,10 +645,17 @@ static int test_confd_invalid_conf_filenames(void) {
         return -1;
     }
 
-    /* creating .conf as directory, should be ignored */
+    /* creating .conf as symlink */
     snprintf(conf_file_as_symlink, sizeof(conf_file_as_symlink), "%s/avahi-daemon.conf.d/test-zz-is-symlink-to-11.conf", test_confd_temp_dir);
     if (symlink("test-11.conf", conf_file_as_symlink) != 0) {
         avahi_log_error("error: creating symlink '%s': %s", conf_file_as_symlink, strerror(errno));
+        return -1;
+    }
+
+    /* creating .conf as fifo */
+    snprintf(conf_file_as_fifo, sizeof(conf_file_as_fifo), "%s/avahi-daemon.conf.d/test-88-fifo.conf", test_confd_temp_dir);
+    if (mkfifo(conf_file_as_fifo, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) != 0) {
+        avahi_log_error("error: creating fifo '%s': %s", conf_file_as_fifo, strerror(errno));
         return -1;
     }
 
@@ -582,6 +678,165 @@ static int test_confd_invalid_conf_filenames(void) {
         confd_files_sorted[i] = NULL;
     }
     avahi_free(confd_files_sorted);
+
+finish:
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (r >= 0 ? "OK" : "FAIL"));
+
+    return r;
+}
+
+static int test_confd_invalid_conf_filenames_all_discarded(void) {
+    int r = -1;
+    DaemonConfig config = {0};
+
+    print_test_name(__func__);
+
+    if (test_confd_setup() < 0) {
+        avahi_log_error("error: cannot set-up conf.d tests");
+        goto finish;
+    }
+
+    if (write_confd_file("test-22-invald.conf~", "# test file\n[server]\nuse_ipv4=no\n") < 0)
+        return -1;
+    if (write_confd_file("test-44-invald.conf.bak", "# test file\n[server]\nuse_ipv4=no") < 0)
+        return -1;
+    if (write_confd_file("test-66-invald.foo", "# test file\n# test file") < 0)
+        return -1;
+
+    if (test_confd_helper_load_all_config(&config) < 0) {
+        avahi_log_error("error: problem loading config");
+        goto finish;
+    }
+
+    /* check the expected values */
+    if (config.server_config.use_ipv4 == 1) {
+        r = 0;
+        avahi_log_info("info: config values match the expectations");
+    } else
+        avahi_log_error("error: some config values do not match the expectations");
+
+finish:
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (r >= 0 ? "OK" : "FAIL"));
+
+    return r;
+}
+
+static int test_confd_invalid_conf_symlink_1(void) {
+    int r = -1;
+    char confd_path[PATH_MAX*2];
+    char **confd_files_sorted;
+    int confd_file_count;
+    char conf_file_as_symlink[PATH_MAX*2];
+    DaemonConfig config = {0};
+
+    print_test_name(__func__);
+
+    if (test_confd_setup() < 0) {
+        avahi_log_error("error: cannot set-up conf.d tests");
+        goto finish;
+    }
+
+    if (write_confd_file("test-11.conf", "# test file") < 0)
+        return -1;
+
+    /* creating .conf as symlink, should be ignored */
+    snprintf(conf_file_as_symlink, sizeof(conf_file_as_symlink), "%s/avahi-daemon.conf.d/test-symlink-to-non-existing.conf", test_confd_temp_dir);
+    if (symlink("non-existing.conf", conf_file_as_symlink) != 0) {
+        avahi_log_error("error: creating symlink '%s': %s", conf_file_as_symlink, strerror(errno));
+        return -1;
+    }
+
+    confd_file_count = 0;
+    snprintf(confd_path, sizeof(confd_path), "%s/avahi-daemon.conf.d", test_confd_temp_dir);
+    confd_files_sorted = avahi_ini_list_confd_files_sorted(confd_path, &confd_file_count);
+
+    if (confd_file_count == 1 &&
+        strcmp(basename(confd_files_sorted[ 0]), "test-11.conf") == 0) {
+        avahi_log_info("info: conf.d files present and sorted as expected");
+        r = 0;
+    } else
+        avahi_log_error("error: error getting conf.d number (1 expected, got %i) or sorting", confd_file_count);
+
+    for (int i = 0; i < confd_file_count; i++) {
+        avahi_free(confd_files_sorted[i]);
+        confd_files_sorted[i] = NULL;
+    }
+    avahi_free(confd_files_sorted);
+
+    if (test_confd_helper_load_all_config(&config) < 0) {
+        avahi_log_error("error: problem loading config");
+        goto finish;
+    }
+
+    /* check the expected values */
+    if (config.server_config.use_ipv4 == 1) {
+        r = 0;
+        avahi_log_info("info: config values match the expectations");
+    } else
+        avahi_log_error("error: some config values do not match the expectations");
+
+finish:
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (r >= 0 ? "OK" : "FAIL"));
+
+    return r;
+}
+
+static int test_confd_invalid_conf_symlink_2(void) {
+    int r = -1;
+    char confd_path[PATH_MAX*2];
+    char **confd_files_sorted;
+    int confd_file_count;
+    char conf_file_as_symlink[PATH_MAX*2];
+    DaemonConfig config = {0};
+
+    print_test_name(__func__);
+
+    if (test_confd_setup() < 0) {
+        avahi_log_error("error: cannot set-up conf.d tests");
+        goto finish;
+    }
+
+    if (write_confd_file("test-11.conf", "# test file") < 0)
+        return -1;
+
+    /* creating .conf as symlink, should be ignored */
+    snprintf(conf_file_as_symlink, sizeof(conf_file_as_symlink), "%s/avahi-daemon.conf.d/test-symlink-to-itself.conf", test_confd_temp_dir);
+    if (symlink("test-symlink-to-itself.conf", conf_file_as_symlink) != 0) {
+        avahi_log_error("error: creating symlink '%s': %s", conf_file_as_symlink, strerror(errno));
+        return -1;
+    }
+
+    confd_file_count = 0;
+    snprintf(confd_path, sizeof(confd_path), "%s/avahi-daemon.conf.d", test_confd_temp_dir);
+    confd_files_sorted = avahi_ini_list_confd_files_sorted(confd_path, &confd_file_count);
+
+    if (confd_file_count == 1 &&
+        strcmp(basename(confd_files_sorted[ 0]), "test-11.conf") == 0) {
+        avahi_log_info("info: conf.d files present and sorted as expected");
+        r = 0;
+    } else
+        avahi_log_error("error: error getting conf.d number (1 expected, got %i) or sorting", confd_file_count);
+
+    for (int i = 0; i < confd_file_count; i++) {
+        avahi_free(confd_files_sorted[i]);
+        confd_files_sorted[i] = NULL;
+    }
+    avahi_free(confd_files_sorted);
+
+    if (test_confd_helper_load_all_config(&config) < 0) {
+        avahi_log_error("error: problem loading config");
+        goto finish;
+    }
+
+    /* check the expected values */
+    if (config.server_config.use_ipv4 == 1) {
+        r = 0;
+        avahi_log_info("info: config values match the expectations");
+    } else
+        avahi_log_error("error: some config values do not match the expectations");
 
 finish:
     test_confd_teardown();
@@ -1530,11 +1785,16 @@ typedef struct {
 static funcptr func_array[] = {
     test_print_config,
     test_avahi_ini_file_load_non_existing,
-    test_avahi_ini_file_parse_malformed,
+    test_avahi_ini_file_load_longer_than_path_max,
+    test_avahi_ini_file_parse_malformed_1,
+    test_avahi_ini_file_parse_malformed_2,
     test_confd_no_confd,
     test_confd_empty,
     test_confd_expect_files,
     test_confd_invalid_conf_filenames,
+    test_confd_invalid_conf_filenames_all_discarded,
+    test_confd_invalid_conf_symlink_1,
+    test_confd_invalid_conf_symlink_2,
     test_confd_invalid_contents,
     test_confd_browse_domains,
     test_confd_browse_domains_duplicate,

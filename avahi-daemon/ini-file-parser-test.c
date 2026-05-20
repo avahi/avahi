@@ -510,7 +510,7 @@ finish:
     return r;
 }
 
-static int test_confd_empty(void) {
+static int test_confd_empty_1(void) {
     int r = -1;
     DaemonConfig config = {0};
 
@@ -520,6 +520,43 @@ static int test_confd_empty(void) {
         avahi_log_error("error: cannot set-up conf.d tests");
         goto finish;
     }
+
+    if (test_confd_helper_load_all_config(&config) < 0) {
+        avahi_log_error("error: problem loading config");
+        goto finish;
+    }
+
+    /* check the expected values */
+    if ((config.server_config.use_ipv4 == 1)
+        && (config.server_config.use_ipv6 == 1)
+        && (config.server_config.ratelimit_interval == 1000000)
+        && (config.server_config.ratelimit_burst == 1000)) {
+        r = 0;
+        avahi_log_info("info: config values match the expectations");
+    } else
+        avahi_log_error("error: some config values do not match the expectations");
+
+finish:
+    avahi_daemon_config_free(&config);
+    test_confd_teardown();
+    avahi_log_info("Test finished: %s", (r >= 0 ? "OK" : "FAIL"));
+
+    return r;
+}
+
+static int test_confd_empty_2(void) {
+    int r = -1;
+    DaemonConfig config = {0};
+
+    print_test_name(__func__);
+
+    if (test_confd_setup() < 0) {
+        avahi_log_error("error: cannot set-up conf.d tests");
+        goto finish;
+    }
+
+    if (write_confd_file("test-77-empty.conf", "") < 0)
+        return -1;
 
     if (test_confd_helper_load_all_config(&config) < 0) {
         avahi_log_error("error: problem loading config");
@@ -1789,7 +1826,8 @@ static funcptr func_array[] = {
     test_avahi_ini_file_parse_malformed_1,
     test_avahi_ini_file_parse_malformed_2,
     test_confd_no_confd,
-    test_confd_empty,
+    test_confd_empty_1,
+    test_confd_empty_2,
     test_confd_expect_files,
     test_confd_invalid_conf_filenames,
     test_confd_invalid_conf_filenames_all_discarded,

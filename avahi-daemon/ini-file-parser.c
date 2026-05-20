@@ -463,7 +463,7 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                             char cleaned[AVAHI_DOMAIN_NAME_MAX];
 
                             if (!avahi_normalize_name(*t, cleaned, sizeof(cleaned))) {
-                                avahi_log_error("Invalid domain name \"%s\" for key \"%s\" in group \"%s\"\n", *t, p->key, g->name);
+                                avahi_log_error("Invalid domain name \"%s\" for key \"%s\" in group \"%s\"", *t, p->key, g->name);
                                 avahi_strfreev(e);
                                 goto finish;
                             }
@@ -622,7 +622,7 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                     c->n_entries_per_entry_group_max = k;
 #endif
                 } else {
-                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"", p->key, g->name);
                     goto finish;
                 }
             }
@@ -677,7 +677,7 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                 else if (strcasecmp(p->key, "publish-aaaa-on-ipv4") == 0)
                     c->server_config.publish_aaaa_on_ipv4 = is_yes(p->value);
                 else {
-                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"", p->key, g->name);
                     goto finish;
                 }
             }
@@ -690,7 +690,7 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                 if (strcasecmp(p->key, "enable-wide-area") == 0)
                     c->server_config.enable_wide_area = is_yes(p->value);
                 else {
-                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"", p->key, g->name);
                     goto finish;
                 }
             }
@@ -732,7 +732,7 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                     avahi_free(line);
                 }
                 else {
-                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"", p->key, g->name);
                     goto finish;
                 }
             }
@@ -765,17 +765,17 @@ int avahi_ini_file_parse(DaemonConfig *c, const char *config_file) {
                     c->rlimit_nproc_set = 1;
                     c->rlimit_nproc = atoi(p->value);
 #else
-                    avahi_log_error("Ignoring configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    avahi_log_error("Ignoring configuration key \"%s\" in group \"%s\"", p->key, g->name);
 #endif
                 } else {
-                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"\n", p->key, g->name);
+                    avahi_log_error("Invalid configuration key \"%s\" in group \"%s\"", p->key, g->name);
                     goto finish;
                 }
 
             }
 
         } else {
-            avahi_log_error("Invalid configuration file group \"%s\".\n", g->name);
+            avahi_log_error("Invalid configuration file group \"%s\".", g->name);
             goto finish;
         }
     }

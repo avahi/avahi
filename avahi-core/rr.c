@@ -450,7 +450,7 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
                 goto fail;
 
             if (!(copy->data.hinfo.cpu = avahi_strdup(r->data.hinfo.cpu))) {
-                avahi_free(r->data.hinfo.os);
+                avahi_free(copy->data.hinfo.os);
                 goto fail;
             }
             break;

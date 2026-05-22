@@ -35,17 +35,16 @@
 static void drop_incomplete_utf8(char *c) {
     char *e;
 
-    e = strchr(c, 0) - 1;
+    e = strchr(c, 0);
 
-    while (e >= c) {
+    while (e > c) {
+        e--;
 
         if (avahi_utf8_valid(c))
             break;
 
         assert(*e & 128);
         *e = 0;
-
-        e--;
     }
 }
 

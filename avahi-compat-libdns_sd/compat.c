@@ -708,7 +708,13 @@ static void service_resolver_callback(
             ret = avahi_service_name_join(full_name, sizeof(full_name), name, type, domain);
             assert(ret == AVAHI_OK);
 
-            strcat(full_name, ".");
+            {
+                size_t flen = strlen(full_name);
+                if (flen + 1 < sizeof(full_name)) {
+                    full_name[flen]     = '.';
+                    full_name[flen + 1] = 0;
+                }
+            }
 
             sdref->service_resolver_callback(sdref, 0, interface, kDNSServiceErr_NoError, full_name, host_name, htons(port), l, (unsigned char*) p, sdref->context);
 

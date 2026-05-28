@@ -65,6 +65,7 @@ typedef struct Config {
     char *domain;
     char *stype;
     int ignore_local;
+    AvahiProtocol protocol;
     Command command;
     int resolve;
     int no_fail;
@@ -152,35 +153,37 @@ static char *make_printable(const char *from, char *to) {
 }
 
 static void print_service_line(Config *config, char c, AvahiIfIndex interface, AvahiProtocol protocol, const char *name, const char *type, const char *domain, int nl) {
-    char ifname[IF_NAMESIZE];
+    if (config->protocol == AVAHI_PROTO_UNSPEC || config->protocol == protocol) {
+        char ifname[IF_NAMESIZE];
 
 #if defined(HAVE_GDBM)
-    if (!config->no_db_lookup)
-        type = stdb_lookup(type);
+        if (!config->no_db_lookup)
+            type = stdb_lookup(type);
 #endif
 
-    if (config->parsable) {
-        char sn[AVAHI_DOMAIN_NAME_MAX], *e = sn;
-        size_t l = sizeof(sn);
+        if (config->parsable) {
+            char sn[AVAHI_DOMAIN_NAME_MAX], *e = sn;
+            size_t l = sizeof(sn);
 
-        printf("%c;%s;%s;%s;%s;%s%s",
-               c,
-               interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : _("n/a"),
-               protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
-               avahi_escape_label(name, strlen(name), &e, &l), type, domain, nl ? "\n" : "");
+            printf("%c;%s;%s;%s;%s;%s%s",
+                   c,
+                   interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : _("n/a"),
+                   protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
+                   avahi_escape_label(name, strlen(name), &e, &l), type, domain, nl ? "\n" : "");
 
-    } else {
-        char label[AVAHI_LABEL_MAX];
-        make_printable(name, label);
+        } else {
+            char label[AVAHI_LABEL_MAX];
+            make_printable(name, label);
 
-        printf("%c %6s %4s %-*s %-20s %s\n",
-               c,
-               interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : _("n/a"),
-               protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
-               n_columns-35, label, type, domain);
+            printf("%c %6s %4s %-*s %-20s %s\n",
+                   c,
+                   interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : _("n/a"),
+                   protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
+                   n_columns-35, label, type, domain);
+        }
+
+        fflush(stdout);
     }
-
-    fflush(stdout);
 }
 
 static void service_resolver_callback(
@@ -202,44 +205,46 @@ static void service_resolver_callback(
 
     assert(r);
     assert(i);
+    assert(i->config);
 
-    switch (event) {
-        case AVAHI_RESOLVER_FOUND: {
-            char address[AVAHI_ADDRESS_STR_MAX], *t;
+    if (i->config->protocol == AVAHI_PROTO_UNSPEC || i->config->protocol == protocol) {
+        switch (event) {
+            case AVAHI_RESOLVER_FOUND: {
+                char address[AVAHI_ADDRESS_STR_MAX], *t;
 
-            avahi_address_snprint(address, sizeof(address), a);
+                avahi_address_snprint(address, sizeof(address), a);
 
-            t = avahi_string_list_to_string(txt);
+                t = avahi_string_list_to_string(txt);
 
-            print_service_line(i->config, '=', interface, protocol, name, type, domain, 0);
+                print_service_line(i->config, '=', interface, protocol, name, type, domain, 0);
 
-            if (i->config->parsable)
-                printf(";%s;%s;%u;%s\n",
-                       host_name,
-                       address,
-                       port,
-                       t);
-            else
-                printf("   hostname = [%s]\n"
-                       "   address = [%s]\n"
-                       "   port = [%u]\n"
-                       "   txt = [%s]\n",
-                       host_name,
-                       address,
-                       port,
-                       t);
+                if (i->config->parsable)
+                    printf(";%s;%s;%u;%s\n",
+                           host_name,
+                           address,
+                           port,
+                           t);
+                else
+                    printf("   hostname = [%s]\n"
+                           "   address = [%s]\n"
+                           "   port = [%u]\n"
+                           "   txt = [%s]\n",
+                           host_name,
+                           address,
+                           port,
+                           t);
 
-            avahi_free(t);
+                avahi_free(t);
 
-            break;
+                break;
+            }
+
+            case AVAHI_RESOLVER_FAILURE:
+
+                fprintf(stderr, _("Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"), name, type, domain, avahi_strerror(avahi_client_errno(client)));
+                break;
         }
-
-        case AVAHI_RESOLVER_FAILURE:
-
-            fprintf(stderr, _("Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"), name, type, domain, avahi_strerror(avahi_client_errno(client)));
-            break;
     }
-
 
     avahi_service_resolver_free(i->resolver);
     i->resolver = NULL;
@@ -368,7 +373,7 @@ static void browse_service_type(Config *c, const char *stype, const char *domain
     if (!(b = avahi_service_browser_new(
               client,
               AVAHI_IF_UNSPEC,
-              AVAHI_PROTO_UNSPEC,
+              c->protocol,
               stype,
               domain,
               0,
@@ -435,7 +440,7 @@ static void browse_all(Config *c) {
     if (!(b = avahi_service_type_browser_new(
               client,
               AVAHI_IF_UNSPEC,
-              AVAHI_PROTO_UNSPEC,
+              c->protocol,
               c->domain,
               0,
               service_type_browser_callback,
@@ -509,7 +514,7 @@ static void browse_domains(Config *c) {
     if (!(b = avahi_domain_browser_new(
               client,
               AVAHI_IF_UNSPEC,
-              AVAHI_PROTO_UNSPEC,
+              c->protocol,
               c->domain,
               AVAHI_DOMAIN_BROWSER_BROWSE,
               0,
@@ -653,6 +658,8 @@ static void help(FILE *f, const char *argv0) {
               "    -t --terminate       Terminate after dumping a more or less complete list\n"
               "    -c --cache           Terminate after dumping all entries from the cache\n"
               "    -l --ignore-local    Ignore local services\n"
+              "    -4 --ipv4            Browse and show only IPv4 services\n"
+              "    -6 --ipv6            Browse and show only IPv6 services\n"
               "    -r --resolve         Resolve services found\n"
               "    -f --no-fail         Don't fail if the daemon is not available\n"
               "    -p --parsable        Output in parsable format\n"),
@@ -666,7 +673,7 @@ static void help(FILE *f, const char *argv0) {
 }
 
 static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {
-    int o;
+    int ipv4, ipv6, o;
 
     static const struct option long_options[] = {
         { "help",           no_argument,       NULL, 'h' },
@@ -678,9 +685,11 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "terminate",      no_argument,       NULL, 't' },
         { "cache",          no_argument,       NULL, 'c' },
         { "ignore-local",   no_argument,       NULL, 'l' },
+        { "ipv4",           no_argument,       NULL, '4' },
+        { "ipv6",           no_argument,       NULL, '6' },
         { "resolve",        no_argument,       NULL, 'r' },
         { "no-fail",        no_argument,       NULL, 'f' },
-        { "parsable",      no_argument,       NULL, 'p' },
+        { "parsable",       no_argument,       NULL, 'p' },
 #if defined(HAVE_GDBM)
         { "no-db-lookup",   no_argument,       NULL, 'k' },
         { "dump-db",        no_argument,       NULL, 'b' },
@@ -700,11 +709,15 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         c->parsable = 0;
     c->domain = c->stype = NULL;
 
+    ipv4 = 0;
+    ipv6 = 0;
+    c->protocol = AVAHI_PROTO_UNSPEC;  /* IPv4 and IPv6 */
+
 #if defined(HAVE_GDBM)
     c->no_db_lookup = 0;
 #endif
 
-    while ((o = getopt_long(argc, argv, "hVd:avtclrDfp"
+    while ((o = getopt_long(argc, argv, "hVd:avtcl46rDfp"
 #if defined(HAVE_GDBM)
                             "kb"
 #endif
@@ -738,6 +751,12 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
                 break;
             case 'l':
                 c->ignore_local = 1;
+                break;
+            case '4':
+                ipv4 = 1;
+                break;
+            case '6':
+                ipv6 = 1;
                 break;
             case 'r':
                 c->resolve = 1;
@@ -774,6 +793,15 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     if (optind < argc) {
         fprintf(stderr, _("Too many arguments\n"));
         return -1;
+    }
+
+    /* IPv4 only? */
+    if (ipv4 && !ipv6) {
+        c->protocol = AVAHI_PROTO_INET;
+    }
+    /* IPv6 only? */
+    else if (!ipv4 && ipv6) {
+        c->protocol = AVAHI_PROTO_INET6;
     }
 
     return 0;

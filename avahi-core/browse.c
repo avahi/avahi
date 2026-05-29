@@ -36,8 +36,6 @@
 #include "domain-util.h"
 #include "rr-util.h"
 
-#define AVAHI_LOOKUPS_PER_BROWSER_MAX 15
-
 struct AvahiSRBLookup {
     AvahiSRecordBrowser *record_browser;
 
@@ -155,6 +153,19 @@ static AvahiSRBLookup* lookup_ref(AvahiSRBLookup *l) {
     return l;
 }
 
+static int avahi_lookup_match(const AvahiSRBLookup *l, AvahiIfIndex interface, AvahiProtocol protocol, AvahiLookupFlags flags, const AvahiKey *key) {
+    if (l->interface != AVAHI_IF_UNSPEC && l->interface != interface)
+        return 0;
+
+    if (l->protocol != AVAHI_PROTO_UNSPEC && l->protocol != protocol)
+        return 0;
+
+    if (flags != 0 && l->flags != flags)
+        return 0;
+
+    return avahi_key_equal(l->key, key);
+}
+
 static AvahiSRBLookup *lookup_find(
     AvahiSRecordBrowser *b,
     AvahiIfIndex interface,
@@ -168,11 +179,7 @@ static AvahiSRBLookup *lookup_find(
 
     for (l = b->lookups; l; l = l->lookups_next) {
 
-        if ((l->interface == AVAHI_IF_UNSPEC || l->interface == interface) &&
-            (l->interface == AVAHI_PROTO_UNSPEC || l->protocol == protocol) &&
-            l->flags == flags &&
-            avahi_key_equal(l->key, key))
-
+        if (avahi_lookup_match(l, interface, protocol, flags, key))
             return l;
     }
 
@@ -292,7 +299,7 @@ static void lookup_multicast_callback(
             if (r->key->clazz == AVAHI_DNS_CLASS_IN &&
                 r->key->type == AVAHI_DNS_TYPE_CNAME)
                 /* It's a CNAME record, so let's drop that query! */
-                lookup_drop_cname(l, interface, protocol, 0, r);
+                lookup_drop_cname(l, interface, protocol, b->flags, r);
             else {
                 /* It's a normal record, so let's call the user callback */
 
@@ -480,10 +487,7 @@ static void lookup_drop_cname(AvahiSRBLookup *l, AvahiIfIndex interface, AvahiPr
 
         assert(n);
 
-        if ((n->interface == AVAHI_IF_UNSPEC || n->interface == interface) &&
-            (n->interface == AVAHI_PROTO_UNSPEC || n->protocol == protocol) &&
-            n->flags == flags &&
-            avahi_key_equal(n->key, k))
+        if (avahi_lookup_match(n, interface, protocol, flags, k))
             break;
     }
 

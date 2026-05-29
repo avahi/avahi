@@ -32,7 +32,7 @@
 #include "log.h"
 #include "rr-util.h"
 
-static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
+void avahi_cache_remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
 
     assert(c);
@@ -94,7 +94,7 @@ void avahi_cache_free(AvahiCache *c) {
     assert(c);
 
     while (c->entries)
-        remove_entry(c, c->entries);
+        avahi_cache_remove_entry(c, c->entries);
     assert(c->n_entries == 0);
 
     avahi_hashmap_free(c->hashmap);
@@ -180,7 +180,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         case AVAHI_CACHE_GOODBYE_FINAL:
         case AVAHI_CACHE_REPLACE_FINAL:
 
-            remove_entry(e->cache, e);
+            avahi_cache_remove_entry(e->cache, e);
 
             e = NULL;
 /*         avahi_log_debug("Removing entry from cache due to expiration (%s)", txt); */
@@ -434,7 +434,7 @@ void avahi_cache_flush(AvahiCache *c) {
     assert(c);
 
     while (c->entries)
-        remove_entry(c, c->entries);
+        avahi_cache_remove_entry(c, c->entries);
 }
 
 /*** Passive observation of failure ***/

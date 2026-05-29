@@ -39,6 +39,7 @@
 static AvahiCache *cache = NULL;
 static AvahiServer *server = NULL;
 static const AvahiPoll *poll_api;
+static AvahiResolverEvent resolver_event = AVAHI_RESOLVER_FAILURE;
 
 static void (*avahi_test_case_function)(void) = NULL;
 
@@ -81,8 +82,27 @@ static void avahi_test_add_cname(const char *src, const char *dst) {
     avahi_log_debug("Added CNAME record to cache: %s -> %s", src, dst);
 }
 
+static void avahi_test_expire_cname(const char *src, const char *dst) {
+    AvahiCacheEntry *e;
+    for (e = cache->entries; e; e = e->entry_next) {
+        if (e->record->key->type != AVAHI_DNS_TYPE_CNAME)
+            continue;
+        if (strcmp(src, e->record->key->name) || strcmp(dst, e->record->data.cname.name))
+            continue;
+        avahi_cache_remove_entry(cache, e);
+        return;
+    }
+}
+
 static void self_loop(void) {
     avahi_test_add_cname("X.local", "X.local");
+}
+
+static void self_loop_answer(void) {
+    avahi_test_add_cname("X.local", "X.local");
+    avahi_test_add_cname("X.local", "Y.local");
+    avahi_test_add_a("Y.local", "192.168.50.99", 2);
+    assert(resolver_event == AVAHI_RESOLVER_FOUND);
 }
 
 static void retransmit_cname(void) {
@@ -156,6 +176,37 @@ static void cname_answer(void) {
     avahi_test_add_a("Y.local", "192.168.50.99", 2);
 }
 
+static void cname_answer_removed(void) {
+    avahi_test_add_cname("X.local", "Y.local");
+    avahi_test_cache_flush();
+    avahi_test_add_a("Y.local", "192.168.50.99", 2);
+    assert(resolver_event != AVAHI_RESOLVER_FOUND);
+}
+
+static void cname_max_reached(void) {
+    unsigned i;
+    char to[16];
+
+    for (i = 0; i < AVAHI_LOOKUPS_PER_BROWSER_MAX; i++) {
+        snprintf(to, sizeof(to), "Y%02u.local", i);
+        avahi_test_add_cname("X.local", to);
+    }
+
+    avahi_test_add_cname("X.local", "Z.local");
+    avahi_test_add_a("Z.local", "192.168.50.99", 2);
+    assert(resolver_event != AVAHI_RESOLVER_FOUND);
+}
+
+static void cname_answer_triangle_removed(void) {
+    avahi_test_add_cname("X.local", "Y.local");
+    avahi_test_add_cname("X.local", "Z.local");
+    avahi_test_add_cname("Z.local", "Y.local");
+
+    avahi_test_expire_cname("X.local", "Y.local");
+    avahi_test_add_a("Y.local", "192.168.50.99", 2);
+    assert(resolver_event == AVAHI_RESOLVER_FOUND);
+}
+
 static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void *userdata) {
     avahi_log_debug("server state: %i", state);
 
@@ -194,6 +245,7 @@ static void hnr_callback(
     if (a)
         avahi_address_snprint(t, sizeof(t), a);
 
+    resolver_event = event;
     avahi_log_debug("HNR: (%i.%i) <%s> -> %s [%s]", iface, protocol, hostname, a ? t : "n/a",
                     resolver_event_to_string(event));
 }
@@ -206,6 +258,7 @@ static void avahi_test_initialize(char *test_case) {
     assert(test_case);
 
     CHECK_TEST_CASE("self_loop", self_loop);
+    CHECK_TEST_CASE("self_loop_answer", self_loop_answer);
     CHECK_TEST_CASE("retransmit_cname", retransmit_cname);
     CHECK_TEST_CASE("one_normal", one_normal);
     CHECK_TEST_CASE("one_loop", one_loop);
@@ -218,22 +271,30 @@ static void avahi_test_initialize(char *test_case) {
     CHECK_TEST_CASE("diamond", diamond);
     CHECK_TEST_CASE("cname_answer_diamond", cname_answer_diamond);
     CHECK_TEST_CASE("cname_answer", cname_answer);
+    CHECK_TEST_CASE("cname_answer_removed", cname_answer_removed);
+    CHECK_TEST_CASE("cname_max_reached", cname_max_reached);
+    CHECK_TEST_CASE("cname_answer_triangle_removed", cname_answer_triangle_removed);
 
     assert(avahi_test_case_function);
 }
 
 int main(int argc, char *argv[]) {
-    int error;
+    int error, flags;
     struct timeval tv;
 
     AvahiSHostNameResolver *hnr;
     AvahiServerConfig config;
     AvahiSimplePoll *simple_poll;
 
-    if (argc < 2) {
-        printf("Usage: %s test_name", argv[0]);
-        return 1;
-    }
+    if (argc != 3)
+        goto usage;
+
+    if (!strcmp(argv[2], "any-transport"))
+        flags = 0;
+    else if (!strcmp(argv[2], "multicast"))
+        flags = AVAHI_LOOKUP_USE_MULTICAST;
+    else
+        goto usage;
 
     avahi_test_initialize(argv[1]);
 
@@ -248,7 +309,7 @@ int main(int argc, char *argv[]) {
     avahi_cache_flush(cache);
 
     hnr = avahi_s_host_name_resolver_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "X.local", AVAHI_PROTO_UNSPEC,
-                                             AVAHI_LOOKUP_USE_MULTICAST, hnr_callback, NULL);
+                                             flags, hnr_callback, NULL);
     avahi_s_host_name_resolver_start(hnr);
 
     avahi_elapse_time(&tv, 1000 * 5, 0);
@@ -268,4 +329,9 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
+
+usage:
+    printf("Usage: %s test_name <any-transport|multicast>", argv[0]);
+
+    return 1;
 }

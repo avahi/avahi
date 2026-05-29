@@ -140,7 +140,10 @@ void avahi_hw_interface_update_rrs(AvahiHwInterface *hw, int remove_rrs) {
 
             avahi_unescape_label(&p, unescaped, sizeof(unescaped));
             avahi_format_mac_address(mac, sizeof(mac), hw->mac_address, hw->mac_address_size);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
             snprintf(name, sizeof(name), "%s [%s]", unescaped, mac);
+#pragma GCC diagnostic pop
 
             if (avahi_server_add_service(m->server, hw->entry_group, hw->index, AVAHI_PROTO_UNSPEC, 0, name, "_workstation._tcp", NULL, NULL, 9, NULL) < 0) {
                 avahi_log_warn(__FILE__": avahi_server_add_service() failed: %s", avahi_strerror(m->server->error));

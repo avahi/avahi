@@ -622,7 +622,7 @@ static void XMLCALL xml_end(void *data, AVAHI_GCC_UNUSED const char *el) {
             assert(u->service);
             if (u->txt_key != NULL) {
                 size_t key_len = strlen(u->txt_key);
-                uint8_t *value_buf;
+                uint8_t *value_buf = NULL;
                 uint8_t *free_value_buf = NULL;
                 size_t value_buf_len = 0;
 

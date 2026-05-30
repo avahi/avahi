@@ -91,6 +91,12 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     avahi_alternative_service_name("\xc1\x0a");
 
+    /* These reach drop_incomplete_utf8() with an empty string (via
+       avahi_strndup(s, 0)), which used to form a pointer before the start
+       of the buffer. */
+    avahi_free(avahi_alternative_service_name(" #1"));
+    avahi_free(avahi_alternative_host_name("-2"));
+
     avahi_free(r);
     return 0;
 }

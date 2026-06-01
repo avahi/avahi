@@ -80,7 +80,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['freebsd']
-        version: ['14.3', '15.0']
+        version: ['14.4', '15.0']
         env:
           - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
           - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
@@ -90,10 +90,10 @@ jobs:
             version: '10.1'
             env: { CC: "gcc" }
           - os: 'omnios'
-            version: 'r151056'
+            version: 'r151058'
             env: { CC: "gcc" }
           - os: 'openbsd'
-            version: '7.8'
+            version: '7.9'
             env: { CC: "clang" }
     env: ${{ matrix.env }}
     steps:
@@ -101,7 +101,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: cross-platform-actions/action@233156312992f3f169d8d0c633c21d12a5d30455 # v1.0.0
+      - uses: cross-platform-actions/action@be3d7e9ff5c8770b9c51b1a8c8c5446e1cad7cf9 # v1.2.0
         with:
           operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}

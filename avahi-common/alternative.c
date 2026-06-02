@@ -69,7 +69,7 @@ char *avahi_alternative_host_name(const char *s) {
         e++;
 
         for (p = e; *p; p++)
-            if (!isdigit(*p)) {
+            if (!isdigit((unsigned char) *p)) {
                 e = NULL;
                 break;
             }
@@ -151,7 +151,7 @@ char *avahi_alternative_service_name(const char *s) {
             e = n + 2;
 
         for (p = e; *p; p++)
-            if (!isdigit(*p)) {
+            if (!isdigit((unsigned char) *p)) {
                 e = NULL;
                 break;
             }

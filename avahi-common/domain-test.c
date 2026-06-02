@@ -68,6 +68,14 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     printf("%u = %u\n", avahi_domain_hash("ccc\\065aa.aa\\.b\\\\."), avahi_domain_hash("cccAaa.aa\\.b\\\\"));
 
+    /* High-bit bytes (valid UTF-8 names) reach isdigit()/tolower(); these must
+       be passed as unsigned char, not as a (possibly negative) plain char. */
+    {
+        const char *q = "x\\\303y";
+        assert(avahi_unescape_label(&q, t, sizeof(t)) == NULL);
+    }
+    assert(avahi_domain_hash("\303\244\303\266.local") == avahi_domain_hash("\303\244\303\266.local"));
+
 
     avahi_service_name_join(t, sizeof(t), "foo.foo.foo \\.", "_http._tcp", "test.local");
     printf("<%s>\n", t);

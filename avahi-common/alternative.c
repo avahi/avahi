@@ -118,12 +118,16 @@ char *avahi_alternative_host_name(const char *s) {
         avahi_free(c);
     }
 
+    if (!r)
+        return NULL;
+
     alt = alternative;
     len = sizeof(alternative);
     ret = avahi_escape_label(r, strlen(r), &alt, &len);
 
     avahi_free(r);
-    r = avahi_strdup(ret);
+    if (!(r = avahi_strdup(ret)))
+        return NULL;
 
     assert(avahi_is_valid_host_name(r));
 
@@ -195,6 +199,9 @@ char *avahi_alternative_service_name(const char *s) {
         r = avahi_strdup_printf("%s #2", c);
         avahi_free(c);
     }
+
+    if (!r)
+        return NULL;
 
     assert(avahi_is_valid_service_name(r));
 

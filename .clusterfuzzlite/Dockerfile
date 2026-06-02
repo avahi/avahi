@@ -1,5 +1,6 @@
 FROM gcr.io/oss-fuzz-base/base-builder:ubuntu-24-04
 ENV MERGE_WITH_OSS_FUZZ_CORPORA=yes
+ENV TURN_ON_NALLOCFUZZ=yes
 COPY . $SRC/avahi
 WORKDIR $SRC/avahi
 COPY fuzz/oss-fuzz.sh $SRC/build.sh

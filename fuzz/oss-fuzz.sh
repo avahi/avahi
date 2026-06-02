@@ -44,6 +44,8 @@ export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
 
 export MERGE_WITH_OSS_FUZZ_CORPORA=${MERGE_WITH_OSS_FUZZ_CORPORA:-no}
 
+export TURN_ON_NALLOCFUZZ=${TURN_ON_NALLOCFUZZ:-no}
+
 if [[ -n "${FUZZING_ENGINE:-}" ]]; then
     apt-get update
     apt-get install -y autoconf gettext libtool m4 automake pkg-config libexpat-dev zipmerge
@@ -83,6 +85,20 @@ fi
 
 make -j"$(nproc)" V=1
 
+if [[ "$TURN_ON_NALLOCFUZZ" == yes ]]; then
+    # It's the official nallocfuzz repository but it can diverge
+    # from its battle-tested copy in Suricata. For example
+    # https://github.com/catenacyber/nallocfuzz/issues/6 is already
+    # addressed in Suricata.
+    git clone https://github.com/catenacyber/nallocfuzz
+    pushd nallocfuzz
+    git checkout 190f87c0b1d4250d03a8c92cc80184bd8241c83d
+    cp nallocinc.c ../fuzz
+    popd
+    CFLAGS="-DHAVE_NALLOCFUZZ $CFLAGS"
+    CXXFLAGS="-DHAVE_NALLOCFUZZ $CXXFLAGS"
+fi
+
 for f in fuzz/fuzz-*.c; do
     fuzz_target=$(basename "$f" .c)
     additional_obj_files=
@@ -108,6 +124,10 @@ for f in fuzz/fuzz-*.c; do
         $LIB_FUZZING_ENGINE \
         $additional_obj_files \
         "avahi-core/.libs/libavahi-core.a" "avahi-common/.libs/libavahi-common.a"
+
+    if [[ "$TURN_ON_NALLOCFUZZ" == yes ]] && grep nalloc_init "$f"; then
+        cp "$OUT/$fuzz_target" "$OUT/$fuzz_target-nallocfuzz"
+    fi
 done
 
 # Let's take the systemd public corpus here. It has been accumulating since 2018
@@ -119,9 +139,13 @@ if [[ "$MERGE_WITH_OSS_FUZZ_CORPORA" == "yes" ]]; then
     for f in "$OUT/"fuzz-*; do
         [[ -x "$f" ]] || continue
         fuzzer=$(basename "$f")
+        [[ "$fuzzer" =~ "-nallocfuzz" ]] && continue
         t=$(mktemp)
         if wget -O "$t" "https://storage.googleapis.com/avahi-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/avahi_${fuzzer}/public.zip"; then
             zipmerge "$OUT/${fuzzer}_seed_corpus.zip" "$t"
+            if [[ -x "$f-nallocfuzz" ]]; then
+                cp "$OUT/${fuzzer}_seed_corpus.zip" "$OUT/${fuzzer}-nallocfuzz_seed_corpus.zip"
+            fi
         fi
         rm -rf "$t"
     done

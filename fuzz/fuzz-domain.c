@@ -25,6 +25,25 @@
 #include "avahi-common/malloc.h"
 #include "avahi-common/domain.h"
 
+#ifdef HAVE_NALLOCFUZZ
+
+#include "nallocinc.c"
+
+static AvahiAllocator allocator = {
+    .malloc = malloc,
+    .free = free,
+    .realloc = realloc,
+    .calloc = calloc,
+};
+
+int LLVMFuzzerInitialize(int *argc, char ***argv) {
+    nalloc_init(*argv[0]);
+    if (strstr(*argv[0], "nallocfuzz"))
+        avahi_set_allocator(&allocator);
+    return 0;
+}
+
+#endif
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     char *s = NULL, *t = NULL;
@@ -34,6 +53,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     memcpy(s, data, size);
     s[size] = '\0';
+
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_start(data, size);
+#endif
 
     if ((t = avahi_normalize_name_strdup(s)))
         assert(avahi_domain_equal(s, t));
@@ -51,6 +74,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     avahi_free(t);
     avahi_free(s);
+
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_end();
+#endif
 
     return 0;
 }

@@ -170,5 +170,22 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     avahi_record_unref(r);
     avahi_record_unref(r2);
 
+    /* rdata larger than the 16 bit rdlength field must be rejected, not
+     * truncated mod 65536 and parsed as a shorter record */
+    r = avahi_record_new_full("test", 77, 77, AVAHI_DEFAULT_TTL);
+    assert(r);
+
+    m = avahi_malloc0(AVAHI_DNS_RDATA_MAX + 1);
+    assert(m);
+
+    res = avahi_rdata_parse(r, m, AVAHI_DNS_RDATA_MAX + 1);
+    assert(res < 0);
+
+    res = avahi_rdata_parse(r, m, AVAHI_DNS_RDATA_MAX);
+    assert(res >= 0);
+
+    avahi_free(m);
+    avahi_record_unref(r);
+
     return 0;
 }

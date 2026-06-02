@@ -860,6 +860,12 @@ int avahi_rdata_parse(AvahiRecord *record, const void* rdata, size_t size) {
     assert(record);
     assert(rdata);
 
+    /* rdlength is a 16 bit field on the wire and parse_rdata() takes it
+     * as a uint16_t, so anything bigger would be silently truncated and
+     * parsed as an unrelated length. Reject it instead. */
+    if (size > AVAHI_DNS_RDATA_MAX)
+        return -1;
+
     p.data = (void*) rdata;
     p.max_size = p.size = size;
     p.rindex = 0;

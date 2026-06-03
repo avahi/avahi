@@ -25,6 +25,25 @@
 #include "avahi-common/strlst.h"
 #include "avahi-common/utf8.h"
 
+#ifdef HAVE_NALLOCFUZZ
+
+#include "nallocinc.c"
+
+static AvahiAllocator allocator = {
+    .malloc = malloc,
+    .free = free,
+    .realloc = realloc,
+    .calloc = calloc,
+};
+
+int LLVMFuzzerInitialize(int *argc, char ***argv) {
+    nalloc_init(*argv[0]);
+    if (strstr(*argv[0], "nallocfuzz"))
+        avahi_set_allocator(&allocator);
+    return 0;
+}
+
+#endif
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     AvahiStringList *a = NULL, *b = NULL;
@@ -32,6 +51,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     char *t = NULL;
     size_t s, n;
     int ret;
+
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_start(data, size);
+#endif
 
     if (avahi_string_list_parse(data, size, &a) < 0)
         goto finish;
@@ -70,6 +93,10 @@ finish:
         avahi_string_list_free(b);
     if (a)
         avahi_string_list_free(a);
+
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_end();
+#endif
 
     return 0;
 }

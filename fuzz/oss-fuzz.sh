@@ -93,6 +93,22 @@ if [[ "$TURN_ON_NALLOCFUZZ" == yes ]]; then
     git clone https://github.com/catenacyber/nallocfuzz
     pushd nallocfuzz
     git checkout 190f87c0b1d4250d03a8c92cc80184bd8241c83d
+cat <<'EOL' >>nallocinc.c
+
+static AvahiAllocator allocator = {
+    .malloc = malloc,
+    .free = free,
+    .realloc = realloc,
+    .calloc = calloc,
+};
+
+int LLVMFuzzerInitialize(int *argc, char ***argv) {
+    nalloc_init(*argv[0]);
+    if (strstr(*argv[0], "nallocfuzz"))
+        avahi_set_allocator(&allocator);
+    return 0;
+}
+EOL
     cp nallocinc.c ../fuzz
     popd
     CFLAGS="-DHAVE_NALLOCFUZZ $CFLAGS"
@@ -125,7 +141,7 @@ for f in fuzz/fuzz-*.c; do
         $additional_obj_files \
         "avahi-core/.libs/libavahi-core.a" "avahi-common/.libs/libavahi-common.a"
 
-    if [[ "$TURN_ON_NALLOCFUZZ" == yes ]] && grep nalloc_init "$f"; then
+    if [[ "$TURN_ON_NALLOCFUZZ" == yes ]] && grep nalloc_start "$f"; then
         cp "$OUT/$fuzz_target" "$OUT/$fuzz_target-nallocfuzz"
     fi
 done

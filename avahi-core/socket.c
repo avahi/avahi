@@ -596,8 +596,11 @@ int avahi_send_dns_packet_ipv6(
 
     if (!dst_address)
         mdns_mcast_group_ipv6(&sa);
-    else
+    else {
         ipv6_address_to_sockaddr(&sa, dst_address, dst_port);
+        if (interface > 0 && IN6_IS_ADDR_LINKLOCAL(&sa.sin6_addr))
+            sa.sin6_scope_id = interface;
+    }
 
     memset(&io, 0, sizeof(io));
     io.iov_base = AVAHI_DNS_PACKET_DATA(p);

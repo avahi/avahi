@@ -73,6 +73,9 @@ jobs:
 
   bsd:
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: cpa.sh {0} --sync-files runner-to-vm
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.version }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-bsd
       cancel-in-progress: true
@@ -101,16 +104,17 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: cross-platform-actions/action@be3d7e9ff5c8770b9c51b1a8c8c5446e1cad7cf9 # v1.2.0
+      - name: Start VM
+        uses: cross-platform-actions/action@be3d7e9ff5c8770b9c51b1a8c8c5446e1cad7cf9 # v1.2.0
         with:
           operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}
           architecture: 'x86_64'
-          sync_files: 'runner-to-vm'
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
-          run: |
-            sudo -E .github/workflows/build.sh install-build-deps-${{ matrix.os }}
-            sudo -E .github/workflows/build.sh build
+      - name: Run commands
+        run: |
+          sudo -E .github/workflows/build.sh install-build-deps-${{ matrix.os }}
+          sudo -E .github/workflows/build.sh build
 
   alpine:
     runs-on: ubuntu-24.04

@@ -180,6 +180,7 @@ case "$1" in
         install_dfuzzer
         ;;
     install-build-deps-openbsd)
+        PKG_PATH="installpath:https://cdn.openbsd.org/%m" \
         pkg_add -U "autoconf-${AUTOCONF_VERSION}p0" "automake-${AUTOMAKE_VERSION}.1" dbus drill git glib2 \
             gmake intltool libdaemon libtool socat xmltoman
         ;;

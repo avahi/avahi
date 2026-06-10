@@ -57,6 +57,31 @@ static int bitcount (unsigned int n)
   return count ;
 }
 
+/*
+ * I got this function from GNU zsbra
+ */
+static int ip6_masklen (struct in6_addr netmask) {
+    int len = 0;
+    unsigned char val;
+    unsigned char *pnt;
+
+    pnt = (unsigned char *) & netmask;
+
+    while (len < 128 && (*pnt == 0xff)) {
+        len += 8;
+        pnt++;
+    }
+
+    if (len < 128) {
+        val = *pnt;
+        while (val) {
+            len++;
+            val <<= 1;
+        }
+    }
+    return len;
+}
+
 static void rtm_info(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 {
   AvahiHwInterface *hw;
@@ -179,7 +204,7 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
       case AF_INET6:
 	switch (1<<i) {
 	case RTA_NETMASK:
-	  prefixlen = bitcount((unsigned int)((struct sockaddr_in6 *)sa)->sin6_addr.s6_addr);
+	  prefixlen = ip6_masklen(((struct sockaddr_in6 *)sa)->sin6_addr);
 	  break;
 	case RTA_IFA:
 	  memcpy(raddr.data.data, &((struct sockaddr_in6 *)sa)->sin6_addr,  sizeof(struct in6_addr));
@@ -341,31 +366,6 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
 }
 
 #if defined (SIOCGLIFNUM) && defined(HAVE_STRUCT_LIFCONF) /* Solaris 8 and later; Sol 7? */
-/*
- * I got this function from GNU zsbra
- */
-static int ip6_masklen (struct in6_addr netmask) {
-    int len = 0;
-    unsigned char val;
-    unsigned char *pnt;
-
-    pnt = (unsigned char *) & netmask;
-
-    while (len < 128 && (*pnt == 0xff)) {
-        len += 8;
-        pnt++;
-    }
-
-    if (len < 128) {
-        val = *pnt;
-        while (val) {
-            len++;
-            val <<= 1;
-        }
-    }
-    return len;
-}
-
 static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, int fd, int count)
 {
     AvahiHwInterface *hw;

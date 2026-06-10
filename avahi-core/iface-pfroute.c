@@ -351,7 +351,7 @@ static int ip6_masklen (struct in6_addr netmask) {
 
     pnt = (unsigned char *) & netmask;
 
-    while ((*pnt == 0xff) && len < 128) {
+    while (len < 128 && (*pnt == 0xff)) {
         len += 8;
         pnt++;
     }

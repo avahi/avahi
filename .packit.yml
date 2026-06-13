@@ -12,8 +12,8 @@ csmock_args: --cppcheck-add-flag=--enable=style -t clang
 
 actions:
   post-upstream-clone:
-    # Use the Fedora Rawhide specfile
-    - "git clone https://src.fedoraproject.org/rpms/avahi .packit_rpm --depth=1"
+    # Use the Fedora Rawhide specfile based fork to add GTK4 support
+    - "git clone https://src.fedoraproject.org/forks/mikelo2/rpms/avahi.git .packit_rpm --depth=1"
     # Drop the "sources" file so rebase-helper doesn't think it's a dist-git
     - "rm -fv .packit_rpm/sources"
     # Drop all patches apart from avahi-0.6.30-mono-libdir.patch

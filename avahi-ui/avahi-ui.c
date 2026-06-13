@@ -755,7 +755,7 @@ static gboolean start_callback(gpointer data) {
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(d->priv->service_tree_view), FALSE);
     gtk_widget_show(d->priv->service_progress_bar);
 
-    if (d->priv->service_pulse_timeout <= 0)
+    if (d->priv->service_pulse_timeout == 0)
         d->priv->service_pulse_timeout = g_timeout_add(100, service_pulse_callback, d);
 
     for (i = 0; d->priv->browse_service_types[i]; i++)
@@ -1207,7 +1207,7 @@ static void aui_service_dialog_init(AuiServiceDialog *d) {
 static void restart_browsing(AuiServiceDialog *d) {
     g_return_if_fail(AUI_IS_SERVICE_DIALOG(d));
 
-    if (d->priv->start_idle <= 0)
+    if (d->priv->start_idle == 0)
         d->priv->start_idle = g_idle_add(start_callback, d);
 }
 

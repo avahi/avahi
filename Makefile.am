@@ -51,6 +51,7 @@ EXTRA_DIST = \
 	avahi-compat-howl.pc.in \
 	avahi-ui.pc.in \
 	avahi-ui-gtk3.pc.in \
+	avahi-ui-gtk4.pc.in \
 	doxygen_to_devhelp.xsl \
         common/introspection.m4
 
@@ -218,6 +219,13 @@ if HAVE_GTK3
 if HAVE_DBUS
 pkgconfig_DATA += avahi-ui-gtk3.pc
 CLEANFILES += avahi-ui-gtk3.pc
+endif
+endif
+
+if HAVE_GTK4
+if HAVE_DBUS
+pkgconfig_DATA += avahi-ui-gtk4.pc
+CLEANFILES += avahi-ui-gtk4.pc
 endif
 endif
 

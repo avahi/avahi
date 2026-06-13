@@ -805,9 +805,6 @@ int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
             for (j = 0; j < 16; j++) {
                 uint8_t m;
 
-                if (pl == 0)
-                    return 1;
-
                 if (pl >= 8) {
                     m = 0xFF;
                     pl -= 8;
@@ -818,6 +815,9 @@ int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
 
                 if ((a->data.ipv6.address[j] & m) != (ia->address.data.ipv6.address[j] & m))
                     break;
+
+                if (pl == 0)
+                    return 1;
             }
         }
     }

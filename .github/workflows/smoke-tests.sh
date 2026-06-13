@@ -388,8 +388,7 @@ run avahi-resolve -v -a "$ipv6addr"
 
 systemd-run -u avahi-test-publish-address avahi-publish -fvaR  "$h" "$ipv4addr"
 
-# ::1 isn't here due to https://github.com/avahi/avahi/issues/574
-for s in 127.0.0.1 224.0.0.251 ff02::fb; do
+for s in 127.0.0.1 224.0.0.251 ff02::fb ::1; do
    drill -p5353 "@$s" "$h" ANY
    drill -p5353 "@$s" "_services._dns-sd._udp.local" ANY
 done

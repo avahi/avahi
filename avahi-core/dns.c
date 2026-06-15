@@ -537,7 +537,9 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
             if (avahi_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
                 return -1;
 
-            r->data.ptr.name = avahi_strdup(buf);
+            if (!(r->data.ptr.name = avahi_strdup(buf)))
+                return -1;
+
             break;
 
 
@@ -549,7 +551,9 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
                 avahi_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
                 return -1;
 
-            r->data.srv.name = avahi_strdup(buf);
+            if (!(r->data.srv.name = avahi_strdup(buf)))
+                return -1;
+
             break;
 
         case AVAHI_DNS_TYPE_HINFO:
@@ -557,12 +561,15 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
             if (avahi_dns_packet_consume_string(p, buf, sizeof(buf)) < 0)
                 return -1;
 
-            r->data.hinfo.cpu = avahi_strdup(buf);
+            if (!(r->data.hinfo.cpu = avahi_strdup(buf)))
+                return -1;
 
             if (avahi_dns_packet_consume_string(p, buf, sizeof(buf)) < 0)
                 return -1;
 
-            r->data.hinfo.os = avahi_strdup(buf);
+            if (!(r->data.hinfo.os = avahi_strdup(buf)))
+                return -1;
+
             break;
 
         case AVAHI_DNS_TYPE_TXT:
@@ -602,7 +609,9 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
 
             if (rdlength > 0) {
 
-                r->data.generic.data = avahi_memdup(avahi_dns_packet_get_rptr(p), rdlength);
+                if (!(r->data.generic.data = avahi_memdup(avahi_dns_packet_get_rptr(p), rdlength)))
+                    return -1;
+
                 r->data.generic.size = rdlength;
 
                 if (avahi_dns_packet_skip(p, rdlength) < 0)

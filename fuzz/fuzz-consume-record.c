@@ -25,6 +25,10 @@
 #include "avahi-core/log.h"
 #include "avahi-core/rr-util.h"
 
+#ifdef HAVE_NALLOCFUZZ
+#include "nallocinc.c"
+#endif
+
 void log_function(AvahiLogLevel level, const char *txt) {}
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
@@ -42,6 +46,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     memcpy(AVAHI_DNS_PACKET_DATA(p), data, size);
     p->size = size;
 
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_start(data, size);
+#endif
+
     if (!(r = avahi_dns_packet_consume_record(p, NULL)))
         goto finish;
 
@@ -55,6 +63,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     avahi_record_get_estimate_size(r);
 
     avahi_free(avahi_record_to_string(r));
+
+#ifdef HAVE_NALLOCFUZZ
+    goto finish;
+#endif
 
     rdata_size = avahi_rdata_serialize(r, rdata, sizeof(rdata));
     assert(rdata_size != (size_t) -1);
@@ -106,6 +118,10 @@ finish:
         avahi_record_unref(r);
     if (p)
         avahi_dns_packet_free(p);
+
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_end();
+#endif
 
     return 0;
 }

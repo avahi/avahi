@@ -28,6 +28,10 @@
 #include "avahi-core/domain-util.h"
 #include "avahi-core/log.h"
 
+#ifdef HAVE_NALLOCFUZZ
+#include "nallocinc.c"
+#endif
+
 void log_function(AvahiLogLevel level, const char *txt) {}
 
 void domain_ends_with_mdns_suffix(const char *domain) {
@@ -89,6 +93,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     memcpy(AVAHI_DNS_PACKET_DATA(p1), data, size);
     p1->size = size;
 
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_start(data, size);
+#endif
+
     if (avahi_dns_packet_check_valid(p1) < 0)
         goto finish;
 
@@ -130,6 +138,10 @@ finish:
         avahi_dns_packet_free(p2);
     if (p1)
         avahi_dns_packet_free(p1);
+
+#ifdef HAVE_NALLOCFUZZ
+    nalloc_end();
+#endif
 
     return 0;
 }

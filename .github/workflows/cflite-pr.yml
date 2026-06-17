@@ -38,4 +38,5 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         fuzz-seconds: 600
         mode: 'code-change'
+        report-unreproducible-crashes: true
         sanitizer: ${{ matrix.sanitizer }}

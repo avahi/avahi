@@ -211,12 +211,16 @@ uint8_t* avahi_dns_packet_append_name(AvahiDnsPacket *p, const char *name) {
 
         if (!p->name_table)
             /* This works only for normalized domain names */
-            p->name_table = avahi_hashmap_new(avahi_string_hash, avahi_string_equal, avahi_free, NULL);
+            if (!(p->name_table = avahi_hashmap_new(avahi_string_hash, avahi_string_equal, avahi_free, NULL)))
+                goto fail;
 
         if (!(u = avahi_strdup(pname)))
-            avahi_log_error("avahi_strdup() failed.");
-        else
-            avahi_hashmap_insert(p->name_table, u, d);
+            goto fail;
+
+        if (avahi_hashmap_insert(p->name_table, u, d) < 0) {
+            avahi_free(u);
+            goto fail;
+        }
     }
 
     if (!(d = avahi_dns_packet_extend(p, 1)))

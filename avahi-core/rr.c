@@ -174,6 +174,11 @@ void avahi_record_unref(AvahiRecord *r) {
             case AVAHI_DNS_TYPE_AAAA:
                 break;
 
+            case AVAHI_DNS_TYPE_NSEC:
+                avahi_free(r->data.nsec.next_domain_name);
+                avahi_free(r->data.nsec.type_bitmap);
+                break;
+
             default:
                 avahi_free(r->data.generic.data);
         }
@@ -219,6 +224,8 @@ const char *avahi_dns_type_to_string(uint16_t type) {
             return "SOA";
         case AVAHI_DNS_TYPE_NS:
             return "NS";
+        case AVAHI_DNS_TYPE_NSEC:
+            return "NSEC";
         default:
             return NULL;
     }
@@ -285,6 +292,14 @@ char *avahi_record_to_string(const AvahiRecord *r) {
                      r->data.srv.weight,
                      r->data.srv.port,
                      r->data.srv.name);
+
+            break;
+
+        case AVAHI_DNS_TYPE_NSEC:
+
+            snprintf(t = buf, sizeof(buf), "%s [bitmap %u bytes]",
+                     r->data.nsec.next_domain_name,
+                     r->data.nsec.type_bitmap_size);
 
             break;
 
@@ -396,6 +411,11 @@ static int rdata_equal(const AvahiRecord *a, const AvahiRecord *b) {
         case AVAHI_DNS_TYPE_AAAA:
             return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address)) == 0;
 
+        case AVAHI_DNS_TYPE_NSEC:
+            return avahi_domain_equal(a->data.nsec.next_domain_name, b->data.nsec.next_domain_name) &&
+                a->data.nsec.type_bitmap_size == b->data.nsec.type_bitmap_size &&
+                (a->data.nsec.type_bitmap_size == 0 || memcmp(a->data.nsec.type_bitmap, b->data.nsec.type_bitmap, a->data.nsec.type_bitmap_size) == 0);
+
         default:
             return a->data.generic.size == b->data.generic.size &&
                 (a->data.generic.size == 0 || memcmp(a->data.generic.data, b->data.generic.data, a->data.generic.size) == 0);
@@ -467,6 +487,19 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
             copy->data.aaaa.address = r->data.aaaa.address;
             break;
 
+        case AVAHI_DNS_TYPE_NSEC:
+            if (!(copy->data.nsec.next_domain_name = avahi_strdup(r->data.nsec.next_domain_name)))
+                goto fail;
+            if (r->data.nsec.type_bitmap_size > 0) {
+                if (!(copy->data.nsec.type_bitmap = avahi_memdup(r->data.nsec.type_bitmap, r->data.nsec.type_bitmap_size))) {
+                    avahi_free(copy->data.nsec.next_domain_name);
+                    goto fail;
+                }
+            } else
+                copy->data.nsec.type_bitmap = NULL;
+            copy->data.nsec.type_bitmap_size = r->data.nsec.type_bitmap_size;
+            break;
+
         default:
             if (r->data.generic.size && !(copy->data.generic.data = avahi_memdup(r->data.generic.data, r->data.generic.size)))
                 goto fail;
@@ -524,6 +557,10 @@ size_t avahi_record_get_estimate_size(AvahiRecord *r) {
 
         case AVAHI_DNS_TYPE_AAAA:
             n += sizeof(AvahiIPv6Address);
+            break;
+
+        case AVAHI_DNS_TYPE_NSEC:
+            n += strlen(r->data.nsec.next_domain_name) + 1 + r->data.nsec.type_bitmap_size;
             break;
 
         default:
@@ -640,6 +677,31 @@ int avahi_record_lexicographical_compare(AvahiRecord *a, AvahiRecord *b) {
         case AVAHI_DNS_TYPE_AAAA:
             return memcmp(&a->data.aaaa.address, &b->data.aaaa.address, sizeof(AvahiIPv6Address));
 
+        case AVAHI_DNS_TYPE_NSEC: {
+            size_t asize, bsize;
+
+            if ((r = avahi_binary_domain_cmp(a->data.nsec.next_domain_name, b->data.nsec.next_domain_name)))
+                return r;
+
+            /* The type bitmap may be empty, in which case type_bitmap is
+             * NULL; lexicographical_memcmp() asserts non-NULL operands, so
+             * handle the empty cases explicitly like the other variable
+             * length types above. */
+            asize = a->data.nsec.type_bitmap_size;
+            bsize = b->data.nsec.type_bitmap_size;
+
+            if (asize && bsize)
+                r = lexicographical_memcmp(a->data.nsec.type_bitmap, asize, b->data.nsec.type_bitmap, bsize);
+            else if (asize && !bsize)
+                r = 1;
+            else if (!asize && bsize)
+                r = -1;
+            else
+                r = 0;
+
+            return r;
+        }
+
         default: {
             size_t asize, bsize;
 
@@ -695,6 +757,9 @@ int avahi_record_is_valid(AvahiRecord *r) {
 
         case AVAHI_DNS_TYPE_SRV:
             return avahi_is_valid_domain_name(r->data.srv.name);
+
+        case AVAHI_DNS_TYPE_NSEC:
+            return avahi_is_valid_domain_name(r->data.nsec.next_domain_name);
 
         case AVAHI_DNS_TYPE_HINFO:
             return

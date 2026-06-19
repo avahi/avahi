@@ -142,6 +142,17 @@
     </option>
 
     <option>
+      <p><opt>always-publish-linklocal=</opt> Takes a boolean value
+      ("yes" or "no"). If set to "yes", avahi-daemon will publish a
+      linklocal address assigned to an interface, even if that
+      interface has other global addresses assigned to it. This
+      behaviour is as per RFC6762. If set to "no", avahi-daemon
+      will not publish a linklocal address if the interface has other
+      global addresses assigned to it, which has been the default
+      for a long time. Defaults to "no".</p>
+    </option>
+
+    <option>
       <p><opt>allow-point-to-point=</opt> Takes a boolean value
       ("yes" or "no"). If set to "yes" avahi-daemon will make use of
       interfaces with the POINTOPOINT flag set. This option defaults

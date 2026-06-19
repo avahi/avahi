@@ -325,6 +325,7 @@ int main(int argc, char *argv[]) {
     GError *gerror = NULL;
 
     gtk_init(&argc, &argv);
+    gtk_window_set_default_icon_name("network-wired");
 
     avahi_set_allocator(avahi_glib_allocator());
 

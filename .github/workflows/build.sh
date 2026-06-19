@@ -160,7 +160,7 @@ case "$1" in
     install-build-deps-netbsd)
         PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|sed 's/_.*//')/All/" \
         PKG_RCD_SCRIPTS=yes \
-            pkg_add -u autoconf automake dbus drill expat gettext git glib gmake intltool libdaemon libtool \
+            pkg_add -u autoconf automake clang compiler-rt dbus drill expat gettext git glib gmake intltool libdaemon libtool \
             meson pkgconf socat
         install_dfuzzer
         install_radamsa
@@ -218,6 +218,13 @@ case "$1" in
                 CFLAGS+=' -fno-sanitize=function'
             fi
 
+            if [[ "$OS" == netbsd ]]; then
+                # LSan fails with "Failed spawning a tracer thread (errno 22)"
+                ASAN_OPTIONS+=":detect_leaks=0"
+
+                # ASan isn't compatible with ASLR
+                sysctl -w security.pax.aslr.enabled=0
+            fi
         fi
 
         if [[ "$COVERAGE" == true ]]; then

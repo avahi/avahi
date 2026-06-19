@@ -456,7 +456,8 @@ AvahiRecord *avahi_record_copy(AvahiRecord *r) {
             break;
 
         case AVAHI_DNS_TYPE_TXT:
-            copy->data.txt.string_list = avahi_string_list_copy(r->data.txt.string_list);
+            if (r->data.txt.string_list && !(copy->data.txt.string_list = avahi_string_list_copy(r->data.txt.string_list)))
+                goto fail;
             break;
 
         case AVAHI_DNS_TYPE_A:

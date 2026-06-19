@@ -64,11 +64,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     avahi_free(avahi_record_to_string(r));
 
-#ifdef HAVE_NALLOCFUZZ
-    goto finish;
-#endif
-
     rdata_size = avahi_rdata_serialize(r, rdata, sizeof(rdata));
+#ifdef HAVE_NALLOCFUZZ
+    if (rdata_size == (size_t) -1)
+        goto finish;
+#endif
     assert(rdata_size != (size_t) -1);
 
     if (!(rs = avahi_record_new_full(r->key->name, r->key->clazz, r->key->type, r->ttl)))
@@ -84,7 +84,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     assert(ret);
 
     ret = avahi_record_lexicographical_compare(r, rs);
+#ifndef HAVE_NALLOCFUZZ
     assert(ret == 0);
+#endif
 
     if (!(c = avahi_record_copy(r)))
         goto finish;
@@ -93,7 +95,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     assert(ret);
 
     ret = avahi_record_lexicographical_compare(r, c);
+#ifndef HAVE_NALLOCFUZZ
     assert(ret == 0);
+#endif
 
     avahi_record_unref(c);
     if (!(c = avahi_dns_packet_consume_record(p, NULL)))

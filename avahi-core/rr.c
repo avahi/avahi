@@ -219,6 +219,8 @@ const char *avahi_dns_type_to_string(uint16_t type) {
             return "SOA";
         case AVAHI_DNS_TYPE_NS:
             return "NS";
+        case AVAHI_DNS_TYPE_NSEC:
+            return "NSEC";
         default:
             return NULL;
     }

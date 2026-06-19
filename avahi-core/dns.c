@@ -546,7 +546,6 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
 
             break;
 
-
         case AVAHI_DNS_TYPE_SRV:
 
             if (avahi_dns_packet_consume_uint16(p, &r->data.srv.priority) < 0 ||
@@ -606,6 +605,57 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
                 return -1;
 
             break;
+
+        case AVAHI_DNS_TYPE_NSEC: {
+
+            /* NSEC rdata is a domain name (which may be name-compressed on
+             * the wire, RFC 6762 18.14) followed by a raw type bitmap. Since
+             * we only reflect this record, we avoid polluting the public
+             * AvahiRecord and instead store the decompressed name as a string
+             * immediately followed by the bitmap in the generic blob. That
+             * keeps the record forwardable with no stale compression pointers;
+             * append_rdata() re-compresses the name for its own packet. */
+
+            const uint8_t *bitmap;
+            size_t consumed, namelen, bitmap_size;
+
+            if (avahi_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
+                return -1;
+
+            /* The name lives in the generic blob, so avahi_record_is_valid()
+             * does not cover it the way it does PTR/SRV names. Validate it
+             * here: a name we accept but cannot re-escape (e.g. a label with a
+             * NUL byte) would parse yet fail to re-serialize when reflected. */
+            if (!avahi_is_valid_domain_name(buf))
+                return -1;
+
+            /* The bitmap is whatever rdata is left after its on-wire encoding. */
+            bitmap = avahi_dns_packet_get_rptr(p);
+            consumed = bitmap - (const uint8_t*) start;
+            if (consumed > rdlength)
+                return -1;
+            bitmap_size = rdlength - consumed;
+
+            /* A compressed name decompresses to a larger form; reject anything
+             * that could no longer be re-serialized within the 16-bit rdata
+             * limit (an uncompressed name is at most strlen()+2 bytes). */
+            if (strlen(buf) + 2 + bitmap_size > AVAHI_DNS_RDATA_MAX)
+                return -1;
+
+            namelen = strlen(buf) + 1;
+            r->data.generic.size = (uint16_t) (namelen + bitmap_size);
+            if (!(r->data.generic.data = avahi_malloc(r->data.generic.size)))
+                return -1;
+
+            memcpy(r->data.generic.data, buf, namelen);
+            if (bitmap_size > 0)
+                memcpy((uint8_t*) r->data.generic.data + namelen, bitmap, bitmap_size);
+
+            if (avahi_dns_packet_skip(p, bitmap_size) < 0)
+                return -1;
+
+            break;
+        }
 
         default:
 
@@ -780,6 +830,25 @@ static int append_rdata(AvahiDnsPacket *p, AvahiRecord *r) {
                 return -1;
 
             break;
+
+        case AVAHI_DNS_TYPE_NSEC: {
+
+            /* The generic blob holds the Next Domain Name as a string
+             * followed by the type bitmap. Re-compress the name for this
+             * packet (RFC 6762 18.14), then append the bitmap verbatim. */
+
+            const char *name = r->data.generic.data;
+            size_t namelen = strlen(name) + 1;
+
+            if (!avahi_dns_packet_append_name(p, name))
+                return -1;
+
+            if (r->data.generic.size > namelen)
+                if (!avahi_dns_packet_append_bytes(p, (uint8_t*) r->data.generic.data + namelen, r->data.generic.size - namelen))
+                    return -1;
+
+            break;
+        }
 
         default:
 

@@ -92,6 +92,9 @@ jobs:
           - os: 'netbsd'
             version: '10.1'
             env: { CC: "gcc" }
+          - os: 'netbsd'
+            version: '10.1'
+            env: { CC: "clang", ASAN_UBSAN: "true" }
           - os: 'omnios'
             version: 'r151058'
             env: { CC: "gcc" }

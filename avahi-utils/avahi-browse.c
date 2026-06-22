@@ -144,7 +144,7 @@ static char *make_printable(const char *from, char *to) {
     char *t;
 
     for (f = from, t = to; *f; f++, t++)
-        *t = isprint(*f) ? *f : '_';
+        *t = isprint((unsigned char)*f) ? *f : '_';
 
     *t = 0;
 

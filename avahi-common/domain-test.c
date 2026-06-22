@@ -121,6 +121,15 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     assert(avahi_is_valid_domain_name("."));
     assert(avahi_is_valid_domain_name(""));
 
+    res = avahi_is_valid_domain_name(
+        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[."
+        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[."
+        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[."
+        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[."
+        "["
+    );
+    assert(!res);
+
     assert(avahi_normalize_name(".", t, sizeof(t)));
     assert(avahi_normalize_name("", t, sizeof(t)));
 

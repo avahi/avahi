@@ -329,6 +329,9 @@ if [[ "$WITH_DBUS" == true ]]; then
     gdbus call --system --dest org.freedesktop.Avahi --object-path / --method org.freedesktop.Avahi.Server2.ResolveService \
         -- -1 0 test-notifications _qotd._tcp local -1 0 |
         grep -F '[byte 0x6b, 0x31, 0x3d, 0x76, 0x31], [0x6b, 0x32, 0x3d, 0x76, 0x32], [0x6b, 0x33, 0x3d, 0x76, 0x33]'
+
+    l=$(perl -e 'print(join(".", ("["x63)x15))')
+    should_fail dbus_call RecordBrowserNew -1 -1 "$l" 0 0 0
 fi
 
 check_rlimit_nofile

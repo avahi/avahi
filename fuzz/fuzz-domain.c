@@ -31,6 +31,7 @@
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     char *s = NULL, *t = NULL;
+    int r;
 
     if(!(s = avahi_malloc(size+1)))
         return 0;
@@ -42,13 +43,22 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     nalloc_start(data, size);
 #endif
 
+    if (avahi_is_valid_domain_name(s)) {
+        t = avahi_normalize_name_strdup(s);
+#ifndef HAVE_NALLOCFUZZ
+        assert(t);
+        r = avahi_domain_equal(s, t);
+        assert(r);
+#endif
+        avahi_free(t);
+    }
+
     if ((t = avahi_normalize_name_strdup(s)))
         assert(avahi_domain_equal(s, t));
 
     avahi_is_valid_service_type_generic(s);
     avahi_is_valid_service_type_strict(s);
     avahi_is_valid_service_subtype(s);
-    avahi_is_valid_domain_name(s);
     avahi_is_valid_service_name(s);
     avahi_is_valid_host_name(s);
     avahi_is_valid_fqdn(s);

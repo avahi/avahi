@@ -369,9 +369,13 @@ int avahi_is_valid_service_subtype(const char *t) {
 
 int avahi_is_valid_domain_name(const char *t) {
     int is_first = 1;
+    char normalized[AVAHI_DOMAIN_NAME_MAX];
     assert(t);
 
     if (strlen(t) >= AVAHI_DOMAIN_NAME_MAX)
+        return 0;
+
+    if (!(avahi_normalize_name(t, normalized, sizeof(normalized))))
         return 0;
 
     do {

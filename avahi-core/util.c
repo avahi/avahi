@@ -104,7 +104,7 @@ char *avahi_strup(char *s) {
     assert(s);
 
     for (c = s; *c; c++)
-        *c = (char) toupper(*c);
+        *c = (char) toupper((unsigned char)*c);
 
     return s;
 }
@@ -114,7 +114,7 @@ char *avahi_strdown(char *s) {
     assert(s);
 
     for (c = s; *c; c++)
-        *c = (char) tolower(*c);
+        *c = (char) tolower((unsigned char)*c);
 
     return s;
 }

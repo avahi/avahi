@@ -162,10 +162,10 @@ char** avahi_split_csv(const char *t) {
         const char *c;
 
         /* Ignore leading blanks */
-        for (c = t, n = l; isblank(*c); c++, n--);
+        for (c = t, n = l; isblank((unsigned char)*c); c++, n--);
 
         /* Ignore trailing blanks */
-        for (; n > 0 && isblank(c[n-1]); n--);
+        for (; n > 0 && isblank((unsigned char)c[n-1]); n--);
 
         *(i++) = avahi_strndup(c, n);
 

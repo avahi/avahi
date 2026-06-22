@@ -73,12 +73,12 @@ char *avahi_unescape_label(const char **name, char *dest, size_t size) {
                 /* Escaped backslash or dot */
                 *(d++) = *((*name) ++);
                 i++;
-            } else if (isdigit(**name)) {
+            } else if (isdigit((unsigned char)**name)) {
                 int n;
 
                 /* Escaped literal ASCII character */
 
-                if (!isdigit(*(*name+1)) || !isdigit(*(*name+2)))
+                if (!isdigit((unsigned char)*(*name+1)) || !isdigit((unsigned char)*(*name+2)))
                     return NULL;
 
                 n = ((uint8_t) (**name - '0') * 100) + ((uint8_t) (*(*name+1) - '0') * 10) + ((uint8_t) (*(*name +2) - '0'));
@@ -436,7 +436,7 @@ unsigned avahi_domain_hash(const char *s) {
         assert(r);
 
         for (p = c; *p; p++)
-            hash = 31 * hash + tolower(*p);
+            hash = 31 * hash + tolower((unsigned char)*p);
     }
 
     return hash;

@@ -1370,3 +1370,38 @@ finish:
 
     return ret;
 }
+
+DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord(
+    AVAHI_GCC_UNUSED DNSServiceFlags flags,
+    uint32_t interfaceIndex,
+    const char *fullname,
+    uint16_t rrtype,
+    uint16_t rrclass,
+    uint16_t rdlen,
+    const void *rdata) {
+
+    DNSServiceRef sdref;
+    int error;
+
+    AVAHI_WARN_LINKAGE;
+
+    if (!fullname)
+        return kDNSServiceErr_BadParam;
+
+    if (interfaceIndex == kDNSServiceInterfaceIndexAny)
+        return kDNSServiceErr_BadParam;
+
+    if (!(sdref = sdref_new()))
+        return kDNSServiceErr_Unknown;
+
+    if (!(sdref->client = avahi_client_new(avahi_simple_poll_get(sdref->simple_poll), 0, NULL, NULL, &error)))
+        goto finish;
+
+    error = avahi_reconfirm_record(sdref->client, (AvahiIfIndex)interfaceIndex, AVAHI_PROTO_UNSPEC, fullname, rrclass, rrtype, rdata, rdlen, 0);
+
+finish:
+
+    sdref_unref(sdref);
+
+    return map_error(error);
+}

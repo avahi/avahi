@@ -143,6 +143,13 @@ static void diamond(void) {
     avahi_test_add_cname("Z.local", "A.local");
 }
 
+static void both_directions(void) {
+    avahi_test_add_cname("X.local", "Z.local");
+    avahi_test_add_cname("X.local", "A.local");
+    avahi_test_add_cname("Z.local", "A.local");
+    avahi_test_add_cname("A.local", "Z.local");
+}
+
 static void cname_answer_diamond(void) {
     avahi_test_add_cname("X.local", "Y.local");
     avahi_test_add_cname("X.local", "Z.local");
@@ -216,13 +223,14 @@ static void avahi_test_initialize(char *test_case) {
     CHECK_TEST_CASE("three_normal", three_normal);
     CHECK_TEST_CASE("three_loop", three_loop);
     CHECK_TEST_CASE("diamond", diamond);
+    CHECK_TEST_CASE("both_directions", both_directions);
     CHECK_TEST_CASE("cname_answer_diamond", cname_answer_diamond);
     CHECK_TEST_CASE("cname_answer", cname_answer);
 
     assert(avahi_test_case_function);
 }
 
-int main(int argc, char *argv[]) {
+static void run(AvahiLookupFlags flags) {
     int error;
     struct timeval tv;
 
@@ -230,17 +238,11 @@ int main(int argc, char *argv[]) {
     AvahiServerConfig config;
     AvahiSimplePoll *simple_poll;
 
-    if (argc < 2) {
-        printf("Usage: %s test_name", argv[0]);
-        return 1;
-    }
-
-    avahi_test_initialize(argv[1]);
-
     simple_poll = avahi_simple_poll_new();
     poll_api = avahi_simple_poll_get(simple_poll);
 
     avahi_server_config_init(&config);
+    config.enable_wide_area = 1;
     server = avahi_server_new(poll_api, &config, server_callback, NULL, &error);
     avahi_server_config_free(&config);
 
@@ -248,7 +250,7 @@ int main(int argc, char *argv[]) {
     avahi_cache_flush(cache);
 
     hnr = avahi_s_host_name_resolver_prepare(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "X.local", AVAHI_PROTO_UNSPEC,
-                                             AVAHI_LOOKUP_USE_MULTICAST, hnr_callback, NULL);
+                                             flags, hnr_callback, NULL);
     avahi_s_host_name_resolver_start(hnr);
 
     avahi_elapse_time(&tv, 1000 * 5, 0);
@@ -266,6 +268,17 @@ int main(int argc, char *argv[]) {
     if (simple_poll) {
         avahi_simple_poll_free(simple_poll);
     }
+}
 
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s test_name", argv[0]);
+        return 1;
+    }
+
+    avahi_test_initialize(argv[1]);
+    run(0);
+    run(AVAHI_LOOKUP_USE_MULTICAST);
+    run(AVAHI_LOOKUP_USE_WIDE_AREA);
     return 0;
 }

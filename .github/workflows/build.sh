@@ -143,7 +143,7 @@ case "$1" in
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
             gtk3 py311-pygobject py311-dbus py311-gdbm mono git socat \
-            valgrind dfuzzer check radamsa
+            valgrind dfuzzer check radamsa wget
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         ;;
@@ -161,7 +161,7 @@ case "$1" in
         PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|sed 's/_.*//')/All/" \
         PKG_RCD_SCRIPTS=yes \
             pkg_add -u autoconf automake clang compiler-rt dbus drill expat gettext git glib gmake intltool libdaemon libtool \
-            meson pkgconf socat
+            meson pkgconf socat wget
         install_dfuzzer
         install_radamsa
         ;;

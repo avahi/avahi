@@ -137,8 +137,11 @@ case "$1" in
         pkg install -y gettext-runtime gettext-tools gmake intltool \
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
-            gtk3 py311-pygobject py311-dbus py311-gdbm mono git socat \
+            gtk3 python3 mono git socat \
             valgrind dfuzzer check radamsa wget
+        python_version=$(python3 -c 'import platform; print("".join(platform.python_version().split(".")[0:2]))')
+        pkg install -y "py${python_version}-pygobject" "py${python_version}-dbus" \
+            "py${python_version}-gdbm"
         # some deps pull in avahi itself, remove it
         pkg remove -fy avahi-app
         ;;

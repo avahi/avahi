@@ -65,9 +65,17 @@ static void parse_domain_file(AvahiDomainBrowser *b) {
         return;
 
 
-    while (fgets(buf, sizeof(buf)-1, f)) {
+    while (fgets(buf, sizeof(buf), f)) {
         char domain[AVAHI_DOMAIN_NAME_MAX];
-        buf[strcspn(buf, "\n\r")] = 0;
+        size_t len = strcspn(buf, "\n\r");
+
+        if (buf[len] == '\0' && !feof(f)) {
+            int c;
+            while ((c = fgetc(f)) != '\n' && c != EOF)
+                ;
+            continue;
+        }
+        buf[len] = 0;
 
         if (avahi_normalize_name(buf, domain, sizeof(domain)))
             b->static_browse_domains = avahi_string_list_add(b->static_browse_domains, domain);

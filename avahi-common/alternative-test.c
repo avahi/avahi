@@ -22,6 +22,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #include "alternative.h"
 #include "malloc.h"
@@ -90,6 +91,21 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     }
 
     avahi_alternative_service_name("\xc1\x0a");
+
+    /* These reach drop_incomplete_utf8() with an empty string (via
+       avahi_strndup(s, 0)), which used to form a pointer before the start
+       of the buffer. Check the results, not just that they don't crash. */
+    {
+        char *n;
+
+        n = avahi_alternative_service_name(" #1");
+        assert(n && !strcmp(n, " #2"));
+        avahi_free(n);
+
+        n = avahi_alternative_host_name("-2");
+        assert(n && !strcmp(n, "-3"));
+        avahi_free(n);
+    }
 
     avahi_free(r);
     return 0;

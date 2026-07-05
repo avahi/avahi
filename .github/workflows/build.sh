@@ -15,6 +15,7 @@ export NSS_MDNS=true
 export WITH_SYSTEMD=false
 export WITH_DBUS=false
 export OS=
+export PYTHON=python3
 
 if source /etc/os-release; then
     OS="$ID"
@@ -32,6 +33,10 @@ fi
 
 if [[ "$OS" == omnios ]]; then
     PATH="/opt/local/sbin:/opt/local/bin:$PATH"
+fi
+
+if [[ "$OS" == netbsd ]]; then
+    PYTHON=python3.14
 fi
 
 if [[ "$OS" == openbsd ]]; then
@@ -164,7 +169,7 @@ case "$1" in
         PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|sed 's/_.*//')/All/" \
         PKG_RCD_SCRIPTS=yes \
             pkg_add -u autoconf automake clang compiler-rt dbus drill expat gettext git glib gmake intltool libdaemon libtool \
-            meson pkgconf socat wget
+            meson pkgconf python314 socat wget
         install_dfuzzer
         install_radamsa
         ;;

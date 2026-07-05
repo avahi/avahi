@@ -41,6 +41,7 @@ valgrind_log_file="/tmp/valgrind.avahi-daemon.%p"
 
 dump_journal() {
     if [[ "$WITH_SYSTEMD" == false ]]; then
+        cat /var/adm/messages || true
         cat /var/log/messages
     else
         journalctl --sync
@@ -341,6 +342,35 @@ h="$l.local"
 run drill -p5353 @127.0.0.1 "$h" HINFO
 run drill -p5353 @127.0.0.1 _domain._udp.local ANY
 drill -Q -p5353 @127.0.0.1 "$l._ssh._tcp.local" TXT | grep org.freedesktop.Avahi.cookie
+
+
+if [[ "$OS" =~ (freebsd|netbsd|omnios|openbsd) ]]; then
+    "$PYTHON" -c '
+from socket import socket, AF_ROUTE, SOCK_RAW, AF_UNSPEC
+from sys import platform
+
+rtm_version=b"\x05"
+if "netbsd" in platform:
+    rtm_version=b"\x04"
+elif "sunos" in platform:
+    rtm_version=b"\x03"
+
+rtm_newaddr=b"\x0c"
+if "netbsd" in platform:
+    rtm_newaddr=b"\x16"
+
+s = socket(AF_ROUTE, SOCK_RAW, AF_UNSPEC)
+try:
+    s.send(b"\x00\x14" + rtm_version + rtm_newaddr + b"\x00" * 16)
+except OSError:
+    pass
+
+try:
+    s.send(b"\x00\x4c" + rtm_version + rtm_newaddr + b"\x00\xfc\x61\x69" + b"\x00" * 12 + b"\x00" * 56)
+except OSError:
+    pass
+'
+fi
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
     run avahi-dnsconfd --kill

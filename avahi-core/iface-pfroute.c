@@ -171,6 +171,9 @@ static void rtm_addr(struct rt_msghdr *rtm, AvahiInterfaceMonitor *m)
 #endif
   }
 
+  if (!sa)
+    return;
+
   if(sa->sa_family != AF_INET && sa->sa_family != AF_INET6)
     return;
 

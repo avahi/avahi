@@ -369,53 +369,61 @@ void avahi_interface_monitor_free_osdep(AvahiInterfaceMonitor *m) {
 }
 
 #if defined (SIOCGLIFNUM) && defined(HAVE_STRUCT_LIFCONF) /* Solaris 8 and later; Sol 7? */
-static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, int fd, int count)
+static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m)
 {
     AvahiHwInterface *hw;
     AvahiAddress addr;
     struct lifreq lifrcopy;
     unsigned int index;
+    int af;
+    int fd;
     int flags;
     int mtu;
     int prefixlen;
     AvahiInterfaceAddress *addriface;
     AvahiInterface *iface;
-    struct sockaddr_in mask;
-    struct sockaddr_in6 mask6;
-    char caddr[AVAHI_ADDRESS_STR_MAX];
+
+    af = lifreq->lifr_addr.ss_family;
+
+    if (af != AF_INET && af != AF_INET6)
+        return;
+
+    if ((fd = socket(af, SOCK_DGRAM, 0)) < 0) {
+        avahi_log_error(__FILE__": socket(%d) %s", af, strerror(errno));
+        return;
+    }
 
     lifrcopy = *lifreq;
 
     if (ioctl(fd, SIOCGLIFFLAGS, &lifrcopy) < 0) {
         avahi_log_error(__FILE__": ioctl(SIOCGLIFFLAGS) %s", strerror(errno));
-        return;
+        goto end;
     }
     flags = lifrcopy.lifr_flags;
 
     if (ioctl(fd, SIOCGLIFMTU, &lifrcopy) < 0) {
         avahi_log_error(__FILE__": ioctl(SIOCGLIFMTU) %s", strerror(errno));
-        return;
+        goto end;
     }
     mtu = lifrcopy.lifr_metric;
 
     if (ioctl(fd, SIOCGLIFADDR, &lifrcopy) < 0) {
         avahi_log_error(__FILE__": ioctl(SIOCGLIFADDR) %s", strerror(errno));
-        return;
+        goto end;
     }
     addr.proto = avahi_af_to_proto(lifreq->lifr_addr.ss_family);
-    if (ioctl(fd, SIOCGLIFNETMASK, &lifrcopy) < 0) {
-        avahi_log_error(__FILE__": ioctl(SIOCGLIFNETMASK) %s", strerror(errno));
-        return;
+
+    if (ioctl(fd, SIOCGLIFSUBNET, &lifrcopy) < 0) {
+        avahi_log_error(__FILE__": ioctl(SIOCGLIFSUBNET) %s", strerror(errno));
+        goto end;
     }
     switch (lifreq->lifr_addr.ss_family) {
         case AF_INET:
-	    memcpy(addr.data.data, &((struct sockaddr_in *)&lifreq->lifr_addr)->sin_addr,  sizeof(struct in_addr));
-	    memcpy(&mask, &((struct sockaddr_in *)&lifrcopy.lifr_addr)->sin_addr,  sizeof(struct in_addr));
-            prefixlen = bitcount((unsigned int) mask.sin_addr.s_addr);
+            memcpy(addr.data.data, &((struct sockaddr_in *)&lifreq->lifr_addr)->sin_addr,  sizeof(struct in_addr));
+            prefixlen = lifrcopy.lifr_addrlen;
             break;
         case AF_INET6:
-	    memcpy(addr.data.data, &((struct sockaddr_in6 *)&lifreq->lifr_addr)->sin6_addr,  sizeof(struct in6_addr));
-	    memcpy(&mask6, &((struct sockaddr_in6 *)&lifrcopy.lifr_addr)->sin6_addr,  sizeof(struct in6_addr));
+            memcpy(addr.data.data, &((struct sockaddr_in6 *)&lifreq->lifr_addr)->sin6_addr,  sizeof(struct in6_addr));
             prefixlen = lifrcopy.lifr_addrlen;
             break;
         default:
@@ -425,7 +433,7 @@ static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, in
 
     if (!(hw = avahi_interface_monitor_get_hw_interface(m, (AvahiIfIndex) index))) {
         if (!(hw = avahi_hw_interface_new(m, (AvahiIfIndex) index)))
-            return; /* OOM */
+            goto end; /* OOM */
 
         hw->flags_ok =
             (flags & IFF_UP) &&
@@ -439,16 +447,18 @@ static void if_add_interface(struct lifreq *lifreq, AvahiInterfaceMonitor *m, in
     }
 
     if (!(iface = avahi_interface_monitor_get_interface(m, (AvahiIfIndex)index, addr.proto)))
-        return;
+        goto end;
 
     if (!(addriface = avahi_interface_monitor_get_address(m, iface, &addr)))
         if (!(addriface = avahi_interface_address_new(m, iface, &addr, prefixlen)))
-            return; /* OOM */
+            goto end; /* OOM */
 
     addriface->global_scope = 1;
 
     avahi_hw_interface_check_relevant(hw);
     avahi_hw_interface_update_rrs(hw, 0);
+end:
+    close(fd);
 }
 #endif
 
@@ -501,7 +511,6 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
   avahi_free(buf);
 #elif defined (SIOCGLIFNUM) && defined(HAVE_STRUCT_LIFCONF) /* Solaris 8 and later; Sol 7? */
     int sockfd;
-    int ret;
     int n;
     struct lifnum lifn;
     struct lifconf lifc;
@@ -532,7 +541,7 @@ void avahi_interface_monitor_sync(AvahiInterfaceMonitor *m) {
     lifreq = lifc.lifc_req;
 
     for (n = 0; n < lifc.lifc_len; n += sizeof(struct lifreq)) {
-        if_add_interface(lifreq, m, sockfd, lifn.lifn_count);
+        if_add_interface(lifreq, m);
         lifreq++;
     }
     m->list_complete = 1;

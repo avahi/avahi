@@ -146,7 +146,13 @@ static void service_browser_callback(
         s->interface = interface;
         s->protocol = protocol;
         s->service_type = g_hash_table_lookup(service_type_hash_table, service_type);
-        g_assert(s->service_type);
+        if (!s->service_type) {
+            /* Service type not in our tree (like PTR target type mismatch); ignore */
+            g_free(s->service_name);
+            g_free(s->domain_name);
+            g_free(s);
+            return;
+        }
 
         s->service_type->services = g_list_prepend(s->service_type->services, s);
 

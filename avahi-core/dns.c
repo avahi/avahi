@@ -607,6 +607,51 @@ static int parse_rdata(AvahiDnsPacket *p, AvahiRecord *r, uint16_t rdlength) {
 
             break;
 
+        case AVAHI_DNS_TYPE_NSEC: {
+
+            if (avahi_dns_packet_consume_name(p, buf, sizeof(buf)) < 0)
+                return -1;
+
+            if (!(r->data.nsec.next_domain_name = avahi_strdup(buf)))
+                return -1;
+
+            /* Remaining bytes are the Type Bit Maps (raw, no compression) */
+            {
+                size_t consumed_after = (const uint8_t*) avahi_dns_packet_get_rptr(p) - (const uint8_t*) start;
+                uint16_t bitmap_size;
+
+                if (consumed_after > rdlength)
+                    return -1;
+
+                bitmap_size = rdlength - (uint16_t) consumed_after;
+
+                /* The name is decompressed on parse but re-serialized
+                 * uncompressed, so a name that arrived as a compression
+                 * pointer can expand and push the record past the 16-bit
+                 * rdata limit. Reject such a record now, rather than let
+                 * avahi_rdata_serialize() fail on it later, so anything we
+                 * accept can always be reflected. The uncompressed name is
+                 * at most strlen()+2 bytes on the wire and real mDNS bitmaps
+                 * are tiny, so this never rejects legitimate records. */
+                if (strlen(buf) + 2 + (size_t) bitmap_size > AVAHI_DNS_RDATA_MAX)
+                    return -1;
+
+                if (bitmap_size > 0) {
+                    r->data.nsec.type_bitmap = avahi_memdup(avahi_dns_packet_get_rptr(p), bitmap_size);
+                    if (!r->data.nsec.type_bitmap)
+                        return -1;
+
+                    if (avahi_dns_packet_skip(p, bitmap_size) < 0)
+                        return -1;
+                } else
+                    r->data.nsec.type_bitmap = NULL;
+
+                r->data.nsec.type_bitmap_size = bitmap_size;
+            }
+
+            break;
+        }
+
         default:
 
 /*             avahi_log_debug("generic"); */
@@ -778,6 +823,17 @@ static int append_rdata(AvahiDnsPacket *p, AvahiRecord *r) {
 
             if (!avahi_dns_packet_append_bytes(p, &r->data.aaaa.address, sizeof(r->data.aaaa.address)))
                 return -1;
+
+            break;
+
+        case AVAHI_DNS_TYPE_NSEC:
+
+            if (!(avahi_dns_packet_append_name(p, r->data.nsec.next_domain_name)))
+                return -1;
+
+            if (r->data.nsec.type_bitmap_size > 0)
+                if (!avahi_dns_packet_append_bytes(p, r->data.nsec.type_bitmap, r->data.nsec.type_bitmap_size))
+                    return -1;
 
             break;
 

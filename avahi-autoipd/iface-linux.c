@@ -166,7 +166,7 @@ static int process_nlmsg(struct nlmsghdr *n) {
         if (n->nlmsg_type == RTM_DELADDR && i) {
             AVAHI_LLIST_REMOVE(Address, addresses, addresses, i);
             avahi_free(i);
-        } if (n->nlmsg_type == RTM_NEWADDR && !i) {
+        } else if (n->nlmsg_type == RTM_NEWADDR && !i) {
             i = avahi_new(Address, 1);
             i->address = address;
             AVAHI_LLIST_PREPEND(Address, addresses, addresses, i);

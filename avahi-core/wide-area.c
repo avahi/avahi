@@ -298,6 +298,7 @@ AvahiWideAreaLookup *avahi_wide_area_lookup_new(
 
     p = avahi_dns_packet_append_key(l->packet, key, 0);
     assert(p);
+    (void)p;
 
     avahi_dns_packet_set_field(l->packet, AVAHI_DNS_FIELD_QDCOUNT, 1);
 

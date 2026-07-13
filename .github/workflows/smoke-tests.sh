@@ -293,6 +293,12 @@ if [[ "$WITH_DBUS" == true ]]; then
     fi
 fi
 
+# https://github.com/avahi/avahi/issues/810
+if unshare -n true 2>/dev/null; then
+    export VALGRIND
+    export -f dump_journal run
+    unshare -n bash -exc 'run ./avahi-core/avahi-test'
+fi
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test
 

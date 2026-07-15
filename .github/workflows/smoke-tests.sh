@@ -158,7 +158,7 @@ install_nss_mdns() {
     $MAKE check VERBOSE=1 CK_FORK=no
 
     if [[ "$DISTCHECK" == true ]]; then
-        $MAKE distcheck V=1
+        $MAKE distcheck V=1 VERBOSE=1 CK_FORK=no
     fi
 
     if [[ "$ASAN_UBSAN" == true && "$CC" == gcc ]]; then

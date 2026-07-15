@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        runner: [ubuntu-26.04, ubuntu-26.04-arm]
         env:
           - { CC: "gcc", DISTCHECK: "true", VALGRIND: "true" }
           - { CC: "gcc", ASAN_UBSAN: "true" }
@@ -29,13 +29,13 @@ jobs:
           - { CC: "clang", ASAN_UBSAN: "false" }
           - { CC: "clang", ASAN_UBSAN: "true" }
         include:
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             env: { CC: "clang", ASAN_UBSAN: "true", ADDITIONAL_AUTOGEN_ARGS: "--disable-dbus --disable-libsystemd --without-systemdsystemunitdir" }
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             env: { CC: "gcc", VALGRIND: "true", ADDITIONAL_AUTOGEN_ARGS: "--disable-dbus --disable-libsystemd --without-systemdsystemunitdir" }
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             env: { CC: "gcc", VALGRIND: "true", CFLAGS: "-g -O0 -DNDEBUG" }
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             env: { CC: "clang", ASAN_UBSAN: "true", CFLAGS: "-g -O0 -DNDEBUG -ftrivial-auto-var-init=pattern" }
     env: ${{ matrix.env }}
     steps:
@@ -43,11 +43,12 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+      - run: sudo update-alternatives --set sudo /usr/bin/sudo.ws
       - run: sudo -E .github/workflows/build.sh install-build-deps
       - run: sudo -E .github/workflows/build.sh build
   coverage:
     if: github.repository == 'avahi/avahi'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -62,6 +63,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+      - run: sudo update-alternatives --set sudo /usr/bin/sudo.ws
       - run: sudo -E .github/workflows/build.sh install-build-deps
       - run: sudo -E .github/workflows/build.sh build
       - name: Coveralls
@@ -72,7 +74,7 @@ jobs:
           format: lcov
 
   bsd:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     defaults:
       run:
         shell: cpa.sh {0} --sync-files runner-to-vm
@@ -120,7 +122,7 @@ jobs:
           sudo -E .github/workflows/build.sh build
 
   alpine:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
       image: alpine
       env: ${{ matrix.env }}

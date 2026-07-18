@@ -184,9 +184,19 @@ static int send_to_dns_server(AvahiWideAreaLookup *l, AvahiDnsPacket *p) {
     l->watch = w;
     l->proto = a->proto;
 
-    return a->proto == AVAHI_PROTO_INET ?
+    r = a->proto == AVAHI_PROTO_INET ?
                 avahi_send_dns_packet_ipv4(l->fd, AVAHI_IF_UNSPEC, p, NULL, &a->data.ipv4, AVAHI_DNS_PORT):
                 avahi_send_dns_packet_ipv6(l->fd, AVAHI_IF_UNSPEC, p, NULL, &a->data.ipv6, AVAHI_DNS_PORT);
+
+    if (r < 0) {
+        s->poll_api->watch_free(l->watch);
+        l->watch = NULL;
+
+        close(l->fd);
+        l->fd = -EBADF;
+    }
+
+    return r;
 }
 
 static void next_dns_server(AvahiWideAreaLookupEngine *e) {

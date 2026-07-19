@@ -166,7 +166,9 @@ case "$1" in
         install_radamsa
         ;;
     install-build-deps-netbsd)
-        PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|sed 's/_.*//')/All/" \
+        path="pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|sed 's/_.*//')/All"
+        # https://www.netbsd.org/mirrors/#pkgsrc-main
+        PKG_PATH="https://ftp.jaist.ac.jp/$path;https://ftp.NetBSD.org/$path;https://cdn.NetBSD.org/$path" \
         PKG_RCD_SCRIPTS=yes \
             pkg_add -u autoconf automake clang compiler-rt dbus drill expat gettext git glib gmake intltool libdaemon libtool \
             meson pkgconf python314 socat wget

@@ -77,7 +77,15 @@ static void next_state(AvahiAnnouncer *a);
 void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
     AvahiEntry *e;
     assert(g);
-    assert(!g->dead);
+
+    /* The group may already be marked dead here: avahi_s_entry_group_free()
+     * defers actually freeing a dead group's entries via schedule_cleanup(),
+     * so if the whole server is torn down (avahi_server_free()) before that
+     * deferred cleanup runs, avahi_entry_free() -> avahi_goodbye_entry() ->
+     * remove_announcer() can reach us for an entry whose group is already
+     * dead. There is nothing to do in that case. */
+    if (g->dead)
+        return;
 
     /* Check whether all group members have been probed */
 

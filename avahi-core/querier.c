@@ -124,7 +124,7 @@ void avahi_querier_add(AvahiInterface *i, AvahiKey *key, struct timeval *ret_cti
     q->n_used = 1;
     q->sec_delay = 1;
     q->post_id_valid = 0;
-    gettimeofday(&q->creation_time, NULL);
+    avahi_now(&q->creation_time);
 
     /* Do the initial query */
     if (avahi_interface_post_query(i, key, 0, &q->post_id))

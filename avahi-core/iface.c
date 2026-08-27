@@ -29,6 +29,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include <avahi-common/timeval.h>
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/domain.h>
@@ -580,7 +581,7 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
     if (i->monitor->server->config.ratelimit_interval > 0) {
         struct timeval now, end;
 
-        gettimeofday(&now, NULL);
+        avahi_now(&now);
 
         end = i->hardware->ratelimit_begin;
         avahi_timeval_add(&end, i->monitor->server->config.ratelimit_interval);

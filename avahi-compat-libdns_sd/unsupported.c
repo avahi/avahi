@@ -45,20 +45,6 @@ DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord (
     return kDNSServiceErr_Unsupported;
 }
 
-DNSServiceErrorType DNSSD_API DNSServiceReconfirmRecord (
-    AVAHI_GCC_UNUSED DNSServiceFlags flags,
-    AVAHI_GCC_UNUSED uint32_t interfaceIndex,
-    AVAHI_GCC_UNUSED const char *fullname,
-    AVAHI_GCC_UNUSED uint16_t rrtype,
-    AVAHI_GCC_UNUSED uint16_t rrclass,
-    AVAHI_GCC_UNUSED uint16_t rdlen,
-    AVAHI_GCC_UNUSED const void *rdata) {
-
-    AVAHI_WARN_UNSUPPORTED;
-
-    return kDNSServiceErr_Unsupported;
-}
-
 DNSServiceErrorType DNSSD_API DNSServiceCreateConnection(AVAHI_GCC_UNUSED DNSServiceRef *sdRef) {
     AVAHI_WARN_UNSUPPORTED;
 

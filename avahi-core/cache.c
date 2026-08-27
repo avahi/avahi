@@ -32,6 +32,9 @@
 #include "log.h"
 #include "rr-util.h"
 
+#define ONE_SECOND          1000000
+#define RECONFIRM_TIMEOUT   1500000
+
 static void remove_entry(AvahiCache *c, AvahiCacheEntry *e) {
     AvahiCacheEntry *t;
 
@@ -161,6 +164,7 @@ static AvahiCacheEntry *lookup_record(AvahiCache *c, AvahiRecord *r) {
     return avahi_cache_walk(c, r->key, lookup_record_callback, r);
 }
 
+static void update_state_set_timer(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state, AvahiUsec usec);
 static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent);
 
 static void elapse_func(AvahiTimeEvent *t, void *userdata) {
@@ -179,6 +183,7 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         case AVAHI_CACHE_POOF_FINAL:
         case AVAHI_CACHE_GOODBYE_FINAL:
         case AVAHI_CACHE_REPLACE_FINAL:
+        case AVAHI_CACHE_RECONFIRM_FINAL:
 
             remove_entry(e->cache, e);
 
@@ -204,6 +209,24 @@ static void elapse_func(AvahiTimeEvent *t, void *userdata) {
         case AVAHI_CACHE_EXPIRY3:
             e->state = AVAHI_CACHE_EXPIRY_FINAL;
             percent = 100;
+            break;
+
+        case AVAHI_CACHE_RECONFIRM1:
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+            update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM2, RECONFIRM_TIMEOUT);
+            e = NULL;
+            break;
+
+        case AVAHI_CACHE_RECONFIRM2:
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+            update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM3, RECONFIRM_TIMEOUT);
+            e = NULL;
+            break;
+
+        case AVAHI_CACHE_RECONFIRM3:
+            avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+            update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM_FINAL, RECONFIRM_TIMEOUT);
+            e = NULL;
             break;
     }
 
@@ -263,13 +286,13 @@ static void next_expiry(AvahiCache *c, AvahiCacheEntry *e, unsigned percent) {
     update_time_event(c, e);
 }
 
-static void expire_in_one_second(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state) {
+static void update_state_set_timer(AvahiCache *c, AvahiCacheEntry *e, AvahiCacheEntryState state, AvahiUsec usec) {
     assert(c);
     assert(e);
 
     e->state = state;
     gettimeofday(&e->expiry, NULL);
-    avahi_timeval_add(&e->expiry, 1000000); /* 1s */
+    avahi_timeval_add(&e->expiry, usec);
     update_time_event(c, e);
 }
 
@@ -287,7 +310,7 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
         AvahiCacheEntry *e;
 
         if ((e = lookup_record(c, r)))
-            expire_in_one_second(c, e, AVAHI_CACHE_GOODBYE_FINAL);
+            update_state_set_timer(c, e, AVAHI_CACHE_GOODBYE_FINAL, ONE_SECOND);
 
     } else {
         AvahiCacheEntry *e = NULL, *first;
@@ -307,8 +330,8 @@ void avahi_cache_update(AvahiCache *c, AvahiRecord *r, int cache_flush, const Av
 
                     t = avahi_timeval_diff(&now, &e->timestamp);
 
-                    if (t > 1000000)
-                        expire_in_one_second(c, e, AVAHI_CACHE_REPLACE_FINAL);
+                    if (t > ONE_SECOND)
+                        update_state_set_timer(c, e, AVAHI_CACHE_REPLACE_FINAL, ONE_SECOND);
                 }
             }
 
@@ -423,11 +446,32 @@ int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e) {
 
     gettimeofday(&now, NULL);
 
-    age = (unsigned) (avahi_timeval_diff(&now, &e->timestamp)/1000000);
+    age = (unsigned) (avahi_timeval_diff(&now, &e->timestamp)/ONE_SECOND);
 
 /*     avahi_log_debug("age: %lli, ttl/2: %u", age, e->record->ttl);  */
 
     return age >= e->record->ttl/2;
+}
+
+int avahi_cache_entry_reconfirming(AvahiCacheEntry *e) {
+    assert(e);
+
+    return ((e->state == AVAHI_CACHE_RECONFIRM1) ||
+            (e->state == AVAHI_CACHE_RECONFIRM2) ||
+            (e->state == AVAHI_CACHE_RECONFIRM3) ||
+            (e->state == AVAHI_CACHE_RECONFIRM_FINAL));
+}
+
+void avahi_cache_entry_reconfirm(AvahiCacheEntry *e) {
+    assert(e);
+
+    avahi_interface_post_query(e->cache->interface, e->record->key, 1, NULL);
+
+    /* Only start the timer if one is not already running. Restarting
+     * a timer in the middle of an existing reconfirm can prevent the
+     * record from ever being removed. */
+    if (!avahi_cache_entry_reconfirming(e))
+        update_state_set_timer(e->cache, e, AVAHI_CACHE_RECONFIRM1, RECONFIRM_TIMEOUT);
 }
 
 void avahi_cache_flush(AvahiCache *c) {
@@ -464,7 +508,7 @@ static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
             break;
 
         case AVAHI_CACHE_POOF:
-            if (avahi_timeval_diff(&now, &e->poof_timestamp) < 1000000)
+            if (avahi_timeval_diff(&now, &e->poof_timestamp) < ONE_SECOND)
               break;
 
             e->poof_timestamp = now;
@@ -474,7 +518,7 @@ static void* start_poof_callback(AvahiCache *c, AvahiKey *pattern, AvahiCacheEnt
             /* This is the 4th time we got no response, so let's
              * fucking remove this entry. */
             if (e->poof_num > 3)
-              expire_in_one_second(c, e, AVAHI_CACHE_POOF_FINAL);
+                update_state_set_timer(c, e, AVAHI_CACHE_POOF_FINAL, ONE_SECOND);
             break;
 
         default:

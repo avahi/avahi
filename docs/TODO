@@ -9,7 +9,6 @@ later:
 * long lived queries
 * libavahi-compat-libdns_sd: implement kDNSServiceFlagsNoAutoRename and missing functions
 * libavahi-compat-howl: implement missing functions
-* add API to allow user to tell the server that some service is not reachable
 * gtk3
 * qt5
 * goodbye/hello on sleep/suspend/wake
@@ -115,3 +114,4 @@ done:
 * Expose AvahiSRecordBrowser over D-BUS and implement in avahi-client
 * avahi-publish-* rewrites in C, update man pages
 * Add static host configuration like static services [lathiat]
+* add API to allow user to tell the server that some service is not reachable

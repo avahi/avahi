@@ -37,7 +37,11 @@ typedef enum {
     AVAHI_CACHE_POOF,       /* Passive observation of failure */
     AVAHI_CACHE_POOF_FINAL,
     AVAHI_CACHE_GOODBYE_FINAL,
-    AVAHI_CACHE_REPLACE_FINAL
+    AVAHI_CACHE_REPLACE_FINAL,
+    AVAHI_CACHE_RECONFIRM1,
+    AVAHI_CACHE_RECONFIRM2,
+    AVAHI_CACHE_RECONFIRM3,
+    AVAHI_CACHE_RECONFIRM_FINAL
 } AvahiCacheEntryState;
 
 typedef struct AvahiCacheEntry AvahiCacheEntry;
@@ -88,6 +92,8 @@ typedef void* AvahiCacheWalkCallback(AvahiCache *c, AvahiKey *pattern, AvahiCach
 void* avahi_cache_walk(AvahiCache *c, AvahiKey *pattern, AvahiCacheWalkCallback cb, void* userdata);
 
 int avahi_cache_entry_half_ttl(AvahiCache *c, AvahiCacheEntry *e);
+int avahi_cache_entry_reconfirming(AvahiCacheEntry *e);
+void avahi_cache_entry_reconfirm(AvahiCacheEntry *e);
 
 /** Start the "Passive observation of Failure" algorithm for all
  * records of the specified key. The specified address is  */

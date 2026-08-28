@@ -11,9 +11,7 @@
 # License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with avahi; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA.
+# License along with avahi; if not, see <https://www.gnu.org/licenses/>.
 
 EXTRA_DIST = gettext.m4 iconv.m4 lib-ld.m4 lib-link.m4 lib-prefix.m4 nls.m4 po.m4 progtest.m4 \
 	doxygen.m4 \

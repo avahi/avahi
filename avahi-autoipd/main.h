@@ -30,14 +30,14 @@ typedef enum Event {
 } Event;
 
 typedef enum State {
-    STATE_START,
-    STATE_WAITING_PROBE,
-    STATE_PROBING,
-    STATE_WAITING_ANNOUNCE,
-    STATE_ANNOUNCING,
-    STATE_RUNNING,
-    STATE_SLEEPING,
-    STATE_MAX
+    STATE_START = 1,
+    STATE_WAITING_PROBE = 2,
+    STATE_PROBING = 3,
+    STATE_WAITING_ANNOUNCE = 4,
+    STATE_ANNOUNCING = 5,
+    STATE_RUNNING = 6,
+    STATE_SLEEPING = 7,
+    STATE_MAX = 8
 } State;
 
 int is_ll_address(uint32_t addr);

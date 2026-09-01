@@ -36,12 +36,17 @@ if ENABLE_TESTS
 
 noinst_PROGRAMS += \
 	client-publish-service \
+	client-publish-record \
 	client-browse-services
 endif
 
 client_publish_service_SOURCES = client-publish-service.c
 client_publish_service_CFLAGS = $(AM_CFLAGS)
 client_publish_service_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
+
+client_publish_record_SOURCES = client-publish-record.c
+client_publish_record_CFLAGS = $(AM_CFLAGS)
+client_publish_record_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
 client_browse_services_SOURCES = client-browse-services.c
 client_browse_services_CFLAGS = $(AM_CFLAGS)

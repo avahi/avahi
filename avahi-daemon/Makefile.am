@@ -43,6 +43,9 @@ sbin_PROGRAMS = \
 if ENABLE_TESTS
 noinst_PROGRAMS = \
 	ini-file-parser-test
+
+TESTS = \
+	ini-file-parser-test
 endif
 
 avahi_daemon_SOURCES = \

@@ -234,6 +234,347 @@ check_rlimit_nofile() {
     [[ "$_rlimit_nofile" == "$_rlimit_nofile_conf" ]]
 }
 
+# CVE-2025-59529: Test simple protocol client connection limits.
+# Restarts the daemon with rlimit-nofile=100 so the limits are
+# reachable with a small number of connections:
+#   max_clients = min(4096, 100 * 3/4) = 75
+#   max_uid_clients = 75 / 2 = 37
+test_simple_protocol_limits() {
+    local _i _pid _dnsconfd_was_active _limits
+    # _saved_rlimit and _pids are intentionally NOT local so that
+    # _simple_protocol_limits_cleanup can access them from the EXIT
+    # trap even if set -e kills the script outside this function.
+    _saved_rlimit=""
+    _pids=()
+
+    _saved_rlimit=$(perl -lne 'print $1 if /^(#?rlimit-nofile=.*)/' "$avahi_daemon_conf")
+    sed -i.bak 's|^#*rlimit-nofile=.*|rlimit-nofile=100|' "$avahi_daemon_conf"
+
+    trap '_simple_protocol_limits_cleanup' EXIT
+
+    # avahi-dnsconfd is itself a simple protocol client so stop it first
+    _dnsconfd_was_active=false
+    if [[ "$WITH_SYSTEMD" == true ]]; then
+        if systemctl is-active --quiet avahi-dnsconfd 2>/dev/null; then
+            _dnsconfd_was_active=true
+        fi
+        systemctl stop avahi-dnsconfd 2>/dev/null || true
+    else
+        avahi-dnsconfd --kill 2>/dev/null || true
+    fi
+    sleep 2
+
+    if [[ "$WITH_SYSTEMD" == true ]]; then
+        # systemd's LimitNOFILE overrides the daemon config
+        mkdir -p /run/systemd/system/avahi-daemon.service.d
+        printf '[Service]\nLimitNOFILE=100\n' \
+            > /run/systemd/system/avahi-daemon.service.d/test-rlimit.conf
+        systemctl daemon-reload
+        run systemctl restart avahi-daemon
+    elif [[ "$VALGRIND" == true ]]; then
+        _pid=$(cat "$avahi_daemon_pid_file")
+        avahi-daemon --kill 2>/dev/null || true
+        sleep 1
+        _simple_protocol_limits_check_valgrind_log "$_pid"
+        # set ulimit for valgrind to 100
+        (ulimit -n 100 && \
+        valgrind --log-file="$valgrind_log_file" --leak-check=full \
+            --track-origins=yes --track-fds=yes --error-exitcode=1 \
+            --trace-children=yes \
+            -s --suppressions=.github/workflows/avahi-daemon.supp \
+            avahi-daemon -D --debug --no-drop-root --no-proc-title)
+    elif [[ "$ASAN_UBSAN" == true ]]; then
+        avahi-daemon --kill 2>/dev/null || true
+        sleep 1
+        ASAN_OPTIONS="$ASAN_OPTIONS:log_path=/tmp/asan.avahi-daemon" \
+        UBSAN_OPTIONS="$UBSAN_OPTIONS:log_path=/tmp/ubsan.avahi-daemon" \
+            avahi-daemon -D --debug --no-drop-root
+    else
+        avahi-daemon --kill 2>/dev/null || true
+        sleep 1
+        avahi-daemon -D --debug
+    fi
+    sleep 2
+
+    _pid=$(cat "$avahi_daemon_pid_file")
+    kill -0 "$_pid"
+
+    _simple_protocol_limits_assert_empty
+
+    if _limits=$(_simple_protocol_limits_read_limits); then
+        _simple_protocol_limits_assert_boundaries \
+            "$_pid" "${_limits%% *}" "${_limits#* }"
+    else
+        printf "Could not read the client limits from the log, skipping the boundary assertions\n" >&2
+    fi
+
+    for _i in "${_pids[@]}"; do
+        kill "$_i" 2>/dev/null || true
+    done
+    for _i in "${_pids[@]}"; do
+        wait "$_i" 2>/dev/null || true
+    done
+    _pids=()
+    sleep 2
+
+    # Daemon accepts connections after both floods
+    printf "%s\n" "HELP" | socat -t3 - "unix-connect:$avahi_socket,shut-none" \
+        | grep -q "Available commands"
+
+    # Cleanup runs via the EXIT trap; clear it on success so it
+    # does not interfere with the rest of the script.
+    _simple_protocol_limits_cleanup
+    trap - EXIT
+
+    _simple_protocol_limits_restore_daemon "$_pid" "$_dnsconfd_was_active"
+}
+
+_simple_protocol_limits_assert_boundaries() {
+    local _pid="$1" _max_clients="$2" _max_uid_clients="$3"
+    local _baseline_total _baseline_uid _i _refused
+
+    # --- Per-UID limit ---
+    # Root (uid=0) is exempt from per-UID limits, so a privilege drop
+    # is required. runuser is Linux-specific; skip on other platforms.
+    if command -v runuser >/dev/null 2>&1; then
+        # Take a baseline count so we only assert on new refusals
+        # from this flood, not stale entries from prior test runs.
+        _baseline_uid=$(_simple_protocol_limits_count "too many uid clients")
+
+        _pids=()
+        for _i in $(seq 1 "$_max_uid_clients"); do
+            runuser -u avahi -- \
+                socat -T30 PIPE "unix-connect:$avahi_socket,shut-none" &
+            _pids+=("$!")
+        done
+        # socat connect() is synchronous and the daemon processes
+        # accept() in its event loop immediately; 3s is sufficient.
+        sleep 3
+
+        kill -0 "$_pid"
+
+        # The exact boundary must be accepted without a refusal.
+        _simple_protocol_limits_assert_alive "$_max_uid_clients" "${_pids[@]}"
+        _refused=$(( $(_simple_protocol_limits_count "too many uid clients") - _baseline_uid ))
+        if [[ "$_refused" -ne 0 ]]; then
+            dump_journal || true
+            exit 1
+        fi
+
+        if getent passwd nobody >/dev/null 2>&1; then
+            printf "%s\n" "HELP" \
+                | runuser -u nobody -- \
+                    socat -t3 - "unix-connect:$avahi_socket,shut-none" \
+                | grep -q "Available commands"
+        fi
+
+        # Cross the per-UID boundary by three
+        for _i in $(seq 1 3); do
+            runuser -u avahi -- \
+                socat -T30 PIPE "unix-connect:$avahi_socket,shut-none" &
+            _pids+=("$!")
+        done
+        sleep 3
+
+        _simple_protocol_limits_assert_alive "$_max_uid_clients" "${_pids[@]}"
+        _refused=$(( $(_simple_protocol_limits_count "too many uid clients") - _baseline_uid ))
+        if [[ "$_refused" -ne 3 ]]; then
+            dump_journal || true
+            exit 1
+        fi
+
+        for _i in "${_pids[@]}"; do
+            kill "$_i" 2>/dev/null || true
+        done
+        for _i in "${_pids[@]}"; do
+            wait "$_i" 2>/dev/null || true
+        done
+        _pids=()
+        # Allow the daemon to process disconnections and free slots
+        sleep 2
+
+        _simple_protocol_limits_assert_empty
+    fi
+
+    # --- Total client limit ---
+    _baseline_total=$(_simple_protocol_limits_count "too many clients$")
+
+    _pids=()
+    for _i in $(seq 1 "$_max_clients"); do
+        socat -T30 PIPE "unix-connect:$avahi_socket,shut-none" &
+        _pids+=("$!")
+    done
+    sleep 3
+
+    kill -0 "$_pid"
+
+    # The exact global boundary must be accepted without a refusal.
+    _simple_protocol_limits_assert_alive "$_max_clients" "${_pids[@]}"
+    _refused=$(( $(_simple_protocol_limits_count "too many clients$") - _baseline_total ))
+    if [[ "$WITH_SYSTEMD" == true || "$OS" == ubuntu ]] && [[ "$_refused" -ne 0 ]]; then
+        dump_journal || true
+        exit 1
+    fi
+
+    # Cross the global boundary by five.
+    for _i in $(seq 1 5); do
+        socat -T30 PIPE "unix-connect:$avahi_socket,shut-none" &
+        _pids+=("$!")
+    done
+    sleep 3
+
+    _simple_protocol_limits_assert_alive "$_max_clients" "${_pids[@]}"
+
+    # Verify refusal was logged.
+    _refused=$(( $(_simple_protocol_limits_count "too many clients$") - _baseline_total ))
+    if [[ "$WITH_SYSTEMD" == true || "$OS" == ubuntu ]] && [[ "$_refused" -ne 5 ]]; then
+        dump_journal || true
+        exit 1
+    fi
+}
+
+# Restart the daemon with the original config for the remaining tests.
+_simple_protocol_limits_restore_daemon() {
+    local _pid="$1" _dnsconfd_was_active="$2"
+
+    if [[ "$WITH_SYSTEMD" == true ]]; then
+        run systemctl restart avahi-daemon
+    elif [[ "$VALGRIND" == true ]]; then
+        avahi-daemon --kill 2>/dev/null || true
+        sleep 1
+        _simple_protocol_limits_check_valgrind_log "$_pid"
+        valgrind --log-file="$valgrind_log_file" --leak-check=full \
+            --track-origins=yes --track-fds=yes --error-exitcode=1 \
+            --trace-children=yes \
+            -s --suppressions=.github/workflows/avahi-daemon.supp \
+            avahi-daemon -D --debug --no-drop-root --no-proc-title
+    elif [[ "$ASAN_UBSAN" == true ]]; then
+        avahi-daemon --kill 2>/dev/null || true
+        sleep 1
+        ASAN_OPTIONS="$ASAN_OPTIONS:log_path=/tmp/asan.avahi-daemon" \
+        UBSAN_OPTIONS="$UBSAN_OPTIONS:log_path=/tmp/ubsan.avahi-daemon" \
+            avahi-daemon -D --debug --no-drop-root
+    else
+        avahi-daemon --kill 2>/dev/null || true
+        sleep 1
+        avahi-daemon -D --debug
+    fi
+    if [[ "$WITH_SYSTEMD" == true ]]; then
+        if [[ "$_dnsconfd_was_active" == true ]]; then
+            systemctl start avahi-dnsconfd 2>/dev/null || true
+        fi
+    else
+        avahi-dnsconfd -D 2>/dev/null || true
+    fi
+    sleep 2
+}
+
+_simple_protocol_limits_check_valgrind_log() {
+    local _pid="$1"
+    local _log_file="${valgrind_log_file//%p/$_pid}"
+
+    cat "$_log_file"
+    if grep -qE 'ERROR SUMMARY:\s+[^0]' "$_log_file"; then
+        return 1
+    fi
+}
+
+_simple_protocol_limits_cleanup() {
+    for _i in "${_pids[@]}"; do
+        kill "$_i" 2>/dev/null || true
+    done
+    for _i in "${_pids[@]}"; do
+        wait "$_i" 2>/dev/null || true
+    done
+    _pids=()
+
+    if [[ -n "${_saved_rlimit:-}" ]]; then
+        sed -i.bak "s|^rlimit-nofile=100|$_saved_rlimit|" "$avahi_daemon_conf"
+    else
+        sed -i.bak '/^rlimit-nofile=100/d' "$avahi_daemon_conf"
+    fi
+    rm -f "${avahi_daemon_conf}.bak"
+
+    rm -f /run/systemd/system/avahi-daemon.service.d/test-rlimit.conf 2>/dev/null
+    systemctl daemon-reload 2>/dev/null || true
+}
+
+_simple_protocol_limits_log() {
+    if command -v journalctl >/dev/null 2>&1 && journalctl --sync 2>/dev/null; then
+        journalctl -b -t avahi-daemon --no-pager
+    elif [[ -f /var/log/syslog ]]; then
+        cat /var/log/syslog
+    elif [[ -f /var/log/messages ]]; then
+        cat /var/log/messages
+    elif [[ -f /var/adm/messages ]]; then
+        cat /var/adm/messages
+    fi
+}
+
+_simple_protocol_limits_count() {
+    local _pattern="$1" _count=0
+
+    _count=$(_simple_protocol_limits_log | grep -c "$_pattern") || _count=0
+
+    printf "%d" "$_count"
+}
+
+# Open one connection and confirm the daemon logs it as client 1 of 1.
+_simple_protocol_limits_assert_empty() {
+    local _line="" _n=""
+
+    printf "%s\n" "HELP" | socat -t3 - "unix-connect:$avahi_socket,shut-none" \
+        | grep -q "Available commands"
+
+    if [[ "$WITH_SYSTEMD" != true && "$OS" != ubuntu ]]; then
+        return 0
+    fi
+
+    _line=$(_simple_protocol_limits_log | grep " accepted: " | tail -n1) || _line=""
+    if [[ "$_line" =~ simple\ client\ [0-9]+/([0-9]+)\ accepted ]]; then
+        _n="${BASH_REMATCH[1]}"
+    fi
+
+    if [[ "$_n" != 1 ]]; then
+        printf "Expected an empty daemon, probe was accepted as client %s\n" \
+            "${_n:-<none logged>}" >&2
+        dump_journal || true
+        exit 1
+    fi
+}
+
+_simple_protocol_limits_read_limits() {
+    local _line=""
+
+    _line=$(_simple_protocol_limits_log \
+        | grep "Maximal simple clients:" | tail -n1) || _line=""
+
+    if [[ "$_line" =~ Maximal\ simple\ clients:\ ([0-9]+),\ per_uid:\ ([0-9]+) ]]; then
+        printf "%s %s\n" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+        return 0
+    fi
+
+    return 1
+}
+
+_simple_protocol_limits_assert_alive() {
+    local _expected="$1" _pid _actual=0
+
+    shift
+    for _pid in "$@"; do
+        if kill -0 "$_pid" 2>/dev/null; then
+            ((_actual+=1))
+        fi
+    done
+
+    if [[ "$_actual" -ne "$_expected" ]]; then
+        printf "Expected %d live simple clients, found %d\n" \
+            "$_expected" "$_actual" >&2
+        dump_journal || true
+        exit 1
+    fi
+}
+
 if [[ "$OS" != openbsd ]]; then
     install_nss_mdns
 fi
@@ -342,6 +683,8 @@ fi
 
 check_rlimit_nofile
 
+test_simple_protocol_limits
+
 l=$(hostname | sed 's/\.local$//')
 h="$l.local"
 run drill -p5353 @127.0.0.1 "$h" HINFO
@@ -378,7 +721,7 @@ except OSError:
 fi
 
 if [[ "$WITH_SYSTEMD" == false ]]; then
-    run avahi-dnsconfd --kill
+    avahi-dnsconfd --kill 2>/dev/null || true
 
     if [[ "$WITH_DBUS" == true ]]; then
         run dfuzzer -v -n org.freedesktop.Avahi

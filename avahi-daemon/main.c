@@ -90,6 +90,9 @@
 #include "dbus-protocol.h"
 #endif
 
+/* Maximal number of concurrent simple protocol clients */
+#define MAX_SIMPLE_CLIENTS 4096
+
 AvahiServer *avahi_server = NULL;
 AvahiSimplePoll *simple_poll_api = NULL;
 static char *argv0 = NULL;
@@ -1151,6 +1154,7 @@ static int run_server(DaemonConfig *c) {
     const AvahiPoll *poll_api = NULL;
     AvahiWatch *sig_watch = NULL;
     int retval_is_sent = 0;
+    unsigned nofiles;
 #ifdef HAVE_INOTIFY
     AvahiWatch *inotify_watch = NULL;
 #endif
@@ -1183,7 +1187,29 @@ static int run_server(DaemonConfig *c) {
         goto finish;
     }
 
-    if (simple_protocol_setup(poll_api) < 0)
+    /* Derive the simple protocol client limit from the actual effective
+     * RLIMIT_NOFILE, not the configured value, because setrlimit() may
+     * have failed (hard limit too low) or --no-rlimits may be in use.
+     * Reading the live limit ensures we never try to hold more fds than
+     * the process is actually allowed. */
+    {
+        struct rlimit rl;
+        rlim_t effective_nofile = config.rlimit_nofile;
+        rlim_t share;
+
+        if (getrlimit(RLIMIT_NOFILE, &rl) == 0)
+            effective_nofile = rl.rlim_cur;
+
+        share = effective_nofile / 2;
+
+        if (share > MAX_SIMPLE_CLIENTS)
+            nofiles = MAX_SIMPLE_CLIENTS;
+        else if (share > 0)
+            nofiles = (unsigned) share;
+        else
+            nofiles = 1;
+    }
+    if (simple_protocol_setup(poll_api, nofiles) < 0)
         goto finish;
 
 #ifdef HAVE_DBUS
@@ -1462,6 +1488,20 @@ fail:
     return r;
 }
 
+static int get_one_rlimit(int resource, rlim_t *limit, const char *name) {
+    struct rlimit rl = {0,};
+    int r;
+
+    r = getrlimit(resource, &rl);
+    if (r < 0) {
+        avahi_log_warn("getrlimit(%s) failed: %s", name, strerror(errno));
+    } else {
+        *limit = rl.rlim_cur;
+    }
+
+    return r;
+}
+
 static void set_one_rlimit(int resource, rlim_t limit, const char *name) {
     struct rlimit rl;
     rl.rlim_cur = rl.rlim_max = limit;
@@ -1515,6 +1555,11 @@ static void init_rand_seed(void) {
     seed ^= (unsigned) time(NULL);
 
     srand(seed);
+}
+
+static void read_rlimits(void) {
+    config.rlimit_nofile_set = 0;
+    (void)get_one_rlimit(RLIMIT_NOFILE, &config.rlimit_nofile, "RLIMIT_NOFILE");
 }
 
 int main(int argc, char *argv[]) {
@@ -1615,6 +1660,7 @@ int main(int argc, char *argv[]) {
             goto finish;
         }
 
+        read_rlimits();
         if (load_config_file(&config) < 0)
             goto finish;
 

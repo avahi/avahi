@@ -1254,7 +1254,7 @@ static void register_browse_domain(AvahiServer *s) {
         return;
     }
 
-    if (avahi_server_add_ptr(s, s->browse_domain_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, AVAHI_DEFAULT_TTL, "b._dns-sd._udp.local", s->domain_name) < 0) {
+    if (avahi_server_add_ptr(s, s->browse_domain_entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, AVAHI_DEFAULT_TTL, "b._dns-sd._udp.local", s->domain_name) < 0) {
         avahi_log_warn("Failed to add browse domain RR: %s", avahi_strerror(s->error));
         return;
     }

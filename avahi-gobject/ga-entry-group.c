@@ -350,7 +350,8 @@ GaEntryGroupService *ga_entry_group_add_service_strlist(GaEntryGroup * group,
                                                         AvahiStringList *
                                                         txt) {
     return ga_entry_group_add_service_full_strlist(group, AVAHI_IF_UNSPEC,
-                                                   AVAHI_PROTO_UNSPEC, 0,
+                                                   AVAHI_PROTO_UNSPEC,
+                                                   AVAHI_PUBLISH_DEFAULT,
                                                    name, type, NULL, NULL,
                                                    port, error, txt);
 }
@@ -424,7 +425,7 @@ GaEntryGroupService *ga_entry_group_add_service(GaEntryGroup * group,
     ret = ga_entry_group_add_service_full_strlist(group,
                                                   AVAHI_IF_UNSPEC,
                                                   AVAHI_PROTO_UNSPEC,
-                                                  0,
+                                                  AVAHI_PUBLISH_DEFAULT,
                                                   name, type,
                                                   NULL, NULL,
                                                   port, error, txt);

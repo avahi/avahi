@@ -48,7 +48,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
         group = avahi_s_entry_group_new(s, NULL, NULL);
         assert(group);
 
-        ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, NULL, 80, "test1", NULL);
+        ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "foo", "_http._tcp", NULL, NULL, 80, "test1", NULL);
         assert(ret == AVAHI_OK);
 
         avahi_s_entry_group_commit(group);
@@ -61,7 +61,7 @@ static void modify_txt_callback(AVAHI_GCC_UNUSED AvahiTimeout *e, void *userdata
 
     avahi_log_debug("modifying");
 
-    ret = avahi_server_update_service_txt(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "foo", "_http._tcp", NULL, "test2", NULL);
+    ret = avahi_server_update_service_txt(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "foo", "_http._tcp", NULL, "test2", NULL);
     assert(ret == AVAHI_OK);
 }
 

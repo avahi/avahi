@@ -241,6 +241,7 @@ typedef enum {
 
 /** Some flags for publishing functions */
 typedef enum {
+    AVAHI_PUBLISH_DEFAULT = 0,          /**< Results in similar behaviour as in 0.5.2, use it unless you know what you do. */
     AVAHI_PUBLISH_UNIQUE = 1,           /**< For raw records: The RRset is intended to be unique */
     AVAHI_PUBLISH_NO_PROBE = 2,         /**< For raw records: Though the RRset is intended to be unique no probes shall be sent */
     AVAHI_PUBLISH_NO_ANNOUNCE = 4,      /**< For raw records: Do not announce this RR to other hosts */

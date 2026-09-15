@@ -626,7 +626,7 @@ static int server_add_service_strlst_nocopy(
 
     /* Add service enumeration PTR record */
 
-    if (!(ptr_entry = server_add_ptr_internal(s, g, interface, protocol, 0, AVAHI_DEFAULT_TTL, ptr_name, svc_name))) {
+    if (!(ptr_entry = server_add_ptr_internal(s, g, interface, protocol, AVAHI_PUBLISH_DEFAULT, AVAHI_DEFAULT_TTL, ptr_name, svc_name))) {
         ret = avahi_server_errno(s);
         goto fail;
     }
@@ -666,7 +666,7 @@ static int server_add_service_strlst_nocopy(
 
     /* Add service type enumeration record */
 
-    if (!(enum_entry = server_add_ptr_internal(s, g, interface, protocol, 0, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name))) {
+    if (!(enum_entry = server_add_ptr_internal(s, g, interface, protocol, AVAHI_PUBLISH_DEFAULT, AVAHI_DEFAULT_TTL, enum_ptr, ptr_name))) {
         ret = avahi_server_errno(s);
         goto fail;
     }
@@ -865,7 +865,7 @@ int avahi_server_add_service_subtype(
         goto fail;
     }
 
-    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, 0, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
+    if ((ret = avahi_server_add_ptr(s, g, interface, protocol, AVAHI_PUBLISH_DEFAULT, AVAHI_DEFAULT_TTL, ptr_name, svc_name)) < 0)
         goto fail;
 
 fail:
@@ -946,7 +946,7 @@ static AvahiEntry *server_add_dns_server_name(
     r->data.srv.weight = 0;
     r->data.srv.port = port;
     r->data.srv.name = n;
-    e = server_add_internal(s, g, interface, protocol, 0, r);
+    e = server_add_internal(s, g, interface, protocol, AVAHI_PUBLISH_DEFAULT, r);
     avahi_record_unref(r);
 
     return e;

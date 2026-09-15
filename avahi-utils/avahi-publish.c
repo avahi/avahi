@@ -120,7 +120,7 @@ static int register_stuff(Config *config) {
 
     if (config->command == COMMAND_PUBLISH_ADDRESS) {
 
-        if (avahi_entry_group_add_address(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, config->no_reverse ? AVAHI_PUBLISH_NO_REVERSE : 0, config->name, &config->address) < 0) {
+        if (avahi_entry_group_add_address(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, config->no_reverse ? AVAHI_PUBLISH_NO_REVERSE : AVAHI_PUBLISH_DEFAULT, config->name, &config->address) < 0) {
             fprintf(stderr, _("Failed to add address: %s\n"), avahi_strerror(avahi_client_errno(client)));
             return -1;
         }
@@ -130,13 +130,13 @@ static int register_stuff(Config *config) {
 
         assert(config->command == COMMAND_PUBLISH_SERVICE);
 
-        if (avahi_entry_group_add_service_strlst(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, config->name, config->stype, config->domain, config->host, config->port, config->txt) < 0) {
+        if (avahi_entry_group_add_service_strlst(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, config->name, config->stype, config->domain, config->host, config->port, config->txt) < 0) {
             fprintf(stderr, _("Failed to add service: %s\n"), avahi_strerror(avahi_client_errno(client)));
             return -1;
         }
 
         for (i = config->subtypes; i; i = i->next)
-            if (avahi_entry_group_add_service_subtype(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, config->name, config->stype, config->domain, (char*) i->text) < 0) {
+            if (avahi_entry_group_add_service_subtype(entry_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, config->name, config->stype, config->domain, (char*) i->text) < 0) {
                 fprintf(stderr, _("Failed to add subtype '%s': %s\n"), i->text, avahi_strerror(avahi_client_errno(client)));
                 return -1;
             }

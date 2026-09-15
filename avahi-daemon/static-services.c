@@ -258,7 +258,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                 avahi_server,
                 g->entry_group,
                 AVAHI_IF_UNSPEC, s->protocol,
-                0,
+                AVAHI_PUBLISH_DEFAULT,
                 g->chosen_name, s->type, s->domain_name,
                 s->host_name, s->port,
                 s->txt_records) < 0) {
@@ -275,7 +275,7 @@ static void add_static_service_group_to_server(StaticServiceGroup *g) {
                     avahi_server,
                     g->entry_group,
                     AVAHI_IF_UNSPEC, s->protocol,
-                    0,
+                    AVAHI_PUBLISH_DEFAULT,
                     g->chosen_name, s->type, s->domain_name,
                     (char*) i->text) < 0) {
 

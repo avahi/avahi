@@ -194,7 +194,7 @@ static void test_entry_group_reset (AVAHI_GCC_UNUSED AvahiTimeout *timeout, void
     printf ("Resetting entry group\n");
     avahi_entry_group_reset (g);
 
-    avahi_entry_group_add_service (g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar2", NULL);
+    avahi_entry_group_add_service (g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar2", NULL);
 
     avahi_entry_group_commit (g);
 }
@@ -204,7 +204,7 @@ static void test_entry_group_update(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void
 
     printf ("Updating entry group\n");
 
-    avahi_entry_group_update_service_txt(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, "foo=bar3", NULL);
+    avahi_entry_group_update_service_txt(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "Lathiat's Site", "_http._tcp", NULL, "foo=bar3", NULL);
 }
 
 static void terminate(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata) {
@@ -283,17 +283,17 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     printf("Successfully created entry group %p\n", (void*) group);
 
-    printf("%s\n", avahi_strerror(avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar", NULL)));
-    printf("add_record: %d\n", avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", 0x01, 0x10, 120, "\5booya", 6));
+    printf("%s\n", avahi_strerror(avahi_entry_group_add_service (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "Lathiat's Site", "_http._tcp", NULL, NULL, 80, "foo=bar", NULL)));
+    printf("add_record: %d\n", avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "TestX", 0x01, 0x10, 120, "\5booya", 6));
 
-    error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", 0x01, 0x10, 120, "", 0);
+    error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "TestX", 0x01, 0x10, 120, "", 0);
     assert(error != AVAHI_OK);
 
     memset(rdata, 1, sizeof(rdata));
     r = avahi_string_list_parse(rdata, sizeof(rdata), &txt);
     assert(r >= 0);
     assert(avahi_string_list_serialize(txt, NULL, 0) == sizeof(rdata));
-    error = avahi_entry_group_add_service_strlst(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", "_qotd._tcp", NULL, NULL, 123, txt);
+    error = avahi_entry_group_add_service_strlst(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "TestX", "_qotd._tcp", NULL, NULL, 123, txt);
     assert(error == AVAHI_ERR_INVALID_RECORD);
     avahi_string_list_free(txt);
 
@@ -332,7 +332,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         printf ("failed to create address object\n");
     } else {
         group2 = avahi_entry_group_new (avahi, avahi_entry_group2_callback, (char*) "omghai222");
-        if ((error = avahi_entry_group_add_address (group2, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "test-mdns.local.", aar)) < 0)
+        if ((error = avahi_entry_group_add_address (group2, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, "test-mdns.local.", aar)) < 0)
         {
             printf ("*** failed to add address to entry group: %s\n", avahi_strerror (error));
             avahi_entry_group_free (group2);

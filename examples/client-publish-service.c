@@ -112,7 +112,7 @@ static void create_services(AvahiClient *c) {
          * same name should be put in the same entry group. */
 
         /* Add the service for IPP */
-        if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
+        if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
 
             if (ret == AVAHI_ERR_COLLISION)
                 goto collision;
@@ -122,7 +122,7 @@ static void create_services(AvahiClient *c) {
         }
 
         /* Add the same service for BSD LPR */
-        if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
+        if ((ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
 
             if (ret == AVAHI_ERR_COLLISION)
                 goto collision;
@@ -132,7 +132,7 @@ static void create_services(AvahiClient *c) {
         }
 
         /* Add an additional (hypothetic) subtype */
-        if ((ret = avahi_entry_group_add_service_subtype(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp")) < 0) {
+        if ((ret = avahi_entry_group_add_service_subtype(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp")) < 0) {
             fprintf(stderr, "Failed to add subtype _magic._sub._printer._tcp: %s\n", avahi_strerror(ret));
             goto fail;
         }

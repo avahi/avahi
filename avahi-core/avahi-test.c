@@ -168,17 +168,17 @@ static void create_entries(int new_name) {
         service_name = n;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, service_name, "_http._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, service_name, "_http._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add HTTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, service_name, "_ftp._tcp", NULL, NULL, 21, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, service_name, "_ftp._tcp", NULL, NULL, 21, "foo", NULL) < 0) {
         avahi_log_error("Failed to add FTP service");
         goto fail;
     }
 
-    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0,service_name, "_webdav._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
+    if (avahi_server_add_service(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT,service_name, "_webdav._tcp", NULL, NULL, 80, "foo", NULL) < 0) {
         avahi_log_error("Failed to add WEBDAV service");
         goto fail;
     }
@@ -191,7 +191,7 @@ static void create_entries(int new_name) {
     error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_USE_WIDE_AREA|AVAHI_PUBLISH_USE_MULTICAST, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53);
     assert(error == AVAHI_ERR_INVALID_FLAGS);
 
-    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
+    if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
         avahi_log_error("Failed to add new DNS Server address");
         goto fail;
     }
@@ -199,7 +199,7 @@ static void create_entries(int new_name) {
     r = avahi_record_new_full("cname.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, AVAHI_DEFAULT_TTL);
     r->data.cname.name = avahi_strdup("cocaine.local");
 
-    if (avahi_server_add(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, r) < 0) {
+    if (avahi_server_add(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_DEFAULT, r) < 0) {
         avahi_record_unref(r);
         avahi_log_error("Failed to add CNAME record");
         goto fail;

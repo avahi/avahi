@@ -42,6 +42,7 @@ noinst_PROGRAMS = \
 	dns-spin-test \
 	timeeventq-test \
 	hashmap-test \
+	iface-test \
 	querier-test \
 	update-test \
 	cname-test
@@ -49,7 +50,8 @@ noinst_PROGRAMS = \
 TESTS = \
 	dns-spin-test \
 	dns-test \
-	hashmap-test
+	hashmap-test \
+	iface-test
 endif
 
 libavahi_core_la_SOURCES = \
@@ -171,6 +173,11 @@ hashmap_test_SOURCES = \
 	util.h util.c
 hashmap_test_CFLAGS = $(AM_CFLAGS)
 hashmap_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
+
+iface_test_SOURCES = \
+	iface-test.c
+iface_test_CFLAGS = $(AM_CFLAGS)
+iface_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
 
 valgrind: avahi-test
 	$(LIBTOOL) --mode=execute valgrind --leak-check=full --track-origins=yes --track-fds=yes --error-exitcode=1 ./avahi-test

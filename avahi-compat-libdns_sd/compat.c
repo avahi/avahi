@@ -310,7 +310,6 @@ static void * thread_func(void *data) {
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
     sdref->thread = pthread_self();
-    sdref->thread_running = 1;
 
     for (;;) {
         char command;

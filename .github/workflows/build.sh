@@ -127,6 +127,28 @@ install_radamsa() {
     popd
 }
 
+# drill started rejecting replies coming from addresses different
+# from the server the queries are sent to. It makes sense in the
+# context of DNS but it all fails in the context of mDNS where replies
+# don't come from 224.0.0.251/ff02::fb.
+#
+# https://github.com/NLnetLabs/ldns/commit/a21fb16686bbe3355886905f95e13eab5144d805
+pin_drill() {
+    local _d _r=ldns-1.9.0
+
+    _d=$(mktemp -d)
+    curl --output "$_d/$_r.tar.gz" "https://nlnetlabs.nl/downloads/ldns/$_r.tar.gz"
+    tar -xzvf "$_d/$_r.tar.gz" -C "$_d"
+    pushd "$_d/$_r"
+    # --disable-dane-ta-usage is used to get it to build on OpenBSD
+    # https://github.com/openbsd/ports/blob/c8a83c099f89c22597d70a9536b7390b23652bac/net/ldns/Makefile#L43
+    ./configure --with-drill --disable-dane-ta-usage
+    $MAKE
+    drill/drill -v
+    PATH="$(pwd)/drill:$PATH"
+    popd
+}
+
 trim_sandbox() {
     sed -i.bak 's/^\(Lock\|Memory\|NoNew\|Private\|Protect\|Restart\|Restrict\|SystemCall\)/#\1/' "$1"
 }
@@ -140,7 +162,7 @@ case "$1" in
         apt-get install -y gcc clang lcov
         apt-get install -y mono-mcs monodoc-base libmono-posix4.0-ci
 
-        apt-get install -y libtool-bin valgrind socat ldnsutils
+        apt-get install -y libssl-dev libtool-bin valgrind socat
         apt-get install -y gdb systemd-coredump
 
         apt-get install -y libglib2.0-dev meson curl
@@ -167,7 +189,7 @@ case "$1" in
         pkg remove -fy avahi-app
         ;;
     install-build-deps-Alpine)
-        apk add autoconf automake clang coreutils dbus dbus-dev drill expat-dev gcc g++ \
+        apk add autoconf automake clang coreutils curl dbus dbus-dev expat-dev gcc g++ \
             gdbm-dev gettext-dev git glib-dev gobject-introspection-dev gtk+3.0-dev \
             gzip libdaemon-dev libevent-dev libtool make meson mono-dev musl-dbg musl-dev \
             py3-dbus py3-gobject3-dev py3-setuptools python3-dev python3-gdbm \
@@ -181,7 +203,7 @@ case "$1" in
         # https://www.netbsd.org/mirrors/#pkgsrc-main
         PKG_PATH="https://ftp.jaist.ac.jp/$path;https://ftp.NetBSD.org/$path;https://cdn.NetBSD.org/$path" \
         PKG_RCD_SCRIPTS=yes \
-            pkg_add -u autoconf automake clang compiler-rt dbus drill expat gettext git glib gmake intltool libdaemon libtool \
+            pkg_add -u autoconf automake clang compiler-rt dbus expat gettext git glib gmake intltool libdaemon libtool \
             meson pkgconf python314 socat wget
         install_dfuzzer
         install_radamsa
@@ -195,14 +217,14 @@ case "$1" in
         [[ "${BOOTSTRAP_SHA}" == "$(/bin/digest -a sha1 ${BOOTSTRAP_TAR})" ]]
         tar -zxpf "${BOOTSTRAP_TAR}" -C /
 
-        pkg_add -u autoconf automake drill expat gettext git glib2 gmake intltool libdaemon libtool \
+        pkg_add -u autoconf automake expat gettext git glib2 gmake intltool libdaemon libtool \
             meson pkgconf socat
         pkg install gcc14
         install_dfuzzer
         ;;
     install-build-deps-openbsd)
         PKG_PATH="installpath:https://cdn.openbsd.org/%m" \
-        pkg_add -U "autoconf-${AUTOCONF_VERSION}p0" "automake-${AUTOMAKE_VERSION}.1" dbus drill git glib2 \
+        pkg_add -U "autoconf-${AUTOCONF_VERSION}p0" "automake-${AUTOMAKE_VERSION}.1" dbus git glib2 \
             gmake intltool libdaemon libtool meson socat xmltoman
         install_dfuzzer
         ;;
@@ -545,6 +567,8 @@ EOL
             adduser --system --group avahi
             systemctl reload dbus
         fi
+
+        pin_drill
 
         exit_code=0
         if ! .github/workflows/smoke-tests.sh; then

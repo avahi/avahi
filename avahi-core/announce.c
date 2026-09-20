@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include <avahi-common/timeval.h>
+#include <avahi-common/domain.h>
 #include <avahi-common/malloc.h>
 
 #include "announce.h"
@@ -33,6 +34,7 @@
 #define AVAHI_ANNOUNCEMENT_JITTER_MSEC 250
 #define AVAHI_PROBE_JITTER_MSEC 250
 #define AVAHI_PROBE_INTERVAL_MSEC 250
+#define AVAHI_PROBE_TIEBREAK_DEFER_MSEC 1000
 
 static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     assert(s);
@@ -495,6 +497,60 @@ void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e) {
     assert(!e->dead);
 
     avahi_interface_monitor_walk(s->monitor, e->interface, e->protocol, reannounce_walk_callback, e);
+}
+
+static void defer_announcer(AvahiAnnouncer *a, const struct timeval *when) {
+    AvahiEntry *e;
+
+    assert(a);
+    e = a->entry;
+
+    /* A waiting announcer finished probing and left the probing count
+     * of its group, so it joins it again */
+    if (a->state == AVAHI_WAITING && e->group)
+        e->group->n_probing++;
+
+    a->state = AVAHI_PROBING;
+    a->n_iteration = 1;
+    a->sec_delay = 1;
+
+    set_timeout(a, when);
+}
+
+void avahi_defer_probing(AvahiServer *s, AvahiInterface *i, const char *name) {
+    AvahiEntry *e;
+    struct timeval tv;
+
+    assert(s);
+    assert(i);
+    assert(name);
+
+    /* RFC 6762 section 8.2: a host that loses a simultaneous probe
+     * tiebreak "defers to the winning host by waiting one second, and
+     * then begins probing for this record again". The winning probe
+     * may be stale, possibly one this host sent itself before a
+     * configuration change, so the name is not given up here. A real
+     * winner finishes probing during the delay and answers the new
+     * probes, which handle_conflict() then treats as a conflict.
+     *
+     * Every record of the name that probes on the interface is
+     * deferred, not only the RRset that lost, and all of them get the
+     * same deadline. A probe asks for the name with type ANY, so a
+     * sibling record that kept probing would draw a denial for the
+     * name before the deferred record sent its first new probe, and
+     * that denial would be ignored as stale. */
+
+    avahi_elapse_time(&tv, AVAHI_PROBE_TIEBREAK_DEFER_MSEC, AVAHI_PROBE_JITTER_MSEC);
+
+    for (e = s->entries; e; e = e->entries_next) {
+        AvahiAnnouncer *a;
+
+        if (e->dead || (e->flags & AVAHI_PUBLISH_NO_PROBE) || !avahi_domain_equal(e->record->key->name, name) || !avahi_entry_is_probing(s, e, i))
+            continue;
+
+        if ((a = get_announcer(s, e, i)))
+            defer_announcer(a, &tv);
+    }
 }
 
 void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int remove) {

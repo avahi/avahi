@@ -230,8 +230,8 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         if (won)
             avahi_log_debug("Received conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Withdrawing.", t);
-            withdraw_rrset(s, record->key);
+            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Deferring probing.", t);
+            avahi_defer_probing(s, i, record->key->name);
         }
 
         avahi_free(t);

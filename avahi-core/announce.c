@@ -36,7 +36,7 @@
 #define AVAHI_PROBE_INTERVAL_MSEC 250
 #define AVAHI_PROBE_TIEBREAK_DEFER_MSEC 1000
 
-static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
+static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a, int check_probed) {
     assert(s);
     assert(a);
 
@@ -47,9 +47,10 @@ static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_entry, a->entry->announcers, a);
 
     if (a->state == AVAHI_PROBING && a->entry->group) {
-	assert(a->entry->group->n_probing);
-	a->entry->group->n_probing--;
-	avahi_s_entry_group_check_probed(a->entry->group, 1);
+        assert(a->entry->group->n_probing);
+        a->entry->group->n_probing--;
+        if (check_probed)
+            avahi_s_entry_group_check_probed(a->entry->group, 1);
     }
 
     avahi_free(a);
@@ -584,7 +585,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye
 
     if (remove)
         while (i->announcers)
-            remove_announcer(s, i->announcers);
+            remove_announcer(s, i->announcers, 1);
 }
 
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int remove) {
@@ -595,8 +596,10 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int re
         if (!e->dead)
             avahi_interface_monitor_walk(s->monitor, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, send_goodbye_callback, e);
 
+    /* The entry is going away. Completing its group's registration
+     * here would announce records that are being withdrawn. */
     if (remove)
         while (e->announcers)
-            remove_announcer(s, e->announcers);
+            remove_announcer(s, e->announcers, 0);
 }
 

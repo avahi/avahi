@@ -344,6 +344,22 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
         (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
 }
 
+int avahi_entry_first_probe_sent(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
+    AvahiAnnouncer *a;
+
+    assert(s);
+    assert(e);
+    assert(i);
+    assert(!e->dead);
+
+    if (!(a = get_announcer(s, e, i)))
+        return 0;
+
+    return
+        (a->state == AVAHI_PROBING && a->n_iteration > 1) ||
+        (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
+}
+
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     AvahiAnnouncer *a;
 

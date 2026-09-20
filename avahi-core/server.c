@@ -1140,6 +1140,12 @@ static void server_set_state(AvahiServer *s, AvahiServerState state) {
 static void withdraw_host_rrs(AvahiServer *s) {
     assert(s);
 
+    /* Address groups that still register leave the count as they
+     * are withdrawn. The callers set the server state afterwards, so
+     * the count must not reach zero and start the server here. The
+     * assignment at the end balances this increment. */
+    s->n_host_rr_pending ++;
+
     if (s->hinfo_entry_group)
         avahi_s_entry_group_reset(s->hinfo_entry_group);
 

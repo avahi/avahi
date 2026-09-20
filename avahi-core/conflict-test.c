@@ -61,6 +61,12 @@
  *                   the PROBING subtest of the Bonjour Conformance
  *                   Test).
  *
+ *   holdoff         An entry group is committed, then reset and
+ *                   committed again four times within the holdoff of
+ *                   the first registration. It must register one
+ *                   holdoff after the first commit, not one holdoff per
+ *                   commit.
+ *
  * Exits with 0 when all scenarios pass, 1 on failure and 77 when the
  * test cannot run on this host. */
 
@@ -739,6 +745,39 @@ static void scenario_tiebreak_denial(const char *ifname) {
     server_stop();
 }
 
+static void scenario_holdoff(const char *ifname) {
+    const char *name = "holdoff";
+    AvahiAddress a;
+    unsigned n;
+
+    peer_reset();
+    server_start(ifname, 0);
+    run_for(2000);
+
+    /* The first commit registers the group at once. The four commits
+     * after it fall into the one second holdoff of that registration
+     * and wait. The wait ends one second after the first registration;
+     * it must not grow by one holdoff per commit. */
+    avahi_address_parse("10.42.0.3", AVAHI_PROTO_INET, &a);
+    group = avahi_s_entry_group_new(server, group_callback, NULL);
+    must(group);
+
+    for (n = 0; n < 5; n++) {
+        if (n > 0)
+            avahi_s_entry_group_reset(group);
+
+        must(avahi_server_add_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, GROUP_NAME, &a) >= 0);
+        must(avahi_s_entry_group_commit(group) >= 0);
+    }
+
+    run_for(3000);
+    check(avahi_s_entry_group_get_state(group) == AVAHI_ENTRY_GROUP_ESTABLISHED, name, "a group reset four times during its holdoff registered one holdoff after its first commit");
+
+    avahi_s_entry_group_free(group);
+    group = NULL;
+    server_stop();
+}
+
 int main(int argc, char *argv[]) {
     char ifname[IF_NAMESIZE];
     const char *wanted = NULL;
@@ -793,6 +832,7 @@ int main(int argc, char *argv[]) {
     scenario_stale_response(ifname);
     scenario_withdraw(ifname);
     scenario_tiebreak_denial(ifname);
+    scenario_holdoff(ifname);
 
     peer_close();
     avahi_simple_poll_free(simple_poll);

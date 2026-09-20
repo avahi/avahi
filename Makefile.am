@@ -34,6 +34,7 @@ EXTRA_DIST = \
 	docs/API-CHANGES-0.6 \
 	docs/COMPAT-LAYERS \
 	docs/MALLOC \
+	docs/BONJOUR-CONFORMANCE-TEST \
 	docs/overview.dia \
 	docs/server-states.dia \
 	docs/avahi-poll.dia \

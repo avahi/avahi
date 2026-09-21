@@ -28,7 +28,7 @@
 #include "howl.h"
 
 #define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); must(_r == SW_OKAY); }
-#define ASSERT_NOT_NULL(t) { const void* _r; r = (t); must(_r); }
+#define ASSERT_NOT_NULL(t) { const void* _r; _r = (t); must(_r); }
 
 static sw_result reply(
     AVAHI_GCC_UNUSED sw_discovery discovery,

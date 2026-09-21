@@ -28,7 +28,7 @@
 #include "howl.h"
 
 #define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); must(_r == SW_OKAY); }
-#define ASSERT_NOT_NULL(t) { const void* _r; r = (t); must(_r); }
+#define ASSERT_NOT_NULL(t) { const void* _r; _r = (t); must(_r); }
 
 static void hexdump(const void* p, size_t size) {
     const uint8_t *c = p;

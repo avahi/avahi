@@ -131,8 +131,10 @@ utf8_test_LDADD = $(AM_LDADD)
 
 if HAVE_DBUS
 
+avahi_commoninclude_HEADERS += \
+	dbus.h
+
 noinst_HEADERS = \
-	dbus.h \
 	dbus-watch-glue.h
 
 endif

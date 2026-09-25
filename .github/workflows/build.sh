@@ -177,7 +177,7 @@ case "$1" in
         cp /etc/pkg/FreeBSD.conf /usr/local/etc/pkg/repos/FreeBSD.conf
         sed -i.bak -e 's|/quarterly|/latest|' /usr/local/etc/pkg/repos/FreeBSD.conf
 
-        pkg install -y gettext-runtime gettext-tools gmake intltool \
+        pkg install -y gettext-runtime gettext-tools gmake gtar intltool \
             gobject-introspection pkgconf expat libdaemon dbus-glib dbus gdbm \
             libevent glib automake libtool libinotify qt5-core qt5-buildtools \
             gtk3 python3 mono git socat \

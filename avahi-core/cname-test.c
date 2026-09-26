@@ -35,6 +35,7 @@
 #include <avahi-core/log.h>
 #include <avahi-core/lookup.h>
 #include <avahi-core/cache.h>
+#include <avahi-common/test-util.h>
 
 static AvahiCache *cache = NULL;
 static AvahiServer *server = NULL;
@@ -171,7 +172,7 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
                         avahi_server_get_host_name_fqdn(s), avahi_server_get_local_service_cookie(s));
 
         server = s;
-        assert(avahi_test_case_function);
+        must(avahi_test_case_function);
         avahi_test_case_function();
         avahi_log_debug("Server configuration complete.");
     }
@@ -210,7 +211,7 @@ static void hnr_callback(
         avahi_test_case_function = &function;
 
 static void avahi_test_initialize(char *test_case) {
-    assert(test_case);
+    must(test_case);
 
     CHECK_TEST_CASE("self_loop", self_loop);
     CHECK_TEST_CASE("retransmit_cname", retransmit_cname);
@@ -227,7 +228,7 @@ static void avahi_test_initialize(char *test_case) {
     CHECK_TEST_CASE("cname_answer_diamond", cname_answer_diamond);
     CHECK_TEST_CASE("cname_answer", cname_answer);
 
-    assert(avahi_test_case_function);
+    must(avahi_test_case_function);
 }
 
 static void run(AvahiLookupFlags flags) {

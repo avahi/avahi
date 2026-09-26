@@ -230,8 +230,8 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
         if (won)
             avahi_log_debug("Received conflicting probe [%s]. Local host won.", t);
         else if (lost) {
-            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Withdrawing.", t);
-            withdraw_rrset(s, record->key);
+            avahi_log_debug("Received conflicting probe [%s]. Local host lost. Deferring probing.", t);
+            avahi_defer_probing(s, i, record->key->name);
         }
 
         avahi_free(t);
@@ -239,7 +239,7 @@ static void incoming_probe(AvahiServer *s, AvahiRecord *record, AvahiInterface *
 }
 
 static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *record, int unique) {
-    int valid = 1, ours = 0, conflict = 0, withdraw_immediately = 0;
+    int valid = 1, ours = 0, conflict = 0, withdraw_immediately = 0, ignored = 0;
     AvahiEntry *e, *n, *conflicting_entry = NULL;
 
     assert(s);
@@ -309,6 +309,17 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
 
             } else if (avahi_entry_is_probing(s, e, i)) {
 
+                if (!avahi_entry_first_probe_sent(s, e, i)) {
+                    /* RFC 6762 section 8.1: conflicting responses
+                     * received before the first probe is sent are
+                     * stale and are ignored, and not cached or
+                     * reflected either. Another entry of the RRset
+                     * may have probed already; then the whole RRset
+                     * is withdrawn below. */
+                    ignored = 1;
+                    continue;
+                }
+
                 /* We are currently registering a matching record, but
                  * someone else already claimed it, so let's
                  * withdraw */
@@ -316,6 +327,13 @@ static int handle_conflict(AvahiServer *s, AvahiInterface *i, AvahiRecord *recor
                 withdraw_immediately = 1;
             }
         }
+    }
+
+    if (!ours && !conflict && ignored) {
+        char *t = avahi_record_to_string(record);
+        avahi_log_debug("Received conflicting record [%s] before probing started. Ignoring.", t);
+        avahi_free(t);
+        valid = 0;
     }
 
     if (!ours && conflict) {

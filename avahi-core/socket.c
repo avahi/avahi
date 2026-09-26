@@ -336,6 +336,12 @@ int avahi_open_socket_ipv4(int no_reuse) {
         goto fail;
     }
 
+    /* Before bind(): BSD kernels attach the control messages when they
+     * queue a datagram, with the options set at that moment, and queue
+     * multicast to every socket bound to the port. */
+    if (ipv4_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
     local.sin_port = htons(AVAHI_MDNS_PORT);
@@ -347,9 +353,6 @@ int avahi_open_socket_ipv4(int no_reuse) {
 
     if (r < 0)
         goto fail;
-
-    if (ipv4_pktinfo (fd) < 0)
-         goto fail;
 
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
@@ -406,6 +409,10 @@ int avahi_open_socket_ipv6(int no_reuse) {
         goto fail;
     }
 
+    /* Before bind(), see avahi_open_socket_ipv4(). */
+    if (ipv6_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
     local.sin6_port = htons(AVAHI_MDNS_PORT);
@@ -416,9 +423,6 @@ int avahi_open_socket_ipv6(int no_reuse) {
         r = bind_with_warn(fd, (struct sockaddr*) &local, sizeof(local));
 
     if (r < 0)
-        goto fail;
-
-    if (ipv6_pktinfo(fd) < 0)
         goto fail;
 
     if (avahi_set_cloexec(fd) < 0) {
@@ -790,7 +794,13 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv4(
         }
     }
 
-    assert(found_addr);
+    /* The kernel decides what it attaches, so this is handled in every
+     * build; the assert makes a debug build loud about it. */
+    if (!found_addr) {
+        avahi_log_warn("Received IPv4 packet without destination address information. Ignoring.");
+        assert(0);
+        goto fail;
+    }
 
     return p;
 
@@ -912,8 +922,11 @@ AvahiDnsPacket *avahi_recv_dns_packet_ipv6(
         }
     }
 
-    assert(found_iface);
-    assert(found_ttl);
+    if (!found_iface || !found_ttl) {
+        avahi_log_warn("Received IPv6 packet without interface or hop limit information. Ignoring.");
+        assert(0);
+        goto fail;
+    }
 
     return p;
 
@@ -933,16 +946,15 @@ int avahi_open_unicast_socket_ipv4(void) {
         goto fail;
     }
 
+    if (ipv4_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
 
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         avahi_log_warn("bind() failed: %s", strerror(errno));
         goto fail;
-    }
-
-    if (ipv4_pktinfo(fd) < 0) {
-         goto fail;
     }
 
     if (avahi_set_cloexec(fd) < 0) {
@@ -979,6 +991,9 @@ int avahi_open_unicast_socket_ipv6(void) {
         goto fail;
     }
 
+    if (ipv6_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
 
@@ -986,9 +1001,6 @@ int avahi_open_unicast_socket_ipv6(void) {
         avahi_log_warn("bind() failed: %s", strerror(errno));
         goto fail;
     }
-
-    if (ipv6_pktinfo(fd) < 0)
-        goto fail;
 
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));

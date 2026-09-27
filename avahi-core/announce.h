@@ -65,5 +65,6 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int rem);
 
 void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e);
+void avahi_reannounce_entry_interface(AvahiServer *s, AvahiEntry *e, AvahiInterface *i, unsigned msec);
 
 #endif

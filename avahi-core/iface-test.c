@@ -65,5 +65,48 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     r = address_on_link("192.0.2.1", 33, "192.0.2.1");
     assert(r == 0);
 
+    r = avahi_interface_name_match("eth0", "eth0");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("ETH0", "eth0");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("eth0", "eth1");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("eth", "eth0");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("veth*", "veth3840cf0c");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("VETH*", "veth3840cf0c");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("veth*", "eth0");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("*", "anything");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("eth?", "eth1");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("eth?", "eth10");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("ens1f[01]", "ens1f1");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("ens1f[01]", "ens1f2");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("flannel*", "flannel-v6.1");
+    assert(r == 1);
+
+    /* A literal name containing wildcard characters still matches exactly */
+    r = avahi_interface_name_match("br[0]", "br[0]");
+    assert(r == 1);
+
     return 0;
 }

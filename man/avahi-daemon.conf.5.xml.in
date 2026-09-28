@@ -83,7 +83,10 @@
       allowed network interfaces that should be used by the
       avahi-daemon. Traffic on other interfaces will be ignored. If
       set to an empty list all local interfaces except loopback and
-      point-to-point will be used.</p>
+      point-to-point will be used. Entries may contain the shell
+      wildcards <opt>*</opt>, <opt>?</opt> and <opt>[...]</opt>, see
+      fnmatch(3), for example <opt>eth*</opt>. Interface names are
+      compared case-insensitively.</p>
     </option>
 
     <option>
@@ -91,7 +94,9 @@
       network interfaces that should be ignored by avahi-daemon.
       Other not specified interfaces will be used, unless
       <opt>allow-interfaces=</opt> is set. This option takes
-      precedence over <opt>allow-interfaces=</opt>.</p>
+      precedence over <opt>allow-interfaces=</opt>. Entries may
+      contain shell wildcards like in <opt>allow-interfaces=</opt>,
+      for example <opt>veth*</opt>.</p>
     </option>
 
     <option>

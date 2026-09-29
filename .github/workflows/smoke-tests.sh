@@ -330,6 +330,24 @@ drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local SRV | grep -F '4321 
 drill -p5353 @127.0.0.1 test-notifications._qotd._tcp.local TXT | grep -F '"k1=v1" "k2=v2" "k3=v3"'
 drill -p5353 @127.0.0.1 _test._sub._qotd._tcp.local PTR | grep -F test-notifications._qotd._tcp.local
 
+# a legacy unicast response that drops records that do not fit has TC set
+t=$(perl -e 'print("x" x 150)')
+cat <<EOL >"$sysconfdir/avahi/services/test-legacy-unicast-tc.service"
+<service-group>
+  <name>test-legacy-unicast-tc</name>
+  <service>
+    <type>_tc._tcp</type>
+    <port>4321</port>
+    <txt-record>t1=$t</txt-record>
+    <txt-record>t2=$t</txt-record>
+    <txt-record>t3=$t</txt-record>
+  </service>
+</service-group>
+EOL
+drill -p5353 @127.0.0.1 _tc._tcp.local PTR | grep -F test-legacy-unicast-tc._tc._tcp.local
+drill -p5353 @127.0.0.1 _tc._tcp.local PTR | grep '^;; flags:' | grep -wF tc
+drill -p5353 @127.0.0.1 _test._sub._qotd._tcp.local PTR | grep '^;; flags:' | grep -vwF tc
+
 if [[ "$WITH_DBUS" == true ]]; then
     avahi-browse -arpt | grep -F 'test-notifications;_qotd._tcp;local;ipv46.local;192.0.2.2;4321;"k1=v1" "k2=v2" "k3=v3"'
     gdbus call --system --dest org.freedesktop.Avahi --object-path / --method org.freedesktop.Avahi.Server2.ResolveService \

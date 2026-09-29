@@ -383,6 +383,11 @@ void avahi_server_generate_response(AvahiServer *s, AvahiInterface *i, AvahiDnsP
                 char *t = avahi_record_to_string(r);
                 avahi_log_warn("Record [%s] not fitting in legacy unicast packet, dropping.", t);
                 avahi_free(t);
+
+                /* RFC 6762, section 18.5: in a legacy unicast response the TC
+                 * bit means the response did not fit in a single packet. */
+                avahi_dns_packet_set_field(reply, AVAHI_DNS_FIELD_FLAGS,
+                                           avahi_dns_packet_get_field(reply, AVAHI_DNS_FIELD_FLAGS) | AVAHI_DNS_FLAG_TC);
             }
 
             avahi_record_unref(r);

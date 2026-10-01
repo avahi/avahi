@@ -5,14 +5,14 @@
 # Translators:
 # mohammad Alhargan <malham1@gmail.com>, 2011
 # mohammad alhargan <malham1@hotmail.com>, 2011
-# Ahmed Najmawi <iramosu@protonmail.com>, 2025.
+# Ahmed Najmawi <iramosu@protonmail.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:18+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Ahmed Najmawi <iramosu@protonmail.com>\n"
 "Language-Team: Arabic <https://translate.fedoraproject.org/projects/avahi/"
 "master/ar/>\n"
 "Language: ar\n"

@@ -9,7 +9,7 @@
 # Martin-Gomez Pablo <pablomg+transifex@eskapa.be>, 2008
 # Matthieu Rondeau <milanito1985@yahoo.fr>, 2008
 # Martin-Gomez Pablo <pablomg+transifex@eskapa.be>, 2008
-# Vincent Chatelain <vincent_chatelain@proton.me>, 2025.
+# Vincent Chatelain <vincent_chatelain@proton.me>, 2025, 2026.
 # Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2026.
 msgid ""
 msgstr ""
@@ -17,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:20+0000\n"
-"Last-Translator: Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>\n"
+"Last-Translator: Vincent Chatelain <vincent_chatelain@proton.me>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/avahi/"
 "master/fr/>\n"
 "Language: fr\n"
@@ -581,8 +581,8 @@ msgstr " : mémoire cache saturée\n"
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
 msgstr ""
-"Échec de résolution du service « %s » de type « %s » dans le domaine « %s » :"
-" %s\n"
+"Échec de résolution du service « %s » de type « %s » dans le domaine « %s » "
+": %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format

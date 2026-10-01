@@ -41,11 +41,7 @@ valgrind_log_file="/tmp/valgrind.avahi-daemon.%p"
 
 dump_journal() {
     if command -v journalctl >/dev/null 2>&1 && journalctl --sync 2>/dev/null; then
-        if [[ "$WITH_SYSTEMD" == true ]]; then
-            journalctl -b -u "avahi-*" --no-pager
-        else
-            journalctl -b -t avahi-daemon --no-pager
-        fi
+        journalctl -b -u "avahi-*" --no-pager
     elif [[ -r /var/log/syslog ]]; then
         cat /var/log/syslog
     elif [[ -r /var/log/messages ]]; then

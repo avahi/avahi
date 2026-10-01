@@ -2,14 +2,15 @@
 # Copyright (C) YEAR The Avahi developers.
 # This file is distributed under the same license as the avahi package.
 # ButterflyOfFire <butterflyoffire@protonmail.com>, 2024.
-# ButterflyOfFire <butterflyoffire@users.noreply.translate.fedoraproject.org>, 2024.
+# ButterflyOfFire <butterflyoffire@users.noreply.translate.fedoraproject.org>, 2024, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2024-08-10 10:03+0000\n"
 "PO-Revision-Date: 2026-10-01 11:22+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: ButterflyOfFire "
+"<butterflyoffire@users.noreply.translate.fedoraproject.org>\n"
 "Language-Team: Kabyle <https://translate.fedoraproject.org/projects/avahi/"
 "master/kab/>\n"
 "Language: kab\n"

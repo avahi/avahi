@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024, 2026.
 # Jan Kuparinen <copper_fin@hotmail.com>, 2024.
 # Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025.
 msgid ""
@@ -12,7 +12,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:19+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/avahi/"
 "master/fi/>\n"
 "Language: fi\n"

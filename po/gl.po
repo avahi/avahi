@@ -9,15 +9,16 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2013-11-20 09:58+0000\n"
-"Last-Translator: Fran Diéguez <frandieguez@ubuntu.com>\n"
-"Language-Team: Galician (http://www.transifex.com/lennart/avahi/language/"
-"gl/)\n"
+"PO-Revision-Date: 2026-10-01 11:20+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Galician <https://translate.fedoraproject.org/projects/avahi/"
+"master/gl/>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -302,8 +303,7 @@ msgstr "Dominio"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
-"O dominio polo que navegar, ou NULL para empregar o dominio predefinido"
+msgstr "O dominio polo que navegar, ou NULL para empregar o dominio predefinido"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
@@ -394,8 +394,7 @@ msgstr "Produciuse un erro no localizador Avahi: %s"
 #: ../avahi-ui/avahi-ui.c:518
 #, c-format
 msgid "Browsing for service type %s in domain %s failed: %s"
-msgstr ""
-"Produciuse un erro ao navegar polo tipo de servizo %s no dominio %s: %s"
+msgstr "Produciuse un erro ao navegar polo tipo de servizo %s no dominio %s: %s"
 
 #: ../avahi-ui/avahi-ui.c:519 ../avahi-utils/avahi-browse.c:168
 #: ../avahi-utils/avahi-browse.c:169 ../avahi-utils/avahi-browse.c:178

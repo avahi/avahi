@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# 김인수 <simmon@nplob.com>, 2024.
+# 김인수 <simmon@nplob.com>, 2024, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:20+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/avahi/"
 "master/ja/>\n"
 "Language: ja\n"
@@ -571,8 +571,9 @@ msgstr ": キャッシュが不足しています\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: %4$"
-"s\n"
+msgstr ""
+"ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: "
+"%4$s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format

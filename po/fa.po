@@ -4,13 +4,14 @@
 #
 # Translators:
 # Sadid Sahami <sadidsahami@gmail.com>, 2011
+# Rafael Fontenelle <rafaelff@gnome.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2022-04-02 03:24+0000\n"
 "PO-Revision-Date: 2026-10-01 11:19+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Persian <https://translate.fedoraproject.org/projects/avahi/"
 "master/fa/>\n"
 "Language: fa\n"

@@ -4,7 +4,7 @@
 #
 # Translators:
 # Robert Antoni Buj i Gelonch <rbuj@fedoraproject.org>, 2015
-# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024, 2026.
 # naly zzwd <xeanhort007@gmail.com>, 2025.
 msgid ""
 msgstr ""
@@ -12,7 +12,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:18+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Catalan <https://translate.fedoraproject.org/projects/avahi/"
 "master/ca/>\n"
 "Language: ca\n"

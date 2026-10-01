@@ -791,7 +791,10 @@ int avahi_interface_address_on_link(AvahiInterface *i, const AvahiAddress *a) {
         if (a->proto == AVAHI_PROTO_INET) {
             uint32_t m;
 
-            m = ~(((uint32_t) -1) >> ia->prefix_len);
+            if (ia->prefix_len > 32)
+                continue;
+
+            m = ia->prefix_len == 0 ? 0 : UINT32_MAX << (32 - ia->prefix_len);
 
             if ((ntohl(a->data.ipv4.address) & m) == (ntohl(ia->address.data.ipv4.address) & m))
                 return 1;

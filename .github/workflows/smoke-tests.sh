@@ -40,13 +40,23 @@ avahi_socket="$avahi_daemon_runtime_dir/socket"
 valgrind_log_file="/tmp/valgrind.avahi-daemon.%p"
 
 dump_journal() {
-    if [[ "$WITH_SYSTEMD" == false ]]; then
-        cat /var/adm/messages || true
-        cat /var/log/messages
-    else
-        journalctl --sync
-        journalctl -b -u "avahi-*" --no-pager
+    local log_file
+
+    # A non-systemd build can still be logging to the host journal.
+    if command -v journalctl >/dev/null 2>&1 && journalctl --sync 2>/dev/null; then
+        if [[ "$WITH_SYSTEMD" == true ]]; then
+            journalctl -b -u "avahi-*" --no-pager
+        else
+            journalctl -b -t avahi-daemon --no-pager
+        fi
+        return
     fi
+
+    for log_file in /var/log/syslog /var/log/messages /var/adm/messages; do
+        if [[ -r "$log_file" ]]; then
+            cat "$log_file"
+        fi
+    done
 }
 
 run() {
@@ -497,18 +507,6 @@ _simple_protocol_limits_cleanup() {
 
     rm -f /run/systemd/system/avahi-daemon.service.d/test-rlimit.conf 2>/dev/null
     systemctl daemon-reload 2>/dev/null || true
-}
-
-_simple_protocol_limits_log() {
-    if command -v journalctl >/dev/null 2>&1 && journalctl --sync 2>/dev/null; then
-        journalctl -b -t avahi-daemon --no-pager
-    elif [[ -f /var/log/syslog ]]; then
-        cat /var/log/syslog
-    elif [[ -f /var/log/messages ]]; then
-        cat /var/log/messages
-    elif [[ -f /var/adm/messages ]]; then
-        cat /var/adm/messages
-    fi
 }
 
 _simple_protocol_limits_count() {

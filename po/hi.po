@@ -9,15 +9,16 @@ msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2024-05-18 15:24+0000\n"
-"PO-Revision-Date: 2024-05-19 14:21+0530\n"
-"Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
-"Language-Team: Hindi <indlinux-hindi@lists.sourceforge.net>\n"
+"PO-Revision-Date: 2026-10-01 11:20+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hindi <https://translate.fedoraproject.org/projects/avahi/"
+"master/hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 46.1\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #: avahi-common/error.c:30
 msgid "OK"
@@ -434,7 +435,8 @@ msgstr "%s के लिए ब्राउज़र बनाने में �
 #: avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr "डोमेन %3$s में %2$s प्रकार के %1$s के लिए रिज़ॉल्वर बनाने में विफल: %4$s"
+msgstr ""
+"डोमेन %3$s में %2$s प्रकार के %1$s के लिए रिज़ॉल्वर बनाने में विफल: %4$s"
 
 #: avahi-ui/avahi-ui.c:982
 #, c-format
@@ -569,7 +571,8 @@ msgstr ": कैशे समाप्त हो गया\n"
 #: avahi-utils/avahi-browse.c:239 avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "डोमेन '%3$s' में '%2$s' प्रकार की सेवा '%1$s' का रिज़ॉल्व करने में विफल: %4$s\n"
+msgstr ""
+"डोमेन '%3$s' में '%2$s' प्रकार की सेवा '%1$s' का रिज़ॉल्व करने में विफल: %4$s\n"
 
 #: avahi-utils/avahi-browse.c:340
 #, c-format

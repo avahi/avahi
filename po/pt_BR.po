@@ -2,15 +2,14 @@
 # Copyright (C) 2020 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the avahi package.
 # nullck <nullck@fedoraproject.org>, 2011
-# Rafael Fontenelle <rafaelff@gnome.org>, 2018-2020.
-#
+# Rafael Fontenelle <rafaelff@gnome.org>, 2018-2020, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2020-07-18 03:24+0000\n"
 "PO-Revision-Date: 2026-10-01 11:21+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.fedoraproject.org/"
 "projects/avahi/master/pt_BR/>\n"
 "Language: pt_BR\n"

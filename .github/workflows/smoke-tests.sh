@@ -514,7 +514,7 @@ _simple_protocol_limits_log() {
 _simple_protocol_limits_count() {
     local _pattern="$1" _count=0
 
-    _count=$(_simple_protocol_limits_log | grep -c "$_pattern") || _count=0
+    _count=$(dump_journal | grep -c "$_pattern") || _count=0
 
     printf "%d" "$_count"
 }
@@ -530,7 +530,7 @@ _simple_protocol_limits_assert_empty() {
         return 0
     fi
 
-    _line=$(_simple_protocol_limits_log | grep " accepted: " | tail -n1) || _line=""
+    _line=$(dump_journal | grep " accepted: " | tail -n1) || _line=""
     if [[ "$_line" =~ simple\ client\ [0-9]+/([0-9]+)\ accepted ]]; then
         _n="${BASH_REMATCH[1]}"
     fi
@@ -546,7 +546,7 @@ _simple_protocol_limits_assert_empty() {
 _simple_protocol_limits_read_limits() {
     local _line=""
 
-    _line=$(_simple_protocol_limits_log \
+    _line=$(dump_journal \
         | grep "Maximal simple clients:" | tail -n1) || _line=""
 
     if [[ "$_line" =~ Maximal\ simple\ clients:\ ([0-9]+),\ per_uid:\ ([0-9]+) ]]; then

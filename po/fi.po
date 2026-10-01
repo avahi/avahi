@@ -5,14 +5,14 @@
 # Translators:
 # Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024, 2026.
 # Jan Kuparinen <copper_fin@hotmail.com>, 2024, 2026.
-# Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025.
+# Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:19+0000\n"
-"Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
+"Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/avahi/"
 "master/fi/>\n"
 "Language: fi\n"

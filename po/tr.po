@@ -5,14 +5,14 @@
 # H. İbrahim Güngör <igungor@gmail.com>, 2011-2012
 # Necdet Yücel <necdetyucel@gmail.com>, 2014
 # Muhammet Kara <muhammetk@gmail.com>, 2011, 2016.
-# Oğuz Ersen <oguz@ersen.moe>, 2024.
+# Oğuz Ersen <oguz@ersen.moe>, 2024, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2023-10-23 15:24+0000\n"
 "PO-Revision-Date: 2026-10-01 11:22+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Oğuz Ersen <oguz@ersen.moe>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/avahi/"
 "master/tr/>\n"
 "Language: tr\n"

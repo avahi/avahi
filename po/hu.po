@@ -5,14 +5,14 @@
 # Translators:
 # Gabor Kelemen <kelemeng at ubuntu dot com>, 2016.
 # Balázs Úr <ur.balazs at fsf dot hu>, 2019.
-# Balázs Meskó <meskobalazs@mailbox.org>, 2025.
+# Balázs Meskó <meskobalazs@mailbox.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2019-04-23 12:11+0000\n"
 "PO-Revision-Date: 2026-10-01 11:20+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Balázs Meskó <meskobalazs@mailbox.org>\n"
 "Language-Team: Hungarian <https://translate.fedoraproject.org/projects/avahi/"
 "master/hu/>\n"
 "Language: hu\n"

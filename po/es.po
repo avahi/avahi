@@ -4,7 +4,7 @@
 #
 # Translators:
 # Adolfo Jayme Barrientos, 2013
-# N M <nm@users.noreply.translate.fedoraproject.org>, 2024.
+# N M <nm@users.noreply.translate.fedoraproject.org>, 2024, 2026.
 # Javier Francisco <fserrador@gmail.com>, 2025.
 # Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2025.
 # "Fco. Javier F. Serrador" <fserrador@gmail.com>, 2026.
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
 "PO-Revision-Date: 2026-10-01 11:19+0000\n"
-"Last-Translator: \"Fco. Javier F. Serrador\" <fserrador@gmail.com>\n"
+"Last-Translator: N M <nm@users.noreply.translate.fedoraproject.org>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/avahi/"
 "master/es/>\n"
 "Language: es\n"

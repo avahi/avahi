@@ -4,13 +4,13 @@
 # Translators:
 #
 # Cédric VALMARY <cvalmary@yahoo.fr>, 2016.
-# Quentin PAGÈS <quentinantonin@free.fr>, 2024.
+# Quentin PAGÈS <quentinantonin@free.fr>, 2024, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2016-09-22 02:24+0000\n"
-"PO-Revision-Date: 2024-10-06 14:38+0000\n"
+"PO-Revision-Date: 2026-10-01 11:21+0000\n"
 "Last-Translator: Quentin PAGÈS <quentinantonin@free.fr>\n"
 "Language-Team: Occitan <https://translate.fedoraproject.org/projects/avahi/"
 "master/oc/>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.7.2\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"

@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Fedora 10\n"
 "Report-Msgid-Bugs-To: https://github.com/avahi/avahi/issues\n"
 "POT-Creation-Date: 2020-05-26 15:25+0000\n"
-"PO-Revision-Date: 2026-04-29 12:03+0000\n"
-"Last-Translator: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>\n"
+"PO-Revision-Date: 2026-10-01 11:21+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Romanian <https://translate.fedoraproject.org/projects/avahi/"
 "master/ro/>\n"
 "Language: ro\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #: avahi-common/error.c:30
 msgid "OK"
@@ -444,8 +444,7 @@ msgstr "Crearea exploratorului a eșuat pentru %s: %s"
 #: avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-"A eșuat crearea rezolvatorului pentru %s de tipul %s în domeniul %s: %s"
+msgstr "A eșuat crearea rezolvatorului pentru %s de tipul %s în domeniul %s: %s"
 
 #: avahi-ui/avahi-ui.c:982
 #, c-format

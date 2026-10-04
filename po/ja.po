@@ -3,14 +3,16 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# 김인수 <simmon@nplob.com>, 2024.
+# 김인수 <simmon@nplob.com>, 2024, 2026.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2024-08-12 02:39+0000\n"
-"Last-Translator: 김인수 <simmon@nplob.com>\n"
+"PO-Revision-Date: 2026-10-01 11:20+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/avahi/"
 "master/ja/>\n"
 "Language: ja\n"
@@ -18,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.6.2\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -303,8 +305,7 @@ msgstr "ドメイン"
 
 #: ../avahi-ui/avahi-ui.c:190
 msgid "The domain to browse in, or NULL for the default domain"
-msgstr ""
-"検索するドメインを入力するか、デフォルトのドメインとして NULL を指定する"
+msgstr "検索するドメインを入力するか、デフォルトのドメインとして NULL を指定する"
 
 #: ../avahi-ui/avahi-ui.c:196
 msgid "Service Type"
@@ -572,8 +573,9 @@ msgstr ": キャッシュが不足しています\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr "ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: %4$"
-"s\n"
+msgstr ""
+"ドメイン '%3$s' のタイプ '%2$s' のサービス '%1$s' の解決に失敗しました: "
+"%4$s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format

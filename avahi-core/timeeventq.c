@@ -80,7 +80,7 @@ static void expiration_event(AVAHI_GCC_UNUSED AvahiTimeout *timeout, void *userd
     if ((e = time_event_queue_root(q))) {
         struct timeval now;
 
-        gettimeofday(&now, NULL);
+        avahi_now(&now);
 
         /* Check if expired */
         if (avahi_timeval_compare(&now, &e->expiry) >= 0) {
@@ -108,7 +108,7 @@ static void fix_expiry_time(AvahiTimeEvent *e) {
 
     return; /*** DO WE REALLY NEED THIS? ***/
 
-    gettimeofday(&now, NULL);
+    avahi_now(&now);
 
     if (avahi_timeval_compare(&now, &e->expiry) > 0)
         e->expiry = now;

@@ -145,7 +145,7 @@ static void job_mark_done(AvahiQueryScheduler *s, AvahiQueryJob *qj) {
     qj->done = 1;
 
     job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
-    gettimeofday(&qj->delivery, NULL);
+    avahi_now(&qj->delivery);
 }
 
 AvahiQueryScheduler *avahi_query_scheduler_new(AvahiInterface *i) {
@@ -411,7 +411,7 @@ void avahi_query_scheduler_incoming(AvahiQueryScheduler *s, AvahiKey *key) {
         if (!(qj = job_new(s, key, 1)))
             return; /* OOM */
 
-    gettimeofday(&qj->delivery, NULL);
+    avahi_now(&qj->delivery);
     job_set_elapse_time(s, qj, AVAHI_QUERY_HISTORY_MSEC, 0);
 }
 

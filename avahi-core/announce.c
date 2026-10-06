@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include <avahi-common/timeval.h>
+#include <avahi-common/domain.h>
 #include <avahi-common/malloc.h>
 
 #include "announce.h"
@@ -33,8 +34,9 @@
 #define AVAHI_ANNOUNCEMENT_JITTER_MSEC 250
 #define AVAHI_PROBE_JITTER_MSEC 250
 #define AVAHI_PROBE_INTERVAL_MSEC 250
+#define AVAHI_PROBE_TIEBREAK_DEFER_MSEC 1000
 
-static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
+static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a, int check_probed) {
     assert(s);
     assert(a);
 
@@ -45,9 +47,10 @@ static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
     AVAHI_LLIST_REMOVE(AvahiAnnouncer, by_entry, a->entry->announcers, a);
 
     if (a->state == AVAHI_PROBING && a->entry->group) {
-	assert(a->entry->group->n_probing);
-	a->entry->group->n_probing--;
-	avahi_s_entry_group_check_probed(a->entry->group, 1);
+        assert(a->entry->group->n_probing);
+        a->entry->group->n_probing--;
+        if (check_probed)
+            avahi_s_entry_group_check_probed(a->entry->group, 1);
     }
 
     avahi_free(a);
@@ -342,6 +345,22 @@ int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
         (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
 }
 
+int avahi_entry_first_probe_sent(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
+    AvahiAnnouncer *a;
+
+    assert(s);
+    assert(e);
+    assert(i);
+    assert(!e->dead);
+
+    if (!(a = get_announcer(s, e, i)))
+        return 0;
+
+    return
+        (a->state == AVAHI_PROBING && a->n_iteration > 1) ||
+        (a->state == AVAHI_WAITING && (e->flags & AVAHI_PUBLISH_UNIQUE));
+}
+
 void avahi_entry_return_to_initial_state(AvahiServer *s, AvahiEntry *e, AvahiInterface *i) {
     AvahiAnnouncer *a;
 
@@ -497,6 +516,60 @@ void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e) {
     avahi_interface_monitor_walk(s->monitor, e->interface, e->protocol, reannounce_walk_callback, e);
 }
 
+static void defer_announcer(AvahiAnnouncer *a, const struct timeval *when) {
+    AvahiEntry *e;
+
+    assert(a);
+    e = a->entry;
+
+    /* A waiting announcer finished probing and left the probing count
+     * of its group, so it joins it again */
+    if (a->state == AVAHI_WAITING && e->group)
+        e->group->n_probing++;
+
+    a->state = AVAHI_PROBING;
+    a->n_iteration = 1;
+    a->sec_delay = 1;
+
+    set_timeout(a, when);
+}
+
+void avahi_defer_probing(AvahiServer *s, AvahiInterface *i, const char *name) {
+    AvahiEntry *e;
+    struct timeval tv;
+
+    assert(s);
+    assert(i);
+    assert(name);
+
+    /* RFC 6762 section 8.2: a host that loses a simultaneous probe
+     * tiebreak "defers to the winning host by waiting one second, and
+     * then begins probing for this record again". The winning probe
+     * may be stale, possibly one this host sent itself before a
+     * configuration change, so the name is not given up here. A real
+     * winner finishes probing during the delay and answers the new
+     * probes, which handle_conflict() then treats as a conflict.
+     *
+     * Every record of the name that probes on the interface is
+     * deferred, not only the RRset that lost, and all of them get the
+     * same deadline. A probe asks for the name with type ANY, so a
+     * sibling record that kept probing would draw a denial for the
+     * name before the deferred record sent its first new probe, and
+     * that denial would be ignored as stale. */
+
+    avahi_elapse_time(&tv, AVAHI_PROBE_TIEBREAK_DEFER_MSEC, AVAHI_PROBE_JITTER_MSEC);
+
+    for (e = s->entries; e; e = e->entries_next) {
+        AvahiAnnouncer *a;
+
+        if (e->dead || (e->flags & AVAHI_PUBLISH_NO_PROBE) || !avahi_domain_equal(e->record->key->name, name) || !avahi_entry_is_probing(s, e, i))
+            continue;
+
+        if ((a = get_announcer(s, e, i)))
+            defer_announcer(a, &tv);
+    }
+}
+
 void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int remove) {
     assert(s);
     assert(i);
@@ -512,7 +585,7 @@ void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye
 
     if (remove)
         while (i->announcers)
-            remove_announcer(s, i->announcers);
+            remove_announcer(s, i->announcers, 1);
 }
 
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int remove) {
@@ -523,8 +596,10 @@ void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int re
         if (!e->dead)
             avahi_interface_monitor_walk(s->monitor, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, send_goodbye_callback, e);
 
+    /* The entry is going away. Completing its group's registration
+     * here would announce records that are being withdrawn. */
     if (remove)
         while (e->announcers)
-            remove_announcer(s, e->announcers);
+            remove_announcer(s, e->announcers, 0);
 }
 

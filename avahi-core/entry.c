@@ -1121,6 +1121,7 @@ void avahi_s_entry_group_free(AvahiSEntryGroup *g) {
 static void entry_group_commit_real(AvahiSEntryGroup *g) {
     assert(g);
 
+    g->n_register_try++;
     gettimeofday(&g->register_time, NULL);
 
     avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
@@ -1144,7 +1145,7 @@ static void entry_group_register_time_event_callback(AVAHI_GCC_UNUSED AvahiTimeE
 }
 
 int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
-    struct timeval now;
+    struct timeval now, deadline;
 
     assert(g);
     assert(!g->dead);
@@ -1155,16 +1156,19 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
     if (avahi_s_entry_group_is_empty(g))
         return avahi_server_set_errno(g->server, AVAHI_ERR_IS_EMPTY);
 
-    g->n_register_try++;
-
-    avahi_timeval_add(&g->register_time,
+    /* The holdoff counts from the last registration that started, and
+     * so does the number of attempts. A group that is reset and
+     * committed again while it waits keeps its deadline, instead of
+     * adding one more holdoff and one more attempt per commit. */
+    deadline = g->register_time;
+    avahi_timeval_add(&deadline,
                       1000*(g->n_register_try >= AVAHI_RR_RATE_LIMIT_COUNT ?
                             AVAHI_RR_HOLDOFF_MSEC_RATE_LIMIT :
                             AVAHI_RR_HOLDOFF_MSEC));
 
     gettimeofday(&now, NULL);
 
-    if (avahi_timeval_compare(&g->register_time, &now) <= 0) {
+    if (avahi_timeval_compare(&deadline, &now) <= 0) {
 
         /* Holdoff time passed, so let's start probing */
         entry_group_commit_real(g);
@@ -1172,7 +1176,7 @@ int avahi_s_entry_group_commit(AvahiSEntryGroup *g) {
 
          /* Holdoff time has not yet passed, so let's wait */
         assert(!g->register_time_event);
-        g->register_time_event = avahi_time_event_new(g->server->time_event_queue, &g->register_time, entry_group_register_time_event_callback, g);
+        g->register_time_event = avahi_time_event_new(g->server->time_event_queue, &deadline, entry_group_register_time_event_callback, g);
 
         avahi_s_entry_group_change_state(g, AVAHI_ENTRY_GROUP_REGISTERING);
     }

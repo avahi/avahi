@@ -21,18 +21,18 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <stdio.h>
 
 #include <avahi-common/gccmacro.h>
 #include "howl.h"
 
-#define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); assert(_r == SW_OKAY); }
-#define ASSERT_NOT_NULL(t) { const void* _r; r = (t); assert(_r); }
+#define ASSERT_SW_OKAY(t) { sw_result _r; _r = (t); must(_r == SW_OKAY); }
+#define ASSERT_NOT_NULL(t) { const void* _r; _r = (t); must(_r); }
 
 static void hexdump(const void* p, size_t size) {
     const uint8_t *c = p;
-    assert(p);
+    must(p);
 
     printf("Dumping %zu bytes from %p:\n", size, p);
 

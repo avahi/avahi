@@ -22,7 +22,7 @@
 #endif
 
 #include <stdlib.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/simple-watch.h>
@@ -70,7 +70,7 @@ static void sb_callback(
 static void create_second_service_browser(AvahiTimeout *timeout, AVAHI_GCC_UNUSED void* userdata) {
 
     service_browser2 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
-    assert(service_browser2);
+    must(service_browser2);
 
     poll_api->timeout_free(timeout);
 }
@@ -84,10 +84,10 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiServerConfig config;
 
     simple_poll = avahi_simple_poll_new();
-    assert(simple_poll);
+    must(simple_poll);
 
     poll_api = avahi_simple_poll_get(simple_poll);
-    assert(poll_api);
+    must(poll_api);
 
     avahi_server_config_init(&config);
     config.publish_hinfo = 0;
@@ -100,11 +100,11 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     config.enable_wide_area = 1;
 
     server = avahi_server_new(poll_api, &config, NULL, NULL, NULL);
-    assert(server);
+    must(server);
     avahi_server_config_free(&config);
 
     service_browser1 = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SERVICE_TYPE, DOMAIN, 0, sb_callback, NULL);
-    assert(service_browser1);
+    must(service_browser1);
 
     poll_api->timeout_new(poll_api, avahi_elapse_time(&tv, 10000, 0), create_second_service_browser, NULL);
 

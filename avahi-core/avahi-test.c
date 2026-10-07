@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -98,7 +98,7 @@ static void record_browser_callback(
     AVAHI_GCC_UNUSED void* userdata) {
     char *t;
 
-    assert(r);
+    must(r);
 
     if (record) {
         avahi_log_debug("RB: record [%s] on %i.%i is %s", t = avahi_record_to_string(record), interface, protocol, browser_event_to_string(event));
@@ -158,7 +158,7 @@ static void create_entries(int new_name) {
     if (!group)
         group = avahi_s_entry_group_new(server, entry_group_callback, NULL);
 
-    assert(avahi_s_entry_group_is_empty(group));
+    must(avahi_s_entry_group_is_empty(group));
 
     if (!service_name)
         service_name = avahi_strdup("Test Service");
@@ -186,10 +186,10 @@ static void create_entries(int new_name) {
     avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &a);
 
     error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_USE_WIDE_AREA, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53);
-    assert(error == AVAHI_ERR_NOT_SUPPORTED);
+    must(error == AVAHI_ERR_NOT_SUPPORTED);
 
     error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, AVAHI_PUBLISH_USE_WIDE_AREA|AVAHI_PUBLISH_USE_MULTICAST, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53);
-    assert(error == AVAHI_ERR_INVALID_FLAGS);
+    must(error == AVAHI_ERR_INVALID_FLAGS);
 
     if (avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, NULL, AVAHI_DNS_SERVER_RESOLVE, &a, 53) < 0) {
         avahi_log_error("Failed to add new DNS Server address");

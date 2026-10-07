@@ -21,15 +21,15 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <stdio.h>
 
 #include <avahi-common/gccmacro.h>
 
 #include "howl.h"
 
-#define ASSERT_SW_OKAY(t) { sw_result r; r = (t); assert(r == SW_OKAY); }
-#define ASSERT_NOT_NULL(t) { const void* r; r = (t); assert(r); }
+#define ASSERT_SW_OKAY(t) { sw_result r; r = (t); must(r == SW_OKAY); }
+#define ASSERT_NOT_NULL(t) { const void* r; r = (t); must(r); }
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     sw_ipv4_address a;

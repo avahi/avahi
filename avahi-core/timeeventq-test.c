@@ -21,7 +21,7 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <stdlib.h>
 
 #include <avahi-common/timeval.h>
@@ -37,7 +37,7 @@ static AvahiTimeEventQueue *q = NULL;
 
 static void callback(AvahiTimeEvent*e, void* userdata) {
     struct timeval tv = {0, 0};
-    assert(e);
+    must(e);
     avahi_log_info("callback(%i)", POINTER_TO_INT(userdata));
     avahi_elapse_time(&tv, 1000, 100);
     avahi_time_event_update(e, &tv);

@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <errno.h>
 #include <string.h>
 
@@ -80,14 +80,14 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
 #ifndef USE_THREAD
     simple_poll = avahi_simple_poll_new();
-    assert(simple_poll);
+    must(simple_poll);
     api = avahi_simple_poll_get(simple_poll);
-    assert(api);
+    must(api);
 #else
     threaded_poll = avahi_threaded_poll_new();
-    assert(threaded_poll);
+    must(threaded_poll);
     api = avahi_threaded_poll_get(threaded_poll);
-    assert(api);
+    must(api);
 #endif
 
     api->watch_new(api, 0, AVAHI_WATCH_IN, callback, NULL);

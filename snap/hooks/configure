@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+hook_name=$(basename "${0}")
+logger "avahi.hook.${hook_name}: entering the hook" || true
+
+config_file="avahi-daemon.conf"
+# work on temp file, before commiting changes back, to reduce number of writes
+cp "${SNAP_COMMON}/etc/avahi/${config_file}" "/tmp/"
+
+process_line() {
+  # each line starts with key name and ends with the value
+  local key="${1}"
+  local value="${2}"
+  sed -i 's/.*'"${key}"'=.*/'"${key}"'='"${value}"'/g' /tmp/${config_file}
+}
+
+# read key value pairs from snap config line by line
+while read -r line
+do
+  # shellcheck disable=SC2086 # SC2086 does not apply, we are passing multiple arguments
+  process_line ${line}
+done < <( snapctl get -d avahi-daemon-conf | jq -r '.[] | to_entries[] | "\(.key) \(.value)"')
+
+# we are done, write back config file, only if it has changed
+if ! cmp "/tmp/${config_file}" "${SNAP_COMMON}/etc/avahi/${config_file}"; then
+  logger "avahi.${hook_name}: ${config_file} changed, updating it...."  || true
+  mv "/tmp/${config_file}" "${SNAP_COMMON}/etc/avahi/"
+  snapctl restart "${SNAP_INSTANCE_NAME}.daemon"
+fi
+
+# no need to restart avahi-daemon, it tracks the changes in the config file
+
+logger "avahi.hook.${hook_name}: hook finished successfully" || true

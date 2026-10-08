@@ -220,6 +220,11 @@ static DBusHandlerResult msg_signal_filter_impl(AVAHI_GCC_UNUSED DBusConnection 
 
     } else if (dbus_message_is_signal(m, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
         char *name, *old, *new;
+        const char *sender;
+
+        sender = dbus_message_get_sender(m);
+        if (!sender || strcmp(sender, DBUS_SERVICE_DBUS) != 0)
+            return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
         if (!dbus_message_get_args(m, &error, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, &old, DBUS_TYPE_STRING, &new, DBUS_TYPE_INVALID)) {
             return dbus_parsing_error("Error parsing NameOwnerChanged message", &error);

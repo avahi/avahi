@@ -43,8 +43,8 @@
 #define gettext(String) (String)
 #define dgettext(Domain,String) (String)
 #define dcgettext(Domain,String,Type) (String)
-#define bindtextdomain(Domain,Directory) (Domain)
-#define bind_textdomain_codeset(Domain,Codeset) (Codeset)
+#define bindtextdomain(Domain,Directory) ((void)(Domain))
+#define bind_textdomain_codeset(Domain,Codeset) ((void)(Codeset))
 
 #endif /* ENABLE_NLS */
 

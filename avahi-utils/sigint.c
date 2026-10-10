@@ -74,6 +74,7 @@ static void watch_callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_G
 
     l = read(fd, &s, sizeof(s));
     assert(l == sizeof(s));
+    (void)l;
 
     fprintf(stderr, "Got %s, quitting.\n", s == SIGINT ? "SIGINT" : "SIGTERM");
     avahi_simple_poll_quit(simple_poll);

@@ -293,6 +293,7 @@ static void elapse_callback(AVAHI_GCC_UNUSED AvahiTimeEvent *e, void* data) {
 
     b = packet_add_query_job(s, p, qj);
     assert(b); /* An query must always fit in */
+    (void)b;
     n = 1;
 
     /* Try to fill up packet with more queries, if available */

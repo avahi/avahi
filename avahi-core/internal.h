@@ -217,6 +217,7 @@ int avahi_server_add_ptr(
 #define AVAHI_ASSERT_TRUE(expression) { \
     int __tmp = !!(expression); \
     assert(__tmp); \
+    (void)__tmp; \
 }
 
 #define AVAHI_ASSERT_SUCCESS(expression) { \

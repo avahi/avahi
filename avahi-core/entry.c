@@ -934,7 +934,10 @@ static AvahiEntry *server_add_dns_server_name(
 
     AVAHI_ASSERT_TRUE(avahi_normalize_name(domain, normalized_d, sizeof(normalized_d)));
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
     snprintf(t, sizeof(t), "%s.%s", type == AVAHI_DNS_SERVER_RESOLVE ? "_domain._udp" : "_dns-update._udp", normalized_d);
+#pragma GCC diagnostic pop
 
     if (!(r = avahi_record_new_full(t, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_SRV, AVAHI_DEFAULT_TTL_HOST_NAME))) {
         avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);
@@ -984,6 +987,8 @@ int avahi_server_add_dns_server_address(
     transport_flags_from_domain(s, &flags, domain);
     AVAHI_CHECK_VALIDITY(s, flags & AVAHI_PUBLISH_USE_MULTICAST, AVAHI_ERR_NOT_SUPPORTED);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
     if (address->proto == AVAHI_PROTO_INET) {
         hexstring(h, sizeof(h), &address->data, sizeof(AvahiIPv4Address));
         snprintf(n, sizeof(n), "ip-%s.%s", h, domain);
@@ -995,6 +1000,7 @@ int avahi_server_add_dns_server_address(
         r = avahi_record_new_full(n, AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_AAAA, AVAHI_DEFAULT_TTL_HOST_NAME);
         r->data.aaaa.address = address->data.ipv6;
     }
+#pragma GCC diagnostic pop
 
     if (!r)
         return avahi_server_set_errno(s, AVAHI_ERR_NO_MEMORY);

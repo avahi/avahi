@@ -3,16 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Martin Srebotnjak <miles@filmsi.net>, 2011, 2024.
+# Martin Srebotnjak <miles@filmsi.net>, 2011, 2024, 2026.
 # Matej Urbančič <matej.urban@gmail.com>, 2010
-# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024.
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2024, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Avahi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 13:24+0200\n"
-"PO-Revision-Date: 2024-08-18 09:38+0000\n"
-"Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
+"PO-Revision-Date: 2026-10-01 11:21+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Slovenian <https://translate.fedoraproject.org/projects/avahi/"
 "master/sl/>\n"
 "Language: sl\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.6.2\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #: ../avahi-common/error.c:30
 msgid "OK"
@@ -438,8 +439,7 @@ msgstr "Ustvarjanje brskalnika za %s je spodletelo: %s"
 #: ../avahi-ui/avahi-ui.c:907
 #, c-format
 msgid "Failed to create resolver for %s of type %s in domain %s: %s"
-msgstr ""
-"Ustvarjanje razreševalnika za %s vrste %s v domeni %s je spodletelo: %s"
+msgstr "Ustvarjanje razreševalnika za %s vrste %s v domeni %s je spodletelo: %s"
 
 #: ../avahi-ui/avahi-ui.c:982
 #, c-format
@@ -575,8 +575,7 @@ msgstr ": Predpomnilnik je izčrpan\n"
 #: ../avahi-utils/avahi-browse.c:239 ../avahi-utils/avahi-browse.c:261
 #, c-format
 msgid "Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"
-msgstr ""
-"Razreševanje storitve '%s' vrste '%s' v domeni '%s' je spodletelo: %s\n"
+msgstr "Razreševanje storitve '%s' vrste '%s' v domeni '%s' je spodletelo: %s\n"
 
 #: ../avahi-utils/avahi-browse.c:340
 #, c-format

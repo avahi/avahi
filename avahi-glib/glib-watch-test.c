@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <errno.h>
 #include <string.h>
 
@@ -70,7 +70,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     struct timeval tv;
 
     g = avahi_glib_poll_new(NULL, G_PRIORITY_DEFAULT);
-    assert(g);
+    must(g);
 
     api = avahi_glib_poll_get(g);
 

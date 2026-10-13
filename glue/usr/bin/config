@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+# parse avahi config and store keys/values to the separate arrays
+# all commented out keys
+LUNDEFINED_K="$(grep -E '^#.*=' "${SNAP_COMMON}/etc/avahi/avahi-daemon.conf" | awk -F'[=]' '{print $1}' | tr '\n' ' ' | tr -d '#')"
+LUNDEFINED_V="$(grep -E '^#.*=' "${SNAP_COMMON}/etc/avahi/avahi-daemon.conf" | awk -F'[=]' '{print $2}' | tr '\n' ' ')"
+# shellcheck disable=SC2034 # SC2034 is irrelevant, UNDEFINED_K is used by calling script
+# shellcheck disable=SC2206 # SC2206 is irrelevant, we want the words to split
+UNDEFINED_K=(${LUNDEFINED_K})
+# shellcheck disable=SC2034 # SC2034 is irrelevant, UNDEFINED_V is used by calling script
+# shellcheck disable=SC2206 # SC2206 is irrelevant, we want the words to split
+UNDEFINED_V=(${LUNDEFINED_V})
+
+# all set keys
+LDEFINED_K="$(grep '^[a-zA-Z].*=' "${SNAP_COMMON}/etc/avahi/avahi-daemon.conf" | awk -F'[=]' '{print $1}' | tr '\n' ' ')"
+LDEFINED_V="$(grep '^[a-zA-Z].*=' "${SNAP_COMMON}/etc/avahi/avahi-daemon.conf" | awk -F'[=]' '{print $2}' | tr '\n' ' ')"
+# shellcheck disable=SC2034 # SC2034 is irrelevant, DEFINED_K is used by calling script
+# shellcheck disable=SC2206 # SC2206 is irrelevant, we want the words to split
+DEFINED_K=(${LDEFINED_K})
+# shellcheck disable=SC2034 # SC2034 is irrelevant, DEFINED_V is used by calling script
+# shellcheck disable=SC2206 # SC2206 is irrelevant, we want the words to split
+DEFINED_V=(${LDEFINED_V})

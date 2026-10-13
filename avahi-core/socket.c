@@ -336,6 +336,9 @@ int avahi_open_socket_ipv4(int no_reuse) {
         goto fail;
     }
 
+    if (ipv4_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
     local.sin_port = htons(AVAHI_MDNS_PORT);
@@ -347,9 +350,6 @@ int avahi_open_socket_ipv4(int no_reuse) {
 
     if (r < 0)
         goto fail;
-
-    if (ipv4_pktinfo (fd) < 0)
-         goto fail;
 
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));
@@ -406,6 +406,9 @@ int avahi_open_socket_ipv6(int no_reuse) {
         goto fail;
     }
 
+    if (ipv6_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
     local.sin6_port = htons(AVAHI_MDNS_PORT);
@@ -416,9 +419,6 @@ int avahi_open_socket_ipv6(int no_reuse) {
         r = bind_with_warn(fd, (struct sockaddr*) &local, sizeof(local));
 
     if (r < 0)
-        goto fail;
-
-    if (ipv6_pktinfo(fd) < 0)
         goto fail;
 
     if (avahi_set_cloexec(fd) < 0) {
@@ -933,16 +933,15 @@ int avahi_open_unicast_socket_ipv4(void) {
         goto fail;
     }
 
+    if (ipv4_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin_family = AF_INET;
 
     if (bind(fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
         avahi_log_warn("bind() failed: %s", strerror(errno));
         goto fail;
-    }
-
-    if (ipv4_pktinfo(fd) < 0) {
-         goto fail;
     }
 
     if (avahi_set_cloexec(fd) < 0) {
@@ -979,6 +978,9 @@ int avahi_open_unicast_socket_ipv6(void) {
         goto fail;
     }
 
+    if (ipv6_pktinfo(fd) < 0)
+        goto fail;
+
     memset(&local, 0, sizeof(local));
     local.sin6_family = AF_INET6;
 
@@ -986,9 +988,6 @@ int avahi_open_unicast_socket_ipv6(void) {
         avahi_log_warn("bind() failed: %s", strerror(errno));
         goto fail;
     }
-
-    if (ipv6_pktinfo(fd) < 0)
-        goto fail;
 
     if (avahi_set_cloexec(fd) < 0) {
         avahi_log_warn("FD_CLOEXEC failed: %s", strerror(errno));

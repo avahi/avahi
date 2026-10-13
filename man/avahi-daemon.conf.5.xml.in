@@ -369,7 +369,14 @@
     </option>
 
     <option>
-      <p><opt>rlimit-nofile=</opt> Value for RLIMIT_NOFILE (open file descriptors). avahi-daemon shouldn't need more than 15 to 20 open file descriptors concurrently.</p>
+      <p><opt>rlimit-nofile=</opt> Value for RLIMIT_NOFILE (open file
+      descriptors). avahi-daemon needs 15 to 20 descriptors for its own
+      use, but this setting also sizes the client limit of the simple
+      protocol Unix socket: half of the effective limit, capped at 4096,
+      may be occupied by concurrent clients, and any single non-root user
+      may hold at most a quarter of that. Setting this very low therefore
+      restricts concurrent .local name resolution through nss-mdns rather
+      than merely capping descriptor usage.</p>
     </option>
 
     <option>

@@ -194,7 +194,7 @@ static void* known_answer_walk_callback(AvahiCache *c, AvahiKey *pattern, AvahiC
     assert(e);
     assert(s);
 
-    if (avahi_cache_entry_half_ttl(c, e))
+    if (avahi_cache_entry_half_ttl(c, e) || avahi_cache_entry_reconfirming(e))
         return NULL;
 
     if (!(ka = avahi_new0(AvahiKnownAnswer, 1))) {

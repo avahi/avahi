@@ -348,7 +348,7 @@ fail:
     avahi_log_warn("Error parsing data");
 
     *rdata = NULL;
-    size = 0;
+    *size = 0;
     return -1;
 }
 

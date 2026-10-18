@@ -196,6 +196,15 @@ static void create_entries(int new_name) {
         goto fail;
     }
 
+    /* The A and AAAA record names get cut right after the backslash so they can't be normalized */
+    avahi_address_parse("192.0.2.1", AVAHI_PROTO_UNSPEC, &a);
+    error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "my-office-network-segment-in-the-north-wing-floor3\\.b.local", AVAHI_DNS_SERVER_RESOLVE, &a, 53);
+    assert(error < 0);
+
+    avahi_address_parse("2001:db8::1", AVAHI_PROTO_UNSPEC, &a);
+    error = avahi_server_add_dns_server_address(server, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "my-office-network-segment\\.b.local", AVAHI_DNS_SERVER_RESOLVE, &a, 53);
+    assert(error < 0);
+
     r = avahi_record_new_full("cname.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, AVAHI_DEFAULT_TTL);
     r->data.cname.name = avahi_strdup("cocaine.local");
 

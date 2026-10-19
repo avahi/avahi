@@ -22,7 +22,7 @@
 #endif
 
 #include <stdio.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <avahi-client/client.h>
 #include <avahi-client/lookup.h>
@@ -32,7 +32,7 @@
 
 static void hexdump(const void* p, size_t size) {
     const uint8_t *c = p;
-    assert(p);
+    must(p);
 
     printf("Dumping %lu bytes from %p:\n", (unsigned long) size, p);
 
@@ -91,16 +91,16 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiRecordBrowser *r;
 
     simple_poll = avahi_simple_poll_new();
-    assert(simple_poll);
+    must(simple_poll);
 
     poll_api = avahi_simple_poll_get(simple_poll);
-    assert(poll_api);
+    must(poll_api);
 
     client = avahi_client_new(poll_api, 0, NULL, NULL, NULL);
-    assert(client);
+    must(client);
 
     r = avahi_record_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "ecstasy.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_HINFO, 0, callback, simple_poll);
-    assert(r);
+    must(r);
 
     avahi_simple_poll_loop(simple_poll);
 

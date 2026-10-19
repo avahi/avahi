@@ -22,7 +22,7 @@
 #endif
 
 #include <sys/types.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <stdio.h>
 
 #include <avahi-common/gccmacro.h>
@@ -30,7 +30,7 @@
 
 static void hexdump(const void* p, size_t size) {
     const uint8_t *c = p;
-    assert(p);
+    must(p);
 
     printf("Dumping %zu bytes from %p:\n", size, p);
 
@@ -107,14 +107,14 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     TXTRecordSetValue(&ref, "three", 1, "3");
     hexdump(TXTRecordGetBytesPtr(&ref), TXTRecordGetLength(&ref));
 
-    assert(TXTRecordContainsKey(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "two"));
-    assert(!TXTRecordContainsKey(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "four"));
+    must(TXTRecordContainsKey(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "two"));
+    must(!TXTRecordContainsKey(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "four"));
 
     r = TXTRecordGetValuePtr(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "kawumm", &l);
 
     hexdump(r, l);
 
-    assert(TXTRecordGetCount(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref)) == 6);
+    must(TXTRecordGetCount(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref)) == 6);
 
     TXTRecordGetItemAtIndex(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), 2, sizeof(k), k, &l, &p);
 
@@ -122,7 +122,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     hexdump(p, l);
 
-    assert(TXTRecordGetItemAtIndex(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), 20, sizeof(k), k, &l, &p) == kDNSServiceErr_Invalid);
+    must(TXTRecordGetItemAtIndex(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), 20, sizeof(k), k, &l, &p) == kDNSServiceErr_Invalid);
 
     TXTRecordDeallocate(&ref);
 }

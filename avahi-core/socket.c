@@ -105,6 +105,40 @@ static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv
 }
 
 int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int join) {
+#if defined(MCAST_JOIN_GROUP) && !defined(__linux__)
+    /* Outside Linux, IP_DROP_MEMBERSHIP finds the interface by its IPv4
+     * address and ignores imr_ifindex.  avahi leaves after that address
+     * has been removed, and FreeBSD then drops the group's first
+     * membership on any interface.  The RFC 3678 calls name the
+     * interface by index. */
+    struct group_req gr;
+    struct sockaddr_in *sa;
+
+    assert(fd >= 0);
+    assert(idx >= 0);
+    assert(a);
+
+    memset(&gr, 0, sizeof(gr));
+    gr.gr_interface = idx;
+    sa = (struct sockaddr_in *) &gr.gr_group;
+    mdns_mcast_group_ipv4(sa);
+#ifdef SIN6_LEN
+    sa->sin_len = sizeof(struct sockaddr_in);
+#endif
+
+    /* Some network drivers have issues with dropping membership of
+     * mcast groups when the iface is down, but don't allow rejoining
+     * when it comes back up. This is an ugly workaround */
+    if (join)
+        setsockopt(fd, IPPROTO_IP, MCAST_LEAVE_GROUP, &gr, sizeof(gr));
+
+    if (setsockopt(fd, IPPROTO_IP, join ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP, &gr, sizeof(gr)) < 0) {
+        avahi_log_warn("%s failed: %s", join ? "MCAST_JOIN_GROUP" : "MCAST_LEAVE_GROUP", strerror(errno));
+        return -1;
+    }
+
+    return 0;
+#else
 #ifdef HAVE_STRUCT_IP_MREQN
     struct ip_mreqn mreq;
 #else
@@ -138,6 +172,7 @@ int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int j
     }
 
     return 0;
+#endif
 }
 
 int avahi_mdns_mcast_join_ipv6(int fd, const AvahiIPv6Address *a, int idx, int join) {

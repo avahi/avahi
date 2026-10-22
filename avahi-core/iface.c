@@ -22,7 +22,9 @@
 #endif
 
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
+#include <fnmatch.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -678,18 +680,59 @@ static int avahi_interface_is_relevant_internal(AvahiInterface *i) {
     return 0;
 }
 
+int avahi_interface_name_match(const char *pattern, const char *name) {
+    assert(pattern);
+    assert(name);
+
+    /* An exact match keeps working for interface names that contain
+     * characters that are special to fnmatch() */
+    if (strcasecmp(pattern, name) == 0)
+        return 1;
+
+#if defined(FNM_CASEFOLD)
+    return fnmatch(pattern, name, FNM_CASEFOLD) == 0;
+#elif defined(FNM_IGNORECASE)
+    return fnmatch(pattern, name, FNM_IGNORECASE) == 0;
+#else
+    {
+        char *p, *n, *c;
+        int r;
+
+        if (!(p = avahi_strdup(pattern)))
+            return 0;
+
+        if (!(n = avahi_strdup(name))) {
+            avahi_free(p);
+            return 0;
+        }
+
+        for (c = p; *c; c++)
+            *c = (char) tolower((unsigned char) *c);
+        for (c = n; *c; c++)
+            *c = (char) tolower((unsigned char) *c);
+
+        r = fnmatch(p, n, 0) == 0;
+
+        avahi_free(p);
+        avahi_free(n);
+
+        return r;
+    }
+#endif
+}
+
 int avahi_interface_is_relevant(AvahiInterface *i) {
     AvahiStringList *l;
     assert(i);
 
     for (l = i->monitor->server->config.deny_interfaces; l; l = l->next)
-        if (strcasecmp((char*) l->text, i->hardware->name) == 0)
+        if (avahi_interface_name_match((char*) l->text, i->hardware->name))
             return 0;
 
     if (i->monitor->server->config.allow_interfaces) {
 
         for (l = i->monitor->server->config.allow_interfaces; l; l = l->next)
-            if (strcasecmp((char*) l->text, i->hardware->name) == 0)
+            if (avahi_interface_name_match((char*) l->text, i->hardware->name))
                 goto good;
 
         return 0;

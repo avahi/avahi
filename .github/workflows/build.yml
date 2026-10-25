@@ -101,7 +101,7 @@ jobs:
             version: 'r151058'
             env: { CC: "gcc" }
           - os: 'openbsd'
-            version: '7.9'
+            version: '8.0'
             env: { CC: "clang" }
     env: ${{ matrix.env }}
     steps:
@@ -110,7 +110,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Start VM
-        uses: cross-platform-actions/action@e0b9770014ba65d5e0815f15b74031c3a635f641 # v1.6.0
+        uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
         with:
           operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}

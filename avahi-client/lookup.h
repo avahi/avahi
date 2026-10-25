@@ -319,6 +319,17 @@ int avahi_record_browser_free(AvahiRecordBrowser *);
 
 /** @} */
 
+int avahi_reconfirm_record(
+    AvahiClient *client,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    const char *name,
+    uint16_t clazz,
+    uint16_t type,
+    const void* rdata,
+    size_t size,
+    AvahiReconfirmRecordFlags flags);
+
 AVAHI_C_DECL_END
 
 #endif

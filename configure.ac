@@ -250,6 +250,14 @@ AC_TRY_COMPILE([#include <netinet/in.h>], [
 ])
 
 #
+# Check for sin_len in struct sockaddr_in; present on the BSDs
+#
+AC_CHECK_MEMBERS([struct sockaddr_in.sin_len], [], [], [
+#include <sys/types.h>
+#include <netinet/in.h>
+])
+
+#
 # Detecting the linux distribution for specific things like init scripts.
 #
 AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the distribution to target: One of lfs, debian, gentoo, archlinux, fedora, mandriva, darwin, netbsd, freebsd, slackware or none]))

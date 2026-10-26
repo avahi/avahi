@@ -68,6 +68,9 @@ static void mdns_mcast_group_ipv4(struct sockaddr_in *ret_sa) {
     assert(ret_sa);
 
     memset(ret_sa, 0, sizeof(struct sockaddr_in));
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+    ret_sa->sin_len = sizeof(struct sockaddr_in);
+#endif
     ret_sa->sin_family = AF_INET;
     ret_sa->sin_port = htons(AVAHI_MDNS_PORT);
     inet_pton(AF_INET, AVAHI_IPV4_MCAST_GROUP, &ret_sa->sin_addr);
@@ -105,39 +108,15 @@ static void ipv6_address_to_sockaddr(struct sockaddr_in6 *ret_sa, const AvahiIPv
 }
 
 int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int join) {
-#if defined(MCAST_JOIN_GROUP) && !defined(__linux__)
-    /* Outside Linux, IP_DROP_MEMBERSHIP finds the interface by its IPv4
-     * address and ignores imr_ifindex.  avahi leaves after that address
+#ifdef MCAST_JOIN_GROUP
+    /* Prefer the RFC 3678 calls, which name the interface by index.
+     * FreeBSD's IP_DROP_MEMBERSHIP finds the interface by its IPv4
+     * address and ignores imr_ifindex; avahi leaves after that address
      * has been removed, and FreeBSD then drops the group's first
-     * membership on any interface.  The RFC 3678 calls name the
-     * interface by index. */
-    struct group_req gr;
-    struct sockaddr_in *sa;
-
-    assert(fd >= 0);
-    assert(idx >= 0);
-    assert(a);
-
-    memset(&gr, 0, sizeof(gr));
-    gr.gr_interface = idx;
-    sa = (struct sockaddr_in *) &gr.gr_group;
-    mdns_mcast_group_ipv4(sa);
-#ifdef SIN6_LEN
-    sa->sin_len = sizeof(struct sockaddr_in);
-#endif
-
-    /* Some network drivers have issues with dropping membership of
-     * mcast groups when the iface is down, but don't allow rejoining
-     * when it comes back up. This is an ugly workaround */
-    if (join)
-        setsockopt(fd, IPPROTO_IP, MCAST_LEAVE_GROUP, &gr, sizeof(gr));
-
-    if (setsockopt(fd, IPPROTO_IP, join ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP, &gr, sizeof(gr)) < 0) {
-        avahi_log_warn("%s failed: %s", join ? "MCAST_JOIN_GROUP" : "MCAST_LEAVE_GROUP", strerror(errno));
-        return -1;
-    }
-
-    return 0;
+     * membership on any interface. */
+    struct group_req mreq;
+    const int add = MCAST_JOIN_GROUP, drop = MCAST_LEAVE_GROUP;
+    const char *add_name = "MCAST_JOIN_GROUP", *drop_name = "MCAST_LEAVE_GROUP";
 #else
 #ifdef HAVE_STRUCT_IP_MREQN
     struct ip_mreqn mreq;
@@ -145,12 +124,19 @@ int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int j
     struct ip_mreq mreq;
 #endif
     struct sockaddr_in sa;
+    const int add = IP_ADD_MEMBERSHIP, drop = IP_DROP_MEMBERSHIP;
+    const char *add_name = "IP_ADD_MEMBERSHIP", *drop_name = "IP_DROP_MEMBERSHIP";
+#endif
 
     assert(fd >= 0);
     assert(idx >= 0);
     assert(a);
 
     memset(&mreq, 0, sizeof(mreq));
+#ifdef MCAST_JOIN_GROUP
+    mreq.gr_interface = idx;
+    mdns_mcast_group_ipv4((struct sockaddr_in *) &mreq.gr_group);
+#else
 #ifdef HAVE_STRUCT_IP_MREQN
     mreq.imr_ifindex = idx;
     mreq.imr_address.s_addr = a->address;
@@ -159,20 +145,20 @@ int avahi_mdns_mcast_join_ipv4(int fd, const AvahiIPv4Address *a, int idx, int j
 #endif
     mdns_mcast_group_ipv4(&sa);
     mreq.imr_multiaddr = sa.sin_addr;
+#endif
 
     /* Some network drivers have issues with dropping membership of
      * mcast groups when the iface is down, but don't allow rejoining
      * when it comes back up. This is an ugly workaround */
     if (join)
-        setsockopt(fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq));
+        setsockopt(fd, IPPROTO_IP, drop, &mreq, sizeof(mreq));
 
-    if (setsockopt(fd, IPPROTO_IP, join ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
-        avahi_log_warn("%s failed: %s", join ? "IP_ADD_MEMBERSHIP" : "IP_DROP_MEMBERSHIP", strerror(errno));
+    if (setsockopt(fd, IPPROTO_IP, join ? add : drop, &mreq, sizeof(mreq)) < 0) {
+        avahi_log_warn("%s failed: %s", join ? add_name : drop_name, strerror(errno));
         return -1;
     }
 
     return 0;
-#endif
 }
 
 int avahi_mdns_mcast_join_ipv6(int fd, const AvahiIPv6Address *a, int idx, int join) {

@@ -90,7 +90,7 @@ void AvahiWatch::gotIn()
 
 void AvahiWatch::gotOut()
 {
-    m_lastEvent = AVAHI_WATCH_IN;
+    m_lastEvent = AVAHI_WATCH_OUT;
     m_incallback=true;
     m_callback(this,m_fd,m_lastEvent,m_userdata);
     m_incallback=false;

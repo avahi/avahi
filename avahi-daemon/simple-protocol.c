@@ -440,7 +440,10 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
 
         if ((cfd = accept(fd, NULL, NULL)) < 0)
             avahi_log_error("accept(): %s", strerror(errno));
-        else
+        else if (s->n_clients >= CLIENTS_MAX) {
+            avahi_log_warn("Too many clients, client request failed.");
+            close(cfd);
+        } else
             client_new(s, cfd);
     }
 }

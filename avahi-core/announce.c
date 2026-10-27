@@ -420,7 +420,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
     avahi_record_unref(g);
 }
 
-static void reannounce(AvahiAnnouncer *a) {
+static void reannounce(AvahiAnnouncer *a, unsigned msec) {
     AvahiEntry *e;
     struct timeval tv;
 
@@ -465,9 +465,9 @@ static void reannounce(AvahiAnnouncer *a) {
     a->sec_delay = 1;
 
     if (a->state == AVAHI_PROBING)
-        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_PROBE_JITTER_MSEC));
+        set_timeout(a, avahi_elapse_time(&tv, msec, AVAHI_PROBE_JITTER_MSEC));
     else if (a->state == AVAHI_ANNOUNCING)
-        set_timeout(a, avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC));
+        set_timeout(a, avahi_elapse_time(&tv, msec, AVAHI_ANNOUNCEMENT_JITTER_MSEC));
     else
         set_timeout(a, NULL);
 }
@@ -485,7 +485,7 @@ static void reannounce_walk_callback(AvahiInterfaceMonitor *m, AvahiInterface *i
     if (!(a = get_announcer(m->server, e, i)))
         return;
 
-    reannounce(a);
+    reannounce(a, 0);
 }
 
 void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e) {
@@ -495,6 +495,20 @@ void avahi_reannounce_entry(AvahiServer *s, AvahiEntry *e) {
     assert(!e->dead);
 
     avahi_interface_monitor_walk(s->monitor, e->interface, e->protocol, reannounce_walk_callback, e);
+}
+
+void avahi_reannounce_entry_interface(AvahiServer *s, AvahiEntry *e, AvahiInterface *i, unsigned msec)
+{
+    AvahiAnnouncer *a;
+
+    assert(s);
+    assert(e);
+    assert(i);
+
+    if (!(a = get_announcer(s, e, i)))
+        return;
+
+    reannounce(a, msec);
 }
 
 void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int remove) {

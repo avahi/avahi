@@ -47,10 +47,12 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     ssize_t bytes;
     struct msghdr smsg;
     struct cmsghdr *cmsg;
-    struct ucred *cred;
     struct iovec iov;
     struct nlmsghdr *p;
+#ifdef SCM_CREDENTIALS
+    struct ucred *cred;
     char cred_msg[CMSG_SPACE(sizeof(struct ucred))];
+#endif
 
     assert(nl);
 
@@ -61,8 +63,13 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
     smsg.msg_namelen = 0;
     smsg.msg_iov = &iov;
     smsg.msg_iovlen = 1;
+#ifdef SCM_CREDENTIALS
     smsg.msg_control = cred_msg;
     smsg.msg_controllen = sizeof(cred_msg);
+#else
+    smsg.msg_control = NULL;
+    smsg.msg_controllen = 0;
+#endif
     smsg.msg_flags = (block ? 0 : MSG_DONTWAIT);
 
     if ((bytes = recvmsg(nl->fd, &smsg, 0)) < 0) {
@@ -75,6 +82,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
 
     cmsg = CMSG_FIRSTHDR(&smsg);
 
+#ifdef SCM_CREDENTIALS
     if (!cmsg || cmsg->cmsg_type != SCM_CREDENTIALS) {
         avahi_log_warn("No sender credentials received, ignoring data.");
         return -1;
@@ -84,6 +92,7 @@ int avahi_netlink_work(AvahiNetlink *nl, int block) {
 
     if (cred->pid != 0)
         return -1;
+#endif
 
     p = (struct nlmsghdr *) nl->buffer;
 
@@ -135,10 +144,12 @@ AvahiNetlink *avahi_netlink_new(const AvahiPoll *poll_api, uint32_t groups, void
         goto fail;
     }
 
+#ifdef SO_PASSCRED
     if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) < 0) {
         avahi_log_error(__FILE__": SO_PASSCRED: %s", strerror(errno));
         goto fail;
     }
+#endif
 
     if (!(nl = avahi_new(AvahiNetlink, 1))) {
         avahi_log_error(__FILE__": avahi_new() failed.");

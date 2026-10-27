@@ -94,7 +94,7 @@ struct _DNSServiceRef_t {
     AvahiEntryGroup *entry_group;
 };
 
-#define ASSERT_SUCCESS(r) { int __ret = (r); assert(__ret == 0); }
+#define ASSERT_SUCCESS(r) { int __ret = (r); assert(__ret == 0); (void)__ret; }
 
 static DNSServiceErrorType map_error(int error) {
     switch (error) {
@@ -707,6 +707,7 @@ static void service_resolver_callback(
 
             ret = avahi_service_name_join(full_name, sizeof(full_name), name, type, domain);
             assert(ret == AVAHI_OK);
+            (void)ret;
 
             strcat(full_name, ".");
 

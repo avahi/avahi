@@ -41,6 +41,11 @@ AvahiUsec avahi_timeval_diff(const struct timeval *a, const struct timeval *b);
 /** Add a number of microseconds to the specified timeval structure and return it. *a is modified. */
 struct timeval* avahi_timeval_add(struct timeval *a, AvahiUsec usec);
 
+/** Get the current timestamp. This will return a monotonic clock if possible,
+ * so it should not be used if you need a timeval for display or comparison
+ * with gettimeofday(). Returns the input timeval */
+struct timeval* avahi_now(struct timeval *now);
+
 /** Return the difference between the current time and *a. Positive if *a was earlier */
 AvahiUsec avahi_age(const struct timeval *a);
 

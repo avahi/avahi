@@ -148,7 +148,7 @@ static void job_mark_done(AvahiResponseScheduler *s, AvahiResponseJob *rj) {
 
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
 
-    gettimeofday(&rj->delivery, NULL);
+    avahi_now(&rj->delivery);
 }
 
 AvahiResponseScheduler *avahi_response_scheduler_new(AvahiInterface *i) {
@@ -460,7 +460,7 @@ void avahi_response_scheduler_incoming(AvahiResponseScheduler *s, AvahiRecord *r
     rj->flush_cache = flush_cache;
     rj->querier_valid = 0;
 
-    gettimeofday(&rj->delivery, NULL);
+    avahi_now(&rj->delivery);
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_HISTORY_MSEC, 0);
 }
 
@@ -498,7 +498,7 @@ void avahi_response_scheduler_suppress(AvahiResponseScheduler *s, AvahiRecord *r
         rj->querier = *querier;
     }
 
-    gettimeofday(&rj->delivery, NULL);
+    avahi_now(&rj->delivery);
     job_set_elapse_time(s, rj, AVAHI_RESPONSE_SUPPRESS_MSEC, 0);
 }
 

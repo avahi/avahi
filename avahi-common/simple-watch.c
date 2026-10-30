@@ -486,13 +486,12 @@ int avahi_simple_poll_prepare(AvahiSimplePoll *s, int timeout) {
         if (next_timeout->expiry.tv_sec == 0 &&
             next_timeout->expiry.tv_usec == 0) {
 
-            /* Just a shortcut so that we don't need to call gettimeofday() */
+            /* Just a shortcut so that we don't need to call avahi_now() */
             timeout = 0;
             goto finish;
         }
 
-        gettimeofday(&now, NULL);
-        usec = avahi_timeval_diff(&next_timeout->expiry, &now);
+        usec = avahi_timeval_diff(&next_timeout->expiry, avahi_now(&now));
 
         if (usec <= 0) {
             /* Timeout elapsed */
@@ -559,7 +558,7 @@ int avahi_simple_poll_dispatch(AvahiSimplePoll *s) {
 
         if (next_timeout->expiry.tv_sec == 0 && next_timeout->expiry.tv_usec == 0) {
 
-            /* Just a shortcut so that we don't need to call gettimeofday() */
+            /* Just a shortcut so that we don't need to call avahi_now() */
             timeout_callback(next_timeout);
             goto finish;
         }

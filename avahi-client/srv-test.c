@@ -22,7 +22,7 @@
 #endif
 
 #include <stdio.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <avahi-client/client.h>
 #include <avahi-client/lookup.h>
@@ -56,16 +56,16 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     AvahiServiceResolver *r;
 
     simple_poll = avahi_simple_poll_new();
-    assert(simple_poll);
+    must(simple_poll);
 
     poll_api = avahi_simple_poll_get(simple_poll);
-    assert(poll_api);
+    must(poll_api);
 
     client = avahi_client_new(poll_api, 0, NULL, NULL, NULL);
-    assert(client);
+    must(client);
 
     r = avahi_service_resolver_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, "_domain._udp", "0pointer.de", AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_NO_TXT, callback, simple_poll);
-    assert(r);
+    must(r);
 
     avahi_simple_poll_loop(simple_poll);
 

@@ -25,4 +25,8 @@
 int sigint_install(AvahiSimplePoll *spoll);
 void sigint_uninstall(void);
 
+/* Optional function called right before the "Got SIGINT" message is
+ * printed, e.g. to clear a progress line on the terminal */
+void sigint_set_before_quit(void (*callback)(void));
+
 #endif

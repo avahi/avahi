@@ -45,13 +45,15 @@ noinst_PROGRAMS = \
 	iface-test \
 	querier-test \
 	update-test \
-	cname-test
+	cname-test \
+	conflict-test
 
 TESTS = \
 	dns-spin-test \
 	dns-test \
 	hashmap-test \
-	iface-test
+	iface-test \
+	conflict-test
 endif
 
 libavahi_core_la_SOURCES = \
@@ -131,6 +133,11 @@ cname_test_SOURCES = \
 	cname-test.c
 cname_test_CFLAGS = $(AM_CFLAGS)
 cname_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
+
+conflict_test_SOURCES = \
+	conflict-test.c
+conflict_test_CFLAGS = $(AM_CFLAGS)
+conflict_test_LDADD = $(AM_LDADD) ../avahi-common/libavahi-common.la libavahi-core.la
 
 conformance_test_SOURCES = \
 	conformance-test.c

@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <avahi-client/client.h>
 #include <avahi-client/lookup.h>
@@ -218,20 +218,20 @@ static void test_refuse_publish_flags(AvahiEntryGroup *g, AvahiPublishFlags flag
     int r;
 
     r = avahi_entry_group_add_record(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, flags, "test.local", AVAHI_DNS_CLASS_IN, AVAHI_DNS_TYPE_CNAME, 120, "\0", 1);
-    assert(r == expected);
+    must(r == expected);
 
     avahi_address_parse("224.0.0.251", AVAHI_PROTO_UNSPEC, &a);
     r = avahi_entry_group_add_address(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, flags, "test.local", &a);
-    assert(r == expected);
+    must(r == expected);
 
     r = avahi_entry_group_add_service_strlst(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, flags, "test", "_http._tcp", NULL, NULL, 80, l);
-    assert(r == expected);
+    must(r == expected);
 
     r = avahi_entry_group_update_service_txt_strlst(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, flags, "test", "_http._tcp", NULL, l);
-    assert(r == expected);
+    must(r == expected);
 
     r = avahi_entry_group_add_service_subtype(g, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, flags, "test", "_http._tcp", NULL, "_magic._sub._http._tcp");
-    assert(r == expected);
+    must(r == expected);
 }
 
 int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
@@ -279,7 +279,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     group = avahi_entry_group_new(avahi, avahi_entry_group_callback, (char*) "omghai");
     printf("Creating entry group: %s\n", group ? "OK" : avahi_strerror(avahi_client_errno (avahi)));
 
-    assert(group);
+    must(group);
 
     printf("Successfully created entry group %p\n", (void*) group);
 
@@ -287,14 +287,14 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     printf("add_record: %d\n", avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", 0x01, 0x10, 120, "\5booya", 6));
 
     error = avahi_entry_group_add_record (group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", 0x01, 0x10, 120, "", 0);
-    assert(error != AVAHI_OK);
+    must(error != AVAHI_OK);
 
     memset(rdata, 1, sizeof(rdata));
     r = avahi_string_list_parse(rdata, sizeof(rdata), &txt);
-    assert(r >= 0);
-    assert(avahi_string_list_serialize(txt, NULL, 0) == sizeof(rdata));
+    must(r >= 0);
+    must(avahi_string_list_serialize(txt, NULL, 0) == sizeof(rdata));
     error = avahi_entry_group_add_service_strlst(group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, "TestX", "_qotd._tcp", NULL, NULL, 123, txt);
-    assert(error == AVAHI_ERR_INVALID_RECORD);
+    must(error == AVAHI_ERR_INVALID_RECORD);
     avahi_string_list_free(txt);
 
     test_refuse_publish_flags(group, AVAHI_PUBLISH_USE_WIDE_AREA, AVAHI_ERR_NOT_SUPPORTED);

@@ -24,7 +24,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <avahi-common/gccmacro.h>
 
@@ -48,23 +48,23 @@ static void rec(AvahiPrioQueueNode *n) {
         return;
 
     if (n->left)
-        assert(n->left->parent == n);
+        must(n->left->parent == n);
 
     if (n->right)
-        assert(n->right->parent == n);
+        must(n->right->parent == n);
 
     if (n->parent) {
-        assert(n->parent->left == n || n->parent->right == n);
+        must(n->parent->left == n || n->parent->right == n);
 
         if (n->parent->left == n)
-            assert(n->next == n->parent->right);
+            must(n->next == n->parent->right);
     }
 
     if (!n->next) {
-        assert(n->queue->last == n);
+        must(n->queue->last == n);
 
         if (n->parent && n->parent->left == n)
-            assert(n->parent->right == NULL);
+            must(n->parent->right == NULL);
     }
 
 
@@ -96,7 +96,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
         rec(q->root);
         rec(q2->root);
 
-        assert(q->n_nodes == q2->n_nodes);
+        must(q->n_nodes == q2->n_nodes);
 
         printf("%i\n", POINTER_TO_INT(((AvahiPrioQueueNode*)q2->root->data)->data));
 
@@ -111,7 +111,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 /*         rec(q->root); */
 /*         printf("%i\n", v); */
 /*         avahi_prio_queue_remove(q, q->root); */
-/*         assert(v >= prev); */
+/*         must(v >= prev); */
 /*         prev = v; */
 /*     } */
 

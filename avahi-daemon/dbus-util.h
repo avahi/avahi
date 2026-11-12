@@ -30,12 +30,19 @@
 #include "dbus-internal.h"
 
 DBusHandlerResult avahi_dbus_respond_error(DBusConnection *c, DBusMessage *m, int error, const char *text);
+DBusHandlerResult avahi_dbus_respond_unknown_property_error(DBusConnection *c, DBusMessage *m);
+DBusHandlerResult avahi_dbus_respond_read_only_property_error(DBusConnection *c, DBusMessage *m);
+DBusHandlerResult avahi_dbus_respond_invalid_signature_error(DBusConnection *c, DBusMessage *m);
 DBusHandlerResult avahi_dbus_respond_string(DBusConnection *c, DBusMessage *m, const char *text);
 DBusHandlerResult avahi_dbus_respond_int32(DBusConnection *c, DBusMessage *m, int32_t i);
 DBusHandlerResult avahi_dbus_respond_uint32(DBusConnection *c, DBusMessage *m, uint32_t u);
 DBusHandlerResult avahi_dbus_respond_boolean(DBusConnection *c, DBusMessage *m, int b);
 DBusHandlerResult avahi_dbus_respond_ok(DBusConnection *c, DBusMessage *m);
 DBusHandlerResult avahi_dbus_respond_path(DBusConnection *c, DBusMessage *m, const char *path);
+DBusHandlerResult avahi_dbus_respond_variant_string(DBusConnection *c, DBusMessage *m, const char *text);
+DBusHandlerResult avahi_dbus_respond_variant_int32(DBusConnection *c, DBusMessage *m, int32_t i);
+DBusHandlerResult avahi_dbus_respond_variant_uint32(DBusConnection *c, DBusMessage *m, uint32_t u);
+DBusHandlerResult avahi_dbus_respond_variant_boolean(DBusConnection *c, DBusMessage *m, int b);
 
 void avahi_dbus_append_server_error(DBusMessage *reply);
 

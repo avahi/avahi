@@ -66,6 +66,54 @@ DBusHandlerResult avahi_dbus_respond_error(DBusConnection *c, DBusMessage *m, in
     return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+DBusHandlerResult avahi_dbus_respond_unknown_property_error(DBusConnection *c, DBusMessage *m) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_error(m, DBUS_ERROR_UNKNOWN_PROPERTY, "Unknown property");
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+DBusHandlerResult avahi_dbus_respond_invalid_signature_error(DBusConnection *c, DBusMessage *m) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_error(m, DBUS_ERROR_INVALID_SIGNATURE, "Invalid signature");
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+DBusHandlerResult avahi_dbus_respond_read_only_property_error(DBusConnection *c, DBusMessage *m) {
+    DBusMessage *reply;
+
+    reply = dbus_message_new_error(m, DBUS_ERROR_PROPERTY_READ_ONLY, "Property is read-only");
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
 DBusHandlerResult avahi_dbus_respond_string(DBusConnection *c, DBusMessage *m, const char *text) {
     DBusMessage *reply;
 
@@ -164,6 +212,90 @@ DBusHandlerResult avahi_dbus_respond_path(DBusConnection *c, DBusMessage *m, con
     }
 
     dbus_message_append_args(reply, DBUS_TYPE_OBJECT_PATH, &path, DBUS_TYPE_INVALID);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+DBusHandlerResult avahi_dbus_respond_variant_string(DBusConnection *c, DBusMessage *m, const char *text) {
+    DBusMessage *reply;
+    DBusMessageIter iter, value;
+
+    reply = dbus_message_new_method_return(m);
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_message_iter_init_append(reply, &iter);
+    dbus_message_iter_open_container(&iter, DBUS_TYPE_VARIANT, "s", &value);
+    dbus_message_iter_append_basic(&value, DBUS_TYPE_STRING, &text);
+    dbus_message_iter_close_container(&iter, &value);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+DBusHandlerResult avahi_dbus_respond_variant_int32(DBusConnection *c, DBusMessage *m, int32_t i) {
+    DBusMessage *reply;
+    DBusMessageIter iter, value;
+
+    reply = dbus_message_new_method_return(m);
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_message_iter_init_append(reply, &iter);
+    dbus_message_iter_open_container(&iter, DBUS_TYPE_VARIANT, "i", &value);
+    dbus_message_iter_append_basic(&value, DBUS_TYPE_INT32, &i);
+    dbus_message_iter_close_container(&iter, &value);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+DBusHandlerResult avahi_dbus_respond_variant_uint32(DBusConnection *c, DBusMessage *m, uint32_t u) {
+    DBusMessage *reply;
+    DBusMessageIter iter, value;
+
+    reply = dbus_message_new_method_return(m);
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_message_iter_init_append(reply, &iter);
+    dbus_message_iter_open_container(&iter, DBUS_TYPE_VARIANT, "u", &value);
+    dbus_message_iter_append_basic(&value, DBUS_TYPE_UINT32, &u);
+    dbus_message_iter_close_container(&iter, &value);
+    dbus_connection_send(c, reply, NULL);
+    dbus_message_unref(reply);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+DBusHandlerResult avahi_dbus_respond_variant_boolean(DBusConnection *c, DBusMessage *m, int b) {
+    DBusMessage *reply;
+    DBusMessageIter iter, value;
+
+    reply = dbus_message_new_method_return(m);
+
+    if (!reply) {
+        avahi_log_error("Failed allocate message");
+        return DBUS_HANDLER_RESULT_NEED_MEMORY;
+    }
+
+    dbus_message_iter_init_append(reply, &iter);
+    dbus_message_iter_open_container(&iter, DBUS_TYPE_VARIANT, "b", &value);
+    dbus_message_iter_append_basic(&value, DBUS_TYPE_BOOLEAN, &b);
+    dbus_message_iter_close_container(&iter, &value);
     dbus_connection_send(c, reply, NULL);
     dbus_message_unref(reply);
 

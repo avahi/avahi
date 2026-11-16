@@ -417,6 +417,12 @@ case "$1" in
             exit 0
         fi
 
+        if [[ "$OS" == omnios ]]; then
+            export LD_PRELOAD=libumem.so
+            export UMEM_DEBUG=default,verbose
+            export UMEM_OPTIONS=backend=mmap
+        fi
+
         if [[ "$DISTCHECK" == true ]]; then
             # Due to a build system bug DISTCHECK_CONFIGURE_FLAGS
             # changes the behavior of `make distcheck` even when

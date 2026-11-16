@@ -338,6 +338,10 @@ if [[ "$WITH_DBUS" == true ]]; then
 
     l=$(perl -e 'print(join(".", ("["x63)x15))')
     should_fail dbus_call RecordBrowserNew -1 -1 "$l" 0 0 0
+
+    d=$("$PYTHON" -c 'print(".".join([r"\\032"*62]*4))')
+    should_fail dbus_call ResolveService -1 -1 aaaaaaaaa _http._tcp "$d" -1 0
+    should_fail dbus_call ServiceResolverNew -1 -1 aaaaaaaaa _http._tcp "$d" -1 0
 fi
 
 check_rlimit_nofile

@@ -446,6 +446,7 @@ int avahi_service_name_join(char *p, size_t size, const char *name, const char *
     char escaped_name[AVAHI_LABEL_MAX*4];
     char normalized_type[AVAHI_DOMAIN_NAME_MAX];
     char normalized_domain[AVAHI_DOMAIN_NAME_MAX];
+    int n;
 
     assert(p);
 
@@ -477,7 +478,9 @@ int avahi_service_name_join(char *p, size_t size, const char *name, const char *
 
     /* Concatenation */
 
-    snprintf(p, size, "%s%s%s.%s", name ? escaped_name : "", name ? "." : "", normalized_type, normalized_domain);
+    n = snprintf(p, size, "%s%s%s.%s", name ? escaped_name : "", name ? "." : "", normalized_type, normalized_domain);
+    if (n < 0 || (size_t) n >= size)
+        return AVAHI_ERR_FAILURE;
 
     return AVAHI_OK;
 }

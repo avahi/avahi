@@ -43,7 +43,7 @@ struct AvahiAnnouncer {
     AvahiTimeEvent *time_event;
 
     AvahiAnnouncerState state;
-    unsigned n_iteration;
+    unsigned n_iteration; /* Probes or announcements sent in this state, plus one */
     unsigned sec_delay;
 
     AVAHI_LLIST_FIELDS(AvahiAnnouncer, by_interface);
@@ -60,6 +60,8 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately);
 
 int avahi_entry_is_registered(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
 int avahi_entry_is_probing(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+int avahi_entry_first_probe_sent(AvahiServer *s, AvahiEntry *e, AvahiInterface *i);
+void avahi_defer_probing(AvahiServer *s, AvahiInterface *i, const char *name);
 
 void avahi_goodbye_interface(AvahiServer *s, AvahiInterface *i, int send_goodbye, int rem);
 void avahi_goodbye_entry(AvahiServer *s, AvahiEntry *e, int send_goodbye, int rem);

@@ -1,0 +1,95 @@
+= Running the Bonjour Conformance Test against avahi-daemon =
+
+Apple's Bonjour Conformance Test (BCT) checks an mDNS responder
+against RFC 6762: probing, tiebreaks, conflicts, announcements, reply
+timing, duplicate suppression, service renames and hot-plugging. It is
+a macOS command line tool from the Apple developer downloads (an Apple
+developer account is needed). The README and the Conformance Test
+Outline in the download describe the subtests. This file lists what it
+takes to run it against avahi-daemon, because most of the time goes
+into the setup, not the test. It was written for BCT 1.5.4.
+
+== Machines ==
+
+Two machines on one Ethernet segment: the Mac that runs BCT and the
+device that runs avahi-daemon. Both wired. With the Mac on WiFi the
+test does not leave INITIAL PROBING, whatever the device does.
+
+Turn off File Sharing on the Mac for the run. BCT picks the records
+for its reply timing subtests from a packet capture that includes the
+Mac's own announcements, and with File Sharing on it queries the
+device for _smb._tcp, which the device does not have. Check with
+"dns-sd -B _smb._tcp local." that nothing on the segment advertises
+SMB before you start.
+
+== The device ==
+
+ * Use an IPv4 link-local address (169.254.0.0/16) on the test
+   interface. BCT accepts a device only after it sees ARP announcements
+   for such an address, and then expects mDNS probes from that address
+   within a few seconds. With NetworkManager:
+
+       nmcli con mod <connection> ipv4.method link-local
+
+   Add a route to the Mac's subnet (ipv4.routes) if you need to reach
+   the device over the network during the test.
+
+ * The order at "power on" matters. The outline requires the ARP
+   announcements before the first mDNS packet. NetworkManager
+   announces an address about two seconds after it configures it, and
+   avahi-daemon probes as soon as it starts, so a plain reboot or link
+   cycle gets the order wrong. Bring the interface up, wait for the
+   ARP announcements (or send RFC 5227 announcements yourself), then
+   start avahi-daemon.
+
+ * Only one mDNS responder may run on the device. Stop and mask the
+   distribution's daemon and its socket for the session:
+
+       systemctl mask --runtime avahi-daemon.service avahi-daemon.socket
+       systemctl stop avahi-daemon.service avahi-daemon.socket
+
+   Check that nothing else binds UDP port 5353 (ss -ulpn). Set
+   allow-interfaces in avahi-daemon.conf to the test interface, so the
+   daemon does not answer on a second interface.
+
+ * BCT tracks every SRV record the device probes for, and it denies
+   them to force a rename. D-Bus clients such as Samba register
+   services and do not rename on a collision, so set
+   disable-user-service-publishing=yes for the run and publish one or
+   two static services from the services directory instead. Give them
+   literal names: a static service with %h in its name does not rename
+   on a service name conflict.
+
+ * Run the daemon in the foreground with --debug and keep the log.
+   "Server startup complete", "Deferring probing", "Withdrawing" and
+   "Host name conflict" lines line up with the subtests.
+
+== Running BCT ==
+
+BCT needs root and asks yes/no questions, so run it from a root shell
+(sudo -s), not through "sudo ... | tee", or the prompt breaks:
+
+    ./BonjourConformanceTest -I <interface> -V -DD -M \
+        -Aip <router-ip> -Amac <router-mac> \
+        -F results.log 2>&1 | tee console.log
+
+-I is the Mac's interface (en0, en10, see networksetup
+-listallhardwareports). -Aip and -Amac exclude the router's own mDNS
+traffic. -M enables the manual subtests. Answer yes to the first
+question, and when BCT prints "Please Power On Device", do the power
+on described above.
+
+Manual subtests: MANUAL NAME CHANGE asks for a service rename. Edit
+the <name> in the service file and run "avahi-daemon -r". HOT-PLUGGING
+asks for a cable disconnect and reconnect. "nmcli con down" and "up"
+on the device passed it in our runs.
+
+== Reading the results ==
+
+The multicast DNS test is the part that applies to avahi-daemon. The
+network interoperability and BSP tests need a unicast DNS setup and a
+low-power mode and can be skipped. A failed subtest aborts the rest,
+so fix them in order. BCT warns that the daemon "probes quickly,
+should probe per 250 ms". The probe scheduler batches probes with a
+delay of up to 50 ms, so the intervals vary around 250 ms. It is a
+warning, not a failure.

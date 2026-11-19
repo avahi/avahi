@@ -188,6 +188,7 @@ static int packet_add_probe_query(AvahiProbeScheduler *s, AvahiDnsPacket *p, Ava
 
     b = !!avahi_dns_packet_append_key(p, k, 0);
     assert(b);
+    (void)b;
 
     /* reserve size for record data */
     avahi_dns_packet_reserve_size(p, avahi_record_get_estimate_size(pj->record));

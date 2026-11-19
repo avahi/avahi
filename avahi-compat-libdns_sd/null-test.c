@@ -22,7 +22,7 @@
 #endif
 
 #include <sys/types.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -50,13 +50,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     DNSServiceRegister(&ref3, 0, 0, "subtype #2", "_simple._tcp,_subtype1,_subtype2", NULL, NULL, 4711, 0, NULL, NULL, NULL);
 
     DNSServiceRegister(&ref4, 0, 0, "subtype #3", "_simple._tcp,,", NULL, NULL, 4711, 0, NULL, NULL, NULL);
-    assert(!ref4);
+    must(!ref4);
     DNSServiceRegister(&ref4, 0, 0, "subtype #3", "", NULL, NULL, 4711, 0, NULL, NULL, NULL);
-    assert(!ref4);
+    must(!ref4);
     DNSServiceRegister(&ref4, 0, 0, "subtype #3", ",", NULL, NULL, 4711, 0, NULL, NULL, NULL);
-    assert(!ref4);
+    must(!ref4);
     DNSServiceRegister(&ref4, 0, 0, "subtype #3", ",,", NULL, NULL, 4711, 0, NULL, NULL, NULL);
-    assert(!ref4);
+    must(!ref4);
 
     DNSServiceBrowse(&ref4, 0, 0, "_simple._tcp,_gurke", NULL, reply, NULL);
 

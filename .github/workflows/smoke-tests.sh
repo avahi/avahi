@@ -297,6 +297,9 @@ fi
 if unshare -n true 2>/dev/null; then
     export -f dump_journal run
     unshare -n bash -exc 'run ./avahi-core/avahi-test'
+    # conflict-test brings lo up in a namespace of its own when it can
+    # create one; this is for the case where it cannot
+    unshare -n bash -exc 'ip link set lo up; run ./avahi-core/conflict-test'
 fi
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test

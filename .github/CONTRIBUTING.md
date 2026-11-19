@@ -4,8 +4,8 @@ We mostly follow the [coding style guidelines of the PulseAudio project](https:/
 
 - Avahi uses GLib style CamelCase names for structs.
 - Our prefix for functions is `avahi_` and not `pa_`.
-- We have no `pa_assert()` counterpart. Use standard libc `assert()` instead.
-- We lack a `pa_assert_se()` counterpart. Use libc `assert()`, but make sure your code still works when NDEBUG is defined.
+- We have no `pa_assert()` counterpart. In library and daemon code, use standard libc `assert()`, and make sure your code still works when NDEBUG is defined.
+- Test programs do not use `assert()`. They check with `must()` from `avahi-common/test-util.h`, which is never compiled out, so `make check` checks in every build. It takes the place of `pa_assert_se()`.
 
 # LLMs
 

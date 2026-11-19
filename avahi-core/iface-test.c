@@ -11,7 +11,7 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <string.h>
 
 #include <avahi-common/address.h>
@@ -42,28 +42,28 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     int r;
 
     r = address_on_link("192.0.2.1", 0, "203.0.113.1");
-    assert(r == 1);
+    must(r == 1);
 
     r = address_on_link("192.0.2.1", 24, "192.0.2.254");
-    assert(r == 1);
+    must(r == 1);
 
     r = address_on_link("192.0.2.1", 24, "192.0.3.1");
-    assert(r == 0);
+    must(r == 0);
 
     r = address_on_link("192.0.2.10", 31, "192.0.2.11");
-    assert(r == 1);
+    must(r == 1);
 
     r = address_on_link("192.0.2.10", 31, "192.0.2.12");
-    assert(r == 0);
+    must(r == 0);
 
     r = address_on_link("192.0.2.1", 32, "192.0.2.1");
-    assert(r == 1);
+    must(r == 1);
 
     r = address_on_link("192.0.2.1", 32, "192.0.2.2");
-    assert(r == 0);
+    must(r == 0);
 
     r = address_on_link("192.0.2.1", 33, "192.0.2.1");
-    assert(r == 0);
+    must(r == 0);
 
     return 0;
 }

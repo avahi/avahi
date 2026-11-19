@@ -22,7 +22,7 @@
 #endif
 
 #include <stdio.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <string.h>
 
 #include "strlst.h"
@@ -61,10 +61,10 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     n = avahi_string_list_serialize(a, NULL, 0);
     size = avahi_string_list_serialize(a, data, sizeof(data));
-    assert(size == n);
+    must(size == n);
 
     t = avahi_string_list_to_string(a);
-    assert(strstr(t, "gh_issue_169=\\031 ~\\127\\255"));
+    must(strstr(t, "gh_issue_169=\\031 ~\\127\\255"));
     avahi_free(t);
 
     printf("%zu\n", size);
@@ -79,7 +79,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     printf("\n");
 
     r = avahi_string_list_parse(data, size, &b);
-    assert(r == 0);
+    must(r == 0);
 
     printf("equal: %i\n", avahi_string_list_equal(a, b));
 
@@ -91,31 +91,31 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     b = avahi_string_list_copy(a);
 
-    assert(avahi_string_list_equal(a, b));
+    must(avahi_string_list_equal(a, b));
 
     t = avahi_string_list_to_string(b);
     printf("--%s--\n", t);
     avahi_free(t);
 
     p = avahi_string_list_find(a, "seven");
-    assert(p);
+    must(p);
 
     r = avahi_string_list_get_pair(p, &t, &v, NULL);
-    assert(r >= 0);
-    assert(t);
-    assert(v);
+    must(r >= 0);
+    must(t);
+    must(v);
 
     printf("<%s>=<%s>\n", t, v);
     avahi_free(t);
     avahi_free(v);
 
     p = avahi_string_list_find(a, "quux");
-    assert(p);
+    must(p);
 
     r = avahi_string_list_get_pair(p, &t, &v, NULL);
-    assert(r >= 0);
-    assert(t);
-    assert(!v);
+    must(r >= 0);
+    must(t);
+    must(!v);
 
     printf("<%s>=<%s>\n", t, v);
     avahi_free(t);
@@ -126,12 +126,12 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     n = avahi_string_list_serialize(NULL, NULL, 0);
     size = avahi_string_list_serialize(NULL, data, sizeof(data));
-    assert(size == 1);
-    assert(size == n);
+    must(size == 1);
+    must(size == n);
 
     r = avahi_string_list_parse(data, size, &a);
-    assert(r == 0);
-    assert(!a);
+    must(r == 0);
+    must(!a);
 
     return 0;
 }

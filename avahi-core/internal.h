@@ -66,6 +66,7 @@ struct AvahiEntry {
     AvahiSEntryGroup *group;
 
     int dead;
+    int lost;
 
     AvahiPublishFlags flags;
     AvahiRecord *record;

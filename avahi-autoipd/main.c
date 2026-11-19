@@ -785,7 +785,7 @@ int is_ll_address(uint32_t addr) {
 static struct timeval *elapse_time(struct timeval *tv, unsigned msec, unsigned jitter) {
     assert(tv);
 
-    gettimeofday(tv, NULL);
+    avahi_now(tv);
 
     if (msec)
         avahi_timeval_add(tv, (AvahiUsec) msec*1000);

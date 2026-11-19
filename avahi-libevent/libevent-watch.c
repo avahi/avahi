@@ -25,6 +25,7 @@
 #include <event2/event.h>
 #include <event2/event_struct.h>
 
+#include <avahi-common/timeval.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
@@ -185,7 +186,7 @@ timeout_add(AvahiTimeout *t, const struct timeval *tv)
 	if (!tv || ((tv->tv_sec == 0) && (tv->tv_usec == 0)))
 		evutil_timerclear(&e_tv);
 	else {
-		(void)gettimeofday(&now, NULL);
+		(void)avahi_now(&now);
 		evutil_timersub(tv, &now, &e_tv);
 	}
 
@@ -235,7 +236,7 @@ timeout_update(AvahiTimeout *t, const struct timeval *tv)
 	if (!tv)
 		return;
 
-	(void)gettimeofday(&now, NULL);
+	(void)avahi_now(&now);
 	evutil_timersub(tv, &now, &e_tv);
 
 	event_add(&t->ev, &e_tv);

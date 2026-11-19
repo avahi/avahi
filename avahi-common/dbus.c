@@ -27,6 +27,7 @@
 
 #include <avahi-common/error.h>
 #include <avahi-common/dbus.h>
+#include <dbus/dbus.h>
 
 static const char * const table[- AVAHI_ERR_MAX] = {
     AVAHI_DBUS_ERR_OK,

@@ -715,25 +715,85 @@ int avahi_interface_name_match(const char *pattern, const char *name) {
     return fnmatch(pattern, name, 0) == 0;
 }
 
-int avahi_interface_is_relevant(AvahiInterface *i) {
+/* Returns 1 if allow-interfaces and deny-interfaces let us use this
+ * interface name. */
+static int interface_name_allowed(AvahiInterfaceMonitor *m, const char *name) {
     AvahiStringList *l;
-    assert(i);
 
-    for (l = i->monitor->server->config.deny_interfaces; l; l = l->next)
-        if (avahi_interface_name_match((char*) l->text, i->hardware->name))
+    assert(m);
+    assert(name);
+
+    for (l = m->server->config.deny_interfaces; l; l = l->next)
+        if (avahi_interface_name_match((char*) l->text, name))
             return 0;
 
-    if (i->monitor->server->config.allow_interfaces) {
+    if (!m->server->config.allow_interfaces)
+        return 1;
 
-        for (l = i->monitor->server->config.allow_interfaces; l; l = l->next)
-            if (avahi_interface_name_match((char*) l->text, i->hardware->name))
-                goto good;
+    for (l = m->server->config.allow_interfaces; l; l = l->next)
+        if (avahi_interface_name_match((char*) l->text, name))
+            return 1;
 
+    return 0;
+}
+
+int avahi_interface_is_relevant(AvahiInterface *i) {
+    assert(i);
+
+    if (!interface_name_allowed(i->monitor, i->hardware->name))
         return 0;
+
+    return avahi_interface_is_relevant_internal(i);
+}
+
+/* avahi_log_ap() cuts messages at 255 bytes. Leave room for the rest
+ * of the line, so the "(and N more)" tail is never cut off. */
+#define EXCLUDED_LOG_MAX 160
+
+void avahi_interface_monitor_log_excluded(AvahiInterfaceMonitor *m) {
+    AvahiHwInterface *hw;
+    char buf[EXCLUDED_LOG_MAX] = "";
+    size_t len = 0;
+    unsigned n = 0, shown = 0;
+    int full = 0;
+
+    assert(m);
+
+    if (!m->server->config.allow_interfaces && !m->server->config.deny_interfaces)
+        return;
+
+    for (hw = m->hw_interfaces; hw; hw = hw->hardware_next) {
+        int r;
+
+        if (!hw->name || interface_name_allowed(m, hw->name))
+            continue;
+
+        n++;
+
+        if (full)
+            continue;
+
+        r = snprintf(buf + len, sizeof(buf) - len, "%s%s", shown ? ", " : "", hw->name);
+        if (r < 0 || (size_t) r >= sizeof(buf) - len) {
+            /* Does not fit: drop the partial name and stop appending. */
+            buf[len] = 0;
+            full = 1;
+            continue;
+        }
+
+        len += (size_t) r;
+        shown++;
     }
 
-good:
-    return avahi_interface_is_relevant_internal(i);
+    if (n == 0)
+        return;
+
+    if (shown < n)
+        avahi_log_info("Ignoring %u interfaces excluded by allow-interfaces/deny-interfaces: %s (and %u more).",
+                       n, buf, n - shown);
+    else
+        avahi_log_info("Ignoring %u %s excluded by allow-interfaces/deny-interfaces: %s.",
+                       n, n == 1 ? "interface" : "interfaces", buf);
 }
 
 int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {

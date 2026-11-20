@@ -330,6 +330,7 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
             avahi_interface_monitor_update_rrs(m, 0);
 
             /* Tell the user that the wild dump is complete */
+            avahi_interface_monitor_log_excluded(m);
             avahi_log_info("Network interface enumeration completed.");
         }
 

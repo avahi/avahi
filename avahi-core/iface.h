@@ -170,6 +170,11 @@ int avahi_interface_is_relevant(AvahiInterface *i);
  * ignoring case. Used for allow-interfaces and deny-interfaces. */
 int avahi_interface_name_match(const char *pattern, const char *name);
 
+/* Logs once which interfaces allow-interfaces and deny-interfaces
+ * exclude. Called when the first interface enumeration completes;
+ * interfaces that show up later are excluded silently. */
+void avahi_interface_monitor_log_excluded(AvahiInterfaceMonitor *m);
+
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port);
 

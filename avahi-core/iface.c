@@ -22,7 +22,9 @@
 #endif
 
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
+#include <fnmatch.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -678,18 +680,53 @@ static int avahi_interface_is_relevant_internal(AvahiInterface *i) {
     return 0;
 }
 
+/* Copies src lower-cased into dst and returns dst. Returns src if it
+ * does not fit. */
+static const char *lower_copy(char *dst, size_t size, const char *src) {
+    size_t i;
+
+    for (i = 0; src[i]; i++) {
+        if (i + 1 >= size)
+            return src;
+
+        dst[i] = (char) tolower((unsigned char) src[i]);
+    }
+
+    dst[i] = 0;
+    return dst;
+}
+
+int avahi_interface_name_match(const char *pattern, const char *name) {
+    /* Interface names are at most IFNAMSIZ (16) bytes on Linux and the
+     * BSDs and LIFNAMSIZ (32) on Solaris, so these never overflow for
+     * names. Use the stack, so running out of memory cannot turn a
+     * deny-interfaces glob into a literal string compare. */
+    char p[256], n[256];
+
+    assert(pattern);
+    assert(name);
+
+    /* Match case-insensitively, as before glob support was added.
+     * FNM_CASEFOLD is not portable, so lower-case both strings. If
+     * either does not fit, match both as given. */
+    if (lower_copy(p, sizeof(p), pattern) == p && lower_copy(n, sizeof(n), name) == n)
+        return fnmatch(p, n, 0) == 0;
+
+    return fnmatch(pattern, name, 0) == 0;
+}
+
 int avahi_interface_is_relevant(AvahiInterface *i) {
     AvahiStringList *l;
     assert(i);
 
     for (l = i->monitor->server->config.deny_interfaces; l; l = l->next)
-        if (strcasecmp((char*) l->text, i->hardware->name) == 0)
+        if (avahi_interface_name_match((char*) l->text, i->hardware->name))
             return 0;
 
     if (i->monitor->server->config.allow_interfaces) {
 
         for (l = i->monitor->server->config.allow_interfaces; l; l = l->next)
-            if (strcasecmp((char*) l->text, i->hardware->name) == 0)
+            if (avahi_interface_name_match((char*) l->text, i->hardware->name))
                 goto good;
 
         return 0;

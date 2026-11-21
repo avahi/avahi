@@ -13,6 +13,8 @@
 
 #include <assert.h>
 #include <string.h>
+#include <avahi-common/strlst.h>
+#include <avahi-common/malloc.h>
 
 #include <avahi-common/address.h>
 
@@ -64,6 +66,77 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
 
     r = address_on_link("192.0.2.1", 33, "192.0.2.1");
     assert(r == 0);
+
+    r = avahi_interface_name_match("eth0", "eth0");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("ETH0", "eth0");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("eth0", "eth1");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("eth", "eth0");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("veth*", "veth3840cf0c");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("VETH*", "veth3840cf0c");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("veth*", "eth0");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("*", "anything");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("eth?", "eth1");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("eth?", "eth10");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("ens1f[01]", "ens1f1");
+    assert(r == 1);
+
+    r = avahi_interface_name_match("ens1f[01]", "ens1f2");
+    assert(r == 0);
+
+    r = avahi_interface_name_match("flannel*", "flannel-v6.1");
+    assert(r == 1);
+
+    /* A literal name containing wildcard characters still matches exactly */
+    r = avahi_interface_name_match("br[0]", "br[0]");
+    assert(r == 1);
+
+    {
+        AvahiStringList *l = NULL;
+        char *t;
+
+        assert(!avahi_format_excluded_interfaces(NULL));
+
+        l = avahi_string_list_add(l, "veth1");
+        t = avahi_format_excluded_interfaces(l);
+        assert(t && strcmp(t, "Ignoring 1 interface excluded by allow-interfaces/deny-interfaces: veth1") == 0);
+        avahi_free(t);
+
+        l = avahi_string_list_add(l, "veth2");
+        t = avahi_format_excluded_interfaces(l);
+        assert(t && strstr(t, "Ignoring 2 interfaces") && strstr(t, "veth2, veth1") && !strstr(t, "more"));
+        avahi_free(t);
+
+        l = avahi_string_list_add(l, "a3");
+        l = avahi_string_list_add(l, "a4");
+        l = avahi_string_list_add(l, "a5");
+        l = avahi_string_list_add(l, "a6");
+        l = avahi_string_list_add(l, "a7");
+        t = avahi_format_excluded_interfaces(l);
+        assert(t && strstr(t, "Ignoring 7 interfaces") && strstr(t, "(and 2 more)") && !strstr(t, "veth1"));
+        avahi_free(t);
+
+        avahi_string_list_free(l);
+    }
 
     return 0;
 }

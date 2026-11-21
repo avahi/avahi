@@ -22,8 +22,11 @@
 #endif
 
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
+#include <fnmatch.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -32,6 +35,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/domain.h>
+#include <avahi-common/strlst.h>
 
 #include "iface.h"
 #include "dns.h"
@@ -678,25 +682,155 @@ static int avahi_interface_is_relevant_internal(AvahiInterface *i) {
     return 0;
 }
 
-int avahi_interface_is_relevant(AvahiInterface *i) {
-    AvahiStringList *l;
-    assert(i);
+int avahi_interface_name_match(const char *pattern, const char *name) {
+    assert(pattern);
+    assert(name);
 
-    for (l = i->monitor->server->config.deny_interfaces; l; l = l->next)
-        if (strcasecmp((char*) l->text, i->hardware->name) == 0)
+    /* An exact match keeps working for interface names that contain
+     * characters that are special to fnmatch() */
+    if (strcasecmp(pattern, name) == 0)
+        return 1;
+
+#if defined(FNM_CASEFOLD)
+    return fnmatch(pattern, name, FNM_CASEFOLD) == 0;
+#elif defined(FNM_IGNORECASE)
+    return fnmatch(pattern, name, FNM_IGNORECASE) == 0;
+#else
+    {
+        char *p, *n, *c;
+        int r;
+
+        if (!(p = avahi_strdup(pattern)))
             return 0;
 
-    if (i->monitor->server->config.allow_interfaces) {
+        if (!(n = avahi_strdup(name))) {
+            avahi_free(p);
+            return 0;
+        }
 
-        for (l = i->monitor->server->config.allow_interfaces; l; l = l->next)
-            if (strcasecmp((char*) l->text, i->hardware->name) == 0)
-                goto good;
+        for (c = p; *c; c++)
+            *c = (char) tolower((unsigned char) *c);
+        for (c = n; *c; c++)
+            *c = (char) tolower((unsigned char) *c);
+
+        r = fnmatch(p, n, 0) == 0;
+
+        avahi_free(p);
+        avahi_free(n);
+
+        return r;
+    }
+#endif
+}
+
+int avahi_interface_name_allowed(AvahiServer *s, const char *name) {
+    AvahiStringList *l;
+    assert(s);
+    assert(name);
+
+    for (l = s->config.deny_interfaces; l; l = l->next)
+        if (avahi_interface_name_match((char*) l->text, name))
+            return 0;
+
+    if (s->config.allow_interfaces) {
+        for (l = s->config.allow_interfaces; l; l = l->next)
+            if (avahi_interface_name_match((char*) l->text, name))
+                return 1;
 
         return 0;
     }
 
-good:
+    return 1;
+}
+
+int avahi_interface_is_relevant(AvahiInterface *i) {
+    assert(i);
+
+    if (!avahi_interface_name_allowed(i->monitor->server, i->hardware->name))
+        return 0;
+
     return avahi_interface_is_relevant_internal(i);
+}
+
+#define MAX_EXCLUDED_LISTED 5
+
+/* Append a formatted string at offset *pos of a buffer of the given size,
+ * never advancing *pos beyond the end of the buffer. */
+static void excluded_append(char *buf, size_t size, size_t *pos, const char *fmt, ...) AVAHI_GCC_PRINTF_ATTR(4, 5);
+
+static void excluded_append(char *buf, size_t size, size_t *pos, const char *fmt, ...) {
+    va_list ap;
+    int k;
+
+    if (*pos >= size)
+        return;
+
+    va_start(ap, fmt);
+    k = vsnprintf(buf + *pos, size - *pos, fmt, ap);
+    va_end(ap);
+
+    if (k < 0)
+        return;
+
+    if ((size_t) k >= size - *pos)
+        *pos = size - 1;
+    else
+        *pos += (size_t) k;
+}
+
+/* names is expected in the order they should be listed */
+char *avahi_format_excluded_interfaces(AvahiStringList *names) {
+    unsigned n = 0, shown = 0;
+    AvahiStringList *l;
+    char *r;
+    size_t size = 128, pos = 0;
+
+    for (l = names; l; l = l->next)
+        n++;
+
+    if (n == 0)
+        return NULL;
+
+    for (l = names; l && shown < MAX_EXCLUDED_LISTED; l = l->next, shown++)
+        size += l->size + 2;
+
+    if (!(r = avahi_malloc(size)))
+        return NULL;
+
+    r[0] = 0;
+    excluded_append(r, size, &pos, "Ignoring %u interface%s excluded by allow-interfaces/deny-interfaces: ", n, n == 1 ? "" : "s");
+
+    for (l = names, shown = 0; l && shown < MAX_EXCLUDED_LISTED; l = l->next, shown++)
+        excluded_append(r, size, &pos, "%s%s", shown ? ", " : "", (char*) l->text);
+
+    if (n > shown)
+        excluded_append(r, size, &pos, ", ... (and %u more)", n - shown);
+
+    return r;
+}
+
+void avahi_interface_monitor_log_excluded(AvahiInterfaceMonitor *m) {
+    AvahiHwInterface *hw;
+    AvahiStringList *names = NULL;
+    char *t;
+
+    assert(m);
+
+    if (!m->server->config.allow_interfaces && !m->server->config.deny_interfaces)
+        return;
+
+    for (hw = m->hw_interfaces; hw; hw = hw->hardware_next)
+        if (!avahi_interface_name_allowed(m->server, hw->name))
+            names = avahi_string_list_add(names, hw->name);
+
+    names = avahi_string_list_reverse(names);
+
+    if ((t = avahi_format_excluded_interfaces(names))) {
+        avahi_log_info("%s", t);
+        avahi_free(t);
+    }
+
+    avahi_string_list_free(names);
 }
 
 int avahi_interface_address_is_relevant(AvahiInterfaceAddress *a) {

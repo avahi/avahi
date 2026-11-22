@@ -390,6 +390,8 @@ if [[ "$WITH_SYSTEMD" == false ]]; then
 
     pid=$(cat "$avahi_daemon_pid_file")
     run avahi-daemon --kill
+    [[ ! -f "$avahi_daemon_pid_file" ]]
+    should_fail avahi-daemon -c
 
     if [[ "$VALGRIND" == true ]]; then
         cat "${valgrind_log_file//%p/$pid}"
@@ -537,6 +539,7 @@ run systemctl stop avahi-dnsconfd
 
 run systemctl stop avahi-daemon
 should_fail systemctl is-failed avahi-daemon
+[[ ! -f "$avahi_daemon_pid_file" ]]
 
 should_fail avahi-daemon -c
 should_fail avahi-dnsconfd -c

@@ -23,6 +23,7 @@ Requires=avahi-daemon.socket
 BusName=org.freedesktop.Avahi
 ExecStart=@sbindir@/avahi-daemon -s
 ExecReload=@sbindir@/avahi-daemon -r
+ExecStop=@sbindir@/avahi-daemon -k
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes

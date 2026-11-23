@@ -58,4 +58,8 @@ install-exec-local:
 		$(LN_S) avahi-publish avahi-publish-address && \
 		$(LN_S) avahi-publish avahi-publish-service
 
+uninstall-local:
+	for f in avahi-resolve-host-name avahi-resolve-address avahi-browse-domains avahi-publish-address avahi-publish-service; do \
+		rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
 endif

@@ -152,5 +152,8 @@ install-exec-local:
 		$(LN_S) avahi-publish.1 avahi-publish-address.1 && \
 		$(LN_S) avahi-publish.1 avahi-publish-service.1
 
-
+uninstall-local:
+	for f in avahi-resolve-host-name.1 avahi-resolve-address.1 avahi-browse-domains.1 avahi-publish-address.1 avahi-publish-service.1 bvnc.1 bshell.1; do \
+		rm -f $(DESTDIR)$(mandir)/man1/$$f; \
+	done
 endif

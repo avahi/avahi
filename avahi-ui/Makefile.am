@@ -90,6 +90,11 @@ install-exec-local:
 		$(LN_S) bssh bvnc && \
 		$(LN_S) bssh bshell
 
+uninstall-local:
+	for f in bvnc bshell; do \
+		rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
+
 bssh.desktop.in: bssh.desktop.in.in
 	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
 

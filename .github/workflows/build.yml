@@ -79,30 +79,39 @@ jobs:
       run:
         shell: cpa.sh {0} --sync-files runner-to-vm
     concurrency:
-      group: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.version }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-bsd
+      group: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.version }}-${{ matrix.architecture }}-${{ toJSON(matrix.env) }}-${{ github.ref }}-bsd
       cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
         os: ['freebsd']
         version: ['14.5', '15.1']
+        architecture: ['x86_64']
         env:
           - { CC: "clang", ASAN_UBSAN: "false", DISTCHECK: "true" }
           - { CC: "clang", ASAN_UBSAN: "true", DISTCHECK: "false" }
           - { CC: "clang", ASAN_UBSAN: "false", VALGRIND: "true" }
         include:
-          - os: 'netbsd'
-            version: '11.0'
-            env: { CC: "gcc" }
-          - os: 'netbsd'
-            version: '11.0'
+          - os: 'freebsd'
+            version: '15.1'
             env: { CC: "clang", ASAN_UBSAN: "true" }
-          - os: 'omnios'
-            version: 'r151058'
+            architecture: 'arm64'
+          - os: 'netbsd'
+            version: '11.1'
             env: { CC: "gcc" }
+            architecture: 'x86_64'
+          - os: 'netbsd'
+            version: '11.1'
+            env: { CC: "clang", ASAN_UBSAN: "true" }
+            architecture: 'x86_64'
+          - os: 'omnios'
+            version: 'r151060'
+            env: { CC: "gcc" }
+            architecture: 'x86_64'
           - os: 'openbsd'
             version: '8.0'
             env: { CC: "clang" }
+            architecture: 'x86_64'
     env: ${{ matrix.env }}
     steps:
       - name: Repository checkout
@@ -110,11 +119,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Start VM
-        uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
+        uses: cross-platform-actions/action@30cde56b87a128507bebea9531205087890ee360 # v1.8.0
         with:
           operating_system: ${{ matrix.os }}
           version: ${{ matrix.version }}
-          architecture: 'x86_64'
+          architecture: ${{ matrix.architecture }}
           environment_variables: ASAN_UBSAN CC DISTCHECK VALGRIND
       - name: Run commands
         run: |

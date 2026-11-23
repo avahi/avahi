@@ -36,11 +36,16 @@
 #include <systemd/sd-daemon.h>
 #endif
 
+#ifdef HAVE_UCRED_H
+#include <ucred.h>
+#endif
+
 #include <avahi-common/domain.h>
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
 
+#include <avahi-core/hashmap.h>
 #include <avahi-core/log.h>
 #include <avahi-core/lookup.h>
 #include <avahi-core/dns-srv-rr.h>
@@ -61,7 +66,123 @@
 
 #define BUFFER_SIZE (20*1024)
 
-#define CLIENTS_MAX 50
+#ifdef __linux__
+/* Linux specific support, man 7 unix */
+typedef struct ucred AvahiCred;
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+    return cred->uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+    return cred->gid;
+}
+
+static pid_t credentials_getpid(const AvahiCred *cred) {
+    return cred->pid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, cred, len) != 0)
+        return -1;
+    if (*len != sizeof(*cred)) {
+        avahi_log_debug("credentials_getsockopt: unexpected credential size %u (expected %zu)",
+                        (unsigned)*len, sizeof(*cred));
+        return -1;
+    }
+    return 0;
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%ld"
+#  define CRED_ARGS(ucred) , (unsigned long)credentials_getuid(ucred), (unsigned long)credentials_getgid(ucred), (long)credentials_getpid(ucred)
+
+#elif defined(HAVE_GETPEEREID)
+/* BSD support by getpeereid */
+typedef struct AvahiCred {
+    uid_t uid;
+    gid_t gid;
+} AvahiCred;
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+    return cred->uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+    return cred->gid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    return getpeereid(fd, &cred->uid, &cred->gid);
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu"
+#  define CRED_ARGS(cred) , (unsigned long)credentials_getuid(cred), (unsigned long)credentials_getgid(cred)
+
+#elif defined(HAVE_GETPEERUCRED)
+/* illumos/Solaris support by getpeerucred(3C). */
+typedef struct AvahiCred {
+    uid_t uid;
+    gid_t gid;
+    pid_t pid;
+} AvahiCred;
+
+static uid_t credentials_getuid(const AvahiCred *cred) {
+    return cred->uid;
+}
+
+static gid_t credentials_getgid(const AvahiCred *cred) {
+    return cred->gid;
+}
+
+static pid_t credentials_getpid(const AvahiCred *cred) {
+    return cred->pid;
+}
+
+static int credentials_getsockopt(int fd, AvahiCred *cred, socklen_t *len) {
+    ucred_t *uc = NULL;
+
+    *len = sizeof(*cred);
+
+    if (getpeerucred(fd, &uc) != 0)
+        return -1;
+
+    cred->uid = ucred_geteuid(uc);
+    cred->gid = ucred_getegid(uc);
+    cred->pid = ucred_getpid(uc);
+    ucred_free(uc);
+
+    /* if ucred_geteuid() (uid_t)-1 it means unknown UID, refuse the connection */
+    if (cred->uid == (uid_t)-1) {
+        errno = ENOTSUP;
+        return -1;
+    }
+
+    return 0;
+}
+
+#  define CRED_FMT     "uid=%lu gid=%lu pid=%ld"
+#  define CRED_ARGS(cred) , (unsigned long)credentials_getuid(cred), (unsigned long)credentials_getgid(cred), (long)credentials_getpid(cred)
+
+#else
+/* No credential retrieval support on this platform */
+#  define CRED_FMT     ""
+#  define CRED_ARGS(ucred)
+typedef unsigned char AvahiCred; /* need known type size. */
+
+/* Returns (uid_t)-1 to indicate that the UID is unknown, preventing the
+ * unknown-UID from being silently treated as root (uid 0). */
+static uid_t credentials_getuid(AVAHI_GCC_UNUSED const AvahiCred *cred) {
+    return (uid_t)-1;
+}
+
+static int credentials_getsockopt(AVAHI_GCC_UNUSED int fd, AvahiCred *cred, socklen_t *len) {
+    *len = sizeof(*cred);
+    *cred = 0;
+    return 0;
+}
+#endif
 
 typedef struct Client Client;
 typedef struct Server Server;
@@ -81,6 +202,7 @@ struct Client {
 
     int fd;
     AvahiWatch *watch;
+    AvahiCred credentials;
 
     char inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     size_t inbuf_length, outbuf_length;
@@ -101,6 +223,9 @@ struct Server {
     AVAHI_LLIST_HEAD(Client, clients);
 
     unsigned n_clients;
+    unsigned max_clients;     /*< Maximal number of all simple clients. */
+    unsigned max_uid_clients; /*< Maximal number of clients of one UID. */
+    AvahiHashmap *uid_clients; /*< UID -> UidClients, see uid_clients_ref(). */
     int remove_socket;
 };
 
@@ -108,11 +233,83 @@ static Server *server = NULL;
 
 static void client_work(AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata);
 
+typedef struct UidClients {
+    uid_t uid;
+    unsigned n;
+} UidClients;
+
+static unsigned uid_hash(const void *data) {
+    const uid_t *uid = data;
+
+    assert(uid);
+
+    return (unsigned) *uid;
+}
+
+static int uid_equal(const void *a, const void *b) {
+    const uid_t *_a = a, *_b = b;
+
+    assert(_a);
+    assert(_b);
+
+    return *_a == *_b;
+}
+
+static unsigned uid_clients_count(Server *s, uid_t uid) {
+    UidClients *u;
+
+    assert(s);
+
+    if (!(u = avahi_hashmap_lookup(s->uid_clients, &uid)))
+        return 0;
+
+    return u->n;
+}
+
+static int uid_clients_ref(Server *s, uid_t uid) {
+    UidClients *u;
+
+    assert(s);
+
+    if ((u = avahi_hashmap_lookup(s->uid_clients, &uid))) {
+        u->n++;
+        return 0;
+    }
+
+    if (!(u = avahi_new(UidClients, 1)))
+        return -1;
+
+    u->uid = uid;
+    u->n = 1;
+
+    if (avahi_hashmap_insert(s->uid_clients, &u->uid, u) < 0) {
+        avahi_free(u);
+        return -1;
+    }
+
+    return 0;
+}
+
+static void uid_clients_unref(Server *s, uid_t uid) {
+    UidClients *u;
+
+    assert(s);
+
+    if (!(u = avahi_hashmap_lookup(s->uid_clients, &uid)))
+        return;
+
+    assert(u->n >= 1);
+
+    if (--u->n == 0)
+        avahi_hashmap_remove(s->uid_clients, &uid);
+}
+
 static void client_free(Client *c) {
     assert(c);
 
     assert(c->server->n_clients >= 1);
     c->server->n_clients--;
+    uid_clients_unref(c->server, credentials_getuid(&c->credentials));
 
     if (c->host_name_resolver)
         avahi_s_host_name_resolver_free(c->host_name_resolver);
@@ -125,20 +322,30 @@ static void client_free(Client *c) {
 
     c->server->poll_api->watch_free(c->watch);
     close(c->fd);
+    avahi_log_debug("simple client %d finished: " CRED_FMT,
+                    c->fd CRED_ARGS(&c->credentials));
 
     AVAHI_LLIST_REMOVE(Client, clients, c->server->clients, c);
     avahi_free(c);
 }
 
-static void client_new(Server *s, int fd) {
+static int client_new(Server *s, int fd, const AvahiCred *cred) {
     Client *c;
 
     assert(fd >= 0);
 
-    c = avahi_new(Client, 1);
+    if (!(c = avahi_new(Client, 1)))
+        return -1;
+
+    if (uid_clients_ref(s, credentials_getuid(cred)) < 0) {
+        avahi_free(c);
+        return -1;
+    }
+
     c->server = s;
     c->fd = fd;
     c->state = CLIENT_IDLE;
+    c->credentials = *cred;
 
     c->inbuf_length = c->outbuf_length = 0;
 
@@ -150,6 +357,8 @@ static void client_new(Server *s, int fd) {
 
     AVAHI_LLIST_PREPEND(Client, clients, s->clients, c);
     s->n_clients++;
+
+    return 0;
 }
 
 static void client_output(Client *c, const uint8_t*data, size_t size) {
@@ -267,6 +476,15 @@ static void dns_server_browser_callback(
     }
 }
 
+static void log_request(const Client *c, const char *cmd, const char *arg) {
+    if (arg != NULL)
+        avahi_log_debug(__FILE__": Got %s request for '%s'. " CRED_FMT,
+                        cmd, arg CRED_ARGS(&c->credentials));
+    else
+        avahi_log_debug(__FILE__": Got %s request. " CRED_FMT,
+                        cmd CRED_ARGS(&c->credentials));
+}
+
 static void handle_line(Client *c, const char *s) {
     char cmd[64], arg[AVAHI_DOMAIN_NAME_MAX];
     int n_args;
@@ -302,19 +520,19 @@ static void handle_line(Client *c, const char *s) {
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME-IPV6") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-HOSTNAME") == 0 && n_args == 2) {
         c->state = CLIENT_RESOLVE_HOSTNAME;
         if (!(c->host_name_resolver = avahi_s_host_name_resolver_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, arg, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, host_name_resolver_callback, c)))
             goto fail;
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "RESOLVE-ADDRESS") == 0 && n_args == 2) {
         AvahiAddress addr;
 
@@ -327,32 +545,28 @@ static void handle_line(Client *c, const char *s) {
                 goto fail;
         }
 
-        avahi_log_debug(__FILE__": Got %s request for '%s'.", cmd, arg);
-
+        log_request(c, cmd, arg);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV4") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS-IPV6") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_INET6, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else if (strcmp(cmd, "BROWSE-DNS-SERVERS") == 0 && n_args == 1) {
         c->state = CLIENT_BROWSE_DNS_SERVERS;
         if (!(c->dns_server_browser = avahi_s_dns_server_browser_new(avahi_server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, NULL, AVAHI_DNS_SERVER_RESOLVE, c->afquery = AVAHI_PROTO_UNSPEC, AVAHI_LOOKUP_USE_MULTICAST, dns_server_browser_callback, c)))
             goto fail;
+
         client_output_printf(c, "+ Browsing ...\n");
-
-        avahi_log_debug(__FILE__": Got %s request.", cmd);
-
+        log_request(c, cmd, NULL);
     } else {
         client_output_printf(c, "%+i Invalid command \"%s\", try \"HELP\".\n", AVAHI_ERR_INVALID_OPERATION, cmd);
         c->state = CLIENT_DEAD;
@@ -438,6 +652,44 @@ static void client_work(AvahiWatch *watch, AVAHI_GCC_UNUSED int fd, AvahiWatchEv
         (c->inbuf_length < sizeof(c->inbuf) ? AVAHI_WATCH_IN : 0));
 }
 
+static int is_client_allowed(Server *s, int cfd, AvahiCred *cred) {
+    socklen_t len = sizeof(*cred);
+    unsigned n_clients;
+    uid_t uid;
+
+    assert(s != NULL);
+
+    n_clients = s->n_clients + 1;
+    if (n_clients > s->max_clients) {
+        /* Debug so it will not flood the log. */
+        avahi_log_debug("simple client %d refused: too many clients", cfd);
+        return 0;
+    }
+
+    if (credentials_getsockopt(cfd, cred, &len) != 0) {
+        avahi_log_debug("Failed to get peer credentials for fd %d: %s", cfd, strerror(errno));
+        return 0;
+    }
+
+    uid = credentials_getuid(cred);
+    /* Per-UID limit applies to all non-root UIDs. (uid_t)-1 means the UID
+     * is unknown (no credential support on this platform); unknown UIDs are
+     * treated as non-root so they cannot bypass the per-UID limit.
+     *
+     * On platforms without credential support, all connections share one
+     * "unknown UID" bucket, which effectively limits them to max_uid_clients
+     * instead of max_clients. This is an acceptable tradeoff: returning 0
+     * (root) would silently skip per-UID enforcement entirely. */
+    if (uid != 0 && uid_clients_count(s, uid) >= s->max_uid_clients) {
+        avahi_log_debug("simple client %d refused: "CRED_FMT" too many uid clients: %u",
+                        cfd CRED_ARGS(cred), s->max_uid_clients);
+        return 0;
+    }
+    avahi_log_debug("simple client %d/%u accepted: "CRED_FMT,
+                    cfd, n_clients CRED_ARGS(cred));
+    return 1;
+}
+
 static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEvent events, void *userdata) {
     Server *s = userdata;
 
@@ -446,14 +698,25 @@ static void server_work(AVAHI_GCC_UNUSED AvahiWatch *watch, int fd, AvahiWatchEv
     if (events & AVAHI_WATCH_IN) {
         int cfd;
 
-        if ((cfd = accept(fd, NULL, NULL)) < 0)
-            avahi_log_error("accept(): %s", strerror(errno));
-        else
-            client_new(s, cfd);
+        if ((cfd = accept(fd, NULL, NULL)) < 0) {
+            if (errno != EMFILE && errno != ENFILE)
+                avahi_log_error(__FILE__" accept(): %s", strerror(errno));
+            else /* Avoid giving clients the ability to flood the log with too many requests */
+                avahi_log_debug(__FILE__" accept(): %s", strerror(errno));
+        } else {
+            AvahiCred cred;
+            if (!is_client_allowed(s, cfd, &cred))
+                close(cfd);
+            else if (client_new(s, cfd, &cred) < 0) {
+                /* debug level to not flood the log */
+                avahi_log_debug(__FILE__" client_new(): out of memory");
+                close(cfd);
+            }
+        }
     }
 }
 
-int simple_protocol_setup(const AvahiPoll *poll_api) {
+int simple_protocol_setup(const AvahiPoll *poll_api, unsigned max_clients) {
     struct sockaddr_un sa;
     mode_t u;
 #ifdef HAVE_LIBSYSTEMD
@@ -467,10 +730,21 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     server->remove_socket = 0;
     server->fd = -1;
     server->n_clients = 0;
+    server->max_clients = max_clients;
+    /* A single non-root UID may hold at most a quarter of the total */
+    server->max_uid_clients = max_clients / 4;
+    if (server->max_uid_clients < 1)
+        server->max_uid_clients = 1;
     AVAHI_LLIST_HEAD_INIT(Client, server->clients);
     server->watch = NULL;
+    server->uid_clients = NULL;
 
     u = umask(0000);
+
+    if (!(server->uid_clients = avahi_hashmap_new(uid_hash, uid_equal, NULL, avahi_free))) {
+        avahi_log_warn("avahi_hashmap_new(): Out of memory");
+        goto fail;
+    }
 
 #ifdef HAVE_LIBSYSTEMD
     if ((n = sd_listen_fds(1)) < 0) {
@@ -529,6 +803,9 @@ int simple_protocol_setup(const AvahiPoll *poll_api) {
     umask(u);
 
     server->watch = poll_api->watch_new(poll_api, server->fd, AVAHI_WATCH_IN, server_work, server);
+    /* Notice so OpenBSD stock syslog will not drop this message */
+    avahi_log_notice("Maximal simple clients: %u, per_uid: %u",
+                     max_clients, server->max_uid_clients);
 
     return 0;
 
@@ -559,6 +836,9 @@ void simple_protocol_shutdown(void) {
 
         if (server->fd >= 0)
             close(server->fd);
+
+        if (server->uid_clients)
+            avahi_hashmap_free(server->uid_clients);
 
         avahi_free(server);
 

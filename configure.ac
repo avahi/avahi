@@ -438,6 +438,15 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
 AM_GNU_GETTEXT_VERSION([0.19.8])
 AM_GNU_GETTEXT([external])
 
+INTL_PC_LIBS=
+for flag in $LTLIBINTL; do
+    case $flag in
+        -R*) ;;
+        *) INTL_PC_LIBS="${INTL_PC_LIBS:+$INTL_PC_LIBS }$flag" ;;
+    esac
+done
+AC_SUBST(INTL_PC_LIBS)
+
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.
 AC_CHECK_PROG(have_pkg_config, pkg-config, yes, no)

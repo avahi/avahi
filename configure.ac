@@ -402,8 +402,10 @@ fi
 AC_CHECK_LIB(dl, dlopen, [ AC_CHECK_HEADERS(dlfcn.h, HAVE_DLOPEN=yes, HAVE_DLOPEN=no) ], HAVE_DLOPEN=no)
 if test "x$HAVE_DLOPEN" = "xyes" ; then
     AC_DEFINE([HAVE_DLOPEN],1,[Have dlopen()])
+    DL_LIBS=-ldl
 fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
+AC_SUBST(DL_LIBS)
 
 have_inotify=no
 AC_MSG_CHECKING(for inotify)

@@ -71,6 +71,53 @@ run() {
     fi
 }
 
+run_static_test() {
+    local module="$1" libdir tmpdir libs
+
+    libdir=$(sed -n 's/^libdir=//p' "$module.pc")
+    if [[ ! -f "$libdir/lib$module.a" ]]; then
+        echo "static libraries are not installed, skipping the static $module test"
+        return
+    fi
+
+    tmpdir=$(mktemp -d)
+    cat >"$tmpdir/static-test.c"
+
+    libs=$(PKG_CONFIG_PATH="$libdir/pkgconfig" pkg-config --static --libs "$module" | sed -E "s#-l(avahi-[a-z]+)#$libdir/lib\\1.a#g")
+    # shellcheck disable=SC2046,SC2086
+    ${CC:-cc} ${CFLAGS:-} -o "$tmpdir/static-test" "$tmpdir/static-test.c" \
+        $(PKG_CONFIG_PATH="$libdir/pkgconfig" pkg-config --cflags "$module") $libs
+    run "$tmpdir/static-test"
+    rm -rf "$tmpdir"
+}
+
+run_static_core_test() {
+    run_static_test avahi-core <<'EOL'
+#include <stddef.h>
+#include <avahi-core/core.h>
+#include <avahi-common/simple-watch.h>
+
+int main(void) {
+    AvahiSimplePoll *poll;
+    AvahiServerConfig config;
+    AvahiServer *server;
+    int error;
+
+    if (!(poll = avahi_simple_poll_new()))
+        return 1;
+
+    avahi_server_config_init(&config);
+    server = avahi_server_new(avahi_simple_poll_get(poll), &config, NULL, NULL, &error);
+    avahi_server_config_free(&config);
+    if (server)
+        avahi_server_free(server);
+
+    avahi_simple_poll_free(poll);
+    return !server;
+}
+EOL
+}
+
 should_fail() {
     if "$@"; then
         dump_journal
@@ -300,6 +347,7 @@ if unshare -n true 2>/dev/null; then
 fi
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test
+run_static_core_test
 
 for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond both_directions cname_answer_diamond cname_answer; do
     run ./avahi-core/cname-test $test_case

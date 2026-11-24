@@ -95,6 +95,12 @@
 	  </option>
 
 	  <option>
+		<p><opt>--color</opt>[=<arg>WHEN</arg>]</p>
+		<optdesc><p>Colorize the output. <arg>WHEN</arg> can be <arg>auto</arg> (the default), <arg>always</arg> or <arg>never</arg>; <opt>--color</opt> without an argument means <arg>always</arg>. In <arg>auto</arg> mode colors are used only if standard output is a terminal, <arg>TERM</arg> is not "dumb" and the <arg>NO_COLOR</arg> environment variable is not set. Colors are never used together with <opt>--parsable</opt>.</p>
+        <p>When standard output is a terminal, avahi-browse also adapts the columns to the terminal width (following window resizes), shortens names that don't fit with an ellipsis, shows a progress indicator on standard error until the first complete list has been received and prints resolved services with one TXT record entry per line. Output written to pipes and files is not affected.</p></optdesc>
+	  </option>
+
+	  <option>
 		<p><opt>-k | --no-db-lookup</opt></p>
 		<optdesc><p>Don't lookup services types in service type database.</p></optdesc>
 	  </option>

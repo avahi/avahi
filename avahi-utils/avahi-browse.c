@@ -31,7 +31,17 @@
 #include <net/if.h>
 #include <locale.h>
 #include <ctype.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <wchar.h>
+#include <wctype.h>
+#include <langinfo.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 
+#include <avahi-common/gccmacro.h>
+#include <avahi-common/timeval.h>
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
@@ -58,6 +68,17 @@ typedef enum {
 #endif
 } Command;
 
+typedef enum {
+    COLOR_AUTO,
+    COLOR_ALWAYS,
+    COLOR_NEVER
+} ColorMode;
+
+/* Long-only options */
+enum {
+    ARG_COLOR = 256
+};
+
 typedef struct Config {
     int verbose;
     int terminate_on_all_for_now;
@@ -69,6 +90,7 @@ typedef struct Config {
     int resolve;
     int no_fail;
     int parsable;
+    ColorMode color;
 #if defined(HAVE_GDBM)
     int no_db_lookup;
 #endif
@@ -95,6 +117,273 @@ static ServiceInfo *services = NULL;
 static int n_columns = 80;
 static int browsing = 0;
 
+/* Terminal presentation state. "pretty" is only enabled when stdout is
+ * a terminal and the parsable format wasn't requested, so the output
+ * written to pipes and files stays exactly as before. */
+static int use_color = 0;
+static int pretty = 0;
+static int utf8 = 0;
+static int columns_from_env = 0;
+static volatile sig_atomic_t window_resized = 0;
+
+static int use_spinner = 0;
+static int spinner_visible = 0;
+static unsigned spinner_frame = 0;
+static int n_found = 0;
+static AvahiTimeout *spinner_timeout = NULL;
+
+#define SPINNER_INTERVAL_MSEC 100
+
+#define STYLE_RESET    "\033[0m"
+#define STYLE_BOLD     "\033[1m"
+#define STYLE_DIM      "\033[2m"
+#define STYLE_NEW      "\033[1;32m"
+#define STYLE_REMOVED  "\033[1;31m"
+#define STYLE_RESOLVED "\033[1;36m"
+#define STYLE_TYPE     "\033[35m"
+#define STYLE_KEY      "\033[36m"
+
+static const char *style(const char *s) {
+    return use_color ? s : "";
+}
+
+static const char *event_style(char c) {
+    return c == '+' ? STYLE_NEW : c == '-' ? STYLE_REMOVED : STYLE_RESOLVED;
+}
+
+static void spinner_clear(void) {
+    if (!spinner_visible)
+        return;
+
+    fputs("\r\033[K", stderr);
+    fflush(stderr);
+    spinner_visible = 0;
+}
+
+static void spinner_draw(void) {
+    static const char * const frames_utf8[] = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+    static const char * const frames_ascii[] = { "|", "/", "-", "\\" };
+    const char *frame;
+
+    if (utf8)
+        frame = frames_utf8[spinner_frame % (sizeof(frames_utf8) / sizeof(frames_utf8[0]))];
+    else
+        frame = frames_ascii[spinner_frame % (sizeof(frames_ascii) / sizeof(frames_ascii[0]))];
+
+    fprintf(stderr, "\r\033[K%s%s%s ", style(STYLE_RESOLVED), frame, style(STYLE_RESET));
+    fprintf(stderr, _("Browsing... %i found"), n_found);
+    fflush(stderr);
+    spinner_visible = 1;
+}
+
+static void spinner_callback(AvahiTimeout *t, AVAHI_GCC_UNUSED void *userdata) {
+    struct timeval tv;
+
+    spinner_frame++;
+    spinner_draw();
+    avahi_simple_poll_get(simple_poll)->timeout_update(t, avahi_elapse_time(&tv, SPINNER_INTERVAL_MSEC, 0));
+}
+
+static void spinner_start(void) {
+    struct timeval tv;
+
+    if (!use_spinner || spinner_timeout)
+        return;
+
+    spinner_timeout = avahi_simple_poll_get(simple_poll)->timeout_new(
+        avahi_simple_poll_get(simple_poll),
+        avahi_elapse_time(&tv, SPINNER_INTERVAL_MSEC, 0),
+        spinner_callback,
+        NULL);
+}
+
+static void spinner_stop(void) {
+    spinner_clear();
+
+    if (spinner_timeout) {
+        avahi_simple_poll_get(simple_poll)->timeout_free(spinner_timeout);
+        spinner_timeout = NULL;
+    }
+
+    /* Don't come back after the first complete list has been shown */
+    use_spinner = 0;
+}
+
+/* All diagnostics go through here so that they never end up glued to
+ * the spinner line */
+static void eprintf(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
+
+static void eprintf(const char *format, ...) {
+    va_list ap;
+
+    spinner_clear();
+
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+}
+
+static void update_columns(void) {
+    const char *e;
+    int n = 80;
+
+    if ((e = getenv("COLUMNS"))) {
+        n = atoi(e);
+        columns_from_env = 1;
+    }
+#ifdef TIOCGWINSZ
+    else if (isatty(STDOUT_FILENO)) {
+        struct winsize ws;
+
+        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0)
+            n = ws.ws_col;
+    }
+#endif
+
+    if (n < 40)
+        n = 40;
+
+    n_columns = n;
+}
+
+static void sigwinch_handler(AVAHI_GCC_UNUSED int sig) {
+    window_resized = 1;
+}
+
+static void check_resize(void) {
+    if (!window_resized)
+        return;
+
+    window_resized = 0;
+    update_columns();
+}
+
+/* Width of the "Type" column. In pretty mode the whole line is made to
+ * fit in the terminal: "E Ifce Prot " (14) + name + " " + type + " local"
+ * (6), leaving the last column free. The type column keeps its 20 cells
+ * as long as the name column can have at least 10, and shrinks with it
+ * on narrower terminals. */
+static int type_width(void) {
+    int avail;
+
+    if (!pretty)
+        return 20;
+
+    avail = n_columns - 22;
+
+    if (avail >= 30)
+        return 20;
+
+    return avail * 2 / 5;
+}
+
+/* Width of the "Name" column */
+static int name_width(void) {
+    if (!pretty)
+        return n_columns - 35;
+
+    return n_columns - 22 - type_width();
+}
+
+/* Decodes the next character of s. Returns 1 if it is printable,
+ * storing its length in bytes and its width in terminal cells. Invalid
+ * or non-printable characters count as a single byte/cell. */
+static int next_char(const char *s, size_t n, size_t *len, int *width) {
+    mbstate_t state;
+    wchar_t wc;
+    size_t r;
+
+    memset(&state, 0, sizeof(state));
+    r = mbrtowc(&wc, s, n, &state);
+
+    if (r == (size_t) -1 || r == (size_t) -2 || r == 0) {
+        *len = 1;
+        *width = 1;
+        return 0;
+    }
+
+    *len = r;
+
+    if (!iswprint((wint_t) wc) || (*width = wcwidth(wc)) < 0) {
+        *width = 1;
+        return 0;
+    }
+
+    return 1;
+}
+
+static int display_width(const char *s) {
+    size_t n = strlen(s), len;
+    int w, total = 0;
+
+    while (n > 0) {
+        next_char(s, n, &len, &w);
+        total += w;
+        s += len;
+        n -= len;
+    }
+
+    return total;
+}
+
+/* Prints s left aligned in a cell of the given width, measured in
+ * terminal cells rather than bytes. If truncate is set, text that
+ * doesn't fit is cut and an ellipsis is appended. */
+static void print_cell(FILE *f, const char *s, int width, int truncate) {
+    int used;
+
+    if (truncate && (used = display_width(s)) > width) {
+        const char *ellipsis = utf8 ? "…" : "...";
+        int ew = utf8 ? 1 : 3, w;
+        size_t n = strlen(s), len;
+
+        used = 0;
+        while (n > 0) {
+            next_char(s, n, &len, &w);
+
+            if (used + w > width - ew)
+                break;
+
+            fwrite(s, 1, len, f);
+            used += w;
+            s += len;
+            n -= len;
+        }
+
+        fputs(ellipsis, f);
+        used += ew;
+    } else {
+        fputs(s, f);
+        used = display_width(s);
+    }
+
+    for (; used < width; used++)
+        fputc(' ', f);
+}
+
+/* Prints raw TXT record data, keeping printable (multibyte) characters
+ * and escaping everything else as \ddd like avahi_string_list_to_string() */
+static void print_escaped(FILE *f, const char *s, size_t n) {
+    size_t len;
+    int w;
+
+    while (n > 0) {
+        if (*s != '\\' && next_char(s, n, &len, &w))
+            fwrite(s, 1, len, f);
+        else {
+            len = 1;
+
+            if (*s == '\\')
+                fputs("\\\\", f);
+            else
+                fprintf(f, "\\%03u", (unsigned) (uint8_t) *s);
+        }
+
+        s += len;
+        n -= len;
+    }
+}
+
 static void check_terminate(Config *c) {
 
     assert(n_all_for_now >= 0);
@@ -102,6 +391,8 @@ static void check_terminate(Config *c) {
     assert(n_resolving >= 0);
 
     if (n_all_for_now <= 0 && n_resolving <= 0) {
+
+        spinner_stop();
 
         if (c->verbose && !c->parsable) {
             printf(_(": All for now\n"));
@@ -115,6 +406,7 @@ static void check_terminate(Config *c) {
     if (n_cache_exhausted <= 0 && n_resolving <= 0) {
 
         if (c->verbose && !c->parsable) {
+            spinner_clear();
             printf(_(": Cache exhausted\n"));
             n_cache_exhausted++; /* Make sure that this event is not repeated */
         }
@@ -139,12 +431,24 @@ static ServiceInfo *find_service(AvahiIfIndex interface, AvahiProtocol protocol,
     return NULL;
 }
 
+/* Replaces non-printable characters by '_'. Multibyte characters that
+ * are printable in the current locale (e.g. UTF-8 names such as
+ * "Café") are kept as they are. The result is never longer than from. */
 static char *make_printable(const char *from, char *to) {
-    const char *f;
-    char *t;
+    size_t n = strlen(from), len;
+    char *t = to;
+    int w;
 
-    for (f = from, t = to; *f; f++, t++)
-        *t = isprint((unsigned char)*f) ? *f : '_';
+    while (n > 0) {
+        if (next_char(from, n, &len, &w)) {
+            memcpy(t, from, len);
+            t += len;
+        } else
+            *(t++) = '_';
+
+        from += len;
+        n -= len;
+    }
 
     *t = 0;
 
@@ -173,14 +477,76 @@ static void print_service_line(Config *config, char c, AvahiIfIndex interface, A
         char label[AVAHI_LABEL_MAX];
         make_printable(name, label);
 
-        printf("%c %6s %4s %-*s %-20s %s\n",
-               c,
+        check_resize();
+        spinner_clear();
+
+        printf("%s%c%s %s%6s %4s%s ",
+               style(event_style(c)), c, style(STYLE_RESET),
+               style(STYLE_DIM),
                interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : _("n/a"),
                protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : _("n/a"),
-               n_columns-35, label, type, domain);
+               style(STYLE_RESET));
+
+        fputs(style(c == '-' ? STYLE_DIM : STYLE_BOLD), stdout);
+        print_cell(stdout, label, name_width(), pretty);
+        printf("%s %s", style(STYLE_RESET), style(STYLE_TYPE));
+        print_cell(stdout, type, type_width(), pretty);
+        printf("%s %s%s%s\n", style(STYLE_RESET), style(STYLE_DIM), domain, style(STYLE_RESET));
     }
 
     fflush(stdout);
+}
+
+static void print_card_label(const char *label) {
+    printf("   %s%s%s ", style(STYLE_DIM), utf8 ? "│" : "|", style(STYLE_RESET));
+    fputs(style(STYLE_DIM), stdout);
+    print_cell(stdout, label, 10, 0);
+    fputs(style(STYLE_RESET), stdout);
+}
+
+/* Human friendly version of the resolver output: one field per line and
+ * one TXT record entry per line, split in key and value. */
+static void print_resolved_card(const char *host_name, const char *address, uint16_t port, AvahiStringList *txt) {
+    AvahiStringList *l;
+
+    print_card_label(_("hostname"));
+    printf("%s\n", host_name);
+    print_card_label(_("address"));
+    printf("%s\n", address);
+    print_card_label(_("port"));
+    printf("%u\n", port);
+    print_card_label(_("txt"));
+
+    if (!txt)
+        printf("%s%s%s\n", style(STYLE_DIM), _("(empty)"), style(STYLE_RESET));
+
+    /* The list is stored in reverse order, show the records in the
+     * order they were published, like avahi_string_list_to_string() */
+    txt = avahi_string_list_reverse(txt);
+
+    for (l = txt; l; l = l->next) {
+        const char *text = (const char*) l->text, *eq;
+        size_t key_len;
+
+        if (l != txt)
+            print_card_label("");
+
+        eq = memchr(text, '=', l->size);
+        key_len = eq ? (size_t) (eq - text) : l->size;
+
+        fputs(style(STYLE_KEY), stdout);
+        print_escaped(stdout, text, key_len);
+        fputs(style(STYLE_RESET), stdout);
+
+        if (eq) {
+            printf("%s=%s", style(STYLE_DIM), style(STYLE_RESET));
+            print_escaped(stdout, eq + 1, l->size - key_len - 1);
+        }
+
+        putchar('\n');
+    }
+
+    avahi_string_list_reverse(txt);
 }
 
 static void service_resolver_callback(
@@ -219,6 +585,8 @@ static void service_resolver_callback(
                        address,
                        port,
                        t);
+            else if (pretty)
+                print_resolved_card(host_name, address, port, txt);
             else
                 printf("   hostname = [%s]\n"
                        "   address = [%s]\n"
@@ -236,7 +604,7 @@ static void service_resolver_callback(
 
         case AVAHI_RESOLVER_FAILURE:
 
-            fprintf(stderr, _("Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"), name, type, domain, avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"), name, type, domain, avahi_strerror(avahi_client_errno(client)));
             break;
     }
 
@@ -258,7 +626,7 @@ static ServiceInfo *add_service(Config *c, AvahiIfIndex interface, AvahiProtocol
     if (c->resolve) {
         if (!(i->resolver = avahi_service_resolver_new(client, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, service_resolver_callback, i))) {
             avahi_free(i);
-            fprintf(stderr, _("Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"), name, type, domain, avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("Failed to resolve service '%s' of type '%s' in domain '%s': %s\n"), name, type, domain, avahi_strerror(avahi_client_errno(client)));
             return NULL;
         }
 
@@ -318,6 +686,7 @@ static void service_browser_callback(
                 return;
 
             add_service(c, interface, protocol, name, type, domain);
+            n_found++;
 
             print_service_line(c, '+', interface, protocol, name, type, domain, 1);
             break;
@@ -331,13 +700,14 @@ static void service_browser_callback(
                 return;
 
             remove_service(c, info);
+            n_found--;
 
             print_service_line(c, '-', interface, protocol, name, type, domain, 1);
             break;
         }
 
         case AVAHI_BROWSER_FAILURE:
-            fprintf(stderr, _("service_browser failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("service_browser failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
             avahi_simple_poll_quit(simple_poll);
             break;
 
@@ -375,7 +745,7 @@ static void browse_service_type(Config *c, const char *stype, const char *domain
               service_browser_callback,
               c))) {
 
-        fprintf(stderr, _("avahi_service_browser_new() failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
+        eprintf(_("avahi_service_browser_new() failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
         avahi_simple_poll_quit(simple_poll);
     }
 
@@ -411,7 +781,7 @@ static void service_type_browser_callback(
             break;
 
         case AVAHI_BROWSER_FAILURE:
-            fprintf(stderr, _("service_type_browser failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("service_type_browser failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
             avahi_simple_poll_quit(simple_poll);
             break;
 
@@ -441,7 +811,7 @@ static void browse_all(Config *c) {
               service_type_browser_callback,
               c))) {
 
-        fprintf(stderr, _("avahi_service_type_browser_new() failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
+        eprintf(_("avahi_service_type_browser_new() failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
         avahi_simple_poll_quit(simple_poll);
     }
 
@@ -468,6 +838,9 @@ static void domain_browser_callback(
         case AVAHI_BROWSER_NEW:
         case AVAHI_BROWSER_REMOVE: {
             char ifname[IF_NAMESIZE];
+            char e = event == AVAHI_BROWSER_NEW ? '+' : '-';
+
+            n_found += e == '+' ? 1 : -1;
 
             if (c->parsable)
                 printf("%c;%s;%s;%s\n",
@@ -475,17 +848,23 @@ static void domain_browser_callback(
                        interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "",
                        protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "",
                        domain);
-            else
-                printf("%c %4s %4s %s\n",
-                       event == AVAHI_BROWSER_NEW ? '+' : '-',
+            else {
+                spinner_clear();
+                printf("%s%c%s %s%4s %4s%s %s\n",
+                       style(event_style(e)), e, style(STYLE_RESET),
+                       style(STYLE_DIM),
                        interface != AVAHI_IF_UNSPEC ? if_indextoname(interface, ifname) : "n/a",
                        protocol != AVAHI_PROTO_UNSPEC ? avahi_proto_to_string(protocol) : "n/a",
+                       style(STYLE_RESET),
                        domain);
+            }
+
+            fflush(stdout);
             break;
         }
 
         case AVAHI_BROWSER_FAILURE:
-            fprintf(stderr, ("domain_browser failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("domain_browser failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
             avahi_simple_poll_quit(simple_poll);
             break;
 
@@ -516,7 +895,7 @@ static void browse_domains(Config *c) {
               domain_browser_callback,
               c))) {
 
-        fprintf(stderr, _("avahi_domain_browser_new() failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
+        eprintf(_("avahi_domain_browser_new() failed: %s\n"), avahi_strerror(avahi_client_errno(client)));
         avahi_simple_poll_quit(simple_poll);
     }
 
@@ -532,27 +911,34 @@ static int start(Config *config) {
         const char *version, *hn;
 
         if (!(version = avahi_client_get_version_string(client))) {
-            fprintf(stderr, _("Failed to query version string: %s\n"), avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("Failed to query version string: %s\n"), avahi_strerror(avahi_client_errno(client)));
             return -1;
         }
 
         if (!(hn = avahi_client_get_host_name_fqdn(client))) {
-            fprintf(stderr, _("Failed to query host name: %s\n"), avahi_strerror(avahi_client_errno(client)));
+            eprintf(_("Failed to query host name: %s\n"), avahi_strerror(avahi_client_errno(client)));
             return -1;
         }
 
-        fprintf(stderr, _("Server version: %s; Host name: %s\n"), version, hn);
+        eprintf(_("Server version: %s; Host name: %s\n"), version, hn);
+
+        check_resize();
+        fputs(style(STYLE_BOLD), stderr);
 
         if (config->command == COMMAND_BROWSE_DOMAINS) {
             /* Translators: This is a column heading with abbreviations for
              *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain */
-            fprintf(stderr, _("E Ifce Prot Domain\n"));
+            eprintf(_("E Ifce Prot Domain\n"));
         } else {
             /* Translators: This is a column heading with abbreviations for
              *   Event (+/-), Network Interface, Protocol (IPv4/v6), Domain */
-            fprintf(stderr, _("E Ifce Prot %-*s %-20s Domain\n"), n_columns-35, _("Name"), _("Type"));
+            eprintf(_("E Ifce Prot %-*s %-20s Domain\n"), name_width(), _("Name"), _("Type"));
         }
+
+        fputs(style(STYLE_RESET), stderr);
     }
+
+    spinner_start();
 
     if (config->command == COMMAND_BROWSE_SERVICES)
         browse_service_type(config, config->stype, config->domain);
@@ -582,7 +968,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
 
                 /* We have been disconnected, so let reconnect */
 
-                fprintf(stderr, _("Disconnected, reconnecting ...\n"));
+                eprintf(_("Disconnected, reconnecting ...\n"));
 
                 while (services)
                     remove_service(config, services);
@@ -596,12 +982,12 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
                 browsing = 0;
 
                 if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), AVAHI_CLIENT_NO_FAIL, client_callback, config, &error))) {
-                    fprintf(stderr, _("Failed to create client object: %s\n"), avahi_strerror(error));
+                    eprintf(_("Failed to create client object: %s\n"), avahi_strerror(error));
                     avahi_simple_poll_quit(simple_poll);
                 }
 
             } else {
-                fprintf(stderr, _("Client failure, exiting: %s\n"), avahi_strerror(avahi_client_errno(c)));
+                eprintf(_("Client failure, exiting: %s\n"), avahi_strerror(avahi_client_errno(c)));
                 avahi_simple_poll_quit(simple_poll);
             }
 
@@ -620,7 +1006,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UN
         case AVAHI_CLIENT_CONNECTING:
 
             if (config->verbose && !config->parsable)
-                fprintf(stderr, _("Waiting for daemon ...\n"));
+                eprintf(_("Waiting for daemon ...\n"));
 
             break;
     }
@@ -663,6 +1049,9 @@ static void help(FILE *f, const char *argv0) {
             ""
 #endif
             );
+
+    fprintf(f, "%s",
+            _("       --color[=WHEN]   Colorize the output: auto (default), always or never\n"));
 }
 
 static int parse_command_line(Config *c, const char *argv0, int argc, char *argv[]) {
@@ -681,6 +1070,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         { "resolve",        no_argument,       NULL, 'r' },
         { "no-fail",        no_argument,       NULL, 'f' },
         { "parsable",      no_argument,       NULL, 'p' },
+        { "color",          optional_argument, NULL, ARG_COLOR },
 #if defined(HAVE_GDBM)
         { "no-db-lookup",   no_argument,       NULL, 'k' },
         { "dump-db",        no_argument,       NULL, 'b' },
@@ -698,6 +1088,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
         c->resolve =
         c->no_fail =
         c->parsable = 0;
+    c->color = COLOR_AUTO;
     c->domain = c->stype = NULL;
 
 #if defined(HAVE_GDBM)
@@ -748,6 +1139,18 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
             case 'p':
                 c->parsable = 1;
                 break;
+            case ARG_COLOR:
+                if (!optarg || strcmp(optarg, "always") == 0)
+                    c->color = COLOR_ALWAYS;
+                else if (strcmp(optarg, "never") == 0)
+                    c->color = COLOR_NEVER;
+                else if (strcmp(optarg, "auto") == 0)
+                    c->color = COLOR_AUTO;
+                else {
+                    eprintf(_("Invalid --color argument '%s', expected auto, always or never\n"), optarg);
+                    return -1;
+                }
+                break;
 #if defined(HAVE_GDBM)
             case 'k':
                 c->no_db_lookup = 1;
@@ -763,7 +1166,7 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
 
     if (c->command == COMMAND_BROWSE_SERVICES) {
         if (optind >= argc) {
-            fprintf(stderr, _("Too few arguments\n"));
+            eprintf(_("Too few arguments\n"));
             return -1;
         }
 
@@ -772,35 +1175,70 @@ static int parse_command_line(Config *c, const char *argv0, int argc, char *argv
     }
 
     if (optind < argc) {
-        fprintf(stderr, _("Too many arguments\n"));
+        eprintf(_("Too many arguments\n"));
         return -1;
     }
 
     return 0;
 }
 
+static int want_color(const Config *c) {
+    const char *e;
+
+    if (c->parsable || c->color == COLOR_NEVER)
+        return 0;
+
+    if (c->color == COLOR_ALWAYS)
+        return 1;
+
+    /* https://no-color.org/ */
+    if ((e = getenv("NO_COLOR")) && *e)
+        return 0;
+
+    if ((e = getenv("TERM")) && strcmp(e, "dumb") == 0)
+        return 0;
+
+    return isatty(STDOUT_FILENO);
+}
+
+static void setup_terminal(const Config *c) {
+    const char *e;
+
+    use_color = want_color(c);
+    pretty = !c->parsable && isatty(STDOUT_FILENO);
+    use_spinner = pretty && isatty(STDERR_FILENO) && !((e = getenv("TERM")) && strcmp(e, "dumb") == 0);
+
+    update_columns();
+
+    if (pretty && !columns_from_env) {
+        struct sigaction sa;
+
+        memset(&sa, 0, sizeof(sa));
+        sa.sa_handler = sigwinch_handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = SA_RESTART;
+        sigaction(SIGWINCH, &sa, NULL);
+    }
+}
+
 int main(int argc, char *argv[]) {
     int ret = 1, error;
     Config config;
     const char *argv0;
-    char *ec;
 
     avahi_init_i18n();
     setlocale(LC_ALL, "");
+    utf8 = strcmp(nl_langinfo(CODESET), "UTF-8") == 0;
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0++;
     else
         argv0 = argv[0];
 
-    if ((ec = getenv("COLUMNS")))
-        n_columns = atoi(ec);
-
-    if (n_columns < 40)
-        n_columns = 40;
-
     if (parse_command_line(&config, argv0, argc, argv) < 0)
         goto fail;
+
+    setup_terminal(&config);
 
     switch (config.command) {
         case COMMAND_HELP:
@@ -818,19 +1256,22 @@ int main(int argc, char *argv[]) {
         case COMMAND_BROWSE_DOMAINS:
 
             if (!(simple_poll = avahi_simple_poll_new())) {
-                fprintf(stderr, _("Failed to create simple poll object.\n"));
+                eprintf(_("Failed to create simple poll object.\n"));
                 goto fail;
             }
 
             if (sigint_install(simple_poll) < 0)
                 goto fail;
 
+            sigint_set_before_quit(spinner_clear);
+
             if (!(client = avahi_client_new(avahi_simple_poll_get(simple_poll), config.no_fail ? AVAHI_CLIENT_NO_FAIL : 0, client_callback, &config, &error))) {
-                fprintf(stderr, _("Failed to create client object: %s\n"), avahi_strerror(error));
+                eprintf(_("Failed to create client object: %s\n"), avahi_strerror(error));
                 goto fail;
             }
 
             avahi_simple_poll_loop(simple_poll);
+            spinner_stop();
             ret = 0;
             break;
 

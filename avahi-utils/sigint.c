@@ -36,6 +36,7 @@ static AvahiSimplePoll *simple_poll = NULL;
 static struct sigaction old_sigint_sa, old_sigterm_sa;
 static int pipe_fds[2] = { -1, -1 };
 static AvahiWatch *watch = NULL;
+static void (*before_quit)(void) = NULL;
 
 static int set_nonblock(int fd) {
     int n;
@@ -75,8 +76,15 @@ static void watch_callback(AvahiWatch *w, int fd, AvahiWatchEvent event, AVAHI_G
     l = read(fd, &s, sizeof(s));
     assert(l == sizeof(s));
 
+    if (before_quit)
+        before_quit();
+
     fprintf(stderr, "Got %s, quitting.\n", s == SIGINT ? "SIGINT" : "SIGTERM");
     avahi_simple_poll_quit(simple_poll);
+}
+
+void sigint_set_before_quit(void (*callback)(void)) {
+    before_quit = callback;
 }
 
 int sigint_install(AvahiSimplePoll *spoll) {

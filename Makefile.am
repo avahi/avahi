@@ -175,6 +175,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 	    -e 's,@PTHREAD_LIBS\@,$(PTHREAD_LIBS),g' \
 	    -e 's,@DL_LIBS\@,$(DL_LIBS),g' \
 	    -e 's,@INTL_PC_LIBS\@,$(INTL_PC_LIBS),g' \
+	    -e 's,@SOCKET_LIBS\@,$(SOCKET_LIBS),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 pkgconfig_DATA = avahi-core.pc

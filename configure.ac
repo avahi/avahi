@@ -366,6 +366,14 @@ AC_HEADER_SYS_WAIT
  # Solaris stuff
  AC_SEARCH_LIBS([inet_ntop],[nsl])
  AC_SEARCH_LIBS([recv],[socket])
+ SOCKET_LIBS=
+ for lib in "$ac_cv_search_recv" "$ac_cv_search_inet_ntop"; do
+     case $lib in
+         "none required"|no) ;;
+         *) SOCKET_LIBS="${SOCKET_LIBS:+$SOCKET_LIBS }$lib" ;;
+     esac
+ done
+ AC_SUBST(SOCKET_LIBS)
  AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__", [[#include <sys/socket.h>]])
 
 # Checks for library functions.

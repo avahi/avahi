@@ -129,9 +129,12 @@ utf8_test_SOURCES = \
 utf8_test_CFLAGS = $(AM_CFLAGS)
 utf8_test_LDADD = $(AM_LDADD)
 
+noinst_HEADERS = \
+	test-util.h
+
 if HAVE_DBUS
 
-noinst_HEADERS = \
+noinst_HEADERS += \
 	dbus.h \
 	dbus-watch-glue.h
 

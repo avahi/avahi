@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 #include <errno.h>
 #include <string.h>
 
@@ -74,10 +74,10 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[])
     struct timeval tv;
 
     base = event_base_new();
-    assert(base);
+    must(base);
 
     ep = avahi_libevent_poll_new(base);
-    assert(ep);
+    must(ep);
 
     api = avahi_libevent_poll_get(ep);
 

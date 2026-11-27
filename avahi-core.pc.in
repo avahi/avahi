@@ -6,5 +6,6 @@ includedir=${prefix}/include
 Name: avahi-core
 Description: Avahi Multicast DNS Responder (Embeddable Stack)
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lavahi-common -lavahi-core
+Libs: -L${libdir} -lavahi-core -lavahi-common
+Libs.private: @PTHREAD_CFLAGS@ @PTHREAD_LIBS@ @INTL_PC_LIBS@ @SOCKET_LIBS@
 Cflags: -D_REENTRANT -I${includedir}

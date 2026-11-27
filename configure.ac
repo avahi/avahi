@@ -366,6 +366,14 @@ AC_HEADER_SYS_WAIT
  # Solaris stuff
  AC_SEARCH_LIBS([inet_ntop],[nsl])
  AC_SEARCH_LIBS([recv],[socket])
+ SOCKET_LIBS=
+ for lib in "$ac_cv_search_recv" "$ac_cv_search_inet_ntop"; do
+     case $lib in
+         "none required"|no) ;;
+         *) SOCKET_LIBS="${SOCKET_LIBS:+$SOCKET_LIBS }$lib" ;;
+     esac
+ done
+ AC_SUBST(SOCKET_LIBS)
  AC_CHECK_DECL([CMSG_SPACE],,CFLAGS="$CFLAGS -D_XOPEN_SOURCE=500 -D__EXTENSIONS__", [[#include <sys/socket.h>]])
 
 # Checks for library functions.
@@ -402,8 +410,10 @@ fi
 AC_CHECK_LIB(dl, dlopen, [ AC_CHECK_HEADERS(dlfcn.h, HAVE_DLOPEN=yes, HAVE_DLOPEN=no) ], HAVE_DLOPEN=no)
 if test "x$HAVE_DLOPEN" = "xyes" ; then
     AC_DEFINE([HAVE_DLOPEN],1,[Have dlopen()])
+    DL_LIBS=-ldl
 fi
 AM_CONDITIONAL(HAVE_DLOPEN, test "x$HAVE_DLOPEN" = "xyes")
+AC_SUBST(DL_LIBS)
 
 have_inotify=no
 AC_MSG_CHECKING(for inotify)
@@ -435,6 +445,15 @@ AC_SUBST([GETTEXT_PACKAGE])
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
 AM_GNU_GETTEXT_VERSION([0.19.8])
 AM_GNU_GETTEXT([external])
+
+INTL_PC_LIBS=
+for flag in $LTLIBINTL; do
+    case $flag in
+        -R*) ;;
+        *) INTL_PC_LIBS="${INTL_PC_LIBS:+$INTL_PC_LIBS }$flag" ;;
+    esac
+done
+AC_SUBST(INTL_PC_LIBS)
 
 # Check for pkg-config manually first, as if its not installed the
 # PKG_PROG_PKG_CONFIG macro won't be defined.

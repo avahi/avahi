@@ -6,6 +6,7 @@ includedir=${prefix}/include
 Name: avahi-client
 Description: Avahi Multicast DNS Responder (Client Support)
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lavahi-common -lavahi-client
+Libs: -L${libdir} -lavahi-client -lavahi-common
+Libs.private: @PTHREAD_CFLAGS@ @PTHREAD_LIBS@ @DL_LIBS@ @INTL_PC_LIBS@ @SOCKET_LIBS@
 Cflags: -D_REENTRANT -I${includedir}
 Requires.private: dbus-1

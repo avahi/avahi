@@ -171,6 +171,11 @@ pkgconfigdir = $(libdir)/pkgconfig
 	$(AM_V_GEN)sed -e 's,@prefix\@,$(prefix),g' \
 	    -e 's,@libdir\@,$(libdir),g' \
 	    -e 's,@HOWL_COMPAT_VERSION\@,$(HOWL_COMPAT_VERSION),g' \
+	    -e 's,@PTHREAD_CFLAGS\@,$(PTHREAD_CFLAGS),g' \
+	    -e 's,@PTHREAD_LIBS\@,$(PTHREAD_LIBS),g' \
+	    -e 's,@DL_LIBS\@,$(DL_LIBS),g' \
+	    -e 's,@INTL_PC_LIBS\@,$(INTL_PC_LIBS),g' \
+	    -e 's,@SOCKET_LIBS\@,$(SOCKET_LIBS),g' \
 	    -e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' $< > $@
 
 pkgconfig_DATA = avahi-core.pc

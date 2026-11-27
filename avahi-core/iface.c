@@ -554,7 +554,7 @@ AvahiHwInterface* avahi_interface_monitor_get_hw_interface(AvahiInterfaceMonitor
     return avahi_hashmap_lookup(m->hashmap, &idx);
 }
 
-AvahiInterfaceAddress* avahi_interface_monitor_get_address(AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr) {
+AvahiInterfaceAddress* avahi_interface_monitor_get_address(AVAHI_GCC_UNUSED AvahiInterfaceMonitor *m, AvahiInterface *i, const AvahiAddress *raddr) {
     AvahiInterfaceAddress *ia;
 
     assert(m);

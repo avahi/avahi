@@ -695,7 +695,7 @@ static void service_resolver_callback(
         case AVAHI_RESOLVER_FOUND: {
 
             char host_name_fixed[AVAHI_DOMAIN_NAME_MAX];
-            char full_name[AVAHI_DOMAIN_NAME_MAX];
+            char full_name[AVAHI_DOMAIN_NAME_MAX + 1];
             int ret;
             char *p = NULL;
             size_t l = 0;
@@ -705,7 +705,7 @@ static void service_resolver_callback(
             if ((p = avahi_new0(char, (l = avahi_string_list_serialize(txt, NULL, 0))+1)))
                 avahi_string_list_serialize(txt, p, l);
 
-            ret = avahi_service_name_join(full_name, sizeof(full_name), name, type, domain);
+            ret = avahi_service_name_join(full_name, AVAHI_DOMAIN_NAME_MAX, name, type, domain);
             assert(ret == AVAHI_OK);
 
             strcat(full_name, ".");

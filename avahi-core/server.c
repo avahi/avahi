@@ -1514,6 +1514,7 @@ AvahiServer *avahi_server_new(const AvahiPoll *poll_api, const AvahiServerConfig
 
     s->monitor = avahi_interface_monitor_new(s);
     avahi_interface_monitor_sync(s->monitor);
+    avahi_interface_monitor_log_excluded(s->monitor);
 
     register_localhost(s);
     register_stuff(s);

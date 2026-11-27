@@ -166,6 +166,15 @@ void avahi_interface_update_rrs(AvahiInterface *i, int remove_rrs);
 void avahi_interface_check_relevant(AvahiInterface *i);
 int avahi_interface_is_relevant(AvahiInterface *i);
 
+/* Returns 1 if the interface name matches the pattern of an
+ * allow-interfaces/deny-interfaces entry: shell wildcards as in
+ * fnmatch(3), compared case-insensitively. */
+int avahi_interface_name_match(const char *pattern, const char *name);
+
+int avahi_interface_name_allowed(AvahiServer *s, const char *name);
+char *avahi_format_excluded_interfaces(AvahiStringList *names);
+void avahi_interface_monitor_log_excluded(AvahiInterfaceMonitor *m);
+
 void avahi_interface_send_packet(AvahiInterface *i, AvahiDnsPacket *p);
 void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, const AvahiAddress *a, uint16_t port);
 

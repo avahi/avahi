@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <avahi-common/gccmacro.h>
 #include <dns_sd.h>
@@ -123,6 +124,25 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     hexdump(p, l);
 
     assert(TXTRecordGetItemAtIndex(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), 20, sizeof(k), k, &l, &p) == kDNSServiceErr_Invalid);
+
+    /* Keys are case insensitive, RFC 6763 section 6.4 */
+    assert(TXTRecordContainsKey(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "TWO"));
+
+    r = TXTRecordGetValuePtr(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "Kawumm", &l);
+    assert(r);
+    assert(l == 6);
+    assert(memcmp(r, "bloerb", 6) == 0);
+
+    TXTRecordSetValue(&ref, "ONE", 1, "9");
+    assert(TXTRecordGetCount(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref)) == 6);
+
+    r = TXTRecordGetValuePtr(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref), "one", &l);
+    assert(r);
+    assert(l == 1);
+    assert(*r == '9');
+
+    assert(TXTRecordRemoveValue(&ref, "Three") == kDNSServiceErr_NoError);
+    assert(TXTRecordGetCount(TXTRecordGetLength(&ref), TXTRecordGetBytesPtr(&ref)) == 5);
 
     TXTRecordDeallocate(&ref);
 }

@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <string.h>
+#include <strings.h>
 
 #include <avahi-common/malloc.h>
 
@@ -134,7 +135,7 @@ static int remove_key(TXTRecordInternal *t, const char *key) {
             break;
 
         if (key_len <= *p &&
-            strncmp(key, (char*) p+1, key_len) == 0 &&
+            strncasecmp(key, (char*) p+1, key_len) == 0 &&
             (key_len == *p || p[1+key_len] == '=')) {
 
             uint8_t s;
@@ -280,7 +281,7 @@ static const uint8_t *find_key(const uint8_t *buffer, size_t size, const char *k
             return NULL;
 
         if (key_len <= *p &&
-            strncmp(key, (const char*) p+1, key_len) == 0 &&
+            strncasecmp(key, (const char*) p+1, key_len) == 0 &&
             (key_len == *p || p[1+key_len] == '=')) {
 
             /* Key matches, so let's return it */

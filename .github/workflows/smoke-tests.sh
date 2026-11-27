@@ -71,6 +71,105 @@ run() {
     fi
 }
 
+build_and_run_pkgconfig_test() {
+    local module="$1" tmpdir="$2" libdir="$3" linkage="$4" static_flag="" libs libpath
+
+    if [[ "$linkage" == static ]]; then
+        static_flag=--static
+    fi
+
+    libs=$(PKG_CONFIG_PATH="$libdir/pkgconfig" pkg-config ${static_flag:+"$static_flag"} --libs "$module")
+    if [[ "$linkage" == static ]]; then
+        # Replace each -lavahi-xxx flag with the full path of its static archive
+        libs=$(sed -E "s#-l(avahi-[a-z]+)#$libdir/lib\\1.a#g" <<<"$libs")
+    fi
+
+    libpath=$(PKG_CONFIG_PATH="$libdir/pkgconfig" pkg-config ${static_flag:+"$static_flag"} --libs-only-L "$module")
+    # Remove each -L prefix, join the directories with colons, and trim stray colons at the ends
+    libpath=$(sed -E 's/(^| )-L/\1/g; s/ +/:/g; s/^:+|:+$//g' <<<"$libpath")
+
+    # shellcheck disable=SC2046,SC2086
+    ${CC:-cc} ${CFLAGS:-} -o "$tmpdir/$linkage-test" "$tmpdir/test.c" \
+        $(PKG_CONFIG_PATH="$libdir/pkgconfig" pkg-config --cflags "$module") $libs
+
+    # The shared libraries the test links (e.g. libintl on NetBSD) may be outside search path
+    LD_LIBRARY_PATH="$libpath${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" run "$tmpdir/$linkage-test"
+}
+
+run_pkgconfig_test() {
+    local module="$1" tmpdir="$2" libdir linkage
+
+    libdir=$(sed -n 's/^libdir=//p' "$module.pc")
+
+    for linkage in shared static; do
+        if [[ "$linkage" == shared && ! -f "$libdir/lib$module.so" ]] ||
+           [[ "$linkage" == static && ! -f "$libdir/lib$module.a" ]]; then
+            echo "$linkage libraries are not installed, skipping the $linkage $module test"
+            continue
+        fi
+        build_and_run_pkgconfig_test "$module" "$tmpdir" "$libdir" "$linkage"
+    done
+}
+
+run_pkgconfig_client_test() {
+    local tmpdir
+    tmpdir=$(mktemp -d)
+    cat >"$tmpdir/test.c" <<'EOL'
+#include <stddef.h>
+#include <avahi-client/client.h>
+#include <avahi-common/simple-watch.h>
+
+int main(void) {
+    AvahiSimplePoll *poll;
+    AvahiClient *client;
+    int error;
+
+    if (!(poll = avahi_simple_poll_new()))
+        return 1;
+
+    client = avahi_client_new(avahi_simple_poll_get(poll), 0, NULL, NULL, &error);
+    if (client)
+        avahi_client_free(client);
+
+    avahi_simple_poll_free(poll);
+    return !client;
+}
+EOL
+    run_pkgconfig_test avahi-client "$tmpdir"
+    rm -rf "$tmpdir"
+}
+
+run_pkgconfig_core_test() {
+    local tmpdir
+    tmpdir=$(mktemp -d)
+    cat >"$tmpdir/test.c" <<'EOL'
+#include <stddef.h>
+#include <avahi-core/core.h>
+#include <avahi-common/simple-watch.h>
+
+int main(void) {
+    AvahiSimplePoll *poll;
+    AvahiServerConfig config;
+    AvahiServer *server;
+    int error;
+
+    if (!(poll = avahi_simple_poll_new()))
+        return 1;
+
+    avahi_server_config_init(&config);
+    server = avahi_server_new(avahi_simple_poll_get(poll), &config, NULL, NULL, &error);
+    avahi_server_config_free(&config);
+    if (server)
+        avahi_server_free(server);
+
+    avahi_simple_poll_free(poll);
+    return !server;
+}
+EOL
+    run_pkgconfig_test avahi-core "$tmpdir"
+    rm -rf "$tmpdir"
+}
+
 should_fail() {
     if "$@"; then
         dump_journal
@@ -277,6 +376,7 @@ fi
 
 if [[ "$WITH_DBUS" == true ]]; then
     run ./avahi-client/client-test
+    run_pkgconfig_client_test
 
     if [[ ! "$OS" =~ (alpine|omnios|openbsd) ]]; then
         run ./avahi-compat-howl/address-test
@@ -300,6 +400,7 @@ if unshare -n true 2>/dev/null; then
 fi
 run ./avahi-core/avahi-test
 run ./avahi-core/querier-test
+run_pkgconfig_core_test
 
 for test_case in self_loop retransmit_cname one_normal one_loop two_normal two_loop two_loop_inner two_loop_inner2 three_normal three_loop diamond both_directions cname_answer_diamond cname_answer; do
     run ./avahi-core/cname-test $test_case

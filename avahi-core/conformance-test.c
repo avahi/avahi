@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <assert.h>
+#include <avahi-common/test-util.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -65,7 +65,7 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
 static void create_service(const char *t) {
     char *n;
 
-    assert(t || name);
+    must(t || name);
 
     n = t ? avahi_strdup(t) : avahi_alternative_service_name(name);
     avahi_free(name);

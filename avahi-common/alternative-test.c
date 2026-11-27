@@ -26,6 +26,7 @@
 #include "alternative.h"
 #include "malloc.h"
 #include "domain.h"
+#include <avahi-common/test-util.h>
 
 int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     const char* const test_strings[] = {
@@ -80,9 +81,9 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
                 r = n;
 
                 if (j)
-                    assert(avahi_is_valid_service_name(n));
+                    must(avahi_is_valid_service_name(n));
                 else
-                    assert(avahi_is_valid_host_name(n));
+                    must(avahi_is_valid_host_name(n));
 
                 printf("%s\n", r);
             }

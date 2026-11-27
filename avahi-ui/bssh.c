@@ -138,6 +138,7 @@ int main(int argc, char*argv[]) {
     textdomain (GETTEXT_PACKAGE);
 
     gtk_init(&argc, &argv);
+    gtk_window_set_default_icon_name("network-wired");
 
     switch (config.command) {
         case COMMAND_HELP:
